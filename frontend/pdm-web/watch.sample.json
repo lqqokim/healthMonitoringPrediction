@@ -1,6 +1,0 @@
-[
-    "plugins/widgets/chamber-widget",
-    "plugins/taskers/fault-detail-raw",
-    "plugins/configurations/user/password",
-    "portal/dashboard"
-]

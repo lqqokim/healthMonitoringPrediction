@@ -1,9 +1,0 @@
-{
-    "version": 3,
-    "mappings": "AAAA,AAAmB,kBAAD,CAAC,IAAI,CAAA;EACnB,MAAM,EAAE,IAAI;CACf",
-    "sources": [
-        "datetimepicker.scss"
-    ],
-    "names": [],
-    "file": "datetimepicker.css"
-}

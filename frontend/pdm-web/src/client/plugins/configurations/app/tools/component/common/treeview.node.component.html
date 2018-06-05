@@ -1,8 +1,0 @@
-<ul>
-    <li *ngFor="let node of treeData">
-        <span class="fa" [ngClass]="{'fa-minus-square':node.expand && node.hasChild , 'fa-plus-square': (!node.expand && node.hasChild) || node.locationTypeName === 'Area' }" (click)="clickIcon(node);"></span>
-        <span *ngIf="node.locationTypeName !== 'Root'"><b>{{node.locationTypeName.substring(0, 1)}}</b></span>
-        <label [ngClass]="{'selectedNode':node.selectedNode}" (click)="nodeClick(node)">{{node.name}}</label>
-        <tree-node [treeData]="node.childLocations" [options]="options" *ngIf="node.expand" (selectionChange)="onSelectionChange($event)" [parentPath]="node.path" ></tree-node>
-    </li>
-</ul>

@@ -1,9 +1,0 @@
-{
-    "version": 3,
-    "mappings": "AAAA,AAA4B,2BAAD,CAAC,aAAa,CAAA;EACrC,OAAO,EAAE,GAAG;CACf",
-    "sources": [
-        "qtip2-menu.scss"
-    ],
-    "names": [],
-    "file": "qtip2-menu.css"
-}
