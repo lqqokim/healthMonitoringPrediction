@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bistel.a3.portal.dao.common.SchedulerInfoMapper">
+    <resultMap id="BaseResultMap" type="com.bistel.a3.portal.domain.common.SchedulerInfo">
+        <id column="cutoff_type" property="cutoffType" />
+        <id column="CUTOFF_CYCLE" property="cutoffCycle" />
+        <result column="make_time" property="makeTime" />
+        <result column="from_time" property="fromTime" />
+        <result column="to_time" property="toTime" />
+        <result column="build_date" property="buildDate" />
+        <result column="used" property="used" />
+    </resultMap>
+    <select id="selectSchedulerInfos" resultMap="BaseResultMap">
+        SELECT 
+        	CUTOFF_TYPE,
+        	CUTOFF_CYCLE,
+        	MAKE_TIME,
+        	FROM_TIME,
+        	TO_TIME,
+        	BUILD_DATE,
+        	USED
+		FROM SCHEDULER_INFO_A3
+		WHERE CUTOFF_TYPE = #{cutoffType}
+		ORDER BY make_time
+    </select>
+</mapper>

@@ -1,0 +1,103 @@
+<div class="header-btn mst-info-eqp">
+    <button class="btn btn-default" type="button" (click)="deleteEqp()" [disabled]="btnDisabled">Delete</button>
+    <button class="btn btn-default" type="button" (click)="showModal('modify')" [disabled]="btnDisabled">Modify</button>
+    <button class="btn btn-default" type="button" (click)="showModal('create')">Create</button>
+    <button class="btn btn-default" type="button" (click)="showModal('copy')" [disabled]="btnDisabled">Copy</button>
+</div>
+<span class="title">
+    EQP List</span>
+
+<div class="master-info-path-bottom">
+    <wj-flex-grid #WijmoGridInstance [itemsSource]="eqpDatas" [selectionMode]="'Row'" [isReadOnly]="true" [headersVisibility]="'Column'"
+        (selectionChanged)="selectedRow(WijmoGridInstance, $event)">
+        <wj-flex-grid-column [width]="'*'" [header]="'Name'" [binding]="'eqpName'" [align]="'center'"></wj-flex-grid-column>
+        <wj-flex-grid-column [width]="'*'" [header]="'Area'" [binding]="'areaName'" [align]="'center'"></wj-flex-grid-column>
+        <wj-flex-grid-column [width]="'0.3*'" [header]="'Image'" [binding]="'image'" [align]="'center'">
+            <ng-template wjFlexGridCellTemplate [cellType]="'Cell'" let-row="row" let-item="item">
+                <!-- <button (click)="imageRegister($evnet)" [disabled]="!item.image">
+                    <span class="fa fa-file-image-o" aria-hidden="true"></span>
+                </button> -->
+                <input type="checkbox" [checked]="item.image" disabled/>
+            </ng-template>
+        </wj-flex-grid-column>
+        <wj-flex-grid-column [width]="'*'" [header]="'Description'" [binding]="'description'" [align]="'center'"></wj-flex-grid-column>
+    </wj-flex-grid>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="eqpModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="myModalLabel">{{modalTitle}} EQP</h4>
+            </div>
+            <form #eqpForm="ngForm">
+                <div class="modal-body">
+                    <div *ngIf="status === 'create' || status === 'modify'">
+                        <div class="a3-form-group" *ngIf="eqpData">
+                            <div class="form-group a3-input-group">
+                                <label class="control-label">Area</label>
+                                <input type="text" class="form-control" [(ngModel)]="eqpData.areaName" name="areaName" [disabled]="true">
+                            </div>
+                            <div class="form-group a3-input-group">
+                                <label class="control-label">Name
+                                    <span class="a3-asterisk">*</span>
+                                </label>
+                                <input type="text" class="form-control" [(ngModel)]="eqpData.eqpName" (keypress)="nameKeypress($event)" name="eqpName" required #eqpName="ngModel">
+                                <div *ngIf="eqpName.errors && (eqpName.dirty || eqpName.touched)" class="alert alert-danger">
+                                    <div [hidden]="!eqpName.errors.required">
+                                        EQP Name is required!
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="form-group a3-input-group">
+                                <label class="control-label">Description</label>
+                                <input type="text" class="form-control" [(ngModel)]="eqpData.description" name="description">
+                            </div>
+                            <div class="form-group a3-input-group">
+                                <label class="control-label">Image
+                                    <!-- <span class="a3-asterisk">*</span> -->
+                                </label>
+                                <input #fileInput type="file" accept="image/*" (change)="changeListener($event)" name="inputFile" placeholder="Upload file..."
+                                    style="display:inline-block;" />
+                                <button (click)="removeImage($event);" style="height: 21px;">X</button>
+                                <img *ngIf="base64Image" [src]="base64Image" height="100" width="250" />
+                            </div>
+                        </div>
+                    </div>
+                    <div *ngIf="status === 'copy'">
+                        <div class="a3-form-group" *ngIf="eqpData">
+                            <div class="form-group a3-input-group">
+                                <label class="control-label">From</label>
+                                <input type="text" class="form-control" [(ngModel)]="eqpData.eqpName" name="oldEqpName" [disabled]="true">
+                            </div>
+                            <div class="form-group a3-input-group">
+                                <label class="control-label">To
+                                    <span class="a3-asterisk">*</span>
+                                </label>
+                                <textarea class="form-control" [(ngModel)]="eqpData.copyValue" name="copyValue" required #copyValue="ngModel" placeholder="eqp01,eqp02,eqp03,..."></textarea>
+                                <div *ngIf="copyValue.errors && (copyValue.dirty || copyValue.touched)" class="alert alert-danger">
+                                    <div [hidden]="!copyValue.errors.required">
+                                        To EQP Name is required!
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </div>
+                    <!-- <eqp-modify *ngIf="status === 'create' || status === 'modify'" #eqpModify [data]="eqpData"></eqp-modify>
+            <eqp-copy *ngIf="status === 'copy'" #eqpCopy [data]="eqpData"></eqp-copy> -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" (click)="_showModal(false)">Close</button>
+                    <button type="button" class="btn btn-primary" [disabled]="!eqpForm.form.valid" (click)="saveData()">Apply</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

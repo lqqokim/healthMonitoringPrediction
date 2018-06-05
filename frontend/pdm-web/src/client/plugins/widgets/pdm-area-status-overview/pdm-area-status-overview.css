@@ -1,0 +1,34 @@
+/*component css goes here*/
+
+.widget.widget-pdm-area-status-overview .dangerous {
+    background-color: #ff6364;
+}
+
+.widget.widget-pdm-area-status-overview .warning {
+    background-color: #f7b257;
+}
+
+.widget.widget-pdm-area-status-overview .dangerous-font {
+    /* background-color: rgba(255, 99, 100, .5) !important; */
+    color:crimson !important; 
+    font-weight: bold;
+}
+
+.widget.widget-pdm-area-status-overview .warning-font {
+    /* background-color: rgba(247, 178, 87, .3) !important; */
+    color:darkorange !important;
+    font-weight: bold;
+}
+
+
+.widget.widget-pdm-area-status-overview .safe {
+    background-color: #7dbe6c;
+}
+
+.widget.widget-pdm-area-status-overview .inactive {
+    background-color: #ccc;
+}
+
+:not(.wj-state-selected):not(.wj-state-multi-selected).wj-group {
+    background-color: transparent;
+}

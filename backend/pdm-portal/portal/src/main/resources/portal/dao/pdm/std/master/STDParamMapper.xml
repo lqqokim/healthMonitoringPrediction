@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bistel.a3.portal.dao.pdm.std.master.STDParamMapper">
+    <select id="selectByEqpId" resultType="com.bistel.a3.portal.domain.pdm.db.Param">
+        select * from param_mst_pdm where eqp_mst_rawid = #{eqpId}
+    </select>
+    <select id="selectList" resultType="com.bistel.a3.portal.domain.pdm.master.ParamWithCommonWithRpm">
+        select
+        a.rawid as param_id,
+        e.rawid as eqp_id, e.name as eqp_name,
+        a.name,
+        a.description,
+        (select name from code_mst_pdm where code=a.param_type_cd and category='param_type' and used_yn='Y') as param_type_name,
+        (select name from code_mst_pdm where code=a.unit_cd and category='unit_type' and used_yn='Y') as unit_name,
+        (select rpm from manual_rpm_mst_pdm where param_mst_rawid = a.rawid) as rpm,
+        a.param_type_cd,
+        a.unit_cd,
+        a.parts_mst_rawid as parts_id,
+        parts.name as parts_name,
+        spec.alarm_spec as alarm,
+        spec.warning_spec as warn
+
+        from param_mst_pdm a
+        join eqp_mst_pdm e on a.eqp_mst_rawid = e.rawid
+        left join trace_spec_mst_pdm spec on spec.param_mst_rawid = a.rawid
+        left join parts_mst_pdm parts on parts.rawid = a.parts_mst_rawid
+        where a.eqp_mst_rawid = #{eqpId}
+
+    </select>
+
+    <select id="selectOne" resultType="com.bistel.a3.portal.domain.pdm.master.ParamWithCommonWithRpm">
+        select
+        a.rawid as param_id,
+        e.rawid as eqp_id, e.name as eqp_name,
+        a.name,
+        a.description,
+        (select name from code_mst_pdm where code=a.param_type_cd and category='param_type' and used_yn='Y') as param_type_name,
+        (select name from code_mst_pdm where code=a.unit_cd and category='unit_type' and used_yn='Y') as unit_name,
+        (select rpm from manual_rpm_mst_pdm where param_mst_rawid = a.rawid) as rpm,
+        a.param_type_cd,
+        a.unit_cd,
+        a.parts_mst_rawid as parts_id,
+        parts.name as parts_name,
+        spec.alarm_spec as alarm,
+        spec.warning_spec as warn
+
+        from param_mst_pdm a
+        join eqp_mst_pdm e on a.eqp_mst_rawid = e.rawid
+        left join trace_spec_mst_pdm spec on spec.param_mst_rawid = a.rawid
+        left join parts_mst_pdm parts on parts.rawid = a.parts_mst_rawid
+        where a.rawid = #{paramId}
+    </select>
+
+    <select id="selectSpeedParam" resultType="com.bistel.a3.portal.domain.pdm.db.Param">
+        select
+            a.eqp_mst_rawid as eqp_id, b.name as eqp_name,
+            <!--a.*, b.eu, b.eu_type, c.rpm-->
+            a.description,
+            (select name from code_mst_pdm where code=a.param_type_cd) as eu_type,
+            (select name from code_mst_pdm where code=a.unit_cd) as eu,
+            (select rpm from manual_rpm_mst_pdm where param_mst_rawid = a.rawid) as rpm
+
+        from param_mst_pdm a
+            join eqp_mst_pdm b on a.eqp_mst_rawid = b.eqp_id
+        where b.rawid = #{eqpId}
+          and a.param_type = 10001
+    </select>
+
+    <insert id="insertOne">
+        <selectKey keyProperty="param_id" resultType="Long" order="BEFORE">
+            select seq_param_mst_pdm.nextval FROM DUAL
+        </selectKey>
+        insert into param_mst_pdm(rawid, eqp_mst_rawid, name, description, param_type_cd,unit_cd,parts_mst_rawid,create_by,create_dtts,update_by,update_dtts)
+        values(#{param_id,jdbcType=VARCHAR}, #{eqp_id}, #{name,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, #{param_type_cd,jdbcType=VARCHAR}, #{unit_cd,jdbcType=VARCHAR},#{parts_id,jdbcType=NUMERIC},#{userName},systimestamp,#{userName},systimestamp)
+
+    </insert>
+
+    <!--20180328 Allen-->
+    <insert id="insertSpec">
+        insert into trace_spec_mst_pdm(rawid,param_mst_rawid, warning_spec, alarm_spec,create_by,create_dtts,update_by,update_dtts)
+        values(seq_trace_spec_mst_pdm.nextval, #{param_id}, #{warn,jdbcType=FLOAT}, #{alarm,jdbcType=FLOAT},#{userName},systimestamp,#{userName},systimestamp)
+    </insert>
+    <!-- -->
+
+    <insert id="insertRpmOne">
+        insert into manual_rpm_mst_pdm(rawid, param_mst_rawid, rpm,create_by,create_dtts,update_by,update_dtts)
+        values( seq_manual_rpm_mst_pdm.nextval,#{param_id}, #{rpm,jdbcType=NUMERIC},#{userName},systimestamp,#{userName},systimestamp)
+    </insert>
+
+    <insert id="insertCommonOne">
+        insert into param_common_pdm(param_id, eu, eu_type)
+        values(#{param_id}, #{eu,jdbcType=VARCHAR}, #{eu_type,jdbcType=NUMERIC})
+    </insert>
+
+    <update id="updateOne">
+        update param_mst_pdm
+        set name = #{name},
+            param_type_cd = #{param_type_cd},
+            description = #{description,jdbcType=VARCHAR},
+            eqp_mst_rawid = #{eqp_id},
+            unit_cd = #{unit_cd},
+            parts_mst_rawid = #{parts_id},
+            update_by = #{userName},
+            update_dtts = systimestamp
+        where rawid = #{param_id}
+    </update>
+    <!--20180328 Allen-->
+    <update id="updateSpec">
+        update trace_spec_mst_pdm
+        set warning_spec = #{warn},
+        alarm_spec = #{alarm},
+        update_by = #{userName},
+        update_dtts = systimestamp
+        where param_mst_rawid = #{param_id}
+    </update>
+    <!-- -->
+    <update id="updateRpmOne">
+        update manual_rpm_mst_pdm
+        set rpm = #{rpm,jdbcType=NUMERIC},
+        update_by = #{userName},
+        update_dtts = systimestamp
+        where param_mst_rawid = #{param_id}
+    </update>
+
+    <update id="updateCommonOne">
+        update param_common_pdm
+        set eu = #{eu,jdbcType=VARCHAR},
+            eu_type = #{eu_type,jdbcType=NUMERIC}
+        where param_mst_rawid = #{param_id}
+    </update>
+
+    <delete id="deleteOne">
+        delete from param_mst_pdm
+        where rawid = #{paramId}
+    </delete>
+
+    <delete id="deleteRpmOne">
+        delete from manual_rpm_mst_pdm
+        where param_mst_rawid = #{paramId}
+    </delete>
+
+    <delete id="deleteCommonOne">
+        delete from param_common_pdm
+        where param_mst_rawid = #{paramId}
+    </delete>
+
+    <resultMap id="ManualRpmMap" type="com.bistel.a3.portal.domain.pdm.db.ManualRpm">
+        <id column="param_id" property="param_id"/>
+        <result column="rpm" property="rpm"/>
+    </resultMap>
+    <select id="selectManualRpm" resultMap="ManualRpmMap">
+        select *
+        from manual_rpm_mst_pdm
+    </select>
+    <select id="selectManualRpmByParamId" resultMap="ManualRpmMap">
+        select *
+        from manual_rpm_mst_pdm
+        where param_mst_rawid=#{param_id}
+    </select>
+    <select id="selectSpec" resultType="com.bistel.a3.portal.domain.pdm.Spec">
+        select
+        warning_spec as warn,
+        alarm_spec as alarm
+        from trace_spec_mst_pdm
+        where param_mst_rawid = #{param_id}
+    </select>
+    <!--<insert id="insertSpec">-->
+        <!--insert into overall_spec_pdm(param_id, warn, alarm)-->
+        <!--values(#{param_id}, #{warn}, #{alarm})-->
+    <!--</insert>-->
+    <select id="selectTraceDataSpec" resultType="com.bistel.a3.portal.domain.pdm.db.OverallSpec">
+        select rawid,param_mst_rawid as param_id,alarm_spec alarm , warning_spec warn
+        from trace_spec_mst_pdm
+        where param_mst_rawid = #{param_id}
+    </select>
+    <select id="selectParamByEqp" resultType="com.bistel.a3.portal.domain.pdm.db.Param">
+        select
+        a.rawid as param_id,
+        e.rawid as eqp_id, e.name as eqp_name,
+        a.name,
+        a.description,
+        (select name from code_mst_pdm where code=a.param_type_cd and category='param_type' and used_yn='Y') as param_type_name,
+        (select name from code_mst_pdm where code=a.unit_cd and category='unit_type' and used_yn='Y') as unit_name,
+        (select rpm from manual_rpm_mst_pdm where param_mst_rawid = a.rawid) as rpm,
+        a.param_type_cd,
+        a.unit_cd,
+        a.parts_mst_rawid as parts_id,
+        parts.name as parts_name,
+        spec.alarm_spec as alarm,
+        spec.warning_spec as warn
+
+        from param_mst_pdm a
+        join eqp_mst_pdm e on a.eqp_mst_rawid = e.rawid
+        left join trace_spec_mst_pdm spec on spec.param_mst_rawid = a.rawid
+        left join parts_mst_pdm parts on parts.rawid = a.parts_mst_rawid
+        where a.eqp_mst_rawid = #{eqp_id}
+
+        <!--select *-->
+        <!--from param_mst_pdm-->
+        <!--where eqp_mst_rawid = #{eqp_id}-->
+    </select>
+    <select id="selectParamNamesByEqps" resultType="java.lang.String">
+        select
+            distinct name
+        from param_mst_pdm
+        where eqp_mst_rawid in
+        <foreach item="item" index="index" collection="eqpIds"
+                 open="(" separator="," close=")">
+            #{item.value}
+        </foreach>
+        
+        order by name
+        
+    </select>
+    
+    <select id="selectParamWithInfo" resultType="com.bistel.a3.portal.domain.pdm.master.ParamWithCommon">
+        select
+        a.rawid as param_id,
+        e.rawid as eqp_id, e.name as eqp_name,
+        a.name,
+        a.description,
+        (select name from code_mst_pdm where code=a.param_type_cd and category='param_type' and used_yn='Y') as param_type_name,
+        (select name from code_mst_pdm where code=a.unit_cd and category='unit_type' and used_yn='Y') as unit_name,
+        (select rpm from manual_rpm_mst_pdm where param_mst_rawid = a.rawid) as rpm,
+        a.param_type_cd,
+        a.unit_cd,
+        a.parts_mst_rawid as parts_id,
+        parts.name as parts_name,
+        spec.alarm_spec as alarm,
+        spec.warning_spec as warn
+
+        from param_mst_pdm a
+        join eqp_mst_pdm e on a.eqp_mst_rawid = e.rawid
+        left join trace_spec_mst_pdm spec on spec.param_mst_rawid = a.rawid
+        left join parts_mst_pdm parts on parts.rawid = a.parts_mst_rawid
+        where a.rawid = #{param_id}
+    </select>
+    <select id="selectParamWtihInfoByEqp" resultType="com.bistel.a3.portal.domain.pdm.master.ParamWithCommon">
+        select
+        a.rawid as param_id,
+        e.rawid as eqp_id, e.name as eqp_name,
+        a.name,
+        a.description,
+        (select name from code_mst_pdm where code=a.param_type_cd and category='param_type' and used_yn='Y') as param_type_name,
+        (select name from code_mst_pdm where code=a.unit_cd and category='unit_type' and used_yn='Y') as unit_name,
+        (select rpm from manual_rpm_mst_pdm where param_mst_rawid = a.rawid) as rpm,
+        a.param_type_cd,
+        a.unit_cd,
+        a.parts_mst_rawid as parts_id,
+        parts.name as parts_name,
+        spec.alarm_spec as alarm,
+        spec.warning_spec as warn
+
+        from param_mst_pdm a
+        join eqp_mst_pdm e on a.eqp_mst_rawid = e.rawid
+        left join trace_spec_mst_pdm spec on spec.param_mst_rawid = a.rawid
+        left join parts_mst_pdm parts on parts.rawid = a.parts_mst_rawid
+
+        where a.eqp_mst_rawid = #{eqp_id}
+        <!--<if test="eu_type != null">-->
+            <!--and b.eu_type = #{eu_type}-->
+        <!--</if>-->
+        <!--order by sort_order-->
+    </select>
+
+</mapper>

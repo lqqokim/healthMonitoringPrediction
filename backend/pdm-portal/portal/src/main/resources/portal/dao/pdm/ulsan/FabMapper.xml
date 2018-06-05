@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bistel.a3.portal.dao.pdm.ulsan.FabMapper">
+    <insert id="insertBatchJobHst">
+        insert into batch_job_hst_pdm(job_dtts, job_cd, eqp_id, job_status_cd, job_type_cd, update_dtts, update_user_id)
+        values(#{job_dtts}, #{job_cd}, #{eqp_id,jdbcType=NUMERIC}, #{job_status_cd}, #{job_type_cd}, systimestamp, #{update_user_id})
+    </insert>
+    <delete id="deleteBatchJobHst">
+        delete from batch_job_hst_pdm
+        where job_dtts = #{job_dtts}
+        and job_cd = #{job_cd}
+    </delete>
+
+    <select id="selectEqpsByArea" resultType="com.bistel.a3.portal.domain.pdm.EqpWithArea">
+        select a.*, GET_AREA_FULL_NAME(a.eqp_id) as shopName
+        from eqp_pdm a
+        where area_id in (
+            select area_id
+            from area_pdm
+            where CONNECT_BY_ISLEAF = 1
+            start with area_id = #{area_id}
+            connect by prior area_id = parent_id
+        ) order by area_id, sort_order
+    </select>
+
+    <resultMap id="EqpStatusMap" type="com.bistel.a3.portal.domain.pdm.EqpStatus">
+        <id column="eqp_id" property="eqp_id"/>
+        <result column="eqp_name" property="name"/>
+        <result column="score" property="score"/>
+        <result column="health_variation" property="healthVariation"/>
+        <result column="expected_alarm" property="expectedAlarm"/>
+        <result column="warning_spec" property="warningSpec"/>
+        <result column="alarm_spec" property="alarmSpec"/>
+        <result column="cause1" property="cause1"/>
+        <result column="cause2" property="cause2"/>
+        <result column="cause3" property="cause3"/>
+        <association property="multiVariant" javaType="com.bistel.a3.portal.domain.pdm.AlarmCount">
+            <result column="multi_alarm" property="alarm"/>
+            <result column="multi_warning" property="warning"/>
+            <result column="multi_normal" property="normal"/>
+        </association>
+    </resultMap>
+    <select id="selecEqpStatusByEqpId" resultMap="EqpStatusMap">
+        select
+          a.eqp_id,
+          a.eqp_name,
+          case when a.warn > 0 then a.max_score else a.score end as score,
+          case when a.alarm > 0 then 1 else 0 end as multi_alarm,
+          case when a.warn > 0 then 1 else 0 end as multi_warning,
+          case when a.alarm = 0 and a.warn = 0 then 1 else 0 end as multi_normal,
+          nvl(b.score, 0) - a.score as health_variation,
+          a.expected_alarm,
+          a.cause1,
+          a.cause2,
+          a.cause3,
+          a.alarm_spec,
+          a.warn_spec as warning_spec
+        from (
+          select
+            a.eqp_id,
+            a.name as eqp_name,
+            rank() over (order by b.score desc) as r,
+            max(b.score) over () as max_score,
+            avg(b.score) over () as score,
+            nvl(sum(b.alarm) over (), 0) as alarm,
+            nvl(sum(b.warn) over (), 0) as warn,
+            b.expected_alarm,
+            b.cause1,
+            b.cause2,
+            b.cause3,
+            c.alarm_spec,
+            c.warn_spec
+          from eqp_pdm a
+            left join health_stat_trx_pdm b
+              on a.eqp_id = b.eqp_id
+              and b.measure_dtts <![CDATA[>=]]> #{start}
+              and b.measure_dtts <![CDATA[<]]> #{end}
+            left join health_model_pdm c
+              on a.eqp_id = c.eqp_id
+          where a.eqp_id = #{eqpId}
+        ) a left join (
+        	select eqp_id, avg(score) as score
+        	from health_stat_trx_pdm
+        	where eqp_id = #{eqpId}
+          	  and measure_dtts <![CDATA[>=]]> #{from90}
+          	  and measure_dtts <![CDATA[<]]> #{start}
+          	group by eqp_id
+        ) b on a.eqp_id = b.eqp_id
+        where a.r = 1
+    </select>
+
+    <select id="selectAreaWithTree" resultType="com.bistel.a3.portal.domain.pdm.AreaWithTree">
+        select
+          area_id,
+          name,
+          parent_id,
+          CONNECT_BY_ISLEAF as leaf
+        from area_pdm
+        start with parent_id = 0
+        connect by prior area_id = parent_id
+    </select>
+
+    <resultMap id="AreaStatusMap" type="com.bistel.a3.portal.domain.pdm.AreaWithStatus">
+        <id column="area_id" property="area_id"/>
+        <result column="name" property="name"/>
+        <association property="score" javaType="com.bistel.a3.portal.domain.pdm.Score">
+            <result column="p0" property="p0"/>
+            <result column="p7" property="p7"/>
+            <result column="p8" property="p8"/>
+            <result column="p9" property="p9"/>
+            <result column="h5" property="h5"/>
+            <result column="h2" property="h2"/>
+        </association>
+    </resultMap>
+    <select id="selectAreaStatusByAreaId" resultMap="AreaStatusMap">
+        select
+            a.area_id,
+            a.name,
+            p9, p8, p7, p0, h5, h2
+        from area_pdm a
+            join (
+                select
+                  #{area_id} as area_id,
+                  nvl(sum(case when max_score <![CDATA[>=]]> 0.9 then 1 else 0 end), 0) as p9,
+                  nvl(sum(case when max_score <![CDATA[<]]> 0.9 and score <![CDATA[>=]]> 0.8 then 1 else 0 end), 0) as p8,
+                  nvl(sum(case when max_score <![CDATA[<]]> 0.8 and score <![CDATA[<]]> 0.8 and score <![CDATA[>=]]> 0.7 then 1 else 0 end), 0) as p7,
+                  nvl(sum(case when max_score <![CDATA[<]]> 0.8 and score <![CDATA[<]]> 0.7 then 1 else 0 end), 0) as p0,
+                  nvl(sum(case when abs(health_variation) <![CDATA[>=]]>  0.5 then 1 else 0 end), 0) as h5,
+                  nvl(sum(case when abs(health_variation) <![CDATA[<]]> 0.5 and abs(health_variation) <![CDATA[>=]]> 0.2 then 1 else 0 end), 0) as h2
+                from (
+                  select
+                    b.eqp_id,
+                    nvl(max(a.score), 0) as max_score,
+                    nvl(avg(a.score), 0) as score,
+                    nvl(avg(a.health_variation), 0) as health_variation
+                  from eqp_pdm b
+                  	left join health_stat_trx_pdm a
+                  		 on a.eqp_id = b.eqp_id
+                  		and a.measure_dtts <![CDATA[>=]]> #{start}
+                    	and a.measure_dtts <![CDATA[<]]> #{end}
+                  where b.area_id = #{area_id}
+                  group by b.eqp_id
+                )
+            ) b on a.area_id = b.area_id
+        where a.area_id = #{area_id}
+    </select>
+
+    <select id="selectNodes" resultType="com.bistel.a3.portal.domain.pdm.Node">
+        select
+            area_id as node_id,
+            name as node_name,
+            parent_id,
+            CONNECT_BY_ISLEAF as node_type,
+            case when sort_order is null then 0 else sort_order end as sort_order
+        from area_pdm
+        start with parent_id = 0
+        connect by prior area_id = parent_id
+        union all
+        select
+            eqp_id,
+            name,
+            area_id,
+            2 as node_type,
+            case when sort_order is null then 0 else sort_order end as sort_order
+        from eqp_pdm
+        union all
+        select
+            param_id,
+            name,
+            eqp_id,
+            param_type,
+            case when sort_order is null then 0 else sort_order end as sort_order
+        from param_pdm
+        where param_type in (10201, 10202)
+    </select>
+    <select id="selectJobHst" resultType="com.bistel.a3.portal.domain.pdm.BatchJobHst">
+        select a.*,
+            case when a.eqp_id is null then ''
+            else (select name from eqp_pdm where eqp_id = a.eqp_id) end as eqp_name
+        from batch_job_hst_pdm a
+        where a.job_dtts <![CDATA[>=]]> #{start}
+          and a.job_dtts <![CDATA[<]]> #{end}
+        <if test="job_type_cd != null">
+            and a.job_type_cd = #{job_type_cd}
+        </if>
+        order by a.job_dtts desc
+    </select>
+    <select id="selectEqpById" resultType="com.bistel.a3.portal.domain.pdm.db.Eqp">
+        select *
+        from eqp_pdm
+        where eqp_id = #{eqpId}
+    </select>
+    <select id="selectEqpByMeasureTrxId" resultType="com.bistel.a3.portal.domain.pdm.db.Eqp">
+        select a.*
+        from eqp_pdm a
+            join param_pdm b on a.eqp_id = b.eqp_id
+            join measure_trx_pdm c on b.param_id = c.param_id
+        where c.measure_trx_id = #{measureTrxId}
+    </select>
+    <select id="selectEqps" resultType="com.bistel.a3.portal.domain.pdm.db.Eqp">
+        select *
+        from eqp_pdm
+    </select>
+</mapper>

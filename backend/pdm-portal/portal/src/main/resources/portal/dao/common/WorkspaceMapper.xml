@@ -1,0 +1,599 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bistel.a3.portal.dao.common.WorkspaceMapper">
+    <resultMap id="BaseResultMap" type="com.bistel.a3.portal.domain.common.Workspace">
+        <id column="workspace_id" property="workspaceId"/>
+        <result column="user_id" property="userId"/>
+        <result column="title" property="title"/>
+        <result column="favorite" property="favorite" typeHandler="yn"/>
+        <result column="description" property="description"/>
+        <result column="create_dtts" property="createDtts"/>
+        <result column="update_dtts" property="updateDtts"/>
+    </resultMap>
+    <resultMap id="UserResultMap" type="com.bistel.a3.portal.domain.common.User">
+        <id column="user_id" property="userId" jdbcType="VARCHAR"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="img_url" property="imageUrl" jdbcType="VARCHAR"/>
+        <result column="email" property="email" jdbcType="VARCHAR"/>
+        <result column="phone_no" property="phoneNo" jdbcType="VARCHAR"/>
+        <result column="description" property="description" jdbcType="VARCHAR"/>
+        <result column="department" property="department" jdbcType="VARCHAR"/>
+        <result column="responsibilities" property="responsibilities" jdbcType="VARCHAR"/>
+    </resultMap>
+	<resultMap id="WorkspaceNodeResultMap" type="com.bistel.a3.portal.domain.common.WorkspaceMapNode">
+    	<id column="id" property="id"/>
+    	<result column="workspace_id" property="workspaceId"/>
+    	<result column="parent_id" property="parentId"/>
+    	<result column="title" property="title"/>
+    	<result column="score" property="score"/>
+    	<result column="permission" property="permission"/>
+    	<result column="node_type" property="nodeType"/>
+    	<result column="create_dtts" property="workspaceCreateDtts"/>
+    </resultMap>        
+    
+    <sql id="BaseAllQuery">
+        select *
+        from workspace_a3
+    </sql>
+    
+    <sql id="BaseSelectWorkspace">
+       SELECT W.WORKSPACE_ID, W.TITLE, W.USER_ID,
+		      DECODE(UWL.FAVORITE, NULL, 'N', UWL.FAVORITE) AS FAVORITE,
+		      W.DESCRIPTION, W.CREATE_DTTS, W.UPDATE_DTTS
+	     FROM WORKSPACE_A3 W, USER_WORKSPACE_LNK_A3 UWL 
+	    WHERE W.WORKSPACE_ID = UWL.WORKSPACE_ID(+)
+    </sql> 
+    
+    <select id="selectByUserWithShare" resultMap="BaseResultMap">
+		 SELECT WORKSPACE_ID, TITLE, USER_ID,  FAVORITE, DESCRIPTION, CREATE_DTTS, UPDATE_DTTS
+		   FROM(
+        <include refid="BaseSelectWorkspace"/>
+        <![CDATA[
+        	          AND W.USER_ID = UWL.USER_ID(+) AND W.USER_ID = #{userId}
+		      UNION 
+		     SELECT W.WORKSPACE_ID, W.TITLE, W.USER_ID,
+		            DECODE(UWL.FAVORITE, NULL, 'N', UWL.FAVORITE) AS FAVORITE,
+		            W.DESCRIPTION, W.CREATE_DTTS, W.UPDATE_DTTS
+		       FROM WORKSPACE_A3 W, USER_WORKSPACE_LNK_A3 UWL 
+		      WHERE W.WORKSPACE_ID = UWL.WORKSPACE_ID(+)
+		            AND W.USER_ID = UWL.USER_ID(+) 
+		            AND W.WORKSPACE_ID IN 
+		             ( SELECT WORKSPACE_ID 
+		                 FROM USER_WORKSPACE_LNK_A3 
+		                WHERE USER_ID = #{userId}
+		             )
+		             AND W.USER_ID <> #{userId}
+		     ) 
+		 ORDER BY WORKSPACE_ID DESC
+	   ]]>        
+    </select>
+     
+     <select id="selectByUser" resultMap="BaseResultMap">
+       <include refid="BaseSelectWorkspace"/>
+   	          AND W.USER_ID = UWL.USER_ID(+) AND W.USER_ID = #{userId}
+       ORDER BY W.WORKSPACE_ID DESC
+    </select>     
+     
+    <select id="selectById" resultMap="BaseResultMap">
+      <include refid="BaseSelectWorkspace"/>
+      	          AND W.USER_ID = UWL.USER_ID(+) AND W.USER_ID = #{userId}
+        AND W.WORKSPACE_ID = #{workspaceId}
+    </select>    
+     
+    <insert id="insert">
+        <selectKey resultType="Long" keyProperty="workspaceId" order="BEFORE">
+            select seq_workspace_a3.nextval from dual
+        </selectKey>
+        insert into workspace_a3 (
+            workspace_id, user_id, title, description, create_dtts, update_dtts
+        ) values (
+            #{workspaceId},
+            #{userId},
+            #{title},
+            #{description, jdbcType=VARCHAR},
+            systimestamp,
+            systimestamp
+        )
+    </insert>
+    
+    <insert id="insertUserWorkspaceLnk">
+    	merge into user_workspace_lnk_a3
+		using dual
+		on(workspace_id =#{workspaceId} and user_id=#{userId})
+		when not matched then
+		insert(workspace_id , user_id, favorite) values(#{workspaceId}, #{userId}, #{favorite, typeHandler=yn})
+    </insert>         
+
+	<update id="update" parameterType="com.bistel.a3.portal.domain.common.Workspace">
+        update workspace_a3
+        set title = #{title},
+            description = #{description},
+            update_dtts = systimestamp
+        where 
+        	workspace_id = #{workspaceId}
+        	and user_id = #{userId}
+    </update>
+
+    <update id="updateWorkspaceFavorite">
+        update user_workspace_lnk_a3
+        set 
+        	favorite = #{favorite, typeHandler=yn}
+        where workspace_id = #{workspaceId}
+       and user_id = #{userId}
+    </update>   
+
+   	<select id="selectWorkspaceCountByWorkspaceId" resultType="java.lang.Integer">
+		select count(*)
+	 	from   user_workspace_lnk_a3
+		where workspace_id = #{workspaceId}
+	</select>
+
+   	<delete id="deleteWorkspaceLinkById">
+		delete 
+			user_workspace_lnk_a3 
+		where 
+			workspace_id = #{workspaceId} and user_id = #{userId}
+	</delete>
+	
+    <delete id="delete">
+        delete from workspace_a3
+        where workspace_id = #{workspaceId}
+        and user_id = #{userId}
+    </delete>	
+	
+    <select id="selectSharingUsersByWorkspaceId" resultType="String">
+      <![CDATA[ 
+    	select user_id 
+    	  from user_workspace_lnk_a3 
+    	 where workspace_id = #{workspaceId} and user_id <> #{userId}
+      ]]>	  
+    </select>
+    <select id="selectSharedUsersByOworkspaceIdIncludeOwner" resultType="String">
+      <![CDATA[ 
+    	select user_id 
+    	  from user_workspace_lnk_a3 
+    	 where workspace_id = #{workspaceId}
+      ]]>	  
+    </select>     
+    <select id="selectShareGroupsByWorkspaceId" resultType="String">
+      <![CDATA[ 
+    	select user_group_id 
+    	  from user_group_workspace_share_a3 
+    	 where workspace_id = #{workspaceId}
+      ]]>
+    </select>     
+     
+    <select id="selectWorkspaceTitle" resultType="String">
+    	select title from workspace_a3 where workspace_id = #{workspaceId}
+    </select>   
+
+   	<delete id="deleteGroupShareById">
+		delete 
+			user_group_workspace_share_a3 
+		where 
+			workspace_id = #{workspaceId} and user_group_id = #{groupId}
+	</delete>
+
+    <select id="selectUserIdByWorkspaceId" resultType="String">
+    	select user_id from workspace_a3 where workspace_id = #{workspaceId}
+    </select>
+
+ <select id="selectMyWorkspaces" resultType="com.bistel.a3.portal.domain.common.MyWorkspace">
+		select  a. workspaceId,
+		       	a.title,
+		        b.workspaceCount,
+		        a.userId,
+		        a.userName,
+		  		a.favorite,        		
+		  		a.description,
+		        a.createDtts,
+		        a.updateDtts
+		from(   
+		     select w.workspace_id as workspaceId,
+		        	w.title as title,
+		        	w.user_id as userId,
+		        	u.name as userName,
+		  	  	    NVL(uwl.favorite, 'N') as favorite,        		
+		  			w.description as description,
+		        	w.create_dtts as createDtts,
+		        	w.update_dtts as updateDtts
+		      from 
+		    		workspace_a3 w, 
+		    		user_workspace_lnk_a3 uwl,
+		    		user_a3 u
+		     where 
+		    		w.user_id = u.user_id
+		    		and w.workspace_id=uwl.workspace_id(+)
+		            and uwl.user_id=#{userId}
+		   ) a, 
+		   ( select workspace_id, count(*) as workspaceCount 
+		     from user_workspace_lnk_a3
+		     group by workspace_id
+		   ) b
+		where a.workspaceId = b.workspace_id
+		order by a.workspaceId desc  
+    </select>
+
+    <select id="selectWorspaceShareMemberInfo" resultType="com.bistel.a3.portal.domain.common.WorkspaceShareMemberInfo">
+      <![CDATA[
+	    select 
+	      ugws.user_group_id as id, 
+	      ug.user_group_id as name, 
+	      'group' as type
+	    from
+	      user_group_workspace_share_a3 ugws,
+	      user_group_a3 ug
+	    where
+	      ug.user_group_id = ugws.user_group_id
+	      and
+	      ugws.workspace_id = #{workspaceId}
+	    union
+	    	select 
+				uwl.user_id as id,
+				u.name as name,
+				'user' as type   
+			from
+				user_workspace_lnk_a3 uwl,
+				user_a3 u
+			where
+				u.user_id=uwl.user_id
+				and uwl.workspace_id  =#{workspaceId}
+				and uwl.USER_ID <> #{userId}
+	    minus
+	      select u.user_id as id,
+	            u.name as name,
+	            'user' as type
+	      from user_group_workspace_share_a3 ugws,
+	           user_group_a3 ug,
+	           user_group_lnk_a3 ugl,
+	           user_a3 u
+	      where ug.user_group_id = ugws.user_group_id
+		      and ugws.user_group_id = ugl.user_group_id 
+		      and ugl.user_id = u.user_id
+		      and ugws.workspace_id = #{workspaceId}
+	  ]]>	          
+    </select>
+
+   <select id="selectMyWorkspace" resultType="com.bistel.a3.portal.domain.common.MyWorkspace">
+		select  a. workspaceId,
+		       	a.title,
+		        b.workspaceCount,
+		        a.userId,
+		        a.userName,
+		  		a.favorite,        		
+		  		a.description,
+		        a.createDtts,
+		        a.updateDtts
+		from(   
+		     select w.workspace_id as workspaceId,
+		        	w.title as title,
+		        	w.user_id as userId,
+		        	u.name as userName,
+		  	  	    NVL(uwl.favorite, 'N') as favorite,        		
+		  			w.description as description,
+		        	w.create_dtts as createDtts,
+		        	w.update_dtts as updateDtts
+		      from 
+		    		workspace_a3 w, 
+		    		user_workspace_lnk_a3 uwl,
+		    		user_a3 u
+		     where 
+		    		w.user_id = u.user_id
+		    		and w.workspace_id=uwl.workspace_id(+)
+		            and uwl.user_id=#{userId}
+		            and uwl.workspace_id = #{workspaceId}
+		   ) a, 
+		   ( select workspace_id, count(*) as workspaceCount 
+		     from user_workspace_lnk_a3
+		     group by workspace_id
+		   ) b
+		where a.workspaceId = b.workspace_id
+    </select>
+
+     <select id="selectShareWorkspaceMember" resultType="com.bistel.a3.portal.domain.common.WorkspaceShareMember">
+      <![CDATA[
+	    select 
+	      ugws.user_group_id as id, 
+	      ug.user_group_id as name, 
+          '' as imageUrl,
+	      'group' as type,
+          ug.email as email
+	    from
+	      user_group_workspace_share_a3 ugws,
+	      user_group_a3 ug
+	    where
+	      ug.user_group_id = ugws.user_group_id
+	      and
+	      ugws.workspace_id = #{workspaceId}
+	    union
+	    	select 
+				uwl.user_id as id,
+				u.name as name,
+        '' as imageUrl,
+				'user' as type, 
+        u.email as email
+			from
+				user_workspace_lnk_a3 uwl,
+				user_a3 u
+			where
+				u.user_id=uwl.user_id
+				and uwl.workspace_id  = #{workspaceId}
+				and uwl.USER_ID <> #{userId}
+	    minus
+	      select			
+           u.user_id as id,
+				   u.name as name,
+           '' as imageUrl,
+				   'user' as type, 
+            u.email as email
+	      from user_group_workspace_share_a3 ugws,
+	           user_group_a3 ug,
+	           user_group_lnk_a3 ugl,
+	           user_a3 u
+	      where ug.user_group_id = ugws.user_group_id
+		      and ugws.user_group_id = ugl.user_group_id 
+		      and ugl.user_id = u.user_id
+		      and ugws.workspace_id = #{workspaceId}
+	  ]]>	          
+    </select> 
+
+   <select id="selectUserImgByGroup" resultType="com.bistel.a3.portal.domain.common.WorkspaceShareMemberGroupUser">
+	    select
+			u.img_url as imgUrl,
+			u.user_id as userId
+		from 
+			user_a3 u, user_group_lnk_a3 ugl
+		where
+			u.user_id = ugl.user_id
+			and 
+			u.user_id != #{userId}
+			and
+			ugl.user_group_id = #{groupId}    
+    </select>    
+
+    <select id="selectSharingGroupsByWorkspaceId" resultType="String">
+      <![CDATA[ 
+    	select user_group_id 
+    	  from user_group_workspace_share_a3 
+    	 where workspace_id = #{workspaceId}
+      ]]>
+    </select>
+
+    <insert id="insertWorkspaceShareMembersGroup">
+    	insert into user_group_workspace_share_a3
+    	(user_group_id, workspace_id)
+    	values
+    	(#{groupId}, #{workspaceId})
+    </insert>
+
+     <insert id="insertWorkspaceShareMembersUser">
+    	insert into user_workspace_lnk_a3
+    		(user_id, workspace_id, favorite)
+    	values
+    		(#{userId}, #{workspaceId}, #{favorite, typeHandler=yn})
+    </insert>
+    
+    <select id="selectGroupIdByUserId" resultType="java.lang.String">
+		SELECT USER_GROUP_ID
+		  FROM USER_GROUP_WORKSPACE_SHARE_A3
+		 WHERE USER_GROUP_ID IN (SELECT USER_GROUP_ID FROM USER_GROUP_LNK_A3 WHERE USER_ID = #{userId})
+		       AND WORKSPACE_ID = #{workspaceId}
+    </select>    
+        
+    <select id="selectWorkspaceSharingGroupUserListWithoutMyId" resultType="java.lang.String">
+	 <![CDATA[
+		SELECT DISTINCT(UDN.USER_ID) AS USER_ID
+		  FROM USER_WORKSPACE_LNK_A3 UDN, USER_GROUP_LNK_A3 UGL, USER_GROUP_WORKSPACE_SHARE_A3 UGWS
+		 WHERE UDN.USER_ID = UGL.USER_ID AND UGL.USER_GROUP_ID = UGWS.USER_GROUP_ID
+		   AND UDN.WORKSPACE_ID = #{workspaceId}
+		   AND UDN.USER_ID <> #{userId}
+		   AND UGWS.USER_GROUP_ID = #{groupId}
+	 ]]>
+	</select>     
+     
+    <!-- 내에게 workspace를 share해주고 있는 user list -->
+    <select id="selectWorkspaceSharedUser" resultMap="UserResultMap">
+	SELECT user_id,
+		name,
+		email,
+		img_url,
+		phone_no,
+		description,
+		department,
+		responsibilities
+	FROM user_a3
+	WHERE user_id IN
+		( 
+		SELECT DISTINCT(user_id)
+		FROM workspace_a3
+		WHERE user_id    != #{userId}
+			AND workspace_id IN
+		    ( 
+		    	SELECT workspace_id FROM user_workspace_lnk_a3 WHERE user_id = #{userId}
+		    )
+		  )
+   </select>        
+     
+    <!-- 내가 쉐어 해주고 있는 workspace가 있는 user list-->
+   <select id="selectWorkspaceSharingUser" resultMap="UserResultMap">
+		SELECT 
+		   	user_id,
+		  	name,
+		  	email,
+		  	img_url,
+		  	phone_no,
+		  	description,
+		  	department,
+		  	responsibilities
+		FROM 
+			user_a3
+		WHERE 
+			user_id IN
+				(select 
+					DISTINCT(uw.user_id) 
+				from 
+					user_workspace_lnk_a3 uw 
+				where 
+				uw.user_id != #{userId} 
+				and 
+				uw.workspace_id in(
+					select w.workspace_id from workspace_a3 w
+					where w.user_id=#{userId}
+				)
+			)
+   </select>  
+     
+	<select id="selectWorkspaceIdsWithOwnerId" resultType="com.bistel.a3.portal.domain.common.WorkspaceOwner">
+		select ownerId, workspaceId
+		from (
+		      select rownum as rnum, w.user_id as ownerId, w.workspace_id as workspaceId
+		      from workspace_a3 w, user_workspace_lnk_a3 uwl
+		      where w.workspace_id = uwl.workspace_id
+		        and uwl.user_id = #{userId}
+             <if test="!sharedIncludeYN">		        
+		        and w.user_id = #{userId}
+		     </if>   
+		      order by uwl.favorite desc, w.workspace_id desc
+		) 
+		where rnum between 1 and #{workspacesCount}
+		order by ownerId
+     </select>    
+    
+  <select id="selectWorkspaceNodes" resultMap="WorkspaceNodeResultMap">
+	 select
+        	w.workspace_id AS workspace_id ,
+			w.workspace_id      AS id,
+			NULL              AS parent_id,
+			w.title,
+			'W' AS nodeType,
+			10 as score,
+			'read' as permission,
+			w.create_dtts
+		from 
+			workspace_a3 w, user_workspace_lnk_a3 uwl
+		where 
+			w.user_id       = #{userId}
+			and uwl.user_id = #{userId}
+          	and w.workspace_id = uwl.workspace_id
+			<if test="workspaceIdList != null">
+			and w.workspace_id in 
+  			<foreach collection="workspaceIdList" item="workspaceId" index="index" separator="," open="(" close=")">
+            	#{workspaceId}
+        	</foreach>
+        	</if>          	
+		order by 
+			uwl.favorite desc          
+			,
+          	w.workspace_id desc
+    </select>     
+     
+    <select id="selectTaskerMapByWorkspaceIdList" resultMap="WorkspaceNodeResultMap">
+    	select 
+    		t.workspace_id,
+			t.tasker_id as id,
+			CASE t.parent_id WHEN NULL THEN t.workspace_id ELSE t.parent_id END AS parent_id,
+			t.title,
+			'T' AS nodeType,
+			10 as score,
+			'read' as permission,
+			w.create_dtts
+		from tasker_a3 t, workspace_a3 w
+		where 
+			w.user_id    = #{userId}
+			and t.workspace_id = w.workspace_id
+			<if test="workspaceIdList != null">
+			and t.workspace_id in 
+  			<foreach collection="workspaceIdList" item="workspaceId" index="index" separator="," open="(" close=")">
+            	#{workspaceId}
+        	</foreach>
+        </if>
+        order by t.tasker_id desc
+    </select>         
+     
+    <select id ="selectUserByWorkspaceId" resultMap="UserResultMap">
+	    select 
+		    user_id, 
+		    name, 
+		    img_url,
+		    email, 
+		    phone_no, 
+		    description, 
+		    department, 
+		    responsibilities 
+	    from user_a3 
+	    where user_id 
+	 		in
+	 		(select user_id from workspace_a3 where workspace_id=#{workspaceId})
+     </select>   
+     
+     <select id="selectSharedWorkspaceIds" resultType="java.lang.Long">
+       select workspaceId
+		from (
+		      select rownum as rnum, w.workspace_id as workspaceId
+		      from workspace_a3 w, user_workspace_lnk_a3 uwl
+		      where w.workspace_id = uwl.workspace_id
+		        and w.user_id = #{sharedUserId}
+            and uwl.user_id = #{ownerUserId}
+		      order by w.user_id
+		) 
+		where rnum between 1 and #{workspacesCount}
+      </select>   
+     
+      <select id="selectSharingWorkspaceIds" resultType="java.lang.Long">
+       select workspaceId
+		from (
+		      select rownum as rnum, w.workspace_id as workspaceId
+		      from workspace_a3 w, user_workspace_lnk_a3 uwl
+		      where w.workspace_id = uwl.workspace_id
+		        and w.user_id = #{ownerUserId}
+            and uwl.user_id = #{sharingUserId}
+		      order by w.user_id
+		) 
+		where rnum between 1 and #{workspacesCount}
+    </select>
+    
+    <select id="selectSharedWorkspaceUsers" resultType="com.bistel.a3.portal.domain.common.ShareUser">
+
+		SELECT 
+		  w.user_id AS userId,
+		  'shared'       AS shareType,
+		  u.name         AS userName,
+		  u.img_url      AS imageUrl,
+		  '10'           AS score
+		FROM 
+		  user_a3 u, 
+		  user_workspace_lnk_a3 uwl,
+		  workspace_a3 w
+		where
+		  w.user_id = u.user_id
+		  and
+		  w.workspace_id = uwl.workspace_id
+		  and
+		  uwl.user_id = #{userId}
+		  and
+		  w.user_id!= #{userId}
+		GROUP BY w.user_id, u.name, u.img_url  
+    </select>
+    
+    <select id="selectSharingWorkspaceUsers" resultType="com.bistel.a3.portal.domain.common.ShareUser">
+		SELECT 
+		  uwl.user_id AS userId,
+		  'sharing'       AS shareType,
+		  u.name         AS userName,
+		  u.img_url      AS imageUrl,
+		  '10'           AS score
+		FROM 
+		  user_a3 u, 
+		  user_workspace_lnk_a3 uwl,
+		  workspace_a3 w
+		where
+		  uwl.user_id = u.user_id
+		  and
+		  w.workspace_id = uwl.workspace_id
+		  and
+      	  w.user_id=#{userId}
+     	  and
+		  uwl.user_id!= #{userId}
+  	    GROUP BY uwl.user_id, u.name, u.img_url
+    </select>    
+</mapper>

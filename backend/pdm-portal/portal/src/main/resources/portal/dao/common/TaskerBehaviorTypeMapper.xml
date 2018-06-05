@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bistel.a3.portal.dao.common.TaskerBehaviorTypeMapper">
+    <resultMap id="BaseResultMap" type="com.bistel.a3.portal.domain.common.TaskerBehaviorType">
+        <id column="tasker_behavior_type_name" property="taskerBehaviorTypeName"/>
+        <result column="class_type" property="classType"/>
+        <result column="input_class_type" property="inputClassType"/>
+        <result column="output_class_type" property="outputClassType"/>
+    </resultMap>
+    <sql id="BaseAllQuery">
+        select *
+        from tasker_behavior_type_a3
+    </sql>
+    <select id="selectByName" resultMap="BaseResultMap">
+        <include refid="BaseAllQuery"/>
+        where tasker_behavior_type_name = #{taskerBehaviorTypeName}
+    </select>
+</mapper>

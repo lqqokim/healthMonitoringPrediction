@@ -1,0 +1,167 @@
+.component-report-content {
+    width: 100%;
+    height: 100%;
+    padding: 10px;
+    overflow: auto;
+}
+
+.component-report-content .report-content {
+    height: calc(100% - 100px);
+    background-color: #fff;
+}
+.component-report-content .report-header{
+    height: 40px;
+    padding: 10px;
+    margin-bottom: 10px;
+    vertical-align: middle;
+}
+.component-report-content .report-title {
+    font-weight: bold;
+    height: 40px;
+    margin-bottom: 10px;
+}
+
+.component-report-content .report-body {
+    width: 100%;
+    height: calc(100% - 50px);
+    /* table-layout: fixed; */
+}
+
+.component-report-content .text-row {
+    height: 40px;
+}
+
+.component-report-content .report-body td,
+.component-report-content .report-body th {
+    border: 1px solid #ccc;
+}
+
+.component-report-content .report-body td {
+    width: calc(50% - 120px);
+    padding: 10px;
+}
+
+.component-report-content .report-body .header {
+    background-color: #eee;
+    width: 100px;
+    text-align: center;
+}
+
+.component-report-content .report-body .eqp-picture {
+    height: 30%;
+    /* table-layout: fixed; */
+}
+
+.component-report-content .report-body .content {
+    width: 100%;
+    height: 100%;
+    line-height: 20px;
+}
+
+.component-report-content .report-body .content-div {
+    width: 100%;
+    height: 100%;
+}
+
+.component-report-content .report-body .chart-health {
+    width: 100%;
+    height: 300px;
+    border-bottom: 1px solid #ccc;
+    padding: 5px;
+}
+
+.component-report-content .report-body .chart-health .chart-health-title {
+    width: 100%;
+    height: 20px;
+}
+
+.component-report-content .report-body .chart-health .chart-health-body {
+    width: 100%;
+    height: calc(100% - 20px);
+    position: relative;
+}
+
+.component-report-content .report-body .chart-others {
+    width: 100%;
+    height: 300px;
+    padding: 5px;
+}
+
+.component-report-content .report-body .chart-others .chart-others-title {
+    width: 100%;
+    height: 20px;
+}
+
+.component-report-content .report-body .chart-others .chart-others-body {
+    width: 100%;
+    height: calc(100% - 20px);
+}
+
+.component-report-content .report-body .chart-others .chart-spectrum-old,
+.component-report-content .report-body .chart-others .chart-spectrum-recent {
+    padding: 5px;
+    width: 50%;
+    height: 100%;
+    float: left;
+}
+
+.chart-spectrum-chart-title {
+  text-align: center;
+}
+
+.chart-spectrum-chart-body {
+    position: relative;
+    height: 100%;
+}
+
+.component-report-content .report-body .chart-others .chart-spectrum-recent {
+    border-left: 1px solid #ccc;
+}
+
+.component-report-content .report-body .chart {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+}
+
+.component-report-content .report-buttons {
+    padding-top: 20px;
+    height: 50px;
+    vertical-align: middle;
+    text-align: center;
+}
+
+.component-report-content .report-buttons button {
+    display: inline-block;
+}
+
+.report-print {
+    display: none;
+}
+
+@media print {
+  @page {
+    size: landscape;
+  }
+
+  body * {
+    visibility: hidden;
+  }
+  .report-print,
+  .report-print * {
+    display: block;
+    visibility: visible;
+  }
+  .report-print {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .report-print-image {
+      width: 100%;
+      height: 100%;
+  }
+}

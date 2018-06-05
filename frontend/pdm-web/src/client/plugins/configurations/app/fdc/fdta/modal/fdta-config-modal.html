@@ -1,0 +1,147 @@
+<div bsModal #smModal="bs-modal"
+    class="modal fade"
+    id="bsModal"
+    tabindex="-1" role="dialog"
+    aria-labelledby="myModalLabel"
+    (click)="$event.stopPropagation();"
+    (onHide)="cancel()">
+    <div class="modal-dialog">
+        <div class="modal-content a3-fdta-config-modal">
+            <div class="modal-header">
+                <button type="button" class="close pe-7s-close" (click)="cancel()" aria-label="Close"></button>
+                <h4 class="modal-title" id="myModalLabel">Configure DFD for ({{gridInfo.selectedCount}} selected items)</h4>
+            </div>
+            <div class="modal-body" [ngClass]="{disabled: !isGetData}">
+                <div class="a3-modal-setting-wrapper">
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" [(ngModel)]="configOptionList.compareLotYN">
+                            Compare to all wafers in the lot (N/A for batch tools)
+                        </label>
+                    </div>
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" class="a3-checkbox" [(ngModel)]="configOptionList.compareWaferYN">
+                            <span>Compare to last <input type="text" id="waferCount" class="form-control a3-input" plaloceholder="input num"
+                                [(ngModel)]="configOptionList.waferCount" [disabled]="!configOptionList.compareWaferYN" (keyup)="waferNumber()"> process run/batches</span>
+                                    Maximum time difference <input type="text" class="form-control a3-input" id="MaximumTime" placeholder="" [(ngModel)]="configOptionList.maximumTime" [disabled]="!configOptionList.compareWaferYN" (keyup)="maximumTimeNumber()"> days
+                            <div class="a3-sub-menu">
+                            <ul>
+                                <li>
+                                <div class="checkbox" [class.disabled]="!configOptionList.compareWaferYN" >
+                                    <label>
+                                        <input type="checkbox" [(ngModel)]="configOptionList.productYN" [disabled]="!configOptionList.compareWaferYN">
+                                        same product
+                                    </label>
+                                </div>
+                                </li>
+                                <li>
+                                <div class="checkbox" [class.disabled]="!configOptionList.compareWaferYN" >
+                                    <label>
+                                        <input type="checkbox" [(ngModel)]="configOptionList.recipeYN" [disabled]="!configOptionList.compareWaferYN">
+                                        same recipe
+                                    </label>
+                                </div>
+                                </li>
+                                <li>
+                                <div class="checkbox" [class.disabled]="!configOptionList.compareWaferYN" >
+                                    <label>
+                                        <input type="checkbox" [(ngModel)]="configOptionList.operationYN" [disabled]="!configOptionList.compareWaferYN">
+                                        same operation
+                                    </label>
+                                </div>
+                                </li>
+                            </ul>
+                            <ul>
+                                <li>
+                                <div class="checkbox" [class.disabled]="!configOptionList.compareWaferYN" >
+                                    <label>
+                                        <input type="checkbox" [(ngModel)]="configOptionList.rsd05YN" [disabled]="!configOptionList.compareWaferYN">
+                                        same rsd05
+                                    </label>
+                                </div>
+                                </li>
+                                <li>
+                                <div class="checkbox" [class.disabled]="!configOptionList.compareWaferYN" >
+                                    <label>
+                                        <input type="checkbox" [(ngModel)]="configOptionList.rsd06YN" [disabled]="!configOptionList.compareWaferYN">
+                                        same rsd06
+                                    </label>
+                                </div>
+                                </li>
+                                <li>
+                                <div class="checkbox" [class.disabled]="!configOptionList.compareWaferYN" >
+                                    <label>
+                                        <input type="checkbox" [(ngModel)]="configOptionList.alarmExcludeYN" [disabled]="!configOptionList.compareWaferYN">
+                                        exclude process run with alarm
+                                    </label>
+                                </div>
+                                </li>
+                            </ul>
+                            </div>
+                        </label>
+                    </div>
+                    <div class="checkbox disabled">
+                        <label>
+                            <input type="checkbox" [disabled]=true>
+                            Compare to reference set
+                        </label>
+                    </div>
+                </div>
+                <div class="a3-algo-options-wrapper">
+                    <span class="a3-sub-title">Algorithm options</span>
+                        <wj-flex-grid #WijmoOptionGridInstance class="a3-table-area"
+                            [itemsSource]="algorithmGridData"
+                            (cellEditEnding)="cellEdit($event)"
+                            [headersVisibility]="'Column'">
+                            <wj-flex-grid-column [header]="'Category'" [binding]="'category'" [isReadOnly]="true" [width]="'1.5*'" [align]="'left'"></wj-flex-grid-column>
+                            <wj-flex-grid-column [header]="'Option'" [binding]="'option'" [isReadOnly]="true" [width]="'2.0*'" [align]="'left'"></wj-flex-grid-column>
+                            <wj-flex-grid-column [header]="'Value'" [binding]="'value'" [width]="'*'" [align]="'center'"></wj-flex-grid-column>
+                            <wj-flex-grid-column [header]="'Default'" [binding]="'defaultValue'" [isReadOnly]="true" [width]="'*'" [align]="'center'"></wj-flex-grid-column>
+                        </wj-flex-grid>
+                        <!--<fdta-config-grid #optionsGrid></fdta-config-grid>-->
+                </div>
+                <div class="a3-alarm-threshold-wrapper">
+                    <span class="a3-sub-title">Alarm threshold</span>
+                    <div>
+                        <span class="a3-text">Control Limit</span>
+                        <input type="text" class="form-control a3-input" id="ucl" [(ngModel)]="configOptionList.controlThreshold" placeholder="input num" (blur)="floatChange('cl', $event.target.value)" (keyup)="controlLimit()">
+
+                        <span class="a3-text">Spec Limit</span>
+                        <input type="text" class="form-control a3-input" id="usl" [(ngModel)]="configOptionList.specThreshold" placeholder="input num" (blur)="floatChange('sl', $event.target.value)" (keyup)="spceLimit()">
+                    </div>
+                </div>
+                <div class="text-danger" [hidden]="controlValidation && specValidation">{{errorMessage}}</div>
+                <div class="a3-notification-wrapper">
+                <span class="a3-sub-title">Notification</span>
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" [(ngModel)]="configOptionList.mailYN">
+                        e-mail Notification
+                    </label>
+                </div>
+                <a3s-multi-selector
+                    [isDropUp]="true"
+                    [isDisabled]="(!configOptionList.mailYN && !configOptionList.notifycationYN)"
+                    [config]="userConfig"
+                    (selectedItem)="userSelect($event)">
+                </a3s-multi-selector>
+                <!-- <label> -->
+                    Parameter category to be notified
+                <!-- </label> -->
+                <a3s-multi-selector
+                    [isDropUp]="true"
+                    [isDisabled]="(!configOptionList.mailYN && !configOptionList.notifycationYN)"
+                    [config]="codeConfig"
+                    (selectedItem)="codeSelect($event)">
+                </a3s-multi-selector>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <a type="button" class="btn btn-default" (click)="cancel()">{{ 'BUTTON.GENERAL.CLOSE' | translate }}</a>
+                <a type="button" class="btn btn-default" (click)="ok()" [class.disabled]="(!controlValidation || !specValidation)">{{ 'BUTTON.GENERAL.APPLY' | translate }}</a>
+            </div>
+        </div>
+    </div>
+</div>

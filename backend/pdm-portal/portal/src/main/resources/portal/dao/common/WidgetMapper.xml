@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bistel.a3.portal.dao.common.WidgetMapper">
+    <resultMap id="BaseResultMap" type="com.bistel.a3.portal.domain.common.Widget">
+        <id column="widget_id" property="widgetId"/>
+        <result column="dashboard_id" property="dashboardId"/>
+        <result column="title" property="title"/>
+        <result column="x" property="x"/>
+        <result column="y" property="y"/>
+        <result column="width" property="width"/>
+        <result column="height" property="height"/>
+        <result column="conditions" property="conditions" typeHandler="json"/>
+        <result column="properties" property="properties" typeHandler="json"/>
+        <result column="widget_type_id" property="widgetTypeId"/>
+        <result column="page" property="page"/>
+    </resultMap>
+    <sql id="BaseAllQuery">
+        select *
+        from widget_a3
+    </sql>
+    <select id="selectByDashboardId" resultMap="BaseResultMap">
+        <include refid="BaseAllQuery"/>
+        where dashboard_id = #{dashboardId}
+    </select>
+    <select id="select" resultMap="BaseResultMap">
+        <include refid="BaseAllQuery"/>
+        where widget_id = #{widgetId}
+    </select>
+    <insert id="insert">
+        <selectKey resultType="Long" keyProperty="widgetId" order="BEFORE">
+            select seq_widget_a3.nextval from dual
+        </selectKey>
+        <if test="page != null" >
+        insert into widget_a3(widget_id, dashboard_id, title, x, y, width, height, conditions, properties, widget_type_id, page)
+        </if>
+        <if test="page == null" >
+        insert into widget_a3(widget_id, dashboard_id, title, x, y, width, height, conditions, properties, widget_type_id)
+        </if>
+        values(
+            #{widgetId},
+            #{dashboardId},
+            #{title},
+            #{x},
+            #{y},
+            #{width},
+            #{height},
+            #{conditions, typeHandler=json},
+            #{properties, typeHandler=json},
+            #{widgetTypeId}
+			<if test="page != null" >            
+            ,#{page}
+            </if>
+        )
+    </insert>
+    <update id="update">
+        update widget_a3
+        <set >
+            <if test="title != null" >
+                title = #{title},
+            </if>
+            <if test="x != null" >
+                x = #{x},
+            </if>
+            <if test="y != null" >
+                y = #{y},
+            </if>
+            <if test="width != null" >
+                width = #{width},
+            </if>
+            <if test="height != null" >
+                height = #{height}
+            </if>
+        </set>
+        where widget_id = #{widgetId}
+    </update>
+    <select id="selectWigetsByPageRange" resultMap="BaseResultMap">
+        <include refid="BaseAllQuery"/>
+         <![CDATA[          
+        where dashboard_id = #{dashboardId} 
+          and page >= #{startPage} 
+          and page <= #{endPage}
+        order by page  
+         ]]> 
+    </select>
+    <delete id="deleteById">
+        delete from widget_a3
+        where widget_id = #{widgetId}
+    </delete>
+    <update id="updateConfiguration">
+        update widget_a3
+        set properties = #{configuration, typeHandler=json}
+        where widget_id = #{widgetId}
+    </update>
+    <delete id="deleteByDashboardId">
+        delete from widget_a3
+        where dashboard_id = #{dashboardId}
+    </delete>
+    <update id="updatePage">
+        update widget_a3 
+        set page = #{newPage}
+        where widget_id = #{widgetId}
+    </update>
+    <update id="updatePageBackAll">
+     <![CDATA[    
+        update widget_a3 
+        set page = page - 1
+        where dashboard_id = #{dashboardId} and page > #{page}
+     ]]>   
+    </update>    
+</mapper>

@@ -1,0 +1,52 @@
+<div class="a3-app-configuration-header clearfix">
+    <div class="header-btn">
+        <button class="btn btn-default" type="button" (click)="$event.stopPropagation(); menuCreate();">Menu Create</button>
+        <button class="btn btn-default" type="button" [disabled]="selectedKind !== 'menu' " (click)="$event.stopPropagation(); functionCreate();">Function Create</button>
+        <button class="btn btn-default" type="button" (click)="$event.stopPropagation(); menufunctionModify();">Modify</button>
+        <button class="btn btn-default" type="button" (click)="$event.stopPropagation(); deleteMenuFunction();">Delete</button>
+    </div>
+</div>
+<!-- User & Group 분할 영역 -->
+<div class="a3-app-configuration-body">
+    <!--좌측 Hierarchy view 영역-->
+    <div class="no-padding div_contents" >
+        <table class="table table-bordered table-striped border-height-none">
+            <thead>
+                <tr>
+                    <th class="column_1">Menu</th>
+                    <th class="column_1">Function</th>
+                    <th class="column_4">Basic</th>
+                    <th class="column_4">Extend</th>
+                </tr>
+            </thead>
+        </table>
+        <div *ngFor="let menu of menuFunctions">
+            <table class="table table-bordered table-striped border-height-none">
+                <tbody *ngIf="menu.child.length !== 0">
+                    <tr *ngFor="let functions of menu.child">
+                        <td class="column_1" (click)="selectMenu(menu)" [class.selected-cell]=" selectedCell === menu" >{{menu.objectName}}</td>
+                        <td class="column_1" (click)="selectFunc(menu,functions)" [class.selected-cell]="selectedCell === functions" >{{functions.objectName}}</td>
+                        <td class="column_4">{{functions.typeI}}</td>
+                        <td class="column_4">{{functions.typeE}}</td>
+                    </tr>
+                </tbody>
+                <tbody *ngIf="menu.child.length === 0" >
+                    <tr>
+                        <td class="column_1" (click)="selectMenu(menu)" [class.selected-cell]=" selectedCell === menu"  >{{menu.objectName}}</td>
+                        <td class="column_1" (click)="selectMenu(menu)" [class.selected-cell]=" selectedCell === functions" ></td>
+                        <td class="column_4">{{menu.typeI}}</td>
+                        <td class="column_4">{{menu.typeE}}</td>
+                    </tr> 
+                </tbody>
+            </table>
+            
+        </div>
+        
+    </div>
+</div>
+
+
+
+<!--<th>Function <span class="a3-asterisk">*</span></th>
+<th>Basic <span class="a3-asterisk">*</span></th>
+<th>Extends <span class="a3-asterisk">*</span></th>-->

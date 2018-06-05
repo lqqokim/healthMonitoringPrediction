@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bistel.a3.portal.dao.pdm.ulsan.OverallMinuteTrxMapper">
+    <select id="selectSpecByEqpId" resultType="java.util.HashMap" >
+        select p.name,alarm,warn from overall_spec_pdm o,param_pdm p
+        where p.eqp_id =#{eqp_id} and p.param_id = o.param_id
+    </select>
+
+
+      <resultMap id="CountMap" type="com.bistel.a3.portal.domain.pdm.Count">
+        <id column="eqp_id" property="eqp_id"/>
+        <result column="cnt" property="count"/>
+    </resultMap>
+    <select id="selectCountByDate" resultMap="CountMap">
+          select eqp_id,
+            sum(cnt) as cnt
+          from (
+            select
+              b.param_id,
+              b.eqp_id,
+              count(1) as cnt
+            from overall_minute_trx_pdm a
+              join param_pdm b
+                on b.param_id = a.param_id
+            where b.eqp_id in (
+				select area_id
+				from area_pdm
+				start with area_id = #{area_id}
+				connect by prior area_id = parent_id
+            )
+            and b.param_type in (10201, 10202)
+            and a.read_dtts <![CDATA[>=]]> #{start}
+            and a.read_dtts <![CDATA[<]]> #{end}
+            group by b.eqp_id, b.param_id
+          ) group by eqp_id
+    </select>
+
+    <select id="selectParamVariance" resultType="com.bistel.a3.portal.domain.pdm.ParamVariance">
+        select
+            param_id,
+            case when abs(minV) <![CDATA[>]]> abs(maxV) then minV else maxV end as variance
+        from (
+            select
+                a.param_id,
+                case when c.alarm = 0 then 0 else (b.min1 - a.avg30) * 100/c.alarm end as minV,
+                case when c.alarm = 0 then 0 else (b.max1 - a.avg30) * 100/c.alarm end as maxV
+            from (
+                select
+                    a.param_id,
+                    avg(a.value) as avg30
+                from overall_minute_trx_pdm a
+                    join param_pdm b on a.param_id = b.param_id
+                where a.read_dtts <![CDATA[>=]]> #{baseStart}
+                  and a.read_dtts <![CDATA[<]]> #{baseEnd}
+                  and b.eqp_id = #{eqp_id}
+                group by a.param_id
+            ) a
+            join (
+                select
+                    a.param_id,
+                    min(a.value) as min1,
+                    max(a.value) as max1
+                from overall_minute_trx_pdm a
+                    join param_pdm b on a.param_id = b.param_id
+                where a.read_dtts <![CDATA[>=]]> #{baseEnd}
+                  and a.read_dtts <![CDATA[<]]> #{now}
+                  and b.eqp_id = #{eqp_id}
+                group by a.param_id
+            ) b on a.param_id = b.param_id
+            join (
+                select
+                    a.param_id,
+                    a.alarm
+                from overall_spec_pdm a
+                    join param_pdm b on a.param_id = b.param_id
+                where b.eqp_id = #{eqp_id}
+            ) c on a.param_id = c.param_id
+        )
+    </select>
+    <select id="selectOverallMinuteTrxByParamId" resultType="com.bistel.a3.portal.domain.pdm.db.OverallMinuteTrx">
+        select
+        *
+        from OVERALL_MINUTE_TRX_PDM
+        where param_id = #{paramId}
+        and Read_dtts <![CDATA[>=]]> #{start}
+        and Read_dtts <![CDATA[<]]> #{end}
+    </select>
+
+    <insert id="insertOverallMinuteTrx">
+        insert into overall_minute_trx_pdm (param_id,read_dtts,value,rpm)
+        values (#{param_id,jdbcType=NUMERIC},#{read_dtts,jdbcType=TIMESTAMP},#{value,jdbcType=FLOAT},#{rpm,jdbcType=NUMERIC})
+    </insert>
+
+
+    <delete id="deleteOverallMinuteTrxByParamId">
+        delete
+        from OVERALL_MINUTE_TRX_PDM
+        where param_id = #{paramId}
+        and Read_dtts <![CDATA[>=]]> #{start}
+        and Read_dtts <![CDATA[<]]> #{end}
+    </delete>
+
+
+
+    <select id="selectSampleTraceByRawId" resultType="com.bistel.a3.portal.domain.pdm.db.OverallMinuteTrx">
+        select *
+        from sample_trace_trx_pdm
+        where rawid=#{problem_data_rawid}
+    </select>
+
+    <insert id="insertSampleTrace">
+        insert into SAMPLE_TRACE_TRX_PDM (problem_data_rawid,read_dtts,value,alarm,warn,rpm)
+        values (#{problem_data_rawid,jdbcType=NUMERIC},#{read_dtts,jdbcType=TIMESTAMP},#{value,jdbcType=FLOAT},#{alarm,jdbcType=NUMERIC},#{warn,jdbcType=NUMERIC},#{rpm,jdbcType=NUMERIC})
+    </insert>
+
+
+</mapper>

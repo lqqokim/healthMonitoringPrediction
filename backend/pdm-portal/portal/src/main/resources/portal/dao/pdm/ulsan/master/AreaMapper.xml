@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bistel.a3.portal.dao.pdm.ulsan.master.AreaMapper">
+    <select id="selectList" resultType="com.bistel.a3.portal.domain.pdm.master.AreaWithChildren">
+        select *
+        from area_pdm
+        where parent_id = #{parentId}
+    </select>
+
+    <select id="selectOne" resultType="com.bistel.a3.portal.domain.pdm.db.Area">
+        select *
+        from area_pdm
+        where area_id = #{areaId}
+    </select>
+
+    <insert id="insertOne" parameterType="com.bistel.a3.portal.domain.pdm.db.Area">
+        <selectKey keyProperty="area_id" resultType="Long" order="BEFORE">
+            select seq_area_pdm.nextval FROM DUAL
+        </selectKey>
+        insert into area_pdm(area_id, name, description, parent_id)
+        values(#{area_id}, #{name}, #{description,jdbcType=VARCHAR}, #{parent_id})
+    </insert>
+
+    <delete id="deleteOne">
+        delete from area_pdm
+        where area_id = #{areaId}
+    </delete>
+
+    <update id="updateOne">
+        update area_pdm
+        set name = #{name},
+            description = #{description,jdbcType=VARCHAR},
+            parent_id = #{parent_id}
+        where area_id = #{area_id}
+    </update>
+</mapper>

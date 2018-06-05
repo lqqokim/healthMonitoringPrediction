@@ -1,0 +1,117 @@
+<div class="header-btn mst-info-param clearfix">
+  <button class="btn btn-default" type="button" (click)="deleteParam()" [disabled]="btnDisabled">Delete</button>
+  <button class="btn btn-default" type="button" (click)="showModal('modify')" [disabled]="btnDisabled">Modify</button>
+  <button class="btn btn-default" type="button" (click)="showModal('create')">Create</button>
+</div>
+<span class="title">
+  Parameter List</span>
+
+<div class="master-info-path-top">
+  <wj-flex-grid #WijmoGridInstance [itemsSource]="paramDatas" [allowDragging]="'None'" [isReadOnly]="true" [selectionMode]="'Row'"
+    [headersVisibility]="'Column'" (selectionChanged)="selectedRow(WijmoGridInstance, $event)">
+    <wj-flex-grid-column [width]="'*'" [header]="'Name'" [binding]="'paramName'" [align]="'center'"></wj-flex-grid-column>
+    <wj-flex-grid-column [width]="'*'" [header]="'EQP'" [binding]="'eqpName'" [align]="'center'"></wj-flex-grid-column>
+    <wj-flex-grid-column [width]="'*'" [header]="'Parameter Type'" [binding]="'param_type_name'" [align]="'center'"></wj-flex-grid-column>
+    <wj-flex-grid-column [width]="'*'" [header]="'Parts'" [binding]="'parts_name'" [align]="'center'"></wj-flex-grid-column>
+    <wj-flex-grid-column [width]="'*'" [header]="'Unit'" [binding]="'unit_name'" [align]="'center'"></wj-flex-grid-column>
+    <!-- <wj-flex-grid-column [width]="'*'" [header]="'EU Type'" [binding]="'euType'" [align]="'center'"></wj-flex-grid-column> -->
+    <!-- <wj-flex-grid-column [width]="'*'" [header]="'RPM'" [binding]="'rpm'" [align]="'center'"></wj-flex-grid-column> -->
+    <wj-flex-grid-column [width]="'*'" [header]="'Alarm'" [binding]="'alarm'" [align]="'center'"></wj-flex-grid-column>
+    <wj-flex-grid-column [width]="'*'" [header]="'Warning'" [binding]="'warning'" [align]="'center'"></wj-flex-grid-column>
+  </wj-flex-grid>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="paramModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title" id="myModalLabel">{{modalTitle}} Parameter</h4>
+      </div>
+      <form #paramForm="ngForm">
+        <div class="modal-body">
+          <!-- <parameter-modify #paramModify [data]="paramData"></parameter-modify> -->
+          <div class="a3-form-group" *ngIf="paramData">
+            <div class="form-group a3-input-group">
+              <label class="control-label">EQP</label>
+              <input type="text" class="form-control" [(ngModel)]="paramData.eqpName" name="eqpName" [disabled]="true"/>
+            </div>
+            <div class="form-group a3-input-group">
+              <label class="control-label">Name
+                <span class="a3-asterisk">*</span>
+              </label>
+              <input type="text" id="paramName" class="form-control" [(ngModel)]="paramData.paramName" (keypress)="nameKypress($event)" name="paramName" required #paramName="ngModel"/>
+              <div *ngIf="paramName.errors && (paramName.dirty || paramName.touched)" class="alert alert-danger">
+                <div *ngIf="paramName.errors.required">
+                  Parameter Name is required!
+                </div>
+              </div>
+            </div>
+            <div class="form-group a3-input-group">
+              <label class="control-label">Parameter Type
+                <span class="a3-asterisk">*</span>
+              </label>
+              <select class="form-control" [(ngModel)]="paramData.param_type_cd" name="paramTypeCd" required #paramTypeCd="ngModel">
+                <option *ngFor="let item of paramData.paramTypes" [ngValue]="item.code">{{item.name}}</option>
+              </select>
+              <div *ngIf="paramTypeCd.errors && (paramTypeCd.dirty || paramTypeCd.touched)" class="alert alert-danger">
+                <div *ngIf="paramTypeCd.errors.required">
+                  Parameter Type is required!
+                </div>
+              </div>
+            </div>
+            <div class="form-group a3-input-group">
+              <label class="control-label">Unit
+                <span class="a3-asterisk">*</span>
+              </label>
+              <select class="form-control" [(ngModel)]="paramData.unit_cd" name="paramDataUnitCd" required #paramDataUnitCd="ngModel">
+                <option *ngFor="let item of paramData.unitTypes" [ngValue]="item.code">{{item.name}}</option>
+              </select>
+              <div *ngIf="paramDataUnitCd.errors && (paramDataUnitCd.dirty || paramDataUnitCd.touched)" class="alert alert-danger">
+                <div [hidden]="!paramDataUnitCd.errors.required">
+                  Unit is required!
+                </div>
+              </div>
+            </div>
+            <div class="form-group a3-input-group">
+              <label class="control-label">Parts
+                <span class="a3-asterisk">*</span>
+              </label>
+              <select class="form-control" [(ngModel)]="paramData.parts_id" name="partsId" required #partsId="ngModel">
+                <option *ngFor="let item of paramData.partsDatas" [ngValue]="item.partId">{{item.name}}</option>
+              </select>
+              <div *ngIf="partsId.errors && (partsId.dirty || partsId.touched)" class="alert alert-danger">
+                <div [hidden]="!partsId.errors.required">
+                  Parts is required!
+                </div>
+              </div>
+            </div>
+            <!-- <div class="form-group a3-input-group">
+              <label class="control-label">RPM</label>
+              <input type="number" class="form-control" [(ngModel)]="paramData.rpm" name="paramDataRpm">
+            </div> -->
+            <div class="form-group a3-input-group">
+              <label class="control-label">Alarm</label>
+              <input type="number" id="alarmInput" class="form-control" (keypress)="alarmKeypress($event)" min="0" [(ngModel)]="paramData.alarm" name="alarm" #alarm="ngModel"/>
+            </div>
+            <div class="form-group a3-input-group">
+              <label class="control-label">Warning</label>
+              <input type="number" id="warningInput" class="form-control" (keypress)="warningKeypress($event)" min="0" [(ngModel)]="paramData.warning" name="warning" #warning="ngModel"/>
+            </div>
+            <div class="form-group a3-input-group">
+              <label class="control-label">Description</label>
+              <input type="text" class="form-control" [(ngModel)]="paramData.description" name="des" #des="ngModel">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" (click)="_showModal(false)">Close</button>
+          <button type="button" class="btn btn-primary" [disabled]="!paramForm.form.valid" (click)="saveData()">Apply</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

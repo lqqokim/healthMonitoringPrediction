@@ -1,0 +1,68 @@
+<div class="pdm-configuration-builder parameter-list clearfix">
+    <div class="pdm-wijmo-body">
+        <div class="prm-select-box">
+            <div class="fab-label">
+                <label for="inputFab">Fab</label>
+                <select class="form-control" [(ngModel)]="selectedFab" (ngModelChange)="changeSelectedFab($event)">
+                    <option *ngFor="let plant of plants" [ngValue]="plant" [selected]="plant.fabId === selectedFab.fabId">
+                        {{plant.fabName}}
+                    </option>
+                </select>
+            </div>
+            <div class="eqp-label">
+                <label for="inputFab">Eqp</label>
+                <select [disabled]="!eqps" class="form-control" [(ngModel)]="selectedEqp" (ngModelChange)="changeSelectedEqp($event)">
+                    <option *ngFor="let eqp of eqps" [ngValue]="eqp" [selected]="eqp.eqpId === selectedEqp.eqpId">
+                        {{eqp.eqpName}}
+                    </option>
+                </select>
+            </div>
+        </div>
+
+        <wj-tree-view #tv [ngClass]="'custom-tree'" [itemsSource]="treeDatas" [displayMemberPath]="'areaName'" [childItemsPath]="'children'"
+            [isAnimated]="true" [autoCollapse]="true" [expandOnClick]="true" (itemClicked)="selectedNode(tv)">
+        </wj-tree-view>
+    </div>
+    <div class="pdm-parameter-body">
+        <!-- <div *ngIf="!paramDatas; else other">Select Area data to view and edit information.</div>
+        <ng-template #other>
+                <div></div>
+        </ng-template> -->
+
+        <div *ngIf="isShowMsg">Select Area node to view and edit information.</div>
+        <div *ngIf="!eqps && !isShowMsg">The node does not have eqp data.</div>
+        <div class="pdm-configuration-wrapper" *ngIf="paramDatas">
+            <span class="title">Parameter List</span>
+            <div class="pdm-config-header clearfix">
+                <div class="header-info">
+                    <span>Selection Path: </span>
+                    <span class="select">{{pathStr}}</span>
+                </div>
+                <div class="header-btn">
+                    <button class="btn btn-default" type="button" (click)="deleteParameter()" [disabled]="btnDisabled">Delete</button>
+                    <button class="btn btn-default" type="button" (click)="modifyParameter('modify')" [disabled]="btnDisabled">Modify</button>
+                    <button class="btn btn-default" type="button" (click)="createParameter('create')">Create</button>
+                </div>
+            </div>
+            <div class="a3-app-configuration-body">
+                <wj-flex-grid #WijmoGridInstance [itemsSource]="paramDatas" [allowDragging]="'None'" [isReadOnly]="true" [selectionMode]="'Row'"
+                    [headersVisibility]="'Column'" (selectionChanged)="selectedRow(WijmoGridInstance, $event)">
+                    <!-- <wj-flex-grid-column [header]="'selectAll'" [isReadOnly]="true" [binding]="'isSelected'" [allowSorting]="false" [align]="'center'" [width]="22">
+                    <ng-template wjFlexGridCellTemplate   [cellType]="'ColumnHeader'" let-row="row" let-item="item">
+                        <input type="checkbox" [checked]="selectAll" (click)="gridSelectAllRows(!selectAll)"/>
+                    </ng-template>
+                    <ng-template wjFlexGridCellTemplate [cellType]="'Cell'" let-item="item">
+                        <input type="checkbox" [(ngModel)]="item.isSelected" (ngModelChange)="selectCheckbox(item)">
+                    </ng-template>
+                </wj-flex-grid-column> -->
+                    <wj-flex-grid-column [width]="'*'" [header]="'EQP'" [binding]="'eqpName'" [align]="'center'"></wj-flex-grid-column>
+                    <wj-flex-grid-column [width]="'*'" [header]="'Name'" [binding]="'paramName'" [align]="'center'"></wj-flex-grid-column>
+                    <wj-flex-grid-column [width]="'*'" [header]="'Parameter Type'" [binding]="'paramType'" [align]="'center'"></wj-flex-grid-column>
+                    <wj-flex-grid-column [width]="'*'" [header]="'EU'" [binding]="'eu'" [align]="'center'"></wj-flex-grid-column>
+                    <wj-flex-grid-column [width]="'*'" [header]="'EU Type'" [binding]="'euType'" [align]="'center'"></wj-flex-grid-column>
+                    <wj-flex-grid-column [width]="'*'" [header]="'RPM'" [binding]="'rpm'" [align]="'center'"></wj-flex-grid-column>
+                </wj-flex-grid>
+            </div>
+        </div>
+    </div>
+</div>

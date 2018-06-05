@@ -1,0 +1,7 @@
+<div class="a3-category-wrapper">
+    <categorization-list (dataLoadCompleted)="dataLoadCompleted($event)" (changeMode)="categoryChangeMode($event)"></categorization-list>
+</div>
+
+<div class="a3-parameter-wrapper">
+    <parameter-sum-list [categories]="categories" [isEditModeByCategory]="isEditModeByCategory"></parameter-sum-list>
+</div>

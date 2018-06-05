@@ -1,0 +1,75 @@
+<div class="a3-form-group" *ngIf="partData">
+    <div class="form-group a3-input-group">
+        <label class="control-label">EQP</label>
+        <input type="text" class="form-control" [(ngModel)]="partData.eqpName" [disabled]="true">
+    </div>
+    <div class="form-group a3-input-group">
+        <label class="control-label">Name<span class="a3-asterisk">*</span></label>
+        <input type="text" class="form-control" [(ngModel)]="partData.name">
+    </div>
+    <!-- <div class="form-group a3-input-group">
+        <label class="control-label">Parameter</label>
+        <select class="form-control" [(ngModel)]="partData.paramId">
+            <option *ngFor="let param of paramDatas" [ngValue]="param.paramId">{{param.paramName}}</option>
+        </select>
+    </div> -->
+    <div class="form-group a3-input-group">
+        <label class="control-label">Part Type<span class="a3-asterisk">*</span></label>
+        <select class="form-control" [(ngModel)]="partData.parts_type_cd">
+            <option *ngFor="let partType of partTypeDatas" [ngValue]="partType.parts_type_cd">{{partType.name}}</option>
+        </select>
+    </div>
+    <div class="form-group a3-input-group">
+        <label class="control-label">Bearing</label>
+        <input type="text" #bearing class="form-control" [(ngModel)]="bearingInput" style="display:inline-block; width:323px;">
+        <div class="btn-group" aling="center">
+            <button class="btn btn-default" (click)="isGridView = !isGridView; searchBearing($event)" style="margin-left:5px;">Search</button>
+            <button class="btn btn-default" (click)="clearSearch($event)" style="margin-left:5px;">Delete</button>
+        </div>
+    </div>
+    <div class="form-group a3-input-group">
+        <label class="control-label">Ratio<span class="a3-asterisk">*</span></label>
+        <input type="number" class="form-control" [(ngModel)]="partData.ratio">
+    </div>
+    <div class="form-group a3-input-group">
+        <label class="control-label">Base Ratio<span class="a3-asterisk">*</span></label>
+        <select class="form-control" [(ngModel)]="partData.base_ratio_yn">
+                <option *ngFor="let default of defaults" [ngValue]="default.value">{{default.label}}</option>
+        </select>
+    </div>
+
+
+ 
+
+    <div class="form-group a3-input-group">
+            <label class="control-label">RPM</label>
+            <input type="number" class="form-control" [(ngModel)]="partData.rpm">
+    </div>
+    
+    <!-- <div class="form-group a3-input-group">
+        <label class="control-label">NPAR1<span class="a3-asterisk">*</span></label>
+        <input type="number" class="form-control" [(ngModel)]="partData.npar1">
+    </div>
+    <div class="form-group a3-input-group">
+        <label class="control-label">NPAR2</label>
+        <input type="number" class="form-control" [(ngModel)]="partData.npar2">
+    </div>
+    <div class="form-group a3-input-group">
+        <label class="control-label">Sort order<span class="a3-asterisk">*</span></label>
+        <input type="number" class="form-control" [(ngModel)]="partData.sortOrder">
+    </div> -->
+
+    <div class="bearings" *ngIf="isGridView">
+        <!-- <hr><span><h4>Bearing Info</h4></span><br>   -->
+        <wj-flex-grid #WijmoGridInstance style="height: 250px"
+            [itemsSource]="bearingDatas" 
+            [selectionMode]="'Row'" 
+            [isReadOnly]="true" 
+            [headersVisibility]="'Column'"
+            (selectionChanged)="selectedRow(WijmoGridInstance, $event)">
+            <wj-flex-grid-filter #filter></wj-flex-grid-filter>
+            <wj-flex-grid-column [width]="'*'" [header]="'Model number'" [binding]="'modelNumber'"></wj-flex-grid-column>
+            <wj-flex-grid-column [width]="'*'" [header]="'Manufacture'" [binding]="'manufacture'"></wj-flex-grid-column>
+        </wj-flex-grid>
+    </div>
+</div>

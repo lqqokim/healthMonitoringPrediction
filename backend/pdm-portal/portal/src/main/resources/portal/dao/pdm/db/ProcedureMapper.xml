@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bistel.a3.portal.dao.pdm.db.ProcedureMapper">
+    <select id="createPartition" statementType="CALLABLE">
+        { call create_partition(#{date}, #{tableName}) }
+    </select>
+</mapper>

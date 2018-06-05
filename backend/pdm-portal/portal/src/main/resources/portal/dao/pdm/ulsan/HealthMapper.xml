@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bistel.a3.portal.dao.pdm.ulsan.HealthMapper">
+    <select id="selectModels" resultType="com.bistel.a3.portal.domain.pdm.db.HealthModel">
+        select *
+        from HEALTH_MODEL_PDM
+    </select>
+
+    <select id="selectModelByEqpId" resultType="com.bistel.a3.portal.domain.pdm.db.HealthModel">
+        select *
+        from HEALTH_MODEL_PDM
+        where eqp_id = #{eqp_id}
+    </select>
+
+    <insert id="insertHealthDaily">
+        insert into health_daily_trx_pdm (
+            eqp_id,
+            measure_dtts,
+            value,
+            score
+        ) values (
+            #{eqp_id},
+            #{measure_dtts},
+            #{value},
+            #{score}
+        )
+    </insert>
+
+    <delete id="deleteHealthDaily">
+        delete from health_daily_trx_pdm
+        where eqp_id = #{eqp_id}
+        and measure_dtts = #{measure_dtts}
+    </delete>
+
+    <insert id="insertHealthStat">
+        insert into health_stat_trx_pdm (
+            eqp_id,
+            measure_dtts,
+            score,
+            total_cnt,
+            alarm_cnt,
+            warn_cnt,
+            health_variation,
+            expected_alarm,
+            cause1,
+            cause2,
+            cause3,
+            alarm,
+            warn
+        ) values (
+            #{eqp_id},
+            #{measure_dtts},
+            #{score,jdbcType=FLOAT},
+            #{total_cnt,jdbcType=NUMERIC},
+            #{alarm_cnt,jdbcType=NUMERIC},
+            #{warn_cnt,jdbcType=NUMERIC},
+            #{health_variation,jdbcType=FLOAT},
+            #{expected_alarm,jdbcType=NUMERIC},
+            #{cause1,jdbcType=VARCHAR},
+            #{cause2,jdbcType=VARCHAR},
+            #{cause3,jdbcType=VARCHAR},
+            #{alarm,jdbcType=NUMERIC},
+            #{warn,jdbcType=NUMERIC}
+        )
+    </insert>
+
+    <insert id="insertFeature">
+        insert into feature_trx_pdm (measure_trx_id,peak,rms,skewness,kurtosis,crest,clearance,impulse,shape,overall,create_dtts)
+        values (#{measure_trx_id,jdbcType=NUMERIC},#{peak,jdbcType=FLOAT},#{rms,jdbcType=FLOAT},#{skewness,jdbcType=FLOAT},#{kurtosis,jdbcType=FLOAT},#{crest,jdbcType=FLOAT},#{clearance,jdbcType=FLOAT},#{impulse,jdbcType=FLOAT},#{shape,jdbcType=FLOAT},#{overall,jdbcType=FLOAT},#{create_dtts,jdbcType=TIMESTAMP})
+    </insert>
+
+    <delete id="deleteFeature">
+        delete
+        from feature_trx_pdm
+        where measure_trx_id = #{measure_trx_id}
+    </delete>
+
+    <delete id="deleteHealthStat">
+        delete from health_stat_trx_pdm
+        where eqp_id = #{eqp_id}
+        and measure_dtts = #{measure_dtts}
+    </delete>
+
+    <select id="selectScoreByEqpId" resultType="com.bistel.a3.portal.domain.pdm.db.HealthStat">
+        select
+            eqp_id,
+            score,
+            total_cnt,
+            alarm_cnt,
+            warn_cnt,
+            nvl(case alarm_spec when null then 0 else nvl(health_variation, 0) * 0.9 / alarm_spec end, 0) as health_variation
+        from (
+            select
+                a.eqp_id,
+                b.alarm_spec,
+                nvl(case b.alarm_spec when null then 0 else nvl(b.avg_health_value, 0) * 0.9 / b.alarm_spec end, 0) as score,
+                nvl(b.total_cnt, 0) as total_cnt,
+                nvl(b.alarm_cnt, 0) as alarm_cnt,
+                nvl(b.warn_cnt, 0) as warn_cnt,
+                nvl(b.avg_health_value, 0) - nvl(mean90, 0) as health_variation
+            from eqp_pdm a
+                left join (
+                    select a.eqp_id,
+                        avg(a.value) as avg_health_value,
+                        avg(b.alarm_spec) as alarm_spec,
+                        count(1) as total_cnt,
+                        sum(case when a.value <![CDATA[>=]]> b.alarm_spec then 1 else 0 end) as alarm_cnt,
+                        sum(case when a.value <![CDATA[<]]>  b.alarm_spec and a.value <![CDATA[>=]]> b.warn_spec then 1 else 0 end) as warn_cnt
+                    from health_daily_trx_pdm a
+                        join health_model_pdm b
+                            on a.eqp_id = b.eqp_id
+                    where a.eqp_id = #{eqp_id}
+                    and a.measure_dtts <![CDATA[>=]]> #{start}
+                    and a.measure_dtts <![CDATA[<]]> #{end}
+                    group by a.eqp_id
+                ) b on a.eqp_id = b.eqp_id
+                left join (
+                    select eqp_id,
+                        avg(value) as mean90
+                    from health_daily_trx_pdm
+                    where eqp_id = #{eqp_id}
+                    and measure_dtts <![CDATA[>=]]> #{from90}
+                    and measure_dtts <![CDATA[<]]> #{start}
+                    group by eqp_id
+                ) c on a.eqp_id = c.eqp_id
+            where a.eqp_id = #{eqp_id}
+        )
+    </select>
+
+    <select id="selectEqpsWithModel" resultType="com.bistel.a3.portal.domain.pdm.EqpWithHealthModel">
+        select
+          a.eqp_id,
+          a.shop_name,
+          a.name as eqp_name,
+          case when b.eqp_id is null then 'X' else 'O' end as exist,
+          nvl(b.create_type_cd, 'M') as create_type_cd,
+          b.create_user_id,
+          b.create_dtts
+        from (
+          select
+            eqp_id,
+            GET_AREA_FULL_NAME(eqp_id) as shop_name,
+            name
+          from eqp_pdm
+        ) a
+        left join health_model_pdm b
+          on b.eqp_id = a.eqp_id
+    </select>
+
+    <select id="selectHealthIndexes" resultType="com.bistel.a3.portal.domain.pdm.db.HealthDaily">
+        select *
+        from health_daily_trx_pdm
+        where eqp_id = #{eqp_id}
+        and measure_dtts <![CDATA[>=]]> #{start}
+        and measure_dtts <![CDATA[<]]> #{end}
+        order by measure_dtts
+    </select>
+
+    <select id="selectFeatureByTime" resultType="java.util.HashMap" >
+        select n.name as "name",
+       concat(TO_CHAR(a.MEASURE_DTTS, 'YYYY-MM-DD HH24'), ':00:00') as "time",
+        b.PEAK , b.RMS, b.SKEWNESS, b.KURTOSIS, b.CREST, b.CLEARANCE, b.IMPULSE, b.SHAPE, b.OVERALL
+        from MEASURE_trx_pdm a
+        join feature_trx_pdm b
+        on a.MEASURE_TRX_ID = b.MEASURE_TRX_ID
+        join param_pdm n
+        on n.param_id = a.param_id and  n.eqp_id = #{eqp_id}
+        where
+        measure_dtts <![CDATA[>=]]> #{start}
+        and measure_dtts <![CDATA[<]]> #{end}
+        order by n.param_id, a.MEASURE_DTTS
+    </select>
+    <select id="selectAveOverallByTime" resultType="java.util.HashMap"  fetchSize="10000">
+        SELECT n.name AS "name",
+        concat(TO_CHAR(a.read_dtts,'YYYY-MM-DD HH24'),':00:00') AS "time",
+        avg(a.value) as overall
+        FROM OVERALL_MINUTE_TRX_PDM a
+        JOIN param_pdm n
+        ON n.param_id = a.param_id
+        AND n.eqp_id = #{eqp_id}
+        WHERE read_dtts <![CDATA[>=]]> #{start}
+        AND   read_dtts <![CDATA[<]]> #{end}
+        group by n.name,n.param_id,concat(TO_CHAR(a.read_dtts,'YYYY-MM-DD HH24'),':00:00')
+        ORDER BY n.param_id,"time"
+    </select>
+    <select id="selectOverallByTime" resultType="java.util.HashMap"  fetchSize="10000">
+        SELECT n.name AS "name",
+        concat(TO_CHAR(a.read_dtts,'YYYY-MM-DD HH24:MI'),':00') AS "time",
+        a.value as overall
+        FROM OVERALL_MINUTE_TRX_PDM a
+        JOIN param_pdm n
+        ON n.param_id = a.param_id
+        AND n.eqp_id = #{eqp_id}
+        WHERE read_dtts <![CDATA[>=]]> #{start}
+        AND   read_dtts <![CDATA[<]]> #{end}
+        ORDER BY n.param_id,"time"
+    </select>
+
+    <select id="selectModel" resultType="com.bistel.a3.portal.domain.pdm.db.HealthModel" >
+        select * from Health_Model_Pdm where eqp_id =  #{eqp_id,jdbcType=NUMERIC}
+    </select>
+    <insert id="insertHealthModel">
+        insert into Health_Model_pdm
+        (
+            eqp_id,model_obj,pca_model_obj,start_dtts,end_dtts,create_user_id,description,create_type_cd,create_dtts,
+            alarm_spec,warn_spec,model_params
+        )
+        values
+        (
+            #{eqp_id,jdbcType=NUMERIC},#{model_obj,jdbcType=CLOB},#{pca_model_obj,jdbcType=CLOB},#{start_dtts,jdbcType=TIMESTAMP},#{end_dtts,jdbcType=TIMESTAMP},
+            #{create_user_id,jdbcType=VARCHAR},#{description,jdbcType=VARCHAR},#{create_type_cd,jdbcType=CHAR},
+            systimestamp,#{alarm_spec,jdbcType=DOUBLE},#{warn_spec,jdbcType=DOUBLE},#{model_params,jdbcType=CLOB}
+        )
+    </insert>
+    <update id="updateHealthModel">
+        update Health_Model_pdm
+        set model_obj=#{model_obj,jdbcType=CLOB},
+            pca_model_obj=#{pca_model_obj,jdbcType=CLOB},
+            start_dtts=#{start_dtts,jdbcType=TIMESTAMP},
+            end_dtts=#{end_dtts,jdbcType=TIMESTAMP},
+            create_user_id=#{create_user_id,jdbcType=VARCHAR},
+            description=#{description,jdbcType=VARCHAR},
+            create_type_cd=#{create_type_cd,jdbcType=CHAR},
+            create_dtts=systimestamp,
+            alarm_spec=#{alarm_spec,jdbcType=DOUBLE},
+            warn_spec=#{warn_spec,jdbcType=DOUBLE},
+            model_params=#{model_params,jdbcType=CLOB}
+        where
+            eqp_id=#{eqp_id,jdbcType=NUMERIC}
+    </update>
+    <insert id="insertHealthModelHst">
+        insert into Health_Model_Hst_pdm
+        (
+        eqp_id,model_obj,pca_model_obj,start_dtts,end_dtts,create_user_id,description,create_type_cd,create_dtts,
+        alarm_spec,warn_spec,model_params,version
+        )
+        values
+        (
+        #{eqp_id,jdbcType=NUMERIC},#{model_obj,jdbcType=CLOB},#{pca_model_obj,jdbcType=CLOB},#{start_dtts,jdbcType=TIMESTAMP},#{end_dtts,jdbcType=TIMESTAMP},
+        #{create_user_id,jdbcType=VARCHAR},#{description,jdbcType=VARCHAR},#{create_type_cd,jdbcType=CHAR},
+        systimestamp,#{alarm_spec,jdbcType=DOUBLE},#{warn_spec,jdbcType=DOUBLE},#{model_params,jdbcType=CLOB},
+        #{version,jdbcType=NUMERIC}
+        )
+    </insert>
+    <select id="selectMaxVersionHealthModelHst" resultType="java.util.HashMap">
+        select max(version) version from Health_Model_Hst_pdm
+        where eqp_id=#{eqp_id}
+    </select>
+    <select id="selectAvgByMonthly" resultType="java.util.HashMap">
+        SELECT MAX(b.overall) m_max,
+        MIN(b.overall) m_min,
+        AVG(b.overall) AVG,
+        TO_CHAR(a.measure_dtts,'YYYY-MM') m_time
+        FROM measure_trx_pdm a,
+        feature_trx_pdm b,
+        eqp_pdm eqp,
+        param_pdm param,
+        param_common_pdm p
+        WHERE a.MEASURE_TRX_ID = b.MEASURE_TRX_ID
+        AND   param.param_id = a.param_id
+        AND   eqp.eqp_id = #{eqp_id}
+        AND   a.measure_dtts <![CDATA[>=]]> #{fromDate} AND a.measure_dtts <![CDATA[<]]> #{toDate}
+        AND   eqp.eqp_id = param.eqp_id
+        AND   p.eu_type = 4
+        GROUP BY TO_CHAR(a.measure_dtts,'YYYY-MM')
+        ORDER BY AVG(b.overall)
+    </select>
+    <select id="selectAvgByMonthlyForMinute" resultType="java.util.HashMap">
+        SELECT
+            AVG(a.value) as avg,
+            TO_CHAR(a.read_dtts, 'YYYY-MM') as m_time
+        FROM overall_minute_trx_pdm a
+        WHERE
+            a.param_id in (select param_id from param_pdm where eqp_id=#{eqp_id} and param_id in (select param_id from param_common_pdm where eu_type in (1, 4)))
+        AND a.read_dtts <![CDATA[>=]]> #{fromDate} AND a.read_dtts <![CDATA[<]]> #{toDate}
+        /* AND a.value > 0.3 */
+        GROUP BY TO_CHAR(a.read_dtts, 'YYYY-MM')
+        ORDER BY 1
+    </select>
+</mapper>

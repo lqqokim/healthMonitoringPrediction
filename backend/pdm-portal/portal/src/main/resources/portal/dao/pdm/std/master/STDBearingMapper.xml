@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bistel.a3.portal.dao.pdm.std.master.STDBearingMapper">
+    <select id="selectList" resultType="com.bistel.a3.portal.domain.pdm.db.Bearing">
+        select rawid as bearing_id,model_number,manufacture,bpfo,bpfi,bsf,ftf,description
+        from bearing_mst_pdm
+    </select>
+
+    <select id="selectOne" resultType="com.bistel.a3.portal.domain.pdm.db.Bearing">
+        select rawid as bearing_id,model_number,manufacture,bpfo,bpfi,bsf,ftf,description
+        from bearing_mst_pdm
+        where 1=1
+        <if test="modelNumber != null">
+          and model_number = #{modelNumber}
+        </if>
+        <if test="manufacture != null">
+          and manufacture = #{manufacture}
+        </if>
+    </select>
+
+    <insert id="insertOne" parameterType="com.bistel.a3.portal.domain.pdm.db.Bearing">
+        <selectKey keyProperty="bearing_id" resultType="Long" order="BEFORE">
+            select SEQ_BEARING_MST_PDM.NEXTVAL from dual
+        </selectKey>
+        insert into bearing_mst_pdm (rawid,model_number,manufacture,bpfo,bpfi,bsf,ftf,description)
+        values (#{bearing_id,jdbcType=NUMERIC},#{model_number,jdbcType=VARCHAR},#{manufacture,jdbcType=VARCHAR},#{bpfo,jdbcType=NUMERIC},#{bpfi,jdbcType=NUMERIC},#{bsf,jdbcType=NUMERIC},#{ftf,jdbcType=NUMERIC},#{description, jdbcType=VARCHAR})
+    </insert>
+
+    <delete id="deleteOne">
+        delete from bearing_mst_pdm
+        where model_number = #{modelNumber}
+          and manufacture = #{manufacture}
+    </delete>
+
+    <update id="updateOne">
+        update bearing_mst_pdm
+        set bpfo = #{bpfo,jdbcType=NUMERIC},
+            bpfi = #{bpfi,jdbcType=NUMERIC},
+            bsf = #{bsf,jdbcType=NUMERIC},
+            ftf = #{ftf,jdbcType=NUMERIC},
+            description = #{description,jdbcType=VARCHAR}
+        where model_number = #{model_number}
+          and manufacture = #{manufacture}
+    </update>
+
+    <select id="selectBearingInfo" resultType="com.bistel.a3.portal.domain.pdm.db.Bearing">
+        select *
+        from Bearing_pdm
+        where manufacture = #{manufacture}
+        and model_number = #{modelNumber}
+    </select>
+</mapper>

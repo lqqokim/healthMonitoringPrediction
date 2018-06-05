@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bistel.a3.portal.dao.common.UserMapper">
+    <resultMap id="BaseResultMap" type="com.bistel.a3.portal.domain.common.User">
+        <id column="user_id" property="userId" jdbcType="VARCHAR"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="email" property="email" jdbcType="VARCHAR"/>
+        <result column="phone_no" property="phoneNo" jdbcType="VARCHAR"/>
+        <result column="description" property="description" jdbcType="VARCHAR"/>
+        <result column="department" property="department" jdbcType="VARCHAR"/>
+        <result column="responsibilities" property="responsibilities" jdbcType="VARCHAR"/>
+    </resultMap>
+    <sql id="BaseAllQuery">
+        select *
+        from user_a3
+    </sql>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        <include refid="BaseAllQuery"/>
+        where
+            user_id = #{userId}
+    </select>
+    <select id="selectAll" resultMap="BaseResultMap">
+        <include refid="BaseAllQuery"/>
+        order by name asc
+    </select>
+    <insert id="insert">
+        insert into user_a3 (
+            user_id, name, password, email, phone_no, description, department, responsibilities
+        ) values (
+            #{userId},
+            #{name, jdbcType=VARCHAR},
+            #{password, jdbcType=VARCHAR},
+            #{email, jdbcType=VARCHAR},
+            #{phoneNo, jdbcType=VARCHAR},
+            #{description, jdbcType=VARCHAR},
+            #{department, jdbcType=VARCHAR},
+            #{responsibilities, jdbcType=VARCHAR}
+        )
+    </insert>
+    <update id="update">
+        update user_a3
+        set
+            name = #{name, jdbcType=VARCHAR},
+            password = #{password, jdbcType=VARCHAR},
+            email = #{email, jdbcType=VARCHAR},
+            phone_no = #{phoneNo, jdbcType=VARCHAR},
+            description = #{description, jdbcType=VARCHAR},
+            department = #{department, jdbcType=VARCHAR},
+            responsibilities = #{responsibilities, jdbcType=VARCHAR}
+        where
+            user_id = #{userId}
+    </update>
+    <delete id="delete">
+        delete user_a3
+        where
+            user_id = #{userId}
+    </delete>
+</mapper>

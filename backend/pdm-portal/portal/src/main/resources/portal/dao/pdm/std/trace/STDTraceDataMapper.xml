@@ -1,0 +1,759 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bistel.a3.portal.dao.pdm.std.trace.STDTraceDataMapper">
+    <select id="selectSpecByEqpId" resultType="java.util.HashMap" >
+        select p.name,alarm,warn from overall_spec_pdm o,param_pdm p
+        where p.eqp_id =#{eqp_id} and p.param_id = o.param_id
+    </select>
+
+
+    <resultMap id="CountMap" type="com.bistel.a3.portal.domain.pdm.Count">
+        <id column="eqp_id" property="eqp_id"/>
+        <result column="cnt" property="count"/>
+    </resultMap>
+    <select id="selectCountByDate" resultMap="CountMap">
+        select eqp_id,
+        sum(cnt) as cnt
+        from (
+        select
+        b.param_id,
+        b.eqp_id,
+        count(1) as cnt
+        from overall_minute_trx_pdm a
+        join param_pdm b
+        on b.param_id = a.param_id
+        where b.eqp_id in (
+        select area_id
+        from area_pdm
+        start with area_id = #{area_id}
+        connect by prior area_id = parent_id
+        )
+        and b.param_type in (10201, 10202)
+        and a.read_dtts <![CDATA[>=]]> #{start}
+        and a.read_dtts <![CDATA[<]]> #{end}
+        group by b.eqp_id, b.param_id
+        ) group by eqp_id
+    </select>
+
+    <select id="selectParamVariance" resultType="com.bistel.a3.portal.domain.pdm.ParamVariance">
+        select
+        param_id,
+        case when abs(minV) <![CDATA[>]]> abs(maxV) then minV else maxV end as variance
+        from (
+        select
+        a.param_id,
+        case when c.alarm = 0 then 0 else (b.min1 - a.avg30) * 100/c.alarm end as minV,
+        case when c.alarm = 0 then 0 else (b.max1 - a.avg30) * 100/c.alarm end as maxV
+        from (
+        select
+        a.param_id,
+        avg(a.value) as avg30
+        from overall_minute_trx_pdm a
+        join param_pdm b on a.param_id = b.param_id
+        where a.read_dtts <![CDATA[>=]]> #{baseStart}
+        and a.read_dtts <![CDATA[<]]> #{baseEnd}
+        and b.eqp_id = #{eqp_id}
+        group by a.param_id
+        ) a
+        join (
+        select
+        a.param_id,
+        min(a.value) as min1,
+        max(a.value) as max1
+        from overall_minute_trx_pdm a
+        join param_pdm b on a.param_id = b.param_id
+        where a.read_dtts <![CDATA[>=]]> #{baseEnd}
+        and a.read_dtts <![CDATA[<]]> #{now}
+        and b.eqp_id = #{eqp_id}
+        group by a.param_id
+        ) b on a.param_id = b.param_id
+        join (
+        select
+        a.param_id,
+        a.alarm
+        from overall_spec_pdm a
+        join param_pdm b on a.param_id = b.param_id
+        where b.eqp_id = #{eqp_id}
+        ) c on a.param_id = c.param_id
+        )
+    </select>
+    <select id="selectOverallMinuteTrxByParamId" resultType="com.bistel.a3.portal.domain.pdm.db.OverallMinuteTrx">
+        select
+        *
+        from OVERALL_MINUTE_TRX_PDM
+        where param_id = #{paramId}
+        and Read_dtts <![CDATA[>=]]> #{start}
+        and Read_dtts <![CDATA[<]]> #{end}
+    </select>
+
+    <insert id="insertOverallMinuteTrx">
+        insert into overall_minute_trx_pdm (param_id,read_dtts,value,rpm)
+        values (#{param_id,jdbcType=NUMERIC},#{read_dtts,jdbcType=TIMESTAMP},#{value,jdbcType=FLOAT},#{rpm,jdbcType=NUMERIC})
+    </insert>
+
+
+    <delete id="deleteOverallMinuteTrxByParamId">
+        delete
+        from OVERALL_MINUTE_TRX_PDM
+        where param_id = #{paramId}
+        and Read_dtts <![CDATA[>=]]> #{start}
+        and Read_dtts <![CDATA[<]]> #{end}
+    </delete>
+
+
+    <select id="selectSampleTraceByRawId" resultType="com.bistel.a3.portal.domain.pdm.db.OverallMinuteTrx">
+        select *
+        from sample_trace_trx_pdm
+        where problem_data_rawid=#{problem_data_rawid}
+    </select>
+    <select id="selectSampleTraceClosedTimeWithCurrentASC" resultType="com.bistel.a3.portal.domain.pdm.db.OverallMinuteTrx">
+        select rawid, problem_data_rawid, to_timestamp(concat('1970-01-01',read_dtts)), value, alarm, warn, rpm
+        from
+        (
+        select *
+        from
+        (
+        select rawid, problem_data_rawid, to_char(read_dtts, 'hh24:mi:ss') as read_dtts, value, alarm, warn, rpm
+        from sample_trace_trx_pdm
+        where problem_data_rawid=#{sampleRawId}
+        )
+        where read_dtts <![CDATA[>=]]> to_char(systimestamp,'hh24:mi:ss')
+        order by read_dtts
+        )
+        where rownum=1
+    </select>
+
+    <select id="selectSampleTraceClosedTimeWithCurrentDESC" resultType="com.bistel.a3.portal.domain.pdm.db.OverallMinuteTrx">
+        select rawid, problem_data_rawid, to_timestamp(concat('1970-01-01',read_dtts)), value, alarm, warn, rpm
+        from
+        (
+        select *
+        from
+        (
+        select rawid, problem_data_rawid, to_char(read_dtts, 'hh24:mi:ss') as read_dtts, value, alarm, warn, rpm
+        from sample_trace_trx_pdm
+        where problem_data_rawid= #{sampleRawId}
+        )
+        where read_dtts <![CDATA[<]]> to_char(systimestamp,'hh24:mi:ss')
+        order by read_dtts desc
+        )
+        where rownum=1
+    </select>
+
+
+
+    <select id="selectSample" resultType="java.util.HashMap">
+        select *
+        from sample_data
+        where
+            eqp_type=#{eqpType} and data_type=#{dataType} and problem_type=#{problemType}
+    </select>
+
+    <insert id="insertOverallMinuteTrxWithSpec">
+        <selectKey keyProperty="rawid" resultType="Long" order="BEFORE">select SEQ_trace_trx_pdm.nextval as rawid from dual</selectKey>
+        insert into trace_trx_pdm (rawid,param_mst_rawid,event_dtts,value,rpm,alarm_spec,warning_spec,reserved_col1,reserved_col2,reserved_col3,reserved_col4,reserved_col5)
+        values (#{rawid},#{param_id,jdbcType=NUMERIC},#{read_dtts,jdbcType=TIMESTAMP},#{value,jdbcType=FLOAT},#{rpm,jdbcType=NUMERIC},#{alarm,jdbcType=NUMERIC},#{warn,jdbcType=NUMERIC},#{reserved_col1},#{reserved_col2},#{reserved_col3},#{reserved_col4},#{reserved_col5})
+    </insert>
+
+
+    <delete id="deleteTraceTrxByParamId">
+        delete
+        from trace_trx_pdm
+        where param_mst_rawid = #{paramId}
+        and event_dtts <![CDATA[>=]]> #{start}
+        and event_dtts <![CDATA[<]]> #{end}
+    </delete>
+    <insert id="insertTraceTrx">
+        <selectKey keyProperty="rawid" resultType="Long" order="BEFORE">select SEQ_trace_trx_pdm.nextval as rawid from dual</selectKey>
+        insert into trace_trx_pdm (rawid,param_mst_rawid,event_dtts,value,rpm,alarm_spec,warning_spec,reserved_col1,reserved_col2,reserved_col3,reserved_col4,reserved_col5)
+        values (#{rawid},#{param_mst_rawid,jdbcType=NUMERIC},#{event_dtts,jdbcType=TIMESTAMP},#{value,jdbcType=FLOAT},#{rpm,jdbcType=NUMERIC},#{alarm_spec,jdbcType=NUMERIC},#{warning_spec,jdbcType=NUMERIC},#{reserved_col1},#{reserved_col2},#{reserved_col3},#{reserved_col4},#{reserved_col5})
+    </insert>
+    <insert id="insertTraceTrxBatch" parameterType="java.util.List">
+        <!--<selectKey keyProperty="rawid" resultType="Long" order="BEFORE">select SEQ_trace_trx_pdm.nextval as rawid from dual</selectKey>-->
+        insert into trace_trx_pdm (rawid,param_mst_rawid,event_dtts,value,rpm,alarm_spec,warning_spec,reserved_col1,reserved_col2,reserved_col3,reserved_col4,reserved_col5)
+        values
+        <foreach collection="list" item="item" separator=",">
+         (SEQ_trace_trx_pdm.nextval,${item.param_mst_rawid},${item.event_dtts},${item.value},${item.rpm},${item.alarm_spec},
+            ${item.warning_spec},${item.reserved_col1},${item.reserved_col2},${item.reserved_col3},${item.reserved_col4},${item.reserved_col5})
+        </foreach>
+    </insert>
+
+
+    <select id="selectTraceData" resultType="java.util.HashMap">
+        select
+            trace.param_mst_rawid as param_id,
+            trace.value,
+            trace.alarm_spec,
+            trace.warning_spec,
+            trace.event_dtts,
+            param.name  as param_name,
+            eqp.name as eqp_name,
+            eqp.rawid as eqp_id
+
+
+        from trace_trx_pdm trace ,param_mst_pdm param,eqp_mst_pdm eqp
+        where trace.param_mst_rawid = param.rawid and param.eqp_mst_rawid=#{eqpId}
+        and param.eqp_mst_rawid = eqp.rawid
+        and event_dtts <![CDATA[>=]]> #{start}
+        and event_dtts <![CDATA[<]]> #{end}
+    </select>
+    <select id="selectTraceDataByParamIdDate" resultType="com.bistel.a3.portal.domain.pdm.db.STDTraceTrx">
+        select
+            trace.rawid,
+            trace.param_mst_rawid ,
+            trace.value,
+            trace.alarm_spec,
+            trace.warning_spec,
+            trace.event_dtts,
+            param.name  as param_name,
+            eqp.name as eqp_name,
+            eqp.rawid as eqp_id
+
+
+        from trace_trx_pdm trace ,param_mst_pdm param,eqp_mst_pdm eqp
+        where trace.param_mst_rawid = param.rawid and param.rawid=#{paramId}
+        and param.eqp_mst_rawid = eqp.rawid
+        and event_dtts = #{date}
+    </select>
+    <select id="selectTraceRPMByTraceId" resultType="java.util.HashMap">
+        select
+        parts.name,
+        parts.rawid,
+        max(t.rpm) as rpm
+        from trace_trx_pdm t,
+        ( select trace.param_mst_rawid,trace.event_dtts,eqp.rawid as eqp_rawid
+          from trace_trx_pdm trace,param_mst_pdm param,eqp_mst_pdm eqp where trace.rawid= #{trace_mst_rawid} and trace.param_mst_rawid = param.rawid and param.eqp_mst_rawid = eqp.rawid ) b,
+        param_mst_pdm p,
+        parts_mst_pdm parts
+        where t.param_mst_rawid = p.rawid
+        and p.eqp_mst_rawid = b.eqp_rawid
+        and t.event_dtts  <![CDATA[>=]]> b.event_dtts + interval '-10' minute
+        and t.event_dtts  <![CDATA[<]]> b.event_dtts + interval '10' minute
+        and p.parts_mst_rawid = parts.rawid
+        and t.rpm is not null
+        and t.rpm != 0
+        group by parts.rawid,parts.name
+    </select>
+    <select id="selectPartRPMByTraceId" resultType="java.util.HashMap">
+        select
+        ratio * (SELECT max(rpm) FROM PARTS_MST_PDM P WHERE P.EQP_MST_RAWID = b.EQP_RAWID and p.base_ratio_yn='Y' ) as rpm,
+        parts.name
+        from parts_mst_pdm parts,
+        (
+           select
+           eqp.rawid as eqp_rawid
+           from trace_trx_pdm trace,
+           param_mst_pdm param,
+           eqp_mst_pdm eqp
+           where trace.rawid= #{trace_mst_rawid}
+           and trace.param_mst_rawid = param.rawid
+           and param.eqp_mst_rawid = eqp.rawid
+        )
+        b
+        where parts.eqp_mst_rawid = b.eqp_rawid
+        and rpm is not null
+    </select>
+    <select id="selectPartBearingByTraceId" resultType="java.util.HashMap">
+        select
+        parts.name,bear.*
+        from parts_mst_pdm parts,bearing_mst_pdm bear,
+        (
+           select
+           eqp.rawid as eqp_rawid
+           from trace_trx_pdm trace,
+           param_mst_pdm param,
+           eqp_mst_pdm eqp
+           where trace.rawid= #{trace_mst_rawid}
+           and trace.param_mst_rawid = param.rawid
+           and param.eqp_mst_rawid = eqp.rawid
+        )
+        b
+        where parts.eqp_mst_rawid = b.eqp_rawid
+        and bear.rawid = parts.bearing_mst_rawid
+    </select>
+    <select id="selectFilterTraceData" resultType="java.util.HashMap">
+    
+        select
+            eqp.name as eqpName,
+            param.name as paramName,
+            value,
+            alarm_spec,
+            warning_spec,
+            event_dtts,
+            rpm,
+            reserved_col1,
+            reserved_col2,
+            reserved_col3,
+            reserved_col4,
+            reserved_col5
+        from trace_trx_pdm trx,param_mst_pdm param,eqp_mst_pdm eqp
+        where trx.param_mst_rawid = param.rawid
+            and param.eqp_mst_rawid = eqp.rawid
+            and event_dtts  <![CDATA[>=]]> #{start}
+            and event_dtts  <![CDATA[<]]>  #{end}
+            and eqp.rawid in
+            <foreach collection="eqpIds" item="item1" separator="," open="(" close=")">
+            	#{item1}
+        	</foreach>
+            and param.name in
+            <foreach collection="paramNames" item="item2" separator="," open="(" close=")">
+            	#{item2}
+        	</foreach>
+        
+            order by eqpName,paramName
+    
+        
+    </select>
+     <select id="selectFilterTraceDataByEqpIdParamNames" resultType="com.bistel.a3.portal.domain.pdm.db.STDTraceTrx">
+    
+        select
+            trx.rawid,
+            trx.param_mst_rawid,
+            eqp.name as eqpName,
+            param.name as paramName,
+            value,
+            alarm_spec,
+            warning_spec,
+            event_dtts,
+            rpm,
+            reserved_col1,
+            reserved_col2,
+            reserved_col3,
+            reserved_col4,
+            reserved_col5
+        from trace_trx_pdm trx,param_mst_pdm param,eqp_mst_pdm eqp
+        where trx.param_mst_rawid = param.rawid
+            and param.eqp_mst_rawid = eqp.rawid
+            and event_dtts  <![CDATA[>=]]> #{start}
+            and event_dtts  <![CDATA[<]]>  #{end}
+            and eqp.rawid = #{eqpId}
+            and param.rawid in
+            <foreach collection="paramIds" item="item2" separator="," open="(" close=")">
+            	#{item2}
+        	</foreach>
+        
+            order by paramName
+    
+        
+    </select>
+    
+    <select id="selectFilterTraceDataByEqpIdParamId" resultType="com.bistel.a3.portal.domain.pdm.db.STDTraceTrx">
+    
+        select
+            trx.rawid,
+            trx.param_mst_rawid,
+            eqp.name as eqpName,
+            param.name as paramName,
+            value,
+            alarm_spec,
+            warning_spec,
+            event_dtts,
+            rpm,
+            reserved_col1,
+            reserved_col2,
+            reserved_col3,
+            reserved_col4,
+            reserved_col5
+        from trace_trx_pdm trx,param_mst_pdm param,eqp_mst_pdm eqp
+        where trx.param_mst_rawid = param.rawid
+            and param.eqp_mst_rawid = eqp.rawid
+            and event_dtts  <![CDATA[>=]]> #{start}
+            and event_dtts  <![CDATA[<]]>  #{end}
+            and eqp.rawid = #{eqpId}
+            and param.rawid =#{paramId}
+        
+            <foreach collection="filterDatas" item="filterData" >
+             
+            	<if test="filterData.fieldName!='-none-'">
+                    <if test="filterData.operator=='AND'">
+                        AND
+                    </if>
+                    <if test="filterData.operator=='OR'">
+                        OR
+                    </if>
+                    <if test="filterData.fieldName=='LOCATION'">
+                        reserved_col1
+                    </if>
+                    <if test="filterData.fieldName=='VALUE'">
+                        VALUE
+                    </if>
+                    <if test="filterData.condition=='equal'">
+                         <![CDATA[=]]>
+                    </if>
+                    <if test="filterData.condition=='lessthan'">
+                         <![CDATA[<]]>
+                    </if>
+                    <if test="filterData.condition=='greaterthan'">
+                         <![CDATA[>]]>
+                    </if>
+                    <if test="filterData.condition=='lessthanequal'">
+                         <![CDATA[<=]]>
+                    </if>
+                    <if test="filterData.condition=='greaterthanequal'">
+                         <![CDATA[>=]]>
+                    </if>
+                    <!--<if test="filterData.condition=='like'">-->
+                    <!--like <![CDATA[%]]>#{filterData.value}<![CDATA[%]]>-->
+                    <!--</if>-->
+        
+                    <if test="filterData.condition!='like'">
+                        #{filterData.value}
+                    </if>
+                    <!--#{filterData.operator} #{filterData.fieldName} #{filterData.condition} #{filterData.value}-->
+                </if>
+        	</foreach>
+        
+        
+            order by event_dtts
+    
+        
+    </select>
+    
+
+    <select id="selectFilterTraceDataByEqpIdParamIdWithAggregation" resultType="com.bistel.a3.portal.domain.pdm.db.STDTraceTrx">
+    
+        select
+        
+            eqp.name as eqpName,
+            param.name as paramName,
+            <if test="aggregationData.function=='sum'">
+                sum(value) as value,
+            </if>
+            <if test="aggregationData.function=='min'">
+                min(value) as value,
+            </if>
+            <if test="aggregationData.function=='max'">
+                max(value) as value,
+            </if>
+            <if test="aggregationData.function=='avg'">
+                avg(value) as value,
+            </if>
+            <if test="aggregationData.function=='count'">
+                count(value) as value,
+            </if>
+
+            
+    
+        <if test="aggregationData.groupUnit=='seconds'" >
+                to_char(event_dtts,'yyyy-MM-dd HH24:mi:') || trim(to_char(round(to_number( to_char(event_dtts,'ss'))/${aggregationData.groupValue}-0.4),'00')) as event_dtts
+        </if>
+        <if test="aggregationData.groupUnit=='minutes'" >
+            
+                to_char(event_dtts,'yyyy-MM-dd HH24:') || trim(to_char(round(to_number( to_char(event_dtts,'mi'))/${aggregationData.groupValue}-0.4),'00'))||':00' as event_dtts
+        </if>
+            <if test="aggregationData.groupUnit=='hours'" >
+                to_char(event_dtts,'yyyy-MM-dd ') || trim(to_char(round(to_number( to_char(event_dtts,'HH24'))/${aggregationData.groupValue}-0.4),'00'))||':00:00' as event_dtts
+            </if>
+            <if test="aggregationData.groupUnit=='days'" >
+                to_char(event_dtts,'yyyy-MM-') || trim(to_char(round(to_number( to_char(event_dtts,'dd'))/${aggregationData.groupValue}-0.4+1),'00'))||' 00:00:00'  as event_dtts
+            </if>
+
+            
+            
+        from trace_trx_pdm trx,param_mst_pdm param,eqp_mst_pdm eqp
+        where trx.param_mst_rawid = param.rawid
+            and param.eqp_mst_rawid = eqp.rawid
+            and event_dtts  <![CDATA[>=]]> #{start}
+            and event_dtts  <![CDATA[<]]>  #{end}
+            and eqp.rawid = #{eqpId}
+            and param.rawid =#{paramId}
+        
+            <foreach collection="filterDatas" item="filterData" >
+             
+            	<if test="filterData.fieldName!='-none-'">
+                    <if test="filterData.operator=='AND'">
+                        AND
+                    </if>
+                    <if test="filterData.operator=='OR'">
+                        OR
+                    </if>
+                    <if test="filterData.fieldName=='LOCATION'">
+                        reserved_col1
+                    </if>
+                    <if test="filterData.fieldName=='VALUE'">
+                        VALUE
+                    </if>
+                    <if test="filterData.condition=='equal'">
+                         <![CDATA[=]]>
+                    </if>
+                    <if test="filterData.condition=='lessthan'">
+                         <![CDATA[<]]>
+                    </if>
+                    <if test="filterData.condition=='greaterthan'">
+                         <![CDATA[>]]>
+                    </if>
+                    <if test="filterData.condition=='lessthanequal'">
+                         <![CDATA[<=]]>
+                    </if>
+                    <if test="filterData.condition=='greaterthanequal'">
+                         <![CDATA[>=]]>
+                    </if>
+                    <if test="filterData.condition=='like'">
+                        like #{filterData.value}
+                    </if>
+        
+                    <if test="filterData.condition!='like'">
+                        #{filterData.value}
+                    </if>
+                    <!--#{filterData.operator} #{filterData.fieldName} #{filterData.condition} #{filterData.value}-->
+                </if>
+        	</foreach>
+        
+            group by   eqp.name,
+            param.name,
+            <if test="aggregationData.groupUnit=='seconds'" >
+                    to_char(event_dtts,'yyyy-MM-dd HH24:mi:') || trim(to_char(round(to_number( to_char(event_dtts,'ss'))/${aggregationData.groupValue}-0.4),'00'))
+            </if>
+        
+            <if test="aggregationData.groupUnit=='minutes'" >
+                to_char(event_dtts,'yyyy-MM-dd HH24:') || trim(to_char(round(to_number( to_char(event_dtts,'mi'))/${aggregationData.groupValue}-0.4),'00'))||':00'
+            </if>
+            <if test="aggregationData.groupUnit=='hours'" >
+                to_char(event_dtts,'yyyy-MM-dd ') || trim(to_char(round(to_number( to_char(event_dtts,'HH24'))/${aggregationData.groupValue}-0.4),'00'))||':00:00'
+            </if>
+            <if test="aggregationData.groupUnit=='days'" >
+                to_char(event_dtts,'yyyy-MM-') || trim(to_char(round(to_number( to_char(event_dtts,'dd'))/${aggregationData.groupValue}-0.4+1),'00'))||' 00:00:00'
+            </if>
+        
+        
+        order by event_dtts
+    
+
+        
+    </select>
+    
+
+    <select id="selectFilterTraceDataByEqpIdWithAggregation" resultType="java.util.HashMap">
+    
+        select
+        
+            eqp.name as eqpName,
+            param.name as paramName,
+            sum(value) as sum,
+            min(value) as min,
+            max(value) as max,
+            avg(value) as avg,
+            count(value) as count,
+    
+        <!--<foreach collection="aggregationData.functions" item="function">-->
+                <!--<if test="function=='sum'">-->
+                    <!--sum(value) as sum,-->
+                <!--</if>-->
+                <!--<if test="function=='min'">-->
+                    <!--min(value) as min,-->
+                <!--</if>-->
+                <!--<if test="function=='max'">-->
+                    <!--max(value) as max,-->
+                <!--</if>-->
+                <!--<if test="function=='avg'">-->
+                    <!--avg(value) as avg,-->
+                <!--</if>-->
+                <!--<if test="function=='count'">-->
+                    <!--count(value) as count,-->
+                <!--</if>-->
+            <!--</foreach>-->
+            
+    
+        <if test="aggregationData.groupUnit=='seconds'" >
+                to_char(event_dtts,'yyyy-MM-dd HH24:mi:') || trim(to_char(round(to_number( to_char(event_dtts,'ss'))/${aggregationData.groupValue}-0.4),'00')) as event_dtts
+        </if>
+        <if test="aggregationData.groupUnit=='minutes'" >
+            
+                to_char(event_dtts,'yyyy-MM-dd HH24:') || trim(to_char(round(to_number( to_char(event_dtts,'mi'))/${aggregationData.groupValue}-0.4),'00'))||':00' as event_dtts
+        </if>
+            <if test="aggregationData.groupUnit=='hours'" >
+                to_char(event_dtts,'yyyy-MM-dd ') || trim(to_char(round(to_number( to_char(event_dtts,'HH24'))/${aggregationData.groupValue}-0.4),'00'))||':00:00' as event_dtts
+            </if>
+            <if test="aggregationData.groupUnit=='days'" >
+                to_char(event_dtts,'yyyy-MM-') || trim(to_char(round(to_number( to_char(event_dtts,'dd'))/${aggregationData.groupValue}-0.4+1),'00'))||' 00:00:00'  as event_dtts
+            </if>
+
+            
+            
+        from trace_trx_pdm trx,param_mst_pdm param,eqp_mst_pdm eqp
+        where trx.param_mst_rawid = param.rawid
+            and param.eqp_mst_rawid = eqp.rawid
+            and event_dtts  <![CDATA[>=]]> #{start}
+            and event_dtts  <![CDATA[<]]>  #{end}
+            and eqp.rawid = #{eqpId}
+        
+            <!--and param.rawid in-->
+            <!--<foreach collection="paramIds" item="item1" separator="," open="(" close=")">-->
+            	<!--#{item1}-->
+        	<!--</foreach>-->
+        
+            <foreach collection="filterDatas" item="filterData" >
+             <!---->
+            	<!--<if test="filterData.fieldName!='-none-'">-->
+                    <!--<if test="filterData.operator=='AND'">-->
+                        <!--AND-->
+                    <!--</if>-->
+                    <!--<if test="filterData.operator=='OR'">-->
+                        <!--OR-->
+                    <!--</if>-->
+                    <if test="filterData.fieldName=='LOCATION'">
+                        and reserved_col1
+    
+                        <if test="filterData.condition=='equal'">
+                        <![CDATA[=]]>
+                        </if>
+                        <if test="filterData.condition=='lessthan'">
+                        <![CDATA[<]]>
+                        </if>
+                        <if test="filterData.condition=='greaterthan'">
+                        <![CDATA[>]]>
+                        </if>
+                        <if test="filterData.condition=='lessthanequal'">
+                        <![CDATA[<=]]>
+                        </if>
+                        <if test="filterData.condition=='greaterthanequal'">
+                        <![CDATA[>=]]>
+                        </if>
+                        <if test="filterData.condition=='like'">
+                        like #{filterData.value}
+                        </if>
+                        <if test="filterData.condition!='like'">
+                        #{filterData.value}
+                        </if>
+                    </if>
+                    <!--<if test="filterData.fieldName=='VALUE'">-->
+                        <!--VALUE-->
+                    <!--</if>-->
+                    <!--<if test="filterData.condition=='equal'">-->
+                         <!--<![CDATA[=]]>-->
+                    <!--</if>-->
+                    <!--<if test="filterData.condition=='lessthan'">-->
+                         <!--<![CDATA[<]]>-->
+                    <!--</if>-->
+                    <!--<if test="filterData.condition=='greaterthan'">-->
+                         <!--<![CDATA[>]]>-->
+                    <!--</if>-->
+                    <!--<if test="filterData.condition=='lessthanequal'">-->
+                         <!--<![CDATA[<=]]>-->
+                    <!--</if>-->
+                    <!--<if test="filterData.condition=='greaterthanequal'">-->
+                         <!--<![CDATA[>=]]>-->
+                    <!--</if>-->
+                    <!--<if test="filterData.condition=='like'">-->
+                        <!--like #{filterData.value}-->
+                    <!--</if>-->
+        <!---->
+                    <!--<if test="filterData.condition!='like'">-->
+                        <!--#{filterData.value}-->
+                    <!--</if>-->
+                    <!--&lt;!&ndash;#{filterData.operator} #{filterData.fieldName} #{filterData.condition} #{filterData.value}&ndash;&gt;-->
+                <!--</if>-->
+        	</foreach>
+        <!---->
+            group by   eqp.name,
+            param.name,
+            <if test="aggregationData.groupUnit=='seconds'" >
+                    to_char(event_dtts,'yyyy-MM-dd HH24:mi:') || trim(to_char(round(to_number( to_char(event_dtts,'ss'))/${aggregationData.groupValue}-0.4),'00'))
+            </if>
+        
+            <if test="aggregationData.groupUnit=='minutes'" >
+                to_char(event_dtts,'yyyy-MM-dd HH24:') || trim(to_char(round(to_number( to_char(event_dtts,'mi'))/${aggregationData.groupValue}-0.4),'00'))||':00'
+            </if>
+            <if test="aggregationData.groupUnit=='hours'" >
+                to_char(event_dtts,'yyyy-MM-dd ') || trim(to_char(round(to_number( to_char(event_dtts,'HH24'))/${aggregationData.groupValue}-0.4),'00'))||':00:00'
+            </if>
+            <if test="aggregationData.groupUnit=='days'" >
+                to_char(event_dtts,'yyyy-MM-') || trim(to_char(round(to_number( to_char(event_dtts,'dd'))/${aggregationData.groupValue}-0.4+1),'00'))||' 00:00:00'
+            </if>
+        
+        
+        order by event_dtts
+    
+
+        
+    </select>
+   
+    
+    
+    <select id="selectEqpIdsParamIdsInFilterTraceData" resultType="java.util.HashMap">
+    
+        select
+            eqp.rawid as eqpId,
+            eqp.name as eqpName,
+            param_mst_rawid as paramId,
+            param.name as paramName
+        from trace_trx_pdm trx,param_mst_pdm param,eqp_mst_pdm eqp
+        where trx.param_mst_rawid = param.rawid
+            and param.eqp_mst_rawid = eqp.rawid
+            and event_dtts  <![CDATA[>=]]> #{start}
+            and event_dtts  <![CDATA[<]]>  #{end}
+            and eqp.rawid in
+            <foreach collection="eqpIds" item="item1" separator="," open="(" close=")">
+            	#{item1}
+        	</foreach>
+            and param.name in
+            <foreach collection="paramNames" item="item2" separator="," open="(" close=")">
+            	#{item2}
+        	</foreach>
+            <!--<foreach collection="filterDatas" item="filterData" >-->
+             <!---->
+            	<!--<if test="filterData.fieldName!='-none-'">-->
+                    <!--<if test="filterData.operator=='AND'">-->
+                        <!--AND-->
+                    <!--</if>-->
+                    <!--<if test="filterData.operator=='OR'">-->
+                        <!--OR-->
+                    <!--</if>-->
+                    <!--<if test="filterData.fieldName=='LOCATION'">-->
+                        <!--reserved_col1-->
+                    <!--</if>-->
+                    <!--<if test="filterData.fieldName=='VALUE'">-->
+                        <!--VALUE-->
+                    <!--</if>-->
+                    <!--<if test="filterData.condition=='equal'">-->
+                         <!--<![CDATA[=]]>-->
+                    <!--</if>-->
+                    <!--<if test="filterData.condition=='lessthan'">-->
+                         <!--<![CDATA[<]]>-->
+                    <!--</if>-->
+                    <!--<if test="filterData.condition=='greaterthan'">-->
+                         <!--<![CDATA[>]]>-->
+                    <!--</if>-->
+                    <!--<if test="filterData.condition=='lessthanequal'">-->
+                         <!--<![CDATA[<=]]>-->
+                    <!--</if>-->
+                    <!--<if test="filterData.condition=='greaterthanequal'">-->
+                         <!--<![CDATA[>=]]>-->
+                    <!--</if>-->
+                    <!--<if test="filterData.condition=='like'">-->
+                         <!--like %#{filterData.value}%-->
+                    <!--</if>-->
+
+                    <!--<if test="filterData.condition!='like'">-->
+                        <!--#{filterData.value}-->
+                    <!--</if>-->
+                    <!--&lt;!&ndash;#{filterData.operator} #{filterData.fieldName} #{filterData.condition} #{filterData.value}&ndash;&gt;-->
+                <!--</if>-->
+        	<!--</foreach>-->
+        
+        
+        
+        group by eqp.rawid,eqp.name,param_mst_rawid,param.name
+        order by eqp.name,param.name
+    
+        
+    </select>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</mapper>

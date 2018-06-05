@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bistel.a3.portal.dao.pdm.std.report.STDAlarmTrxMapper">
+    <insert id="insertAlarm">
+        insert into alarm_trx_pdm(rawid,param_mst_rawid, alarm_dtts, alarm_type_cd, value, alarm_spec, warning_spec)
+        values(seq_alarm_trx_pdm.nextval, #{param_id}, #{alarm_dtts}, #{status_cd}, #{value}, #{alarm}, #{warn})
+    </insert>
+    <insert id="insertEqpAlarm">
+        insert into eqp_alarm_daily_sum_pdm(rawid,eqp_mst_rawid, sum_dtts, status_cd, value,create_by,create_dtts)
+        select seq_eqp_alarm_daily_sum_pdm.nextval, a.eqp_id, b.alarm_dtts, a.alarm_type_cd, a.value,#{userName},systimestamp
+        from (
+        select
+        <!--seq_eqp_alarm_daily_sum_pdm.nextval,-->
+        eqp.rawid as eqp_id,
+        a.alarm_type_cd,
+        max(a.value/a.alarm_spec) as value
+        from alarm_trx_pdm a
+        join param_mst_pdm b on a.param_mst_rawid = b.rawid
+        join eqp_mst_pdm eqp on eqp.rawid = b.eqp_mst_rawid
+        where b.eqp_mst_rawid = #{eqpId}
+        and a.alarm_dtts <![CDATA[>=]]> #{start}
+        and a.alarm_dtts <![CDATA[<]]> #{end}
+        <!--and a.alarm is not null and a.lvl is null-->
+        group by eqp.rawid, a.alarm_type_cd
+        ) a join (
+        select
+        <!--seq_eqp_alarm_daily_sum_pdm.nextval,-->
+        eqp.rawid as eqp_id,
+        a.alarm_type_cd,
+        a.value/a.alarm_spec as value,
+        max(a.alarm_dtts) as alarm_dtts
+        from alarm_trx_pdm a
+        join param_mst_pdm b on a.param_mst_rawid = b.rawid
+        join eqp_mst_pdm eqp on eqp.rawid = b.eqp_mst_rawid
+        where b.eqp_mst_rawid = #{eqpId}
+        and a.alarm_dtts <![CDATA[>=]]> #{start}
+        and a.alarm_dtts <![CDATA[<]]> #{end}
+        <!--and a.alarm is not null and a.lvl is null-->
+        group by eqp.rawid, a.alarm_type_cd, a.value/a.alarm_spec
+        ) b on a.eqp_id = b.eqp_id
+        and a.alarm_type_cd = b.alarm_type_cd
+        and a.value = b.value
+    </insert>
+    <delete id="deleteAlarm">
+        delete from alarm_trx_pdm
+        where param_mst_rawid = #{param_id}
+          and alarm_dtts = #{alarm_dtts}
+    </delete>
+    <delete id="deleteAlarmByEqpId">
+        delete from alarm_trx_pdm
+        where param_mst_rawid in(select rawid from param_mst_pdm where eqp_mst_rawid = #{eqpId})
+        and a.alarm_dtts <![CDATA[>=]]> #{start}
+        and a.alarm_dtts <![CDATA[<]]> #{end}
+    </delete>
+    <delete id="deleteEqpAlarm">
+        delete from eqp_alarm_daily_sum_pdm
+        where eqp_mst_rawid = #{eqpId}
+          and sum_dtts <![CDATA[>=]]> #{start}
+          and sum_dtts <![CDATA[<]]> #{end}
+    </delete>
+    <select id="selectStartAlarm" resultType="com.bistel.a3.portal.domain.pdm.db.EqpAlarmTrx">
+        select min(sum_dtts) as alarm_dtts
+        from eqp_alarm_daily_sum_pdm
+        where eqp_mst_rawid = #{eqpId}
+          and sum_dtts <![CDATA[>=]]> #{start}
+          and sum_dtts <![CDATA[<]]> #{end}
+          and status_cd = #{status}
+    </select>
+</mapper>

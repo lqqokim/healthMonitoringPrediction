@@ -1,0 +1,564 @@
+{
+    "LABEL": {
+        "GENERAL": {
+            "PATTERN_TYPE": "Pattern Type",
+            "LIMIT_COEFFICIENTS": "Limit Coefficients",
+            "SMOOTHING": "Smoothing",
+            "TICK": "Tick",
+            "WIDTH": "Width",
+            "CLOSE": "Close",
+            "NONE": "None"
+        },
+        "PDM": {
+            "AREA": "Shop"
+        },
+        "WORKSPACE": {
+            "SHOW_NAVIGATOR": "Show Navigator",
+            "HIDE_NAVIGATOR": "Hide Navigator",
+            "MODEL_CALCULATING": "Model Calculating..."
+        },
+        "WIDGET": {
+            "FAULT_OVERVIEW": {
+                "IGNORE_FALSE_ALARM": "Ignore false alarms"
+            },
+            "RPT_TREND": {
+                "LOT_COUNT": "Lot Count"
+            }
+        },
+        "FDTA": {
+            "FAULT": "FDC",
+            "OOC": "SPC",
+            "OCAP": "OCAP",
+            "FDTA_LOT": "DFD (within lot)",
+            "FDTA_WAFER": "DFD (last n)",
+            "FDTA_WAFER_RELIABLE": "Full",
+            "FDTA_WAFER_UNRELIABLE": "Partial",
+            "FDTA_LOT_SCORE": "DFD Score (within lot)",
+            "FDTA_WAFER_SCORE": "DFD Score (last n)",
+            "FDTA_WAFER_COUNT": "Process Run Count",
+            "FAULT_MODELS": "Trace Model",
+            "OOC_MODELS": "SPC Model",
+            "FDTA_MODELS": "DFD Model",
+            "CONFIG": {
+                "REFERENCE_THRESHOLD": "Partial Reference Threshold Setting",
+                "TH": "Count of Process Runs with Partial Reference",
+                "REFERENCE_WAFER": "Reference Substrates",
+                "SAME": "Same",
+                "WITHIN_DAYS": "Within days",
+                "LAST_MODIFIED": "Last Modified",
+                "FAULT_COUNT": "Fault Count",
+                "RECIPE_COUNT": "Recipe Count",
+                "WAFER_COUNT": "Alarmed Process Run Count"
+            }
+        },
+        "WQP": {
+            "GOOD": "Good",
+            "GOODADDER": "Good(Adder)",
+            "GOODCARRYOVER": "Good(Carryover)",
+            "BAD": "Bad",
+            "BADADDER": "Bad(Adder)",
+            "BADCARRYOVER": "Bad(Carryover)",
+            "JEOPARDY": "Jeopardy",
+            "JEOPARDYADDER": "Jeopardy(Adder)",
+            "JEOPARDYCARRYOVER": "Jeopardy(Carryover)"
+        }
+    },
+    "BUTTON": {
+        "GENERAL": {
+            "HOME": "Home Dashboard",
+            "SHOW_LIST": "Show List",
+            "HIDE_LIST": "Hide List",
+            "ADD": "Add",
+            "DELETE": "Delete",
+            "REMOVE": "Remove",
+            "OK": "OK",
+            "CANCEL": "Cancel",
+            "APPLY": "Apply",
+            "CLOSE": "Close",
+            "TOOLS": "Tools",
+            "LEGEND": "Legend",
+            "SET_LEGEND": "Set Legend",
+            "SHOWWIDGETS": "Show Widgets",
+            "HIDEWIDGETS": "Hide Widgets",
+            "PREVIOUSDASHBOARD": "Previous Dashboard",
+            "NEXTDASHBOARD": "Next Dashboard",
+            "DASHBOARDVIEW": "Dashbord Single View",
+            "DASHBOARDLIST": "Dashboard Gallery View",
+            "LOGOUT": "Log out"
+        },
+        "WORKSPACE": {
+            "TRACE_MODEL": {
+                "ADD_PARAMETER": "Add Parameter",
+                "SET_PARAMETER": "Set Parameter",
+                "SET_SPEC": "Set Model",
+                "REMOVE_SPEC": "Remove Model",
+                "REMOVE_PARAMETERS": "Remove Parameters"
+            },
+            "UVA_MODEL": {
+                "SET_PARAMETER": "Set UVA Parameter",
+                "SET_SPEC": "Set Spec",
+                "SET_OPTION": "Spec Option",
+                "REMOVE_SPEC": "Remove Spec",
+                "REMOVE_PARAMETERS": "Remove Sum Plan"
+            },
+            "TRACE_SUM_PLAN": {
+                "SET_SUM_PLAN": "Set Sum Plan",
+                "REMOVE_SUM_PLAN": "Remove Sum Plan"
+            },
+            "FAULT_DETAIL_RAW": {
+                "SHOW_REFERENCE_WAFER": "show the reference substrates"
+            }
+        },
+        "WIDGET": {
+            "FAULT_DETAIL": {
+                "DRILLDOWN_TO_MODULE": "Link to module"
+            }
+        }
+    },
+    "MESSAGE": {
+        "GENERAL": {
+            "REMOVE": "Are you sure you want to remove the {removeItemName}?",
+            "REMOVE_ITEMS": "selected items",
+            "DELETE": "Are you sure you want to delete the {deleteItemName}?",
+            "INFORMATION": "Information",
+            "ERROR": "Error",
+            "ITEM_INPUT": "Please input {item}",
+            "ITEM_REQUIRED": "{item} is required",
+            "ITEM_VALUE_INVALID": "The format of {item} is invalid",
+            "REMOVED_DASHBOARD": "Successfully removed dashboard",
+            "REMOVING_ERROR_DASHBOARD": "Error removing dashboard",
+            "ADDED_DASHBOARD": "Successfully added dashboard",
+            "ADDING_ERROR_DASHBOARD": "Error adding dashboard",
+            "REMOVED_WIDGET": "Successfully removed widget",
+            "REMOVING_ERROR_WIDGET": "Error removing widget",
+            "ADDED_WIDGET": "Successfully added widget",
+            "ADDING_ERROR_WIDGET": "Error adding widget",
+            "REMOVED_WORKSPACE": "Successfully removed workspace",
+            "REMOVING_ERROR_WORKSPACE": "Error removing workspace",
+            "ADDED_WORKSPACE": "Successfully added workspace",
+            "ADDING_ERROR_WORKSPACE": "Error adding workspace",
+            "REMOVED_TASKER": "Successfully removed app",
+            "REMOVING_ERROR_TASKER": "Error removing app",
+            "ADDED_TASKER": "Successfully added app",
+            "ADDING_ERROR_TASKER": "Error adding app",
+            "WIDGET_PROPERTIES_SUCESS": "Successfully applied configuration",
+            "WIDGET_PROPERTIES_ERROR": "Error apply configuration",
+            "CONDITION_ERROR": "condition information is not enough.",
+            "SHARE_USER": "Shared by {{user}}",
+            "DELETE_USER": "{{userId}} has been deleted. You will be logged out after 3 seconds."
+        },
+        "PDM": {
+            "FOCUS_CHANGE": "Are you sure you want to initialize the {item}?",
+            "PARAMETER_CHANGE": "Are you sure you want to initialize PDM Model?",
+            "RANKING_PROGRESS": "ranking is on porgress",
+            "MANAGEMENT": {
+                "REMOVE_ITEM": "Are you sure you want to delete the {{itemName}}?"
+            }
+        },
+        "TASKER_DRAWER": {
+            "DRILL_DOWN_WITH": "Drill down with {taskerName}"
+        },
+        "LOGIN": {
+            "INPUT_USERNAME": "Please input username",
+            "INPUT_PASSWORD": "Please input user password",
+            "LOGIN_ERROR": "Sorry, your username and password are incorrect - please try again."
+        },
+        "WORKSPACE": {
+            "PREPARE_WORKSPACE": "Please wait until the workspace is when preparation.",
+            "ELAPSED_TIME": "Elapsed time <strong>{counter}</strong> seconds...",
+            "CREATE_ERROR": "There are some errors when preparing workspace. Please, retry or contact to administrator.",
+            "TASKER_ERROR": "Can not find tasker. Please, contact administrator.",
+            "SELECTED_WAFER_CHANGED": "Selected Wafer was changed. Are you sure that you want to reload the data?",
+            "REMOVE_TRACE_SPEC": "Are you sure you want to remove {specCount, plural, =1{a spec} other{specs}} of {modelCount, plural, =1{a selected Trace Model} other{selected Trace Models}}?",
+            "REMOVE_TRACE_MODEL": "Are you sure you want to remove {count, plural, =1{a selected Trace Model} other{selected Trace Models}}?",
+            "REMOVE_WINDOW": "Are you sure you want to remove {removeType, select, selectedAndRelated{selected window and related} related{related} affected{affected} selected{selected} other{selected}} {count, plural, =1{window} other{windows}}?",
+            "REMOVE_TASKER_GROUP": "Are you sure you want to remove the current Tasker Group?",
+            "NO_SELECTED_WAFER": "Please select wafers.",
+            "NO_SELECTED_CONTEXT": "Please select contexts.",
+            "NO_SELECTED_CONDITIONS": "Please select conditions to search.",
+            "NO_DATA": "No data.",
+            "LOCK_ACCURACY": "This action can’t be executed while trace model accuracy is being performed.",
+            "MORE_THAN_COUNT": "{total} can not be greater than.",
+            "REMOVE_TRACE_SUM_PLAN": "Are you sure you want to remove {sumPlanCount, plural, =1{a summary plan} other{summary plans}} of {modelCount, plural, =1{a selected Trace Model} other{selected Trace Models}}?",
+            "REMOVE_WORKSPACE": "Are you sure you want to remove workspace?",
+            "NOT_AVAILABLE_WIDGET_LIST": "Widget list is not available on workspace"
+        },
+        "DIALOG": {
+            "SPEC_OPTION": {
+                "COMPARE_ERROR": "The {largeItem} has to be lager than the {smallItem}"
+            }
+        },
+        "DEPLOY": {
+            "DEPLOY_CONFIRM": "Are you sure that you want to deploy the trace model?",
+            "SUCCESS_DEPLOY": "Successully applied the modified trace model.",
+            "FAIL_DEPLOY": "An error occurred while applying a modified trace model.",
+            "NO_DEPLOY_DATA": "Please select a trace models to apply!"
+        },
+        "UVA_DEPLOY": {
+            "DEPLOY_CONFIRM": "Are you sure that you want to deploy the uva model?",
+            "SUCCESS_DEPLOY": "Successully applied the modified uva model.",
+            "FAIL_DEPLOY": "An error occurred while applying a modified uva model.",
+            "NO_DEPLOY_DATA": "Please select a uva models to apply!"
+        },
+        "DASHBOARD": {
+            "DELETE_DASHBOARD": "Are you sure you want to delete this dashboard?",
+            "DELETE_SELECTED_DASHBOARDS": "Are you sure you want to delete a selected dashboard?",
+            "SELECT_DASHBOARD": "Please select dashboard.",
+            "NOT_AVAILABLE_WIDGET_LIST": "Widget list is not available on shared dashboard",
+            "NOT_AVAILABLE_CONFIGURATION_SHARED": "Configuration is not available on shared dashboard",
+            "NOT_AVAILABLE_CONFIGURATION_NO_FORM": "Configuration is not available because there are no properties."
+        },
+        "TRACE_CHART": {
+            "SELECT_ONE_PARAMETER": "Please select only one parameter.",
+            "SELECT_PARAMETER": "Please select at least one parameter.",
+            "SELECT_STEP": "Please select step.",
+            "SELECT_SUMMARY_TYPE": "Please select summary type."
+        },
+        "FAULT_DETAIL_RAW": {
+            "NO_MORE_10": "Can not add chart more than 10.",
+            "COPY_COMPLETE": "Contexts copying was completed."
+        },
+        "FAULT_DETAIL_RAW_LEVEL_WIDGET": {
+            "NO_MORE_900_SUBSTRATES": "Can not select more than 900 wafers.",
+            "LINK_PARSING_ERROR": "There is an error with the URL link. Please check."
+        },
+        "CONFIG_INVALID": {
+            "FROM_TIME": "Please select right time for From.",
+            "TO_TIME": "Please select right time for To."
+        },
+        "PPID_TREND": {
+            "DISPLAY_EVENTS": "Display on the chart"
+        },
+        "ACUBED_MAP": {
+            "MAP": {
+                "REMOVE_WORKSPACE": "Are you sure you want to remove workspace?",
+                "REMOVE_TASKER": "Are you sure you want to remove TasKer?"
+            },
+            "AUTOMATION": {
+                "NULL_SCHEDULE_NAME": "Please input scheduleName.",
+                "NULL_HOUR": "Please select hour.",
+                "NULL_MINUTE": "Please select minute.",
+                "NULL_DAY_OF_WEEK": "Please select day of week.",
+                "ONLY_ONE_DAY_OF_WEEK": "Please select only one day of week.",
+                "NULL_SCHDULE_DATE": "Please select scheduleDate.",
+                "CHECK_SCHDULE_DATE": "Please select right time for scheduleDate."
+            },
+            "GRID": {
+                "NO_SELECTED_WORKSPACE": "Please select workspace.",
+                "REMOVE_SELECTED_WORKSPACE": "Are you sure you want to remove a selected workspace?",
+                "REMOVING_ERROR_WORKSPACE": "Error removing workspace",
+                "MODIFIED_WORKSPACE": "Successfully modified workspace.",
+                "MODIFYING_ERROR_WORKSPACE": "Error modifying workspace"
+            }
+        },
+        "MODAL": {
+            "SHARED_USER": {
+                "SELECT_USER": "Please select user.",
+                "DELETE_USER": "Are you sure you want to remove user?",
+                "DUPLICATE_USER": "The User ID already exists. Please use a different User ID."
+            }
+        },
+        "APP_CONFIG": {
+            "FDTA": {
+                "SAVE_SUCCESS": "Save successed.",
+                "SELECTED_ITEM_MODIFY": "Selected item was modified."
+            },
+            "WQP": {
+                "LOADING_SUCCESS": "File loading and config setting were completed."
+            },
+            "AUTHORITY": {
+                "INPUT_USERID": "Please input user ID.",
+                "INPUT_USERNAME": "Please input name.",
+                "DUPLICATE_USER": "The User ID already exists. Please use a different User ID.",
+                "DELETE_SELECTED_USER": "Are you sure you want to delete the selected {{user}}?",
+                "INPUT_GROUPID": "Please input group ID.",
+                "DUPLICATE_GROUP": "Already registered group.",
+                "ROLE_REMOVE_VALID": "A Role already registered as a Child.",
+                "INPUT_VALID": "Please enter a valid {{field}}."
+            },
+            "TOOLS": {
+                "INPUT_VALID": "Please input {{field}}.",
+                "SELECT_VALID": "Please select {{type}}.",
+                "DUPLICATE_NAME": "Already registered name",
+                "REMOVE_VALID": "Please check all of your current {{itemName}}.",
+                "REMOVE_ITEM": "Are you sure you want to delete the {{itemName}}?",
+                "DATA_WARNING": "Please make sure that the {{type}} information is in use.",
+                "IMPORT_WARNING": "Existing information will be lost when importing."
+            },
+            "CATEGORY": {
+                "DUPLICATE_NAME": "Already registered Category",
+                "INPUT_NAME": "Please input Category name",
+                "CANNOT_SPECIAL_CHARACTORS": "Can not enter special characters.",
+                "CANNOT_SPECIAL_UNCATEGORIZED": "Uncategorized could not be created.",
+                "MAX_LENGTH": "Category names can not exceed {{size}} characters. Currently, it is {{currentSize}} characters.",
+                "REQUIRE_COLUMN_TOOL": "Please check the format of your parameter category file and try again Columns for Tool/Module format: toolName, moduleName, variableId, paramName, paramAlias, priorityCode.",
+                "REQUIRE_COLUMN_EXTERNAL": "Please check the format of your parameter category file and try again Columns for External Module ID format: moduleName, variableId, paramName, paramAlias, priorityCode.",
+                "SELECT_CSV": "Parameter category must be a csv file..",
+                "SELECT_FILE": "Please select file",
+                "IMPORT_SUCCESS": "Imported successfully.",
+                "IMPORT_FAILT": "Import failed.",
+                "IMPORT_NOTMATCH": "Please check type in csv file."
+            }
+        },
+        "USER_CONFIG": {
+            "SAVE_SUCCESS": "Saved successfully.",
+            "CREATE_SUCCESS": "Created successfully.",
+            "UPDATE_SUCCESS": "Updated successfully.",
+            "REMOVE_SUCCESS": "Removed successfully."
+        }
+    },
+    "HEADER": {
+        "GENERAL": {},
+        "TOOL": "Tool",
+        "MODULE": "Module",
+        "PARAMETERS": "Parameters",
+        "FDTA_COUNT": "Total",
+        "DATE_RANGE": "Date Range",
+        "ALARM_TYPE": "Alarm Aggregation",
+        "RELIABLE_TYPE": "Last n Referencing"
+    },
+    "TITLE": {
+        "GENERAL": {
+            "WARNING": "Warning",
+            "INFORMATION": "Information",
+            "ERROR": "Error",
+            "CONFIRM": "Confirm",
+            "SUCCESS": "Success"
+        },
+        "DIALOG": {
+            "SET_SPEC_OPTIONS": "Set Spec Options",
+            "REMOVE_SPEC": "Remove Spec",
+            "REMOVE_TRACE_MODEL": "Remove Trace Model",
+            "LEGEND_COLOR_GROUP": "Legend Color Group",
+            "LEGEND_GROUP_CONFIG": "Configure Context to include in Legend",
+            "ADD_CLASSIFICATION_GROUP": "Add Classification Group",
+            "REMOVE_CLASSIFICATION_GROUP": "Remove Classification Group",
+            "SET_SUM_PLAN_OPTIONS": "Set Summary Plan Options",
+            "REMOVE_SUM_PLAN": "Remove Summary Plan",
+            "SUM_TYPE": "Summary Type",
+            "MIN": "Min",
+            "MAX": "Max",
+            "MEAN": "Mean",
+            "STDEV": "Stdev",
+            "ADHOC_POPUP": "Ad-hoc summary modeling"
+        }
+    },
+    "SAMPLES": {
+        "EN_LANGUAGE": "English",
+        "KO_LANGUAGE": "Korean",
+        "HEADLINE": "I'm a headline",
+        "USER_INFO": "My name is {username} and my job is a {job}",
+        "TEXT": "I'm using messageformat interpolation { val }",
+        "PLURAL": "{GENDER, select, male{He} female{She} other{They}} liked this"
+    },
+    "DATA_LABEL": {
+        "TOOL_MODEL_VERSION": "toolModelVersion",
+        "TOOLS": "tools",
+        "TOOL": "tool",
+        "TOOL_NAME": "toolName",
+        "NAME": "name",
+        "MODULE": "module",
+        "MODULE_NAME": "moduleName",
+        "MODULE_GROUP": "unitGroup",
+        "MODULE_TYPE_NAME": "unitType",
+        "UNIT_NAME": "unit",
+        "MODULES": "modules",
+        "PPID": "Cluster recipe",
+        "PRODUCT": "product",
+        "PRODUCTS": "products",
+        "OPERATION": "operation",
+        "OPERATIONS": "operations",
+        "RECIPES": "recipes",
+        "RECIPE": "recipe",
+        "FROM": "from",
+        "TO": "to",
+        "START_DTTS": "Start Time",
+        "END_DTTS": "End Time",
+        "CLUSTER_GROUP": "clusterGroup",
+        "FOCUS": "focus",
+        "FOCUS_VALUE": "devisionLine",
+        "INLINE_TOOL": "inlineTool",
+        "INLINE_TOOLS": "inlineTools",
+        "INLINE_TOOL_LABEL": "inlineToolLabel",
+        "INLINE_TOOL_NAME": "Cluster",
+        "INLINE_GROUP": "inlineGroup",
+        "INLINE_GROUPS": "inlineGroups",
+        "INLINE_GROUP_NAME": "Cluster Group",
+        "MAINTANANCE_NAME": "maintananceName",
+        "TOOL_ALIAS": "toolAlias",
+        "TOOL_STATE_TYPE": "toolStateType",
+        "TOOL_STATE": "toolState",
+        "STATE_IN_DTTS": "stateInDtts",
+        "STATE_OUT_DTTS": "stateOutDtts",
+        "EVENT_NOTES": "eventNotes",
+        "THRESHOLD": "threshold",
+        "CONTROLTHROUGHPUT": "controlThroughput",
+        "REALTHROUGHPUT": "realThroughput",
+        "STANDARDTHROUGHPUT": "standardThroughput",
+        "THROUGHPUT": "Throughput",
+        "TOOLS_INFO": "toolsInfo",
+        "WAFERCOUNT": "WaferCount",
+        "CLUSTER": "Cluster",
+        "CLUSTER_RECIPE": "ClusterRecipe",
+        "VALUE": "value",
+        "STATUS_NAME": "statusName",
+        "STATUS_VALUE": "statusValue",
+        "STATUS_RATIO": "statusRatio",
+        "LOT": "lot",
+        "LOTS": "lots",
+        "LOT_START_DTTS": "startTime",
+        "LOT_END_DTTS": "EndTime",
+        "INLINE_RECIPE": "inlineRecipe",
+        "LOST_TIME": "lostTime",
+        "PERCENTAGE": "Percentage",
+        "COMMUNICATION": "Sync with",
+        "LOT_COUNT": "selectedLotCount",
+        "PPIDS": "ppids",
+        "TIME": "Time",
+        "PROCESS_TIME": "processTime",
+        "SUBSTRATE": "Substrate",
+        "UCL": "ucl",
+        "USL": "usl",
+        "LCL": "lcl",
+        "LSL": "lsl",
+        "RPT": "rpt",
+        "LOST_CATEGORY": "lostCategory",
+        "OOS_COUNT": "oosCount",
+        "OOC_COUNT": "oocCount",
+        "AVERAGE": "average",
+        "MIN": "min",
+        "MAX": "max",
+        "MEDIAN": "median",
+        "QUANTILE1": "quantile1",
+        "QUANTILE3": "quantile3",
+        "STDEV": "stdev",
+        "RESULT": "result",
+        "DATA_SET": "dataSet",
+        "COLUMNS": "columns",
+        "ROWS": "rows",
+        "MODEL_RPT": "modelRpt",
+        "STANDARD_TIME": "standardTime",
+        "IS_NON_SCANNER_BOTTLENECK": "isNonScannerBottleneck",
+        "SUBSTRATES": "substrates",
+        "FAULT": "fault",
+        "OOC": "ooc",
+        "OCAP": "ocap",
+        "FDTA_LOT": "fdtaLot",
+        "FDTA_WAFER": "fdtaWafer",
+        "FDTA_LOT_SCORE": "fdtaLotScore",
+        "FDTA_WAFER_SCORE": "fdtaWaferScore",
+        "FAULT_COUNT": "alarm Count",
+        "SCORE": "score",
+        "WAFER_SCORE": "Score",
+        "STEP_SCORE": "step Score",
+        "PARAMETER_COUNT": "selectedParameterCount",
+        "STEP": "Operation",
+        "COUNT_AND_TOTAL": "Count / Total count",
+        "ADDER_WAFERCOUNT": "Adder(Wafer Count)",
+        "CARRYOVER_WAFERCOUNT": "Carry Over(Wafer Count)",
+        "SELECTED_DATE": "Selected date",
+        "DATETIME": "DateTime",
+        "TIME_SLOT": "TimeSlot",
+        "SEQUENCE": "Sequence",
+        "PARAMETER": "Parameter",
+        "TARGET": "Target",
+        "FAULT_STATUS": "Fault Status",
+        "SVID": "SVID",
+        "BAD_WAFER_COUNT": "Bad wafer count",
+        "JEOPARDY_WAFER_COUNT": "Jeopardy wafer count",
+        "GOOD_WAFER_COUNT": "Good wafer count",
+        "RECIPE_COUNT": "RecipeCount",
+        "RECIPE_STEP": "Recipe Step",
+        "SELECTED_WAFERCOUNT": "selectedWaferCount",
+        "RSD05": "rsd05",
+        "RSD06": "rsd06",
+        "CASSETTE_SLOT": "Cassette Slot",
+        "TAKT_TIME_FROM": "TaktTimeFrom",
+        "TAKT_TIME_TO": "TaktTimeTo",
+        "PROC_TIME_FROM": "ProcTimeFrom",
+        "PROC_TIME_TO": "ProcTimeTo",
+        "PROCESS_STATUS": "ProcessStatus",
+        "FDTA_WAFER_RELIABLE": "Full",
+        "STATUS": "Status",
+        "SPEC_THRESHOLD": "Spec Threshold",
+        "CONTROL_THRESHOLD": "Control Threshold",
+        "START_SEQUENCE": "Start Sequence",
+        "END_SEQUENCE": "End Sequence",
+        "START_TIME_SLOT": "Start Time Slot",
+        "END_TIME_SLOT": "End Time Slot",
+        "STEP_DRIFT": "Drift",
+        "STEP_DOWN_TREND": "Down Trend",
+        "STEP_POSITIVE_MAXEND": "Positive Max End",
+        "STEP_NEGATIVE_MAX": "Negative Max",
+        "STEP_MEAN": "Mean",
+        "STEP_UPTREND": "Up Trend",
+        "STEP_MAX": "Max",
+        "STEP_SLOPE": "Slope",
+        "STEP_RANGE": "Range",
+        "STEP_COUNT": "Count",
+        "STEP_POSITIVE_SUM": "Positive Sum",
+        "STEP_NEGATIVE_MAXEND": "Negative Max End",
+        "STEP_MIN": "Min",
+        "STEP_MEDIAN": "Median",
+        "STEP_DURATION": "Duration",
+        "STEP_POSITIVE_MAXSTART": "Positive Max Start",
+        "STEP_START_INDEX": "Start Index",
+        "STEP_START_TIME": "Start Time",
+        "STEP_L1_NORM": "L1 Norm",
+        "STEP_STDEV": "STDEV",
+        "STEP_POSITIVE_MAX": "Positive Max",
+        "STEP_NEGATIVE_MAXSTART": "Negative Max Start",
+        "STEP_NEGATIVE_SUM": "Negative Sum",
+        "STEP_INDEX_MAX": "Index Max",
+        "STEP_END_INDEX": "End Index",
+        "STEP_END_TIME": "End Time",
+        "STEP_INDEX_MIN": "Index Min",
+        "REFERENCE_COUNT": "Reference %",
+        "PLANT_NAME": "Plant",
+        "AREA_NAME": "Area",
+        "EQP_NAME": "Equipment",
+        "PARAM_NAME": "Parameter",
+        "HEALTH_INDEX": "Helth Index",
+        "RADAR_TYPE": "Type",
+        "ANALYSIS_SPEC": "Analysis spec(Warning criteria)",
+        "ANALYSIS_SPEC_VISIBLE": "Analysis spec visible",
+        "WORST_TOP": "Worst Top"
+    },
+    "CONTEXT": {
+        "BUTTON": {
+            "INNER_DRILLDOWN": "inner drilldown",
+            "VIEW_TRACE_TREND": "View Trace Trend",
+            "DETAIL_VIEW": "detail view",
+            "CANCEL": "cancel",
+            "HIDE_OTHER_SUBSTRATE": "Hide other selected process runs"
+        }
+    },
+    "PDM": {
+		"TABLE": {
+			"HEADER": {
+				"EQP_BY_SCORE_SCOPE": "EQP by score scope (Count)",
+                "EQP_BY_HEALTH_VARIATION": "EQP by health variation scope (Count)",
+                "MANUFACTURER_STANDARD": "Professional manufacturer standard"
+			}
+        },
+        "SPEC": {
+			"ALARM": "Alram",
+			"WARNING": "Warning"
+        },
+        "CONFIG": {
+        },
+        "LABEL": {
+            "DETAILS_ANALYSIS": "Details analysis",
+            "ANALYSIS": "Analysis"
+        },
+        "NOTIFY": {
+            "NOT_EXIST_PARTS": "Please register your part first.",
+            "NOT_EXIST_ALARM": "Please register an alarm.",
+            "NOT_EXIST_WARNING": "Please register an warning.",
+            "DUPLICATE_NAME": "The Name already exists. Please use a different Name.",
+            "REFER_PART": "The selected Part is referenced in the Parameter.",
+            "DUPLICATE_BEARING": "A combination of the same Manufacture / ModelNumber exists.",
+            "DUPLICATE_AREA": "The same Name exists in Area."
+		}
+	}
+}

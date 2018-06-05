@@ -1,0 +1,135 @@
+<div [hidden]="submitted" class="height-full">
+    <div class="header-option clearfix">
+        <div class="pull-left"><span class="a3-title">Profile</span></div>
+        <div class="pull-right">
+            <button class="btn btn-default" (click)="cancel()">Cancel</button>
+            <button class="btn btn-default" (click)="submitProfile(profileForm.value)" [disabled]='!profileForm.valid'>Save</button>
+        </div>
+    </div>
+    <div class="a3-form-group">
+        <form [formGroup]="profileForm">
+            <ul>
+                <span class="a3-sub-title">Personal</span>
+                <li class="form-group a3-input-group clearfix">
+                    <label for="inputPhoto" class="control-label">Photo</label>
+                    <span class="user-img"></span>
+                </li>
+                <li class="form-group a3-input-group">
+                    <label for="inputName" class="control-label">Name</label>
+                    <input type="text" class="form-control" id="inputName" placeholder="Name" name="name" 
+                        formControlName="name" [ngClass]="{ 'has-error': profileForm.controls.name.touched && profileForm.controls.name.invalid }">
+                    <div class='form-text error' *ngIf="profileForm.controls.name.touched">
+                        <div class="text-danger" *ngIf="profileForm.controls.name.hasError('required')">Name is required.</div>
+                        <div class="text-danger" *ngIf="profileForm.controls.name.hasError('maxlength')">Name cannot be more than 50 characters long.</div>
+                    </div> 
+                </li>
+                <li class="form-group a3-input-group">
+                    <label for="inputMail" class="control-label">Mail</label>
+                    <input type="text" class="form-control" id="inputMail" placeholder="Mail" name="mail" 
+                        formControlName="email" [ngClass]="{ 'has-error': profileForm.controls.email.touched && profileForm.controls.email.invalid }">
+                    <div class="form-text error" *ngIf="profileForm.controls.email.touched">
+                        <div class="text-danger" *ngIf="profileForm.controls.email.hasError('required')">Email is required.</div>
+                        <div class="text-danger" *ngIf="profileForm.controls.email.hasError('invalidEmail')">Please enter a valid email address.</div>
+                    </div>
+                </li>
+                <li class="form-group a3-input-group">
+                    <label for="inputPhone" class="control-label">Phone</label>
+                    <input type="text" class="form-control" id="inputPhone" placeholder="Phone" name="phone"
+                        formControlName="phone" [ngClass]="{ 'has-error': profileForm.controls.phone.dirty && profileForm.controls.phone.invalid}">
+                    <div class='form-text error' *ngIf="profileForm.controls.phone.dirty">
+                        <div class="text-danger" *ngIf="profileForm.controls.phone.hasError('invalidPhone')">Please enter a valid phone number.</div>
+                    </div>                     
+                </li>
+                <li class="form-group a3-input-group">
+                    <label for="inputAboutMe" class="control-label">About Me</label>
+                    <textarea type="text" id="inputAboutMe" class="form-control" placeholder="AboutMe" name="aboutme" rows="5" 
+                        formControlName="description" [ngClass]="{ 'has-error': profileForm.controls.description.dirty && profileForm.controls.description.invalid}">
+                    </textarea>
+                     <div class='form-text error' *ngIf="profileForm.controls.description.dirty">
+                        <div class="text-danger" *ngIf="profileForm.controls.description.hasError('maxlength')">About Me cannot be more than 1024 characters long.</div>
+                    </div>                     
+               </li>
+            </ul>
+            <ul>
+                <span class="a3-sub-title">Company</span>
+                <li class="form-group a3-input-group">
+                    <label for="inputPosition" class="control-label">Position</label>
+                    <input type="text" class="form-control" id="inputPosition" placeholder="Position" name="position" 
+                        formControlName="position" [ngClass]="{ 'has-error': profileForm.controls.position.dirty && profileForm.controls.position.invalid}">
+                    <div class='form-text error' *ngIf="profileForm.controls.position.dirty">
+                        <div class="text-danger" *ngIf="profileForm.controls.position.hasError('maxlength')">Position cannot be more than 50 characters long.</div>
+                    </div>                     
+                </li>
+                <li class="form-group a3-input-group">
+                    <label for="inputDepartment" class="control-label">Department</label>
+                    <input type="text" class="form-control" id="inputDepartment" placeholder="Department" name="department" 
+                        formControlName="department" [ngClass]="{ 'has-error': profileForm.controls.department.dirty && profileForm.controls.department.invalid}">
+                     <div class='form-text error' *ngIf="profileForm.controls.department.dirty">
+                        <div class="text-danger" *ngIf="profileForm.controls.department.hasError('maxlength')">Department cannot be more than 50 characters long.</div>
+                    </div>                     
+               </li>
+                <li class="form-group a3-input-group">
+                    <label for="inputLocation" class="control-label">Location</label>
+                    <input type="text" class="form-control" id="inputLocation" placeholder="Location" name="location" 
+                        formControlName="location" [ngClass]="{ 'has-error': profileForm.controls.location.dirty && profileForm.controls.location.invalid}">
+                    <div class='form-text error' *ngIf="profileForm.controls.location.dirty">
+                        <div class="text-danger" *ngIf="profileForm.controls.location.hasError('maxlength')">Location cannot be more than 1024 characters long.</div>
+                    </div>                     
+                </li>
+            </ul>
+        </form>
+    </div>
+</div>
+<!-- submitted false end -->
+
+<div [hidden]="!submitted" class="height-full">
+    <div class="header-option clearfix">
+        <div class="pull-left"><span class="a3-title">Profile</span></div>
+        <div class="pull-right">
+            <button class="btn btn-primary" (click)="edit()">Edit Profile</button>
+        </div>
+    </div>
+    <div class="a3-form-group">
+        <ul>
+            <span class="a3-sub-title">Personal</span>
+            <li class="form-group a3-input-group clearfix">
+                <label for="inputPhoto" class="control-label">Photo</label>
+                <span class="user-img"></span>
+            </li>
+            <li class="form-group a3-input-group">
+                <label for="inputName" class="control-label">Name</label>
+                <span class="text-field">{{user.name}}</span>
+            </li>
+            <li class="form-group a3-input-group">
+                <label for="inputMail" class="control-label">Mail</label>
+                <span class="text-field">{{user.email}}&nbsp;</span>
+            </li>
+            <li class="form-group a3-input-group">
+                <label for="inputPhone" class="control-label">Phone</label>
+                <span class="text-field">{{user.phone}}&nbsp;</span>
+            </li>
+            <li class="form-group a3-input-group">
+                <label for="inputAboutMe" class="control-label">About Me</label>
+                <!--<span class="text-field">{{user.description}}&nbsp;</span>-->
+                <span class="text-field" id='aboutMe'></span>
+            </li>
+        </ul>
+        <ul>
+            <span class="a3-sub-title">Company</span>
+            <li class="form-group a3-input-group">
+                <label for="inputPosition" class="control-label">Position</label>
+                <span class="text-field">{{user.position}}&nbsp;</span>
+            </li>
+            <li class="form-group a3-input-group">
+                <label for="inputDepartment" class="control-label">Department</label>
+                <span class="text-field">{{user.department}}&nbsp;</span>
+            </li>
+            <li class="form-group a3-input-group">
+                <label for="inputLocation" class="control-label">Location</label>
+                <span class="text-field">{{user.location}}&nbsp;</span>
+            </li>
+        </ul>
+    </div>
+</div>
+
+

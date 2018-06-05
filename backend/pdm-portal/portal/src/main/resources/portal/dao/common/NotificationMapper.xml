@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bistel.a3.portal.dao.common.NotificationMapper">
+
+    <resultMap id="BaseResultMap" type="com.bistel.a3.portal.domain.common.Notification">
+        <id column="notification_id" property="notificationId"/>
+        <result column="source_user_id" property="sourceUserId"/>
+        <result column="target_user_id" property="targetUserId"/>
+        <result column="notification_type" property="notificationType"/>
+        <result column="message" property="message"/>
+        <result column="link_url" property="linkUrl"/>
+        <result column="detail_view_yn" property="detailViewYN" typeHandler="yn"/>
+        <result column="detail_view_dtts" property="detailViewDtts"/>
+        <result column="read_yn" property="readYN" typeHandler="yn"/>
+        <result column="read_dtts" property="readDtts"/>
+        <result column="create_dtts" property="createDtts"/>
+        <result column="update_dtts" property="updateDtts"/>
+    </resultMap>
+    
+    <select id="selectNotificationByUser" resultMap="BaseResultMap">
+    	select 
+    		* 
+    	from 
+	    	notification_a3
+    	where 
+	    	target_user_id = #{userId}
+	    	and
+	    	create_dtts > sysdate-16
+	    order by create_dtts desc
+    </select>
+    
+    <insert id="insertNotification" parameterType="com.bistel.a3.portal.domain.common.Notification">
+    	insert into notification_a3
+    	(
+	    	notification_id,
+	    	source_user_id,
+	    	target_user_id,
+	    	notification_type,
+	    	message,
+	    	link_url,
+	    	detail_view_yn,
+	    	detail_view_dtts,
+	    	read_yn,
+	    	read_dtts,
+	    	create_dtts,
+	    	update_dtts,
+	    	send_yn
+    	)
+    	values
+    	(
+    		seq_notification_a3.nextval,
+	        #{sourceUserId},
+	        #{targetUserId},
+	        #{notificationType},
+	        #{message},
+	        #{linkUrl},
+	        #{detailViewYN, typeHandler=yn},
+	        sysdate,
+	        #{readYN, typeHandler=yn},
+	        sysdate,
+	        sysdate,
+	        sysdate,
+	        'N'
+    	)
+    </insert>
+    <update id="updateNotification" parameterType="com.bistel.a3.portal.domain.common.Notification">
+        update notification_a3
+        <set>            
+            <if test="notificationType != null" >
+                notification_type = #{notificationType},
+            </if>
+            <if test="message != null" >
+                message = #{message},
+            </if>
+            <if test="linkUrl != null" >
+                link_url = #{linkUrl},
+            </if>
+            <if test="detailViewYN != null" >
+                detail_view_yn = #{detailViewYN, typeHandler=yn},
+            </if>
+            <if test="detailViewDtts != null" >
+                detail_view_dtts = #{detailViewDtts},
+            </if>
+             <if test="readYN != null" >
+                read_yn = #{readYN, typeHandler=yn},
+            </if>
+             <if test="readDtts != null" >
+                read_dtts = #{readDtts}
+            </if>             
+            update_dtts = sysdate
+        </set>
+        where notification_id = #{notificationId}
+    </update>
+    
+    
+    <update id="updateNotificationView">
+        update notification_a3
+        <set> 
+                detail_view_yn = 'Y',
+                detail_view_dtts = sysdate
+        </set>
+        where notification_id = #{notificationId}
+    </update>
+    <update id="updateNotificationReadById">
+        update notification_a3
+         <set> 
+                read_yn = 'Y',
+                read_dtts = sysdate
+        </set>
+        where notification_id = #{notificationId}
+    </update>
+
+    <update id="updateNotificationReadByUser">
+        update notification_a3
+         <set> 
+                read_yn = 'Y',
+                read_dtts = sysdate
+        </set>
+        where target_user_id = #{userId}
+    </update>
+    
+    <select id="selectPushDataCount" resultType="java.lang.Integer">
+	    select 
+	    	count(*) 
+		from (
+			SELECT 
+				notification_id as notificationId,
+				DECODE(send_yn, null, 'N', send_yn) as sendYn,
+				DECODE(read_yn, null, 'N', read_yn) as readYn
+			FROM NOTIFICATION_A3) noti
+		where 
+			noti.readYn = 'N'
+			or
+			noti.sendYn = 'N'
+    </select>
+    
+    <!-- target userId로 검색을 해서, source user id 정보를 보여 줌 -->
+    <select id="selectPushNotificationData" resultType="com.bistel.a3.portal.domain.socket.PushNotificationData">
+    	select 
+    		notification_type as type,
+    		source_user_id as senderId,
+    		message as content,
+    		link_url as linkUrl
+    	from 
+    		notification_a3
+    	where
+    		target_user_id = #{userId}
+    		and send_yn = 'N'    	
+    </select>
+    <select id="selectNotificationUnReadCount" resultType="java.lang.Integer">
+	    select 
+	    	count(*) 
+		from (
+			SELECT 
+				notification_id as notificationId,
+				target_user_id as targetUserId,
+				DECODE(send_yn, null, 'N', send_yn) as sendYn,
+				DECODE(read_yn, null, 'N', read_yn) as readYn
+			FROM NOTIFICATION_A3) noti
+		where 
+			noti.readYn = 'N'
+			and
+			noti.targetUserId = #{userId}			
+    </select>
+    <update id="updateReadStatus">
+    	update 
+    		notification_a3
+    	set 
+    		send_yn = #{readStatus}
+    	where
+    		target_user_id = #{userId}    	
+    </update>
+    
+<!-- ≈
+    <sql id="BaseAllQuery">
+        select notification_id, user_id, notification_type,
+          description, view_link, confirm_yn
+        from notification_a3
+    </sql>
+
+    <select id="selectByUser" resultMap="BaseResultMap">
+        <include refid="BaseAllQuery"/>
+        where user_id = #{userId}
+        order by update_dtts desc
+    </select>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        <include refid="BaseAllQuery"/>
+        where notification_id = #{notificationId}
+        order by update_dtts desc
+    </select>
+
+    <update id="update">
+        update notification_a3
+        <setArea>
+            <if test="userId != null" >
+                user_id = #{userId},
+            </if>
+            <if test="notificationType != null" >
+                notification_type = #{notificationType},
+            </if>
+            <if test="description != null" >
+                description = #{description},
+            </if>
+            <if test="viewLink != null" >
+                view_link = #{viewLink},
+            </if>
+            <if test="confirmYN != null" >
+                confirm_yn = #{confirmYN},
+            </if>
+            update_dtts = sysdate
+        </setArea>
+        where notification_id = #{notificationId}
+    </update>
+
+    <delete id="delete">
+        delete from notification_a3
+        where notification_id = #{notificationId}
+    </delete>
+    
+    <insert id="insertNotification">
+        <selectKey resultType="Long" keyProperty="notificationId" order="BEFORE">
+            select seq_notification_a3.nextval from dual
+        </selectKey>
+        insert into notification_a3(notification_id, user_id, notification_type, description, view_link, confirm_yn, create_dtts, update_dtts)
+        values(#{notificationId},#{userId},#{notificationType},#{description},#{viewLink},#{confirmYN},#{createDtts},#{updateDtts})
+    </insert>
+    -->
+</mapper>
+

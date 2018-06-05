@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bistel.a3.portal.dao.pdm.std.master.STDPartMapper">
+    <select id="selectTypeList" resultType="com.bistel.a3.portal.domain.pdm.db.PartType">
+        <!--select * from part_type_pdm-->
+        select
+            code as parts_type_cd,
+            name
+        from
+            code_mst_pdm
+        where category='parts_type' and used_yn='Y'
+
+    </select>
+
+    <select id="selectList" resultType="com.bistel.a3.portal.domain.pdm.master.PartWithParam">
+        <!--select-->
+        	<!--a.*,-->
+        	<!--b.eqp_id,-->
+            <!--b.name as eqp_name,-->
+            <!--d.param_id,-->
+            <!--d.name as param_name-->
+        <!--from parts_mst_pdm a-->
+        	<!--join eqp_mst_pdm b on a.eqp_id = b.eqp_id-->
+            <!--left join param_part_lnk_pdm c on c.part_id = a.part_id-->
+            <!--left join param_pdm d on d.param_id = c.param_id-->
+        <!--where a.eqp_id = #{eqpId}-->
+        select
+        a.rawid as part_id,
+        a.name,
+        b.rawid as eqp_id,
+        b.name as eqp_name,
+        a.ratio,
+        a.rpm,
+        bear.model_number,
+        bear.manufacture,
+        a.bearing_mst_rawid as bearing_id,
+        a.base_ratio_yn,
+        a.parts_type_cd,
+        (
+           select
+           name
+           from code_mst_pdm
+           where code = a.parts_type_cd
+           and category='parts_type'
+           and used_yn='Y'
+        )
+        as parts_type
+        from parts_mst_pdm a,eqp_mst_pdm b,bearing_mst_pdm bear
+        where a.eqp_mst_rawid = #{eqpId}
+        and a.eqp_mst_rawid = b.rawid
+        and a.bearing_mst_rawid = bear.rawid(+)
+
+
+
+    </select>
+
+    <select id="selectOne" resultType="com.bistel.a3.portal.domain.pdm.master.PartWithParam">
+        <!--select-->
+        	<!--a.*,-->
+        	<!--b.eqp_id,-->
+            <!--b.name as eqp_name,-->
+            <!--d.param_id,-->
+            <!--d.name as param_name-->
+        <!--from parts_mst_pdm a-->
+        	<!--join eqp_mst_pdm b on a.eqp_id = b.eqp_id-->
+            <!--left join param_part_lnk_pdm c on c.part_id = a.part_id-->
+            <!--left join param_pdm d on d.param_id = c.param_id-->
+        <!--where a.part_id = #{partId}-->
+
+        select
+        a.rawid as part_id,
+        a.name,
+        b.rawid as eqp_id,
+        c.rawid as param_id,
+        a.ratio,
+
+        a.base_ratio_yn,
+        a.parts_type_cd,
+        (select name from code_mst_pdm  where code = a.parts_type_cd and category='part_type' and used_yn='Y') as parts_type
+
+        from parts_mst_pdm a , eqp_mst_pdm b, param_mst_pdm c
+        where
+            a.rawid=#{partId}
+            and a.eqp_mst_rawid = b.rawid
+            and a.rawid = c.parts_mst_rawid(+)
+    </select>
+
+    <insert id="insertOne">
+        <selectKey keyProperty="part_id" resultType="Long" order="BEFORE">
+            select seq_parts_mst_pdm.nextval FROM DUAL
+        </selectKey>
+        insert into parts_mst_pdm (rawid,name,eqp_mst_rawid,bearing_mst_rawid,parts_type_cd
+        ,ratio,base_ratio_yn,rpm,create_by,create_dtts,update_by,update_dtts)
+        values (#{part_id,jdbcType=NUMERIC},#{name,jdbcType=VARCHAR},#{eqp_id,jdbcType=NUMERIC},
+                #{bearing_id, jdbcType=NUMERIC}
+            ,#{parts_type_cd, jdbcType=VARCHAR}
+        ,#{ratio, jdbcType=NUMERIC},#{base_ratio_yn,jdbcType=VARCHAR},#{rpm, jdbcType=NUMERIC},#{userName},
+                systimestamp,#{userName},systimestamp)
+    </insert>
+
+    <insert id="insertLnk">
+        insert into param_part_lnk_pdm (param_id,part_id)
+        values (#{param_id,jdbcType=NUMERIC},#{part_id,jdbcType=NUMERIC})
+    </insert>
+
+
+
+    <update id="updateOne">
+        update parts_mst_pdm
+        set name = #{name},
+            parts_type_cd = #{parts_type_cd},
+            ratio = #{ratio,jdbcType=NUMERIC},
+            eqp_mst_rawid = #{eqp_id,jdbcType=NUMERIC},
+            bearing_mst_rawid = #{bearing_id,jdbcType=NUMERIC},
+            base_ratio_yn = #{base_ratio_yn},
+            rpm = #{rpm,jdbcType=NUMERIC},
+            update_by = #{userName},
+            update_dtts = systimestamp
+        where rawid = #{part_id}
+    </update>
+
+    <delete id="deleteOne">
+        delete from parts_mst_pdm
+        where rawid = #{partId}
+    </delete>
+
+    <delete id="deleteLnk">
+        delete from param_part_lnk_pdm
+        where part_id = #{partId}
+    </delete>
+
+    <select id="selectPartsByEqpWithPartType" resultType="com.bistel.a3.portal.domain.pdm.db.Part">
+        select rawid as part_id,
+            name,
+            eqp_mst_rawid as eqp_id,
+            parts_type_cd ,
+            ratio,
+            rpm
+        from parts_mst_pdm
+        where
+        eqp_mst_rawid = (select eqp_mst_rawid from param_mst_pdm where rawid = #{param_id})
+        <if test="part_type_id != null">
+            and part_type_cd = #{part_type_id}
+        </if>
+    </select>
+    <select id="selectBaseRPMByEqpId" resultType="Double">
+         select
+        max(parts.RPM) RPM
+        from parts_mst_pdm parts
+        where parts.eqp_mst_rawid = #{eqpId}
+        and parts.base_ratio_yn='Y'
+
+    </select>
+
+
+
+</mapper>

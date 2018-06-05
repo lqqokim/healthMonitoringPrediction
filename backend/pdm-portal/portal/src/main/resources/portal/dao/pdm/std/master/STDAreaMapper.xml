@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bistel.a3.portal.dao.pdm.std.master.STDAreaMapper">
+    <select id="selectList" resultType="com.bistel.a3.portal.domain.pdm.master.AreaWithChildren">
+        select rawid as area_id, name,description,parent_rawid as parent_id,create_by,create_dtts,update_by,update_dtts
+        from area_mst_pdm
+        where parent_rawid = #{parentId}
+    </select>
+    <select id="selectAllArea" resultType="com.bistel.a3.portal.domain.pdm.db.Area">
+        select rawid as area_id, name,description,parent_rawid as parent_id,create_by,create_dtts,update_by,update_dtts
+        from area_mst_pdm
+        order by name
+    </select>
+
+    <select id="selectOne" resultType="com.bistel.a3.portal.domain.pdm.db.Area">
+        select rawid as area_id, name,description,parent_rawid as parent_id,create_by,create_dtts,update_by,update_dtts
+        from area_mst_pdm
+        where rawid = #{areaId}
+    </select>
+
+    <insert id="insertOne" parameterType="com.bistel.a3.portal.domain.pdm.db.Area">
+        <selectKey keyProperty="area_id" resultType="Long" order="BEFORE">
+            select seq_area_mst_pdm.nextval FROM DUAL
+        </selectKey>
+        insert into area_mst_pdm(rawid, name, description, parent_rawid,create_by,create_dtts,update_by,update_dtts)
+        values(#{area_id}, #{name}, #{description,jdbcType=VARCHAR}, #{parent_id},#{userName},systimestamp,#{userName},systimestamp)
+    </insert>
+
+    <delete id="deleteOne">
+        delete from area_mst_pdm
+        where rawid = #{areaId}
+    </delete>
+
+    <update id="updateOne">
+        update area_mst_pdm
+        set name = #{name},
+            description = #{description,jdbcType=VARCHAR},
+            parent_rawid = #{parent_id},
+            update_dtts = systimestamp,
+            update_by = #{userName}
+        where rawid = #{area_id}
+    </update>
+    <select id="selectNodes" resultType="com.bistel.a3.portal.domain.pdm.Node">
+
+        SELECT
+        rawid AS node_id,
+        name AS node_name,
+        parent_rawid as parent_id,
+        CONNECT_BY_ISLEAF AS node_type
+        --    ,
+        --    CASE
+        --            WHEN sort_order IS NULL THEN 0
+        --            ELSE sort_order
+        --        END
+        --    AS sort_order
+        FROM
+        area_mst_pdm
+        START WITH
+        parent_rawid = 0
+        CONNECT BY
+        PRIOR rawid = parent_rawid
+        UNION ALL
+        SELECT
+        rawid as eqp_id,
+        name,
+        area_mst_rawid,
+        2 AS node_type
+        --    ,
+        --    CASE
+        --            WHEN sort_order IS NULL THEN 0
+        --            ELSE sort_order
+        --        END
+        --    AS sort_order
+        FROM
+        eqp_mst_pdm
+        UNION ALL
+        SELECT
+        rawid as param_id,
+        name,
+        eqp_mst_rawid as eqp_id,
+        100
+        --    param_type_cd
+        --    ,
+        --    CASE
+        --            WHEN sort_order IS NULL THEN 0
+        --            ELSE sort_order
+        --        END
+        --    AS sort_order
+        FROM
+        param_mst_pdm
+        --WHERE
+        --    param_type IN (
+        --        10201,
+        --        10202
+        --    )
+
+
+    </select>
+    <select id="selectAreaWithTree" resultType="com.bistel.a3.portal.domain.pdm.AreaWithTree">
+        select
+        rawid as area_id,
+        name,
+        parent_id,
+        CONNECT_BY_ISLEAF as leaf
+        from area_mst_pdm
+        start with parent_rawid = 0
+        connect by prior rawid = parent_rawid
+    </select>
+
+</mapper>

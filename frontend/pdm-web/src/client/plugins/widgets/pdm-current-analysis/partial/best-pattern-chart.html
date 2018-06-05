@@ -1,0 +1,21 @@
+<ul class="header-area">
+    <li class="title">{{index + 1}}{{countStr[index]}} Best patterns</li>
+    <li class="location">Location: {{near?.location[0]}} and {{near?.location[1]}}</li>
+    <li class="score">Score: {{near?.score.toFixed(4)}}</li>
+    <li class="neightbors pull-right">
+			<label class="checkbox-inline">
+					<input #checkbox type="checkbox" (change)="neighborCheck($event, index)">
+        <span>show neighbors</span>
+			</label>	
+    </li>
+</ul>
+<div class="chart-area" (click)="chartClick($event)" [ngClass]="{'bestChartSelect': isChartClick }">
+    <a3c-bistel-chart #bestPatternChart
+        [data]="bestPatternData"
+        [config]="bestPatternChartConfig"
+        style="width: 100%; " 
+        class="chart-body">
+    </a3c-bistel-chart>
+</div>
+
+<!-- (completeChart)="repeatedCompleteChart($event)"  -->

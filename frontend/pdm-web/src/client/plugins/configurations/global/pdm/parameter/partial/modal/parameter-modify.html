@@ -1,0 +1,60 @@
+<form [formGroup]="registerForm">
+    <div class="a3-form-group">
+        <ul>
+            <!-- <li class="form-group a3-input-group">
+                <label for="selectEqp" class="control-label">EQP</label>
+                <select class="form-control" formControlName="eqp" [ngClass]="{ 'has-error': registerForm.controls.eqp.touched && registerForm.controls.eqp.invalid }"> 
+                        <option *ngFor="let eqp of eqpDatas" [value]="eqp.eqpName">{{eqp.eqpName}}</option>
+                    </select>
+                <div class='form-text error' *ngIf="registerForm.controls.eqp.touched">
+                    <div class="text-danger" *ngIf="registerForm.controls.eqp.hasError('required')">EQP is required.</div>
+                </div>
+            </li> -->
+            <li class="form-group a3-input-group">
+                <label for="inputEeqName" class="control-label">EQP</label>
+                <input type="text" class="form-control" formControlName="eqpName">
+            </li>
+            <li class="form-group a3-input-group">
+                <label for="inputParamName" class="control-label">Name<span class="a3-asterisk">*</span></label>
+                <input type="text" class="form-control" formControlName="paramName" [ngClass]="{ 'has-error': registerForm.controls.paramName.touched && registerForm.controls.paramName.invalid }">
+                <div class='form-text error' *ngIf="registerForm.controls.paramName.touched">
+                    <div class="text-danger" *ngIf="registerForm.controls.paramName.hasError('required')">Name is required.</div>
+                    <!-- <div class="text-danger" *ngIf="formGroup.controls.password.hasError('invalidPassword')">Password is failed.</div> -->
+                </div>
+            </li>
+            <li class="form-group a3-input-group">
+                <label for="inputParamType" class="control-label" style="width: 91px;">Parameter Type<span class="a3-asterisk">*</span></label>
+                <input type="number" class="form-control" formControlName="paramType" [ngClass]="{ 'has-error': registerForm.controls.paramType.touched && registerForm.controls.paramType.invalid }">
+                <div class='form-text error' *ngIf="registerForm.controls.paramType.touched">
+                    <div class="text-danger" *ngIf="registerForm.controls.paramType.hasError('required')">Parameter Type is required.</div>
+                    <!-- <div class="text-danger" *ngIf="formGroup.controls.password.hasError('invalidPassword')">Password is failed.</div> -->
+                </div>
+            </li>
+            <li class="form-group a3-input-group">
+                <label for="inputEu" class="control-label">EU<span class="a3-asterisk">*</span></label>
+                <input type="text" class="form-control" formControlName="eu" [ngClass]="{ 'has-error': registerForm.controls.eu.touched && registerForm.controls.eu.invalid }">
+                <div class='form-text error' *ngIf="registerForm.controls.eu.touched">
+                    <div class="text-danger" *ngIf="registerForm.controls.eu.hasError('required')">EU is required.</div>
+                </div>
+            </li>
+            <li class="form-group a3-input-group">
+                <label for="inputEuType" class="control-label">EU Type<span class="a3-asterisk">*</span></label>
+                <input type="number" class="form-control" formControlName="euType" [ngClass]="{ 'has-error': registerForm.controls.euType.touched && registerForm.controls.euType.invalid }">
+                <div class='form-text error' *ngIf="registerForm.controls.euType.touched">
+                    <div class="text-danger" *ngIf="registerForm.controls.euType.hasError('required')">EU Type is required.</div>
+                </div>
+            </li>
+            <li class="form-group a3-input-group">
+                <label for="inputRpm" class="control-label">RPM</label>
+                <input type="number" class="form-control" formControlName="rpm" [ngClass]="{ 'has-error': registerForm.controls.rpm.touched && registerForm.controls.rpm.invalid }">
+                <div class='form-text error' *ngIf="registerForm.controls.rpm.touched">
+                    <div class="text-danger" *ngIf="registerForm.controls.rpm.hasError('required')">RPM is required.</div>
+                </div>
+            </li>
+            <li class="form-group a3-input-group">
+                <label for="inputDesc" class="control-label">Description</label>
+                <input type="text" class="form-control" formControlName="description">
+            </li>
+        </ul>
+    </div>
+</form>

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bistel.a3.portal.dao.common.WidgetTypeMapper">
+    <resultMap id="BaseResultMap" type="com.bistel.a3.portal.domain.common.WidgetType">
+        <id column="widget_type_id" property="widgetTypeId"/>
+        <result column="thumbnail" property="thumbnail"/>
+        <result column="title" property="title"/>
+        <result column="name" property="name"/>
+        <result column="description" property="description"/>
+        <result column="width" property="width"/>
+        <result column="height" property="height"/>
+        <result column="category" property="category"/>
+        <result column="properties" property="properties" typeHandler="json"/>
+    </resultMap>
+    <sql id="BaseAllQuery">
+        select *
+        from widget_type_a3
+    </sql>
+    <select id="selectAll" resultMap="BaseResultMap">
+        <include refid="BaseAllQuery"/>
+        where used = 'Y'
+        order by title asc
+    </select>
+    <select id="selectById" resultMap="BaseResultMap">
+        <include refid="BaseAllQuery"/>
+        where widget_type_id = #{widgetTypeId}
+    </select>
+    <insert id="insert">
+        <selectKey resultType="Long" keyProperty="widgetTypeId" order="BEFORE">
+            select seq_widget_type_a3.nextval from dual
+        </selectKey>
+        insert into widget_type_a3 (
+            widget_type_id, thumbnail, title, name, description, width, height, category, properties
+        ) values (
+            #{widgetTypeId},
+            #{thumbnail},
+            #{title},
+            #{name},
+            #{description},
+            #{width},
+            #{height},
+            #{category},
+            #{properties, typeHandler=json}
+        )
+    </insert>
+    <update id="update">
+        update widget_type_a3
+        <set >
+            <if test="thumbnail != null" >
+                thumbnail = #{thumbnail},
+            </if>
+            <if test="title != null" >
+                title = #{title},
+            </if>
+            <if test="name != null" >
+                name = #{name},
+            </if>
+            <if test="description != null" >
+                description = #{description},
+            </if>
+            <if test="width != null" >
+                width = #{width},
+            </if>
+            <if test="height != null" >
+                height = #{height},
+            </if>
+            <if test="category != null" >
+                category = #{category},
+            </if>
+            <if test="properties != null" >
+                properties = #{properties, typeHandler=json},
+            </if>
+        </set>
+        where widget_id = #{widgetId}
+    </update>
+    <delete id="delete">
+        delete from widget_type_a3
+        where widget_type_id = #{widgetTypeId}
+    </delete>
+</mapper>

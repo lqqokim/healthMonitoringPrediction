@@ -1,0 +1,101 @@
+<div class="form-horizontal" *ngIf="userData">
+    <div class="form-group a3-input-group" [ngClass]="!isUserIdValid ? 'has-error' : null || isSameUserId ? 'has-error' : null">
+        <label for="inputUserID" class="control-label">User ID <span class="a3-asterisk">*</span></label>
+        <input required
+               type="text"
+               class="form-control"
+               id="inputUserID"
+               placeholder="User ID"
+               (keyup)="keyUp($event)"
+               [(ngModel)]="userData.userId"
+               [disabled]="status!='create'"
+               #useridRef="ngModel"
+               name="userid"
+               [style.text-transform]="'uppercase'"
+               a3-uppercase
+               excludePattern="[^(a-zA-Z0-9)]"
+               maxSize="50">
+        <ul class="help-block">
+            <li *ngIf="!isUserIdValid">{{'MESSAGE.APP_CONFIG.AUTHORITY.INPUT_USERID' | translate}}</li>
+            <li *ngIf="isSameUserId">{{'MESSAGE.APP_CONFIG.AUTHORITY.DUPLICATE_USER' | translate}}</li>
+        </ul>
+    </div>
+    <div class="form-group a3-input-group" [ngClass]="isUserNameValid ? null : 'has-error'">
+        <label for="inputName" class="control-label">Name <span class="a3-asterisk">*</span></label>
+        <input required type="text"
+               class="form-control"
+               id="inputName"
+               placeholder="Name"
+               (keyup)="keyUp($event)"
+               [(ngModel)]="userData.name"
+               #usernameRef="ngModel"
+               name="username"
+               maxSize="25"
+               excludePattern="[^(가-힣ㄱ-ㅎㅏ-ㅣa-zA-Z0-9\s)]">
+        <div class="help-block" *ngIf="!isUserNameValid">{{'MESSAGE.APP_CONFIG.AUTHORITY.INPUT_USERNAME' | translate}}</div>
+    </div>
+    <div class="form-group a3-input-group">
+        <label for="inputGroup" class="control-label">Group ID</label>
+        <select [(ngModel)]="userData.groupId" class="form-control">
+            <option *ngFor="let group of groups | orderBy:['groupId']" [value]="group.groupId" >{{ group.groupId }}</option>
+        </select>
+    </div>
+    <div class="form-group a3-input-group">
+        <label for="inputDesc" class="control-label">Description</label>
+        <input type="text"
+               class="form-control"
+               id="inputDesc"
+               placeholder="Description"
+               [(ngModel)]="userData.description"
+               maxSize="1000">
+    </div>
+    <div class="form-group a3-input-group" [ngClass]="isEmailValid ? null : 'has-error'">
+        <label for="inputEmail" class="control-label">Email</label>
+        <input type="email" class="form-control"
+               id="inputEmail"
+               placeholder="Email"
+               (keyup)="formatCheck($event)"
+               [(ngModel)]="userData.email"
+               maxSize="50">
+        <div class="help-block" *ngIf="!isEamilValid">{{validationMessage('email address')}}</div>
+    </div>
+    <div class="form-group a3-input-group" [ngClass]="isPhoneValid ? null : 'has-error'">
+        <label for="inputPhone" class="control-label">Phone</label>
+        <input type="phone"
+               class="form-control"
+               id="inputPhone"
+               placeholder="Phone"
+               (keyup)="formatCheck($event)"
+               [(ngModel)]="userData.phone"
+               maxSize="20">
+        <div class="help-block" *ngIf="!isPhoneValid">{{validationMessage('phone number')}}</div>
+    </div>
+    <div class="form-group a3-input-group">
+        <label for="inputPosition" class="control-label">Position</label>
+        <input type="text" class="form-control"
+               id="inputPosition"
+               placeholder="Position"
+               [(ngModel)]="userData.position"
+               maxSize="50">
+    </div>
+    <div class="form-group a3-input-group">
+        <label for="inputDepartment" class="control-label">Department</label>
+        <input type="text"
+               class="form-control"
+               id="inputDepartment"
+               placeholder="Department"
+               [(ngModel)]="userData.department"
+               maxSize="50">
+    </div>
+    <div class="form-group a3-input-group" [ngClass]="isCompanyPhoneValid ? null : 'has-error'">
+        <label for="inputCompanyPhone" class="control-label">Company Phone</label>
+        <input type="phone"
+               class="form-control"
+               id="inputCompanyPhone"
+               placeholder="Company Phone"
+               (keyup)="formatCheck($event)"
+               [(ngModel)]="userData.companyPhone"
+               maxSize="20">
+        <div class="help-block" *ngIf="!isCompanyPhoneValid">{{validationMessage('company phone number')}}</div>
+    </div>
+</div>

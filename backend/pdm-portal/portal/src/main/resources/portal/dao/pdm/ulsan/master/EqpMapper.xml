@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bistel.a3.portal.dao.pdm.ulsan.master.EqpMapper">
+    <select id="selectList" resultType="com.bistel.a3.portal.domain.pdm.master.EqpWithEtc">
+        select a.*,
+            b.image as binary
+        from eqp_pdm a
+            left join eqp_etc_pdm b on a.eqp_id = b.eqp_id
+        <if test="areaId != null">
+            where a.area_id = #{areaId}
+        </if>
+    </select>
+
+    <select id="selectOne" resultType="com.bistel.a3.portal.domain.pdm.master.EqpWithEtc">
+        select a.*, b.image as binary
+        from eqp_pdm a
+            left join eqp_etc_pdm b on a.eqp_id = b.eqp_id
+        where a.eqp_id = #{eqpId}
+    </select>
+
+    <insert id="insertOne">
+        <selectKey keyProperty="eqp_id" resultType="Long" order="BEFORE">
+            select seq_eqp_pdm.nextval FROM DUAL
+        </selectKey>
+        insert into eqp_pdm(eqp_id, name, description, area_id)
+        values(#{eqp_id}, #{name,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, #{area_id})
+    </insert>
+
+    <insert id="insertEtcOne">
+        insert into eqp_etc_pdm(eqp_id, image)
+        values(#{eqp_id}, #{binary,jdbcType=VARCHAR})
+    </insert>
+
+    <delete id="deleteOne">
+        delete from eqp_pdm
+        where eqp_id = #{eqpId}
+    </delete>
+
+    <delete id="deleteEtcOne">
+        delete from eqp_etc_pdm
+        where eqp_id = #{eqpId}
+    </delete>
+
+    <update id="updateOne">
+        update eqp_pdm
+        set name = #{name},
+            description = #{description,jdbcType=VARCHAR},
+            area_id = #{area_id}
+        where eqp_id = #{eqp_id}
+    </update>
+
+    <update id="updateEtcOne">
+        update eqp_etc_pdm
+        set image = #{binary,jdbcType=VARCHAR}
+        where eqp_id = #{eqp_id}
+    </update>
+
+    <select id="selectEtcOne" resultType="com.bistel.a3.portal.domain.pdm.db.EqpEtc">
+        select *
+        from eqp_etc_pdm
+        where eqp_id = #{eqp_id}
+    </select>
+    <select id="selectAlarmWarningEqps" resultType="com.bistel.a3.portal.domain.pdm.EqpStatusData">
+        select
+            a.eqp_id,
+            a.name,
+            min(b.alarm_dtts) as start_dtts,
+            max(b.status_cd) as status,
+            max(b.value) as value
+        from eqp_pdm a
+            join eqp_alarm_trx_pdm b
+                on a.eqp_id = b.eqp_id
+        where
+            b.alarm_dtts <![CDATA[>=]]> #{start}
+        and b.alarm_dtts <![CDATA[<]]> #{end}
+        <if test="eqpId != null">
+            and a.eqp_id = #{eqpId}
+        </if>
+        and b.status_cd in (128, 256)
+        group by a.eqp_id, a.name
+        order by status desc, value desc
+    </select>
+    <select id="selectGoodFiveEqps" resultType="com.bistel.a3.portal.domain.pdm.EqpStatusData">
+        select * from(
+            select
+                b.eqp_id,
+                b.name,
+                c.status_cd
+            from (
+                select
+                    b.eqp_id,
+                    min(a.variation) as variation
+                from (
+            	    select
+            		    param_id,
+            		    avg(variation/alarm) as variation
+            	    from overall_minute_summary_trx_pdm
+            	    where read_dtts <![CDATA[>=]]> #{start}
+            	    and read_dtts <![CDATA[<]]>  #{end}
+            	    and variation is not null
+            	    group by param_id
+                ) a join param_pdm b on a.param_id = b.param_id
+                group by b.eqp_id
+            ) a join eqp_pdm b on a.eqp_id = b.eqp_id
+                left join (
+                    select
+                        eqp_id,
+                        max(status_cd) as status_cd
+                    from eqp_alarm_trx_pdm
+                    where alarm_dtts <![CDATA[>=]]> #{start}
+                    and alarm_dtts <![CDATA[<]]> #{end}
+                    group by eqp_id
+            ) c on b.eqp_id = c.eqp_id
+            order by a.variation
+        )
+        where rownum <![CDATA[<=]]> 5
+    </select>
+    <select id="selectBadFiveEqps" resultType="com.bistel.a3.portal.domain.pdm.EqpStatusData">
+        select * from(
+        select
+            b.eqp_id,
+            b.name,
+            c.status_cd
+        from (
+            select
+                b.eqp_id,
+                max(a.variation) as variation
+            from (
+            	select
+            		param_id,
+            		avg(variation/alarm) as variation
+            	from overall_minute_summary_trx_pdm
+            	where read_dtts <![CDATA[>=]]> #{start}
+            	  and read_dtts <![CDATA[<]]>  #{end}
+            	  and variation is not null
+            	group by param_id
+            ) a join param_pdm b on a.param_id = b.param_id
+            group by b.eqp_id
+        ) a join eqp_pdm b on a.eqp_id = b.eqp_id
+            left join (
+                select
+                    eqp_id,
+                    max(status_cd) as status_cd
+                from eqp_alarm_trx_pdm
+                where alarm_dtts <![CDATA[>=]]> #{start}
+                  and alarm_dtts <![CDATA[<]]> #{end}
+                group by eqp_id
+        ) c on b.eqp_id = c.eqp_id
+
+        order by a.variation desc
+        )
+        where rownum <![CDATA[<=]]> 5
+    </select>
+    <select id="selectRadar" resultType="com.bistel.a3.portal.domain.pdm.ParamClassificationData">
+        select
+            a.param_id,
+            b.name,
+            avg(a.alarm) as alarm,
+            avg(a.warn) as warn,
+            avg(a.avg_spec) as avg_spec,
+            avg(a.avg_daily) as avg_daily,
+            max(a.avg_with_aw) as avg_with_aw,
+            avg(a.variation) as variation
+        from overall_minute_summary_trx_pdm a
+            join param_pdm b on a.param_id = b.param_id
+        where b.eqp_id = #{eqpId}
+          and a.read_dtts <![CDATA[>=]]> #{start}
+          and a.read_dtts <![CDATA[<]]> #{end}
+        group by a.param_id, b.name
+    </select>
+</mapper>

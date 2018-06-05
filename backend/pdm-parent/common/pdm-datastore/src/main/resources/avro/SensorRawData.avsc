@@ -1,0 +1,25 @@
+{"namespace": "com.bistel.pdm.avro",
+ "type": "record",
+ "name": "SensorRawData",
+ "fields": [
+     {"name": "rawid", "type": "long"},
+     {"name": "param_mst_rawid", "type": "long"},
+     {"name": "trace_trx_rawid", "type": "long"},
+     {"name": "data_type_cd", "type": "string"},
+     {"name": "max_freq", "type": ["int", "null"]},
+     {"name": "freq_count", "type": ["int", "null"]},
+     {"name": "rpm", "type": ["int", "null"]},
+     {"name": "sampling_time", "type": ["float", "null"]},
+     {"name": "frequency_data", "type": "string"},
+     {"name": "timewave_data", "type": "string"},
+     {"name": "rms", "type": ["float", "null"]},
+     {"name": "event_dtts", "type": "long"},
+     {"name": "alarm_spec", "type": ["float", "null"]},
+     {"name": "warning_spec", "type": ["float", "null"]},
+     {"name": "reserved_col1", "type": ["string", "null"]},
+     {"name": "reserved_col2", "type": ["string", "null"]},
+     {"name": "reserved_col3", "type": ["string", "null"]},
+     {"name": "reserved_col4", "type": ["string", "null"]},
+     {"name": "reserved_col5", "type": ["string", "null"]}
+ ]
+}

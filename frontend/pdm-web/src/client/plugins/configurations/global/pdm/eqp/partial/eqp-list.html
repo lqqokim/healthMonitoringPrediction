@@ -1,0 +1,48 @@
+<div class="pdm-configuration-builder eqp-list clearfix">
+    <div class="pdm-wijmo-body">
+        <div class="fab-label">
+            <label for="inputFab">Fab</label>
+            <select class="form-control" [(ngModel)]="selectedFab" (ngModelChange)="changeSelectedFab($event)">
+                <option *ngFor="let plant of plants" [ngValue]="plant" [selected]="plant.fabId === selectedFab.fabId">
+                    {{plant.fabName}}
+                </option>
+            </select>
+        </div>
+        <wj-tree-view #tv [ngClass]="'custom-tree'" [itemsSource]="treeDatas" [displayMemberPath]="'areaName'" [childItemsPath]="'children'"
+            [isAnimated]="true" [autoCollapse]="false" [expandOnClick]="true" (itemClicked)="selectedNode(tv)">
+        </wj-tree-view>
+    </div>
+    <div class="pdm-eqp-body">
+        <span class="title">EQP List</span>
+        <div *ngIf="!eqpDatas">Select Area data to view and edit information.</div>
+        <div class="eqp-padding" *ngIf="eqpDatas">
+            <div class="pdm-config-header clearfix">
+                <div class="header-info">
+                    <span>Selection Path: </span>
+                    <span class="select">{{pathStr}}</span>
+                    <!-- <img id="img" src="" alt="" height="100" width="250" /> -->
+                </div>
+                <div class="header-btn" *ngIf="isActive">
+                    <button class="btn btn-default" type="button" (click)="deleteEqp()" [disabled]="btnDisabled">Delete</button>
+                    <button class="btn btn-default" type="button" (click)="modifyEqp('modify')" [disabled]="btnDisabled">Modify</button>
+                    <!-- <button class="btn btn-default" type="button" (click)="modifyEqp('modify')" [disabled]="isModifuDisabled">Modify</button> -->
+                    <button class="btn btn-default" type="button" (click)="createEqp('create')">Create</button>
+                </div>
+            </div>
+            <div class="a3-app-configuration-body">
+                <div class="a3-app-configuration-chart-wrapper no-padding">
+                <wj-flex-grid #WijmoGridInstance *ngIf="isActive" [itemsSource]="eqpDatas" [selectionMode]="'Row'" [isReadOnly]="true" [headersVisibility]="'Column'"
+                    (selectionChanged)="selectedRow(WijmoGridInstance, $event)">
+                    <wj-flex-grid-column [width]="'*'" [header]="'Area'" [binding]="'areaName'" [align]="'center'"></wj-flex-grid-column>
+                    <wj-flex-grid-column [width]="'*'" [header]="'Name'" [binding]="'eqpName'" [align]="'center'"></wj-flex-grid-column>
+                    <wj-flex-grid-column [width]="'*'" [header]="'Description'" [binding]="'description'" [align]="'center'"></wj-flex-grid-column>
+                    <wj-flex-grid-column [width]="'0.3*'" [header]="'Image'" [binding]="'image'" [align]="'center'">
+                        <ng-template wjFlexGridCellTemplate [cellType]="'Cell'" let-row="row" let-item="item">
+                            <button class="btn btn-default" style="padding:2px 10px;" (click)="imageRegister($evnet)" [disabled]="!item.image"><span class="fa fa-file-image-o" aria-hidden="true"></span></button>
+                        </ng-template>
+                    </wj-flex-grid-column>
+                </wj-flex-grid>
+            </div>
+        </div>
+    </div>
+</div>

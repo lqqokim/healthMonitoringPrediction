@@ -1,0 +1,36 @@
+.a3-wrapper .a3-sidebar-container .contents.notification {
+  width: 100%;
+}
+
+.a3-wrapper .a3-sidebar-container .contents.notification .user-name {
+  color: #fff;
+  font-size: 14px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.a3-wrapper .a3-sidebar-container .contents.notification .user-name {
+  color: #fff;
+}
+
+/*
+.a3-wrapper .a3-sidebar-container .icon {
+    float: right;
+    width: 24px;
+    height: 24px;
+    margin-top: 2px;
+}
+.a3-wrapper .a3-sidebar-container .icon.notification-email {
+    background-image: url(../images/icon-notification-email.png);
+}
+.a3-wrapper .a3-sidebar-container .icon.notification-sns {
+    background-image: url(../images/icon-notification-sns.png);
+}
+.a3-wrapper .a3-sidebar-container .icon.notification-report {
+    background-image: url(../images/icon-notification-report.png);
+}
+.a3-wrapper .a3-sidebar-container .icon.notification-alarm {
+    background-image: url(../images/icon-notification-alarm.png);
+}
+*/

@@ -1,0 +1,525 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bistel.a3.portal.dao.common.DashboardMapper">
+	<resultMap id="BaseResultMap" type="com.bistel.a3.portal.domain.common.Dashboard">
+		<id column="dashboard_id" property="dashboardId" />
+		<result column="home" property="home" typeHandler="yn" />
+		<result column="title" property="title" />
+		<result column="dashboard_order" property="dashboardOrder" />
+		<result column="user_id" property="userId" />
+		<result column="create_dtts" property="createDtts" />
+		<result column="favorite" property="favorite" typeHandler="yn" />
+		<result column="predefined" property="predefined" typeHandler="yn" />
+	</resultMap>
+	<resultMap id="UserResultMap" type="com.bistel.a3.portal.domain.common.User">
+		<id column="user_id" property="userId" jdbcType="VARCHAR" />
+		<result column="name" property="name" jdbcType="VARCHAR" />
+		<result column="img_url" property="imageUrl" jdbcType="VARCHAR" />		
+		<result column="email" property="email" jdbcType="VARCHAR" />
+		<result column="phone_no" property="phoneNo" jdbcType="VARCHAR" />
+		<result column="description" property="description" jdbcType="VARCHAR" />
+		<result column="department" property="department" jdbcType="VARCHAR" />
+		<result column="responsibilities" property="responsibilities" jdbcType="VARCHAR" />
+	</resultMap>	
+	<sql id="BaseAllQuery">
+		select *
+		from dashboard_a3
+	</sql>
+	
+	<select id="selectSharedUsersByDashboardId" resultMap="UserResultMap">
+		select user_id, name, img_url, email, phone_no, description, department, responsibilities from user_a3 where user_id 
+		in (select user_id from user_dashboard_lnk_a3 
+		where dashboard_id =#{dashboardId} and user_id!=#{userId})
+	</select>
+	
+	<select id="selectShareDashboardUserList" resultType="String">
+		select user_id from user_a3 where user_id 
+		in (select user_id from user_dashboard_lnk_a3 
+		where user_id! = #{userId} and dashboard_id =#{dashboardId} )
+	</select>
+	
+	<!-- 
+	<select id="selectByUser" resultMap="BaseResultMap">
+		<include refid="BaseAllQuery" />
+		where user_id = #{userId}
+		order by dashboard_order asc
+	</select>
+-->
+	<!-- 위 쿼리가 사용되는 곳이 있다면, 아래와 같이 바꿔야함.-->
+	<select id="selectByUser" resultMap="BaseResultMap">
+		select 
+		  db.dashboard_id as dashboardId,
+		  udl.home as home,
+		  db.title as title,
+		  udl.dashboard_order as dashboardOrder,
+		  db.user_id as userId,
+		  db.create_dtts,
+		  db.predefined,
+		  udl.favorite
+		from 
+		  dashboard_a3 db, user_dashboard_lnk_a3 udl
+		where 
+			db.dashboard_id=udl.dashboard_id
+			and db.user_id = #{userId}
+      and udl.user_id = #{userId}
+		order by udl.dashboard_order asc
+	</select>
+	
+	<!-- 이것도 수정되어야 할 것 처럼 보임 -->			  
+	<!-- 
+	<select id="selectSharedListByUser" resultMap="BaseResultMap">
+		select 
+			* 
+		from 
+    		(select dashboard_id,home,title,dashboard_order,user_id,create_dtts 
+    		 from dashboard_a3 
+    		 where 
+    		 	user_id=#{userId} and dashboard_id not in
+        		(select dashboard_id from user_dashboard_lnk_a3 where user_id=#{userId})
+		union 
+		select 
+			a.dashboard_id, a.home, a.title , b.dashboard_order, a.user_id , a.create_dtts 
+		from 
+			dashboard_a3 a, user_dashboard_lnk_a3 b
+		where 
+			a.dashboard_id = b.dashboard_id and b.user_id =#{userId})
+    	order by dashboard_order
+	</select> 
+	 -->
+	 <!-- 위 쿼리는 잘못된 값을 가져옴으로 아래와 같이 수정 -->
+	 <select id="selectSharedListByUser" resultMap="BaseResultMap">
+		SELECT db.dashboard_id,
+		    udl.home,
+		    db.title ,
+		    udl.dashboard_order,
+		    db.user_id ,
+		    db.create_dtts,
+		    db.predefined
+		  FROM dashboard_a3 db,
+		    user_dashboard_lnk_a3 udl
+		  WHERE 
+		  	db.dashboard_id = udl.dashboard_id
+		  	and udl.user_id        =#{userId}
+		ORDER BY udl.dashboard_order
+	</select> 
+	
+	<!--
+	<select id="select" resultMap="BaseResultMap">
+		<include refid="BaseAllQuery" />
+		where dashboard_id = #{dashboardId}
+	</select>
+	-->
+	<select id="select" resultMap="BaseResultMap">
+		select 
+		  db.dashboard_id as dashboardId,
+		  udl.home as home,
+		  db.title as title,
+		  udl.dashboard_order as dashboardOrder,
+		  udl.user_id as userId,
+		  db.create_dtts,
+		  db.predefined,
+		  udl.favorite
+		from 
+		  dashboard_a3 db, user_dashboard_lnk_a3 udl
+		where 
+		  db.dashboard_id = udl.dashboard_id
+		  and db.dashboard_id = #{dashboardId}
+	</select>
+	<select id="selectMyDashboard" resultMap="BaseResultMap">
+		select 
+		  db.dashboard_id as dashboardId,
+		  udl.home as home,
+		  db.title as title,
+		  udl.dashboard_order as dashboardOrder,
+		  udl.user_id as userId,
+		  db.create_dtts,
+		  db.predefined,
+		  udl.favorite
+		from 
+		  dashboard_a3 db, user_dashboard_lnk_a3 udl
+		where 
+		  db.dashboard_id = udl.dashboard_id
+		  and db.dashboard_id = #{dashboardId}
+		  and udl.user_id = db.user_id
+	</select>
+	<!-- 자신이 share한 dashboard list -->
+	<!-- select id ="selectShareDashboardIdList" resultMap="BaseResultMap">
+		select dashboard_id from dashboard_a3 where user_id = #{userId} and dashboard_id 
+      	in(select dashboard_id from user_dashboard_lnk_a3 where user_id!=#{userId}) 
+	</select-->
+	
+	<!-- 자신이 share 받은 dashboard list -->
+	<!-- select id="selectReceiveSharedDashboardList" resultMap="BaseResultMap">
+		select dashboard_id from dashboard_a3 where user_id!=#{userId} and dashboard_id
+    	in(select dashboard_id from user_dashboard_lnk_a3 where user_id=#{userId})
+	</select-->
+	
+	<!-- share를 하지 않은 dashboard list -->
+	<!-- select id="selectNotsharedDashbaordList" resultMap="BaseResultMap">
+	 	select dashboard_id from dashboard_a3 where user_id=#{userId} and dashboard_id 
+    	not in(select dashboard_id from user_dashboard_lnk_a3 where user_id!=#{userId})
+	</select--> 
+	<select id="selectDashboardOwnerUserId" resultType="String">
+	     select user_id from dashboard_a3 where dashboard_id = #{dashboardId}
+	</select>
+	
+	<!-- 자신에게 share해준 user + 같이 share받은 user -->
+	<select id ="selectAllUserByWorkspaceId" resultMap="BaseResultMap">
+	  	select user_id from dashboard_a3 where dashboard_id = #{dashboardId}
+    	union
+    	select user_id from user_dashboard_lnk_a3 where dashboard_id = #{dashboardId} and user_id!=
+   		(select user_id from dashboard_a3 where dashboard_id = #{dashboardId}) and user_id != #{userId}
+	</select>
+
+	<insert id="insert">
+		<selectKey resultType="Long" keyProperty="dashboardId"
+			order="BEFORE">
+			select seq_dashboard_a3.nextval from dual
+		</selectKey>
+		insert into dashboard_a3 
+			(
+				dashboard_id, 
+				title, 
+				user_id, 
+				create_dtts
+			)
+		values
+			(
+				#{dashboardId},
+				#{title},
+				#{userId},
+				#{createDtts}
+			)
+	</insert>	
+	
+	<insert id="insertLinkData">
+		merge 
+		into user_dashboard_lnk_a3
+		using dual
+		on(user_id=#{userId} and dashboard_id=#{dashboardId})
+		when not matched then
+		insert
+			(
+				user_id, dashboard_id, home, favorite, dashboard_order
+			)
+		values
+			(
+				#{userId},
+				#{dashboardId},
+				#{home, typeHandler=yn},
+		<if test="favorite == null">
+			'N',
+		</if>		
+		<if test="favorite != null">
+			#{favorite, typeHandler=yn},
+		</if>
+		<if test="dashboardOrder == null">
+			(select max(dashboard_order)+1 from user_dashboard_lnk_a3 where user_id =
+			#{userId}),
+		</if>
+		<if test="dashboardOrder != null">
+			#{dashboardOrder}
+		</if>
+		)
+	</insert>
+		
+	<update id="update">
+		update dashboard_a3
+		<set>
+		<!-- 
+			<if test="home != null">
+				home = #{home, typeHandler=yn},
+			</if>
+			
+			<if test="favorite != null">
+				favorite = #{favorite, typeHandler=yn},
+			</if>
+		-->
+			<if test="title != null">
+				title = #{title}
+			</if>
+			<!-- 
+			<if test="dashboardOrder != null">
+				dashboard_order = #{dashboardOrder},
+			</if>
+			 -->
+		</set>
+		where dashboard_id = #{dashboardId}
+	</update>
+	
+	<update id="updateHomeAll">
+		update user_dashboard_lnk_a3
+		set home = #{home, typeHandler=yn}
+		where user_id = #{userId}
+	</update>
+	<update id="setHome">
+		update user_dashboard_lnk_a3
+		set home = 'Y'
+		where user_id = #{userId}
+		and dashboard_id = #{dashboardId}
+	</update>
+	<update id="updateHome">
+		update user_dashboard_lnk_a3
+		set <if test="home != null">
+			home = #{home, typeHandler=yn},
+		</if>			
+		<if test="favorite != null">
+			favorite = #{favorite, typeHandler=yn},
+		</if>
+		<if test="dashboardOrder != null">
+			dashboard_order = #{dashboardOrder}
+		</if>
+		where user_id = #{userId}
+		and dashboard_id = #{dashboardId}
+	</update>
+	<update id="updateOrder">
+		update user_dashboard_lnk_a3
+		set dashboard_order = dashboard_order + 1
+		where dashboard_order >= #{dashboardOrder}
+		and user_id = #{userId}
+	</update>		
+	<update id="updateOrderMySelf">
+		update user_dashboard_lnk_a3
+		set dashboard_order = #{dashboardOrder}
+		where dashboard_id = #{dashboardId}
+	</update>
+	<update id="updateOrderOther">
+	   <![CDATA[
+		update user_dashboard_lnk_a3
+		set dashboard_order = dashboard_order + 1
+		where dashboard_order >= #{dashboardOrder}
+		and user_id = #{userId}
+		and dashboard_id <> #{dashboardId}
+	   ]]>
+	</update>	
+	<delete id="deleteById">
+		delete from dashboard_a3
+		where dashboard_id = #{dashboardId}
+	</delete>
+	<delete id="deleteLinkDataByDashboardId">
+		delete from user_dashboard_lnk_a3
+		where dashboard_Id = #{dashboardId}
+	</delete>
+	<delete id="deleteMyLinkDataByDashboardId">
+		delete from user_dashboard_lnk_a3
+		where dashboard_Id = #{dashboardId} and user_id= #{userId}
+	</delete>
+	<delete id="deleteLinkData">
+		delete from user_dashboard_lnk_a3 
+		where dashboard_id = #{dashboardId} and user_id = #{userId}
+	</delete>
+	<select id="selectOrderByUser" resultType="Integer">
+		select case when max(dashboard_order) is null then 0
+		else max(dashboard_order) + 1 end
+		from user_dashboard_lnk_a3
+		where user_id = #{userId}
+	</select>
+	<select id="selectDashboardTitle" resultType="String">
+		select title from dashboard_a3
+		where dashboard_id = #{dashboardId}
+	</select>
+	
+	
+	<!-- group share by alan -->
+	<select id="selectUserGroupDashboardShare" resultType="com.bistel.a3.portal.domain.common.DashboardShareUserGroup">
+		select 
+			ug.user_group_id as groupId,
+			ug.img_url as imageUrl
+		from user_group_a3 ug, user_group_dashboard_share_a3 ugds
+		where 
+			ug.user_group_id = ugds.user_group_id
+			and ugds.dashboard_id = #{dashboardId}
+	</select>
+	<insert id="insertUserGroupDashboardShare" parameterType="com.bistel.a3.portal.domain.common.UserGroupDashboardShare">
+		insert into user_group_dashboard_share_a3
+		(
+			user_group_id, dashboard_id
+		)
+		values
+		(
+			#{groupId},
+			#{dashboardId}
+		)
+	</insert>
+	<delete id="deleteUserGroupDashboardShare">
+		delete 
+			user_group_dashboard_share_a3 
+		where 
+			dashboard_id = #{dashboardId} and user_group_id = #{groupId}
+	</delete>
+
+	<delete id="deleteUserGroupDashboardShareByDashboardId">
+		delete 
+			user_group_dashboard_share_a3 
+		where 
+			dashboard_id = #{dashboardId}
+	</delete>
+
+		
+	<!-- belows not imp-->
+	<insert id="insertUserDashboardLnk" parameterType="com.bistel.a3.portal.domain.common.UserDashboardLnk">
+		insert into user_dashboard_lnk_a3
+		(
+			user_id,
+			dashboard_id,
+			home,
+			favorite,
+			dashboard_order	
+		)
+		values
+		(
+			#{userId},
+			#{dashboardId},
+			'N',
+			'N',
+			(select max(dashboard_order)+1 from user_dashboard_lnk_a3 where user_id =
+			#{userId})
+		)
+	</insert>
+	<select id="selectUserIdListByGroup" parameterType="java.lang.String" resultType="java.lang.String">
+		select distinct(u.user_id) as userId
+		from user_a3 u, user_group_lnk_a3 ugl, user_group_dashboard_share_a3 ugds
+		where u.user_id = ugl.user_id
+    		and ugds.USER_GROUP_ID = #{groupId}
+			and ugl.user_group_id = #{groupId}
+	</select>
+	<select id="selectGroupIdByUser" parameterType="java.lang.String" resultType="java.lang.String">
+		select ug.user_group_id 
+	    from user_group_a3 ug, user_group_lnk_a3 ugl    
+	    where 
+	    ug.user_group_id = ugl.user_group_id
+	    and ugl.user_id=#{userId}
+	</select>
+	
+	
+	<delete id="deleteUserDashboardLnk" parameterType="com.bistel.a3.portal.domain.common.UserDashboardLnk">
+		delete 
+			user_dashboard_lnk_a3 
+		where 
+			dashboard_id = #{dashboardId} and user_id = #{userId}
+	</delete>
+
+
+	<select id="selectShareDashboardMemberGroup"
+		resultType="com.bistel.a3.portal.domain.common.DashboardShareMember">
+		select
+			ugds.user_group_id as id,
+			ugds.user_group_id as name,
+			ug.img_url as imageUrl,
+			'group' as type,
+			ug.email as email
+		from
+			user_group_dashboard_share_a3 ugds, user_group_a3 ug, dashboard_a3 d
+		where
+			d.dashboard_id=ugds.dashboard_id
+			and
+			ugds.dashboard_id = #{dashboardId}
+			and
+			ugds.user_group_id=ug.user_group_id
+			and
+			d.user_id=#{userId}
+	</select>
+	 
+	 <select id="selectUserImgByGroup" resultType="com.bistel.a3.portal.domain.common.DashboardShareMemberGroupUser">
+	    select
+			u.img_url as imgUrl
+		from 
+			user_a3 u, user_group_lnk_a3 ugl
+		where
+			u.user_id = ugl.user_id
+			and 
+			ugl.user_group_id = #{groupId}    
+    </select>
+    
+	<select id="selectShareDashboardMemberUser"
+		resultType="com.bistel.a3.portal.domain.common.DashboardShareMember">
+		select
+			udl.user_id as id,
+			u.name as name,
+			u.img_url as imageUrl,
+			'user' as type,
+			u.email as email
+		from
+			user_dashboard_lnk_a3 udl, user_a3 u, dashboard_a3 d, user_group_lnk_a3 ugl
+		where
+			d.dashboard_id=udl.dashboard_id
+		and 
+			ugl.user_id = udl.user_id			
+		and
+			udl.dashboard_id = #{dashboardId}
+		and
+			udl.user_id=u.user_id
+		and
+			d.user_id=#{userId}
+		and
+			udl.user_id not in #{userId}
+		<if test="groupListForExclude != null">
+			and ugl.USER_GROUP_ID not in 
+  			<foreach collection="groupListForExclude" item="groupListForExclude" separator="," open="(" close=")">
+            	#{groupListForExclude}
+        	</foreach>
+		</if>
+	</select>
+	
+	<insert id="insertDashboardShareMembersGroup">
+    	insert into user_group_dashboard_share_a3
+    	(user_group_id, dashboard_id)
+    	values
+    	(#{id}, #{dashboardId})
+    </insert>
+    <insert id="insertDashboardShareMembersUser">
+    	insert into user_dashboard_lnk_a3
+    		(user_id, dashboard_id, favorite, home, dashboard_order)
+    	values
+    		(#{id}, #{dashboardId}, #{favorite, typeHandler=yn}, 
+    		#{home, typeHandler=yn}, 
+    		(select max(dashboard_order)+1 from user_dashboard_lnk_a3 where user_id =
+			#{id}))
+    </insert>
+	
+	<delete id="deleteDashboardShareMembersGroup">
+		delete 
+			user_group_dashboard_share_a3 
+		where 
+			dashboard_id = #{dashboardId} and user_group_id = #{id}
+	</delete>
+	
+	<delete id="deleteDashboardShareMembersUser">
+		delete 
+			user_dashboard_lnk_a3 
+		where 
+			dashboard_id = #{dashboardId} and user_id = #{id}
+	</delete>
+	
+	<select id="selectCountDashboardShareMembersGroup" resultType="java.lang.Integer">
+		select 
+			count(*)
+		from
+			user_group_dashboard_share_a3
+		where
+			user_group_id = #{id}
+			and
+			dashboard_id = #{dashboardId}
+	</select>
+	<select id="selectCountDashboardShareMembersUser" resultType="java.lang.Integer">
+		select 
+			count(*)
+		from
+			user_dashboard_lnk_a3
+		where
+			user_id = #{id}
+			and
+			dashboard_id = #{dashboardId}
+	</select>
+	<select id="selectDashboardShareGroupUserListWithoutMyId" resultType="java.lang.String">
+	 <![CDATA[
+		SELECT UDN.USER_ID
+		  FROM USER_DASHBOARD_LNK_A3 UDN, USER_GROUP_LNK_A3 UGN, USER_GROUP_DASHBOARD_SHARE_A3 UGDS
+		 WHERE UDN.USER_ID = UGN.USER_ID AND UGN.USER_GROUP_ID = UGDS.USER_GROUP_ID
+		   AND UDN.DASHBOARD_ID = #{dashboardId}
+		   AND UDN.USER_ID <> (SELECT USER_ID FROM DASHBOARD_A3 WHERE DASHBOARD_ID = #{dashboardId})
+		   AND UDN.USER_ID <> #{userId}		  		
+	 ]]>
+	</select>
+	
+</mapper>

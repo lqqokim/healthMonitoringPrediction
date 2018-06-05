@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bistel.a3.portal.dao.common.CodeCategoryMapper">
+    <resultMap id="BaseResultMap" type="com.bistel.a3.portal.domain.common.CodeCategory">
+        <id column="code_category_id" property="codeCategoryId"/>
+        <result column="app_id" property="appId"/>
+        <result column="name" property="name"/>
+    </resultMap>
+    <sql id="BaseAllQuery">
+        select
+            a.code_category_id,
+            a.app_id,
+            a.name
+        from code_category_a3 a
+            join app_a3 b
+                on b.app_id = a.app_id
+    </sql>
+    <select id="selectByAppName" resultMap="BaseResultMap">
+        <include refid="BaseAllQuery"/>
+        where b.name = #{appName}
+    </select>
+    <select id="selectByName" resultMap="BaseResultMap">
+        <include refid="BaseAllQuery"/>
+        where b.name = #{appName}
+        and a.name = #{categoryName}
+    </select>
+    <insert id="insert">
+        <selectKey resultType="Long" keyProperty="codeCategoryId" order="BEFORE">
+            select seq_code_category_a3.nextval from dual
+        </selectKey>
+        insert into code_category_a3 (
+            code_category_id, app_id, name
+        ) values (
+            #{codeCategoryId},
+            (select app_id from app_a3 where name=#{appName}),
+            #{codeCategory.name}
+        )
+    </insert>
+    <update id="update">
+        update code_category_a3
+        set name = #{name}
+        where code_category_id = #{codeCategoryId}
+    </update>
+    <delete id="delete">
+        delete from code_category_a3
+        where code_category_id = #{codeCategoryId}
+    </delete>
+</mapper>

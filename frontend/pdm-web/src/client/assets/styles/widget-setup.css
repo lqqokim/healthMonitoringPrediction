@@ -1,0 +1,23 @@
+/* widget-rpt.css */
+.widget-setup {
+  overflow: hidden;
+}
+
+.widget-setup .table-rpt .check {
+  width: 25px;
+}
+
+.widget-setup .table-rpt th input[type=checkbox],
+.widget-setup .table-rpt td input[type=checkbox] {
+  margin-right: 0px;
+}
+
+.widget-setup .table-rpt .num {
+  width: 40px;
+  text-align: right;
+}
+
+.widget-setup .table-rpt .lot {
+  width: 80px;
+  text-align: right;
+}

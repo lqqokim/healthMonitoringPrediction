@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bistel.a3.portal.dao.pdm.ulsan.ParamDataMapper">
+    <insert id="insertCalculateAvg90">
+        insert into overall_minute_avg90_trx_pdm (param_id, read_dtts, value)
+        select
+            param_id,
+            #{date},
+            avg(value)
+        from overall_minute_trx_pdm
+        where read_dtts <![CDATA[>=]]> #{before90}
+          and read_dtts <![CDATA[<]]> #{date}
+        <if test="eqpIds.size > 0">
+            AND param_id in (select param_id from param_pdm where eqp_id in
+            <foreach collection="eqpIds" item="eqpId" index="index" separator="," open="(" close=")">
+                #{eqpId}
+            </foreach>
+            )
+        </if>
+        group by param_id
+    </insert>
+    <delete id="deleteCalculateAvg90">
+        delete from overall_minute_avg90_trx_pdm
+        where read_dtts = #{date}
+        <if test="eqpIds.size > 0">
+            AND param_id in (select param_id from param_pdm where eqp_id in
+            <foreach collection="eqpIds" item="eqpId" index="index" separator="," open="(" close=")">
+                #{eqpId}
+            </foreach>
+            )
+        </if>
+    </delete>
+    <select id="selectEqpInfo" resultType="com.bistel.a3.portal.domain.pdm.EqpInfo">
+        select
+            a.name as eqpName,
+            GET_AREA_FULL_NAME(a.eqp_id) as shopFullName,
+            b.image as binaryImage
+        from eqp_pdm a
+            left join eqp_etc_pdm b
+                on a.eqp_id = b.eqp_id
+        where a.eqp_id = #{eqp_id}
+    </select>
+
+    <resultMap id="ParamStatusMap" type="com.bistel.a3.portal.domain.pdm.ParamStatus">
+        <id column="param_id" property="param_id"/>
+        <result column="param_name" property="name"/>
+        <association property="variant" column="param_id" javaType="com.bistel.a3.portal.domain.pdm.AlarmCount">
+            <result column="alarm" property="alarm"/>
+            <result column="warning" property="warning"/>
+            <result column="normal" property="normal"/>
+        </association>
+        <association property="spec" column="param_id" javaType="com.bistel.a3.portal.domain.pdm.AlarmCount">
+            <result column="spec_alarm" property="alarm"/>
+            <result column="spec_warning" property="warning"/>
+            <result column="spec_normal" property="normal"/>
+        </association>
+    </resultMap>
+    <select id="selectParamStatusByEqpId" resultMap="ParamStatusMap">
+        select
+            n.param_id,
+            n.name as param_name,
+            nvl(a.alarm, 0) as alarm,
+            nvl(a.warn, 0) as warning,
+            1 - nvl(a.alarm, 0) - nvl(a.warn, 0) as normal,
+            nvl(b.alarm, 0) as spec_alarm,
+            nvl(b.warn, 0) as spec_warning,
+            1 - nvl(b.alarm, 0) - nvl(b.warn, 0) as spec_normal
+        from (
+          select *
+          from param_pdm
+          where eqp_id = #{eqp_id}
+          and param_type in (10201,10202)
+        ) n
+        left join (
+            select
+              c.param_id,
+              sum(case when a.value <![CDATA[>=]]> b.alarm then 1 else 0 end)/sum(1) as alarm,
+              sum(case when a.value <![CDATA[<]]> b.alarm and  a.value <![CDATA[>=]]> b.warn then 1 else 0 end)/sum(1) as warn
+            from overall_minute_trx_pdm a
+              join overall_spec_pdm b
+                on a.param_id = b.param_id
+              join param_pdm c
+                on a.param_id = c.param_id
+            where c.eqp_id = #{eqp_id}
+              and c.param_type in (10201, 10202)
+              and a.read_dtts <![CDATA[>=]]> #{start}
+              and a.read_dtts <![CDATA[<]]> #{end}
+            group by c.param_id
+        ) a on n.param_id = a.param_id
+        left join (
+          select
+            param_id,
+            sum(alarm_cnt) as total_cnt,
+            sum(case when status_cd = 128 then alarm_cnt else 0 end)/sum(alarm_cnt)/sum(alarm_cnt) as warn,
+            sum(case when status_cd = 256 then alarm_cnt else 0 end)/sum(alarm_cnt)/sum(alarm_cnt) as alarm
+          from (
+            select
+              b.param_id,
+              b.status_cd,
+              count(1) as alarm_cnt
+            from param_pdm a
+              join alarm_trx_pdm b
+                on a.param_id = b.param_id
+            where a.eqp_id = #{eqp_id}
+              and b.alarm_dtts <![CDATA[>=]]> #{start}
+              and b.alarm_dtts <![CDATA[<]]> #{end}
+              and a.param_type in (10201, 10202)
+            group by b.param_id, b.status_cd
+          ) b group by param_id
+        ) b on n.param_id = b.param_id
+        order by n.sort_order
+    </select>
+
+    <select id="selectParamWithInfo" resultType="com.bistel.a3.portal.domain.pdm.master.ParamWithCommon">
+        select a.*,
+            b.eu_type,
+            b.eu
+        from param_pdm a
+            left join param_common_pdm b
+                on a.param_id = b.param_id
+        where a.param_id = #{param_id}
+    </select>
+
+    <select id="selectParamWtihInfoByEqp" resultType="com.bistel.a3.portal.domain.pdm.master.ParamWithCommon">
+        select a.*,
+            b.eu_type,
+            b.eu
+        from param_pdm a
+            left join param_common_pdm b
+                on a.param_id = b.param_id
+        where a.eqp_id = #{eqp_id}
+        <!--<if test="eu_type != null">-->
+            <!--and b.eu_type = #{eu_type}-->
+        <!--</if>-->
+        order by sort_order
+    </select>
+    <select id="selectUnivariatevariation" resultType="com.bistel.a3.portal.domain.pdm.UnivariateVariation">
+        select
+            a.param_id,
+            nvl(b.value, 0) - a.today_value as variation
+        from (
+            select a.param_id, avg(a.value) as today_value
+            from overall_minute_trx_pdm a
+                join param_pdm b
+                    on a.param_id = b.param_id
+            where b.eqp_id = #{eqp_id}
+              and a.read_dtts <![CDATA[>=]]> #{start}
+              and a.read_dtts <![CDATA[<]]> #{end}
+            group by a.param_id
+        ) a left join overall_minute_avg90_trx_pdm b
+                on a.param_id = b.param_id
+        where b.read_dtts = #{start} - 1
+    </select>
+    <select id="selectParamByEqp" resultType="com.bistel.a3.portal.domain.pdm.db.Param">
+        select *
+        from param_pdm
+        where eqp_id = #{eqp_id}
+    </select>
+
+    <select id="selectData" resultType="com.bistel.a3.portal.domain.pdm.BasicData">
+        select
+            read_dtts as x
+          , value as y
+          , alarm
+          , warn
+
+        from overall_minute_trx_pdm
+        where
+            param_id = #{param_id}
+        and read_dtts <![CDATA[>=]]> #{start}
+        and read_dtts <![CDATA[<]]> #{end}
+        order by read_dtts
+    </select>
+    <select id="selectSpec" resultType="com.bistel.a3.portal.domain.pdm.Spec">
+        select
+            warn,
+            alarm
+        from overall_spec_pdm
+        where param_id = #{param_id}
+    </select>
+    <select id="selectOverallSpec" resultType="com.bistel.a3.portal.domain.pdm.db.OverallSpec">
+        select *
+        from overall_spec_pdm
+        where param_id = #{param_id}
+    </select>
+    <select id="selectPrevPeriodAVG" resultType="double">
+        SELECT
+        AVG(value) avg
+        FROM
+        overall_minute_trx_pdm a,
+        (
+        select
+        min*(avg - min)/50 as lowbound,
+        min,
+        avg
+        from
+        (
+        select
+        min(value) as min,
+        avg(value) as avg
+        from
+        overall_minute_trx_pdm
+        where
+        param_id = #{param_id}
+        and read_dtts <![CDATA[>=]]> #{start}
+        and read_dtts <![CDATA[<]]> #{end}
+        )
+        ) sts
+        where
+        a.param_id = #{param_id}
+        and read_dtts <![CDATA[>=]]> #{start}
+        and read_dtts <![CDATA[<]]> #{end}
+        and a.value > sts.lowbound
+    </select>
+
+    <insert id="insertSpec">
+        insert into overall_spec_pdm(param_id, warn, alarm)
+        values(#{param_id}, #{warn,jdbcType=FLOAT}, #{alarm,jdbcType=FLOAT})
+    </insert>
+
+    <select id="selectRpm" resultType="com.bistel.a3.portal.domain.pdm.db.ManualRpm">
+        select *
+        from manual_rpm_mst_pdm
+        where param_mst_rawid = #{param_id}
+    </select>
+
+    <insert id="insertRpm">
+        insert into manual_rpm_mst_pdm(param_id, rpm)
+        values(#{param_id}, #{rpm})
+    </insert>
+
+    <select id="selectCommon" resultType="com.bistel.a3.portal.domain.pdm.master.ParamWithCommon">
+        select *
+        from param_common_pdm
+        where param_id = #{param_id}
+    </select>
+
+    <insert id="insertCommon">
+        insert into param_common_pdm(param_id, eu, eu_type)
+        values(#{param_id}, #{eu}, #{eu_type})
+    </insert>
+
+
+
+</mapper>

@@ -1,0 +1,54 @@
+<!--auto modeling-->
+<div class="package-management job-history-container">
+    <span class="title">Condition</span>
+    <div class="a3-modeling-filter-area">
+        <div class="pdm-timeline-group">
+            <div class="fab-label">
+                <label class="control-label">Fab</label>
+                <select class="form-control" [(ngModel)]="selectedPlant">
+                    <option *ngFor="let plant of plants" [ngValue]="plant" [selected]="plant.fabId === selectedPlant.fabId">
+                        {{plant.fabName}}
+                    </option>
+                </select>
+            </div>
+
+            <div class="a3-form-period period-from">
+                <div class="a3-from-to" 
+                    [from]="datePeriod?.fromDt" 
+                    [to]="datePeriod?.toDt" 
+                    [format]="'yyyy/MM/dd hh:mm:ss'" 
+                    (changedFromTo)="fromToChange($event)">
+                </div>
+            </div>
+
+            <div class="type-job">
+                <label class="control-label">Type</label>
+                <select class="form-control" [(ngModel)]="selectedType">
+                    <option *ngFor="let type of jobTypes" [ngValue]="type" [selected]="type.code === selectedType.code">
+                        {{type.code}}
+                    </option>
+                </select>
+            </div>
+            <button class="btn btn-default" type="button" (click)="search($event);">Search</button>
+        </div>
+
+    </div>
+    <div class="wjmo-pding">
+        <div class="a3-app-configuration-chart-wrapper no-padding">
+            <wj-flex-grid #WijmoGridInstance [itemsSource]="jobHistoryDatas" [allowDragging]="'None'" [isReadOnly]="true" [selectionMode]="'Row'"
+                [headersVisibility]="'Column'" (selectionChanged)="selectedRow(WijmoGridInstance, $event)">
+                <wj-flex-grid-filter #filter></wj-flex-grid-filter>
+                <wj-flex-grid-column [width]="'*'" [header]="'Date'" [binding]="'date'" [align]="'center'"></wj-flex-grid-column>
+                <wj-flex-grid-column [width]="'*'" [header]="'Type Name'" [binding]="'type'" [align]="'center'"></wj-flex-grid-column>
+                <wj-flex-grid-column [width]="'*'" [header]="'Job Name'" [binding]="'job'" [align]="'center'"></wj-flex-grid-column>
+                <!-- <wj-flex-grid-column [width]="'*'" [header]="'EQP Name'" [binding]="'eqpName'" [align]="'center'"></wj-flex-grid-column> -->
+                <wj-flex-grid-column [width]="'*'" [header]="'Status Name'" [binding]="'status'" [align]="'center'"></wj-flex-grid-column>
+                <wj-flex-grid-column [width]="'*'" [header]="'Rerun'" [binding]="'rerun'" [align]="'center'">
+                    <ng-template wjFlexGridCellTemplate [cellType]="'Cell'" let-row="row" let-item="item">
+                        <button (click)="clickRerun($event, row)" [hidden]="!item.rerun">Rerun</button>
+                    </ng-template>
+                </wj-flex-grid-column>
+            </wj-flex-grid>
+        </div>
+    </div>
+</div>

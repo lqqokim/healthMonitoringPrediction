@@ -1,0 +1,41 @@
+<div class="a3-workspace-container">
+
+    <div class="a3-tasker a3-tasker-{{taskerModel?.taskerType?.name}} clearfix">
+
+        <div class="a3-tasker-header-group clearfix">
+            <div class="a3-tasker-header clearfix">
+                <span class="a3-tasker-header-title">
+                    <h3 class="a3-tasker-name">
+                        <span>{{taskerModel?.taskerType?.title}}</span>
+                        <small *ngIf="false && parentType?.drilldown === 'tasker'">- drill down from
+                            <a href="#" (click)="goLink()">"{{parentType?.title}}"</a>
+                        </small>
+                    </h3>
+                </span>
+
+                <span class="a3-tasker-header-function">
+
+                    <!-- tasker properties ex) PDM -->
+                    <span class="side-right-btn" *ngIf="isExistProperties">
+                        <!-- 우측 사이드바 닫힘 버튼-->
+                        <a class="btn btn-default" (click)="toggleProperties()">
+                            <i [ngClass]="{'fa fa-angle-double-right': isOpenProperties, 'fa fa-angle-double-left': !isOpenProperties}"></i>
+                        </a>
+                    </span>
+                </span>
+            </div>
+        </div>
+
+        <!-- generate tasker -->
+        <div class="a3-tasker-body" #taskerBody>
+            <!-- Spinner -->
+            <div a3-spinner #spinner [type]="'tasker'"></div>
+            <!-- create real Tasker instance area -->
+            <div class="height-full" [ngClass]="{'blur': isBlur}">
+                <ng-template #taskerGenerator></ng-template>
+            </div>
+        </div>
+
+    </div>
+
+</div>

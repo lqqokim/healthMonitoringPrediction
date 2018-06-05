@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bistel.a3.portal.dao.pdm.ulsan.PartDataMapper">
+    <select id="selectPartsByEqpWithPartType" resultType="com.bistel.a3.portal.domain.pdm.db.Part">
+        select *
+        from part_pdm
+        where
+            eqp_id = (select eqp_id from param_pdm where param_id = #{param_id})
+        <if test="part_type_id != null">
+            and part_type_id = #{part_type_id}
+        </if>
+    </select>
+
+    <select id="selectBearingInfo" resultType="com.bistel.a3.portal.domain.pdm.db.Bearing">
+        select *
+        from Bearing_pdm
+        where manufacture = #{manufacture}
+        and model_number = #{modelNumber}
+    </select>
+
+    <resultMap id="ManualRpmMap" type="com.bistel.a3.portal.domain.pdm.db.ManualRpm">
+        <id column="param_id" property="param_id"/>
+        <result column="rpm" property="rpm"/>
+    </resultMap>
+    <select id="selectManualRpm" resultMap="ManualRpmMap">
+        select *
+        from manual_rpm_pdm
+    </select>
+</mapper>

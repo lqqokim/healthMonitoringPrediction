@@ -1,0 +1,16 @@
+.rowSelected {
+    background: blue !important;
+}
+
+.column_1 {
+    width:10%;
+}
+.column_4{
+    width:40%;
+}
+.div_contents {
+    text-align: center;
+}
+.selected-cell {
+    background-color: navajowhite;
+}

@@ -1,0 +1,336 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bistel.a3.portal.dao.pdm.std.master.STDEqpMapper">
+    <select id="selectList" resultType="com.bistel.a3.portal.domain.pdm.master.EqpWithEtc">
+        select a.rawid as eqp_id,
+            a.name,
+            a.description,
+            a.image as binary,
+            b.name as data_type
+        from eqp_mst_pdm a,code_mst_pdm b
+        where a.data_type_cd = b.code (+)
+        <if test="areaId != null">
+            and area_mst_rawid = #{areaId}
+        </if>
+
+        order by a.name
+    </select>
+
+    <select id="selectList4" resultType="com.bistel.a3.portal.domain.pdm.master.EqpWithEtc">
+        select a.rawid as eqp_id,
+        a.name,
+        a.description,
+        <!--a.image,-->
+        b.name as data_type
+        from eqp_mst_pdm a,code_mst_pdm b
+        where a.data_type_cd = b.code (+)
+        <if test="areaId != null">
+            and area_mst_rawid = #{areaId}
+        </if>
+        and a.name in('Demo1','Demo2','Demo3','Demo4')
+        order by a.name
+    </select>
+
+    <select id="selectList100" resultType="com.bistel.a3.portal.domain.pdm.master.EqpWithEtc">
+        select a.rawid as eqp_id,
+        a.name,
+        a.description,
+        <!--a.image,-->
+        b.name as data_type
+        from eqp_mst_pdm a,code_mst_pdm b
+        where a.data_type_cd = b.code (+)
+        <if test="areaId != null">
+            and area_mst_rawid = #{areaId}
+        </if>
+        and a.name in(
+        'Demo1','Demo2','Demo3','Demo4','Demo5','Demo6','Demo7','Demo8','Demo9','Demo10',
+        'Demo11','Demo12','Demo13','Demo14','Demo15','Demo16','Demo17','Demo18','Demo19','Demo20',
+        'Demo21','Demo22','Demo23','Demo24','Demo25','Demo26','Demo27','Demo28','Demo29','Demo30',
+        'Demo31','Demo32','Demo33','Demo34','Demo35','Demo36','Demo37','Demo38','Demo39','Demo40',
+        'Demo41','Demo42','Demo43','Demo44','Demo45','Demo46','Demo47','Demo48','Demo49','Demo50',
+        'Demo51','Demo52','Demo53','Demo54','Demo55','Demo56','Demo57','Demo58','Demo59','Demo60',
+        'Demo61','Demo62','Demo63','Demo64','Demo65','Demo66','Demo67','Demo68','Demo69','Demo70',
+        'Demo71','Demo72','Demo73','Demo74','Demo75','Demo76','Demo77','Demo78','Demo79','Demo80',
+        'Demo81','Demo82','Demo83','Demo84','Demo85','Demo86','Demo87','Demo88','Demo89','Demo90',
+        'Demo91','Demo92','Demo93','Demo94','Demo95','Demo96','Demo97','Demo98','Demo99','Demo100')
+        order by a.name
+    </select>
+
+    <select id="selectList200" resultType="com.bistel.a3.portal.domain.pdm.master.EqpWithEtc">
+        select a.rawid as eqp_id,
+        a.name,
+        a.description,
+
+        b.name as data_type
+        from eqp_mst_pdm a,code_mst_pdm b
+        where a.data_type_cd = b.code (+)
+        and a.name in(
+        'Demo101','Demo102','Demo103','Demo104','Demo105','Demo106','Demo107','Demo108',
+        'Demo109','Demo110','Demo111','Demo112','Demo113','Demo114','Demo115','Demo116',
+        'Demo117','Demo118','Demo119','Demo120','Demo121','Demo122','Demo123','Demo124',
+        'Demo125','Demo126','Demo127','Demo128','Demo129','Demo130','Demo131','Demo132',
+        'Demo133','Demo134','Demo135','Demo136','Demo137','Demo138','Demo139','Demo140',
+        'Demo141','Demo142','Demo143','Demo144','Demo145','Demo146','Demo147','Demo148',
+        'Demo149','Demo150','Demo151','Demo152','Demo153','Demo154','Demo155','Demo156',
+        'Demo157','Demo158','Demo159','Demo160','Demo161','Demo162','Demo163','Demo164',
+        'Demo165','Demo166','Demo167','Demo168','Demo169','Demo170','Demo171','Demo172',
+        'Demo173','Demo174','Demo175','Demo176','Demo177','Demo178','Demo179','Demo180',
+        'Demo181','Demo182','Demo183','Demo184','Demo185','Demo186','Demo187','Demo188',
+        'Demo189','Demo190','Demo191','Demo192','Demo193','Demo194','Demo195','Demo196',
+        'Demo197','Demo198','Demo199','Demo200')
+        order by a.name
+    </select>
+
+    <select id="selectList300" resultType="com.bistel.a3.portal.domain.pdm.master.EqpWithEtc">
+        select a.rawid as eqp_id,
+        a.name,
+        a.description,
+
+        b.name as data_type
+        from eqp_mst_pdm a,code_mst_pdm b
+        where a.data_type_cd = b.code (+)
+        and a.name in(
+        'Demo201','Demo202','Demo203','Demo204','Demo205','Demo206','Demo207','Demo208',
+        'Demo209','Demo210','Demo211','Demo212','Demo213','Demo214','Demo215','Demo216',
+        'Demo217','Demo218','Demo219','Demo220','Demo221','Demo222','Demo223','Demo224',
+        'Demo225','Demo226','Demo227','Demo228','Demo229','Demo230','Demo231','Demo232',
+        'Demo233','Demo234','Demo235','Demo236','Demo237','Demo238','Demo239','Demo240',
+        'Demo241','Demo242','Demo243','Demo244','Demo245','Demo246','Demo247','Demo248',
+        'Demo249','Demo250','Demo251','Demo252','Demo253','Demo254','Demo255','Demo256',
+        'Demo257','Demo258','Demo259','Demo260','Demo261','Demo262','Demo263','Demo264',
+        'Demo265','Demo266','Demo267','Demo268','Demo269','Demo270','Demo271','Demo272',
+        'Demo273','Demo274','Demo275','Demo276','Demo277','Demo278','Demo279','Demo280',
+        'Demo281','Demo282','Demo283','Demo284','Demo285','Demo286','Demo287','Demo288',
+        'Demo289','Demo290','Demo291','Demo292','Demo293','Demo294','Demo295','Demo296',
+        'Demo297','Demo298','Demo299','Demo300')
+        order by a.name
+    </select>
+
+    <select id="selectList400" resultType="com.bistel.a3.portal.domain.pdm.master.EqpWithEtc">
+        select a.rawid as eqp_id,
+        a.name,
+        a.description,
+
+        b.name as data_type
+        from eqp_mst_pdm a,code_mst_pdm b
+        where a.data_type_cd = b.code (+)
+        and a.name in(
+        'Demo301','Demo302','Demo303','Demo304','Demo305','Demo306','Demo307','Demo308',
+        'Demo309','Demo310','Demo311','Demo312','Demo313','Demo314','Demo315','Demo316',
+        'Demo317','Demo318','Demo319','Demo320','Demo321','Demo322','Demo323','Demo324',
+        'Demo325','Demo326','Demo327','Demo328','Demo329','Demo330','Demo331','Demo332',
+        'Demo333','Demo334','Demo335','Demo336','Demo337','Demo338','Demo339','Demo340',
+        'Demo341','Demo342','Demo343','Demo344','Demo345','Demo346','Demo347','Demo348',
+        'Demo349','Demo350','Demo351','Demo352','Demo353','Demo354','Demo355','Demo356',
+        'Demo357','Demo358','Demo359','Demo360','Demo361','Demo362','Demo363','Demo364',
+        'Demo365','Demo366','Demo367','Demo368','Demo369','Demo370','Demo371','Demo372',
+        'Demo373','Demo374','Demo375','Demo376','Demo377','Demo378','Demo379','Demo380',
+        'Demo381','Demo382','Demo383','Demo384','Demo385','Demo386','Demo387','Demo388',
+        'Demo389','Demo390','Demo391','Demo392','Demo393','Demo394','Demo395','Demo396',
+        'Demo397','Demo398','Demo399','Demo400')
+        order by a.name
+    </select>
+
+
+    <select id="selectList500" resultType="com.bistel.a3.portal.domain.pdm.master.EqpWithEtc">
+        select a.rawid as eqp_id,
+        a.name,
+        a.description,
+
+        b.name as data_type
+        from eqp_mst_pdm a,code_mst_pdm b
+        where a.data_type_cd = b.code (+)
+        and a.name in(
+        'Demo401','Demo402','Demo403','Demo404','Demo405','Demo406','Demo407','Demo408',
+        'Demo409','Demo410','Demo411','Demo412','Demo413','Demo414','Demo415','Demo416',
+        'Demo417','Demo418','Demo419','Demo420','Demo421','Demo422','Demo423','Demo424',
+        'Demo425','Demo426','Demo427','Demo428','Demo429','Demo430','Demo431','Demo432',
+        'Demo433','Demo434','Demo435','Demo436','Demo437','Demo438','Demo439','Demo440',
+        'Demo441','Demo442','Demo443','Demo444','Demo445','Demo446','Demo447','Demo448',
+        'Demo449','Demo450','Demo451','Demo452','Demo453','Demo454','Demo455','Demo456',
+        'Demo457','Demo458','Demo459','Demo460','Demo461','Demo462','Demo463','Demo464',
+        'Demo465','Demo466','Demo467','Demo468','Demo469','Demo470','Demo471','Demo472',
+        'Demo473','Demo474','Demo475','Demo476','Demo477','Demo478','Demo479','Demo480',
+        'Demo481','Demo482','Demo483','Demo484','Demo485','Demo486','Demo487','Demo488',
+        'Demo489','Demo490','Demo491','Demo492','Demo493','Demo494','Demo495','Demo496',
+        'Demo497','Demo498','Demo499','Demo500')
+        order by a.name
+    </select>
+
+
+
+
+    <select id="selectList9" resultType="com.bistel.a3.portal.domain.pdm.master.EqpWithEtc">
+        select a.rawid as eqp_id,
+        a.name,
+        a.description,
+        <!--a.image,-->
+        b.name as data_type
+        from eqp_mst_pdm a,code_mst_pdm b
+        where a.data_type_cd = b.code (+)
+        <if test="areaId != null">
+            and area_mst_rawid = #{areaId}
+        </if>
+        and a.name in('Demo1','Demo2','Demo3','Demo11','Demo12','Demo13','Demo21','Demo22','Demo23')
+        order by a.name
+    </select>
+
+    <select id="selectListDemoAll" resultType="com.bistel.a3.portal.domain.pdm.master.EqpWithEtc">
+        select a.rawid as eqp_id,
+        a.name,
+        a.description,
+
+        b.name as data_type
+        from eqp_mst_pdm a,code_mst_pdm b
+        where a.data_type_cd = b.code (+)
+
+        and regexp_like(a.name,'^Demo')
+
+        order by a.name
+    </select>
+
+
+    <select id="selectOne" resultType="com.bistel.a3.portal.domain.pdm.master.EqpWithEtc">
+        select a.rawid as eqp_id,
+            a.name,
+            a.description,
+            a.area_mst_rawid as area_id,
+            a.image as binary,
+            a.data_type_cd,
+            b.name as data_type
+        from eqp_mst_pdm a,code_mst_pdm b
+        where a.data_type_cd = b.code(+)
+            and a.rawid = #{eqpId}
+    </select>
+
+    <insert id="insertOne">
+        <selectKey keyProperty="eqp_id" resultType="Long" order="BEFORE">
+            select seq_eqp_mst_pdm.nextval FROM DUAL
+        </selectKey>
+        insert into eqp_mst_pdm(rawid, name, description,data_type_cd, area_mst_rawid,image,create_by,create_dtts,update_by,update_dtts)
+        values(#{eqp_id}, #{name,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR},#{data_type_cd,jdbcType=VARCHAR}, #{area_id, jdbcType=DOUBLE}
+        ,#{binary, jdbcType=BLOB},#{userName, jdbcType=VARCHAR},systimestamp,#{userName,jdbcType=VARCHAR},systimestamp)
+    </insert>
+
+    <insert id="insertEtcOne">
+        insert into eqp_etc_pdm(eqp_id, image)
+        values(#{eqp_id}, #{binary,jdbcType=VARCHAR})
+    </insert>
+
+    <delete id="deleteOne">
+        delete from eqp_mst_pdm
+        where rawid = #{eqpId}
+    </delete>
+
+    <delete id="deleteParambyEqp">
+        delete from param_mst_pdm
+        where eqp_mst_rawid = #{eqpId}
+    </delete>
+
+    <delete id="deletePartsbyEqp">
+        delete from parts_mst_pdm
+        where eqp_mst_rawid = #{eqpId}
+    </delete>
+
+    <delete id="deleteEtcOne">
+        delete from eqp_etc_pdm
+        where eqp_id = #{eqpId}
+    </delete>
+
+    <update id="updateOne">
+        update eqp_mst_pdm
+        set name = #{name},
+            description = #{description,jdbcType=VARCHAR},
+            area_mst_rawid = #{area_id},
+            update_dtts = systimestamp,
+            update_by = #{userName}
+            <if test="image != null">
+                ,image = #{binary,jdbcType=VARCHAR}
+            </if>
+        where rawid = #{eqp_id}
+    </update>
+
+    <update id="updateEtcOne">
+        update eqp_etc_pdm
+        set image = #{binary,jdbcType=VARCHAR}
+        where eqp_id = #{eqp_id}
+    </update>
+
+    <select id="selectEtcOne" resultType="com.bistel.a3.portal.domain.pdm.db.EqpEtc">
+        select
+            a.rawid as eqp_id,
+            a.name,
+            a.description,
+            a.image,
+            b.name as data_type
+        from eqp_mst_pdm a,code_mst_pdm b
+        where a.data_type_cd = b.code(+)
+        and a.eqp_id = #{eqpId}
+
+    </select>
+
+    <select id="selectEqpInfo" resultType="com.bistel.a3.portal.domain.pdm.EqpInfo">
+        select
+        a.name as eqpName,
+        GET_AREA_FULL_NAME(a.eqp_id) as shopFullName,
+        b.image as binaryImage
+        from eqp_pdm a
+        left join eqp_etc_pdm b
+        on a.eqp_id = b.eqp_id
+        where a.eqp_id = #{eqp_id}
+    </select>
+
+    <select id="selectEqpById" resultType="com.bistel.a3.portal.domain.pdm.db.Eqp">
+        select *
+        from eqp_pdm
+        where eqp_id = #{eqpId}
+    </select>
+    <select id="selectEqpByMeasureTrxId" resultType="com.bistel.a3.portal.domain.pdm.db.Eqp">
+        select a.rawid as eqp_id,
+        a.name,
+        a.description
+        from eqp_mst_pdm a
+        join param_mst_pdm b on a.rawid = b.eqp_mst_rawid
+        join trace_raw_trx_pdm c on b.rawid = c.param_mst_rawid
+        where c.rawid = #{measureTrxId}
+    </select>
+    <select id="selectEqps" resultType="com.bistel.a3.portal.domain.pdm.db.Eqp">
+        select a.rawid as eqp_id,
+        a.name,
+        a.description,
+        <!--a.image,-->
+        b.name as data_type
+        from eqp_mst_pdm a,code_mst_pdm b
+        where a.data_type_cd = b.code(+)
+
+    </select>
+    <select id="selectEqpsByArea" resultType="com.bistel.a3.portal.domain.pdm.EqpWithArea">
+        <!--select a.*, GET_AREA_FULL_NAME(a.eqp_id) as shopName-->
+        <!--from eqp_pdm a-->
+        <!--where area_id in (-->
+        <!--select area_id-->
+        <!--from area_pdm-->
+        <!--where CONNECT_BY_ISLEAF = 1-->
+        <!--start with area_id = #{area_id}-->
+        <!--connect by prior area_id = parent_id-->
+        <!--) order by area_id, sort_order-->
+    
+        select
+            a.rawid as eqp_id,
+            a.name,
+            a.description,
+            a.area_mst_rawid as area_id,
+            <!--a.image as binary,-->
+            a.data_type_cd
+        from eqp_mst_pdm a
+        where area_mst_rawid in
+        (
+           select
+           rawid
+           from area_mst_pdm
+           where CONNECT_BY_ISLEAF = 1 start with parent_rawid = 0 connect by prior rawid = parent_rawid
+        )
+        order by area_mst_rawid
+    </select>
+
+</mapper>

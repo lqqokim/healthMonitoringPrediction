@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bistel.a3.portal.dao.common.TaskerPropertyMapper">
+    <resultMap id="BasePropertyResultMap" type="com.bistel.a3.portal.domain.common.Property">
+        <id column="key" property="key"/>
+        <result column="value" property="value" typeHandler="json"/>
+    </resultMap>
+    <select id="selectByTaskerId" resultMap="BasePropertyResultMap">
+        select key, value
+        from tasker_${column}_a3
+        where tasker_id = #{taskerId}
+    </select>
+    <select id="select" resultType="com.fasterxml.jackson.databind.JsonNode">
+        select value
+        from tasker_${column}_a3
+        where tasker_id = #{taskerId}
+        and key = #{key}
+    </select>
+    <insert id="insert">
+        insert into tasker_${column}_a3 (
+            tasker_id, key, value
+        ) values (
+            #{taskerId},
+            #{property.key},
+            #{property.value, typeHandler=json}
+        )
+    </insert>
+    <update id="update">
+        update tasker_${column}_a3
+        set value = #{value, typeHandler=json}
+        where tasker_id = #{taskerId}
+        and key = #{key}
+    </update>
+    <delete id="delete">
+        delete from tasker_${column}_a3
+        where tasker_id = #{taskerId}
+        and key = #{key}
+    </delete>
+</mapper>

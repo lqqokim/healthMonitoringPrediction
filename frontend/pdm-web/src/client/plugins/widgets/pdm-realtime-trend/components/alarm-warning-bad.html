@@ -1,0 +1,82 @@
+<div class="trend-header clearfix">
+    <div class="trend-chart-title pull-left">Alarm Warning</div>
+    <span class="pull-right" style="margin-right: 10px; line-height: 35px;">
+        <span>Nomalize Type | </span>
+        <label style="margin-left: 5px;">
+            <input type="radio" [value]="'alarm'" (change)="changeNormalType();" [(ngModel)]="normalizeType">
+            <span>Alarm</span>
+        </label>
+        <label style="margin-left: 5px;">
+            <input type="radio" [value]="'warning'" (change)="changeNormalType();" [(ngModel)]="normalizeType">
+            <span>Warning</span>
+        </label>
+    </span>
+    <label class="toggle-rabel pull-right" for="refreshToggle">
+        <span>Refresh </span>
+        <input id="refreshToggle" #toggle type="checkbox" class="text-toggle" (change)="isRefreshToggle = !isRefreshToggle; changeToggle($event, isRefreshToggle);"
+            checked>
+        <label for="refreshToggle">Refresh </label>
+    </label>
+</div>
+
+<div class="trend-chart" *ngFor="let awData of alarmWarningDatas; let i = index;" #AWChart [ngClass]="{'alarm-type-color': awData.type === 'alarm', 'warning-type-color': awData.type === 'warning'}">
+    <div class="chart-subject-{{awData.type}}">
+        <span>{{awData.eqp.name}}</span>
+    </div>
+    <div class="trend-chart-button pull-right">
+        <!-- <button class="btn btn-default" id="wjPopup" (click)="expandChart($event, AWChart, i, awData.type)">
+            <i class="fa fa-search-plus"></i>
+        </button> -->
+        <button *ngIf="awData.chartData.length > 0" class="btn btn-default" (click)="showLegend(awData, i);">
+            <i class="fa fa-bar-chart" data-toggle="dropdown"></i>
+        </button>
+    </div>
+    <div class="chart-area" *ngIf="awData.chartData.length > 0" (mouseover)="mouseover($event, awData, i, AWChart);">
+        <a3c-bistel-chart id="AWChart" #AWChart 
+            (click)="onChartClick($event, awData, i, AWChart);" 
+            [data]="awData.chartData" 
+            [config]="awData.chartConfig"
+            [chartEvents]="AWChartEvents" 
+            [eventLines]="awData.eventLines"
+            style="width: 100%;" class="chart-body">
+        </a3c-bistel-chart>
+    </div>
+</div>
+
+<div class="bad-section" style="width:100%;height:100%;">
+    <div class="trend-header clearfix">
+        <div class="trend-chart-title">Jeopardy</div>
+    </div>
+
+    <div class="trend-chart" *ngFor="let badData of badDatas; let i = index;" #NWChart [ngClass]="{'bad-type-color': badData.type === 'bad'}">
+        <div class="chart-subject-{{badData.type}}">
+            <span>{{badData.eqp.name}}</span>
+        </div>
+        <div class="trend-chart-button pull-right">
+            <!-- <button class="btn btn-default" id="wjPopup" (click)="expandChart($event, NWChart, i, badData.type)">
+                <i class="fa fa-search-plus"></i>
+            </button> -->
+            <button *ngIf="badData.chartData.length > 0" class="btn btn-default" (click)="showLegend(badData, i);">
+                <i class="fa fa-bar-chart" data-toggle="dropdown"></i>
+            </button>
+        </div>
+        <div class="chart-area" *ngIf="badData.chartData.length > 0" (mouseover)="mouseover($event, badData, i, NWChart);">
+            <a3c-bistel-chart id="NWChart" #NWChart 
+                (click)="onChartClick($event, badData, i);" 
+                [data]="badData.chartData" 
+                [config]="badData.chartConfig"
+                [chartEvents]="NWChartEvents"
+                 style="width: 100%;" class="chart-body">
+            </a3c-bistel-chart>
+        </div>
+    </div>
+</div>
+
+<wj-popup owner="#wjPopup" #chartPopup class="a3-global-modal-dialog pdm-eqp-param-analysis-popup">
+    <div class="a3-global-modal-content">
+        <div class="modal-body" #popupBody></div>
+        <div class="modal-footer">
+            <button class="btn btn-default" (click)="closePopup();">Close</button>
+        </div>
+    </div>
+</wj-popup>

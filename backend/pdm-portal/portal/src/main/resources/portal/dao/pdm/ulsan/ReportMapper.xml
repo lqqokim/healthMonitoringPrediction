@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bistel.a3.portal.dao.pdm.ulsan.ReportMapper">
+    <select id="selectReportAlarm" resultType="com.bistel.a3.portal.domain.pdm.db.ReportAlarm">
+        select
+            a.*,
+            b.name as eqp_name
+        from report_alarm_trx_pdm a
+            join eqp_pdm b
+                on a.eqp_id = b.eqp_id
+        where a.occur_dtts <![CDATA[>=]]> #{fromdate}
+          and a.occur_dtts <![CDATA[<]]> #{todate}
+    </select>
+    <select id="selectReportAlarmByEqpId" resultType="com.bistel.a3.portal.domain.pdm.MaintenanceHst">
+        select
+            a.eqp_id,
+            a.occur_dtts as eventdate,
+            a.cause1 as failuretype,
+            a.cause2 as failurecomments1,
+            a.cause3 as failurecomments2
+        from report_alarm_trx_pdm a
+        where 1=1
+        <if test="eqp_id != null">
+            and a.eqp_id = #{eqp_id}
+        </if>
+        and a.occur_dtts <![CDATA[>=]]> #{fromdate}
+        and a.occur_dtts <![CDATA[<]]> #{todate}
+    </select>
+
+    <update id="updateReportAlarm">
+        update report_alarm_trx_pdm
+        <set>
+            <if test="write_dtts != null">write_dtts=#{write_dtts},</if>
+            <if test="state_cd != null">state_cd=#{state_cd},</if>
+            <if test="request_dtts != null">request_dtts=#{request_dtts},</if>
+            <if test="request_user_id != null">request_user_id=#{request_user_id},</if>
+            <if test="complete_dtts != null">complete_dtts=#{complete_dtts},</if>
+            <if test="complete_user_id != null">complete_user_id=#{complete_user_id},</if>
+            <if test="cause_update != null">cause_update=#{cause_update},</if>
+            <if test="content != null">content=#{content},</if>
+        </set>
+        where eqp_id = #{eqp_id}
+        and occur_dtts = #{occur_dtts}
+    </update>
+
+    <insert id="insertReportAlarm">
+        insert into report_alarm_trx_pdm (eqp_id,occur_dtts,score,write_dtts,complete_dtts,request_dtts,state_cd,request_user_id,cause1,cause2,cause3,param_id,measure_trx_id,content)
+        values (#{eqp_id,jdbcType=NUMERIC},#{occur_dtts,jdbcType=TIMESTAMP},#{score,jdbcType=FLOAT},#{write_dtts,jdbcType=TIMESTAMP},#{complete_dtts,jdbcType=TIMESTAMP},#{request_dtts,jdbcType=TIMESTAMP},#{state_cd,jdbcType=CHAR},#{request_user_id,jdbcType=VARCHAR},#{cause1,jdbcType=VARCHAR},#{cause2,jdbcType=VARCHAR},#{cause3,jdbcType=CLOB},#{param_id,jdbcType=NUMERIC},#{measure_trx_id,jdbcType=NUMERIC},#{content,jdbcType=CLOB})
+    </insert>
+
+    <delete id="deleteReportAlarm">
+        delete from report_alarm_trx_pdm
+        where eqp_id = #{eqp_id}
+          and occur_dtts = #{occur_dtts}
+    </delete>
+</mapper>

@@ -1,0 +1,97 @@
+<div class="a3-app-configuration-header clearfix">
+    <span class="a3-sub-title">Parameter Categories</span>
+    <div class="header-btn" type="button">
+        <button class="btn btn-default a3-category-import" type="button" data-toggle="modal" data-target=#importModal (click)="importCategories()"><i class="fa fa-download" aria-hidden="true"></i>Import</button>
+        <button class="btn btn-default" type="button" data-toggle="modal" data-target="#confirm" (click)="deleteCategory()" [disabled]="!selectedItems.length>0"><span><strong>{{(selectedItems.length>0)?selectedItems.length:''}}</strong></span>Delete</button>
+        <button class="btn btn-default" type="button" (click)="createCategory()">Create</button>
+    </div>
+</div>
+<div class="a3-table a3-category-table">
+    <div class="a3-table-head">
+        <div class="a3-table-row">
+            <div class="a3-table-cell text-ellipsis checkbox">
+                <label>
+                  <input type="checkbox" [(ngModel)]="isMainSelected" (ngModelChange)="toggleAllSelect(isMainSelected)">
+                </label>
+            </div>
+            <div class="a3-table-cell category">Category</div>
+            <div class="a3-table-cell description">Description</div>
+            <div class="a3-table-cell color">Color</div>
+            <div class="a3-table-cell display">Display</div>
+        </div>
+    </div>
+    <div class="a3-table-body">
+        <div class="a3-table-empty" style="display:none;">Create Category</div>
+        <div class="a3-table-row" *ngFor="let category of appCodeCategoriesDatas" #categoryList>
+            <!-- <div class="a3-table-row" *ngFor="let category of pageViewList[currentPageViewIdx]"> -->
+            <div class="a3-table-cell text-ellipsis checkbox">
+                <label>
+                    <!-- <input type="checkbox" [(ngModel)]="category.isSelected" (click)="toggleMainSelected()"> -->
+                    <input type="checkbox" [(ngModel)]="category.isSelected" (ngModelChange)="toggleMainSelected()">
+                </label>
+            </div>
+            <div class="a3-table-cell category">
+                <div class="a3-table-text" [ngStyle]="{display: (category.isEditName)?'none':''}" (click)="clickEditName($event, category, this)">
+                    {{category.name}}<i class="fa fa-pencil-square-o input-text"></i>
+                </div>
+                <!-- 클릭후 인풋박스 전환-->
+                <div class="a3-table-text a3-table-edit-text" [ngStyle]="{display: (!category.isEditName)?'none':''}">
+                    <input type="text" class="form-control" placeholder="Name" [(ngModel)]="category.name" (offClick)="offClick('name',category, $event)"
+                        (keyup.enter)="handleKeyEnterName($event, category, this)">
+                </div>
+            </div>
+            <div class="a3-table-cell description">
+                <div class="a3-table-text" [ngStyle]="{display: (category.isEditDesc)?'none':''}" (click)="clickEditDesc($event, category, this)"
+                    title="{{category.description}}">
+                    {{category.description}}<i class="fa fa-pencil-square-o input-text"></i>
+                </div>
+                <!-- 클릭후 인풋박스 전환-->
+                <div class="a3-table-text a3-table-edit-text" [ngStyle]="{display: (!category.isEditDesc)?'none':''}" title="{{category.description}}">
+                    <input type="text" class="form-control" placeholder="Description" [(ngModel)]="category.description" (offClick)="offClick('desc',category, $event)"
+                        (keyup.enter)="handleKeyEnterDesc($event, category, this)">
+                </div>
+            </div>
+            <div class="a3-table-cell color">
+                <div class="selected-color" [ngStyle]="getCategoryColor(category)" (click)="showColorMenu($event, category)"></div>
+                <!-- style="background-color:#FB5A3C"  -->
+            </div>
+            <div class="a3-table-cell display">
+                <select class="form-control" [(ngModel)]="category.used" (change)="displayChange(category)">
+                  <option value="false">N</option>
+                  <option value="true">Y</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- <div class="pagination">
+    <ul>
+        <li [ngClass]="isFirstPage()" (click)="firstPage()"><i aria-hidden="true" class="fa fa-angle-double-left" ></i></li>
+        <li (click)="prevPage()"><i aria-hidden="true" class="fa fa-angle-left" ></i></li>
+        <li *ngFor="let page of pageViewList; let i = index" [attr.data-index]="i" [ngClass]="currentPageClass(i)" (click)="selectViewPage(i)">{{i+1}}</li>
+        <li (click)="nextPage()"><i aria-hidden="true" class="fa fa-angle-right" ></i></li>
+        <li [ngClass]="isLastPage()" (click)="lastPage()"><i aria-hidden="true" class="fa fa-angle-double-right"></i></li>
+    </ul>
+</div> -->
+<div #colorMenu class="a3-tooltip widget-menu a3-tooltip-sm a3-tooltip-category top" [ngStyle]="{display: (isShowColorMenu)?'':'none'}"
+    (offClick)="offClick('colorMenu', undefined, $event)">
+    <div class="menu-wrapper">
+        <span class="title">Select color</span>
+        <ul class="category-color-group clearfix">
+            <li class="category-color" [ngClass]="selectedColor('#FB5A3C')" style="background-color:#FB5A3C" (click)="choiceColor($event, '#FB5A3C')"></li>
+            <li class="category-color" [ngClass]="selectedColor('#FD9441')" style="background-color:#FD9441" (click)="choiceColor($event, '#FD9441')"></li>
+            <li class="category-color" [ngClass]="selectedColor('#FED230')" style="background-color:#FED230" (click)="choiceColor($event, '#FED230')"></li>
+            <li class="category-color" [ngClass]="selectedColor('#B5DC2C')" style="background-color:#B5DC2C" (click)="choiceColor($event, '#B5DC2C')"></li>
+            <li class="category-color" [ngClass]="selectedColor('#42C82E')" style="background-color:#42C82E" (click)="choiceColor($event, '#42C82E')"></li>
+        </ul>
+        <ul class="category-color-group clearfix">
+            <li class="category-color" [ngClass]="selectedColor('#1BB198')" style="background-color:#1BB198" (click)="choiceColor($event, '#1BB198')"></li>
+            <li class="category-color" [ngClass]="selectedColor('#8E62EC')" style="background-color:#8E62EC" (click)="choiceColor($event, '#8E62EC')"></li>
+            <li class="category-color" [ngClass]="selectedColor('#BF58D4')" style="background-color:#BF58D4" (click)="choiceColor($event, '#BF58D4')"></li>
+            <li class="category-color" [ngClass]="selectedColor('#C0AB97')" style="background-color:#C0AB97" (click)="choiceColor($event, '#C0AB97')"></li>
+            <li class="category-color" [ngClass]="selectedColor('#8C9B80')" style="background-color:#8C9B80" (click)="choiceColor($event, '#8C9B80')"></li>
+        </ul>
+    </div>
+    <div class="arrow"></div>
+</div>

@@ -1,0 +1,28 @@
+<div class="a3-snb-title-group">
+    <i *ngIf="isShared" [attr.title]="sharedTitle" class="fa fa-share-alt a3-shared" aria-hidden="true"></i>
+    <div *ngIf="!navigationTitle.current?.isDashboard()"
+         class="a3-snb-title-num">{{navigationTitle.id}}
+    </div>
+        <div class="a3-snb-title title-view"
+             (click)="setClickDashboardTitle($event)"
+             *ngIf="!navigationTitle.isEdit">
+            <i *ngIf="navigationTitle.current?.isDashboard()"
+               [ngClass]="{selected: navigationTitle.isHome}"
+               class="fa fa-star a3-home-dashboard"></i>
+            {{ navigationTitle.title }}
+            <i *ngIf="!isShared" class="fa fa-pencil-square-o input-text"></i>
+        </div>
+        <div class="a3-snb-title a3-snb-edit-title" *ngIf="navigationTitle.isEdit">
+            <i *ngIf="navigationTitle.current?.isDashboard()"
+               (click)="setHomeDashboard($event)"
+               [ngClass]="{selected: navigationTitle.isHome}"
+               class="fa fa-star a3-home-dashboard"></i>
+            <input id="navigation-title"
+                   (keydown.enter)="setDashboardTitle($event)"
+                   (blur)="setDashboardTitle($event)"
+                   [(ngModel)]="navigationTitle.title"
+                   focus-me
+                   kr-input
+                   type="text" class="form-control" placeholder="{{navigationTitle.title}}">
+        </div>
+</div>

@@ -1,0 +1,9 @@
+{
+    "version": 3,
+    "mappings": "AAAA,AAAkC,WAAvB,CAAC,qBAAqB,CAAC,SAAS,AAAA,aAAa,CAAC;EACrD,KAAK,EAAE,IAAI;CACd;;AACD,AAAyD,WAA9C,CAAC,qBAAqB,CAAC,SAAS,AAAA,aAAa,CAAC,UAAU,CAAC;EAChE,KAAK,EAAE,IAAI;EACX,SAAS,EAAE,IAAI;EACf,QAAQ,EAAE,MAAM;EAChB,WAAW,EAAE,MAAM;EACnB,aAAa,EAAE,QAAQ;CAC1B;;AACD,AAAyD,WAA9C,CAAC,qBAAqB,CAAC,SAAS,AAAA,aAAa,CAAC,UAAU,CAAC;EAChE,KAAK,EAAE,IAAI;CACd;;AACD;;;;;;;;;;;;;;;;;;;EAmBE",
+    "sources": [
+        "notification.scss"
+    ],
+    "names": [],
+    "file": "notification.css"
+}

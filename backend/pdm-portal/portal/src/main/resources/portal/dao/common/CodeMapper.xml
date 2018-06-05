@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bistel.a3.portal.dao.common.CodeMapper">
+    <resultMap id="BaseResultMap" type="com.bistel.a3.portal.domain.common.Code">
+        <id column="code_id" property="codeId"/>
+        <result column="code" property="code"/>
+        <result column="name" property="name"/>
+        <result column="code_order" property="codeOrder"/>
+        <result column="code_default" property="default" typeHandler="yn"/>
+        <result column="description" property="description"/>
+        <result column="used" property="used" typeHandler="yn"/>
+        <result column="code_category_id" property="codeCategoryId"/>
+    </resultMap>
+    <sql id="BaseAllQuery">
+        select
+            a.code_id,
+            a.code,
+            a.name,
+            a.code_order,
+            a.code_default,
+            a.description,
+            a.used,
+            a.code_category_id
+        from code_a3 a
+            join code_category_a3 b
+                on b.code_category_id = a.code_category_id
+            join app_a3 c
+                on c.app_id = b.app_id
+    </sql>
+
+
+
+    <select id="selectByCategoryName" resultMap="BaseResultMap">
+        <include refid="BaseAllQuery"/>
+        where
+            c.name = #{appName}
+        and b.name = #{categoryName}
+        <if test="used != null">
+            and a.used = #{used, typeHandler=yn}
+        </if>
+    </select>
+    <select id="selectCodeMapByCategoryName" resultMap="BaseResultMap">
+        where
+            c.name = #{appName}
+        and b.name = #{categoryName}
+        <if test="used != null">
+            and a.used = #{used, typeHandler=yn}
+        </if>
+    </select>
+    <delete id="deleteByCategoryId">
+        delete from code_a3
+        where code_category_id = #{codeCategoryId}
+    </delete>
+    <insert id="insert">
+        <selectKey resultType="Long" keyProperty="codeId" order="BEFORE">
+            select seq_code_a3.nextval from dual
+        </selectKey>
+        insert into code_a3 (
+            code_id, code, name, code_order, code_default, description, used, code_category_id
+        ) values (
+            #{codeId},
+            #{code},
+            #{name},
+            #{codeOrder},
+            #{defaultCode, typeHandler=yn},
+            #{description},
+            #{used, typeHandler=yn},
+            #{codeCategoryId}
+        )
+    </insert>
+    <delete id="delete">
+        delete from code_a3
+        where code_id = #{codeId}
+    </delete>
+
+
+    <select id="selectCodeList" resultMap="BaseResultMap">
+        select
+        a.code_id,
+        a.code,
+        a.name,
+        a.code_order,
+        a.code_default,
+        a.description,
+        a.used,
+        a.code_category_id
+        from code_a3 a
+        join code_category_a3 b
+        on b.code_category_id = a.code_category_id
+        join app_a3 c
+        on c.app_id = b.app_id
+    </select>
+
+    <select id="selectCodeByCategoryId" resultMap="BaseResultMap">
+        select
+        a.code_id,
+        a.code,
+        a.name,
+        a.code_order,
+        a.code_default,
+        a.description,
+        a.used,
+        a.code_category_id
+        from code_a3 a
+        join code_category_a3 b
+        on b.code_category_id = a.code_category_id
+        join app_a3 c
+        on c.app_id = b.app_id
+        where a.CODE_CATEGORY_ID=#{codeCategoryId};
+    </select>
+
+    <update id="updateCode">
+        update code_a3
+        set code = #{code},
+        name = #{alarm},
+        codeOrder=#{codeOrder},
+        defaultCode=#{defaultCode, typeHandler=yn},
+        used= #{used, typeHandler=yn},
+        description=#{description},
+        codeCategoryId=#{codeCategoryId}
+        where param_id = #{codeId}
+    </update>
+
+    <delete id="deleteByCodeId">
+        delete from code_a3
+        where code_id = #{codeId}
+    </delete>
+
+
+
+
+
+
+
+
+
+</mapper>

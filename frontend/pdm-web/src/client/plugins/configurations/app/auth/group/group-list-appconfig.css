@@ -1,0 +1,70 @@
+/* Group List */
+.app-configuration .group-list-appconfig {
+  height: 100%;
+}
+
+/* Group List Modal */
+.a3-group-list-modal .a3-input-wrapper {
+  margin-bottom: 15px;
+}
+.a3-group-list-modal .a3-lists {
+  padding: 0px;
+  border: 1px solid #ccc;
+  border-radius: 2px;
+}
+.a3-group-list-modal .a3-table-header {
+  float: left;
+  width: 100%;
+  margin-bottom: 5px;
+}
+.a3-group-list-modal .a3-table-header .col-sm-5 {
+  padding: 0;
+}
+.a3-group-list-modal .a3-table-title {
+  padding: 8px;
+  border-bottom: 1px solid #ccc;
+}
+.a3-group-list-modal .a3-table-title label {
+  float: left;
+  display: inline-block;
+  width: 50%;
+  font-weight: bold;
+}
+.a3-group-list-modal .a3-condition-wrapper {
+  float: right;
+  width: 100%;
+  margin-bottom: 10px;
+}
+.a3-group-list-modal .a3-condition-selectbox {
+  float: right;
+  display: inline-block;
+  width: 140px;
+}
+.a3-group-list-modal .a3-condition-title {
+  float: right;
+  margin-bottom: 0;
+  margin-right: 10px;
+  line-height: 28px;
+}
+.a3-group-list-modal .rowSelected {
+  background-color: #DAECF5 !important;
+}
+.a3-group-list-modal .a3-table-lists {
+  position: relative;
+  height: 306px;
+}
+.a3-group-list-modal .table > tbody > tr > td {
+    width: 100px;
+    max-width: 100px;
+    border-top: none;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+.a3-group-list-modal .a3-arrow-wrapper {
+  margin: 24% 0px;
+  text-align: center;
+}
+.a3-group-list-modal .a3-arrow-btn {
+  margin: 3px 0px;
+}

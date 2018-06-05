@@ -1,0 +1,40 @@
+<!--<div class="a3-global-configuration app-configuration" [ngClass]="{'menu-open' : viewMenu, 'menu-close': !viewMenu}" style="height: 100%">-->
+<div class="a3-global-configuration" [ngClass]="{active: isActive, 'menu-open' : viewMenu, 'menu-close': !viewMenu}">
+    <div class="app-configuration">
+        <div class="a3-list-container">
+            <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+                <div class="panel panel-default" *ngFor="let application of applications">
+                    <div class="panel-heading" role="tab" id="heading_{{application?.applicationId}}">
+                        <h4 class="panel-title">
+                            <span class="a3-panel-icon"></span>
+                            <span class="a3-app-name">{{ application?.name }}</span>
+                        </h4>
+                    </div>
+                    <div>
+                        <div class="panel-body">
+                            <ul class="list-default">
+                                <li *ngFor="let menu of application.menus" [ngClass]="{ 'active': menu?.menuId === selectedMenu?.menuId }" (click)="goMenu(application.applicationId, menu.menuId)">
+                                    <span>{{ menu.name }}</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="a3-content-container">
+            <div class="a3-app-header clearfix">
+                <div class="header">
+                    <a class="btn btn-default a3-menu-open" (click)="showMenu(true)"></a>
+                    <!-- fdtaConfigCtrl.menuClick(false) -->
+                    <a class="btn btn-default a3-menu-close" (click)="showMenu(false)"></a>
+                    <span class="title">{{ selectedMenu?.name }}</span>
+                    <button class="close pe-7s-close pull-right" (click)="closeConfiguration()"></button>
+                </div>
+            </div>
+
+            <div class="a3-configuration-builder" [configuration]="selectedApplication" [updateAppConfig]="updateAppConfig"></div>
+        </div>
+    </div>
+</div>

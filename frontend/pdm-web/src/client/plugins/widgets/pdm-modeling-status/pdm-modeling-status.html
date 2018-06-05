@@ -1,0 +1,36 @@
+<!--component html goes here -->
+<div class="widget widget-pdm-modeling-status">
+    <div class="a3-chart-header">
+        <a3p-widget-configuration-info [configuarationInfo]="configuarationInfo"></a3p-widget-configuration-info>
+    </div>
+    <wj-flex-grid #modelListGrid
+                [itemsSource]="data"
+                [isReadOnly]="true"
+                [headersVisibility]="1"
+                [selectionMode]="3"
+                [allowSorting]="true"
+                [allowDragging]="0"
+                id='pdm-modeling-status-grid' (initialized)="gridInit(modelListGrid, $event)"
+                > 
+        <wj-flex-grid-column [header]="areaColumn" binding="shopName" [width]="'2*'" [cssClass]="'grid-column-cell'"></wj-flex-grid-column>
+        <wj-flex-grid-column header="설비" binding="eqpName" [width]="'2*'" [cssClass]="'grid-column-cell'">
+            <ng-template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+                <span (click)="selectModeller(cell.item, $event)"  style="cursor: pointer;" >
+                    {{cell.item.eqpName}}
+                </span>
+            </ng-template>
+        </wj-flex-grid-column>
+        <wj-flex-grid-column header="생성일자" binding="createDtts" [isReadOnly]="true" [width]="'2*'" [cssClass]="'grid-column-cell center'">
+            <ng-template wjFlexGridCellTemplate cellType="Cell" let-cell="cell" class="center"  >
+                {{cell.item.createDtts | date: 'yyyy/MM/dd'}}
+            </ng-template>
+        </wj-flex-grid-column>
+        <wj-flex-grid-column header="생성여부" binding="existName" [width]="'*'" [cssClass]="'grid-column-cell center'"></wj-flex-grid-column>
+        <wj-flex-grid-column header="생성방식" binding="createTypeCd" [width]="'2*'" [cssClass]="'grid-column-cell center'">
+            <ng-template wjFlexGridCellTemplate cellType="Cell" let-cell="cell" class="center"   >
+                {{convertCreateType(cell.item.exist, cell.item.createTypeCd)}}
+            </ng-template>
+        </wj-flex-grid-column>
+        <wj-flex-grid-column header="생성자" binding="createUserId" [width]="'2*'" [cssClass]="'grid-column-cell center'"></wj-flex-grid-column>
+    </wj-flex-grid>
+</div>

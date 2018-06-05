@@ -1,0 +1,722 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- Check, Mapper(UserMgtMapper), parameter(), resultType(UsersVo) -->
+<mapper namespace="com.bistel.a3.portal.dao.usermgt.UserMgtMapper">
+
+	<!-- users query start -->
+	
+	<!-- select users --> <!-- phone_no 는phone로 바뀔 것임 , 현재 db 구성에 따라 아래와 같이 쿼리를 일부 수정함  -->
+	<select id="selectUserList" resultType="com.bistel.a3.portal.domain.usermgt.UsersVo">
+		select	
+			a.user_id as userId,
+	        b.USER_GROUP_ID as groupId,
+	        a.name as name,
+	        a.password as password,
+	        a.IMG_URL as imageUrl,	        
+	        a.description as description,
+	        a.email as email,
+	        a.phone_no as phone,
+	        a.birthday as birthday,
+	        a.sex as sex,
+	        a.position as position,
+	        a.department as department,
+	        a.company_phone as companyPhone,
+	        a.type as type,
+	        a.location as location			
+		from user_a3 a    
+    		, user_group_lnk_a3 b
+		where a.user_id = b.USER_ID(+)
+		order by a.user_id
+	</select>
+	
+	<select id="selectGroupUsers" resultType="com.bistel.a3.portal.domain.usermgt.UsersVo">
+		select	
+			a.user_id as userId,
+	        b.USER_GROUP_ID as groupId,
+	        a.name as name,
+	        a.password as password,
+	        a.IMG_URL as imageUrl,	        
+	        a.description as description,
+	        a.email as email,
+	        a.phone_no as phone,
+	        a.birthday as birthday,
+	        a.sex as sex,
+	        a.position as position,
+	        a.department as department,
+	        a.company_phone as companyPhone,
+	        a.type as type,
+	        a.location as location			
+		from user_a3 a    
+    		, user_group_lnk_a3 b
+		where a.user_id = b.USER_ID(+)
+		and b.user_group_id = #{groupId}
+		order by a.user_id
+	</select>
+	
+	<select id="selectUserAuthorityList" resultType="java.lang.String">
+		SELECT                                                                     
+		  roles.condition||':' || OB.OBJECT_NAME||':'||OP.OPERATION_NAME  role ,   
+		  roles.condition ,                                                        
+		   ROOLNK.ROLE_ID role_id,                                         
+		   OB.PARENT_ID,                                                           
+		   OB.OBJECT_NAME,                                                         
+		   OP.OPERATION_NAME,                                                      
+		   OB.OBJECT_LEVEL                                                         
+		 FROM role_object_operation_lnk_a3 ROOLNK,                                 
+		   object_operation_lnk_a3 OOLNK,                                          
+		   OPERATION_A3 OP,                                                        
+		   OBJECT_A3 OB,                                                           
+		   (SELECT *                                                               
+		   FROM group_role_lnk_a3 GRLNK,                                           
+		     role_a3 R                                                             
+		   WHERE GRLNK.ROLE_ID IN                                          
+		     (SELECT DISTINCT DESCENDANT                                           
+		     FROM role_tree_paths_a3 RTP                                           
+		     WHERE RTP.ANCESTOR IN                                                 
+		       (                                                                   
+		         SELECT ROLE_ID FROM GROUP_ROLE_LNK_A3                     
+		         WHERE USER_GROUP_ID IN (                                      
+		           SELECT G.USER_GROUP_ID                                               
+		           FROM USER_A3 U,                                                 
+		             user_group_lnk_a3 UGLNK,                                      
+		             USER_GROUP_A3 G                                                    
+		           WHERE U.USER_ID             =#{userId, jdbcType=VARCHAR}                                  
+		           AND U.USER_ID               = UGLNK.USER_ID             
+		           AND UGLNK.USER_GROUP_ID = G.USER_GROUP_ID                        
+		         )                                                                 
+		       )                                                                   
+		     )                                                                     
+		   AND GRLNK.ROLE_ID = R.ROLE_ID                                   
+		   ) roles                                                                 
+		 WHERE ROOLNK.ROLE_ID                          IN (roles.role_id)  
+		 AND ROOLNK.OBJECT_OPERATION_ID = OOLNK.OBJECT_OPERATION_ID                
+		 AND OOLNK.OBJECT_ID                          = OB.OBJECT_ID     
+		 AND OOLNK.OPERATION_ID                    = OP.OPERATION_ID  
+		
+	</select>
+	
+	<select id="selectUser" parameterType="java.lang.String"  resultType="com.bistel.a3.portal.domain.usermgt.UsersVo">
+		select	
+			a.user_id as userId,
+	        b.USER_GROUP_ID as groupId,
+	        a.name as name,
+	        a.password as password,
+	        a.IMG_URL as imageUrl,
+	        a.description as description,
+	        a.email as email,
+	        a.phone_no as phone,
+	        a.birthday as birthday,
+	        a.sex as sex,
+	        a.position as position,
+	        a.department as department,
+	        a.company_phone as companyPhone,
+	        a.type as type,
+	        a.location as location			
+		from user_a3 a    
+    		, user_group_lnk_a3 b
+		where a.user_id = b.USER_ID
+		and a.user_id = #{userId, jdbcType=VARCHAR}
+	</select>
+	
+	<!-- insert users -->
+	<!-- insert user_a3, user_group_lnk_a3 -->
+	<insert id="insertUser" parameterType="com.bistel.a3.portal.domain.usermgt.UsersVo">	
+		insert into USER_A3 (
+			user_id, 
+			name, 
+			password, 
+			img_url,
+			description, 
+			email, 
+			phone_no, 
+			birthday, 
+			sex, 
+			position, 
+			department, 
+			company_phone, 
+			type,
+			location			
+		) values (
+			#{userId, jdbcType=VARCHAR},
+			#{name, jdbcType=VARCHAR},
+			#{password, jdbcType=VARCHAR},
+			#{imageUrl, jdbcType=VARCHAR},
+			#{description, jdbcType=VARCHAR},
+			#{email, jdbcType=VARCHAR},
+			#{phone, jdbcType=VARCHAR},
+			#{birthday, jdbcType=VARCHAR},
+			#{sex, jdbcType=VARCHAR},
+			#{position, jdbcType=VARCHAR},
+			#{department, jdbcType=VARCHAR},
+			#{companyPhone, jdbcType=VARCHAR},
+			#{type, jdbcType=VARCHAR},
+			#{location, jdbcType=VARCHAR}			
+		)
+	</insert>
+	<insert id="insertUserGroupLnk" parameterType="com.bistel.a3.portal.domain.usermgt.UsersVo">
+		insert into USER_GROUP_LNK_A3 (
+			USER_ID,
+			USER_GROUP_ID
+		) values (
+			#{userId, jdbcType=VARCHAR},
+			#{groupId, jdbcType=VARCHAR}						
+		)
+	</insert>		
+	<!-- update users -->
+	<!-- update user_a3, delete user_group_lnk_a3 -->
+	<update id="updateUser" parameterType="com.bistel.a3.portal.domain.usermgt.UsersVo">
+        update USER_A3
+       	<set>
+        	<if test="name != null">
+                name = #{name, jdbcType=VARCHAR},
+        	</if>
+        	<if test="password != null">
+                password = #{password, jdbcType=VARCHAR},
+        	</if>
+        	<if test="imageUrl != null">
+                IMG_URL = #{imageUrl, jdbcType=VARCHAR},
+        	</if>        	
+        	<if test="description != null">
+                description = #{description, jdbcType=VARCHAR},
+        	</if>
+        	<if test="email != null">
+                email = #{email, jdbcType=VARCHAR},
+        	</if>
+        	<if test="phone != null">
+                phone_no = #{phone, jdbcType=VARCHAR},
+        	</if>
+        	<if test="birthday != null">
+                birthday = #{birthday, jdbcType=VARCHAR},
+        	</if>
+        	<if test="sex != null">
+                sex = #{sex, jdbcType=VARCHAR},
+        	</if>
+        	<if test="position != null">
+                position = #{position, jdbcType=VARCHAR},
+        	</if>
+        	<if test="department != null">
+                department = #{department, jdbcType=VARCHAR},
+        	</if>
+        	<if test="companyPhone != null">
+                company_phone = #{companyPhone, jdbcType=VARCHAR},
+        	</if>
+        	<if test="type != null">
+                type = #{type, jdbcType=VARCHAR},
+        	</if>
+                location = #{location, jdbcType=VARCHAR}        	
+		</set>
+        where user_id = #{userId, jdbcType=VARCHAR}
+	</update>
+		
+	<delete id="deleteUserGroupLnk" parameterType="java.lang.String">
+		delete USER_GROUP_LNK_A3 
+		where USER_ID = #{userId, jdbcType=VARCHAR}	
+	</delete>
+<!-- 	<insert id="insertUserGroupLnk"></insert> -->
+
+	<!-- delete user -->
+	<delete id="deleteUser" parameterType="java.lang.String">
+		delete USER_A3 
+		where user_id = #{userId, jdbcType=VARCHAR}
+	</delete>
+
+	<!-- users query end -->
+	
+
+	<!-- groups query start -->	
+	<resultMap id="GroupsVoResultMap" type="com.bistel.a3.portal.domain.usermgt.GroupsVo">
+        <result column="groupId" property="groupId"/>
+        <result column="imageUrl" property="imageUrl"/>
+        <result column="description" property="description"/>
+        <result column="type" property="type"/>
+        <collection property="role" javaType="java.util.List" column="groupId"  ofType="com.bistel.a3.portal.domain.usermgt.GroupsVo"/> <!--select="selectGroupRoleList"/>-->
+    </resultMap>
+	<!-- select groups -->	
+	<select id="selectGroupList" resultMap="GroupsVoResultMap">	
+		select 
+			g.USER_GROUP_ID as groupId,
+			g.IMG_URL as imageUrl,
+			g.description as description,
+			g.type as type			
+		from USER_GROUP_A3 g
+		order by g.user_group_id
+	</select>
+	
+	<select id="selectGroup" parameterType="java.lang.String" resultMap="GroupsVoResultMap">	
+		select 
+			g.USER_GROUP_ID as groupId,
+			g.IMG_URL as imageUrl,			
+			g.description as description,
+			g.type as type			
+		from USER_GROUP_A3 g
+		where g.USER_GROUP_ID = #{groupId, jdbcType=VARCHAR}
+	</select>
+	
+	<!--<select id="selectGroupRoleList" parameterType="java.lang.String" resultType="com.bistel.a3.portal.domain.usermgt.GroupRolesVo">
+		select 
+			gr.condition as condition,
+			gr.ROLE_ID as roleId
+		from GROUP_ROLE_LNK_A3 gr
+		where
+			gr.USER_GROUP_ID = #{groupId, jdbcType=VARCHAR}
+	</select>-->
+	<!-- insert groups --> <!-- check use list or loop -->
+	
+		
+	<insert id="insertGroup" parameterType="com.bistel.a3.portal.domain.usermgt.GroupsVo">
+		insert into USER_GROUP_A3 (
+			USER_GROUP_ID, 
+			description, 
+			type			
+		) values (
+			#{groupId, jdbcType=VARCHAR},
+			#{description, jdbcType=VARCHAR},
+			#{type, jdbcType=VARCHAR}
+		)
+	</insert>
+	
+	<insert id="insertGroupRoleLnk" parameterType="com.bistel.a3.portal.domain.usermgt.GroupRoleLnk">
+		insert into GROUP_ROLE_LNK_A3 (
+			condition, 
+			USER_GROUP_ID, 
+			ROLE_ID			
+		) values (
+			#{condition, jdbcType=VARCHAR},
+			#{groupId, jdbcType=VARCHAR},
+			#{roleId, jdbcType=VARCHAR}
+		)
+	</insert>
+		
+	
+	<!-- update groups -->
+	<update id="updateGroup" parameterType="com.bistel.a3.portal.domain.usermgt.GroupsVo">
+		update USER_GROUP_A3
+       	<set>
+        	<if test="description != null">
+                description = #{description, jdbcType=VARCHAR},
+        	</if>
+        	<if test="type != null">
+                type = #{type, jdbcType=VARCHAR}
+        	</if>
+		</set>
+        where USER_GROUP_ID = #{groupId, jdbcType=VARCHAR}	
+	</update>
+	<delete id="deleteGroupRoleLnk" parameterType="java.lang.String">
+		delete GROUP_ROLE_LNK_A3
+		where USER_GROUP_ID = #{groupId, jdbcType=VARCHAR}
+	</delete>
+<!-- 	<insert id="insertGroupRoleLnk"></insert> -->
+
+	<!-- delete groups -->
+<!-- 	<delete id="deleteGroupRoleLnk"></delete> -->
+	<delete id="deleteGroup" parameterType="java.lang.String">
+		delete USER_GROUP_A3
+		where USER_GROUP_ID = #{groupId, jdbcType=VARCHAR}
+	</delete>	
+	<!-- groups query end -->	
+
+
+	<!-- role query start -->			
+	<!-- select roles --> <!-- 이 부분은 확인하여 보도록 해야 함  -->
+	<resultMap id="RolesVoResultMap" type="com.bistel.a3.portal.domain.usermgt.RolesVo">
+        <result column="roleId" property="roleId"/>
+        <result column="description" property="description"/>
+        <collection property="childRole" javaType="java.util.List" column="roleId"  ofType="com.bistel.a3.portal.domain.usermgt.RolesVo" select="selectChildRolesList"/>
+    </resultMap>
+	<!-- select roles -->	
+	<select id="selectRolesList" resultMap="RolesVoResultMap">	
+		select 
+			r.role_id as roleId,
+			r.description as description		
+		from ROLE_A3 r
+		order by r.role_id
+	</select>
+  	<select id="selectChildRolesList" parameterType="java.lang.String" resultMap="RolesVoResultMap">	
+		select  
+			r.role_id as roleId,
+			r.description as description
+		from ROLE_A3 r
+ 	 		join ROLE_TREE_PATHS_A3 t ON r.role_id = t.descendant
+	 	where 
+			t.ancestor=#{roleId, jdbcType=VARCHAR} and r.role_id not in (#{roleId, jdbcType=VARCHAR})
+	</select> <!-- with tree -->
+	<!-- select a role -->
+	<resultMap id="RoleVoResultMap" type="com.bistel.a3.portal.domain.usermgt.RoleVo">
+        <result column="roleId" property="roleId"/>
+        <result column="description" property="description"/>
+        <collection property="childRole" javaType="java.util.List" column="roleId"  ofType="com.bistel.a3.portal.domain.usermgt.RoleVo" select="selectChildRoleList"/>
+        <collection property="permission" javaType="java.util.List" column="roleId"  ofType="com.bistel.a3.portal.domain.usermgt.RoleVo" select="selectRolePermissionList"/>
+    </resultMap>
+	<select id="selectRoles" parameterType="java.lang.String" resultMap="RoleVoResultMap">	
+		select 
+			r.role_id as roleId,
+			r.description as description		
+		from ROLE_A3 r
+		where r.role_id=#{roleId, jdbcType=VARCHAR}
+	</select>
+	<select id="selectChildRoleList" parameterType="java.lang.String" resultType="java.lang.String">	
+		select  
+			r.role_id as roleId
+		from ROLE_A3 r
+ 	 		join ROLE_TREE_PATHS_A3 t ON r.role_id = t.descendant
+	 	where 
+			t.ancestor=#{roleId, jdbcType=VARCHAR} and r.role_id not in (#{roleId, jdbcType=VARCHAR})
+	</select>
+	<select id="selectRolePermissionList" parameterType="java.lang.String" resultType="java.lang.String">	
+		select distinct(roo.object_operation_id) as permission
+		from
+		  ROLE_OBJECT_OPERATION_LNK_A3 roo,
+		  ROLE_A3 r
+		  join ROLE_TREE_PATHS_A3 t ON r.role_id = t.descendant
+		where 
+		roo.ROLE_ID = r.role_id
+		  and t.ancestor=#{roleId, jdbcType=VARCHAR}
+	</select>
+	<!-- special case -->
+	<resultMap id="RoleObjectVoResultMap" type="com.bistel.a3.portal.domain.usermgt.RoleObjectVo">
+        <result column="roleId" property="roleId"/>
+        <result column="description" property="description"/>
+        <collection property="childRole" javaType="java.util.List" column="roleId"  ofType="com.bistel.a3.portal.domain.usermgt.RoleObjectVo" select="selectChildRoleList"/>
+ 	  	<collection property="object" javaType="java.util.List" column="roleId"  ofType="com.bistel.a3.portal.domain.usermgt.RoleObjectVo" select="selectObjectList"/>
+    </resultMap>
+	<select id="selectRoleObjectList" parameterType="java.lang.String" resultMap="RoleObjectVoResultMap">	
+		select 
+			r.role_id as roleId,
+			r.description as description
+		from
+			ROLE_A3 r
+		where
+			r.role_id=#{roleId, jdbcType=VARCHAR}
+	</select>
+	
+	<resultMap id="RoleObjectVoResultMapIncludeChild" type="com.bistel.a3.portal.domain.usermgt.RoleObjectVo">
+        <result column="roleId" property="roleId"/>
+        <result column="description" property="description"/>
+        <collection property="childRole" javaType="java.util.List" column="roleId"  ofType="com.bistel.a3.portal.domain.usermgt.RoleObjectVo" select="selectChildRoleList"/>
+ 	  	<collection property="object" javaType="java.util.List" column="roleId"  ofType="com.bistel.a3.portal.domain.usermgt.RoleObjectVo" select="selectObjectListIncludeChild"/>
+    </resultMap>
+	<select id="selectRoleObjectListIncludeChild" parameterType="java.lang.String" resultMap="RoleObjectVoResultMapIncludeChild">	
+		select 
+			r.role_id as roleId,
+			r.description as description
+		from
+			ROLE_A3 r
+		where
+			r.role_id=#{roleId, jdbcType=VARCHAR}
+	</select>
+	
+	
+	<resultMap id="ObjectVoResultMap" type="com.bistel.a3.portal.domain.usermgt.ObjectVo">
+        <result column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="level" property="level"/>
+        <result column="objectOperationId" property="objectOperationId"/>
+<!--         <collection property="operation" javaType="java.util.List" column="id"  ofType="com.bistel.a3.portal.domain.usermgt.OperationVo" select="selectObjectOperationList"/> -->
+    </resultMap>
+	<select id="selectObjectList" parameterType="java.lang.String" resultMap="ObjectVoResultMap">
+		select 
+			o.object_id as "id",
+			o.object_name as "name",
+			o.object_level as "level",
+      complexop.object_operation_id as "objectOperationId"
+		from OBJECT_A3 o, (select OBJECT_ID,  object_operation_id from OBJECT_OPERATION_LNK_A3 ool
+				where ool.object_operation_id
+					in (
+						(select rool.object_operation_id as 
+						from ROLE_OBJECT_OPERATION_LNK_A3 rool 
+						where rool.ROLE_ID = #{roleId, jdbcType=VARCHAR}
+						)
+					)
+			) complexop
+		where o.object_id in complexop.OBJECT_ID
+	</select>
+		<select id="selectObjectListIncludeChild" parameterType="java.lang.String" resultMap="ObjectVoResultMap">
+		select 
+			o.object_id as "id",
+			o.object_name as "name",
+			o.object_level as "level",
+      complexop.object_operation_id as "objectOperationId"
+		from OBJECT_A3 o, (select OBJECT_ID,  object_operation_id from OBJECT_OPERATION_LNK_A3 ool
+				where ool.object_operation_id
+					in (
+						(select rool.object_operation_id as 
+						from ROLE_OBJECT_OPERATION_LNK_A3 rool 
+						where rool.ROLE_ID in (SELECT DESCENDANT FROM ROLE_TREE_PATHS_A3 WHERE ANCESTOR = #{roleId, jdbcType=VARCHAR})
+						)
+					)
+			) complexop
+		where o.object_id in complexop.OBJECT_ID
+	</select>
+	<select id="selectOperationNameListByObjectId" parameterType="java.lang.String" resultType="java.lang.String">
+		select o.operation_name as operationName
+		from object_operation_lnk_a3 ool, operation_a3 o 
+		where ool.object_operation_id = #{objectOperationId, jdbcType=VARCHAR}
+    		and o.operation_id=ool.OPERATION_ID
+	</select>
+	<select id="selectActionExtListByObjectId" parameterType="java.lang.String" resultType="com.bistel.a3.portal.domain.usermgt.ActionExtVo">
+		select o.operation_id as id, o.operation_name as name
+		from object_operation_lnk_a3 ool, operation_a3 o 
+		where ool.OBJECT_ID=#{id, jdbcType=VARCHAR}
+		and ool.OPERATION_ID=o.operation_id
+		and o.operation_name NOT IN('ACTION_ALL', 'FUNCTION_ALL', 'VIEW','CREATE','MODIFY','DELETE')
+	</select>
+	
+   	
+	<!-- insert roles -->
+	<insert id="insertRole" parameterType="com.bistel.a3.portal.domain.usermgt.RoleVo">
+		insert into ROLE_A3 (
+			role_id, 
+			description 
+		) values (
+			#{roleId, jdbcType=VARCHAR},
+			#{description, jdbcType=VARCHAR}
+		)
+	</insert>
+	<insert id="insertRoleTreePaths" parameterType="com.bistel.a3.portal.domain.usermgt.RoleTreePaths">
+		insert into ROLE_TREE_PATHS_A3 (
+			ancestor, 
+			descendant
+		) values (
+			#{ancestor, jdbcType=VARCHAR},
+			#{descendant, jdbcType=VARCHAR}
+		)
+	</insert>
+	<insert id="insertPermission" parameterType="com.bistel.a3.portal.domain.usermgt.RoleObjectOperationLnk">
+		insert into ROLE_OBJECT_OPERATION_LNK_A3 (
+			ROLE_ID, 
+			object_operation_id
+		) values (
+			#{roleId, jdbcType=VARCHAR},
+			#{objectOperationId, jdbcType=VARCHAR}
+		)
+	</insert>
+	<!-- update role -->
+ 	<update id="updateRole" parameterType="com.bistel.a3.portal.domain.usermgt.RoleVo">
+			update ROLE_A3
+       	<set>
+        	<if test="description != null">
+                description = #{description, jdbcType=VARCHAR},
+        	</if>
+		</set>
+        where role_id = #{roleId, jdbcType=VARCHAR}	
+	</update>
+	<delete id="deleteRoleTreePath" parameterType="java.lang.String">
+		delete ROLE_TREE_PATHS_A3
+		where ancestor = #{ancestor, jdbcType=VARCHAR}
+	</delete>	
+	<!-- insert  ROLE_TREE_PATHS_A3 Again -->
+	<delete id="deletePermission" parameterType="java.lang.String">
+		delete ROLE_OBJECT_OPERATION_LNK_A3
+		where ROLE_ID = #{roleId, jdbcType=VARCHAR}
+	</delete>
+	<!-- insert ROLE_OBJECT_OPERATION_LNK_A3 Again -->
+	<!-- delete role -->
+	<!-- deletePermission, deleteRoleTreePath, and deleteRole-->
+ 	<delete id="deleteRole" parameterType="java.lang.String">
+		delete ROLE_A3
+		where role_id = #{roleId, jdbcType=VARCHAR}
+	</delete>	
+	<!-- role query end -->
+	<!-- permission -->
+	<select id="selectPermissionList" resultType="com.bistel.a3.portal.domain.usermgt.PermissionVo">
+		select objectId, objectName, parentId, objectLevel from
+			(select 
+				object_id as objectId, 
+				object_name as objectName,
+				parent_id as parentId,
+				object_level as objectLevel,
+				decode(parent_id, null, object_id, parent_id, parent_id) as objectOrder
+			from object_a3
+			) oo
+		order by oo.objectId, oo.objectOrder
+	</select>
+	<select id="selectOperationList" parameterType="java.lang.String" resultType="com.bistel.a3.portal.domain.usermgt.ObjectOperationVo">
+		select 
+			ool.object_operation_id as objectOperationId,
+			op.operation_id as operationId,
+			op.operation_name as operationName,
+			op.type as type,
+			op.description as description
+		from operation_a3 op, object_operation_lnk_a3 ool
+		where 
+			op.operation_id=ool.OPERATION_ID
+			and
+			ool.OBJECT_ID=#{objectId, jdbcType=VARCHAR}
+	</select>
+	<!-- ANCESTOR: 기준값 DESCENDANT: 입력할 값(현재) -->
+	<select id="checkCirculaReference" parameterType="com.bistel.a3.portal.domain.usermgt.RoleTreePaths" resultType="java.lang.String">
+		SELECT COUNT(*) 
+		FROM 
+			(SELECT DESCENDANT FROM ROLE_TREE_PATHS_A3 WHERE ANCESTOR = #{descendant, jdbcType=VARCHAR}) A
+		WHERE A.DESCENDANT = #{ancestor, jdbcType=VARCHAR}
+	</select>
+	<!-- menu(object) select/insert/update/delete -->
+	<insert id="insertObject" parameterType="com.bistel.a3.portal.domain.usermgt.PermissionVo">
+		insert into OBJECT_A3 (
+				object_id,
+				object_name,
+				parent_id,
+				object_level
+		) values (
+			SEQ_OBJECT_A3.nextval,
+			#{objectName, jdbcType=VARCHAR},
+			#{parentId, jdbcType=VARCHAR},
+			#{objectLevel, jdbcType=VARCHAR}
+		)
+	</insert>
+	<select id="selectCurrObjectId" resultType="java.lang.String">
+		select SEQ_OBJECT_A3.currval from dual
+	</select>
+	<insert id="insertObjectOperation" parameterType="com.bistel.a3.portal.domain.usermgt.ObjectOperationVo">
+		insert into OPERATION_A3 (
+			operation_id,
+			operation_name,
+			type,
+			description
+		)
+		values(
+			SEQ_OPERATION_A3.nextval,
+			#{operationName, jdbcType=VARCHAR},
+			#{type, jdbcType=VARCHAR},
+			#{description, jdbcType=VARCHAR}
+		)
+	</insert>
+	<!-- operation's sequence -->
+	<select id="selectCurrObjectOperationId" resultType="java.lang.String">
+		select SEQ_OPERATION_A3.currval from dual
+	</select>
+	<insert id="insertObjectOperationLnk" parameterType="com.bistel.a3.portal.domain.usermgt.ObjectOperationLnk">
+		insert into OBJECT_OPERATION_LNK_A3(
+			object_operation_id,
+			OBJECT_ID,
+			OPERATION_ID
+		)
+		values(
+			SEQ_OBJECT_OPERATION_A3.nextval,
+			#{objectId, jdbcType=VARCHAR},
+			#{operationId, jdbcType=VARCHAR}
+		)
+	</insert>
+	<!-- 중복검증을 위해 -->
+	<select id="selectObjectName" resultType="java.lang.String">
+		select object_name from object_a3
+	</select>
+	<select id="selectOperationName" resultType="java.lang.String">
+		select operation_name from operation_a3
+	</select>
+	
+	<!--  -->
+	<select id="selectExtOperationIdsByObjectId" parameterType="java.lang.String" resultType="java.lang.String">
+      	select 
+			ool.OPERATION_ID 
+		from 
+			object_operation_lnk_a3 ool, object_a3 ob, operation_a3 op
+		where 
+			ool.OBJECT_ID = ob.object_id
+      		and ool.OPERATION_ID = op.operation_id
+      		and op.type = 'E'
+			and ob.object_id=#{objectId, jdbcType=VARCHAR}
+	</select>
+	<delete id="deleteObjectOperationLnk" parameterType="com.bistel.a3.portal.domain.usermgt.ObjectOperationLnk">
+		delete object_operation_lnk_a3
+		where OBJECT_ID = #{objectId, jdbcType=VARCHAR}
+			and OPERATION_ID= #{operationId, jdbcType=VARCHAR}			
+	</delete>
+	<delete id="deleteExtOperationById" parameterType="java.lang.String">
+		delete operation_a3
+		where 
+			operation_id= #{operationId, jdbcType=VARCHAR}
+			and type='E'		
+	</delete>
+	<delete id="deleteObjectById" parameterType="java.lang.String">
+		delete object_a3
+		where
+			object_id = #{objectId, jdbcType=VARCHAR}
+	</delete>
+	<!--  -->
+	<update id="updateObject" parameterType="com.bistel.a3.portal.domain.usermgt.PermissionVo">
+		update object_a3
+       	<set>
+        	<if test="objectName != null">
+                object_name = #{objectName, jdbcType=VARCHAR},
+        	</if>
+        	<if test="parentId != null">
+                parent_id = #{parentId, jdbcType=VARCHAR},
+        	</if>
+        	<if test="objectLevel != null">
+                object_level = #{objectLevel, jdbcType=VARCHAR}
+        	</if>
+		</set>
+        where object_id = #{objectId, jdbcType=VARCHAR}
+	</update>
+	
+	<select id="selectUsersByGroupId" resultType="java.lang.String">
+		select 
+			user_id as userId
+		from
+			user_group_lnk_a3
+		where
+			user_group_id = #{groupId}
+	</select>
+	
+	<select id="selectGroupsByRoleId" resultType="java.lang.String">
+		select 
+			user_group_id as groupId
+		from
+			group_role_lnk_a3
+		where
+			role_id=#{roleId}
+	</select>
+	
+    <insert id="insertImage" parameterType="com.bistel.a3.portal.domain.usermgt.UserImage">
+    	insert into user_image_a3( 
+    		user_id, original_file_name, stored_file_name, stored_path, file_size
+    	) values (
+    		#{userId}, #{originalFileName}, #{storedFileName}, #{storedPath}, #{fileSize}
+    	)
+    </insert>
+    
+    <select id="selectImageByUser" resultType="com.bistel.a3.portal.domain.usermgt.UserImage">
+    	select 
+    		user_id as userId, original_file_name as originalFileName, stored_file_name as storedFileName, stored_path as storedPath, file_size as fileSize
+    	from
+    		user_image_a3 
+    	where 
+    		user_id = #{userId}
+    </select>
+    
+    <update id="updateProfileImageUrl" parameterType="java.lang.String">
+		update USER_A3
+       	<set>
+        	<if test="userImageUrl != null">
+                img_url = #{userImageUrl}
+        	</if>
+		</set>
+        where user_id = #{userId}	    	
+    </update>
+    
+     <update id="updateStoredImageUrl" parameterType="com.bistel.a3.portal.domain.usermgt.UserImage">
+		update user_image_a3
+       	<set>
+        	<if test="originalFileName != null">
+                original_file_name = #{originalFileName},
+        	</if>
+       	 	<if test="storedFileName != null">
+                stored_file_name = #{storedFileName},
+        	</if>
+       	 	<if test="fileSize != null">
+                file_size = #{fileSize},
+        	</if>
+        	<if test="storedPath != null">
+                stored_path = #{storedPath}
+        	</if>
+		</set>
+        where user_id = #{userId}	    	
+    </update>
+    
+    	 <select id="selectGroupIdByUserId" resultType="java.lang.String">
+    	select user_group_id
+    	  from user_group_lnk_a3
+    	 where user_id = #{userId} 
+    </select>
+ </mapper>

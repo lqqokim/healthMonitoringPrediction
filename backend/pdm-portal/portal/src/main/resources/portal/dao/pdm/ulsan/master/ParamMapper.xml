@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bistel.a3.portal.dao.pdm.ulsan.master.ParamMapper">
+    <select id="selectByEqpId" resultType="com.bistel.a3.portal.domain.pdm.db.Param">
+        select * from param_pdm where eqp_id = #{eqpId}
+    </select>
+    <select id="selectList" resultType="com.bistel.a3.portal.domain.pdm.master.ParamWithCommonWithRpm">
+        select
+        e.eqp_id, e.name as eqp_name,
+        a.*, b.eu, b.eu_type, c.rpm,d.alarm, d.warn
+        from param_pdm a
+        join eqp_pdm e on a.eqp_id = e.eqp_id
+        left join param_common_pdm b on a.param_id = b.param_id
+        left join manual_rpm_pdm c   on a.param_id = c.param_id
+        left join overall_spec_pdm d on a.param_id=d.param_id
+        where a.eqp_id =#{eqpId}
+    </select>
+
+    <select id="selectOne" resultType="com.bistel.a3.portal.domain.pdm.master.ParamWithCommonWithRpm">
+        select
+        e.eqp_id, e.name as eqp_name,
+        a.*, b.eu, b.eu_type, c.rpm, d.alarm, d.warn
+        from param_pdm a
+        join eqp_pdm e on a.eqp_id = e.eqp_id
+        left join param_common_pdm b on a.param_id = b.param_id
+        left join manual_rpm_pdm c   on a.param_id = c.param_id
+        left join overall_spec_pdm d on a.param_id=d.param_id
+        where a.param_id =#{paramId}
+    </select>
+
+    <select id="selectSpeedParam" resultType="com.bistel.a3.portal.domain.pdm.db.Param">
+        select a.*
+        from param_pdm a
+            join eqp_pdm b on a.eqp_id = b.eqp_id
+        where b.eqp_id = #{eqpId}
+          and a.param_type = 10001
+    </select>
+
+    <insert id="insertOne">
+        <selectKey keyProperty="param_id" resultType="Long" order="BEFORE">
+            select seq_param_pdm.nextval FROM DUAL
+        </selectKey>
+        insert into param_pdm(param_id, eqp_id, name, description, param_type)
+        values(#{param_id}, #{eqp_id}, #{name,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, #{param_type})
+
+    </insert>
+
+    <!--20180328 Allen-->
+    <insert id="insertSpec">
+        insert into overall_spec_pdm(param_id, warn, alarm)
+        values(#{param_id}, #{warn}, #{alarm})
+    </insert>
+    <!-- -->
+
+    <insert id="insertRpmOne">
+        insert into manual_rpm_pdm(param_id, rpm)
+        values(#{param_id}, #{rpm,jdbcType=NUMERIC})
+    </insert>
+
+    <insert id="insertCommonOne">
+        insert into param_common_pdm(param_id, eu, eu_type)
+        values(#{param_id}, #{eu,jdbcType=VARCHAR}, #{eu_type,jdbcType=NUMERIC})
+    </insert>
+
+    <update id="updateOne">
+        update param_pdm
+        set name = #{name},
+            param_type = #{param_type},
+            description = #{description,jdbcType=VARCHAR},
+            eqp_id = #{eqp_id}
+        where param_id = #{param_id}
+    </update>
+    <!--20180328 Allen-->
+    <update id="updateSpec">
+        update overall_spec_pdm
+        set warn = #{warn},
+        alarm = #{alarm}
+        where param_id = #{param_id}
+    </update>
+    <!-- -->
+    <update id="updateRpmOne">
+        update manual_rpm_pdm
+        set rpm = #{rpm,jdbcType=NUMERIC}
+        where param_id = #{param_id}
+    </update>
+
+    <update id="updateCommonOne">
+        update param_common_pdm
+        set eu = #{eu,jdbcType=VARCHAR},
+            eu_type = #{eu_type,jdbcType=NUMERIC}
+        where param_id = #{param_id}
+    </update>
+
+    <delete id="deleteOne">
+        delete from param_pdm
+        where param_id = #{paramId}
+    </delete>
+
+    <delete id="deleteRpmOne">
+        delete from manual_rpm_pdm
+        where param_id = #{paramId}
+    </delete>
+
+    <delete id="deleteCommonOne">
+        delete from param_common_pdm
+        where param_id = #{paramId}
+    </delete>
+
+    <delete id="deleteSpec">
+        delete from overall_spec_pdm
+        where param_id = #{paramId}
+    </delete>
+
+
+</mapper>

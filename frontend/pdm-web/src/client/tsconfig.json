@@ -1,0 +1,36 @@
+{
+    "compilerOptions": {
+        "target": "es5",
+        "module": "commonjs",
+        "declaration": true,
+        "removeComments": true,
+        "noLib": false,
+        "lib": ["es5", "es2015", "es2016", "dom"],
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "sourceMap": true,
+        "pretty": true,
+        "allowUnreachableCode": false,
+        "allowUnusedLabels": false,
+        "noImplicitAny": false,
+        "noImplicitReturns": true,
+        "noImplicitUseStrict": false,
+        "noFallthroughCasesInSwitch": false,
+        "allowSyntheticDefaultImports": true,
+        "typeRoots": [
+            "../../node_modules/@types",
+            "../../node_modules",
+            "../../tools/manual_typings"
+        ],
+        "types": [
+            "node",
+            "jasmine",
+            "systemjs"
+        ]
+    },
+    "exclude": [
+        "node_modules",
+        "tools/templates"
+    ],
+    "compileOnSave": false
+}

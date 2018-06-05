@@ -1,0 +1,225 @@
+.container>.alarm-warning-type,
+.container>.Bad5-type,
+.container>.Good5-type {
+    position: relative;
+}
+
+.alarm-title>span {
+    display: inline-block;
+    width: 100%;
+}
+
+.alarm-warning-variation .alarm-title {
+    width: 60px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    position: absolute;
+    border-radius: 3px;
+    float: left;
+    text-align: center;
+    border: 2px solid #fff;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+.container.alarm .alarm-width-calc {
+    display: block;
+    width: calc(100% - 60px);
+    margin-left: 60px;
+    margin-bottom: -3px;
+}
+
+.pdm-radar-chart .container,
+.pdm-chart-area .container {
+    overflow: hidden;
+}
+
+.alarm-warning-variation .alarm-title.alarm-warning {
+    background-color: #ffe2de;
+}
+
+.alarm-warning-variation .alarm-title.bad {
+    background-color: #fff0f8;
+}
+
+.alarm-warning-variation .alarm-title.good {
+    background-color: #c5f0f7;
+}
+
+.pdm-radar-time .glyphicon[aria-hidden] {
+    cursor: pointer;
+    font-size: 15px;
+}
+
+/* arrow */
+
+/* .radar-layer-on {
+    transform: translateY(0px);
+    transition: all 250ms cubic-bezier(0.075, 0.820, 0.165, 1.000);
+} */
+
+.radar-layer-on {
+    position: relative;
+    border-radius: 2px;
+    height: 500px;
+    width: calc(100% - 5px);
+    background: #eee;
+    margin: 5px 0 5px 2px;
+    padding: 10px;
+    z-index: 12;
+    transform: translateY(0px);
+    transition: height 750ms cubic-bezier(0.075, 0.820, 0.165, 1.000);
+}
+.radar-layer-on-chart {
+    top: -5px;
+    left: -2px;
+    position: absolute;
+    height: 500px;
+    width: calc(100% - 5px);
+    background: #eee;
+    margin: 5px 0 5px 2px;
+    padding: 10px;
+    bottom: 0px;
+    z-index: 12;
+    transform: translateY(0px);
+    /* transition: height 650ms cubic-bezier(0.075, 0.820, 0.165, 1.000); */
+}
+
+
+/* animate control */
+
+/* .off {
+    margin: 0;
+    height: 0;
+    padding: 0;
+    visibility: hidden;
+    transition: all 1000ms cubic-bezier(0.075, 0.820, 0.165, 1.000);
+}
+.on{
+    position: relative;
+    height: 500px;
+    width: calc(100% - 5px);
+    background: #eee;
+    margin: 5px 0 5px 2px;
+    padding: 10px;
+    z-index: 12;
+    transition: all 1000ms cubic-bezier(0.075, 0.820, 0.165, 1.000);
+} */
+.on {
+    display:block;
+}
+.off {
+    margin: 0;
+    height: 0;
+    padding: 0;
+    visibility: hidden;
+}
+.radar-close {
+    margin: 0;
+    height: 0;
+    padding: 0;
+    display:none;
+}
+
+.radar-chart-arrow {
+    position: absolute;
+    border-bottom: 10px solid #eee;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    height: 0;
+    z-index: 12;
+}
+
+/* Alarm */
+
+/* .pdm-chart-area.alarm-info-hover:hover, */
+.pdm-radar-section.alarm-section-active {
+    transition: all 0.1s ease-in-out;
+    background-color: rgba(253, 101, 105, 0.1);
+}
+
+
+.alram-type-danger .pdm-radar-section:hover {
+    border: 1px solid #ff5d43;
+    transition: all 0.1s ease-in-out;
+    background-color: rgba(253, 101, 105, 0.1);
+}
+
+/* Warning */
+
+/* .pdm-chart-area.warning-info-hover:hover, */
+.pdm-radar-section.warning-section-active {
+    transition: all 0.1s ease-in-out;
+    background-color: #ffefed;
+}
+
+.alram-type-warning .pdm-radar-section:hover {
+    border: 1px solid #ffb4a8;
+    transition: all 0.1s ease-in-out;
+    background-color: #ffefed;
+}
+
+/* Bad */
+
+/* .pdm-chart-area.bad-info-hover:hover, */
+.pdm-radar-section.bad-section-active {
+    transition: all 0.1s ease-in-out;
+    background-color: #fff4f9;
+}
+
+.alram-type-bad .pdm-radar-section:hover {
+    border: 1px solid #ffa5c4;
+    transition: all 0.1s ease-in-out;
+    background-color: #fff4f9;
+}
+
+/* Good */
+
+/* .pdm-chart-area.good-info-hover:hover, */
+.pdm-radar-section.good-section-active {
+    background-color: #f1fdff;
+    transition: all 0.1s ease-in-out;
+}
+
+.alram-type-good .pdm-radar-section:hover {
+    border: 1px solid #98dae4;
+    transition: all 0.1s ease-in-out;    
+    background-color: #f1fdff;
+}
+
+/* None */
+
+.type-none .pdm-radar-section:hover {
+    border: 1px solid #ffffff;
+    transition: all 0.1s ease-in-out;
+    background-color: #f7f7f7;
+}
+
+/* arrow */
+
+.arrow0 {
+    top: -10px;
+    left: calc((((100% / 5) / 2) * 1) - 10px);
+}
+
+.arrow1 {
+    top: -10px;
+    left: calc((((100% / 5) / 2) * 3) - 10px);
+}
+
+.arrow2 {
+    top: -10px;
+    left: calc((((100% / 5) / 2) * 5) - 10px);
+}
+
+.arrow3 {
+    top: -10px;
+    left: calc((((100% / 5) / 2) * 7) - 10px);
+}
+
+.arrow4 {
+    top: -10px;
+    left: calc((((100% / 5) / 2) * 9) - 10px);
+}
+

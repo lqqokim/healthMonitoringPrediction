@@ -1,0 +1,812 @@
+.a3-tasker-header-group {
+  width: 100%;
+  font-size: 12px;
+  position: fixed;
+  background-color: #fff;
+  z-index: 100;
+  min-width: 991px;
+}
+
+.a3-tasker-header {
+  width: 100%;
+  border-bottom: 1px solid #eee;
+  height: 41px;
+  padding: 0px;
+  padding: 5px 10px 5px 10px;
+  background-color: #f9f9f9;
+}
+
+.a3-tasker-header-title {
+  display: inline-block;
+  float: left;
+  font-size: 12px;
+  padding-left: 5px;
+  padding: 5px 3px 5px 3px;
+}
+
+.a3-tasker-name {
+  float: left;
+  color: #333;
+  font-size: 22px;
+  margin-top: -1px;
+}
+
+.a3-tasker-name span {
+  float: left;
+}
+
+.a3-tasker-name small {
+  float: left;
+  line-height: 24px;
+}
+
+.a3-tasker-name small a {
+  margin-left: 5px;
+}
+
+.a3-tasker-header-function {
+  display: inline-block;
+  float: right;
+}
+
+.a3-tasker-header-function .drill-down i {
+  position: relative;
+  top: 3px;
+  font-size: 18px;
+  margin-right: 5px;
+  opacity: 0.6;
+}
+
+.a3-tasker-url {
+  font-size: 11px;
+  font-family: arial;
+  margin-top: 5px;
+}
+
+.a3-tasker {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/*
+.a3-tasker label{
+    margin-bottom:0px;
+}
+*/
+.a3-tasker .chart-box {
+  min-height: 200px;
+}
+
+.a3-tasker-header-function .label-num {
+  top: -3px;
+  font-style: normal;
+  background-color: #0098da;
+}
+
+.a3-tasker-name span {
+  margin-right: 10px;
+}
+
+.a3-tasker-body {
+  height: 100%;
+  padding: 40px 0px 0px 0px;
+}
+
+.a3-tasker-side {
+  display: inline-block;
+  float: left;
+  width: 230px;
+  height: 100%;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+  overflow: auto;
+  background-color: #fff;
+}
+
+.a3-tasker-side .search-group {
+  margin-bottom: 15px;
+}
+
+.a3-tasker-side .search-group .a3-tasker-search {
+  width: 92px;
+  float: left;
+  margin-right: 3px;
+}
+
+.a3-tasker-side .a3-tasker-search {
+  margin-bottom: 10px;
+}
+
+.a3-tasker-side .a3-parameter-group {
+  width: 100%;
+  font-size: 13px;
+  margin-bottom: 10px;
+}
+
+.a3-tasker-side .a3-parameter-group label {
+  position: relative;
+  width: 100px;
+  font-weight: normal;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  cursor: pointer;
+  line-height: 16px;
+}
+
+.a3-tasker-side .a3-parameter-group .checkbox {
+  position: relative;
+  font-weight: normal;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  cursor: pointer;
+  left: 0px;
+  width: 12px;
+  height: 12px;
+  border: 1px solid #ddd;
+  transition: all .2s;
+  -webkit-transition: all .2s;
+  content: "";
+  border-color: #a48ad4;
+  margin: 2px 5px 0 0;
+  float: left;
+}
+
+.a3-tasker-side .a3-parameter-group .checkbox.checked {
+  border-width: 6px;
+  border-color: #a48ad4;
+}
+
+.a3-tasker-main {
+  display: inline-block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+}
+
+.tasker-chart-wrapper {
+  float: left;
+  width: 100%;
+  background-color: #fff;
+}
+
+.a3-tasker-main .fixed-chart-blind {
+  content: '';
+  width: calc(100% - 28px);
+  background-color: #f5f5f5;
+  height: 10px;
+  margin: 0px;
+  position: absolute;
+  margin-top: -11px;
+  z-index: 130;
+}
+
+.a3-btn-run {
+  margin-left: 5px;
+}
+
+.a3-btn-run i {
+  margin-right: 5px;
+  font-size: 11px;
+}
+
+.a3-tasker .tasker-chart-wrapper .header-option {
+  display: block;
+  margin-top: 0;
+  z-index: 110;
+  margin-bottom: 5px;
+}
+
+.a3-tasker .tasker-chart-wrapper .header-option:after {
+  content: "";
+  display: block;
+  clear: both;
+}
+
+.a3-tasker .tasker-chart-wrapper > .header-option {
+  padding: 0 0px;
+}
+
+.a3-tasker .float-wrapper.bg-opacity .message-title {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+div.jqplot-noData-container {
+  background-color: transparent;
+}
+
+/* tasker side right*/
+.a3-tasker-side-right {
+  width: 500px;
+  float: right;
+  height: 100%;
+  border-left: 1px solid #ddd;
+}
+
+.a3-tasker-main .tasker-chart-wrapper {
+  padding-left: 10px;
+}
+
+.a3-tasker-main .tasker-chart-wrapper.no-padding,
+.a3-default .app-configuration .no-padding,
+.a3-default .no-padding {
+  padding: 0px;
+}
+
+.a3-tasker-main.side-right-open.tasker-pdm .tasker-chart-wrapper,
+.a3-tasker-main.side-right-open.tasker-traceDataView .tasker-chart-wrapper {
+  width: calc(100% - 730px);
+  transition: all 0.1s ease-in-out;
+}
+
+.a3-tasker-main .back {
+  padding: 4px 5px;
+  margin-right: 5px;
+}
+
+.a3-tasker-main .back i {
+  float: left;
+  padding: 3px;
+  margin-top: -1px;
+}
+
+.a3-tasker-side-right .a3-tasker-side {
+  width: 100%;
+}
+
+.side-right-btn .btn i {
+  font-size: 18px;
+  line-height: 20px;
+}
+
+/* Tasker height*/
+.a3-tasker .chart-box.chart-height-sm {
+  height: 200px;
+}
+
+.a3-tasker .chart-box.chart-height-md {
+  height: 400px;
+}
+
+.a3-tasker .chart-box.chart-height-lg {
+  height: 600px;
+}
+
+/* MCC++ */
+.a3-tasker-mcc .a3-tasker-body .tasker-mcc {
+  height: 100%;
+}
+
+.a3-tasker-mcc .tasker-mcc .tasker-chart-wrapper {
+  width: 100%;
+  height: calc(100% - 30px);
+  padding-top: 25px;
+}
+
+.a3-tasker-mcc .tasker-mcc .tasker-chart-wrapper .fixed-chart {
+  width: 100%;
+  height: 300px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  overflow-y: auto;
+}
+
+.a3-tasker-mcc .tasker-mcc .tasker-chart-wrapper .fixed-chart li {
+  display: -webkit-flex;
+  display: flex;
+  display: -ms-flexbox;
+}
+
+.a3-tasker-mcc .tasker-mcc .tasker-chart-wrapper .fixed-chart-name {
+  width: 200px;
+  height: 299px;
+  padding: 10px;
+  border-right: 1px solid #ccc;
+  font-size: 13px;
+  text-align: center;
+  line-height: 300px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.a3-tasker-mcc .tasker-mcc .tasker-chart-wrapper .chart-data {
+  width: 100%;
+  height: 299px;
+  padding: 10px;
+  border-right: 1px solid #ccc;
+}
+
+.a3-tasker-mcc .tasker-mcc .tasker-chart-wrapper .chart-function-wrapper {
+  width: 100px;
+  padding: 10px;
+  margin: auto 0;
+}
+
+.a3-tasker-mcc .tasker-mcc .chart-function-wrapper .function {
+  display: -webkit-flex;
+  display: flex;
+  display: -ms-flexbox;
+  -webkit-justify-content: space-between;
+  justify-content: space-between;
+  -ms-flex-pack: justify;
+  margin-bottom: 10px;
+}
+
+.a3-tasker-mcc .tasker-mcc .chart-function-wrapper .function:last-child {
+  margin-bottom: 0px;
+}
+
+.a3-tasker-mcc .tasker-mcc .tasker-chart-wrapper .scroll-chart-wrapper {
+  width: 100%;
+  height: calc(100% - 310px);
+  overflow-y: scroll;
+  margin-top: -1px;
+  border: 1px solid #ccc;
+}
+
+.a3-tasker-mcc .tasker-mcc .scroll-chart-wrapper .scroll-chart {
+  display: -webkit-flex;
+  display: flex;
+  display: -ms-flexbox;
+  height: 299px;
+  border-bottom: 1px solid #ccc;
+}
+
+.a3-tasker-mcc .tasker-mcc .scroll-chart-wrapper .scroll-chart:last-child {
+  border-bottom: 0px solid transparent;
+}
+
+.a3-tasker-mcc .tasker-mcc .tasker-pagenation {
+  width: 100%;
+  height: 26px;
+  margin-top: 4px;
+}
+
+.tasker-pagenation {
+  height: 30px;
+  text-align: center;
+  display: block;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+}
+
+.tasker-pagenation li {
+  background-color: #ddd;
+  width: 5px;
+  border-radius: 50%;
+  float: left;
+  margin-right: 10px;
+  font-size: 12px;
+  line-height: 20px;
+  padding: 5px;
+}
+
+.tasker-pagenation li:last-child {
+  margin-right: 0px;
+}
+
+.tasker-pagenation li.active {
+  background-color: #666666;
+}
+
+.a3-tasker-mcc .tasker-mcc .fixed-chart::-webkit-scrollbar-thumb {
+  background: #fff;
+}
+
+.a3 .a3-tasker .chart-box.noborder {
+  border: 0px;
+}
+
+.a3-workspace-container .header-option {
+  z-index: 120;
+  width: 100%;
+  padding: 5px 10px;
+}
+
+.a3-workspace-container .header-option .pull-left {
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
+  margin-right: 7px;
+}
+
+.a3-workspace-container .header-option .dropdown {
+  margin-right: 3px;
+}
+
+.a3-workspace-container .header-option .tasker-radio-group {
+  margin-bottom: 0px;
+  margin-top: 6px;
+}
+
+.a3-workspace-container .header-option .title-lg {
+  font-size: 13px;
+  font-weight: normal;
+}
+
+.a3-workspace-container .header-option .title-sm {
+  font-weight: bold;
+}
+
+.tasker-chart-wrapper {
+  height: 100%;
+  padding: 10px;
+  overflow-y: auto;
+}
+
+.a3-tasker-main .header-option {
+  padding: 0 0px;
+  margin-top: 10px;
+}
+
+.a3-tasker-main > .header-option {
+  padding: 0 10px;
+}
+
+.dropdown-menu > .active > a, .dropdown-menu > .active > a:hover, .dropdown-menu > .active > a:focus {
+  background-color: transparent;
+  color: #333;
+}
+
+.a3-trace-data-dropdown .caret {
+  margin-left: 5px;
+}
+
+/* input */
+.a3-tasker .header-option .dropdown-menu {
+  min-width: 270px;
+}
+
+.a3-tasker .period-top-input {
+  width: 30px;
+  height: 28px;
+  margin-right: 4px;
+}
+
+.a3-tasker .period-bottom-wrapper {
+  float: left;
+  display: block;
+  width: 100%;
+  padding: 3px 20px;
+}
+
+.a3-tasker .period-text {
+  width: 30px;
+  font-size: 12px;
+  line-height: 28px;
+  text-align: end;
+}
+
+.a3-tasker .period-bottom-wrapper input {
+  float: right;
+  width: 190px;
+  height: 28px;
+  font-size: 12px;
+  padding-left: 3px;
+  padding-right: 3px;
+}
+
+/* drilldown-container */
+.drilldown-container {
+  padding: 20px;
+  display: block;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+}
+
+.drilldown-container .drilldown {
+  border: 5px solid #bbb;
+  border-radius: 50%;
+  width: 130px;
+  height: 130px;
+  display: inline-block;
+  float: left;
+  text-align: center;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.1s ease-in-out;
+}
+
+.drilldown-container .drilldown .gantt {
+  content: "";
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: 5px solid #bbb;
+  position: absolute;
+  left: -26px;
+  bottom: -28px;
+  content: "Gantt";
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  transition: all 0.2s ease-in-out;
+}
+
+.drilldown-container .drilldown .trend {
+  content: "";
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: 5px solid #bbb;
+  position: absolute;
+  right: -26px;
+  bottom: -28px;
+  content: "Trend";
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  transition: all 0.2s ease-in-out;
+}
+
+.drilldown-container .drilldown.active {
+  background-color: #fff;
+  border-color: #0086ba;
+  transition: all 0.2s ease-in-out;
+  margin-top: -1px;
+  font-weight: bold;
+}
+
+.drilldown-container .drilldown:after,
+.drilldown-container .drilldown:after {
+  content: "\f078";
+  font-family: FontAwesome;
+  position: absolute;
+  top: 85px;
+  left: 50px;
+  font-size: 20px;
+  opacity: 0;
+}
+
+.drilldown-container .drilldown.active-gantt:after,
+.drilldown-container .drilldown.active-trend:after {
+  content: "\f078";
+  font-family: FontAwesome;
+  position: absolute;
+  top: 85px;
+  left: 50px;
+  font-size: 20px;
+  opacity: 1.0;
+}
+
+.drilldown-container .drilldown.active-gantt,
+.drilldown-container .drilldown.active-gantt .gantt {
+  border-color: #0086ba;
+  background-color: #fff;
+}
+
+.drilldown-container .drilldown.active-trend,
+.drilldown-container .drilldown.active-trend .trend {
+  border-color: #0086ba;
+  background-color: #fff;
+}
+
+.drilldown-container .drilldown .gantt:hover,
+.drilldown-container .drilldown .trend:hover {
+  border-color: #555;
+}
+
+.drilldown-container .drilldown:hover {
+  border-color: #555;
+}
+
+.drilldown-container .drilldown > span {
+  width: 72%;
+  line-height: 14px;
+  font-size: 12px;
+}
+
+.drilldown-group hr {
+  display: inline-block;
+  width: 100px;
+  float: left;
+  margin-top: 67px;
+  border: 1px dashed #ccc;
+}
+
+/* Media Query */
+@media (min-width: 992px) {
+  .drilldown-group hr {
+    width: 140px;
+  }
+}
+
+/* Bottleneck & Bottleneck Analysis */
+.a3-tasker-main.tasker-bottleneck .bistel-block-blockItem.coater.main rect,
+.a3-tasker-main.tasker-bottleneckAnalysis .bistel-block-blockItem.coater.main rect {
+  fill: #6e8ba0;
+  stroke-width: 0px;
+}
+
+.a3-tasker-main.tasker-bottleneck .bistel-block-blockItem.coater rect,
+.a3-tasker-main.tasker-bottleneckAnalysis .bistel-block-blockItem.coater rect {
+  fill: #fff;
+  stroke-width: 1px;
+  stroke: #eee;
+}
+
+.a3-tasker-main.tasker-bottleneck .bistel-block-blockItem.coater.warning rect,
+.a3-tasker-main.tasker-bottleneckAnalysis .bistel-block-blockItem.coater.warning rect {
+  fill: #ff3d3d;
+  stroke-width: 0px;
+}
+
+.a3-tasker-main.tasker-bottleneck .bistel-block-blockItem.scanner.main rect,
+.a3-tasker-main.tasker-bottleneckAnalysis .bistel-block-blockItem.scanner.main rect {
+  fill: #859e66;
+  stroke-width: 0px;
+}
+
+.a3-tasker-main.tasker-bottleneck .bistel-block-blockItem.scanner rect,
+.a3-tasker-main.tasker-bottleneckAnalysis .bistel-block-blockItem.scanner rect {
+  fill: #fff;
+  stroke-width: 1px;
+  stroke: #eee;
+}
+
+.a3-tasker-main.tasker-bottleneck .bistel-block-blockItem.scanner.warning rect,
+.a3-tasker-main.tasker-bottleneckAnalysis .bistel-block-blockItem.scanner.warning rect {
+  fill: #ff3d3d;
+  stroke-width: 0px;
+}
+
+.a3-tasker-main.tasker-bottleneck .bistel-block-blockItem.developer.main rect,
+.a3-tasker-main.tasker-bottleneckAnalysis .bistel-block-blockItem.developer.main rect {
+  fill: #5c9a8e;
+  stroke-width: 0px;
+}
+
+.a3-tasker-main.tasker-bottleneck .bistel-block-blockItem.developer rect,
+.a3-tasker-main.tasker-bottleneckAnalysis .bistel-block-blockItem.developer rect {
+  fill: #fff;
+  stroke-width: 1px;
+  stroke: #eee;
+}
+
+.a3-tasker-main.tasker-bottleneck .bistel-block-blockItem.developer.warning rect,
+.a3-tasker-main.tasker-bottleneckAnalysis .bistel-block-blockItem.developer.warning rect {
+  fill: #ff3d3d;
+  stroke-width: 0px;
+}
+
+/* Legend Container*/
+.a3-chart-group {
+  width: 100%;
+  height: 100%;
+}
+
+.a3-chart-area.a3-legend-in {
+  width: calc(100% - 170px);
+  height: 100%;
+  float: left;
+}
+
+.a3-legend-container,
+.a3-legend-container {
+  width: 170px;
+  height: 100%;
+  line-height: 28px;
+  float: left;
+  padding: 0px 10px;
+}
+
+/* tasker layout */
+.divide-2 .tasker-chart-wrapper {
+  width: calc(100% - 230px);
+}
+
+.divide-3 .tasker-chart-wrapper {
+  width: calc(100% - 500px);
+}
+
+/* fault detail (wafer) */
+.a3-wafer-contents {
+  float: right;
+  width: 100%;
+  height: calc(100% - 33px);
+  padding: 0;
+}
+
+.a3-wafer-contents .nav.nav-tabs > li > a {
+  padding: 7px 14px;
+}
+
+.a3-wafer-contents .nav.nav-tabs {
+  margin-bottom: 10px;
+}
+
+.a3-wafer-contents .tab-content {
+  height: calc(100% - 43px);
+}
+
+.a3-wafer-contents .tab-content .tab-pane {
+  height: 100%;
+}
+
+.a3-tasker .a3-wafer-contents .header-option {
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-justify-content: flex-end;
+          justify-content: flex-end;
+  -ms-flex-pack: end;
+}
+
+.a3-wafer-contents .a3-chart-wrapper {
+  height: calc(100% - 33px);
+}
+
+.a3-wafer-contents .a3-axis-y-label {
+  float: left;
+  width: 17px;
+  height: 100%;
+  padding-top: 46px;
+  margin-left: 5px;
+  text-align: center;
+  -webkit-writing-mode: tb-rl;
+      -ms-writing-mode: tb-rl;
+          writing-mode: tb-rl;
+  -webkit-transform: rotate(180deg);
+  -moz-transform: rotate(180deg);
+  -o-transform: rotate(180deg);
+  white-space: nowrap;
+}
+
+.a3-wafer-contents .a3-chart {
+  float: left;
+  width: calc(100% - 22px) !important;
+  height: calc(100% - 22px) !important;
+}
+
+.a3-wafer-contents .a3-axis-x-label {
+  float: left;
+  width: calc(100% - 22px);
+  padding-left: 15px;
+  margin-top: 5px;
+  text-align: center;
+}
+
+.a3 .a3-wafer-table-view input[type=checkbox] {
+  float: none;
+}

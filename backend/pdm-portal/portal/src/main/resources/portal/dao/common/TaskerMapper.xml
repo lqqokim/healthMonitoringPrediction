@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bistel.a3.portal.dao.common.TaskerMapper">
+    <resultMap id="BaseResultMap" type="com.bistel.a3.portal.domain.common.Tasker">
+        <id column="tasker_id" property="taskerId"/>
+        <result column="workspace_id" property="workspaceId"/>
+        <result column="tasker_type_id" property="taskerTypeId"/>
+        <result column="title" property="title"/>
+        <result column="parent_id" property="parentId"/>
+    </resultMap>
+    <sql id="BaseAllQuery">
+        select
+            a.tasker_id,
+            a.workspace_id,
+            case when a.title is null then b.title else a.title end as title,
+            a.tasker_type_id,
+            a.parent_id
+        from tasker_a3 a
+            join tasker_type_a3 b
+                on b.tasker_type_id = a.tasker_type_id
+    </sql>
+    <select id="selectByWorkspaceId" resultMap="BaseResultMap">
+        <include refid="BaseAllQuery"/>
+        where workspace_id = #{workspaceId}
+    </select>
+    <select id="selectByParentId" resultMap="BaseResultMap">
+        <include refid="BaseAllQuery"/>
+        where workspace_id = #{workspaceId}
+        <if test="parentId == null">
+            and parent_id is null
+        </if>
+        <if test="parentId != null">
+            and parent_id = #{parentId}
+        </if>
+    </select>
+    <select id="select" resultMap="BaseResultMap">
+        <include refid="BaseAllQuery"/>
+        where tasker_id = #{taskerId}
+    </select>
+    <insert id="insert">
+        <selectKey resultType="Long" keyProperty="taskerId" order="BEFORE">
+            select seq_tasker_a3.nextval from dual
+        </selectKey>
+        insert into tasker_a3 (
+            tasker_id, tasker_type_id, workspace_id, title, parent_id
+        ) values (
+            #{taskerId},
+            #{taskerTypeId},
+            #{workspaceId},
+            #{title},
+            #{parentId, jdbcType=NUMERIC}
+        )
+    </insert>
+    <update id="update">
+        update tasker_a3
+        set title = #{title}
+        where tasker_id = #{taskerId}
+    </update>
+    <delete id="deleteById">
+        delete from tasker_a3
+        where tasker_id = #{taskerId}
+    </delete>
+    <delete id="deleteConditionById">
+        delete from tasker_condition_a3
+        where tasker_id = #{taskerId}
+    </delete>
+    <delete id="deletePropertyById">
+        delete from tasker_property_a3
+        where tasker_id = #{taskerId}
+    </delete>
+    <delete id="deleteTreePathById">
+        delete from tasker_treepath_a3
+        where ancestor = #{taskerId} or descendant = #{taskerId}
+    </delete>
+
+    <select id="selectMapByWorkspaceId" resultMap="com.bistel.a3.portal.dao.common.WorkspaceMapper.WorkspaceNodeResultMap">
+        select
+            tasker_id as id,
+            title,
+            'T' as nodeType
+        from tasker_a3
+        where workspace_id = #{workspaceId}
+        <if test="parentId == null">
+            and parent_id is null
+        </if>
+        <if test="parentId != null">
+            and parent_id = #{parentId}
+        </if>
+    </select>
+    
+    <select id="hasParentId" parameterType="java.lang.Long" resultType="java.lang.String">
+        select decode(parent_id, null, 'false', 'true') as result  from tasker_a3 where tasker_id = #{taskerId}
+    </select>
+    
+    <select id="getChildTaskerIdList" parameterType="java.lang.Long" resultType="java.lang.Long">
+        select tasker_id
+        from tasker_a3
+        start with tasker_id = #{taskerId}
+        connect by prior tasker_id = parent_id
+    </select>
+</mapper>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <typeAliases>
+        <typeAlias alias="yn" type="com.bistel.a3.common.util.db.YNTypeHandler"/>
+        <typeAlias alias="json" type="com.bistel.a3.common.util.db.JsonTypeHandler"/>
+    </typeAliases>
+    <typeHandlers>
+        <typeHandler handler="com.bistel.a3.common.util.db.YNTypeHandler"/>
+        <typeHandler handler="com.bistel.a3.common.util.db.JsonTypeHandler"/>
+    </typeHandlers>
+</configuration>

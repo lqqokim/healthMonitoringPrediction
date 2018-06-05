@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bistel.a3.portal.dao.pdm.frequencyDataGenerator.FrequencyDataGenMapper">
+
+    <insert id="insertDataGenConfig" useGeneratedKeys="true"
+            keyProperty="rawid" keyColumn="rawid" parameterType="com.bistel.a3.portal.domain.frequencyData.FrequencyDataGenConfig">
+        <selectKey keyProperty="rawid" resultType="Long" order="BEFORE">select SEQ_FREQUENCY_DATA_CONFIG.nextval as rawid from dual</selectKey>
+        INSERT INTO frequency_data_config(
+        rawid,
+        eqpId,
+        paramId,
+        samplingTime,
+        samplingCount,
+        duration,
+        rpm,
+        create_dtts,
+        modify_dtts
+        )
+        VALUES(
+        #{rawid},
+        #{eqpId},
+        #{paramId},
+        #{samplingTime},
+        #{samplingCount},
+        #{duration},
+        #{rpm},
+        systimestamp,
+        systimestamp
+        )
+        <!--<selectKey keyProperty="rawid" resultType="int" order="AFTER">SELECT LAST_INSERT_ID()</selectKey>-->
+
+    </insert>
+    <update id="updateDataGenConfig">
+        update frequency_data_config
+        set
+
+        <if test="eqpId != null">
+            eqpId = #{eqpId},
+        </if>
+        <if test="paramId != null">
+            paramId = #{paramId},
+        </if>
+        <if test="samplingTime != null">
+            samplingTime = #{samplingTime},
+        </if>
+        <if test="samplingCount != null">
+            samplingCount = #{samplingCount},
+        </if>
+        <if test="duration != null">
+            duration = #{duration},
+        </if>
+        <if test="rpm != null">
+            rpm = #{rpm},
+        </if>
+        <if test="modify_dtts != null">
+            modify_dtts = #{modify_dtts},
+        </if>
+        rawid = #{rawid}
+        <!--modify_dtts=systimestamp-->
+        where
+        rawid=#{rawid}
+    </update>
+    <delete id="deleteDataGenConfig">
+        delete from frequency_data_config
+        where rawid=#{rawid}
+    </delete>
+
+    <select id="getDataGenConfig" resultType="com.bistel.a3.portal.domain.frequencyData.FrequencyDataGenConfig">
+        SELECT * FROM frequency_data_config
+    </select>
+    <select id="getDataGenConfigByRawid" resultType="com.bistel.a3.portal.domain.frequencyData.FrequencyDataGenConfig">
+        SELECT * FROM frequency_data_config where rawid=#{rawid}
+    </select>
+
+
+    <insert id="insertDataGenHarmonicConfig"  parameterType="com.bistel.a3.portal.domain.frequencyData.FrequencyDataGenHarmonicConfig" >
+        INSERT INTO frequency_data_harmonic_config(
+        harmonicName,
+        harmonicFrequency,
+        amplitude_start,
+        amplitude_end,
+        amplitude_current,
+        frequency_data_config_rawid
+        )
+        VALUES(
+        #{harmonicName},
+        #{harmonicFrequency},
+        #{amplitude_start},
+        #{amplitude_end},
+        #{amplitude_current},
+        #{frequency_data_config_rawid}
+
+        )
+
+    </insert>
+
+    <update id="updateDataGenHarmonicConfig">
+        UPDATE frequency_data_harmonic_config
+        SET
+
+        harmonicName =#{harmonicName}
+
+        <if test="harmonicFrequency != null">
+            ,harmonicFrequency = #{harmonicFrequency}
+        </if>
+        <if test="amplitude_start != null">
+            ,amplitude_start = #{amplitude_start}
+        </if>
+        <if test="amplitude_end != null">
+            ,amplitude_end = #{amplitude_end}
+        </if>
+        <if test="amplitude_current != null">
+            ,amplitude_current = #{amplitude_current}
+        </if>
+        <if test="frequency_data_config_rawid != null">
+            ,frequency_data_config_rawid = #{frequency_data_config_rawid}
+        </if>
+        WHERE
+        frequency_data_config_rawid=#{frequency_data_config_rawid} and  harmonicName =#{harmonicName}
+    </update>
+    <delete id="deleteDataGenHarmonicConfig">
+        DELETE FROM frequency_data_harmonic_config WHERE frequency_data_config_rawid=#{frequency_data_config_rawid} and  harmonicName =#{harmonicName}
+    </delete>
+    <delete id="deleteDataGenHarmonicConfigByParentId">
+        DELETE FROM frequency_data_harmonic_config WHERE frequency_data_config_rawid=#{parent_rawid}
+    </delete>
+
+
+    <select id="getDataGenHarmonicConfig" resultType="com.bistel.a3.portal.domain.frequencyData.FrequencyDataGenHarmonicConfig">
+        SELECT * FROM frequency_data_harmonic_config where frequency_data_config_rawid=#{rawid}
+    </select>
+
+
+    <select id="getDataGenConfigByEqpIdParamId" resultType="com.bistel.a3.portal.domain.frequencyData.FrequencyDataGenConfig">
+        SELECT * FROM frequency_data_config where eqpId=#{eqpId} and paramId = #{paramId}
+    </select>
+
+
+
+
+
+
+    <!--<insert id="insertDatas" parameterType="com.bistel.a3.portal.domain.FrequencyDataGenDatas" useGeneratedKeys="true"-->
+            <!--keyProperty="rawid">-->
+        <!--INSERT INTO frequency_datas(-->
+        <!--eqpId,-->
+        <!--paramId,-->
+        <!--create_dtts,-->
+        <!--timeWave,-->
+        <!--frequency,-->
+        <!--frequencyInterval-->
+        <!--)-->
+        <!--VALUES(-->
+        <!--#{eqpId},-->
+        <!--#{paramId},-->
+        <!--systimestamp,-->
+        <!--#{timeWave},-->
+        <!--#{frequency},-->
+        <!--#{frequencyInterval}-->
+
+        <!--)-->
+
+    <!--</insert>-->
+    <!--<insert id="insertOverall"  useGeneratedKeys="true"-->
+            <!--keyProperty="rawid">-->
+        <!--INSERT INTO frequency_data_overall(-->
+        <!--eqpId,-->
+        <!--paramId,-->
+        <!--create_dtts,-->
+        <!--overall-->
+        <!--)-->
+        <!--VALUES(-->
+        <!--#{eqpId},-->
+        <!--#{paramId},-->
+        <!--systimestamp,-->
+        <!--#{overall}-->
+
+        <!--)-->
+
+    <!--</insert>-->
+    <!--<select id="getOverall" resultType="HashMap">-->
+        <!--SELECT * FROM frequency_data_overall where eqpId=#{eqpId} and paramId=#{paramId}-->
+    <!--</select>-->
+
+    <!--<select id="getDatas" resultType="com.bistel.a3.portal.domain.FrequencyDataGenDatas">-->
+    <!--SELECT * FROM frequency_datas-->
+    <!--where eqpId=#{eqpId} and create_dtts <![CDATA[>=]]> #{fromDate} and create_dtts <![CDATA[<]]> #{toDate}-->
+    <!--</select>-->
+    <!--<select id="getData" resultType="com.bistel.a3.portal.domain.FrequencyDataGenDatas">-->
+    <!--SELECT * FROM frequency_datas-->
+    <!--where rawid=#{rawid}-->
+    <!--</select>-->
+    <!--<select id="getDatasInfoByDate" resultType="com.bistel.a3.portal.domain.FrequencyDataGenDatas">-->
+    <!--SELECT rawid,eqpid,paramid,create_dtts,frequencyinterval FROM freqeuency_datas-->
+    <!--where create_dtts <![CDATA[>=]]> #{fromDate} and create_dtts <![CDATA[<]]> #{toDate}-->
+    <!--order by eqpid,paramId,create_dtts-->
+    <!--</select>-->
+
+
+</mapper>

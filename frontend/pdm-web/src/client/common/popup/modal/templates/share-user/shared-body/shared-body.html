@@ -1,0 +1,25 @@
+<div class="modal-body">
+    <!-- search input box -->
+    <div class="a3-add-share">
+        <select [(ngModel)]="selectedMember" class="form-control a3-condition-selectbox" style="display:inherit; width: 460px" (onchange)="membersOnchange($event)">
+            <option *ngFor="let member of members" [value]="member.id">{{member.alias}}</option>
+        </select>
+        <!--<input type="text" class="form-control" placeholder="">-->
+        <button type="button" class="btn btn-default a3-share-btn" (click)="saveMembers()">Share</button>
+    </div>
+    <!-- Tabs & Tab Contents -->
+    <!-- Modal open할때 shared-list 표시 -->
+    <shared-list #sharedList
+                 (emitDetailCard)="detailCard($event)"
+                 (emitDeleteCard)="deleteCard($event)">
+    </shared-list>
+    <!-- Group slide screen -->
+    <!-- a3-slide-open이면 슬라이드가 오픈된다. <div class="a3-shared-info a3-slide-open group"> -->
+    <shared-group-detail #sharedGroupDetail>
+    </shared-group-detail>
+    <!-- User slide screen -->
+    <!-- a3-slide-open이면 슬라이드가 오픈된다. <div class="a3-shared-info a3-slide-open user"> -->
+    <shared-user-detail #sharedUserDetail>
+    </shared-user-detail>
+</div>
+

@@ -1,0 +1,13 @@
+<ul class="header-area">
+    <li class="title">{{index + 1}}{{countStr[index]}} Outlier patterns</li>
+    <li class="location">Location: {{far}}</li>
+</ul>
+<div class="chart-area" (click)="chartClick($event)" [ngClass]="{'outlierChartSelect': isChartClick }">
+    <a3c-bistel-chart #outlierPatternChart
+        [data]="outlierPatternData" 
+        [config]="outlierPatternChartConfig" 
+        (completeChart)="outlierCompleteChart($event)" 
+        style="width: 100%; "
+        class="chart-body">
+    </a3c-bistel-chart>
+</div>

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bistel.a3.portal.dao.pdm.ulsan.master.PartMapper">
+    <select id="selectTypeList" resultType="com.bistel.a3.portal.domain.pdm.db.PartType">
+        select * from part_type_pdm
+    </select>
+
+    <select id="selectList" resultType="com.bistel.a3.portal.domain.pdm.master.PartWithParam">
+        select
+        	a.*,
+        	b.eqp_id,
+            b.name as eqp_name,
+            d.param_id,
+            d.name as param_name
+        from part_pdm a
+        	join eqp_pdm b on a.eqp_id = b.eqp_id
+            left join param_part_lnk_pdm c on c.part_id = a.part_id
+            left join param_pdm d on d.param_id = c.param_id
+        where a.eqp_id = #{eqpId}
+    </select>
+
+    <select id="selectOne" resultType="com.bistel.a3.portal.domain.pdm.master.PartWithParam">
+        select
+        	a.*,
+        	b.eqp_id,
+            b.name as eqp_name,
+            d.param_id,
+            d.name as param_name
+        from part_pdm a
+        	join eqp_pdm b on a.eqp_id = b.eqp_id
+            left join param_part_lnk_pdm c on c.part_id = a.part_id
+            left join param_pdm d on d.param_id = c.param_id
+        where a.part_id = #{partId}
+    </select>
+
+    <insert id="insertOne">
+        <selectKey keyProperty="part_id" resultType="Long" order="BEFORE">
+            select seq_part_pdm.nextval FROM DUAL
+        </selectKey>
+        insert into part_pdm (part_id,name,eqp_id,part_type_id,speed_param_id,ratio,sort_order,npar1,npar2,model_number,manufacture)
+        values (#{part_id,jdbcType=NUMERIC},#{name,jdbcType=VARCHAR},#{eqp_id,jdbcType=NUMERIC},#{part_type_id,jdbcType=NUMERIC},#{speed_param_id,jdbcType=NUMERIC},#{ratio,jdbcType=NUMERIC},#{sort_order,jdbcType=NUMERIC},#{npar1,jdbcType=NUMERIC},#{npar2,jdbcType=VARCHAR},#{model_number,jdbcType=VARCHAR},#{manufacture,jdbcType=VARCHAR})
+    </insert>
+
+    <insert id="insertLnk">
+        insert into param_part_lnk_pdm (param_id,part_id)
+        values (#{param_id,jdbcType=NUMERIC},#{part_id,jdbcType=NUMERIC})
+    </insert>
+
+    <update id="updateOne">
+        update part_pdm
+        set name = #{name},
+            part_type_id = #{part_type_id},
+            speed_param_id = #{speed_param_id,jdbcType=NUMERIC},
+            ratio = #{ratio,jdbcType=NUMERIC},
+            sort_order = #{sort_order,jdbcType=NUMERIC},
+            npar1 = #{npar1,jdbcType=NUMERIC},
+            npar2 = #{npar2,jdbcType=VARCHAR},
+            model_number = #{model_number,jdbcType=VARCHAR},
+            manufacture = #{manufacture,jdbcType=VARCHAR}
+        where part_id = #{part_id}
+    </update>
+
+    <delete id="deleteOne">
+        delete from part_pdm
+        where part_id = #{partId}
+    </delete>
+
+    <delete id="deleteLnk">
+        delete from param_part_lnk_pdm
+        where part_id = #{partId}
+    </delete>
+</mapper>

@@ -1,0 +1,81 @@
+.app-configuration .menu-function-list-appconfig {
+  height: 100%;
+}
+.app-configuration .menu-function-list-appconfig .layout-left {
+  height: 100%;
+  overflow: hidden;
+}
+.app-configuration .menu-function-list-appconfig .layout-right {
+  height: 100%;
+}
+.menu-function-list-appconfig .table-responsive {
+  overflow-x: hidden;
+}
+.menu-function-list-appconfig .wj-colheaders .wj-cell.wj-header:nth-child(4),
+.menu-function-list-appconfig .wj-cells .wj-cell:nth-child(4n+0) {
+  border-right: none;
+}
+.a3-menu-function-list-modal .a3-input-wrapper {
+  margin-bottom: 15px;
+}
+.a3-menu-function-list-modal .form-group.a3-table-wrapper {
+  margin-left: 0;
+  margin-right: 0;
+  margin-bottom: 15px;
+}
+.a3-menu-function-list-modal .a3-lists {
+  padding: 0px;
+  border: 1px solid #ccc;
+  border-radius: 2px;
+}
+.a3-menu-function-list-modal .a3-table-title {
+  padding: 8px;
+  border-bottom: 1px solid #ccc;
+}
+.a3-menu-function-list-modal .a3-table-title label {
+  float: left;
+  display: inline-block;
+  width: 50%;
+  font-weight: bold;
+}
+.a3-menu-function-list-modal .a3-condition-wrapper {
+  float: right;
+  width: 100%;
+  margin-bottom: 10px;
+}
+.a3-menu-function-list-modal .a3-condition-selectbox {
+  float: right;
+  display: inline-block;
+  width: 140px;
+}
+.a3-menu-function-list-modal .a3-condition-title {
+  float: right;
+  margin-bottom: 0;
+  margin-right: 10px;
+  line-height: 28px;
+}
+.a3-menu-function-list-modal .rowSelected {
+  background-color: #DAECF5 !important;
+}
+.a3-menu-function-list-modal .a3-table-lists {
+  height: 157px;
+}
+.a3-menu-function-list-modal .table > tbody > tr > td {
+  border-top: none;
+}
+.a3-menu-function-list-modal .a3-arrow-wrapper.horizontal {
+  margin: 2% 0px;
+  text-align: center;
+}
+.a3-menu-function-list-modal .a3-arrow-btn {
+  margin: 3px 0px;
+}
+.a3-menu-function-list-modal .border-height-none {
+  border: 1px solid #ddd;
+}
+.a3-menu-function-list-modal .table.table-striped {
+  margin-top: 0;
+}
+.a3-menu-function-list-modal .a3-asterisk {
+  display: inline-block;
+}

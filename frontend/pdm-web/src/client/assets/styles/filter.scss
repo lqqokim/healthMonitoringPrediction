@@ -1,0 +1,115 @@
+.a3-wrapper .a3-filter-container {
+    position: absolute;
+    top: 40px;
+    left:-500px;
+    width: 500px;
+    height: calc(100% - 40px);
+    background-color: #fff;
+    transition: all 0.1s ease-in-out;
+    z-index: 350;
+    box-sizing: border-box;
+    padding: 10px;
+}
+.a3-wrapper .a3-filter-container.active{
+    left:0px;
+}
+.a3-wrapper .a3-sidebar-background{
+    width:100%;
+    height:100%;
+    top:0;
+    left:0;
+    background-color:rgba(0, 0, 0, 0.3);;
+    z-index: 340;
+    position: absolute;
+    content:'';
+}
+.a3-wrapper .a3-filter-container .a3-filter-header {
+    position: relative;
+    display: inline-flex;
+    line-height: 26px;
+    width: 100%;
+    height: 37px;
+    color: #555;
+    font-size: 18px;
+    border-bottom:1px solid #eee;
+}
+.a3-wrapper .a3-filter-container .a3-filter-header:before {
+  display: inline-block;
+  position: absolute;
+  top: 0px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  background-image: url("../images/filter-icon.svg");
+  background-repeat: no-repeat;
+  background-position-y: 2px;
+  content: "";
+}
+.a3-filter-header .a3-filter-widgetname{
+  margin-left: 25px;
+  font-size: 14px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  word-wrap: normal;
+  width: 335px;
+  overflow: hidden;
+  margin-right: 5px;
+}
+.a3-wrapper .a3-filter-container .a3-filter-body{
+  height: calc(100% - 37px);
+  padding: 5px 6px;
+}
+.a3-filter-body .checkbox{
+  margin: 10px 0px;
+}
+.a3-filter-body .a3-filter-dfd{
+  margin: 10px 0px;
+}
+.a3-filter-body .a3-filter-dfd .form-group .form-control{
+  width: 50px;
+}
+.a3-filter-body .a3-filter-dfd .form-inline{
+  margin-bottom: 10px;
+  margin-top: 5px;
+}
+.DFD-showcheckbox{
+  display: inline-block;
+  padding-left: 10px;
+}
+.showcheckbox-line{
+  color:#ccc;
+}
+.dfd-showcheckbox-title{
+  margin-top: 10px;
+}
+.a3-filter-recipe{
+  margin-top: 10px;
+  height: calc(100% - 60px);
+  display: block;
+}
+.a3-filter-recipe > b{
+  height: 20px;
+  margin-bottom: 0;
+  display: block;
+}
+.a3-filter-recipe .dropdown {
+  display: inline-block;
+  margin-left: 40px;
+}
+.a3-filter-recipe .dropdown .dropdown-filter {
+  width: 150px
+}
+.a3-filter-recipe-content{
+  width: 100%;
+  height: 200px;
+}
+.a3-filter-recipe > .grid{
+  height: calc(100% - 17px);
+}
+.a3-filter-recipe > .grid .wj-content{
+  overflow-y: auto;
+  height: 100%;
+}
+.a3-filter-wrapper {
+  height: calc(100% - 40px);
+}

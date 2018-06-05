@@ -1,0 +1,502 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bistel.a3.portal.dao.pdm.std.trace.STDTraceRawDataMapper">
+
+
+    <select id="selectMeasureTrxWithRaw" resultType="com.bistel.a3.portal.domain.pdm.work.MeasureTrxWithBin">
+        select
+            rawid as measure_trx_id,
+            param_mst_rawid as param_id,
+            data_type_cd,
+            max_freq as end_freq,
+            freq_count as spectra_line,
+            rpm,
+            sampling_time,
+            event_dtts as measure_dtts,
+            reserved_col1,
+            reserved_col2,
+            reserved_col3,
+            reserved_col4,
+            reserved_col5,
+            binary_data as binary
+        from trace_raw_trx_pdm
+        where data_type_cd = #{data_type}
+        and event_dtts <![CDATA[>=]]> #{start}
+        and event_dtts <![CDATA[<]]> #{end}
+        <if test="param_id != null">
+            and param_mst_rawid = #{param_id}
+        </if>
+        order by event_dtts
+    </select>
+
+    <select id="selectMeasureTrxWithBinById" resultType="com.bistel.a3.portal.domain.pdm.work.MeasureTrxWithBin">
+        <!--select a.*,-->
+        <!--c.eu_type,-->
+        <!--b.scale_factor,-->
+        <!--b.binary-->
+        <!--from trace_trx_pdm a-->
+        <!--join trace_raw_trx_pdm b-->
+        <!--on a.measure_trx_id = b.measure_trx_id-->
+        <!--join param_common_pdm c-->
+        <!--on c.param_id = a.param_id-->
+        <!--where-->
+        <!--b.bin_data_type_cd = #{data_type}-->
+        <!--and b.measure_trx_id = #{measure_trx_id}-->
+
+        select
+        rawid as measure_trx_id,
+        param_mst_rawid as param_id,
+        data_type_cd,
+        max_freq as end_freq,
+        freq_count as spectra_line,
+        rpm,
+        sampling_time,
+        event_dtts as measure_dtts,
+        reserved_col1,
+        reserved_col2,
+        reserved_col3,
+        reserved_col4,
+        reserved_col5,
+        binary_data as binary
+        from trace_raw_trx_pdm
+        where
+            data_type_cd = #{data_type}
+            and trace_trx_rawid = #{measure_trx_id}
+    </select>
+
+    <select id="selectRpmByMeasureTrxId" resultType="com.bistel.a3.portal.domain.pdm.RpmWithPart">
+        <!--select-->
+        <!--a.param_id,-->
+        <!--b.name,-->
+        <!--a.rpm,-->
+        <!--a.measure_dtts-->
+        <!--from trace_trx_pdm a-->
+        <!--join param_pdm b-->
+        <!--on a.param_id = b.param_id-->
+        <!--where a.measure_trx_id = #{measure_trx_id}-->
+
+        SELECT
+            trace_raw.param_mst_rawid AS param_id,
+            param.name,
+            trace_raw.rpm,
+            trace_raw.event_dtts AS measure_dtts
+        FROM
+            trace_raw_trx_pdm trace_raw,
+            param_mst_pdm param
+        WHERE
+            trace_raw.trace_trx_rawid =#{measure_trx_id}
+            and trace_raw.param_mst_rawid = param.rawid
+            and trace_raw.data_type_cd='F'
+
+
+    </select>
+
+    <select id="selectModelMeasureTrx" resultType="com.bistel.a3.portal.domain.pdm.db.MeasureTrx">
+        select *
+        from trace_trx_pdm
+        where measure_trx_id = (
+        select max(d.measure_trx_id) as measure_trx_id
+        from trace_trx_pdm a
+        join param_pdm b
+        on b.param_id = a.param_id
+        join health_model_pdm c
+        on b.eqp_id = c.eqp_id
+        join trace_trx_pdm d
+        on d.param_id = a.param_id
+        where d.measure_dtts <![CDATA[>=]]> c.start_dtts
+        and d.measure_dtts <![CDATA[<]]> c.end_dtts
+        and a.measure_trx_id = #{measure_trx_id}
+        )
+    </select>
+
+    <select id="selectMeasureTrx" resultType="com.bistel.a3.portal.domain.pdm.db.MeasureTrx">
+        <!--select-->
+        <!--rawid as      measure_trx_id,-->
+        <!--event_dtts as measure_dtts-->
+        <!--from trace_raw_trx_pdm-->
+        <!--where-->
+        <!--event_dtts <![CDATA[>=]]> #{start}-->
+        <!--and event_dtts <![CDATA[<]]> #{end}-->
+        <!--and param_mst_rawid = #{param_id}-->
+        <!--order by event_dtts-->
+
+        select
+            rawid as measure_trx_id,
+            a.event_dtts as measure_dtts
+        from trace_trx_pdm a,
+        (
+        select
+        distinct trace_trx_rawid
+        from trace_raw_trx_pdm
+        where
+        event_dtts <![CDATA[>=]]> #{start}
+        and event_dtts <![CDATA[<]]> #{end}
+        and param_mst_rawid = #{param_id}
+        and trace_trx_rawid is not null
+        and data_type_cd ='F'
+        ) b
+        where a.rawid = b.trace_trx_rawid
+        order by event_dtts
+
+    </select>
+
+    <select id="selectLastMeasureTrx" resultType="com.bistel.a3.portal.domain.pdm.db.MeasureTrx">
+        <!--select-->
+        <!--max(raw) as measure_trx_id,-->
+        <!--max(event_dtts) as measure_dtts-->
+        <!--from trace_raw_trx_pdm-->
+        <!--where-->
+        <!--event_dtts <![CDATA[>=]]> #{start}-->
+        <!--and event_dtts <![CDATA[<]]> #{end}-->
+        <!--and param_mst_rawid = #{param_id}-->
+
+        select
+            max(rawid) as measure_trx_id,
+            max(a.event_dtts) as measure_dtts
+        from trace_trx_pdm a,
+        (
+        select
+        distinct trace_trx_rawid
+        from trace_raw_trx_pdm
+        where
+        event_dtts <![CDATA[>=]]> #{start}
+        and event_dtts <![CDATA[<]]> #{end}
+        and param_mst_rawid = #{param_id}
+        and trace_trx_rawid is not null
+        ) b
+        where a.rawid = b.trace_trx_rawid
+        order by event_dtts
+
+    </select>
+
+    <select id="selectMeasureTrxById" resultType="com.bistel.a3.portal.domain.pdm.db.MeasureTrx">
+        <!--select * from trace_trx_pdm where measure_trx_id = #{measure_trx_id}-->
+
+        select
+        rawid as measure_trx_id,
+        param_mst_rawid as param_id,
+        data_type_cd,
+        max_freq as end_freq,
+        freq_count as spectra_line,
+        rpm,
+        sampling_time,
+        event_dtts as measure_dtts,
+        reserved_col1,
+        reserved_col2,
+        reserved_col3,
+        reserved_col4,
+        reserved_col5
+        <!--,-->
+        <!--binary_data as binary-->
+        from trace_raw_trx_pdm
+        where
+        trace_trx_rawid = #{measure_trx_id}
+        and data_type_cd = 'F'
+    </select>
+
+    <select id="selectMeasureTrxData" resultType="com.bistel.a3.portal.domain.pdm.db.MeasureTrx">
+        <!--select *-->
+        <!--from trace_trx_pdm-->
+        <!--where-->
+        <!--measure_dtts <![CDATA[>=]]> #{start}-->
+        <!--and measure_dtts <![CDATA[<]]> #{end}-->
+        select
+        trace_trx_rawid as measure_trx_id,
+        param_mst_rawid as param_id,
+        data_type_cd,
+        max_freq as end_freq,
+        freq_count as spectra_line,
+        rpm,
+        sampling_time,
+        event_dtts as measure_dtts,
+        reserved_col1,
+        reserved_col2,
+        reserved_col3,
+        reserved_col4,
+        reserved_col5
+        <!--,-->
+        <!--binary_data as binary-->
+        from trace_raw_trx_pdm
+        where
+        event_dtts <![CDATA[>=]]> #{start}
+        and event_dtts <![CDATA[<]]> #{end}
+    </select>
+
+    <select id="selectMeasureTrxByEutype" resultType="com.bistel.a3.portal.domain.pdm.db.MeasureTrx">
+        <!--select a.*-->
+        <!--from trace_trx_pdm a-->
+        <!--join param_common_pdm b-->
+        <!--on a.param_id = b.param_id-->
+        <!--where-->
+        <!--a.measure_trx_id = #{measure_trx_id}-->
+        <!--and b.eu_type = #{eu_type}-->
+        select
+        trace_trx_rawid as measure_trx_id,
+        param_mst_rawid as param_id,
+        data_type_cd,
+        max_freq as end_freq,
+        freq_count as spectra_line,
+        rpm,
+        sampling_time,
+        event_dtts as measure_dtts,
+        reserved_col1,
+        reserved_col2,
+        reserved_col3,
+        reserved_col4,
+        reserved_col5
+        <!--,-->
+        <!--binary_data as binary-->
+        from trace_raw_trx_pdm
+        where
+        trace_trx_rawid=#{measure_trx_id}
+        and data_type_cd = 'F'
+        
+    </select>
+    <select id="selectListRpmByMeasureId" resultType="java.lang.Double">
+        select rpm
+        from trace_trx_pdm
+        where param_mst_rawid = #{param_id}
+        and event_dtts <![CDATA[<=]]> #{measure_dtts}
+        and rownum = 1
+        order by event_dtts desc
+    </select>
+    <select id="selectMaxMeasureTrxId" resultType="java.lang.Long">
+        select max(rawid) from trace_trx_pdm
+
+    </select>
+    <insert id="insertMeasureTrx">
+        insert into trace_trx_pdm (param_id,measure_dtts,value,end_freq,spectra_line,measure_trx_id,rpm)
+        values (#{param_id,jdbcType=NUMERIC},#{measure_dtts,jdbcType=TIMESTAMP},#{value,jdbcType=FLOAT},#{end_freq,jdbcType=NUMERIC},#{spectra_line,jdbcType=NUMERIC},#{measure_trx_id,jdbcType=NUMERIC},#{rpm,jdbcType=FLOAT})
+    </insert>
+    <insert id="insertMeasureTrxBin">
+        <!--insert into trace_raw_trx_pdm (measure_trx_id,bin_data_type_cd,scale_factor,binary)-->
+        <!--values (#{measure_trx_id,jdbcType=NUMERIC},#{bin_data_type_cd,jdbcType=CHAR},#{scale_factor,jdbcType=NUMERIC},#{binary,jdbcType=BLOB})-->
+
+        insert into trace_raw_trx_pdm (rawid,trace_trx_rawid,param_mst_rawid,data_type_cd,max_freq,rpm,sampling_time,binary_data,event_dtts,reserved_col1,reserved_col2,reserved_col3,reserved_col4,reserved_col5)
+        values (seq_trace_raw_trx_pdm.nextval, #{measure_trx_id,jdbcType=NUMERIC},#{param_id},#{bin_data_type_cd,jdbcType=CHAR},#{end_freq,jdbcType=NUMERIC},#{sampling_time,jdbcType=NUMERIC},#{binary,jdbcType=BLOB},#{measure_dtts},#{reserved_col1},#{reserved_col2},#{reserved_col3},#{reserved_col4},#{reserved_col5})
+
+    </insert>
+    <select id="selectSpecOutMeasureTrxId" resultType="java.util.HashMap">
+        SELECT *
+        FROM trace_trx_pdm ,
+        (SELECT MIN(measure_dtts) specout_date
+        FROM trace_trx_pdm meas,
+        (SELECT trx.PARAM_ID,trx.read_dtts
+        FROM overall_minute_trx_pdm trx
+        WHERE trx.param_id =#{param_id}
+        AND trx.read_dtts <![CDATA[>=]]> #{start}
+        AND trx.read_dtts <![CDATA[<]]> #{end}
+        AND trx.value      > trx.alarm
+        ) specout
+        WHERE meas.PARAM_ID    = specout.PARAM_ID
+        AND meas.MEASURE_DTTS <![CDATA[>=]]> specout.read_dtts
+        AND meas.MEASURE_DTTS  <![CDATA[<]]> specout.read_dtts+1
+        GROUP BY read_dtts
+        ) specout_date_data
+        WHERE trace_trx_pdm.PARAM_ID   = #{param_id}
+        AND trace_trx_pdm.MEASURE_DTTS = specout_date_data.specout_date
+        ORDER BY measure_dtts
+    </select>
+    <select id="selectWarningRateMeasureTrxId" resultType="java.util.HashMap">
+        <!--SELECT *-->
+        <!--FROM trace_trx_pdm ,-->
+        <!--(SELECT MIN(measure_dtts) specout_date-->
+        <!--FROM trace_trx_pdm meas,-->
+        <!--(SELECT trx.PARAM_ID,trx.read_dtts-->
+        <!--FROM trace_spec_mst_pdm trx-->
+        <!--WHERE trx.param_id =#{param_id}-->
+        <!--AND trx.read_dtts <![CDATA[>=]]> #{start}-->
+        <!--AND trx.read_dtts <![CDATA[<]]> #{end}-->
+        <!--AND trx.value      >  case when trx.warning is not null then trx.warning - abs(trx.warn)*(1- #{rate}) else spec.warning -abs(spec.warning)*(1-#{rate}) end-->
+        <!--) specout-->
+        <!--WHERE meas.PARAM_ID    = specout.PARAM_ID-->
+        <!--AND meas.MEASURE_DTTS <![CDATA[>=]]> specout.read_dtts-->
+        <!--AND meas.MEASURE_DTTS  <![CDATA[<]]> specout.read_dtts+1-->
+        <!--GROUP BY read_dtts-->
+        <!--) specout_date_data-->
+        <!--WHERE trace_trx_pdm.PARAM_ID   = #{param_id}-->
+        <!--AND trace_trx_pdm.MEASURE_DTTS = specout_date_data.specout_date-->
+        <!--ORDER BY measure_dtts-->
+    
+        SELECT
+            RAWID,
+            PARAM_MST_RAWID,
+            TRACE_TRX_RAWID,
+            DATA_TYPE_CD,
+            MAX_FREQ,
+            FREQ_COUNT,
+            RPM,
+            SAMPLING_TIME,
+            EVENT_DTTS,
+            RESERVED_COL1,
+            RESERVED_COL2,
+            RESERVED_COL3,
+            RESERVED_COL4,
+            RESERVED_COL5
+        FROM
+                trace_raw_trx_pdm,
+        (
+           select
+           *
+           from
+           (
+              SELECT
+           meas.event_dtts specout_date
+              FROM
+                trace_raw_trx_pdm meas,
+              (
+                 SELECT
+                 trx.param_mst_rawid,
+                 trx.event_dtts
+                 FROM
+                trace_trx_pdm trx,
+                 trace_spec_mst_pdm spec
+                 WHERE trx.param_mst_rawid =#{param_id}
+                 AND trx.param_mst_rawid = spec.param_mst_rawid
+                 AND trx.event_dtts <![CDATA[>=]]> #{start}
+                 AND trx.event_dtts <![CDATA[<]]> #{end}
+                 AND trx.value      >  case when trx.warning_spec is not null then trx.warning_spec - abs
+                 (
+                    trx.warning_spec
+                 )
+                 *
+                 (
+                    1- #{rate}
+                 )
+                 else spec.warning_spec -abs(spec.warning_spec)*(1-#{rate}) end
+              )
+              specout
+              WHERE
+                meas.param_mst_rawid = specout.param_mst_rawid
+              AND   meas.event_dtts <![CDATA[>=]]>  specout.event_dtts
+              AND   meas.event_dtts <![CDATA[<]]> #{end}
+                )
+           where
+            rownum <![CDATA[<]]> 2
+            
+        )
+        specout_date_data
+        WHERE
+                trace_raw_trx_pdm.param_mst_rawid = #{param_id}
+        AND   trace_raw_trx_pdm.event_dtts = specout_date_data.specout_date
+        ORDER BY
+                event_dtts
+
+
+    </select>
+
+    <select id="selectMeasureTrxWithSpec" resultType="com.bistel.a3.portal.domain.pdm.db.MeasureTrx">
+        select *
+        from trace_trx_pdm m,
+        OVERALL_SPEC_PDM s
+        where m.param_id=#{param_id}
+        and m.param_id=s.param_id
+        and measure_dtts <![CDATA[>=]]> #{start}
+        and measure_dtts <![CDATA[<]]> #{end}
+        order by measure_dtts
+    </select>
+
+    <delete id="deleteMeasureTrxBinbyParamId">
+        delete
+        from trace_raw_trx_pdm
+        where trace_trx_rawid in
+        (
+        select rawid
+        from trace_trx_pdm
+        where 1=1
+        and param_mst_rawid=#{param_id}
+        and MEASURE_DTTS<![CDATA[>=]]> #{start}
+        and MEASURE_DTTS<![CDATA[<]]> #{end}
+        )
+    </delete>
+
+    <delete id="deleteTraceRawTrxByParamId">
+        delete
+        from trace_raw_trx_pdm
+        where
+        param_mst_rawid=#{param_id}
+        and event_DTTS<![CDATA[>=]]> #{start}
+        and event_DTTS<![CDATA[<]]> #{end}
+
+    </delete>
+
+
+
+    <delete id="deleteMeasureTrxbyParamId">
+        delete
+        from trace_trx_pdm
+        where 1=1
+        and param_id=#{param_id}
+        and MEASURE_DTTS<![CDATA[>=]]> #{start}
+        and MEASURE_DTTS<![CDATA[<]]> #{end}
+    </delete>
+
+    <select id="selectSampleTraceByRawId" resultType="com.bistel.a3.portal.domain.pdm.db.MeasureTrx">
+        select *
+        from sample_trace_raw_trx_pdm
+        where problem_data_rawid=#{problem_data_rawid}
+    </select>
+    <select id="selectSampleTraceWithBinById" resultType="com.bistel.a3.portal.domain.pdm.work.MeasureTrxWithBin">
+        select a.*,
+        b.scale_factor,
+        b.binary,
+        b.binary blob
+        from sample_trace_raw_trx_pdm a
+        join sample_trace_raw_trx_bin_pdm b
+        on a.measure_trx_id = b.measure_trx_id
+        where
+        b.bin_data_type = #{data_type}
+        and b.measure_trx_id = #{measure_trx_id}
+
+
+
+
+    </select>
+
+
+    <select id="selectSampleTraceRawClosedTimeWithCurrentASC" resultType="com.bistel.a3.portal.domain.pdm.db.MeasureTrx">
+        select rawid, problem_data_rawid, measure_trx_id, to_timestamp(concat('1970-01-01',measure_dtts)), value, end_freq, spectra_line, rpm
+        from
+        (
+        select *
+        from
+        (
+        select rawid, problem_data_rawid, measure_trx_id, to_char(measure_dtts, 'hh24:mi:ss') as measure_dtts, value, end_freq, spectra_line, rpm
+        from sample_trace_raw_trx_pdm
+        where problem_data_rawid= #{sampleRawId}
+        )
+        where measure_dtts <![CDATA[>=]]> to_char(systimestamp,'hh24:mi:ss')
+        order by measure_dtts
+        )
+        where rownum=1
+    </select>
+
+    <select id="selectSampleTraceRawClosedTimeWithCurrentDESC" resultType="com.bistel.a3.portal.domain.pdm.db.MeasureTrx">
+        select rawid, problem_data_rawid, measure_trx_id, to_timestamp(concat('1970-01-01',measure_dtts)), value, end_freq, spectra_line, rpm
+        from
+        (
+        select *
+        from
+        (
+        select rawid, problem_data_rawid, measure_trx_id, to_char(measure_dtts, 'hh24:mi:ss') as measure_dtts, value, end_freq, spectra_line, rpm
+        from sample_trace_raw_trx_pdm
+        where problem_data_rawid= #{sampleRawId}
+        )
+        where measure_dtts <![CDATA[<]]> to_char(systimestamp,'hh24:mi:ss')
+        order by measure_dtts desc
+        )
+        where rownum=1
+    </select>
+
+
+
+    <insert id="insertTraceRaw">
+
+        insert into trace_raw_trx_pdm (rawid,param_mst_rawid,trace_trx_rawid,data_type_cd,max_freq,freq_count,rpm,sampling_time,binary_data,event_dtts,reserved_col1,reserved_col2,reserved_col3,reserved_col4,reserved_col5)
+        values (seq_trace_raw_trx_pdm.nextval, #{param_mst_rawid},#{trace_trx_rawid},#{data_type_cd,jdbcType=CHAR},#{max_freq,jdbcType=NUMERIC},#{freq_count},#{rpm},#{sampling_time,jdbcType=NUMERIC},#{binary,jdbcType=BLOB},#{event_dtts},#{reserved_col1},#{reserved_col2},#{reserved_col3},#{reserved_col4},#{reserved_col5})
+
+    </insert>
+
+
+
+</mapper>

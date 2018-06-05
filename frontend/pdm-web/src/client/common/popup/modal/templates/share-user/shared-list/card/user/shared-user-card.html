@@ -1,0 +1,13 @@
+<div class="a3-shared-card user">
+    <div class="a3-mark">
+        <i class="fa fa-user" aria-hidden="true"></i>
+    </div>
+    <button type="button"
+            class="close pe-7s-close a3-close-icon"
+            (click)="$event.stopPropagation(); deleteCardClick()"></button>
+    <div class="a3-user-img"></div>
+    <ul class="a3-user-info">
+        <li class="a3-name">{{userInfo.name}}</li>
+        <li class="a3-email">{{userInfo.email}}</li>
+    </ul>
+</div>

@@ -1,0 +1,124 @@
+.a3-global-configuration {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  padding-top: 41px;
+  overflow-x: hidden;
+  overflow-y: hidden;
+  transition: all 0.2s ease-in-out;
+  opacity: 0;
+  z-index: 350;
+}
+.a3-global-configuration.active {
+  top: 0;
+  background-color: #fff;
+  transition: all 0.2s ease-in-out;
+  opacity: 1;
+}
+.app-configuration,
+.user-information {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow-y: hidden;
+  overflow-x: hidden;
+}
+.a3-app-configuration-builder {
+  height: calc(100% - 40px);
+}
+.a3-global-configuration .a3-content-container {
+  float: left;
+  width: calc(100% - 200px);
+  height: 100%;
+}
+.a3-global-configuration .a3-app-header {
+  height: 41px;
+  padding: 5px 10px 5px 10px;
+  background-color: #fff;
+  border-bottom: 1px solid #eee;
+}
+.a3-global-configuration .a3-configuration-builder {
+  height: calc(100% - 40px);
+}
+.a3-global-configuration .a3-menu-open{
+  display: inline-block;
+  font: normal normal normal 14px/1 FontAwesome;
+  text-rendering: auto;
+  font-size: 13px;
+  padding: 7px 10px;
+  -webkit-font-smoothing: antialiased;
+  float:left;
+  margin-right:15px;
+}
+.a3-global-configuration .a3-menu-open:before{
+  content: "\f0ca";
+  margin-left:-2px;
+}
+.a3-global-configuration .a3-menu-close{
+  display: inline-block;
+  font: normal normal normal 14px/1 FontAwesome;
+  text-rendering: auto;
+  font-size: 19px;
+  padding:4px 10px;
+  -webkit-font-smoothing: antialiased;
+  float:left;
+  margin-right:10px;
+}
+.a3-global-configuration .a3-menu-close:before{
+  content: "\f100";
+  margin-left:-2px;
+}
+.a3-global-configuration .a3-content-container .title {
+  font-size: 16px;
+  vertical-align: middle;
+  line-height: 29px;
+}
+.a3-global-configuration .a3-app-configuration-body .configuration-edit {
+  height:calc(100% - 38px);
+}
+.a3-global-configuration .a3-app-configuration-body .header-group{
+  margin-bottom:10px;
+}
+.a3-global-configuration .wj-content {
+  height: 100%;
+  background-color: transparent;
+}
+.a3-global-configuration .wj-popup {
+  margin: 7px 0px;
+}
+.a3-global-configuration.menu-close .a3-menu-container {
+  margin-left: -300px;
+  transition: all 0.1s ease-in-out;
+}
+.a3-global-configuration.menu-close .a3-content-container {
+  width:100%;
+}
+.a3-global-configuration .a3-configuration-builder .pdm-wijmo-body .form-control{
+  width: initial;
+  display: inline-block;
+}
+.a3-global-configuration .a3-configuration-builder .pdm-wijmo-body .fab-label{
+  padding-bottom: 6px;
+}
+// .a3-global-configuration .a3-configuration-builder .wj-content{
+//   height: calc(100% - 22px);
+// }
+.a3-global-configuration .a3-configuration-builder .fab-label .form-control{
+  width: initial;
+  display: inline-block;
+}
+
+.a3-global-configuration .a3-configuration-builder .type-job .form-control{
+  width: initial;
+  display: inline-block;
+}
+/* `pp Configuration */
+.app-configuration .close {
+  position: absolute;
+  top: 0;
+  right: 0;
+  font-size: 40px;
+}
+.a3-global-configuration .pdm-configuration-wrapper{
+  height: 100%;
+}

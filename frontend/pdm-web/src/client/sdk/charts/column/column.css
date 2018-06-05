@@ -1,0 +1,71 @@
+.axis path,
+.axis line {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+}
+
+line {
+    shape-rendering: crispEdges;
+}
+
+.bar {
+    fill: steelblue;
+}
+
+.x.axis path {
+    /*display: none;*/
+}
+
+.column-chart-grid .tick {
+    stroke: lightgrey;
+    shape-rendering: crispEdges;
+    stroke-opacity: 1;
+}
+.column-chart-grid path {
+    stroke: lightgrey;
+    stroke-width: 1;
+}
+.column-series-background {
+    fill: #ffffff;
+    opacity: 0;
+}
+.column-series-background.active {
+    fill: #cccccc;
+    opacity: 0.5;
+}
+.column-item {
+    fill: #c3e365;
+    stroke: #c3e365;
+    stroke-width : 1px;
+    shape-rendering: crispEdges;
+}
+/* 가이드 라인 관련 css */
+#guide-line{
+    stroke: blue;
+    stroke-dasharray: 3,3;
+}
+/* standard 라인 관련 css */
+#standard-line{
+    stroke: red;
+    stroke-dasharray: 3,3;
+}
+/*
+event line 관련 css
+*/
+.start-line{
+    stroke: #cc00ff;
+}
+
+.end-line{
+    stroke: #cc00ff;
+}
+
+.event-text{
+    dy: .71em;
+}
+
+.event-area{
+    fill: #cccccc;
+    opacity: 0.5;
+}

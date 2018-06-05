@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bistel.a3.portal.dao.pdm.std.master.STDCodeMapper">
+    <resultMap id="BaseResultMap" type="com.bistel.a3.portal.domain.common.Code">
+        <id column="code_id" property="codeId"/>
+        <result column="code" property="code"/>
+        <result column="name" property="name"/>
+        <result column="ordering" property="codeOrder"/>
+        <result column="default_yn" property="default" typeHandler="yn"/>
+        <result column="description" property="description"/>
+        <result column="used" property="used" typeHandler="yn"/>
+        <!--<result column="category" property="codeCategoryId"/>-->
+        <result column="category" property="category"/>
+    </resultMap>
+    <sql id="BaseAllQuery">
+        select
+            a.rawid as code_id,
+            a.code,
+            a.name,
+            a.ordering,
+            a.default_yn,
+            a.description,
+            a.used_yn,
+            <!--a.category-->
+            a.category
+        from code_mst_pdm a
+        <!--from code_mst_pdm a-->
+            <!--join app_a3 c-->
+                <!--on c.app_id = b.app_id-->
+    </sql>
+
+
+
+    <select id="selectByCategory" resultMap="BaseResultMap">
+        <include refid="BaseAllQuery"/>
+        where
+         1=1
+        <if test="category != null">
+            and a.category = #{category}
+        </if>
+        <if test="used_yn != null">
+            and a.used_yn = #{used_yn, typeHandler=yn}
+        </if>
+    </select>
+    <select id="selectCodeMapByCategory" resultMap="BaseResultMap">
+        where
+            <!--c.name = #{appName}-->
+        a.egory = #{category}
+        <if test="used_yn != null">
+            and a.used_yn = #{used_yn, typeHandler=yn}
+        </if>
+    </select>
+    <delete id="deleteByCategory">
+        delete from code_mst_pdm
+        where category = #{category}
+    </delete>
+    <!--<insert id="insert">-->
+        <!--<selectKey resultType="Long" keyProperty="codeId" order="BEFORE">-->
+            <!--select seq_code_mst_pdm.nextval from dual-->
+        <!--</selectKey>-->
+        <!--insert into code_mst_pdm (-->
+            <!--rawid, code, name, ordering, default_yn, description, used_yn, category-->
+        <!--) values (-->
+            <!--#{codeId},-->
+            <!--#{code},-->
+            <!--#{name},-->
+            <!--#{codeOrder},-->
+            <!--#{defaultCode, typeHandler=yn},-->
+            <!--#{description},-->
+            <!--#{used_yn, typeHandler=yn},-->
+            <!--#{category}-->
+        <!--)-->
+    <!--</insert>-->
+    <delete id="delete">
+        delete from code_mst_pdm
+        where rawid = #{codeId}
+    </delete>
+
+
+    <select id="selectCodeList" resultType="com.bistel.a3.portal.domain.pdm.std.master.STDCode">
+        select
+        a.rawid,
+        a.code,
+        a.name,
+        a.ordering,
+        a.default_yn,
+        a.description,
+        a.used_yn,
+        a.category
+        from code_mst_pdm a
+        order by category ,ordering,name
+        <!--join code_category_a3 b-->
+        <!--on b.category = a.category-->
+        <!--join app_a3 c-->
+        <!--on c.app_id = b.app_id-->
+    </select>
+
+    <!--<select id="selectCodeByCategoryId" resultMap="BaseResultMap">-->
+        <!--select-->
+        <!--a.rawid as code_id,-->
+        <!--a.code,-->
+        <!--a.name,-->
+        <!--a.ordering,-->
+        <!--a.default_yn,-->
+        <!--a.description,-->
+        <!--a.used_yn,-->
+        <!--a.category-->
+        <!--from code_mst_pdm a-->
+        <!--&lt;!&ndash;join code_category_a3 b&ndash;&gt;-->
+        <!--&lt;!&ndash;on b.category = a.category&ndash;&gt;-->
+        <!--&lt;!&ndash;join app_a3 c&ndash;&gt;-->
+        <!--&lt;!&ndash;on c.app_id = b.app_id&ndash;&gt;-->
+        <!--where a.category=#{category};-->
+    <!--</select>-->
+
+    <update id="updateCode">
+        update code_mst_pdm
+        set code = #{code},
+        name = #{alarm},
+        codeOrder=#{codeOrder},
+        defaultCode=#{defaultCode, typeHandler=yn},
+        used_yn= #{used_yn, typeHandler=yn},
+        description=#{description},
+        category=#{category}
+        where rawid = #{codeId}
+    </update>
+
+    <delete id="deleteByCodeId">
+        delete from code_mst_pdm
+        where rawid = #{codeId}
+    </delete>
+
+    <select id="selectCategories" resultType="java.lang.String">
+        select distinct category from code_mst_pdm order by category
+    </select>
+
+<!--Allen 2018-04-13 -->
+    <insert id="insertSTDCode">
+        <selectKey resultType="Long" keyProperty="rawId" order="BEFORE">
+            select seq_code_mst_pdm.nextval from dual
+        </selectKey>
+        insert into code_mst_pdm(rawId,category,code,name,used_yn,default_yn,ordering,description,create_by,create_dtts,update_by,update_dtts)
+        values(
+        #{rawId},
+        #{category},
+        #{code},
+        #{name},
+        #{used_yn, typeHandler=yn},
+        #{default_yn, typeHandler=yn},
+        #{ordering},
+        #{description},
+        #{create_by},
+        SYSDATE,
+        #{update_by},
+        SYSDATE
+        )
+    </insert>
+
+    <update id="updateSTDCode">
+        update code_mst_pdm
+        set category=#{category},
+        code=#{code},
+        name=#{name},
+        used_yn=#{used_yn, typeHandler=yn},
+        default_yn=#{default_yn, typeHandler=yn},
+        description=#{description,jdbcType=VARCHAR},
+        update_by=#{update_by},
+        update_dtts=SYSDATE
+        where rawid = #{rawId}
+    </update>
+
+    <update id="updateSTDCodeOrdering">
+        update code_mst_pdm
+        set ordering=#{ordering},
+        update_by=#{update_by}
+        where rawid=#{rawId}
+    </update>
+
+    <select id="selectMaxOrdering" resultType="java.lang.Integer">
+        select max(ordering)
+        from code_mst_pdm
+    </select>
+
+
+
+
+
+
+
+
+
+</mapper>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bistel.a3.portal.dao.pdm.std.trace.STDElectricMapper">
+    <select id="selectDeviceByEqpId" resultType="com.bistel.a3.portal.domain.pdm.DeviceTable">
+        select *
+        from devicetable
+        where idnode = #{eqpId}
+    </select>
+
+    <select id="selectElectricData" resultType="com.bistel.a3.portal.domain.pdm.ElectricData">
+        select datasavedtime, millisecond, ${tag} as data
+        from realtable
+        where datasavedtime <![CDATA[>=]]> #{start}
+        and datasavedtime <![CDATA[<]]> #{end}
+        order by datasavedtime, millisecond
+    </select>
+</mapper>
