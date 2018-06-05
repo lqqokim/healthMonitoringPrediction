@@ -1,0 +1,64 @@
+<div class="form-horizontal" *ngIf="dataRole">
+    <div class="a3-input-wrapper">
+        <div class="form-group a3-input-group" [ngClass]="!isRoleIdValid ? 'has-error' : null || isSameRoleId ? 'has-error' : null">
+            <label for="inputRoleID" class="control-label">Role ID <span class="a3-asterisk">*</span></label>
+            <input type="text" class="form-control" id="inputRoleID" placeholder="Role ID" (keyup)="roleIdKeyUp($event)" [(ngModel)]="dataRole.roleId" [disabled]="status!='create'">
+            <ul class="help-block" >
+                <li *ngIf="!isRoleIdValid">Role ID를 입력해주세요.</li>
+                <li *ngIf="isSameRoleId">동일한 RoleId가 존재합니다.</li>
+            </ul>
+        </div>
+        <div class="form-group a3-input-group">
+            <label for="inputDesc" class="control-label">Description</label>
+            <input type="text" class="form-control" id="inputDesc" placeholder="Description" [(ngModel)]="dataRole.description">
+        </div>
+    </div>
+
+    <div class="form-group a3-table-wrapper">
+        <div class="a3-table-header clearfix">
+          <div class="col-sm-5">Selected RoleID</div>
+          <div class="col-sm-2"></div>
+          <div class="col-sm-5">RoleID List</div>
+        </div>
+        <div class="col-sm-5 a3-lists">
+          <div class="a3-table-title clearfix">
+            <label>Role ID</label>
+          </div>
+          <div class="table-responsive a3-table-lists">
+            <div class="a3-validation">Role ID를 입력해주세요.</div>
+            <table class="table">
+              <tbody>
+                <tr *ngFor="let childRoleId of childRoleIdList" (click)="selectConditionRoleRow(childRoleId)" [ngClass]="{rowSelected:childRoleId===selectedChildRoleData}">
+                  <td>{{childRoleId}}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="col-sm-2 a3-arrow-wrapper">
+          <button type="button" class="btn btn-default a3-arrow-btn" [disabled]="selectedRoleData==null" (click)="onClickLeft();">
+            <i class="fa fa-arrow-left" aria-hidden="true"></i>
+          </button>
+          <button type="button" class="btn btn-default a3-arrow-btn" [disabled]="selectedChildRoleData==null" (click)="onClickRight();">
+            <i class="fa fa-arrow-right" aria-hidden="true"></i>
+          </button>
+        </div>
+        <div class="col-sm-5 a3-lists">
+          <div class="a3-table-title clearfix">
+            <label>Role ID</label>
+          </div>
+          <div class="table-responsive a3-table-lists">
+            <table class="table">
+              <tbody>
+                <tr *ngFor="let roleId of roleIdList" (click)="selectRoleRow(roleId)" [ngClass]="{rowSelected:roleId===selectedRoleData}">
+                  <td>{{roleId}}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+    </div>
+    <div [ngClass]="isPermissionValid? null : 'a3-lists has-error'" >
+      <role-permission [data]="dataRole" (selectChange)="onSelectChange($event)"></role-permission>
+    </div>
+  </div>

@@ -1,0 +1,12 @@
+.header-btn.mst-info-part{
+    float: right;
+    padding: 0 8px 8px 0;
+}
+.master-info-path-top{
+    height: calc(100% - 77px);
+    width: 100%;
+}
+.master-info-path-bottom{
+width: 100%;
+height: calc(100% - 88px);
+}

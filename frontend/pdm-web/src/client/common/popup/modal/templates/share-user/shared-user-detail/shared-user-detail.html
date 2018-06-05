@@ -1,0 +1,45 @@
+<!-- User slide screen -->
+<!-- a3-slide-open이면 슬라이드가 오픈된다. <div class="a3-shared-info a3-slide-open user"> -->
+<div class="a3-shared-info user" [ngClass]="{'a3-slide-open user': isOpen}">
+    <div class="modal-header no-border clearfix">
+        <span class="a3-back-icon" (click)="close()"></span>
+    </div>
+    <div class="modal-body">
+        <div class="a3-basic-info">
+            <div class="a3-title-img"></div>
+            <h1 class="modal-title">
+                <span class="a3-user-name"><span>{{userInfo.name}}</span></span>
+            </h1>
+        </div>
+        <ul class="a3-shared-user-wrapper">
+            <li>
+                <span class="a3-title">Group ID</span>
+                <span>{{userInfo.groupId}}</span>
+            </li>
+            <li>
+                <span class="a3-title">User ID</span>
+                <span>{{userInfo.userId}}</span>
+            </li>
+            <li>
+                <span class="a3-title">Email</span>
+                <span>{{userInfo.email}}</span>
+            </li>
+            <li>
+                <span class="a3-title">Phone</span>
+                <span>{{userInfo.phone}}</span>
+            </li>
+            <li>
+                <span class="a3-title">Position</span>
+                <span>{{userInfo.position}}</span>
+            </li>
+            <li>
+                <span class="a3-title">Department</span>
+                <span>{{userInfo.department}}</span>
+            </li>
+            <li>
+                <span class="a3-title">Company Phone</span>
+                <span>{{userInfo.companyPhone}}</span>
+            </li>
+        </ul>
+    </div>
+</div>

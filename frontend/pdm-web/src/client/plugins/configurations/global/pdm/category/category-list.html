@@ -1,0 +1,46 @@
+<!--auto modeling-->
+<div class="package-management job-history-container">
+    <!-- <span class="title">Condition</span> -->
+    <div class="a3-modeling-filter-area">
+        <div class="pdm-timeline-group clearfix">
+            <div class="code-btn-group">
+                <button class="btn btn-default" type="button" (click)="deleteCategory()" [disabled]="btnDisabled">Delete</button>
+                <button class="btn btn-default" type="button" (click)="showModal('modify')">Modify</button>
+                <button class="btn btn-default" type="button" (click)="showModal('create')">Create</button>
+            </div>
+        </div>
+    </div>
+    <div class="wjmo-pding">
+        <div class="a3-app-configuration-chart-wrapper no-padding">
+            <wj-flex-grid #WijmoGridInstance 
+                [itemsSource]="categoryDatas" 
+                [allowDragging]="'None'" 
+                [isReadOnly]="true" 
+                [selectionMode]="'Row'"
+                [headersVisibility]="'Column'" 
+                (selectionChanged)="selectedRow(WijmoGridInstance, $event)">
+                <wj-flex-grid-filter #filter></wj-flex-grid-filter>
+                <!-- <wj-flex-grid-column [width]="'*'" [header]="'Category ID'" [binding]="'categoryId'" [align]="'center'"></wj-flex-grid-column> -->
+                <wj-flex-grid-column [width]="'*'" [header]="'Category Name'" [binding]="'categoryName'" [align]="'center'"></wj-flex-grid-column>
+            </wj-flex-grid>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="categoryModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="myModalLabel">{{modalTitle}} Modal</h4>
+        </div>
+        <div class="modal-body">
+            <category-modify #categoryModify [data]="categoryData"></category-modify>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" (click)="saveData()">Apply</button>
+        </div>
+        </div>
+    </div>
+</div>

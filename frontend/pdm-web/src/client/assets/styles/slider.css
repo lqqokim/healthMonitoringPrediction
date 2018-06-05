@@ -1,0 +1,46 @@
+.a3-chart-header input.slider {
+  float: right;
+}
+
+input.slider {
+  -webkit-appearance: none;
+  width: 160px;
+  height: 16px;
+  margin: 10px 50px;
+  background: linear-gradient(to right, #ddd 0%, #ddd 100%);
+  background-size: 150px 6px;
+  background-position: center;
+  background-repeat: no-repeat;
+  overflow: hidden;
+  outline: none;
+  zoom: 130%;
+  display: block;
+  margin: auto;
+  border: 0px;
+}
+
+input.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 13px;
+  height: 13px;
+  background: #666;
+  position: relative;
+  z-index: 3;
+  border-radius: 2px;
+}
+
+input.slider::-webkit-slider-thumb:hover {
+  background: #444;
+}
+
+input.slider::-webkit-slider-thumb:after {
+  content: " ";
+  width: 160px;
+  height: 10px;
+  position: absolute;
+  z-index: 1;
+  right: 20px;
+  top: 5px;
+  background: #2ecc71;
+}
+/*# sourceMappingURL=slider.css.map */

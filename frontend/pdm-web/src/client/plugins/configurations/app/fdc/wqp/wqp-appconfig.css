@@ -1,0 +1,87 @@
+.app-configuration .wqp-appconfig {
+  height: 100%;
+}
+.app-configuration .a3-file-name {
+  line-height: 28px;
+}
+.a3-change-file label {
+  display: inline-block;
+  padding: 4px 10px;
+  margin-left: 10px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 2px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.1s ease-in-out;
+}
+.a3-change-file label:hover {
+  background-color: #e6e6e6;
+}
+.a3-change-file input[type="file"] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip:rect(0,0,0,0);
+  border: 0;
+}
+.app-configuration .choose-file-wrapper {
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  -ms-flex-direction: column;
+  -webkit-flex-direction: column;
+          flex-direction: column;
+  text-align: center;
+  margin-top: 200px;
+}
+.app-configuration .choose-file-wrapper ul {
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  -ms-flex-pack: center;
+  -webkit-justify-content: center;
+          justify-content: center;
+}
+.app-configuration .choose-file-wrapper .fa-download {
+  color: #949ea7;
+  font-size: 126px;
+}
+.a3-choose-file label {
+  display: inline-block;
+  padding: 12px 40px;
+  margin-top: 10px;
+  background-color: #eee;
+  border: 1px solid #ccc;
+  border-radius: 2px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.1s ease-in-out;
+}
+.a3-choose-file label:hover {
+  background-color: #ccc;
+}
+.a3-choose-file input[type="file"] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip:rect(0,0,0,0);
+  border: 0;
+}
+.wqp-appconfig .wj-alt:not(.wj-header):not(.wj-group):not(.wj-state-selected) {
+  background: #f9f9f9;
+}
+.wqp-appconfig .wj-alt:not(.wj-header):not(.wj-group):not(.wj-state-multi-selected) {
+  background: #f9f9f9;
+}
+.wqp-appconfig .wj-state-selected,
+.wqp-appconfig .wj-state-multi-selected {
+  background-color: transparent;
+  color: #333;
+}

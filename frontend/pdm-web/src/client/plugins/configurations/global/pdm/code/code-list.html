@@ -1,0 +1,165 @@
+<!--auto modeling-->
+<div class="package-management job-history-container">
+    <div a3-spinner #componentSpinner [type]="'component'" style="position:relative;"></div>
+    <!-- <span class="title">Condition</span> -->
+    <div class="a3-modeling-filter-area">
+        <div class="pdm-timeline-group">
+            <div class="fab-label">
+                <label for="inputFab">Fab</label>
+                <select class="form-control" [(ngModel)]="selectedFab" (ngModelChange)="changeSelectedFab($event)">
+                    <option *ngFor="let plant of plants" [ngValue]="plant" [selected]="plant.fabId === selectedFab.fabId">
+                        {{plant.fabName}}
+                    </option>
+                </select>
+            </div>
+
+            <div class="fab-label">
+                <label class="control-label">Category</label>
+                <select class="form-control" [(ngModel)]="selectedCategory" (ngModelChange)="onCategoryChange($event)">
+                    <option *ngFor="let category of categoryFilterDatas" [ngValue]="category" [selected]="category.categoryId === selectedCategory.categoryId">
+                        {{category.categoryName}}
+                    </option>
+                </select>
+            </div>
+
+            <!-- <div class="fab-label">
+                <label class="control-label">Category</label>
+                <select class="form-control" [(ngModel)]="selectedCategory" (ngModelChange)="onCategoryChange($event)">
+                    <option *ngFor="let category of categoryDatas" [ngValue]="category">
+                        {{category.categoryName}}
+                    </option>
+                </select>
+            </div> -->
+
+            <div class="code-category">
+                <div class="a3-arrow-wrapper horizontal">
+                    <button type="button" [disabled]="downDisabled" class="btn btn-default btn-lg" (click)="onClickDown();" [disabled]="selectedCategory && selectedCategory.categoryName!=undefined &&selectedCategory.categoryName === 'ALL'">
+                        <span class="glyphicon glyphicon-arrow-down" aria-hidden="true"></span>
+                    </button>
+                    <button type="button" [disabled]="upDisabled" class="btn btn-default btn-lg" (click)="onClickUp();" [disabled]="selectedCategory && selectedCategory.categoryName!=undefined &&selectedCategory.categoryName === 'ALL'">
+                        <span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span>
+                    </button>
+                    <button class="btn btn-default" type="button" (click)="saveOrder()" [disabled]="selectedCategory && selectedCategory.categoryName!=undefined && selectedCategory.categoryName === 'ALL'">Order</button>
+                </div>
+                <div class="code-btn-group pull-right">
+                    <button class="btn btn-default" type="button" (click)="deleteCode()" [disabled]="btnDisabled">Delete</button>
+                    <button class="btn btn-default" type="button" (click)="showModal('modify')" [disabled]="btnDisabled">Modify</button>
+                    <button class="btn btn-default" type="button" (click)="showModal('create')">Create</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="a3-app-configuration-body">
+        <div class="a3-app-configuration-chart-wrapper no-padding">
+            <wj-flex-grid #WijmoGridInstance [itemsSource]="codeDatas" [allowDragging]="'None'" [isReadOnly]="true" [selectionMode]="'Row'"
+                [headersVisibility]="'Column'" (selectionChanged)="selectedRow(WijmoGridInstance, $event)">
+                <!-- <wj-flex-grid-filter #filter></wj-flex-grid-filter> -->
+                <!-- <wj-flex-grid-column [width]="'*'" [header]="'Code Id'" [binding]="'codeId'" [align]="'center'"></wj-flex-grid-column> -->
+                <wj-flex-grid-column [width]="'*'" [header]="'Name'" [binding]="'name'"></wj-flex-grid-column>
+                <wj-flex-grid-column [width]="'*'" [header]="'Code'" [binding]="'code'"></wj-flex-grid-column>
+                <wj-flex-grid-column [width]="'*'" [header]="'Category'" [binding]="'category'"></wj-flex-grid-column>
+                <wj-flex-grid-column [width]="'*'" [header]="'Used'" [binding]="'used_yn'"></wj-flex-grid-column>
+                <wj-flex-grid-column [width]="'*'" [header]="'Default'" [binding]="'default_yn'"></wj-flex-grid-column>
+                <wj-flex-grid-column [width]="'*'" [header]="'Order'" [binding]="'ordering'" [align]="'center'"></wj-flex-grid-column>
+                <wj-flex-grid-column [width]="'*'" [header]="'Description'" [binding]="'description'"></wj-flex-grid-column>
+            </wj-flex-grid>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="codeModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="myModalLabel">{{modalTitle}} Modal</h4>
+            </div>
+            <form #codeForm="ngForm">
+                <div class="modal-body">
+                    <!-- <code-modify #codeModify [data]="codeData"></code-modify> -->
+                    <div class="a3-form-group" *ngIf="codeData">
+                        <div class="form-group a3-input-group">
+                            <label class="control-label">Name
+                                <span class="a3-asterisk">*</span>
+                            </label>
+                            <input type="text" class="form-control" (keypress)="nameKeypress($event)" [(ngModel)]="codeData.name" name="name" required #name="ngModel">
+                            <div *ngIf="name.errors && (name.dirty || name.touched)" class="alert alert-danger">
+                                <div [hidden]="!name.errors.required">
+                                    Name is required!
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group a3-input-group">
+                            <label class="control-label">Code
+                                <span class="a3-asterisk">*</span>
+                            </label>
+                            <input type="text" class="form-control" (keypress)="codeKeypress($event)" [(ngModel)]="codeData.code" name="code" required #code="ngModel">
+                            <div *ngIf="code.errors && (code.dirty || code.touched)" class="alert alert-danger">
+                                <div [hidden]="!code.errors.required">
+                                    Code is required!
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group a3-input-group">
+                            <label class="control-label">Category
+                                <span class="a3-asterisk">*</span>
+                            </label>
+                            
+                            <input type="checkbox" (click)="isChecked = !isChecked; changeCheck($event, codeData.category);" [checked]="isChecked"/>Direct Input
+                            
+                            <select *ngIf="!isChecked" class="form-control" [(ngModel)]="codeData.category" name="categorySelect" required #categorySelect="ngModel">
+                                <option *ngFor="let category of categoryDatas" [ngValue]="category.categoryName">{{category.categoryName}}</option>
+                            </select>
+
+                            <input *ngIf="isChecked" type="text" class="form-control" [(ngModel)]="codeData.category" name="category" required #category="ngModel">
+                            <!-- <div *ngIf="isChecked && category.errors && (category.dirty || category.touched)" class="alert alert-danger">
+                                <div [hidden]="!category.errors.required">
+                                    Category is required!
+                                </div>
+                            </div> -->
+                        </div>
+
+                        <div class="form-group a3-input-group">
+                            <label class="control-label">Used
+                                <span class="a3-asterisk">*</span>
+                            </label>
+                            <select class="form-control" [(ngModel)]="codeData.used_yn" name="usedYn" required #usedYn="ngModel">
+                                <option *ngFor="let used of useds" [ngValue]="used.value">{{used.label}}</option>
+                            </select>
+                            <div *ngIf="usedYn.errors && (usedYn.dirty || usedYn.touched)" class="alert alert-danger">
+                                <div [hidden]="!usedYn.errors.required">
+                                    Used is required!
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group a3-input-group">
+                            <label class="control-label">Default
+                                <span class="a3-asterisk">*</span>
+                            </label>
+                            <select class="form-control" [(ngModel)]="codeData.default_yn" name="defaultYn" required #defaultYn="ngModel">
+                                <option *ngFor="let default of defaults" [ngValue]="default.value">{{default.label}}</option>
+                            </select>
+                            <div *ngIf="defaultYn.errors && (defaultYn.dirty || defaultYn.touched)" class="alert alert-danger">
+                                <div [hidden]="!defaultYn.errors.required">
+                                    Default is required!
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group a3-input-group">
+                            <label class="control-label">Description</label>
+                            <input type="text" class="form-control" [(ngModel)]="codeData.description" name="description">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" (click)="closeModal();">Close</button>
+                    <button type="button" class="btn btn-primary" [disabled]="!codeForm.form.valid" (click)="saveData()">Apply</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

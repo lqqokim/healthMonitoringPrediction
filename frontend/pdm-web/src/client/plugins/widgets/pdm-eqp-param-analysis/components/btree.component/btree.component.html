@@ -1,0 +1,12 @@
+<!-- <div #tree class="btree-container"></div> -->
+<wj-tree-view #tv 
+    [ngClass]="'custom-tree'"
+    [itemsSource]="datas" 
+    [displayMemberPath]="'title'" 
+    [childItemsPath]="'children'" 
+    [isAnimated]="true" 
+    [autoCollapse]="false"
+    [expandOnClick]="false"
+    [imageMemberPath]="'icon'"
+    (itemClicked)="selectedNode(tv)">
+</wj-tree-view>

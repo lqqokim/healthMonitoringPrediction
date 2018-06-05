@@ -1,0 +1,485 @@
+/* Parameter Categorization App config */
+
+.parameter-category-appconfig {
+    height: 100%;
+    width: 100%;
+}
+
+.parameter-category-appconfig .a3-app-configuration-body {
+    width: 100%;
+    height: 100%;
+}
+
+.parameter-category-appconfig .a3-sub-title {
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 38px;
+}
+
+.parameter-category-appconfig .header-btn .btn span {
+    padding-right: 4px;
+}
+
+.parameter-category-appconfig .header-btn .btn .fa-download {
+    margin-right: 3px;
+}
+
+.parameter-category-appconfig .a3-category-wrapper {
+    width: 100%;
+    height: 250px;
+}
+
+.parameter-category-appconfig .a3-category-wrapper .a3-category-table {
+    overflow: auto;
+    height: 210px;
+    margin: 10px;
+    width: calc(100% - 20px);
+    border: 1px solid #ddd;
+    border-left: 0px;
+    border-right: 0px;
+}
+
+.parameter-category-appconfig .a3-category-wrapper .a3-category-table .a3-table-head {
+    background-color: #f5f5f5;
+    height: 35px;
+}
+
+.parameter-category-appconfig .a3-category-wrapper .a3-category-table .a3-table-body {
+    height: calc(100% - 35px);
+}
+
+.parameter-category-appconfig .a3-category-wrapper .a3-category-table .a3-table-empty {
+    width: 100%;
+    height: 100%;
+    font-weight: bold;
+    margin-top: 3rem;
+    text-align: center;
+}
+
+.parameter-category-appconfig .a3-category-wrapper .a3-category-table .a3-table-cell {
+    padding: 3px;
+    border-bottom: 1px solid #ddd;
+    border-top: transparent;
+    height: 35px;
+}
+
+.parameter-category-appconfig .a3-category-wrapper .a3-category-table .a3-table-row:last-child .a3-table-cell {
+    border-bottom: none;
+}
+
+.parameter-category-appconfig .a3-category-wrapper .a3-category-table .a3-table-cell.checkbox {
+    width: 5%;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.parameter-category-appconfig .a3-category-wrapper .a3-category-table .a3-table-cell.checkbox label {
+    min-height: 12px;
+}
+
+.parameter-category-appconfig .a3-category-wrapper .a3-category-table .a3-table-cell.category {
+    width: 25%;
+    text-align: left;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.parameter-category-appconfig .a3-category-wrapper .a3-category-table .a3-table-cell.description {
+    width: 45%;
+    text-align: left;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.parameter-category-appconfig .a3-category-wrapper .a3-category-table .a3-table-cell.color {
+    width: 10%;
+}
+
+.parameter-category-appconfig .a3-category-wrapper .a3-category-table .a3-table-cell.display {
+    width: 15%;
+}
+
+.parameter-category-appconfig .a3-category-wrapper .a3-category-table .color .selected-color {
+    width: 12px;
+    height: 12px;
+    margin: auto;
+    transition: all 0.1s ease-in-out;
+}
+
+.parameter-category-appconfig .a3-category-wrapper .a3-category-table .color .selected-color:hover {
+    opacity: 0.7;
+}
+
+.parameter-category-appconfig .a3-category-wrapper .a3-category-table .display .form-control {
+    width: 50px;
+    margin: auto;
+    height: 23px;
+}
+
+.parameter-category-appconfig .a3-category-wrapper .a3-category-table .a3-table-cell .a3-table-text {
+    border: 1px solid transparent;
+    width: 100%;
+    top: 0;
+    left: -2px;
+    float: left;
+    display: inline-block;
+    position: relative;
+    border-radius: 2px;
+    text-align: left;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    padding: 4px 24px 4px 2px;
+}
+
+.parameter-category-appconfig .a3-category-wrapper .a3-category-table .a3-table-cell .a3-table-text:hover {
+    border: 1px solid #cecece;
+    background-color: #eee;
+    padding: 4px 24px 4px 2px;
+    height: 28px;
+}
+
+.parameter-category-appconfig .a3-category-wrapper .a3-category-table .a3-table-cell .a3-table-text:hover i.input-text {
+    display: inline-block;
+}
+
+.parameter-category-appconfig .a3-category-wrapper .a3-category-table .a3-table-cell .a3-table-text .i.input-text {
+    color: #979B9E;
+    position: absolute;
+    top: 7px;
+    right: 8px;
+    display: none;
+    margin-left: 10px;
+    font-size: 14px;
+}
+
+.parameter-category-appconfig .a3-category-wrapper .a3-category-table .a3-table-cell .a3-table-text .form-control {
+    padding: 4px 4px 4px 2px;
+}
+
+.parameter-category-appconfig .a3-category-wrapper .a3-category-table .a3-table-cell .a3-table-text.a3-table-edit-text {
+    float: left;
+    display: inline-block;
+    padding: 0;
+    border: transparent;
+}
+
+.parameter-category-appconfig .a3-parameter-wrapper {
+    width: 100%;
+    height: calc(100% - 250px);
+}
+
+.parameter-category-appconfig .a3-parameter-wrapper .a3-parameter-table {
+    width: calc(100% - 20px);
+    height: calc(100% - 60px);
+    margin: 10px;
+    overflow: hidden;
+    /*border: 1px solid #ddd;*/
+}
+
+.parameter-category-appconfig .a3-parameter-wrapper .a3-parameter-table .wj-cell .parameter-color {
+    height: 10px;
+    width: 10px;
+    display: inline-table;
+    border-radius: 2px;
+    margin-right: 3px;
+}
+
+.parameter-category-appconfig .a3-parameter-wrapper .a3-parameter-table .wj-cell .parameter-text {
+    display: inline-block;
+    word-break: break-word;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    margin-right: 3px;
+}
+
+.parameter-category-appconfig .a3-parameter-wrapper .a3-parameter-table .parameterlist {
+    padding: 2px 5px;
+}
+
+
+/* Modal */
+
+.a3-import-modal .a3-find-file-wrapper .a3-sub-title {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.a3-import-modal .a3-find-file-wrapper input[type="file"] {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+}
+
+.a3-import-modal .a3-find-file-wrapper .a3-file-group {
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-align-items: center;
+    -ms-flex-align: center;
+    align-items: center;
+}
+
+.a3-import-modal .a3-find-file-wrapper .a3-file-warning {
+    color: #FF4A4A;
+    margin-top: 4px;
+}
+
+.a3-import-modal .a3-find-file-wrapper .upload-label {
+    display: inline-block;
+    padding: 5px 10px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    background: #eee;
+    border-radius: 2px 0 0 2px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.1s ease-in-out;
+}
+
+.a3-import-modal .a3-find-file-wrapper .a3-file-name {
+    display: inline-block;
+    padding-left: 6px;
+    transition: all 0.1s ease-in-out;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    height: 30px;
+    line-height: 26px;
+    border: solid 1px #ccc;
+    border-left: 0;
+    border-radius: 0 2px 2px 0;
+    width: 100%;
+}
+
+.a3-import-modal .csv-guide {
+    float: left;
+    margin-top: 20px;
+    width: 100%;
+    overflow-x: auto;
+}
+
+.a3-import-modal .csv-guide .panel-body {
+    float: left;
+    width: calc(100% - 71px);
+    box-sizing: content-box;
+}
+
+.a3-import-modal .csv-guide .panel-body table {
+    min-width: 490px;
+}
+
+.a3-import-modal .csv-guide .panel-body tbody tr {
+    cursor: default;
+}
+
+.a3-import-modal .csv-guide .caption-1 {
+    margin-bottom: 30px;
+    margin-top: 10px;
+}
+
+.a3-import-modal .glyphicon {
+    margin-top: 24px;
+    margin-left: 16px;
+    width: 25px;
+    float: left;
+    color: #ffb500;
+}
+
+.a3-import-modal .csv-guide .caption-2 {
+    margin-bottom: 10px;
+}
+
+.a3-import-modal .caption-1 h4 {
+    margin-bottom: 8px;
+}
+
+.a3-import-modal .caption-2 h4 {
+    margin-bottom: 8px;
+}
+
+.a3-cofirm-modal .modal-header {
+    display: none;
+}
+
+.a3-cofirm-modal .modal-body {
+    padding: 30px 25px 10px;
+}
+
+.a3-cofirm-modal .modal-footer {
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-align-items: center;
+    -ms-flex-align: center;
+    align-items: center;
+    -webkit-justify-content: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    padding: 7px 25px 20px;
+}
+
+.a3-parameterlist-modal {
+    overflow: hidden;
+}
+
+.a3-parameterlist-modal .modal-body {
+    overflow-x: hidden;
+    overflow-y: auto;
+    min-height: 400px;
+}
+
+.a3-parameterlist-modal .a3-parameterlist-dropdown {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.a3-parameterlist-modal .a3-parameterlist-dropdown .a3-parameterlist-label {
+    margin-right: 10px;
+}
+
+.a3-parameterlist-modal .dropdown-menu .categorization-list {
+    width: 10px;
+    height: 10px;
+    margin-right: 5px;
+    display: inline-block;
+    border-radius: 2px;
+}
+
+.a3-parameterlist-modal .dropdown-menu.open {
+    display: block;
+}
+
+.a3-parameterlist-modal .parameterlist-area {
+    min-height: 300px;
+    max-height: 600px;
+}
+
+.a3-parameterlist-modal .dropdown-menu {
+    max-width: 400px;
+}
+
+.a3-parameterlist-modal .dropdown-menu>li>a {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+
+/* color contextmenu */
+
+.a3-tooltip.a3-tooltip-category {
+    position: absolute;
+    background-color: #ffffff;
+    border: 1px solid #cccccc;
+    border-radius: 3px;
+    z-index: 1000;
+    width: 222px;
+    min-width: 222px;
+}
+
+.a3-tooltip.a3-tooltip-category .title {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.a3-tooltip.a3-tooltip-category .menu-wrapper {
+    padding: 0;
+}
+
+.a3-tooltip.a3-tooltip-category .category-color-group {
+    float: none;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-flex-wrap: nowrap;
+    -ms-flex-wrap: nowrap;
+    flex-wrap: nowrap;
+    overflow: auto;
+    -webkit-justify-content: space-around;
+    -ms-flex-pack: distribute;
+    justify-content: space-around;
+}
+
+.a3-tooltip.a3-tooltip-category .category-color-group:last-child {
+    margin-top: 5px;
+}
+
+.a3-tooltip.a3-tooltip-category .category-color {
+    float: left;
+    margin-right: 10px;
+    width: 27px;
+    height: 27px;
+    border-radius: 50%;
+    background-color: #eee;
+    cursor: pointer;
+    transition: all 0.1s ease-in-out;
+}
+
+.a3-tooltip.a3-tooltip-category .category-color:last-child {
+    margin: 0;
+}
+
+.a3-tooltip.a3-tooltip-category .category-color:hover {
+    opacity: 0.7;
+}
+
+.a3-tooltip.a3-tooltip-category .category-color.selected {
+    border: solid 2px #333;
+}
+
+.a3-tooltip.a3-tooltip-category .category-color.selected:hover {
+    opacity: 1;
+}
+
+
+/* wijmo */
+
+.parameter-category-appconfig .a3-parameter-table .wj-control .wj-cell input[type=checkbox] {
+    float: initial;
+    margin: 3px auto;
+}
+
+.parameter-category-appconfig .a3-parameter-table .wj-state-multi-selected.disabled {
+    color: #ddd;
+}
+
+.parameter-category-appconfig .a3-parameter-table .wj-state-selected.disabled {
+    color: #ddd;
+}
+
+.parameter-category-appconfig .a3-parameter-table .wj-cell.wj-header.wj-header-alt>div {
+    vertical-align: middle;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+.parameter-category-appconfig .a3-parameter-table .wj-cell.wj-header.wj-header-alt:first-child{
+    display: flex !important;
+    justify-content: center;
+    align-items: center;
+}
+
+.parameter-category-appconfig .a3-parameter-table .wj-cell.wj-header.wj-header-alt .wj-glyph-up {
+    position: relative;
+    margin: 0;
+    margin-right: 6px;
+}
+
+.parameter-category-appconfig .a3-parameter-table .wj-cell.wj-header.wj-header-alt .wj-glyph-down {
+    position: relative;
+    margin: 0;
+    margin-right: 6px;
+}

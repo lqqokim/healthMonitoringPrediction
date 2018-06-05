@@ -1,0 +1,65 @@
+.a3-app-configuration .fdta-appconfig {
+  height: 100%;
+}
+.a3-app-configuration .wj-cell input[type=checkbox] {
+  margin: 3px auto;
+}
+.a3-app-configuration .wj-cell.a3-modified-cell {
+	background-color: #dff0d8 !important;
+  color: #3c763d;
+}
+
+/* modal */
+.a3-fdta-config-modal {
+  width: 500px;
+  min-width: 500px;
+  font-size: 13px;
+  border-radius: 2px;
+}
+.a3-fdta-config-modal .modal-title {
+  font-weight: normal;
+}
+.a3-fdta-config-modal .a3-modal-setting-wrapper,
+.a3-fdta-config-modal .a3-algo-options-wrapper {
+  margin-bottom: 15px;
+}
+.a3-fdta-config-modal .checkbox {
+  display: table;
+  margin-top: 0px;
+}
+.a3-fdta-config-modal .checkbox input[type=checkbox] {
+  position: inherit;
+}
+.a3-fdta-config-modal .a3-input {
+  display: inline-block;
+  width: 50px;
+  margin: 0px 5px;
+}
+.a3-fdta-config-modal .a3-checkbox {
+  margin-top: 7px;
+}
+.a3-fdta-config-modal .checkbox span {
+  display: block;
+  margin-bottom: 5px;
+}
+.a3-fdta-config-modal .a3-sub-menu {
+  margin-top: 5px;
+}
+.a3-fdta-config-modal .a3-sub-menu .checkbox {
+  margin-bottom: 4px;
+}
+.a3-fdta-config-modal .a3-sub-menu input[type=checkbox] {
+  margin-top: 3px;
+}
+.a3-fdta-config-modal .checkbox.a3-disabled {
+  color: #d6d6d6;
+}
+.a3-fdta-config-modal .a3-algo-options,
+.a3-fdta-config-modal .a3-alarm-threshold {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 15px;
+}
+.a3-fdta-config-modal .a3-table-area {
+  height:200px;
+}

@@ -1,0 +1,48 @@
+<form [formGroup]="myForm">
+    <div class="form-horizontal" *ngIf="myData">
+    <div class="form-group a3-input-group" [ngClass]="formErrors.name === '' ? null : 'has-error'">
+        <label for="inputName" class="control-label">Name <span class="a3-asterisk" *ngIf="status === 'create'">*</span></label>
+        <input type="text" class="form-control" id="inputName" formControlName="name" [(ngModel)]="myData.name" [readOnly]="isReadOnly">
+            <ul class="help-block">
+                <li *ngIf="formErrors.name">{{formErrors.name}}</li>
+                <!--<li *ngIf="isSameName">동일한 Name이 존재합니다.</li>-->
+            </ul>
+    </div>
+    <div class="form-group a3-input-group">
+        <label for="inputAlias" class="control-label">Alias</label>
+        <input type="text" class="form-control" id="inputAlias" formControlName="alias" [(ngModel)]="myData.alias" [readOnly]="isReadOnly">
+    </div>
+    <div class="form-group a3-input-group">
+        <label for="inputToolName" class="control-label">Tool Name</label>
+        <input type="text" class="form-control" id="inputToolName" formControlName="toolName" [(ngModel)]="myData.toolName" readonly>
+    </div>
+    <div class="form-group a3-input-group" [ngClass]="formErrors.moduleType === '' ? null : 'has-error'">
+        <label for="inputModuleType" class="control-label">Module Type <span class="a3-asterisk" *ngIf="status === 'create'">*</span></label>
+        <select id="inputModuleType" formControlName="moduleType" [(ngModel)]="myData.moduleTypeId" class="form-control">
+            <option *ngFor="let moduleType of moduleTypes" [value]="moduleType.moduleTypeId">{{moduleType.name}}</option>
+        </select>
+        <div class="help-block" *ngIf="formErrors.moduleType">{{formErrors.moduleType}}</div>
+            <!--<div class="help-block" *ngIf="!isTypeValid">{{validationMessages.moduleType}}</div>-->
+    </div>
+    <div class="form-group a3-input-group" *ngIf="myData.parentId">
+        <label for="inputParentModule" class="control-label">Parent Module</label>
+        <input type="text" class="form-control" id="inputParentModule" formControlName="parentName" [(ngModel)]="myData.parentName" readonly>
+    </div>
+    <!--<div class="form-group a3-input-group">
+        <label for="inputModuleOrder" class="control-label">Module Order</label>
+        <input type="text" class="form-control" id="inputModuleOrder" [(ngModel)]="myData.moduleOrder" readonly>
+    </div>-->
+    <div class="form-group a3-input-group" [ngClass]="formErrors.moduleGroup === '' ? null : 'has-error'">
+        <label for="inputModuleGroup" class="control-label">Module Group <span class="a3-asterisk" *ngIf="status === 'create'">*</span></label>
+        <select id="inputModuleGroup" formControlName="moduleGroup" [(ngModel)]="myData.moduleGroupId" class="form-control">
+            <option *ngFor="let moduleGroup of moduleGroups" [value]="moduleGroup.moduleGroupId">{{moduleGroup.name}}</option>
+        </select>
+        <div class="help-block" *ngIf="formErrors.moduleGroup">{{formErrors.moduleGroup}}</div>
+            <!--<div class="help-block" *ngIf="!isGroupValid">{{validationMessages.moduleGroup}}</div>-->
+    </div>
+
+    <div class="a3-table-wrapper">
+        <module-list *ngIf="status!='create'" [toolModuleItem]="moduleItem"></module-list>
+    </div>
+    </div>
+</form>

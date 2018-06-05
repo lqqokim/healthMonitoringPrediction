@@ -1,0 +1,11 @@
+<div class="a3-input-wrapper">
+    <div class="form-group a3-input-group">
+        <form [formGroup]="myFormGroup" novalidate >
+            <label for="inputMenu" class="control-label">Name<span class="a3-asterisk">*</span></label>
+            <input type="text" class="form-control" formControlName="menuName" id="inputMenu" placeholder="Menu Name" [(ngModel)]="menu.menuName" >
+            <small [hidden]="myFormGroup.controls.menuName.valid" class="text-danger">
+                menuName is required.
+            </small>
+        </form>
+    </div>
+</div>

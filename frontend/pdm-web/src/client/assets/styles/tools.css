@@ -1,0 +1,420 @@
+/* Common */
+.a3-table-form-group .a3-table-header {
+  float: left;
+  width: 100%;
+  margin-bottom: 5px;
+}
+
+.a3-table-form-group .a3-table-header .col-sm-5 {
+  padding: 0;
+}
+
+/* Location */
+.location-appconfig {
+  height: 100%;
+}
+
+.app-configuration .location-appconfig .layout-left,
+.app-configuration .location-appconfig .layout-right {
+  height: 100%;
+}
+
+.location-appconfig .layout-left.col-4 {
+  width: 480px;
+}
+
+.location-appconfig .layout-right.col-8 {
+  width: calc(100% - 480px);
+}
+
+.location-appconfig .layout-left label {
+  padding: 3px;
+  border-radius: 2px;
+}
+
+.location-appconfig .layout-left label:hover {
+  background-color: #DAECF5;
+  color: #333;
+}
+
+.location-appconfig .layout-left .selectedNode {
+  background-color: #DAECF5;
+}
+
+.location-appconfig .layout-left ul {
+  padding-left: 20px;
+}
+
+.location-appconfig .a3-text {
+  display: inline-block;
+  line-height: 28px;
+  font-size: 14px;
+}
+
+.location-appconfig .a3-value {
+  color: #3793ff;
+}
+
+.a3-location-modal input[type=checkbox] {
+  margin-top: 7px;
+}
+
+.location-appconfig .a3-table-wrapper {
+  margin-top: 20px;
+}
+
+.app-configuration .location-appconfig wj-flex-grid .wj-cell:nth-child(1),
+.app-configuration .location-appconfig wj-flex-grid .wj-cell:nth-child(8),
+.app-configuration .location-appconfig wj-flex-grid .wj-cell:nth-child(15),
+.app-configuration .location-appconfig wj-flex-grid .wj-cell:nth-child(22) {
+  border-left: 1px solid #ddd;
+}
+
+.app-configuration .location-appconfig wj-flex-grid .wj-header {
+  border-top: 1px solid #ddd;
+}
+
+.location-appconfig .header-btn {
+  float: right;
+}
+
+/* Tool Group */
+.app-configuration .tool-group-appconfig {
+  height: 100%;
+}
+
+.a3-tool-group-modal .a3-input-wrapper {
+  margin-bottom: 15px;
+}
+
+.a3-tool-group-modal .a3-lists {
+  padding: 0px;
+  border: 1px solid #ccc;
+  border-radius: 2px;
+}
+
+.a3-tool-group-modal .a3-table-title {
+  padding: 8px;
+  border-bottom: 1px solid #ccc;
+}
+
+.a3-tool-group-modal .a3-table-title label {
+  float: left;
+  display: inline-block;
+  width: 50%;
+  font-weight: bold;
+}
+
+.a3-tool-group-modal .a3-condition-wrapper {
+  float: right;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.a3-tool-group-modal .a3-condition-selectbox {
+  float: right;
+  display: inline-block;
+  width: 140px;
+}
+
+.a3-tool-group-modal .a3-condition-title {
+  float: right;
+  margin-bottom: 0;
+  margin-right: 10px;
+  line-height: 28px;
+}
+
+.a3-tool-group-modal .rowSelected {
+  background-color: #DAECF5 !important;
+}
+
+.a3-tool-group-modal .a3-table-lists {
+  height: 306px;
+}
+
+.a3-tool-group-modal .table > tbody > tr > td {
+  width: 100px;
+  max-width: 100px;
+  border-top: none;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.a3-tool-group-modal .a3-arrow-wrapper {
+  margin: 24% 0px;
+  text-align: center;
+}
+
+.a3-tool-group-modal .a3-arrow-btn {
+  margin: 3px 0px;
+}
+
+/* Tool Model */
+.app-configuration .tool-model-appconfig,
+.app-configuration .tool-model-appconfig .a3-app-configuration-body,
+.app-configuration .tool-model-appconfig .layout-left,
+.app-configuration .tool-model-appconfig .layout-right {
+  height: 100%;
+}
+
+.app-configuration .tool-model-appconfig .layout-left,
+.app-configuration .tool-model-appconfig .layout-right {
+  overflow-y: hidden;
+}
+
+.app-configuration .tool-model-appconfig .wj-content {
+  height: calc(100% - 40px);
+}
+
+.app-configuration .tool-model-appconfig .wj-cell > div {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.app-configuration .tool-model-appconfig .wj-colheaders .wj-cell.wj-header:nth-child(6),
+.app-configuration .tool-model-appconfig .layout-left .wj-cells .wj-cell:nth-child(6n+0) {
+  border-right: none;
+}
+
+.tool-model-appconfig .layout-right .a3-sub-title {
+  font-weight: bold;
+  font-size: 14px;
+  line-height: 28px;
+}
+
+/* Inline Model */
+.a3-tool-model-version-modal .form-group.a3-input-group {
+  padding: 6px 0px 6px 120px;
+}
+
+.a3-tool-model-version-modal .form-group.a3-input-group .control-label {
+  margin-left: -120px;
+  width: 98px;
+}
+
+/* Inline Tool */
+.app-configuration .tool-inline-appconfig {
+  height: 100%;
+}
+
+.a3-inline-tool-modal .a3-input-wrapper {
+  margin-bottom: 15px;
+}
+
+.a3-inline-tool-modal .a3-lists {
+  padding: 0px;
+  border: 1px solid #ccc;
+  border-radius: 2px;
+}
+
+.a3-inline-tool-modal .a3-table-title {
+  padding: 8px;
+  border-bottom: 1px solid #ccc;
+}
+
+.a3-inline-tool-modal .a3-table-title label {
+  float: left;
+  display: inline-block;
+  width: 50%;
+  font-weight: bold;
+}
+
+.a3-inline-tool-modal .a3-condition-wrapper {
+  float: right;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.a3-inline-tool-modal .a3-condition-selectbox {
+  float: right;
+  display: inline-block;
+  width: 140px;
+}
+
+.a3-inline-tool-modal .a3-condition-title {
+  float: right;
+  margin-bottom: 0;
+  margin-right: 10px;
+  line-height: 28px;
+}
+
+.a3-inline-tool-modal .rowSelected {
+  background-color: #DAECF5 !important;
+}
+
+.a3-inline-tool-modal .a3-table-lists {
+  height: 306px;
+}
+
+.a3-inline-tool-modal .table > tbody > tr > td {
+  width: 100px;
+  max-width: 100px;
+  border-top: none;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.a3-inline-tool-modal .a3-arrow-wrapper {
+  margin: 24% 0px;
+  text-align: center;
+}
+
+.a3-inline-tool-modal .a3-arrow-btn {
+  margin: 3px 0px;
+}
+
+/* Inline Group */
+.app-configuration .tool-inline-group-appconfig {
+  height: 100%;
+}
+
+.a3-inline-group-modal .a3-input-wrapper {
+  margin-bottom: 15px;
+}
+
+.a3-inline-group-modal .a3-lists {
+  padding: 0px;
+  border: 1px solid #ccc;
+  border-radius: 2px;
+}
+
+.a3-inline-group-modal .a3-table-title {
+  padding: 8px;
+  border-bottom: 1px solid #ccc;
+}
+
+.a3-inline-group-modal .a3-table-title label {
+  float: left;
+  display: inline-block;
+  width: 50%;
+  font-weight: bold;
+}
+
+.a3-inline-group-modal .a3-condition-wrapper {
+  float: right;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.a3-inline-group-modal .a3-condition-selectbox {
+  float: right;
+  display: inline-block;
+  width: 140px;
+}
+
+.a3-inline-group-modal .a3-condition-title {
+  float: right;
+  margin-bottom: 0;
+  margin-right: 10px;
+  line-height: 28px;
+}
+
+.a3-inline-group-modal .rowSelected {
+  background-color: #DAECF5 !important;
+}
+
+.a3-inline-group-modal .a3-table-lists {
+  height: 306px;
+}
+
+.a3-inline-group-modal .table > tbody > tr > td {
+  width: 100px;
+  max-width: 100px;
+  border-top: none;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.a3-inline-group-modal .a3-arrow-wrapper {
+  margin: 24% 0px;
+  text-align: center;
+}
+
+.a3-inline-group-modal .a3-arrow-btn {
+  margin: 3px 0px;
+}
+
+/* Module Group */
+.app-configuration .tool-module-group-appconfig {
+  height: 100%;
+}
+
+.a3-module-group-modal .form-group.a3-input-group {
+  padding: 6px 0px 6px 136px;
+}
+
+.a3-module-group-modal .form-group.a3-input-group .control-label {
+  margin-left: -136px;
+  width: 120px;
+}
+
+.a3-module-group-modal .a3-input-wrapper {
+  margin-bottom: 15px;
+}
+
+.a3-module-group-modal .a3-lists {
+  padding: 0px;
+  border: 1px solid #ccc;
+  border-radius: 2px;
+}
+
+.a3-module-group-modal .a3-table-title {
+  padding: 8px;
+  border-bottom: 1px solid #ccc;
+}
+
+.a3-module-group-modal .a3-table-title label {
+  float: left;
+  display: inline-block;
+  width: 50%;
+  font-weight: bold;
+}
+
+.a3-module-group-modal .a3-condition-wrapper {
+  float: right;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.a3-module-group-modal .a3-condition-selectbox {
+  float: right;
+  display: inline-block;
+  width: 140px;
+}
+
+.a3-module-group-modal .a3-condition-title {
+  float: right;
+  margin-bottom: 0;
+  margin-right: 10px;
+  line-height: 28px;
+}
+
+.a3-module-group-modal .rowSelected {
+  background-color: #DAECF5 !important;
+}
+
+.a3-module-group-modal .a3-table-lists {
+  height: 306px;
+}
+
+.a3-module-group-modal .table > tbody > tr > td {
+  width: 100px;
+  max-width: 100px;
+  border-top: none;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.a3-module-group-modal .a3-arrow-wrapper {
+  margin: 24% 0px;
+  text-align: center;
+}
+
+.a3-module-group-modal .a3-arrow-btn {
+  margin: 3px 0px;
+}

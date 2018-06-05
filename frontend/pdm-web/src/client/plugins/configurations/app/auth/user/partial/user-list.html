@@ -1,0 +1,52 @@
+<div class="a3-app-configuration-header clearfix">
+    <div type="button" class="header-btn">
+        <button class="btn btn-default" type="button" [disabled]="!selectedData" (click)="$event.stopPropagation(); deleteUser();">Delete</button>
+        <button class="btn btn-default" type="button" [disabled]="!selectedData" (click)="$event.stopPropagation(); updateUser();">Modify</button>
+        <button class="btn btn-default" (click)="createUser()">Create</button>
+    </div>
+</div>
+
+<div class="a3-app-configuration-body">
+    <!-- User & Group 분할 영역 -->
+    <div class="a3-app-configuration-chart-wrapper no-padding">
+        <!--좌측 Hierarchy view 영역-->
+        <wj-flex-grid #flex
+        [itemsSource]="users"
+        [isReadOnly]="true"
+        [selectionMode]="'Row'"
+        [headersVisibility]="'Column'"
+        (selectionChanged)="selectedRow(flex,$event)"
+        (window:resize)="onResize($event)">
+        <wj-flex-grid-filter></wj-flex-grid-filter>
+        <wj-flex-grid-column width="*" [header]="'ID'" [binding]="'userId'"></wj-flex-grid-column>
+        <wj-flex-grid-column width="*" [header]="'Name'" [binding]="'name'"></wj-flex-grid-column>
+        <wj-flex-grid-column width="*" [header]="'Group'" [binding]="'groupId'"></wj-flex-grid-column>
+        <wj-flex-grid-column width="*" [header]="'Description'" [binding]="'description'"></wj-flex-grid-column>
+        <wj-flex-grid-column width="*" [header]="'e-mail'" [binding]="'email'"></wj-flex-grid-column>
+        <wj-flex-grid-column width="*" [header]="'Phone'" [binding]="'phone'"></wj-flex-grid-column>
+        <wj-flex-grid-column width="*" [header]="'Position'" [binding]="'position'"></wj-flex-grid-column>
+        <wj-flex-grid-column width="*" [header]="'Company Phone'" [binding]="'companyPhone'"></wj-flex-grid-column>
+        <wj-flex-grid-column width="*" [header]="'Department'" [binding]="'department'"></wj-flex-grid-column>
+        </wj-flex-grid>
+    </div>
+</div>
+
+
+<!-- Modal -->
+<!--<div class="modal fade" id="myModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close pe-7s-close" data-dismiss="modal" aria-label="Close"></button>
+                <h4 class="modal-title">{{firstCharUpper(status)}} User</h4>
+            </div>
+            <div class="modal-body">
+                <user-modify #userModify [status]="status" [data]="selectedData" [users]="users"></user-modify>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal" (click)="goLink('close');">Close</button>
+                <button type="button"  class="btn btn-default" (click)="onSave()">Apply</button>
+            </div>
+        </div>
+    </div>
+</div>-->

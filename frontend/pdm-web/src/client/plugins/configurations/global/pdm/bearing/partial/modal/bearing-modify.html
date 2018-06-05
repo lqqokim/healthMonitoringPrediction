@@ -1,0 +1,74 @@
+<form [formGroup]="registerForm">
+    <div class="a3-form-group">
+        <ul>
+            <li class="form-group a3-input-group">
+                <label for="inputFabName" class="control-label">Fab</label>
+                <input type="text" class="form-control" formControlName="fabName">
+            </li>
+            <li class="form-group a3-input-group">
+                <label for="inputModelNum" class="control-label">Model Number<span *ngIf="!isModify" class="a3-asterisk">*</span></label>
+                <input type="text" class="form-control" formControlName="modelNumber" [ngClass]="{ 'has-error': registerForm.controls.modelNumber.touched && registerForm.controls.modelNumber.invalid }">
+                <!-- <div class='form-text error' *ngIf="registerForm.controls.modelNumber.touched">
+                    <div class="text-danger" *ngIf="registerForm.controls.modelNumber.hasError('required')">Model Number is required.</div>
+                </div> -->
+                <div class='alert alert-danger' *ngIf="registerForm.controls.modelNumber.errors && (registerForm.controls.modelNumber.dirty || registerForm.controls.modelNumber.touched)">
+                    <div [hidden]="!registerForm.controls.modelNumber.hasError('required')">Model Number is required.</div>
+                </div>
+            </li>
+            <li class="form-group a3-input-group">
+                <label for="inputManufacture" class="control-label">Menufacture<span *ngIf="!isModify" class="a3-asterisk">*</span></label>
+                <input type="text" class="form-control" formControlName="manufacture" [ngClass]="{ 'has-error': registerForm.controls.manufacture.touched && registerForm.controls.manufacture.invalid }">
+                <!-- <div class='form-text error' *ngIf="registerForm.controls.manufacture.touched">
+                    <div class="text-danger" *ngIf="registerForm.controls.manufacture.hasError('required')">Menufacture is required.</div>
+                </div> -->
+                <div class='alert alert-danger' *ngIf="registerForm.controls.manufacture.errors && (registerForm.controls.manufacture.dirty || registerForm.controls.manufacture.touched)">
+                    <div [hidden]="!registerForm.controls.manufacture.hasError('required')">Menufacture is required.</div>
+                </div>
+            </li>
+            <li class="form-group a3-input-group">
+                <label for="inputBPFO" class="control-label">BPFO<span class="a3-asterisk">*</span></label>
+                <input type="text" id="inputBPFO" class="form-control" formControlName="bpfo" min="0" [ngClass]="{ 'has-error': registerForm.controls.bpfo.touched && registerForm.controls.bpfo.invalid }">
+                <!-- <div class='form-text error' *ngIf="registerForm.controls.bpfo.touched">
+                    <div class="text-danger" *ngIf="registerForm.controls.bpfo.hasError('required')">BPFO is required.</div>
+                </div> -->
+                <div class='alert alert-danger' *ngIf="registerForm.controls.bpfo.errors && (registerForm.controls.bpfo.dirty || registerForm.controls.bpfo.touched)">
+                    <div [hidden]="!registerForm.controls.bpfo.hasError('required')">BPFO is required.</div>
+                </div>
+            </li>
+            <li class="form-group a3-input-group">
+                <label for="inputBPFI" class="control-label">BPFI<span class="a3-asterisk">*</span></label>
+                <input type="text" id="inputBPFI" class="form-control" formControlName="bpfi" min="0" [ngClass]="{ 'has-error': registerForm.controls.bpfi.touched && registerForm.controls.bpfi.invalid }">
+                <!-- <div class='form-text error' *ngIf="registerForm.controls.bpfi.touched">
+                    <div class="text-danger" *ngIf="registerForm.controls.bpfi.hasError('required')">BPFI is required.</div>
+                </div> -->
+                <div class='alert alert-danger' *ngIf="registerForm.controls.bpfi.errors && (registerForm.controls.bpfi.dirty || registerForm.controls.bpfi.touched)">
+                    <div [hidden]="!registerForm.controls.bpfi.hasError('required')">BPFI is required.</div>
+                </div>
+            </li>
+            <li class="form-group a3-input-group">
+                <label for="inputBSF" class="control-label">BSF<span class="a3-asterisk">*</span></label>
+                <input type="text" id="inputBSF" class="form-control" formControlName="bsf" min="0" [ngClass]="{ 'has-error': registerForm.controls.bsf.touched && registerForm.controls.bsf.invalid }">
+                <!-- <div class='form-text error' *ngIf="registerForm.controls.bsf.touched">
+                    <div class="text-danger" *ngIf="registerForm.controls.bsf.hasError('required')">BSF is required.</div>
+                </div> -->
+                <div class='alert alert-danger' *ngIf="registerForm.controls.bsf.errors && (registerForm.controls.bsf.dirty || registerForm.controls.bsf.touched)">
+                    <div [hidden]="!registerForm.controls.bsf.hasError('required')">BSF is required.</div>
+                </div>
+            </li>
+            <li class="form-group a3-input-group">
+                <label for="inputFTF" class="control-label">FTF<span class="a3-asterisk">*</span></label>
+                <input type="text" id="inputFTF" class="form-control" formControlName="ftf" min="0" [ngClass]="{ 'has-error': registerForm.controls.ftf.touched && registerForm.controls.ftf.invalid }">
+                <!-- <div class='form-text error' *ngIf="registerForm.controls.ftf.touched">
+                    <div class="text-danger" *ngIf="registerForm.controls.ftf.hasError('required')">FTF is required.</div>
+                </div> -->
+                <div class='alert alert-danger' *ngIf="registerForm.controls.ftf.errors && (registerForm.controls.ftf.dirty || registerForm.controls.ftf.touched)">
+                    <div [hidden]="!registerForm.controls.ftf.hasError('required')">FTF is required.</div>
+                </div>
+            </li>
+            <li class="form-group a3-input-group">
+                <label for="inputDescription" class="control-label">Description</label>
+                <input type="text" id="description"  class="form-control" formControlName="description">
+            </li>
+        </ul>
+    </div>
+</form>

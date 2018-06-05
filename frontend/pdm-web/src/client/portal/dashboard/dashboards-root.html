@@ -1,0 +1,19 @@
+<!--<div class="a3-behavior"></div>-->
+<div class="a3-behavior" style="display:none"></div>
+<div class="a3-modal-behavior"></div>
+<ng2-toasty [position]="'top-center'"></ng2-toasty>
+
+<div class="a3-header-wrapper">
+    <div class="a3-header row"></div>
+</div>
+
+<div class="a3-main-container">
+    <router-outlet></router-outlet>
+</div>
+
+<div class="a3p-sidebar" (click)="$event.stopPropagation();"></div>
+<div class="a3p-filter-container" (click)="$event.stopPropagation();"></div>
+<div class="a3p-widget-configuration-container"></div>
+<div class="a3p-app-configuration"></div>
+<div class="a3p-global-configuration"></div>
+<div class="a3p-user-configuration"></div>

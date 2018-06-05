@@ -1,0 +1,14 @@
+<div class="a3-category-group clearfix">
+    <span class="a3-divider"></span>
+    <span class="a3-category-name">Category :</span>
+    <div class="dropdown pull-left">
+        <a3s-filter-color-select #filterSelector
+            [value]="selectedItems"
+            [labelField]="'label'"
+            [dataField]="'codeId'"
+            [colorField]="'color'"
+            [listData]="selectorList"
+            (apply)="filterSelectorApply($event)">
+        </a3s-filter-color-select>
+    </div>
+</div>

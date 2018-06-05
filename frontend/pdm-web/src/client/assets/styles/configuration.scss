@@ -1,0 +1,1175 @@
+/* Common */
+.a3-configuration {
+    height: 100%;
+    overflow-y: auto;
+  
+    .checkbox,
+    .radio {
+      line-height: 30px;
+    }
+  
+    a3s-multi-selector {
+      margin-right: 0;
+    }
+  }
+  
+  .a3-configuration-default {
+    background-color: #ececec;
+  }
+  
+  .a3-configuration-wrapper {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: #ececec;
+    min-width: 991px;
+    left: -5000px;
+    transition: all 0.5s ease-in-fout;
+    z-index: 550;
+    min-height: 600px;
+    top: 0;
+  }
+  
+  .a3-configuration-wrapper.active {
+    left: 0;
+    transition: all 0.8s ease-in-out;
+  }
+  
+  .a3-configuration-wrapper .a3-widget-container .a3-widget-body {
+    height: 100%;
+    border: 1px solid transparent;
+  }
+  
+  .a3-configuration-header {
+    width: 100%;
+    height: 40px;
+    background-color: #333333;
+  }
+  
+  .a3-configuration-header .a3-header-title {
+    padding-left: 13px;
+    padding-right: 6px;
+    margin-top: 6px;
+    color: #ffffff;
+    font-size: 14px;
+    font-family: verdana, sans-serif;
+  }
+  
+  .a3-configuration-header .a3-header-title .a3-title {
+    float: left;
+    line-height: 28px;
+  }
+  
+  .a3-header-back-wrapper {
+    padding-right: 13px;
+    padding-left: 6px;
+    margin-top: 6px;
+  }
+  
+  .a3-configuration-main-wrapper {
+    width: 100%;
+    height: calc(100% - 40px);
+    padding: 0 13px;
+  }
+  
+  .a3-configuration-sub-header {
+    height: 50px;
+    padding: 10px 0;
+    border-bottom: 1px solid #dddddd;
+  }
+  
+  .a3-configuration-header .a3-sub-title-edit-wrapper {
+    display: inline-block;
+    float: left;
+    margin-left: 20px;
+    margin-right: 8px;
+    position: relative;
+  }
+  
+  .a3-configuration-sub-header .a3-sub-title-edit-box {
+    width: 240px;
+  }
+  
+  .a3-configuration-sub-header .a3-navbar-modify .btn {
+    width: 33px;
+    height: 28px;
+  }
+  
+  .a3-configuration-sub-header .a3-sub-title {
+    color: #333333;
+    font-size: 14px;
+    line-height: 50px;
+  }
+  
+  .a3-subbar-title {
+    float: left;
+    position: relative;
+    display: inline-block;
+    width: 280px;
+    height: 28px;
+    padding: 4px 30px 4px 10px;
+    color: #ccc;
+    line-height: 18px;
+    font-family: verdana, sans-serif;
+    font-size: 14px;
+    border-radius: 2px;
+    text-align: left;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    border: 1px solid #545454;
+  }
+  
+  .a3-subbar-title:hover {
+    border: 1px solid #545454;
+    background-color: #555;
+  }
+  
+  .a3-subbar-title .input-text {
+    position: absolute;
+    top: 6px;
+    color: #BDBDBD;
+  }
+  
+  .a3-configuration-container {
+    width: 100%;
+    height: 100%;
+  }
+  
+  .a3-configuration-sub-container {
+    float: left;
+    height: 100%;
+    padding: 13px 0;
+  }
+  
+  .a3-configuration-sub-container .a3-configuration-forms-wrapper {
+    margin-bottom: 10px;
+  }
+  
+  .a3-configuration-sub-container .a3-configuration-forms-wrapper select {
+    width: 80px;
+    height: 28px;
+  }
+  
+  .a3-configuration-sub-container .a3-form-text {
+    float: left;
+    width: 110px;
+    margin-right: 15px;
+    line-height: 28px;
+    text-align: end;
+    line-height: 16px;
+    margin-top: 5px;
+  }
+  
+  .a3-configuration-sub-container .btn-configuration {
+    width: 174px;
+  }
+  
+  .configuration-multi-menu li a {
+    padding: 3px 10px;
+    font-size: 12px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    color: #666;
+  }
+  
+  .configuration-multi-menu li a:hover {
+    text-decoration: none;
+  }
+  
+  .a3-configuration-sub-container .a3-datetime-picker {
+    width: 174px;
+    height: 28px;
+  }
+  
+  .a3-configuration-sub-container .a3-datetime-picker input {
+    background-color: #fff;
+  }
+  
+  .a3-configuration-sub-container .a3-datetime-calendar {
+    padding: 4px 10px;
+    border-top-right-radius: 2px;
+    border-bottom-right-radius: 2px;
+    cursor: pointer;
+    background-color: #fff;
+  }
+  
+  .configuration-multi-menu {
+    font-size: 12px;
+  }
+  
+  .configuration-multi-menu .configuration-search .form-control {
+    width: 100%;
+  }
+  
+  .configuration-multi-menu .configuration-search {
+    display: -webkit-box;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+    padding: 10px;
+  }
+  
+  .a3-configuration-sub-container .check-adjustment {
+    text-decoration: none;
+  }
+  
+  .a3-configuration-sub-container .configuration-radio-wrapper {
+    margin-right: 10px;
+    margin-bottom: 0;
+    font-weight: normal;
+    line-height: 28px;
+  }
+  
+  .a3-configuration-sub-container .configuration-radio-wrapper span {
+    margin-right: 5px;
+  }
+  
+  .a3-configuration-sub-container .configuration-multi-selector {
+    display: block;
+    height: 82px;
+    padding: 5px;
+    margin-top: 5px;
+    margin-left: 125px;
+    background-color: #ececec;
+    border: 1px solid #ccc;
+    border-radius: 2px;
+    overflow-y: auto;
+  }
+  
+  .configuration-multi-selector .multi-selector-label {
+    float: left;
+    display: block;
+    height: 30px;
+    padding: 7px 9px;
+    margin: 3px;
+    background-color: #ddd;
+    border-radius: 2px;
+  }
+  
+  .configuration-multi-selector .fa.fa-close {
+    margin-left: 5px;
+    color: #666;
+  }
+  
+  .configuration-multi-selector .fa.fa-close:hover{
+    color: #333;
+  }
+  
+  .a3-configuration-sub-container .a3-form-selectbox-wrapper {
+    position: relative;
+  }
+  
+  .a3-configuration-sub-container .a3-form-selectbox {
+    float: left;
+    width: 200px;
+    cursor: pointer;
+  }
+  
+  .a3-configuration-sub-container .a3-caret {
+    float: right;
+    margin-top: 6px;
+  }
+  
+  .a3-configuration-sub-container .a3-form-textbox {
+    float: left;
+    margin-right: 5px;
+  }
+  
+  .a3-configuration-sub-container .a3-form-textbox span {
+    line-height: 29px;
+  }
+  
+  .a3-configuration-sub-container .a3-selectbox-menu {
+    display: none;
+  }
+  
+  .a3-configuration-sub-container .a3-selectbox-menu.open {
+    position: absolute;
+    top: 30px;
+    left: 43px;
+    width: 200px;
+    background-color: #ffffff;
+    padding: 4px 0;
+    border: 1px solid #cccccc;
+    border-radius: 2px;
+    box-shadow: none;
+    z-index: 560;
+  }
+  
+  .a3-configuration-sub-container .a3-selectbox-menu-list {
+    display: block;
+    padding: 4px 10px;
+    color: #333333;
+    white-space: nowrap;
+  }
+  
+  .a3-configuration-sub-container .a3-selectbox-menu-list:hover {
+    background-color: #eeeeee;
+    text-decoration: none;
+  }
+  
+  .a3-configuration-sub-container .a3-configuration-checkbox {
+    margin: 15px 0 30px 40px;
+  }
+  
+  .a3-configuration-sub-container .a3-configraion-settings {
+    margin-left: 44px;
+    color: #2779c2;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+  
+  .a3-configuration-sub-container:nth-child(1) {
+    width: 100%;
+  }
+  
+  .a3-configuration-buttons {
+    float: right;
+  }
+  
+  .a3-header-back-wrapper .a3-configuration-apply {
+    float: right;
+    display: inline-block;
+  }
+  
+  .a3-header-back-wrapper .a3-configuration-apply .btn {
+    background: #404040;
+  }
+  
+  .a3-header-back-wrapper .a3-configuration-close {
+    float: right;
+    display: inline-block;
+    margin-right: 5px;
+  }
+  
+  .a3-configuration-header .btn.btn-primary {
+    background: #333333;
+    color: #fff;
+    border: 1px solid #404040;
+  }
+  
+  .a3-configuration-header .btn.btn-primary:hover {
+    background: #555555;
+    color: #fff;
+    border: 1px solid #555555;
+  }
+  
+  .a3 .a3-configuration-default .a3-checkbox {
+    margin-top: 2px;
+    margin-left: -16px;
+  }
+  
+  .a3-configuration-widget {
+    background-color: #ffffff;
+    padding: 20px;
+    height: 100%;
+    border: 1px solid #dddddd;
+    width: 50%;
+  }
+  
+  .a3-configuration-main-wrapper .a3-configuration-widget .a3-chart-container {
+    width: calc(100% - 50px);
+    height: calc(100% - 50px);
+    border: 0;
+  }
+  
+  .a3-configuration-widget .a3-chart-container {
+    border: 0;
+  }
+  
+  .a3-sub-title-edit-wrapper .a3-subbar-edit-title {
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+  
+  .a3-subbar-title.a3-subbar-edit-title {
+    color: #555;
+    border: 1px solid #cccccc;
+  }
+  
+  .form-control:hover {
+    border: 1px solid #5da2fd;
+  }
+  /* Run Overview Widget */
+  .a3-chart-container svg text:hover {
+    text-decoration: underline;
+  }
+  
+  .a3-configuration-wrapper .a3-widget-container {
+    width: calc(100% - 50px);
+    height: calc(100% - 50px);
+    border: 0;
+  }
+  
+  .a3-configuration-wrapper .a3-widget-container:hover {
+    border: 0;
+  }
+  
+  .run-overview-text {
+    width: 149px;
+    padding-right: 0;
+    font-weight: normal;
+  }
+  
+  .run-overview-text.text-to {
+    width: auto;
+  }
+  
+  .a3-run-widget-checklist {
+    width: 100%;
+    height: 150px;
+    padding: 4px 10px;
+    overflow-y: auto;
+  }
+  
+  .a3-run-widget-checklist .form-checklist {
+    margin-bottom: 4px;
+  }
+  
+  .a3-run-widget-checklist .form-checklist:last-child {
+    margin-bottom: 0;
+  }
+  
+  .a3-form-calendar {
+    float: left;
+    width: 200px;
+    padding: 0 15px;
+    margin-bottom: 15px;
+  }
+  
+  .a3-calendar-group {
+    padding: 4px 10px;
+    border-radius: 2px;
+    cursor: pointer;
+  }
+  
+  .a3-calendar-group:hover {
+    background-color: #e1e1e1;
+  }
+  
+  .a3-configuration {
+    height: 100%;
+    padding-left: 30px;
+    overflow-y: auto;
+    width: 50%;
+  }
+  
+  .a3-configuration .col-sm-offset-2 {
+    margin-left: 150px;
+  }
+  @media (max-width: 1436px) {
+    .a3-period {
+      display: inline-block;
+      width: 100%;
+    }
+  
+    .run-overview-text.text-to {
+      width: 149px;
+    }
+  
+    .col-md-6,
+    .col-sm-6 {
+      width: 50%;
+      float: left;
+    }
+  }
+  
+  .a3-configuration .control-label {
+    float: left;
+    padding-top: 7px;
+    text-align: right;
+  }
+  
+  .a3-widget-body .float-wrapper .message-title {
+    margin-top: 2px;
+  }
+  
+  .a3-configuration-sub-container .configuration-adjustment {
+    margin-right: 3px;
+  }
+  
+  /* checkbox */
+  .configuration-checkbox input[type=checkbox] {
+    display: none;
+  }
+  
+  label.configuration-checkbox {
+    display: inline-flex;
+    padding-left: 0;
+    margin: 5px 10px 10px 10px;
+  }
+  
+  .configuration-checkbox label {
+    position: relative;
+    padding-left: 22px !important;
+    line-height: 14px;
+    margin-bottom: 0;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+    -webkit-transition: all 0.2s;
+  }
+  
+  .configuration-checkbox label:before {
+    position: absolute;
+    left: 0;
+    width: 14px;
+    height: 14px;
+    margin-right: 5px;
+    border: 1px solid #ddd;
+    border-radius: 2px;
+    transition: all 0.2s;
+    content: "";
+  }
+  
+  .configuration-checkbox input[type=checkbox]:checked + label:before {
+    border-width: 7px;
+  }
+  
+  .configuration-checkbox.checked input[type=checkbox]:checked + label:before {
+    border-color: #555;
+  }
+  
+  .configuration-checkbox input[type=checkbox]:checked + label::after {
+    font-family: 'FontAwesome';
+    content: "\F00C";
+    color: #fff;
+  }
+  
+  .configuration-checkbox label::after {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    position: absolute;
+    left: 2px;
+    top: -1px;
+    font-size: 10px;
+    transition: all 0.2s;
+  }
+  
+  .dropdown-menu.a3-categorization {
+    overflow: hidden;
+  }
+  
+  .a3-categorization .custom-control {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+  }
+  
+  /* categorization checkbox */
+  .a3-categorization .checkbox-list {
+    overflow: auto;
+    max-height: 175px;
+  }
+  .a3-categorization .checkbox-list li:hover{
+    background-color: #eee;
+  }
+  .a3-categorization .custom-control-input {
+    position: absolute;
+    z-index: -1;
+    opacity: 0;
+  }
+  
+  .a3-categorization .custom-checkbox .custom-control-indicator {
+    border-radius: 2px;
+    margin-right: 10px;
+    display: block;
+    width: 14px;
+    height: 14px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+  }
+  
+  .a3-categorization .custom-checkbox .fa-check {
+    position: absolute;
+    left: 11px;
+    transition: all 0.2s;
+  }
+  
+  .a3-categorization .custom-checkbox .fa-check:before {
+    color: #fff;
+  }
+  
+  .a3-categorization .a3-categorization-confirm:hover {
+    background: transparent;
+  }
+  
+  .a3-categorization .a3-categorization-btn {
+    float: right;
+    margin: 5px 10px;
+  }
+  
+  .a3-configuration-forms-wrapper .a3-config-text-box,
+  .a3-configuration-forms-wrapper .threshold {
+    width: 45px;
+    height: 28px;
+    text-align: right;
+  }
+  
+  .a3 .a3-configuration-forms-wrapper input[type=checkbox],
+  .a3 .a3-configuration-forms-wrapper input[type=checkbox]:focus,
+  .a3 .a3-configuration-forms-wrapper input[type=radio],
+  .a3 .a3-configuration-forms-wrapper input[type=radio]:focus {
+    margin-top: 1px;
+  }
+  /*PDM configuration radio align edit by glenn*/
+  .a3 .a3-configuration-forms-wrapper input.ng-valid{
+    float: none;
+  }
+  
+  .a3 .a3-configuration-forms-wrapper .dropdown-menu input[type=checkbox],
+  .a3 .a3-configuration-forms-wrapper .dropdown-menu input[type=checkbox]:focus,
+  .a3 .a3-configuration-forms-wrapper .dropdown-menu input[type=radio],
+  .a3 .a3-configuration-forms-wrapper .dropdown-menu input[type=radio]:focus {
+    margin-top: 1px;
+  }
+  
+  .a3-configuration-forms-wrapper .a3-form-timeline {
+    width: calc(100% - 100px);
+    display: inline-block;
+    position: relative;
+  }
+  
+  .a3-configuration-forms-wrapper .a3-form-text.current-text {
+    width: 110px;
+  }
+  
+  .a3-configuration-forms-wrapper .timeline-group {
+    float: left;
+    margin-right: 10px;
+  }
+  
+  .a3-configuration-forms-wrapper .a3-timeline-container {
+    float: left;
+    transition: all 0.2s ease-in-out;
+  }
+  
+  .a3-timeline-container .timeline-label {
+    color: #666;
+    font-weight: bold;
+    padding-right: 3px;
+  }
+  
+  .a3-timeline-container .timeline-label-wrapper {
+    display: inline-block;
+  }
+  
+  .a3-timeline-container .timeline-tilde {
+    padding: 0 5px;
+  }
+  /* Global Configuration */
+  .a3-global-configuration .a3-content-container {
+    float: left;
+    width: calc(100% - 200px);
+    height: 100%;
+  }
+  
+  .a3-global-configuration .a3-app-header {
+    height: 40px;
+    padding: 5px 10px;
+    background-color: #fff;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .a3-global-configuration .a3-menu-open {
+    display: inline-block;
+    font: normal normal normal 14px/1 FontAwesome;
+    text-rendering: auto;
+    font-size: 13px;
+    padding: 7px 10px;
+    -webkit-font-smoothing: antialiased;
+    float: left;
+    margin-right: 15px;
+  }
+  
+  .a3-global-configuration .a3-menu-open:before {
+    content: "\f0ca";
+    margin-left: -2px;
+  }
+  
+  .a3-global-configuration .a3-menu-close {
+    display: inline-block;
+    font: normal normal normal 14px/1 FontAwesome;
+    text-rendering: auto;
+    font-size: 19px;
+    padding: 4px 10px;
+    -webkit-font-smoothing: antialiased;
+    float: left;
+    margin-right: 10px;
+  }
+  
+  .a3-global-configuration .a3-menu-close:before {
+    content: "\f100";
+    margin-left: -2px;
+  }
+  
+  .a3-global-configuration .a3-content-container .title {
+    font-size: 16px;
+    vertical-align: middle;
+    line-height: 29px;
+  }
+  
+  .a3-global-configuration.menu-close .a3-list-container {
+    margin-left: -200px;
+    transition: all 0.2s ease-in-out;
+  }
+  
+  .a3-global-configuration.menu-close .a3-menu-open,
+  .a3-global-configuration.menu-open .a3-menu-close {
+    display: inherit;
+  }
+  
+  .a3-global-configuration.menu-close .a3-menu-close,
+  .a3-global-configuration.menu-open .a3-menu-open {
+    display: none;
+  }
+  
+  .a3-global-configuration .a3-app-configuration-body .layout-left {
+    height: calc(100% - 40px);
+    padding: 10px;
+    overflow-y: auto;
+    /*border-right: 1px solid #ddd;*/
+  }
+  
+  .a3-global-configuration .a3-app-configuration-body .layout-right {
+    height: calc(100% - 40px);
+    padding: 10px;
+    overflow-y: auto;
+  }
+  
+  .a3-global-configuration .a3-app-configuration-body .configuration-edit {
+    height: calc(100% - 38px);
+  }
+  
+  .a3-global-configuration .a3-app-configuration-body .header-group {
+    margin-bottom: 10px;
+  }
+  
+  .a3-global-configuration .wj-content {
+    height: 100%;
+    background-color: transparent;
+  }
+  
+  .a3-global-configuration .wj-popup {
+    margin: 7px 0;
+  }
+  
+  .a3-global-configuration.menu-close .a3-menu-container {
+    margin-left: -300px;
+    transition: all 0.1s ease-in-out;
+  }
+  
+  .a3-global-configuration.menu-close .a3-content-container {
+    width: 100%;
+  }
+  /* App Configuration */
+  .a3-app-configuration-header {
+    width: 100%;
+    height: 40px;
+    padding: 10px 10px 0 10px;
+    /* border-bottom: 1px solid #ddd;*/
+    z-index: 10;
+  }
+  
+  .a3-app-configuration-header .header-info {
+    float: right;
+    line-height: 30px;
+    margin-right: 30px;
+  }
+  
+  .a3-app-configuration-header .header-info > span {
+    float: left;
+  }
+  
+  .a3-app-configuration-header .header-btn {
+    float: right;
+  }
+  
+  .a3-app-configuration-header .a3-line {
+    float: left;
+    width: 1px;
+    height: 15px;
+    margin: 7px 15px;
+    border-left: 1px solid #ccc;
+  }
+  
+  .a3-app-configuration-header .a3-configure-btn {
+    margin-right: 10px;
+  }
+  
+  .a3-app-configuration-header .a3-cancel-btn {
+    margin-right: 2px;
+  }
+  
+  .a3-app-configuration-header .a3-change-btn {
+    margin-left: 7px;
+  }
+  
+  .a3-app-configuration-header .fa-upload {
+    margin-right: 3px;
+  }
+  
+  .a3-app-configuration-body {
+    width: calc(100% - 20px);
+    height: calc(100% - 83px);
+    margin: 10px;
+  }
+  
+  .a3-app-configuration-body .a3-app-configuration-chart-wrapper {
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border: 0 solid transparent;
+    overflow: hidden;
+  }
+  /*
+  .a3-app-configuration .a3-title {
+      padding: 4px 6px;
+      color: #222;
+      line-height: 18px;
+      font-size: 16px;
+      font-family: 'noto sans', verdana, sans-serif;
+      cursor: default;
+  }
+  .a3-app-configuration .a3-content-container .first-screen {
+      display: flex;
+      display: -ms-flexbox;
+      display: -webkit-flex;
+      -webkit-flex-direction: column;
+          -ms-flex-direction: column;
+              flex-direction: column;
+      text-align: center;
+      margin-top: 15%;
+      color: #333;
+  }
+  .a3-app-configuration .modal .checkbox {
+      display: table;
+      margin-top: 0px;
+      margin-bottom: 8px;
+  }
+  .a3-app-configuration .modal .checkbox label input[type="checkbox"] {
+      position: inherit;
+  }
+  .a3-app-configuration .modal .a3-input,
+  .a3-app-configuration .modal .checkbox .a3-check-input {
+      display: inline-block;
+      width: 50px;
+      margin: 0px 10px 0px 3px;
+  }
+  .a3-app-configuration .modal .checkbox .a3-check-input {
+      margin-top: -6px;
+  }
+  .a3-app-configuration .modal .a3-modal-setting-wrapper,
+  .a3-app-configuration .modal .a3-algo-options-wrapper {
+      margin-bottom: 15px;
+  }
+  .a3-app-configuration .modal .a3-algo-options-wrapper .a3-algo-options,
+  .a3-app-configuration .modal .a3-alarm-threshold-wrapper .a3-alarm-threshold {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 14px;
+  }
+  .a3-app-configuration .modal .a3-algo-options-wrapper .a3-table-area {
+      width: 568px;
+      height: 200px;
+      border: 1px solid #ddd;
+      border-radius: 2px;
+  }
+  .a3-app-configuration .modal .a3-algo-options-wrapper .ui-grid-header {
+      height: 61px;
+  }
+  .a3-app-configuration .modal .a3-algo-options-wrapper .ui-grid-viewport {
+      height: calc(100% - 61px);
+  }
+  .a3-app-configuration .modal .a3-algo-options-wrapper .ui-grid-header-cell-wrapper {
+      width: 100%;
+  }
+  .a3-app-configuration .modal .a3-sub-menu {
+      margin-top: 4px;
+  }
+  .a3-app-configuration .ui-grid-category {
+    text-align: center;
+    border-right: 0px;
+  }
+  .a3-app-configuration .ui-grid-header-cell {
+      border-color: #ddd;
+  }
+  .a3-app-configuration .ui-grid-pinned-container.ui-grid-pinned-container-left .ui-grid-header-cell:last-child {
+      border-right-color: #ddd;
+  }
+  .a3-app-configuration .ui-grid-header-cell .a3-console-status {
+      display: block;
+      width: 100%;
+      padding-top: 11px;
+      padding-bottom: 13px;
+      border-bottom: 1px solid #ddd;
+  }
+  .a3-app-configuration .a3-console-status-group .ui-grid-cell-contents {
+      padding: 3px 11px;
+  }
+  .a3-app-configuration .ui-grid-filter-container .ui-grid-filter-button [class^="ui-grid-icon"] {
+      margin-top: -6px;
+  }
+  .a3-app-configuration .modal .ui-grid-cell-contents {
+      padding: 0px 11px;
+  }
+  .a3-app-configuration .modal input[type="text"].ui-grid-filter-input {
+      height: 25px;
+  }
+  .a3-app-configuration .modal .ui-grid-filter-container .ui-grid-filter-button [class^="ui-grid-icon"] {
+      margin-top: -7px;
+  }
+  .a3-app-configuration .modal .ui-grid-canvas .ui-grid-cell-contents {
+      padding: 6px 11px;
+  }
+  .a3 .a3-app-configuration .ui-grid-pinned-container-left .ui-grid-top-panel .ui-grid-cell-contents {
+      padding: 0px;
+  }
+  .a3-app-configuration .ui-grid-top-panel .ui-grid-selection-row-header-buttons {
+      padding: 49px 6px;
+  }
+  .a3-app-configuration .ui-grid .ui-grid-viewport .ui-grid-canvas .ui-grid-row:nth-child(even) {
+      background-color: #f9f9f9;
+  }
+  .a3-app-configuration .ui-grid .ui-grid-viewport .ui-grid-canvas .ui-grid-row:nth-child(even):hover {
+      background-color: #eee;
+  }
+  */
+  /*.a3 .a3-app-configuration .ui-grid-row > [ui-grid-row] > .ui-grid-cell*/
+  /*.wj-alt:not(.wj-header):not(.wj-group):not(.wj-state-selected):not(.wj-state-multi-selected):not(.a3-modified-cell) {
+      background: #f9f9f9
+  }
+  .a3-modified-cell {
+      background-color: #def5da;
+      color: #4a963c;
+  }*/
+  /*
+  .a3 .a3-app-configuration .ui-grid-row > [ui-grid-row] > .ui-grid-cell.a3-ui-grid-hover {
+      background-color: #eee;
+  }
+  .a3-app-configuration .a3-modified-num {
+      color: #4a963c;
+  }
+  .a3-app-configuration .a3-content-container .btn-group,
+  .a3-app-configuration .a3-content-container .btn-group .btn-selectbox,
+  .a3-app-configuration .a3-content-container .configuration-multi-menu {
+      width: 100%;
+  }
+  .a3-app-configuration .a3-content-container .ui-grid-cell-contents.ui-grid-header-cell-primary-focus {
+      white-space: normal;
+  }
+  .a3-app-configuration .modal .ui-grid-header {
+      border-bottom: 1px solid #ddd;
+  }
+  .a3-app-configuration .modal .checkbox.a3-disabled {
+      color: #d6d6d6;
+  }
+  .a3-app-configuration .modal .checkbox.a3-disabled label {
+      cursor: default;
+  }
+  */
+  /* User & Group */
+  .a3-app-configuration-header .btn {
+    margin-right: 2px;
+  }
+  
+  .a3-app-configuration-header .btn:last-child {
+    margin-right: 0;
+  }
+  /* widget configuration */
+  .a3-configuration-wrapper .wqp-label-group {
+    width: 100%;
+    margin: 0 auto;
+  }
+  
+  .a3-configuration-wrapper .wqp-label-container {
+    width: 200px;
+  }
+  
+  .a3-configuration-wrapper .wqp-label {
+    width: 33.3%;
+    float: left;
+    margin-bottom: 5px;
+  }
+  
+  .a3-configuration-wrapper .wqp-label-group .label-strong {
+    height: 6px;
+  }
+  
+  .a3-configuration-wrapper .wqp-label-group .label-normal {
+    height: 20px;
+  }
+  
+  .a3-configuration-wrapper .wqp-label.success .label-strong {
+    background-color: #17b12f;
+  }
+  
+  .a3-configuration-wrapper .wqp-label.success .label-normal {
+    background-color: #d4eac5;
+  }
+  
+  .a3-configuration-wrapper .wqp-label.warning .label-strong {
+    background-color: #dda02e;
+  }
+  
+  .a3-configuration-wrapper .wqp-label.warning .label-normal {
+    background-color: #fee2a0;
+  }
+  
+  .a3-configuration-wrapper .wqp-label.danger .label-strong {
+    background-color: #d03927;
+  }
+  
+  .a3-configuration-wrapper .wqp-label.danger .label-normal {
+    background-color: #feafac;
+  }
+  
+  .a3-configuration-wrapper .wqp-label-input {
+    width: 100%;
+  }
+  
+  .a3-configuration-wrapper .wqp-label-input li {
+    width: 25%;
+    float: left;
+    margin-bottom: 0;
+  }
+  
+  .a3-configuration-wrapper .wqp-label-input input {
+    width: 50px;
+  }
+  
+  .a3-configuration-wrapper .wqp-label-input .value01 {
+    width: 20%;
+  }
+  
+  .a3-configuration-wrapper .wqp-label-input .value02 {
+    width: 35%;
+    text-align: center;
+  }
+  
+  .a3-configuration-wrapper .wqp-label-input .value03 {
+    width: 25%;
+    text-align: center;
+  }
+  
+  .a3-configuration-wrapper .wqp-label-input .value04 {
+    width: 20%;
+    text-align: right;
+  }
+  
+  .a3-default .appconfigbuilder {
+    height: calc(100% - 40px);
+  }
+  /* widget configuration: timeline */
+  /*
+  .a3-configuration-forms-wrapper .btn-group {
+    width: calc(100% - 99px);
+  }
+  */
+  .a3-configuration-container .a3-form-textbox.timeline {
+    display: block;
+    padding: 5px 0;
+    margin-top: 5px;
+    margin-left: 99px;
+  }
+  
+  .a3-configuration-container .a3-form-textbox.timeline > ul {
+    font-size: 13px;
+  }
+  
+  .a3-configuration-container .a3-form-textbox.timeline .num {
+    font-size: 16px;
+  }
+  
+  .a3-default .a3-configuration-container .form-group.a3-input-group {
+    position: relative;
+    width: 100%;
+    height: 37px;
+    padding: 3px 0 6px 140px;
+    margin: 1px 0;
+  }
+  
+  .a3-default .a3-configuration-container .control-label {
+    float: left;
+    position: relative;
+    padding: 5px 0;
+    margin-left: -140px;
+    width: 140px;
+    text-align: left;
+    word-wrap: break-word;
+  }
+  
+  .a3-default .a3-configuration-container .text-field {
+    height: 37px;
+    line-height: 29px;
+    padding: 5px 0;
+    margin-left: 3px;
+  }
+  
+  .a3-configuration-container .systme-specified-group {
+    display: inline-block;
+    line-height: 30px;
+  
+    .a3-datetime-picker {
+      float: right;
+      margin-left: 5px;
+    }
+  
+    .systme-specified {
+      border-left: 1px solid #ccc;
+      margin-left: 10px;
+      padding-left: 10px;
+    }
+  }
+  /* widget configuration - period */
+  .a3-configuration-forms-wrapper .a3-form-period-wrapper {
+    width: calc(100% - 100px);
+    display: inline-block;
+    position: relative;
+  }
+  
+  .a3-form-period {
+    margin-bottom: 5px;
+  }
+  
+  .period-form-label {
+    width: 40px;
+  }
+  /* a3-configuration-forms-wrapper None-border */
+  .a3-configuration-forms-wrapper.none-border {
+    .btn-configuration {
+      top: -2px;
+      padding: 0;
+      color: #337ab7;
+      border: 1px solid transparent;
+      border-radius: 0 !important;
+      box-shadow: none;
+      background-color: transparent;
+      display: flex;
+  
+      &:hover {
+        background-color: transparent;
+        color: #5da2fd;
+        border-radius: 0;
+        border: 1px solid transparent;
+        box-shadow: none;
+      }
+    }
+  
+    .caret {
+      margin-left: 9px;
+    }
+    /* text 말줄임 */
+    .btn-configuration .pull-left.text-overflow {
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+  }
+  

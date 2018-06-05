@@ -1,0 +1,52 @@
+<!-- LOADING -->
+<dl *ngIf="spinnerState === SPINNER.INIT">
+    <dt>
+        <div class="a3-spinner">
+            <div class="sk-cube1 sk-cube"></div>
+            <div class="sk-cube2 sk-cube"></div>
+            <div class="sk-cube4 sk-cube"></div>
+            <div class="sk-cube3 sk-cube"></div>
+        </div>
+    </dt>
+    <dd class="message-title">{{initMessage}}</dd>
+</dl>
+
+<!-- CHART LOADING -->
+<dl *ngIf="spinnerState === SPINNER.CHART_INIT">
+    <dt>
+        <div class="a3-spinner-data"></div>
+    </dt>
+    <dd class="message-title">{{initMessage}}</dd>
+</dl>
+
+<!-- NO DATA -->
+<dl *ngIf="spinnerState === SPINNER.NODATA">
+    <dt>
+        <i class="icon icon-nodata"></i>
+    </dt>
+    <dd class="message-title">{{noDataMessage}}</dd>
+</dl>
+
+<!-- NO DATA TRANSPARENT -->
+<dl *ngIf="spinnerState === SPINNER.NODATA_TRANSPARENT">
+    <dt>
+        <i class="icon icon-nodata"></i>
+    </dt>
+    <dd class="message-title">{{noDataMessage}}</dd>
+</dl>
+
+<!-- NO ERROR -->
+<dl *ngIf="spinnerState === SPINNER.ERROR">
+    <dt>
+        <i class="icon icon-error"></i>
+    </dt>
+    <dd class="message-title">{{errorMessage}}</dd>
+</dl>
+
+<!-- refresh -->
+<dl *ngIf="spinnerState === SPINNER.refresh">
+    <dt>
+        <i class="icon icon-refresh"></i>
+    </dt>
+    <dd class="message-title">{{errorMessage}}</dd>
+</dl>

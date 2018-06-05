@@ -1,0 +1,44 @@
+<div class="a3-app-configuration-header clearfix">
+    <div type="button" class="header-btn">
+        <button class="btn btn-default" type="button" [disabled]="selectedData==null || selectedData.groupId==='ADMIN_GROUP'" (click)="$event.stopPropagation(); deleteGroup();">Delete</button>
+        <button class="btn btn-default" type="button" [disabled]="selectedData==null || selectedData.groupId==='ADMIN_GROUP'" (click)="$event.stopPropagation(); updateGroup();">Modify</button>
+        <button class="btn btn-default" (click)="$event.stopPropagation(); createGroup();">Create</button>
+    </div>
+</div>
+
+<div class="a3-app-configuration-body">
+    <!-- User & Group 분할 영역 -->
+    <div class="a3-app-configuration-chart-wrapper no-padding">
+        <!--좌측 Hierarchy view 영역-->
+        <wj-flex-grid #flex
+          [itemsSource]="groups"
+          [isReadOnly]="true"
+          [selectionMode]="'Row'"
+          [headersVisibility]="'Column'"
+          (selectionChanged)="selectedRow(flex,$event)"
+          (window:resize)="onResize($event)">
+        <wj-flex-grid-filter></wj-flex-grid-filter>
+        <wj-flex-grid-column width="*" [header]="'ID'" [binding]="'groupId'"></wj-flex-grid-column>
+        <wj-flex-grid-column width="*" [header]="'Description'" [binding]="'description'"></wj-flex-grid-column>
+        <wj-flex-grid-column width="*" [header]="'Role ID'" [binding]="'roleId'"></wj-flex-grid-column>
+        </wj-flex-grid>
+    </div>
+</div>
+
+<!--<div class="modal a3-group-list-modal fade" id="myModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close pe-7s-close" data-dismiss="modal" aria-label="Close"></button>
+              <h4 class="modal-title">{{firstCharUpper(status)}} Group</h4>
+            </div>
+            <div class="modal-body">
+                <group-modify #groupModify [status]="status" [data]="selectedData" [groups]="groups"></group-modify>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal" (click)="goLink('close');">Close</button>
+                <button type="button" class="btn btn-default" (click)="onSave()">Apply</button>
+            </div>
+        </div>
+    </div>
+</div>-->

@@ -1,0 +1,33 @@
+<!--auto modeling-->
+<div class="package-management job-execute-container">
+    <span class="title">Condition</span>
+    <div class="a3-modeling-filter-area">
+        <div class="pdm-timeline-group">
+            <div class="fab-label">
+                <label for="inputFab">Fab</label>
+                <select class="form-control" [(ngModel)]="selectedPlant">
+                    <option *ngFor="let plant of plants" [ngValue]="plant" [selected]="plant.fabId === selectedPlant.fabId">
+                        {{plant.fabName}}
+                    </option>
+                </select>
+            </div>
+
+            <div class="a3-form-period period-from">
+                <label for="inputDay">Start date</label>
+                <div class="input-group date input-append a3-datetime-picker" [date]="startDt" [format]="'yyyy/MM/dd hh:mm:ss'" (changedDate)="fromChangeDate($event)"></div>
+            </div>
+
+            <div class="window-length">
+                <span class="mnth-rng">Day</span>
+                <input class="form-control" type="number" placeholder="number input" [(ngModel)]="day" (ngModelChange)="changeDay($event)">
+            </div>
+        </div>
+    </div>
+
+    <span class="title execute">Execute</span>
+    <div class="execute-flax">
+        <button class="btn btn-default" [class.disabled]="disable_1" (click)="getBaseData(); disable_1 = true;">Get Base Data</button>
+        <button class="btn btn-default" [class.disabled]="disable_2" (click)="getData(); disable_2 = true;">Get Data</button>
+        <button class="btn btn-default" [class.disabled]="disable_3" (click)="createData(); disable_3 = true;">Create Summary Data</button>
+    </div>
+</div>

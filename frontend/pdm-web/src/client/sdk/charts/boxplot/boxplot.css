@@ -1,0 +1,108 @@
+.bistel-boxplot-background {
+    fill: #ccc;
+}
+
+.bistel-boxplot-xaxis-label {
+    font-size: 12px;
+}
+
+.bistel-boxplot-yaxis-label {
+    font-size: 12px;
+}
+
+.bistel-boxplot-xaxis {
+    font: 11px arial;
+    fill: #444444;
+}
+
+.bistel-boxplot-xaxis path,
+.bistel-boxplot-xaxis line {
+    fill: none;
+    stroke: #444444;
+    shape-rendering: crispEdges;
+}
+
+.bistel-boxplot-yaxis {
+    font: 11px arial;
+    fill: #444444;
+}
+
+.bistel-boxplot-yaxis path,
+.bistel-boxplot-yaxis line {
+    fill: none;
+    stroke: #444444;
+    shape-rendering: crispEdges;
+}
+
+.bistel-boxplot-yaxis-label {
+    font: 11px arial;
+    fill: #444444;
+    color: #444444;
+}
+
+.bistel-boxplot.x.axis path {
+    fill: none;
+    stroke: #444444;
+    shape-rendering: crispEdges;
+}
+
+
+/* boxplot lib style */
+
+.bistel-boxplot-box {
+    font: 11px arial;
+    fill: #444444;
+    color: #444444;
+}
+
+.bistel-boxplot-box .highlight {
+    fill: #ff0;
+}
+
+.bistel-boxplot-box line,
+.bistel-boxplot-box .bistel-boxplot-box-rect,
+.bistel-boxplot-box circle {
+    fill: #5c9a8e;
+    stroke: #444444;
+    stroke-width: 1;
+    shape-rendering: crispEdges;
+}
+
+.bistel-boxplot-box .center {
+    stroke-dasharray: 3, 3;
+}
+
+.bistel-boxplot-box .outlier {
+    /*fill: none;*/
+    /*fill: #cf4771;*/
+    fill: #ccc;
+    stroke: #000;
+}
+
+.bistel-boxplot-grid {
+    opacity: 1;
+}
+
+.bistel-boxplot-grid .tick {
+    stroke: #ddd;
+    shape-rendering: crispEdges;
+    stroke-opacity: 0.2;
+}
+
+.bistel-boxplot-grid path {
+    stroke: #ddd;
+    stroke-width: 0;
+}
+
+.brush .extent {
+    stroke: #fff;
+    fill-opacity: 0.2;
+    fill: #64A7CE;
+    shape-rendering: crispEdges;
+}
+
+.bistel-boxplot-info {
+    text-align: right;
+    font-size: 11px;
+    line-height: 24px;
+}

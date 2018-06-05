@@ -1,0 +1,563 @@
+{
+	"LABEL": {
+		"GENERAL": {
+			"PATTERN_TYPE": "패턴 타입",
+			"LIMIT_COEFFICIENTS": "제한 계수",
+			"SMOOTHING": "부드럽게",
+			"TICK": "Tick",
+			"WIDTH": "넓이",
+			"CLOSE": "닫기",
+			"NONE": "None"
+		},
+		"PDM": {
+			"AREA": "Shop"
+		},
+		"WORKSPACE": {
+			"SHOW_NAVIGATOR": "네비게이터 보기",
+			"HIDE_NAVIGATOR": "네비게이터 숨기기",
+			"MODEL_CALCULATING": "Model 계산 중..."
+		},
+		"WIDGET": {
+			"FAULT_OVERVIEW": {
+				"IGNORE_FALSE_ALARM": "False alarms 무시"
+			},
+			"RPT_TREND": {
+				"LOT_COUNT": "Lot Count"
+			}
+		},
+		"FDTA": {
+			"FAULT": "FDC",
+			"OOC": "SPC",
+			"OCAP": "OCAP",
+			"FDTA_LOT": "DFD (within lot)",
+			"FDTA_WAFER": "DFD (last n)",
+			"FDTA_WAFER_RELIABLE": "Full",
+			"FDTA_WAFER_UNRELIABLE": "Partial",
+			"FDTA_LOT_SCORE": "DFD Score (within lot)",
+			"FDTA_WAFER_SCORE": "DFD Score (last n)",
+			"FDTA_WAFER_COUNT": "Process Run Count",
+			"FAULT_MODELS": "Trace Model",
+			"OOC_MODELS": "SPC Model",
+			"FDTA_MODELS": "DFD Model",
+			"CONFIG": {
+				"REFERENCE_THRESHOLD": "Partial Reference Threshold Setting",
+				"TH": "Count of Process Runs with Partial Reference",
+				"REFERENCE_WAFER": "Reference Substrates",
+				"SAME": "Same",
+				"WITHIN_DAYS": "Within days",
+				"LAST_MODIFIED": "Last Modified",
+				"FAULT_COUNT": "Fault Count",
+				"RECIPE_COUNT": "Recipe Count",
+				"WAFER_COUNT": "Alarmed Process Run Count"
+			}
+		},
+		"WQP": {
+			"GOOD": "Good",
+			"GOODADDER": "Good(Adder)",
+			"GOODCARRYOVER": "Good(Carryover)",
+			"BAD": "Bad",
+			"BADADDER": "Bad(Adder)",
+			"BADCARRYOVER": "Bad(Carryover)",
+			"JEOPARDY": "Jeopardy",
+			"JEOPARDYADDER": "Jeopardy(Adder)",
+			"JEOPARDYCARRYOVER": "Jeopardy(Carryover)"
+		}
+	},
+	"BUTTON": {
+		"GENERAL": {
+			"HOME": "홈 대시보드",
+			"SHOW_LIST": "목록 보이기",
+			"HIDE_LIST": "목록 숨기기",
+			"ADD": "추가",
+			"DELETE": "삭제",
+			"REMOVE": "제거",
+			"OK": "확인",
+			"CANCEL": "취소",
+			"APPLY": "적용",
+			"CLOSE": "닫기",
+			"TOOLS": "도구",
+			"LEGEND": "Legend",
+			"SET_LEGEND": "설정 저장",
+			"SHOWWIDGETS": "위젯 목록 보이기",
+			"HIDEWIDGETS": "위젯 목록 숨기기",
+			"PREVIOUSDASHBOARD": "이전 대시보드 이동",
+			"NEXTDASHBOARD": "다음 대시보드 이동",
+			"DASHBOARDVIEW": "대시보드 싱글 뷰",
+			"DASHBOARDLIST": "대시보드 겔러리 뷰",
+			"LOGOUT": "로그아웃"
+		},
+		"WORKSPACE": {
+			"TRACE_MODEL": {
+				"ADD_PARAMETER": "Parameter 추가",
+				"SET_PARAMETER": "Parameter 적용",
+				"SET_SPEC": "Model 적용",
+				"REMOVE_SPEC": "Model 삭제",
+				"REMOVE_PARAMETERS": "Parameter 삭제"
+			},
+			"UVA_MODEL": {
+				"SET_PARAMETER": "UVA Parameter 적용",
+				"SET_SPEC": "Spec 적용",
+				"SET_OPTION": "Spec Option",
+				"REMOVE_SPEC": "Spec 삭제",
+				"REMOVE_PARAMETERS": "Sum Plan 삭제"
+			},
+			"TRACE_SUM_PLAN": {
+				"SET_SUM_PLAN": "Sum Plan 적용",
+				"REMOVE_SUM_PLAN": "Sum Plan 삭제"
+			},
+			"FAULT_DETAIL_RAW": {
+				"SHOW_REFERENCE_WAFER": "show the reference substrates"
+			}
+		},
+		"WIDGET": {
+			"FAULT_DETAIL": {
+				"DRILLDOWN_TO_MODULE": "Module로 연결"
+			}
+		}
+	},
+	"MESSAGE": {
+		"GENERAL": {
+			"REMOVE": "{removeItemName}을 삭제하시겠습니까?",
+			"REMOVE_ITEMS": "선택된 항목(들)",
+			"DELETE": "{deleteItemName}을 삭제하시겠습니까?",
+			"INFORMATION": "알림",
+			"ERROR": "에러",
+			"ITEM_INPUT": "{item}을 입력해 주세요.",
+			"ITEM_REQUIRED": "{item}은 필수입니다.",
+			"ITEM_VALUE_INVALID": "{item}의 형식이 적합하지 않습니다.",
+			"REMOVED_DASHBOARD": "대시보드를 성공적으로 삭제했습니다",
+			"REMOVING_ERROR_DASHBOARD": "대시보드를 제거하는데 에러가 발생했습니다",
+			"ADDED_DASHBOARD": "대시보드를 성공적으로 추가했습니다",
+			"ADDING_ERROR_DASHBOARD": "대시보드를 추가하는데 에러가 발생했습니다",
+			"REMOVED_WIDGET": "위젯을 성공적으로 삭제했습니다",
+			"REMOVING_ERROR_WIDGET": "위젯을 제거하는데 에러가 발생했습니다",
+			"ADDED_WIDGET": "위젯을 성공적으로 추가했습니다",
+			"ADDING_ERROR_WIDGET": "위젯을 추가하는데 에러가 발생했습니다",
+			"REMOVED_WORKSPACE": "워크스페이스를 성공적으로 삭제했습니다",
+			"REMOVING_ERROR_WORKSPACE": "워크스페이스를 제거하는데 에러가 발생했습니다",
+			"ADDED_WORKSPACE": "워크스페이스를 성공적으로 추가했습니다",
+			"ADDING_ERROR_WORKSPACE": "워크스페이스를 추가하는데 에러가 발생했습니다",
+			"REMOVED_TASKER": "태스커를 성공적으로 삭제했습니다",
+			"REMOVING_ERROR_TASKER": "태스커를 제거하는데 에러가 발생했습니다",
+			"ADDED_TASKER": "태스커를 성공적으로 추가했습니다",
+			"ADDING_ERROR_TASKER": "태스커를 추가하는데 에러가 발생했습니다",
+			"WIDGET_PROPERTIES_SUCESS": "환경설정을 성공적으로 적용했습니다",
+			"WIDGET_PROPERTIES_ERROR": "환경설정을 적용하는데 에러가 발생했습니다",
+			"CONDITION_ERROR": "컨디션 정보가 충분하지 않습니다.",
+			"SHARE_USER": "{{user}}님으로 부터 공유되었습니다.",
+			"DELETE_USER": "{{userId}}가 삭제되었습니다. 3초후 자동 로그아웃 됩니다."
+		},
+		"PDM": {
+			"FOCUS_CHANGE": "{item}을 초기화 하시겠습니까?",
+			"PARAMETER_CHANGE": "PDM Model을 초기화 하시겠습니까?",
+			"RANKING_PROGRESS": "Ranking이 진행중..",
+			"MANAGEMENT": {
+				"REMOVE_ITEM": "{{itemName}}를 삭제하시겠습니까?"
+			}
+		},
+		"TASKER_DRAWER": {
+			"DRILL_DOWN_WITH": "{taskerName} 으로 드릴다운"
+		},
+		"LOGIN": {
+			"INPUT_USERNAME": "아이디를 입력해 주세요.",
+			"INPUT_PASSWORD": "비밀번호를 입력해 주세요.",
+			"LOGIN_ERROR": "아이디와 비밀번호를 찾을 수 없습니다. 다시 입력해 주세요."
+		},
+		"WORKSPACE": {
+			"PREPARE_WORKSPACE": "workspace가 준비 될때 까지 기다려 주세요.",
+			"ELAPSED_TIME": "경과시간 <strong>{counter}</strong> 초...",
+			"CREATE_ERROR": "workspace 준비중에 문제가 발생하였습니다. 재시도 하거나 관리자 에게 문의 하세요.",
+			"TASKER_ERROR": "tasker를 찾을 수 없습니다. 관리자에게 문의해 주세요.",
+			"SELECTED_WAFER_CHANGED": "선택된 wafer가 변경되었습니다. 데이터를 새로고침 하시겠습니까?",
+			"REMOVE_TRACE_SPEC": "선택한 Trace {modelCount, plural, =1{Model} other{Model들}}의 {specCount, plural, =1{Spec} other{Spec들}}을 삭제하시겠습니까?",
+			"REMOVE_TRACE_MODEL": "선택한 Trace {count, plural, =1{Model} other{Model들}}을 삭제하시겠습니까?",
+			"REMOVE_WINDOW": "{removeType, select, selectedAndRelated{선택한 Window와  관련된} related{관련된} affected{영향을 받는} selected{선택한} other{선택한}} {count, plural, =1{Window를} other{Window들을}} 삭제하시겠습니까?",
+			"REMOVE_TASKER_GROUP": "현재 테스커 그룹을 제거하시겠습니까?",
+			"NO_SELECTED_WAFER": "Wafer를 선택하신 후 이용하세요",
+			"NO_SELECTED_CONTEXT": "Context를 선택하신 후 이용하세요",
+			"NO_SELECTED_CONDITIONS": "조회 조건을 입력하신 후 이용하세요",
+			"NO_DATA": "데이터가 없습니다.",
+			"LOCK_ACCURACY": "현재 진행중인 Accuracy가 있습니다",
+			"MORE_THAN_COUNT": "{total} 보다 많을 수 없습니다.",
+			"REMOVE_TRACE_SUM_PLAN": "선택한 Trace {modelCount, plural, =1{Model} other{Model들}}의 {sumPlanCount, plural, =1{Summary plan} other{Summary plan들}}을 삭제하시겠습니까?",
+			"REMOVE_WORKSPACE": "선택한 Worksapce를 삭제하시겠습니까?",
+			"NOT_AVAILABLE_WIDGET_LIST": "공유된 Workspace에서는 위젯 목록을 볼 수 없습니다."
+		},
+		"DIALOG": {
+			"SPEC_OPTION": {
+				"COMPARE_ERROR": "{largeItem}은 {smallItem}보다 커야합니다."
+			}
+		},
+		"DEPLOY": {
+			"DEPLOY_CONFIRM": "trace model을 적용 하시겠습니까?",
+			"SUCCESS_DEPLOY": "성공적으로 변경된 trace model을 적용하였습니다.",
+			"FAIL_DEPLOY": "변경된 trace model을 적용하는 중 에러가 발생했습니다.",
+			"NO_DEPLOY_DATA": "적용할 trace model을 선택해 주세요!"
+		},
+		"UVA_DEPLOY": {
+			"DEPLOY_CONFIRM": "uva model을 적용 하시겠습니까?",
+			"SUCCESS_DEPLOY": "성공적으로 변경된 uva model을 적용하였습니다.",
+			"FAIL_DEPLOY": "변경된 uva model을 적용하는 중 에러가 발생했습니다.",
+			"NO_DEPLOY_DATA": "적용할 uva model을 선택해 주세요!"
+		},
+		"DASHBOARD": {
+			"DELETE_DASHBOARD": "현재 Dashboard를 영구적으로 지우시겠습니까?",
+			"DELETE_SELECTED_DASHBOARDS": "선택한 Dashboard를 삭제하시겠습니까?",
+			"SELECT_DASHBOARD": "삭제할 Dashboard를 선택해주세요.",
+			"NOT_AVAILABLE_WIDGET_LIST": "공유된 Dashboard에서는 위젯 목록을 볼 수 없습니다.",
+			"NOT_AVAILABLE_CONFIGURATION_SHARED": "공유된 Dashboard에서는 위젯 환경설정을 할 수 없습니다.",
+			"NOT_AVAILABLE_CONFIGURATION_NO_FORM": "설정 항목이 없는 경우 Dashboard에서는 위젯 환경설정을 할 수 없습니다."
+		},
+		"TRACE_CHART": {
+			"SELECT_ONE_PARAMETER": "한 개의 Parameter를 선택해 주세요.",
+			"SELECT_PARAMETER": "Parameter를 선택해 주세요.",
+			"SELECT_STEP": "Step을 선택해 주세요.",
+			"SELECT_SUMMARY_TYPE": "Summary Type을 선택해 주세요."
+		},
+		"FAULT_DETAIL_RAW": {
+			"NO_MORE_10": "chart는 10개를 초과할 수 없습니다.",
+			"COPY_COMPLETE": "Contexts 복사가 완료되었습니다."
+		},
+		"FAULT_DETAIL_RAW_LEVEL_WIDGET": {
+			"NO_MORE_900_SUBSTRATES": "900개를 초과하여 wafer를 선택할 수 없습니다.",
+			"LINK_PARSING_ERROR": "URL link에 오류가 있습니다. 다시 한번 확인해 주세요."
+		},
+		"CONFIG_INVALID": {
+			"FROM_TIME": "From에 맞는 시간을 선택해 주세요.",
+			"TO_TIME": "To에 맞는 시간을 선택해 주세요."
+		},
+		"PPID_TREND": {
+			"DISPLAY_EVENTS": "Chart에 표시"
+		},
+		"ACUBED_MAP": {
+			"MAP": {
+				"REMOVE_WORKSPACE": "선택한 Worksapce를 삭제하시겠습니까?",
+				"REMOVE_TASKER": "선택한 Tasker를 삭제하시겠습니까?"
+			},
+			"AUTOMATION": {
+				"NULL_SCHEDULE_NAME": "스케쥴명을 입력 하세요.",
+				"NULL_HOUR": "시간을 선택해 주세요.",
+				"NULL_MINUTE": "분을 선택해 주세요.",
+				"NULL_DAY_OF_WEEK": "요일을 선택해 주세요.",
+				"ONLY_ONE_DAY_OF_WEEK": "하나의 요일만 선택 가능합니다.",
+				"NULL_SCHDULE_DATE": "날짜를 선택해 주세요.",
+				"CHECK_SCHDULE_DATE": "스케쥴 시간을 확인해 주세요."
+			},
+			"GRID": {
+				"NO_SELECTED_WORKSPACE": "Workspace를 선택해주세요.",
+				"REMOVE_SELECTED_WORKSPACE": "선택한 Workspace를 삭제하시겠습니까?",
+				"REMOVING_ERROR_WORKSPACE": "Workspace를 삭제하는데 에러가 발생했습니다",
+				"MODIFIED_WORKSPACE": "Workspace를 성공적으로 수정하였습니다.",
+				"MODIFYING_ERROR_WORKSPACE": "수정하는데 에러가 발생했습니다."
+			}
+		},
+		"MODAL": {
+			"SHARED_USER": {
+				"SELECT_USER": "사용자를 선택해 주세요.",
+				"DELETE_USER": "사용자를 삭제하시겠습니까?",
+				"DUPLICATE_USER": "이미 등록된 사용자가 있습니다."
+			}
+		},
+		"APP_CONFIG": {
+			"FDTA": {
+				"SAVE_SUCCESS": "성공적으로 저장하였습니다.",
+				"SELECTED_ITEM_MODIFY": "선택된 ITEM이 수정되었습니다."
+			},
+			"WQP": {
+				"LOADING_SUCCESS": "파일 내용으로 WQP 구성을 변경하였습니다."
+			},
+			"AUTHORITY": {
+				"INPUT_USERID": "아이디를 입력해 주세요.",
+				"INPUT_USERNAME": "이름을 입력해 주세요.",
+				"DUPLICATE_USER": "이미 등록된 사용자가 있습니다.",
+				"DELETE_SELECTED_USER": "선택한 {{user}}를 삭제하시겠습니까?",
+				"INPUT_GROUPID": "GroupID를 입력해 주세요.",
+				"DUPLICATE_GROUP": "이미 등록된 GroupID가 있습니다.",
+				"ROLE_REMOVE_VALID": "이미 Child로 등록된 Role입니다.",
+				"INPUT_VALID": "{{field}} 입력 값이 유효하지 않습니다."
+			},
+			"TOOLS": {
+				"INPUT_VALID": "{{field}}을 입력해주세요.",
+				"SELECT_VALID": "{{type}}을 선택해주세요.",
+				"DUPLICATE_NAME": "이미 등록된 Name입니다.",
+				"REMOVE_VALID": "현재 사용 중인 {{itemName}}이 아닌지 확인 후 이용하세요.",
+				"REMOVE_ITEM": "{{itemName}}를 삭제하시겠습니까?",
+				"DATA_WARNING": "해당 {{type}}의 정보가 사용중인지 확인해주세요.",
+				"IMPORT_WARNING": "Import 시 기존 정보가 사라집니다."
+			},
+			"CATEGORY": {
+				"DUPLICATE_NAME": "이미 등록된 Category입니다.",
+				"INPUT_NAME": "Category 이름을 입력해 주세요.",
+				"CANNOT_SPECIAL_CHARACTORS": "특수문자를 입력할 수 없습니다.",
+				"CANNOT_SPECIAL_UNCATEGORIZED": "Uncatergorized 를 생성할 수 없습니다.",
+				"MAX_LENGTH": "Category 이름은 {{size}}자를 초과하여 입력할 수 없습니다. 현재는 {{currentSize}}자입니다.",
+				"REQUIRE_COLUMN_TOOL": "컬럼 형식을 확인해 주세요. format: toolName, moduleName, variableId, paramName, paramAlias, priorityCode.",
+				"REQUIRE_COLUMN_EXTERNAL": "컬럼 형식을 확인해 주세요. format: moduleName, variableId, paramName, paramAlias, priorityCode.",
+				"SELECT_FILE": "파일을 선택해 주세요.",
+				"SELECT_CSV": "csv 파일만 선택 가능합니다.",
+				"IMPORT_SUCCESS": "성공적으로 Import 되었습니다.",
+				"IMPORT_FAILT": "Import 에 실패했습니다.",
+				"IMPORT_NOTMATCH": "파일의 Import 타입을 체크해주세요."
+			}
+		},
+		"USER_CONFIG": {
+			"SAVE_SUCCESS": "성공적으로 저장하였습니다.",
+			"CREATE_SUCCESS": "성공적으로 생성하였습니다.",
+			"UPDATE_SUCCESS": "성공적으로 수정하였습니다.",
+			"REMOVE_SUCCESS": "성공적으로 삭제하였습니다."
+		}
+	},
+	"HEADER": {
+		"GENERAL": {},
+		"TOOL": "Tool",
+		"MODULE": "Module",
+		"PARAMETERS": "Parameters",
+		"FDTA_COUNT": "Total",
+		"DATE_RANGE": "Date Range",
+		"ALARM_TYPE": "Alarm Aggregation",
+		"RELIABLE_TYPE": "Last n Referencing"
+	},
+	"TITLE": {
+		"GENERAL": {
+			"WARNING": "경고",
+			"INFORMATION": "알림",
+			"ERROR": "에러",
+			"CONFIRM": "확인",
+			"SUCCESS": "성공"
+		},
+		"DIALOG": {
+			"SET_SPEC_OPTIONS": "Spec 설정",
+			"REMOVE_SPEC": "Spec 삭제",
+			"REMOVE_TRACE_MODEL": "Trace Model 삭제",
+			"LEGEND_COLOR_GROUP": "Legend 칼라 그룹",
+			"LEGEND_GROUP_CONFIG": "Legend에 포함할 Context 구성",
+			"ADD_CLASSIFICATION_GROUP": "Classification Group 추가",
+			"REMOVE_CLASSIFICATION_GROUP": "Classification Group 제거",
+			"SET_SUM_PLAN_OPTIONS": "Summary Plan 설정",
+			"REMOVE_SUM_PLAN": "Summary Plan 삭제",
+			"SUM_TYPE": "Summary 타입",
+			"MIN": "최소",
+			"MAX": "최대",
+			"MEAN": "평균",
+			"STDEV": "표준편차",
+			"ADHOC_POPUP": "Ad-hoc summary modeling"
+		}
+	},
+	"SAMPLES": {
+		"EN_LANGUAGE": "영어",
+		"KO_LANGUAGE": "한국어",
+		"HEADLINE": "나는 헤드라인입니다",
+		"USER_INFO": "나의 이름은 {username}이고 나의 직업은 {job} 입니다",
+		"TEXT": "나는 messageformat interpolation 을 사용하고 있습니다 { val }",
+		"PLURAL": "{GENDER, select, male{그는} female{그녀는} other{그들은}} 이것을 좋아한다"
+	},
+	"DATA_LABEL": {
+		"TOOL_MODEL_VERSION": "toolModelVersion",
+		"TOOLS": "tools",
+		"TOOL": "tool",
+		"TOOL_NAME": "toolName",
+		"NAME": "name",
+		"MODULE": "module",
+		"MODULE_NAME": "moduleName",
+		"MODULE_GROUP": "unitGroup",
+		"MODULE_TYPE_NAME": "unitType",
+		"UNIT_NAME": "unit",
+		"MODULES": "modules",
+		"PPID": "Cluster recipe",
+		"PRODUCT": "product",
+		"PRODUCTS": "products",
+		"OPERATION": "operation",
+		"OPERATIONS": "operations",
+		"RECIPES": "recipes",
+		"RECIPE": "recipe",
+		"FROM": "from",
+		"TO": "to",
+		"START_DTTS": "Start Time",
+		"END_DTTS": "End Time",
+		"CLUSTER_GROUP": "clusterGroup",
+		"FOCUS": "focus",
+		"FOCUS_VALUE": "devisionLine",
+		"INLINE_TOOL": "inlineTool",
+		"INLINE_TOOLS": "inlineTools",
+		"INLINE_TOOL_LABEL": "inlineToolLabel",
+		"INLINE_TOOL_NAME": "Cluster",
+		"INLINE_GROUP": "inlineGroup",
+		"INLINE_GROUPS": "inlineGroups",
+		"INLINE_GROUP_NAME": "Cluster Group",
+		"MAINTANANCE_NAME": "maintananceName",
+		"TOOL_ALIAS": "toolAlias",
+		"TOOL_STATE_TYPE": "toolStateType",
+		"TOOL_STATE": "toolState",
+		"STATE_IN_DTTS": "stateInDtts",
+		"STATE_OUT_DTTS": "stateOutDtts",
+		"EVENT_NOTES": "eventNotes",
+		"THRESHOLD": "threshold",
+		"CONTROLTHROUGHPUT": "controlThroughput",
+		"REALTHROUGHPUT": "realThroughput",
+		"STANDARDTHROUGHPUT": "standardThroughput",
+		"THROUGHPUT": "Throughput",
+		"TOOLS_INFO": "toolsInfo",
+		"WAFERCOUNT": "WaferCount",
+		"CLUSTER": "Cluster",
+		"CLUSTER_RECIPE": "ClusterRecipe",
+		"VALUE": "value",
+		"STATUS_NAME": "statusName",
+		"STATUS_VALUE": "statusValue",
+		"STATUS_RATIO": "statusRatio",
+		"LOT": "lot",
+		"LOTS": "lots",
+		"LOT_START_DTTS": "startTime",
+		"LOT_END_DTTS": "EndTime",
+		"INLINE_RECIPE": "inlineRecipe",
+		"LOST_TIME": "lostTime",
+		"PERCENTAGE": "Percentage",
+		"COMMUNICATION": "Sync with",
+		"LOT_COUNT": "selectedLotCount",
+		"PPIDS": "ppids",
+		"TIME": "Time",
+		"PROCESS_TIME": "processTime",
+		"SUBSTRATE": "Substrate",
+		"UCL": "ucl",
+		"USL": "usl",
+		"LCL": "lcl",
+		"LSL": "lsl",
+		"RPT": "rpt",
+		"LOST_CATEGORY": "lostCategory",
+		"OOS_COUNT": "oosCount",
+		"OOC_COUNT": "oocCount",
+		"AVERAGE": "average",
+		"MIN": "min",
+		"MAX": "max",
+		"MEDIAN": "median",
+		"QUANTILE1": "quantile1",
+		"QUANTILE3": "quantile3",
+		"STDEV": "stdev",
+		"RESULT": "result",
+		"DATA_SET": "dataSet",
+		"COLUMNS": "columns",
+		"ROWS": "rows",
+		"MODEL_RPT": "modelRpt",
+		"STANDARD_TIME": "standardTime",
+		"IS_NON_SCANNER_BOTTLENECK": "isNonScannerBottleneck",
+		"SUBSTRATES": "substrates",
+		"FAULT": "fault",
+		"OOC": "ooc",
+		"OCAP": "ocap",
+		"FDTA_LOT": "fdtaLot",
+		"FDTA_WAFER": "fdtaWafer",
+		"FDTA_LOT_SCORE": "fdtaLotScore",
+		"FDTA_WAFER_SCORE": "fdtaWaferScore",
+		"FAULT_COUNT": "alarm Count",
+		"SCORE": "score",
+		"WAFER_SCORE": "Score",
+		"STEP_SCORE": "step Score",
+		"PARAMETER_COUNT": "selectedParameterCount",
+		"STEP": "Operation",
+		"COUNT_AND_TOTAL": "Count / Total count",
+		"ADDER_WAFERCOUNT": "Adder(Wafer Count)",
+		"CARRYOVER_WAFERCOUNT": "Carry Over(Wafer Count)",
+		"SELECTED_DATE": "Selected date",
+		"DATETIME": "Date Time",
+		"TIME_SLOT": "Time Slot",
+		"SEQUENCE": "Sequence",
+		"PARAMETER": "Parameter",
+		"TARGET": "Target",
+		"FAULT_STATUS": "Fault Status",
+		"SVID": "SVID",
+		"BAD_WAFER_COUNT": "Bad wafer count",
+		"JEOPARDY_WAFER_COUNT": "Jeopardy wafer count",
+		"GOOD_WAFER_COUNT": "Good wafer count",
+		"RECIPE_COUNT": "RecipeCount",
+		"RECIPE_STEP": "Recipe Step",
+		"SELECTED_WAFERCOUNT": "selectedWaferCount",
+		"RSD05": "rsd05",
+		"RSD06": "rsd06",
+		"CASSETTE_SLOT": "Cassette Slot",
+		"TAKT_TIME_FROM": "TaktTimeFrom",
+		"TAKT_TIME_TO": "TaktTimeTo",
+		"PROC_TIME_FROM": "ProcTimeFrom",
+		"PROC_TIME_TO": "ProcTimeTo",
+		"PROCESS_STATUS": "ProcessStatus",
+		"FDTA_WAFER_RELIABLE": "Full",
+		"STATUS": "Status",
+		"SPEC_THRESHOLD": "Spec Threshold",
+		"CONTROL_THRESHOLD": "Control Threshold",
+		"START_SEQUENCE": "Start Sequence",
+		"END_SEQUENCE": "End Sequence",
+		"START_TIME_SLOT": "Start Time Slot",
+		"END_TIME_SLOT": "End Time Slot",
+		"STEP_DRIFT": "Drift",
+		"STEP_DOWN_TREND": "Down Trend",
+		"STEP_POSITIVE_MAXEND": "Positive Max End",
+		"STEP_NEGATIVE_MAX": "Negative Max",
+		"STEP_MEAN": "Mean",
+		"STEP_UPTREND": "Up Trend",
+		"STEP_MAX": "Max",
+		"STEP_SLOPE": "Slope",
+		"STEP_RANGE": "Range",
+		"STEP_COUNT": "Count",
+		"STEP_POSITIVE_SUM": "Positive Sum",
+		"STEP_NEGATIVE_MAXEND": "Negative Max End",
+		"STEP_MIN": "Min",
+		"STEP_MEDIAN": "Median",
+		"STEP_DURATION": "Duration",
+		"STEP_POSITIVE_MAXSTART": "Positive Max Start",
+		"STEP_START_INDEX": "Start Index",
+		"STEP_START_TIME": "Start Time",
+		"STEP_L1_NORM": "L1 Norm",
+		"STEP_STDEV": "STDEV",
+		"STEP_POSITIVE_MAX": "Positive Max",
+		"STEP_NEGATIVE_MAXSTART": "Negative Max Start",
+		"STEP_NEGATIVE_SUM": "Negative Sum",
+		"STEP_INDEX_MAX": "Index Max",
+		"STEP_END_INDEX": "End Index",
+		"STEP_END_TIME": "End Time",
+		"STEP_INDEX_MIN": "Index Min",
+		"REFERENCE_COUNT": "Reference %",
+		"PLANT_NAME": "공장",
+		"AREA_NAME": "Area",
+		"EQP_NAME": "설비",
+		"PARAM_NAME": "Parameter",
+		"HEALTH_INDEX": "Helth Index",
+		"RADAR_TYPE": "type",
+		"ANALYSIS_SPEC": "Analysis spec(Warning 기준)",
+		"ANALYSIS_SPEC_VISIBLE": "Analysis spec visible",
+		"WORST_TOP": "Worst Top"
+	},
+	"CONTEXT": {
+		"BUTTON": {
+			"INNER_DRILLDOWN": "inner drilldown",
+			"VIEW_TRACE_TREND": "Trace Trend 보기",
+			"DETAIL_VIEW": "detail view",
+			"CANCEL": "cancel",
+			"HIDE_OTHER_SUBSTRATE": "Hide other selected process runs"
+		}
+	},
+	"PDM": {
+		"TABLE": {
+			"HEADER": {
+				"EQP_BY_SCORE_SCOPE": "Score 범위 별 설비 (대)",
+				"EQP_BY_HEALTH_VARIATION": "Health 변화량 범위 별 설비 (대)",
+				"MANUFACTURER_STANDARD": "전문업체기준"
+			}
+		},
+		"SPEC": {
+			"ALARM": "경고",
+			"WARNING": "주의"
+		},
+		"CONFIG": {},
+		"LABEL": {
+			"DETAILS_ANALYSIS": "상세분석",
+			"ANALYSIS": "분석"
+		},
+		"NOTIFY": {
+			"NOT_EXIST_PARTS": "Part 를 먼저 등록해주세요.",
+			"NOT_EXIST_ALARM": "Alarm 을 등록해주세요.",
+			"NOT_EXIST_WARNING": "Warning 을 등록해주세요.",
+			"DUPLICATE_NAME": "이미 등록된 Name입니다.",
+			"REFER_PART": "선택한 Part를 Parameter에서 참조하고 있습니다.",
+			"DUPLICATE_BEARING": "동일한 Manufacture / ModelNumber의 조합이 존재합니다.",
+			"DUPLICATE_AREA": "Area에 동일한 Name이 존재합니다."
+		}
+	}
+}

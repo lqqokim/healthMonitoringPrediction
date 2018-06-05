@@ -1,0 +1,76 @@
+<form [formGroup]="registerForm">
+    <div class="a3-form-group">
+        <ul>
+            <li class="form-group a3-input-group">
+                <label for="inputEqp" class="control-label">EQP</label>
+                <input type="text" class="form-control" formControlName="eqpName">
+            </li>
+            <li class="form-group a3-input-group">
+                <label class="control-label">Parameter</label>
+                <select id="paramName" class="form-control"  formControlName="param">
+                    <option [ngValue]="null">Not selected</option>
+                    <option *ngFor="let param of paramDatas" [ngValue]="param">
+                        {{ param.paramName }}
+                    </option>
+                </select>
+            </li>
+            <li class="form-group a3-input-group">
+                <label for="inputBearing" class="control-label">Bearing</label>
+                <input type="text" #bearing class="form-control" style="display:inline-block; width:323px;" formControlName="bearing" [ngClass]="{ 'has-error': registerForm.controls.bearing.touched && registerForm.controls.bearing.invalid }">
+                <div class="btn-group" aling="center">
+                    <button class="btn btn-default" (click)="isGridView = !isGridView; searchBearing($event)" style="margin-left:5px;">Search</button>
+                    <button class="btn btn-default" (click)="clearSearch($event)" style="margin-left:5px;">Delete</button>
+                </div>
+            </li>
+            <li class="form-group a3-input-group">
+                <label for="inputName" class="control-label">Name<span class="a3-asterisk">*</span></label>
+                <input type="text" class="form-control" formControlName="name" [ngClass]="{ 'has-error': registerForm.controls.name.touched && registerForm.controls.name.invalid }">
+                <div class='form-text error' *ngIf="registerForm.controls.name.touched">
+                    <div class="text-danger" *ngIf="registerForm.controls.name.hasError('required')">Name is required.</div>
+                </div>
+            </li>
+            <li class="form-group a3-input-group">
+                <label for="inputRatio" class="control-label">Ratio<span class="a3-asterisk">*</span></label>
+                <input type="text" class="form-control" formControlName="ratio" [ngClass]="{ 'has-error': registerForm.controls.ratio.touched && registerForm.controls.ratio.invalid }">
+                <div class='form-text error' *ngIf="registerForm.controls.ratio.touched">
+                    <div class="text-danger" *ngIf="registerForm.controls.ratio.hasError('required')">Ratio is required.</div>
+                </div>
+            </li>
+            <li class="form-group a3-input-group">
+                <label for="inputNpar1" class="control-label">NPAR1<span class="a3-asterisk">*</span></label>
+                <input type="text" class="form-control" formControlName="npar1" [ngClass]="{ 'has-error': registerForm.controls.npar1.touched && registerForm.controls.npar1.invalid }">
+                <div class='form-text error' *ngIf="registerForm.controls.npar1.touched">
+                    <div class="text-danger" *ngIf="registerForm.controls.npar1.hasError('required')">NPAR1 is required.</div>
+                </div>
+            </li>
+            <li class="form-group a3-input-group">
+                <label for="inputNpar2" class="control-label">NPAR2</label>
+                <input type="text" class="form-control" formControlName="npar2" [ngClass]="{ 'has-error': registerForm.controls.npar2.touched && registerForm.controls.npar2.invalid }">
+                <!-- <div class='form-text error' *ngIf="registerForm.controls.npar2.touched">
+                    <div class="text-danger" *ngIf="registerForm.controls.npar2.hasError('required')">NPAR2 is required.</div>
+                </div> -->
+            </li>
+            <li class="form-group a3-input-group">
+                <label for="inputSortOrder" class="control-label">Sort order<span class="a3-asterisk">*</span></label>
+                <input type="text" class="form-control" formControlName="sortOrder" [ngClass]="{ 'has-error': registerForm.controls.sortOrder.touched && registerForm.controls.sortOrder.invalid }">
+                <div class='form-text error' *ngIf="registerForm.controls.sortOrder.touched">
+                    <div class="text-danger" *ngIf="registerForm.controls.sortOrder.hasError('required')">Sort order is required.</div>
+                </div>
+            </li>
+        </ul>
+    </div>
+</form>
+
+<div class="bearings" *ngIf="isGridView">
+    <hr><span><h4>Bearing Info</h4></span><br>  
+    <wj-flex-grid #WijmoGridInstance style="height: 400px"
+        [itemsSource]="bearingDatas" 
+        [selectionMode]="'Row'" 
+        [isReadOnly]="true" 
+        [headersVisibility]="'Column'"
+        (selectionChanged)="selectedRow(WijmoGridInstance, $event)">
+        <wj-flex-grid-filter #filter></wj-flex-grid-filter>
+        <wj-flex-grid-column [width]="'*'" [header]="'Model number'" [binding]="'modelNumber'"></wj-flex-grid-column>
+        <wj-flex-grid-column [width]="'*'" [header]="'Manufacture'" [binding]="'manufacture'"></wj-flex-grid-column>
+    </wj-flex-grid>
+</div>

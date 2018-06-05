@@ -1,0 +1,23 @@
+<div bsModal #smModal="bs-modal" class="modal fade" style="z-index: 1050; display: block;" index="0" tabindex="-1" role="dialog"
+aria-labelledby="confirm" aria-hidden="true" (click)="$event.stopPropagation();" (onHide)="close()">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div *ngIf="!!title" class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="$event.preventDefault(); $event.stopPropagation(); close();"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">{{ title }}</h4>
+            </div>
+            <div class="modal-body">
+                <part-modify [data]="selectedData" (selectChange)="checkValid($event)"></part-modify>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal" (click)="$event.preventDefault(); $event.stopPropagation(); apply();" [disabled]="!applyDisabled">
+                        {{ 'BUTTON.GENERAL.APPLY' | translate }}
+                </button>
+                <button type="button" class="btn btn-cancel" (click)="$event.preventDefault(); $event.stopPropagation(); close();">
+                        {{ 'BUTTON.GENERAL.CLOSE' | translate }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+

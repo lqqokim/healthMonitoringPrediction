@@ -1,0 +1,77 @@
+<div class="form-horizontal" *ngIf="groupData">
+    <div class="a3-input-wrapper">
+        <div class="form-group a3-input-group" [ngClass]="!isGroupIdValid ? 'has-error' : null || isSameGroupId ? 'has-error' : null">
+            <label for="inputGroupID" class="control-label">Group ID <span class="a3-asterisk">*</span></label>
+            <input type="text" class="form-control" id="inputGroupID" placeholder="Group ID"
+                   maxSize="50"
+                   excludePattern="[^(a-zA-Z0-9)]"
+                   [(ngModel)]="groupData.groupId"
+                   (keyup)="groupKeyUp($event)"
+                   [disabled]="status!='create'">
+            <ul class="help-block">
+                <li *ngIf="!isGroupIdValid">{{'MESSAGE.APP_CONFIG.AUTHORITY.INPUT_GROUPID' | translate}}</li>
+                <li *ngIf="isSameGroupId">{{'MESSAGE.APP_CONFIG.AUTHORITY.DUPLICATE_GROUP' | translate}}</li>
+            </ul>
+        </div>
+        <div class="form-group a3-input-group">
+            <label for="inputDesc" class="control-label">Description</label>
+            <input type="text" class="form-control" id="inputDesc" placeholder="Description" maxlength="1024"
+                   maxSize="1000"
+                   excludePattern="[^(가-힣ㄱ-ㅎㅏ-ㅣa-zA-Z0-9\s)]"
+                   [(ngModel)]="groupData.description">
+        </div>
+    </div>
+    <div class="clearfix">
+        <!--div class="a3-condition-wrapper">
+            <select [(ngModel)]="selectCondition" class="form-control a3-condition-selectbox">
+                <option *ngFor="let condition of conditions" [value]="condition">{{condition}}</option>
+            </select>
+            <label class="a3-condition-title" for="inputCondition">Condition : </label>
+        </div>
+        <div class="a3-table-header clearfix">
+          <div class="col-sm-5">Selected RoleID</div>
+          <div class="col-sm-2"></div>
+          <div class="col-sm-5">RoleID List</div>
+        </div>
+        <div class="col-sm-5 a3-lists" [ngClass]="isRoleValid ? null : 'has-error'">
+          <div class="a3-table-title clearfix">
+            <label>Condition <span class="a3-asterisk">*</span></label>
+            <label>Role ID <span class="a3-asterisk">*</span></label>
+          </div>
+          <div class="table-responsive a3-table-lists">
+            <div class="a3-validation" *ngIf="!isRoleValid">Role ID를 입력해주세요.</div>
+            <table class="table">
+              <tbody>
+                <tr *ngFor="let role of groupData.role" (click)="selectConditionRoleRow(role.conditionRole)" [ngClass]="{rowSelected:role.conditionRole===selectedConditionRoleData}">
+                  <td>{{role.condition}}</td>
+                  <td>{{role.roleId}}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="col-sm-2 a3-arrow-wrapper">
+          <button type="button" class="btn btn-default a3-arrow-btn" [disabled]="selectedRoleData==null" (click)="onClickLeft();">
+              <i class="fa fa-arrow-left" aria-hidden="true"></i>
+            </button>
+          <button type="button" class="btn btn-default a3-arrow-btn" [disabled]="selectedConditionRoleData==null" (click)="onClickRight();">
+              <i class="fa fa-arrow-right" aria-hidden="true"></i>
+            </button>
+        </div>
+        <div class="col-sm-5 a3-lists">
+          <div class="a3-table-title clearfix">
+            <label>Role ID <span class="a3-asterisk">*</span></label>
+          </div>
+          <div class="table-responsive a3-table-lists">
+            <table class="table">
+              <tbody>
+                <tr *ngFor="let role of roles | orderBy:['roleId']" (click)="selectRoleRow(role.roleId)" [ngClass]="{rowSelected:role.roleId===selectedRoleData}">
+                  <td>{{role.roleId}}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>-->
+    </div>
+</div>

@@ -1,0 +1,31 @@
+<!-- Group slide screen -->
+<!-- a3-slide-open이면 슬라이드가 오픈된다. <div class="a3-shared-info a3-slide-open group"> -->
+<div class="a3-shared-info group" [ngClass]="{'a3-slide-open user': isOpen}">
+    <div class="modal-header no-border clearfix">
+        <span class="a3-back-icon" (click)="close()"></span>
+    </div>
+    <div class="modal-body">
+        <div class="a3-basic-info">
+            <div class="a3-title-img"></div>
+            <h1 class="modal-title"><span class="a3-group-name">{{groupInfo.groupId}}</span></h1>
+        </div>
+        <div class="a3-shadow-wrapper a3-group">
+            <div class="a3-shadow a3-shadow-top"></div>
+            <div class="a3-shadow a3-shadow-bottom"></div>
+        </div>
+        <div class="a3-shared-users-wrapper">
+            <div class="a3-shadow-cover-top"></div>
+            <div *ngFor="let user of users" class="a3-shared-card user">
+                <div class="a3-mark">
+                    <i class="fa fa-user" aria-hidden="true"></i>
+                </div>
+                <div class="a3-user-img"></div>
+                <ul class="a3-user-info">
+                    <li class="a3-name">{{user.name}}</li>
+                    <li class="a3-email">{{user.email}}</li>
+                </ul>
+            </div>
+            <div class="a3-shadow-cover-bottom"></div>
+        </div>
+    </div>
+</div>

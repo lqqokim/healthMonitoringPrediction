@@ -1,0 +1,57 @@
+<div class="a3-widget-header" #widgetHeader>
+    <!-- drag area -->
+    <div class="a3-widget-drag-area"></div>
+    <!-- widget menu -->
+    <div class="widget-set dropdown pull-left">
+        <button aria-expanded="true" name="options" title="Options" aria-haspopup="true" class="widget-set-btn"
+                data-toggle="dropdown" id="dLabel" type="button"
+                [ngClass]="{disabled: widgetModel.isPredefined && isDisabledConfig}">
+            <i class="fa a3-icon-widget-bar"></i>
+        </button>
+        <ul aria-labelledby="dLabel" class="dropdown-menu dropdown-menu-left" role="menu">
+            <li>
+                <a href="#" (click)="$event.preventDefault(); refresh()">Refresh</a>
+            </li>
+            <li *ngIf="widgetModel.isDashboardOwner && !widgetModel.isPredefined">
+                <a href="" (click)="$event.preventDefault(); deleteWidget()">Delete</a>
+            </li>
+        </ul>
+    </div>
+    <!-- right -->
+    <!--<span class="a3-widget-title">{{widgetModel?.title}}</span>-->
+    <a3p-widget-container-title [main]="widgetModel"></a3p-widget-container-title>
+    <!-- widget right button(Watch, configuration -->
+    <div class="widget-set dropdown pull-right">
+        <div refresh-clock class="a3-clock-icon" [attr.title]="refreshTime" [refresh]="refreshInfo"></div>
+        <button #widgetConfig
+                aria-expanded="true" name="configuration" aria-haspopup="true"
+                [attr.title]="configurationTitle"
+                class="widget-set-btn"
+                [ngClass]="{disabled: !widgetModel.isDashboardOwner || isDisabledConfig }"
+                data-toggle="dropdown" id="dLabel2" type="button"
+                (click)="$event.preventDefault();">
+            <i class="fa a3-icon-widget-option" *ngIf="!isDisabledConfig" ></i>
+        </button>
+    </div>
+    <!-- sync info label -->
+    <div class="widget-synced-wrapper">
+        <span [ngClass]="syncLabelClass" (click)="syncLabelClick($event)">
+            {{syncedWidget ? 'Synced from ' + syncedWidget?.widgetTitle : ''}}
+        </span>
+    </div>
+</div>
+
+<!-- load dynamically widget from widget directive of widgetTypeId -->
+<div class="a3-widget-body" [ngClass]="{'widget-setup': isToggleWidgetSetup}" #widgetBody>
+    <!-- Spinner -->
+    <div a3-spinner #spinner [type]="'component'"></div>
+    <!-- create real widget instance area -->
+    <div class="height-full" [ngClass]="{'blur': isBlur}">
+        <ng-template #widgetGenerator></ng-template>
+    </div>
+</div>
+
+<!-- This is gridster resize class. manually muse add cause widget dynamicall created from widgetContainer -->
+<span [ngClass]="{'gs-resize-handle gs-resize-handle-both': widgetModel.isDashboardOwner && !widgetModel.isPredefined,
+                  'gs-disable-resize-area': !widgetModel.isDashboardOwner || widgetModel.isPredefined}">
+</span>

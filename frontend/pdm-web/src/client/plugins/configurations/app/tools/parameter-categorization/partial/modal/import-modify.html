@@ -1,0 +1,78 @@
+<div class="form-horizontal">
+    <div class="a3-find-file-wrapper">
+        <label class="a3-sub-title">File browse</label>
+        <div class="a3-file-group">
+            <input type="file" id="import-file" #fileImportInput (change)="fileChangeListener($event)" accept=".csv">
+            <label class="upload-label" for="import-file">Browse</label>
+            <span class="a3-file-name">{{csvFilePath}}</span>
+        </div>
+        <div class="a3-file-warning">{{ 'MESSAGE.APP_CONFIG.TOOLS.IMPORT_WARNING' | translate }}</div>
+    </div>
+    <div class="a3-select-module">
+        <div class="radio">
+            <label>
+                <input type="radio" name="optionsRadios" id="optionsRadios1" value="tool_module" [(ngModel)]="importType">
+                Use Tool/Module
+            </label>
+        </div>
+        <div class="radio">
+            <label>
+                <input type="radio" name="optionsRadios" id="optionsRadios2" value="external_module" [(ngModel)]="importType">
+                Use External Module ID
+            </label>
+        </div>
+    </div>
+    <div class="csv-guide panel panel-default">
+        <span class="glyphicon glyphicon-info-sign fa-2x" aria-hidden="true"></span>
+        <div class="panel-body">
+            <div class="caption-1">
+                <h4>The csv format when use Tool/Module option</h4>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>toolName</th>
+                            <th>moduleName</th>
+                            <th>variableld</th>
+                            <th>paramName</th>
+                            <th>paramAlias</th>
+                            <th>priorityCode</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>ETCH01</td>
+                            <td>CH_A</td>
+                            <td>E001</td>
+                            <td>CHA_LOT_ID</td>
+                            <td>CHA_LOT</td>
+                            <td>B</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="caption-2">
+                <h4>The csv format when use External Module ID</h4>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>moduleName</th>
+                            <th>variableld</th>
+                            <th>paramName</th>
+                            <th>paramAlias</th>
+                            <th>priorityCode</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="csv-span">BISTel/EIC/CUBE/DIFF:DIFF03</span></td>
+                            <td>V009</td>
+                            <td>CUBE</td>
+                            <td>AR</td>
+                            <td>B</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

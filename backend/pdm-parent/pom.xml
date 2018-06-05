@@ -1,0 +1,680 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.bistel</groupId>
+    <artifactId>pdm-parent</artifactId>
+    <packaging>pom</packaging>
+    <version>1.0-SNAPSHOT</version>
+
+    <modules>
+        <module>common/pdm-api</module>
+        <module>common/pdm-common</module>
+        <module>common/pdm-rest-core</module>
+        <module>common/pdm-scheduler</module>
+        <module>common/pdm-ml</module>
+        <module>common/pdm-kafka-stream</module>
+        <module>common/pdm-spark-stream</module>
+        <module>common/pdm-kafka-utils</module>
+        <module>common/pdm-datastore</module>
+        <module>serving-layer/pdm-serving</module>
+        <module>batch-layer/pdm-batch</module>
+        <module>speed-layer/pdm-speed</module>
+        <module>deploy/pdm-serving-bundle</module>
+        <module>deploy/pdm-batch-pipeline-bundle</module>
+        <module>deploy/pdm-batch-ml-bundle</module>
+        <module>deploy/pdm-speed-bundle</module>
+        <module>deploy/pdm-datastore-sink-bundle</module>
+        <module>support/pdm-datagen</module>
+        <module>support/pdm-log-connector</module>
+    </modules>
+
+    <name>pdm-parent</name>
+    <organization>
+        <name>BISTel, Inc.</name>
+        <url>http://bistel.com</url>
+    </organization>
+    <url>http://bistel.com</url>
+
+    <properties>
+        <licenses.version>${project.version}</licenses.version>
+        <project.package.home>target/${project.artifactId}-${project.version}-package</project.package.home>
+        <!-- Maven settings -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.build.resourceEncoding>UTF-8</project.build.resourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <!-- Dependency versions -->
+        <java.version>1.8</java.version>
+        <scala.minor.version>2.11</scala.minor.version>
+        <scala.complete.version>${scala.minor.version}.8</scala.complete.version>
+        <javadoc.plugin.version>3.0.0-M1</javadoc.plugin.version>
+        <surefire.version>2.20.1</surefire.version>
+        <jackson.version>2.9.1</jackson.version>
+        <slf4j.version>1.7.25</slf4j.version>
+        <junit.version>4.12</junit.version>
+        <confluent.version>4.1.0</confluent.version>
+        <kafka.version>1.1.0</kafka.version>
+        <avro.version>1.8.2</avro.version>
+        <zookeeper.version>3.4.10</zookeeper.version>
+        <netlib.java.version>1.1.2</netlib.java.version>
+        <snappy.version>1.1.4</snappy.version>
+        <undertow.version>2.0.1.Final</undertow.version>
+        <resteasy.version>3.5.0.Final</resteasy.version>
+        <weld-servlet.version>2.4.3.Final</weld-servlet.version>
+        <guava.version>20.0</guava.version>
+        <quartz.version>2.2.1</quartz.version>
+        <sqlite-jdbc.version>3.8.11.2</sqlite-jdbc.version>
+        <postgresql.version>42.2.2</postgresql.version>
+        <oracle.version>12.1.0.1-atlassian-hosted</oracle.version>
+        <HikariCP.version>2.7.8</HikariCP.version>
+        <flywaydb.version>5.0.7</flywaydb.version>
+        <querydsl.version>4.2.1</querydsl.version>
+        <guice.version>4.2.0</guice.version>
+
+        <!--<hadoop.version>2.7.5</hadoop.version>-->
+        <!--<koloboke.version>1.0.0</koloboke.version>-->
+        <!--<spark.version>2.2.1</spark.version>-->
+        <shadePhase>package</shadePhase>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-log4j12</artifactId>
+                <version>${slf4j.version}</version>
+                <scope>runtime</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>jcl-over-slf4j</artifactId>
+                <version>${slf4j.version}</version>
+                <scope>runtime</scope>
+            </dependency>
+            <dependency>
+                <groupId>log4j</groupId>
+                <artifactId>log4j</artifactId>
+                <version>1.2.17</version>
+                <!--<scope>runtime</scope>-->
+            </dependency>
+
+            <!-- log4j2 -->
+            <!--<dependency>-->
+                <!--<groupId>org.apache.logging.log4j</groupId>-->
+                <!--<artifactId>log4j-slf4j-impl</artifactId>-->
+            <!--</dependency>-->
+            <!--<dependency>-->
+                <!--<groupId>org.apache.logging.log4j</groupId>-->
+                <!--<artifactId>log4j-core</artifactId>-->
+            <!--</dependency>-->
+            <!--<dependency>-->
+                <!--<groupId>org.slf4j</groupId>-->
+                <!--<artifactId>jul-to-slf4j</artifactId>-->
+            <!--</dependency>-->
+
+
+            <!-- a distributed streaming platform -->
+            <dependency>
+                <groupId>io.confluent</groupId>
+                <artifactId>kafka-streams-avro-serde</artifactId>
+                <version>${confluent.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.confluent</groupId>
+                <artifactId>kafka-avro-serializer</artifactId>
+                <version>${confluent.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.confluent</groupId>
+                <artifactId>kafka-schema-registry-client</artifactId>
+                <version>${confluent.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.avro</groupId>
+                <artifactId>avro</artifactId>
+                <version>${avro.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.avro</groupId>
+                <artifactId>avro-maven-plugin</artifactId>
+                <version>${avro.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.kafka</groupId>
+                <artifactId>connect-api</artifactId>
+                <version>${kafka.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.kafka</groupId>
+                <artifactId>kafka_${scala.minor.version}</artifactId>
+                <version>${kafka.version}</version>
+                <scope>provided</scope>
+                <exclusions>
+                    <!-- later Kafka versions bring this in -->
+                    <exclusion>
+                        <groupId>javax.servlet</groupId>
+                        <artifactId>servlet-api</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.kafka</groupId>
+                <artifactId>kafka-clients</artifactId>
+                <version>${kafka.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.kafka</groupId>
+                <artifactId>kafka-streams</artifactId>
+                <version>${kafka.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.zookeeper</groupId>
+                <artifactId>zookeeper</artifactId>
+                <version>${zookeeper.version}</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <!-- Undertow is a flexible performant web server written in java,
+                 providing both blocking and non-blocking API’s based on NIO. -->
+            <!--<dependency>-->
+                <!--<groupId>io.undertow</groupId>-->
+                <!--<artifactId>undertow-core</artifactId>-->
+                <!--<version>${undertow.version}</version>-->
+            <!--</dependency>-->
+            <!--<dependency>-->
+                <!--<groupId>io.undertow</groupId>-->
+                <!--<artifactId>undertow-servlet</artifactId>-->
+                <!--<version>${undertow.version}</version>-->
+            <!--</dependency>-->
+            <dependency>
+                <groupId>org.jboss.resteasy</groupId>
+                <artifactId>resteasy-undertow</artifactId>
+                <version>${resteasy.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.resteasy</groupId>
+                <artifactId>resteasy-cdi</artifactId>
+                <version>${resteasy.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.weld.servlet</groupId>
+                <artifactId>weld-servlet</artifactId>
+                <version>${weld-servlet.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.resteasy</groupId>
+                <artifactId>resteasy-client</artifactId>
+                <version>${resteasy.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.resteasy</groupId>
+                <artifactId>resteasy-jackson-provider</artifactId>
+                <version>${resteasy.version}</version>
+            </dependency>
+
+            <!-- java ext -->
+            <dependency>
+                <groupId>javax</groupId>
+                <artifactId>javaee-api</artifactId>
+                <version>8.0</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>javax.servlet</groupId>
+                <artifactId>servlet-api</artifactId>
+                <version>2.5</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>javax.el</groupId>
+                <artifactId>el-api</artifactId>
+                <version>2.2.1-b04</version>
+            </dependency>
+            <!--<dependency>-->
+                <!--<groupId>javax.servlet</groupId>-->
+                <!--<artifactId>jsp-api</artifactId>-->
+                <!--<version>2.0</version>-->
+            <!--</dependency>-->
+            <dependency>
+                <groupId>javax.enterprise</groupId>
+                <artifactId>cdi-api</artifactId>
+                <version>2.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>joda-time</groupId>
+                <artifactId>joda-time</artifactId>
+                <version>2.9.9</version>
+            </dependency>
+
+            <!-- Harmonized with Spark, Kafka to be sure -->
+            <dependency>
+                <groupId>org.xerial.snappy</groupId>
+                <artifactId>snappy-java</artifactId>
+                <version>${snappy.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.scala-lang</groupId>
+                <artifactId>scala-library</artifactId>
+                <version>${scala.complete.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.scala-lang</groupId>
+                <artifactId>scalap</artifactId>
+                <version>${scala.complete.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.scala-lang</groupId>
+                <artifactId>scala-compiler</artifactId>
+                <version>${scala.complete.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.scala-lang</groupId>
+                <artifactId>scala-reflect</artifactId>
+                <version>${scala.complete.version}</version>
+            </dependency>
+
+            <!-- configuration -->
+            <dependency>
+                <groupId>com.typesafe</groupId>
+                <artifactId>config</artifactId>
+                <version>1.3.2</version>
+            </dependency>
+
+            <!-- High Performance Linear Algebra (low level) -->
+            <dependency>
+                <groupId>com.github.fommil.netlib</groupId>
+                <artifactId>core</artifactId>
+                <version>${netlib.java.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.fommil.netlib</groupId>
+                <artifactId>all</artifactId>
+                <version>${netlib.java.version}</version>
+                <type>pom</type>
+            </dependency>
+
+            <!-- apache common -->
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>2.6</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-math3</artifactId>
+                <version>3.6.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-csv</artifactId>
+                <version>1.5</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-cli</groupId>
+                <artifactId>commons-cli</artifactId>
+                <version>1.4</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-fileupload</groupId>
+                <artifactId>commons-fileupload</artifactId>
+                <version>1.3.3</version>
+            </dependency>
+
+            <!-- google guava -->
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <!-- Can't update past this or we run into Hadoop incompatibility : 16.0.1 -->
+                <version>${guava.version}</version>
+            </dependency>
+            <!-- a lightweight dependency injection framework for Java 6 and above -->
+            <dependency>
+                <groupId>com.google.inject</groupId>
+                <artifactId>guice</artifactId>
+                <version>${guice.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.inject.extensions</groupId>
+                <artifactId>guice-persist</artifactId>
+                <version>${guice.version}</version>
+            </dependency>
+
+            <!-- This is used directly: -->
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <!-- These are to manage differing versions from Jersey -->
+            <!--<dependency>-->
+            <!--<groupId>com.fasterxml.jackson.core</groupId>-->
+            <!--<artifactId>jackson-annotations</artifactId>-->
+            <!--<version>${jackson.version}</version>-->
+            <!--</dependency>-->
+            <!--<dependency>-->
+            <!--<groupId>com.fasterxml.jackson.jaxrs</groupId>-->
+            <!--<artifactId>jackson-jaxrs-base</artifactId>-->
+            <!--<version>${jackson.version}</version>-->
+            <!--</dependency>-->
+            <!--<dependency>-->
+            <!--<groupId>com.fasterxml.jackson.jaxrs</groupId>-->
+            <!--<artifactId>jackson-jaxrs-json-provider</artifactId>-->
+            <!--<version>${jackson.version}</version>-->
+            <!--</dependency>-->
+            <!--&lt;!&ndash; These are to manage differing versions from Spark &ndash;&gt;-->
+            <!--<dependency>-->
+            <!--<groupId>com.fasterxml.jackson.module</groupId>-->
+            <!--<artifactId>jackson-module-scala_${scala.minor.version}</artifactId>-->
+            <!--<version>${jackson.version}</version>-->
+            <!--</dependency>-->
+
+            <!-- model spec. -->
+            <dependency>
+                <groupId>org.jpmml</groupId>
+                <artifactId>pmml-model</artifactId>
+                <version>1.3.8</version>
+            </dependency>
+
+            <!--<dependency>-->
+            <!--<groupId>com.koloboke</groupId>-->
+            <!--<artifactId>koloboke-api-jdk8</artifactId>-->
+            <!--<version>${koloboke.version}</version>-->
+            <!--</dependency>-->
+            <!--<dependency>-->
+            <!--<groupId>com.koloboke</groupId>-->
+            <!--<artifactId>koloboke-impl-jdk8</artifactId>-->
+            <!--<version>${koloboke.version}</version>-->
+            <!--<scope>runtime</scope>-->
+            <!--</dependency>-->
+            <dependency>
+                <groupId>org.reflections</groupId>
+                <artifactId>reflections</artifactId>
+                <!-- Can't update this dep due to Guava 20 dependences in 0.9.11+ -->
+                <version>0.9.11</version>
+                <exclusions>
+                    <!-- Exclude because it's LGPL licensed -->
+                    <exclusion>
+                        <groupId>com.google.code.findbugs</groupId>
+                        <artifactId>annotations</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <!-- scheduler -->
+            <dependency>
+                <groupId>org.quartz-scheduler</groupId>
+                <artifactId>quartz</artifactId>
+                <version>${quartz.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.quartz-scheduler</groupId>
+                <artifactId>quartz-jobs</artifactId>
+                <version>${quartz.version}</version>
+            </dependency>
+
+            <!-- swagger -->
+            <!--<dependency>-->
+            <!--<groupId>io.swagger</groupId>-->
+            <!--<artifactId>swagger-annotations</artifactId>-->
+            <!--<version>1.5.18</version>-->
+            <!--</dependency>-->
+            <!--<dependency>-->
+            <!--<groupId>io.swagger</groupId>-->
+            <!--<artifactId>swagger-core</artifactId>-->
+            <!--<version>1.5.18</version>-->
+            <!--<exclusions>-->
+            <!--<exclusion>-->
+            <!--<groupId>org.slf4j</groupId>-->
+            <!--<artifactId>slf4j-api</artifactId>-->
+            <!--</exclusion>-->
+            <!--</exclusions>-->
+            <!--</dependency>-->
+            <!--<dependency>-->
+            <!--<groupId>io.swagger</groupId>-->
+            <!--<artifactId>swagger-parser</artifactId>-->
+            <!--<version>1.0.34</version>-->
+            <!--<exclusions>-->
+            <!--<exclusion>-->
+            <!--<groupId>org.slf4j</groupId>-->
+            <!--<artifactId>slf4j-api</artifactId>-->
+            <!--</exclusion>-->
+            <!--</exclusions>-->
+            <!--</dependency>-->
+            <!--<dependency>-->
+            <!--<groupId>io.swagger</groupId>-->
+            <!--<artifactId>swagger-jaxrs</artifactId>-->
+            <!--<version>1.5.18</version>-->
+            <!--</dependency>-->
+
+            <!-- JDBC drivers, only included in runtime so they get packaged -->
+            <dependency>
+                <groupId>org.xerial</groupId>
+                <artifactId>sqlite-jdbc</artifactId>
+                <version>${sqlite-jdbc.version}</version>
+                <!--<scope>runtime</scope>-->
+            </dependency>
+            <dependency>
+                <groupId>org.postgresql</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>${postgresql.version}</version>
+                <!--<scope>runtime</scope>-->
+            </dependency>
+            <dependency>
+                <groupId>com.oracle</groupId>
+                <artifactId>ojdbc6</artifactId>
+                <version>${oracle.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.flywaydb</groupId>
+                <artifactId>flyway-core</artifactId>
+                <version>${flywaydb.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.zaxxer</groupId>
+                <artifactId>HikariCP</artifactId>
+                <version>${HikariCP.version}</version>
+                <!--<scope>compile</scope>-->
+            </dependency>
+            <!--<dependency>-->
+            <!--<groupId>org.mapdb</groupId>-->
+            <!--<artifactId>mapdb</artifactId>-->
+            <!--<version>3.0.5</version>-->
+            <!--</dependency>-->
+            <!-- jpa -->
+            <!--<dependency>-->
+            <!--<groupId>com.mysema.querydsl</groupId>-->
+            <!--<artifactId>querydsl-apt</artifactId>-->
+            <!--<version>${querydsl.version}</version>-->
+            <!--<scope>provided</scope>-->
+            <!--</dependency>-->
+            <!--<dependency>-->
+            <!--<groupId>com.querydsl</groupId>-->
+            <!--<artifactId>querydsl-jpa</artifactId>-->
+            <!--<version>${querydsl.version}</version>-->
+            <!--</dependency>-->
+
+
+            <!-- plugin framework -->
+            <dependency>
+                <groupId>org.xeustechnologies</groupId>
+                <artifactId>jcl-core</artifactId>
+                <version>2.8</version>
+            </dependency>
+
+            <!-- common -->
+            <dependency>
+                <groupId>com.bistel</groupId>
+                <artifactId>pdm-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.bistel</groupId>
+                <artifactId>pdm-common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.bistel</groupId>
+                <artifactId>pdm-rest-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.bistel</groupId>
+                <artifactId>pdm-ml</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.bistel</groupId>
+                <artifactId>pdm-connector</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.bistel</groupId>
+                <artifactId>pdm-datastore</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.bistel</groupId>
+                <artifactId>pdm-scheduler</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.bistel</groupId>
+                <artifactId>pdm-kafka-stream</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- for deployment -->
+            <dependency>
+                <groupId>com.bistel</groupId>
+                <artifactId>pdm-serving</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.bistel</groupId>
+                <artifactId>pdm-batch</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.bistel</groupId>
+                <artifactId>pdm-speed</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>${junit.version}</version>
+                <scope>test</scope>
+            </dependency>
+
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.6.1</version>
+                    <configuration>
+                        <source>1.8</source>
+                        <target>1.8</target>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.maven.apache.plugins</groupId>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>3.0.2</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>3.0.2</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>3.0.2</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-shade-plugin</artifactId>
+                    <version>3.1.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.avro</groupId>
+                    <artifactId>avro-maven-plugin</artifactId>
+                    <version>1.8.2</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
+    </build>
+
+    <!-- Configurations for Nexus -->
+    <distributionManagement>
+        <repository>
+            <id>bistel-nexus-releases</id>
+            <name>BISTel Releases Repository</name>
+            <url>https://nexus.bistel.com:8443/repository/releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id>bistel-nexus-snapshots</id>
+            <name>BISTel Snapshots Repository</name>
+            <url>https://nexus.bistel.com:8443/repository/snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+    <repositories>
+        <repository>
+            <id>spring-snapshots</id>
+            <name>Spring Snapshots</name>
+            <url>http://repo.spring.io/snapshot</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>spring-milestones</id>
+            <name>Spring Milestones</name>
+            <url>http://repo.spring.io/milestone</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>bistel-public-repository</id>
+            <name>BISTel Public Repository</name>
+            <url>https://nexus.bistel.com:8443/repository/public/</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>oracle</id>
+            <name>ORACLE JDBC Repository</name>
+            <url>https://maven.atlassian.com/3rdparty/</url>
+        </repository>
+        <repository>
+            <id>confluent</id>
+            <url>https://packages.confluent.io/maven/</url>
+        </repository>
+    </repositories>
+
+</project>

@@ -1,0 +1,29 @@
+<div class="a3-tooltip widget-menu" (mouseleave)="$event.stopPropagation(); tooltipMouseleave()">
+    <div #content></div>
+    <ul class="icons" [ngClass]="{'hidden': config.contextMenuAction.invisible}">
+        <li class="icon icon-leave-comments disabled"
+            title="Leave Comments"
+            [ngClass]="{'disabled': config.contextMenuAction.disableCommnet}"
+            (click)="$event.stopPropagation(); commentBtnClick()">
+            <span>Leave Comments</span>
+        </li>
+        <li class="icon icon-further-analysis"
+            title="Further Analysis"
+            [ngClass]="{'disabled': config.contextMenuAction.disableAppList}"
+            (click)="$event.stopPropagation(); showAppListBtnClick()">
+            <span>Further Analysis</span>
+        </li>
+        <!--<li class="icon icon-detail-view"-->
+            <!--title="Detail View"-->
+            <!--[ngClass]="{'disabled': config.contextMenuAction.disableDetailView}"-->
+            <!--(click)="$event.stopPropagation(); showDetailViewBtnClick()">-->
+            <!--<span>Further Analysis</span>-->
+        <!--</li>-->
+        <li class="icon icon-sync-widgets"
+            title="Sync with other widgets"
+            [ngClass]="{'disabled': config.contextMenuAction.disableSync}"
+            (click)="$event.stopPropagation(); syncBtnClick()">
+            <span>Sync with other widgets</span>
+        </li>
+    </ul>
+</div>

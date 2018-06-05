@@ -1,0 +1,33 @@
+<div class="form-horizontal" *ngIf="_myData">
+  <div class="a3-input-wrapper">
+    <div class="form-group a3-input-group" [ngClass]="!_isNameValid ? 'has-error' : null || _isSameName ? 'has-error' : null">
+      <label for="inputName" class="control-label">Name <span class="a3-asterisk">*</span></label>
+      <input type="text" class="form-control" id="inputName" placeholder="Name" (input)="input($event)" [(ngModel)]="_myData.name" [disabled]="status=='delete'">
+      <ul class="help-block">
+          <li *ngIf="_isSameName">{{ 'MESSAGE.APP_CONFIG.TOOLS.DUPLICATE_NAME' | translate }}</li>
+          <li *ngIf="!_isNameValid">{{validationMessage('Name')}}</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<select-list #selectList [key]="'toolId'" [leftHeader]="_selectedToolsHeader" [leftData]="_selectedTools" [rightHeader]="_toolsHeader" [rightData]="_tools" (selectionChange)="onSelectionChange($event)" [leftValidMsg]="validMsg" [listName]="listName"></select-list>
+
+<!-- Modal dialog -->
+<!--<div class="modal fade" id="myModalDeleteConfirm" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Confirm</h4>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure delete?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal" (click)="onClickSave()">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>-->

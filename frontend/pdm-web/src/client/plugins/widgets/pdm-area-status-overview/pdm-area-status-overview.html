@@ -1,0 +1,34 @@
+<!--component html goes here -->
+
+<div class="widget widget-pdm-area-status-overview">
+    <div class="a3-chart-header">
+        <a3p-widget-configuration-info [configuarationInfo]="configuarationInfo"></a3p-widget-configuration-info>
+    </div>
+    <wj-flex-grid #shopGrid [allowMerging]="'ColumnHeaders'" style="height: calc(100% - 30px);"
+                [itemsSource]="data"
+                [isReadOnly]="true"
+                [headersVisibility]="1"
+                [selectionMode]="3"
+                childItemsPath="children"
+                (itemsSourceChanged)="itemsSourceChanged($event)"
+                (selectionChanging)="onSelectStart($event)"
+                (selectionChanged)="onSelectRow($event)"
+                id='shopGrid' (initialized)="gridInit(shopGrid, $event)"><!--  (updatedLayout)="onLoaded($event)" -->
+        <wj-flex-grid-column [header]="areaColumn" [binding]="'areaName'" [width]="'*'"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'~ 90'" [binding]="'score.p9'" [name]="'Score 범위 별 설비 (대)'" [width]="'*'"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'~ 80'" [binding]="'score.p8'" [name]="'Score 범위 별 설비 (대)'" [width]="'*'"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'~ 70'" [binding]="'score.p7'" [name]="'Score 범위 별 설비 (대)'" [width]="'*'"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'~ 0'" [binding]="'score.p0'" [name]="'Score 범위 별 설비 (대)'" [width]="'*'"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'~ 50'" [binding]="'score.h5'" [name]="'Health 변화량 범위 별 설비 (대)'" [width]="'*'"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'~ 20'" [binding]="'score.h2'" [name]="'Health 변화량 범위 별 설비 (대)'" [width]="'*'"></wj-flex-grid-column>
+        <!-- <wj-flex-grid-column [header]="'~ 50'" [binding]="'score.p5'" [name]="'Score 범위 별 설비 (대)'" [width]="'*'"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'~ 40'" [binding]="'score.p4'" [name]="'Score 범위 별 설비 (대)'" [width]="'*'"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'~ 30'" [binding]="'score.p3'" [name]="'Score 범위 별 설비 (대)'" [width]="'*'"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'~ 20'" [binding]="'score.p2'" [name]="'Score 범위 별 설비 (대)'" [width]="'*'"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'~ 10'" [binding]="'score.p1'" [name]="'Score 범위 별 설비 (대)'" [width]="'*'"></wj-flex-grid-column> -->
+        <wj-flex-grid-column [header]="'경고'" [name]="'전문업체기준'" [binding]="'alarm'" [width]="'*'"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'주의'" [name]="'전문업체기준'" [binding]="'warning'" [width]="'*'"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'비가동'" [name]="'전문업체기준'" [binding]="'inactive'" [width]="'*'"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'정상'" [name]="'전문업체기준'" [binding]="'normal'" [width]="'*'"></wj-flex-grid-column>
+    </wj-flex-grid>
+</div>

@@ -1,0 +1,48 @@
+<div class="a3-configuration-forms-wrapper clearfix" [ngClass]="{'none-border': config?.invisibleBorder}">
+    <div class="a3-form-text">{{ config?.title }}</div>
+
+    <!-- dropup dropdown-->
+    <div class="btn-group" [id]="multiSelectorId" [ngClass]="{open: isOpen, dropup: isDropUp}" (click)="closeDropdown($event)">
+        <a #dropdownButton class="btn btn-default btn-configuration" [class.disabled]="isDisabledForThisComponent" (click)="openDropdown($event)">
+            <span class="pull-left text-overflow">{{ selectText }}</span>
+            <span class="caret pull-right caret-adjustment"></span>
+        </a>
+        <ul class="dropdown-menu configuration-multi-menu" aria-labelledby="dropdownMenu" scrollable [ngStyle]="{maxHeight: maxHeight+'px'}">
+            <div *ngIf="config?.isMultiple">
+                <li class="configuration-search">
+                    <input #searchTextInput
+                           class="form-control input-sm"
+                           type="text"
+                           placeholder="Filter"
+                           (change)="searchTextChange($event)"
+                           [(ngModel)]="searchText" />
+                </li>
+                <li>
+                    <label class="configuration-checkbox checked">
+                        <input type="checkbox" [(ngModel)]="isAllChecked">
+                        <label (click)="checkedAll()">
+                            {{isAllChecked ? 'Uncheck All' : 'Check All'}}
+                        </label>
+                    </label>
+                </li>
+                <li class="divider"></li>
+            </div>
+            <li style="position:relative;height:50px;" *ngIf="isLoading">
+                <div class="float-wrapper">
+                    <div class="a3-spinner-data" style="margin:0px;"></div>
+                </div>
+            </li>
+            <li *ngFor="let item of filterList | matchName : config?.labelField : searchText">
+                <a (click)="toggleSelectItem(item);">
+                    <span class="fa fa-check" [ngStyle]="getClassName(item)" aria-hidden="true">
+                    </span> {{ item[config?.labelField] }}
+                </a>
+            </li>
+        </ul>
+    </div>
+    <div class="btn-group configuration-multi-selector" [class.disabled]="isDisabledForThisComponent" *ngIf="config?.isShowSelectedList">
+        <span *ngFor="let item of selectedItems" class="multi-selector-label">{{ item[config?.labelField] }}
+            <a (click)="showRemoveItem(item);"><i class="fa fa-close"></i></a>
+        </span>
+    </div>
+</div>

@@ -1,0 +1,53 @@
+<ul dnd-sortable-container [sortableData]="dashboards">
+    <li *ngFor="let dashboard of dashboards; let i = index;" 
+         dnd-sortable 
+         [sortableIndex]="i"
+         (onDragStart)="dragStart(i)"
+         (onDragEnd)="dragEnd(i)"
+         (onDropSuccess)="saveOrder(i, dashboard)"
+         class="dashboard-card"
+         [ngClass]="{'shared': dashboard.userId !== loginUserId}">
+        <div *ngIf="dashboard.userId !== loginUserId" class="shared-user">Shared Dashboard</div>
+        <ul class="dashboard-header clearfix">
+            <div class="a3-user-circle"></div>
+            <li class="contents dashboard-list">
+                <ul>
+                    <li class="dashboard-name">
+                        <a href="#" (click)="$event.preventDefault(); goDashhboard(dashboard.dashboardId)">{{ dashboard.title }}</a>
+                    </li>
+                    <li class="user-name">{{ dashboard.userId }}</li>
+                    <li class="period">{{ dashboard.createDtts | date:'yyyy.MM.dd' }}</li>
+                </ul>
+            </li>
+            <li *ngIf="!dashboard.predefined" class="dashboard-close-btn" (click)="deleteDashboard(dashboard.dashboardId);"></li>
+        </ul>
+        <div class="shared-co-worker">
+            <span>
+                <button class="btn btn-default shared-btn" (click)="sharedDashboard(dashboard);" [disabled]="dashboard.userId !== loginUserId"></button>
+            </span>
+            <ul class="co-worker" [hidden]="dashboard.userId === loginUserId">
+                <!--<li><img [src]="session.getUserImgPath()"></li>-->
+                <li></li>
+            </ul>
+        </div>
+        <div dashboard-carousel [widgets]="dashboard.widgets"></div>
+        <!-- Old version: Not used
+        <div class="widget-container carousel slide">
+            <div class="carousel-inner">
+                <div *ngFor="let slidez of slides; let i = index;" [class.active]="slidez.active === true" class="widgets item carousel-item">
+                    <ul *ngFor="let widget of dashboard.widgets.slice(0, 8)" class="widget">
+                        <li class="widget-image">
+                            <img src="assets/images/widgets/{{ getWidgetTypeName(widget.widgetTypeId) | a3CamelToDashed }}.png" />
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="widget-footer">
+                <ul class="widget-pagenation">
+                    <li *ngFor="let slidez of slides; let i = index;" [class.active]="slidez.active === true" (click)="selectSlide(i)"></li>
+                </ul>
+            </div>
+        </div>
+        -->
+    </li>
+</ul>

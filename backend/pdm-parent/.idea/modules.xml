@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/common/pdm-api/pdm-api.iml" filepath="$PROJECT_DIR$/common/pdm-api/pdm-api.iml" />
+      <module fileurl="file://$PROJECT_DIR$/batch-layer/pdm-batch/pdm-batch.iml" filepath="$PROJECT_DIR$/batch-layer/pdm-batch/pdm-batch.iml" />
+      <module fileurl="file://$PROJECT_DIR$/deploy/pdm-batch-ml-bundle/pdm-batch-ml-bundle.iml" filepath="$PROJECT_DIR$/deploy/pdm-batch-ml-bundle/pdm-batch-ml-bundle.iml" />
+      <module fileurl="file://$PROJECT_DIR$/deploy/pdm-batch-pipeline-bundle/pdm-batch-pipeline-bundle.iml" filepath="$PROJECT_DIR$/deploy/pdm-batch-pipeline-bundle/pdm-batch-pipeline-bundle.iml" />
+      <module fileurl="file://$PROJECT_DIR$/common/pdm-common/pdm-common.iml" filepath="$PROJECT_DIR$/common/pdm-common/pdm-common.iml" />
+      <module fileurl="file://$PROJECT_DIR$/support/pdm-datagen/pdm-datagen.iml" filepath="$PROJECT_DIR$/support/pdm-datagen/pdm-datagen.iml" />
+      <module fileurl="file://$PROJECT_DIR$/common/pdm-datastore/pdm-datastore.iml" filepath="$PROJECT_DIR$/common/pdm-datastore/pdm-datastore.iml" />
+      <module fileurl="file://$PROJECT_DIR$/deploy/pdm-datastore-sink-bundle/pdm-datastore-sink-bundle.iml" filepath="$PROJECT_DIR$/deploy/pdm-datastore-sink-bundle/pdm-datastore-sink-bundle.iml" />
+      <module fileurl="file://$PROJECT_DIR$/common/pdm-kafka-stream/pdm-kafka-stream.iml" filepath="$PROJECT_DIR$/common/pdm-kafka-stream/pdm-kafka-stream.iml" />
+      <module fileurl="file://$PROJECT_DIR$/common/pdm-kafka-utils/pdm-kafka-utils.iml" filepath="$PROJECT_DIR$/common/pdm-kafka-utils/pdm-kafka-utils.iml" />
+      <module fileurl="file://$PROJECT_DIR$/support/pdm-log-connector/pdm-log-connector.iml" filepath="$PROJECT_DIR$/support/pdm-log-connector/pdm-log-connector.iml" />
+      <module fileurl="file://$PROJECT_DIR$/common/pdm-ml/pdm-ml.iml" filepath="$PROJECT_DIR$/common/pdm-ml/pdm-ml.iml" />
+      <module fileurl="file://$PROJECT_DIR$/pdm-parent.iml" filepath="$PROJECT_DIR$/pdm-parent.iml" />
+      <module fileurl="file://$PROJECT_DIR$/common/pdm-rest-core/pdm-rest-core.iml" filepath="$PROJECT_DIR$/common/pdm-rest-core/pdm-rest-core.iml" />
+      <module fileurl="file://$PROJECT_DIR$/common/pdm-scheduler/pdm-scheduler.iml" filepath="$PROJECT_DIR$/common/pdm-scheduler/pdm-scheduler.iml" />
+      <module fileurl="file://$PROJECT_DIR$/serving-layer/pdm-serving/pdm-serving.iml" filepath="$PROJECT_DIR$/serving-layer/pdm-serving/pdm-serving.iml" />
+      <module fileurl="file://$PROJECT_DIR$/deploy/pdm-serving-bundle/pdm-serving-bundle.iml" filepath="$PROJECT_DIR$/deploy/pdm-serving-bundle/pdm-serving-bundle.iml" />
+      <module fileurl="file://$PROJECT_DIR$/common/pdm-spark-stream/pdm-spark-stream.iml" filepath="$PROJECT_DIR$/common/pdm-spark-stream/pdm-spark-stream.iml" />
+      <module fileurl="file://$PROJECT_DIR$/speed-layer/pdm-speed/pdm-speed.iml" filepath="$PROJECT_DIR$/speed-layer/pdm-speed/pdm-speed.iml" />
+      <module fileurl="file://$PROJECT_DIR$/deploy/pdm-speed-bundle/pdm-speed-bundle.iml" filepath="$PROJECT_DIR$/deploy/pdm-speed-bundle/pdm-speed-bundle.iml" />
+    </modules>
+  </component>
+</project>

@@ -1,0 +1,268 @@
+/* Parameter Categorization App config */
+.parameter-category-appconfig {
+  height: 100%;
+  width: 100%;
+
+  .a3-app-configuration-body {
+    width: 100%;
+    height: 100%;
+  }
+
+  .a3-sub-title {
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 28px;
+  }
+  .header-btn .btn span{
+    padding-right: 4px;
+  }
+  .a3-category-wrapper {
+    width: 100%;
+    height: 215px;
+
+    .a3-category-table {
+      overflow: auto;
+      height: 175px;
+
+      .a3-table-empty{
+        width: 100%;
+        height: 100%;
+        font-weight: bold;
+        margin-top: 3rem;
+        text-align: center;
+      }
+      .a3-table-cell.checkbox {
+        width: 5%;
+        text-align: left;
+        vertical-align: middle;
+
+        label {
+          min-height: 13px;
+        }
+      }
+
+      .a3-table-cell.category {
+        width: 25%;
+        text-align: left;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+      }
+
+      .a3-table-cell.description {
+        width: 45%;
+        text-align: left;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+      }
+
+      .a3-table-cell.color {
+        width: 10%;
+      }
+
+      .a3-table-cell.display {
+        width: 15%;
+      }
+
+      .color .selected-color {
+        width: 12px;
+        height: 12px;
+        margin: auto;
+        transition: all 0.1s ease-in-out;
+        border-radius: 2px;
+      }
+
+      .display .form-control {
+        width: 50px;
+        margin: auto;
+      }
+      .a3-table-cell .a3-table-text{
+        border: 1px solid transparent;
+        width: 100%;
+        top: 0px;
+        left: -2px;
+        float: left;
+        display: inline-block;
+        position: relative;
+        border-radius: 2px;
+        text-align: left;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        padding: 4px 4px 4px 2px;
+
+        &:hover{
+          border: 1px solid #cecece;
+          background-color: #eee;
+        }
+        &:hover i.input-text{
+          display: inline-block;
+        }
+        .i.input-text{
+          color: #979B9E;
+          position: absolute;
+          top: 7px;
+          right: 8px;
+          display: none;
+          margin-left: 10px;
+          font-size: 14px;
+        }
+        .form-control{
+          padding: 4px 4px 4px 2px;
+        }
+      }
+      .a3-table-cell .a3-table-text.a3-table-edit-text{
+        float: left;
+        display: inline-block;
+        padding: 0;
+        border: transparent;
+      }
+    }
+  }
+
+  .a3-parameter-wrapper {
+    width: 100%;
+    height: calc(100% - 215px);
+
+    .a3-parameter-table {
+      width: 100%;
+      height: calc(100% - 40px);
+      overflow: auto;
+    }
+  }
+}
+/* Modal */
+.a3-import-modal {
+  .a3-sub-title {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+  }
+
+  .a3-find-file input[type="file"] {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0,0,0,0);
+    border: 0;
+  }
+
+  .a3-find-file .a3-file-group {
+    display: flex;
+    align-items: center;
+  }
+
+  .a3-find-file .a3-file-warning{
+    color: #FF4A4A;
+    margin-top: 4px;
+  }
+
+  .a3-find-file .upload-label {
+    display: inline-block;
+    padding: 5px 10px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    background: #eee;
+    border-radius: 2px 0 0 2px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.1s ease-in-out;
+  }
+
+  .a3-find-file .a3-file-name {
+    display: inline-block;
+    padding-left: 6px;
+    transition: all 0.1s ease-in-out;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    height: 29px;
+    line-height: 26px;
+    border: solid 1px #ccc;
+    border-left: 0;
+    border-radius: 0 2px 2px 0;
+    width: 100%;
+  }
+}
+
+.a3-cofirm-modal {
+  .modal-header {
+    display: none;
+  }
+
+  .modal-body {
+    padding: 30px 25px 10px;
+  }
+
+  .modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 7px 25px 20px;
+  }
+}
+
+.a3-parameterlist-contents {
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+}
+
+/* color contextmenu */
+.a3-tooltip.a3-tooltip-category {
+  position: absolute;
+  background-color: #ffffff;
+  border: 1px solid #cccccc;
+  border-radius: 3px;
+  z-index: 1000;
+  width: 222px;
+  min-width: 222px;
+
+  .title {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: bold;
+  }
+
+  .category-color-group {
+    float: none;
+    display: flex;
+    flex-wrap: nowrap;
+    overflow: auto;
+    justify-content: space-around;
+
+    &:last-child {
+      margin-top: 5px;
+    }
+  }
+
+  .category-color {
+    float: left;
+    margin-right: 10px;
+    width: 27px;
+    height: 27px;
+    border-radius: 50%;
+    background-color: #eee;
+    cursor: pointer;
+    transition: all 0.1s ease-in-out;
+
+    &:last-child {
+      margin: 0;
+    }
+
+    &:hover {
+      opacity: 0.7;
+    }
+  }
+
+  .category-color.selected {
+    border: solid 2px #333;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+}

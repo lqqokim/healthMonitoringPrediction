@@ -1,0 +1,12 @@
+.location-left {
+    width: 50%;
+    float: left;
+    height: calc(100% - 70px);
+    overflow: auto;
+}
+
+.location-right {
+    width: 100%;
+    padding-left: 50%;
+    height: 100%;
+}

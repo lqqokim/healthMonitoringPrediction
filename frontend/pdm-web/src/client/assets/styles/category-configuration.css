@@ -1,0 +1,289 @@
+/* Parameter Categorization App config */
+.parameter-category-appconfig {
+  height: 100%;
+  width: 100%;
+}
+
+.parameter-category-appconfig .a3-app-configuration-body {
+  width: 100%;
+  height: 100%;
+}
+
+.parameter-category-appconfig .a3-sub-title {
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 28px;
+}
+
+.parameter-category-appconfig .header-btn .btn span {
+  padding-right: 4px;
+}
+
+.parameter-category-appconfig .a3-category-wrapper {
+  width: 100%;
+  height: 215px;
+}
+
+.parameter-category-appconfig .a3-category-wrapper .a3-category-table {
+  overflow: auto;
+  height: 175px;
+}
+
+.parameter-category-appconfig .a3-category-wrapper .a3-category-table .a3-table-empty {
+  width: 100%;
+  height: 100%;
+  font-weight: bold;
+  margin-top: 3rem;
+  text-align: center;
+}
+
+.parameter-category-appconfig .a3-category-wrapper .a3-category-table .a3-table-cell.checkbox {
+  width: 5%;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.parameter-category-appconfig .a3-category-wrapper .a3-category-table .a3-table-cell.checkbox label {
+  min-height: 13px;
+}
+
+.parameter-category-appconfig .a3-category-wrapper .a3-category-table .a3-table-cell.category {
+  width: 25%;
+  text-align: left;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.parameter-category-appconfig .a3-category-wrapper .a3-category-table .a3-table-cell.description {
+  width: 45%;
+  text-align: left;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.parameter-category-appconfig .a3-category-wrapper .a3-category-table .a3-table-cell.color {
+  width: 10%;
+}
+
+.parameter-category-appconfig .a3-category-wrapper .a3-category-table .a3-table-cell.display {
+  width: 15%;
+}
+
+.parameter-category-appconfig .a3-category-wrapper .a3-category-table .color .selected-color {
+  width: 12px;
+  height: 12px;
+  margin: auto;
+  transition: all 0.1s ease-in-out;
+  border-radius: 2px;
+}
+
+.parameter-category-appconfig .a3-category-wrapper .a3-category-table .display .form-control {
+  width: 50px;
+  margin: auto;
+}
+
+.parameter-category-appconfig .a3-category-wrapper .a3-category-table .a3-table-cell .a3-table-text {
+  border: 1px solid transparent;
+  width: 100%;
+  top: 0px;
+  left: -2px;
+  float: left;
+  display: inline-block;
+  position: relative;
+  border-radius: 2px;
+  text-align: left;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  padding: 4px 4px 4px 2px;
+}
+
+.parameter-category-appconfig .a3-category-wrapper .a3-category-table .a3-table-cell .a3-table-text:hover {
+  border: 1px solid #cecece;
+  background-color: #eee;
+}
+
+.parameter-category-appconfig .a3-category-wrapper .a3-category-table .a3-table-cell .a3-table-text:hover i.input-text {
+  display: inline-block;
+}
+
+.parameter-category-appconfig .a3-category-wrapper .a3-category-table .a3-table-cell .a3-table-text .i.input-text {
+  color: #979B9E;
+  position: absolute;
+  top: 7px;
+  right: 8px;
+  display: none;
+  margin-left: 10px;
+  font-size: 14px;
+}
+
+.parameter-category-appconfig .a3-category-wrapper .a3-category-table .a3-table-cell .a3-table-text .form-control {
+  padding: 4px 4px 4px 2px;
+}
+
+.parameter-category-appconfig .a3-category-wrapper .a3-category-table .a3-table-cell .a3-table-text.a3-table-edit-text {
+  float: left;
+  display: inline-block;
+  padding: 0;
+  border: transparent;
+}
+
+.parameter-category-appconfig .a3-parameter-wrapper {
+  width: 100%;
+  height: calc(100% - 215px);
+}
+
+.parameter-category-appconfig .a3-parameter-wrapper .a3-parameter-table {
+  width: 100%;
+  height: calc(100% - 40px);
+  overflow: auto;
+}
+
+/* Modal */
+.a3-import-modal .a3-sub-title {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.a3-import-modal .a3-find-file input[type="file"] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+.a3-import-modal .a3-find-file .a3-file-group {
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-align-items: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+
+.a3-import-modal .a3-find-file .a3-file-warning {
+  color: #FF4A4A;
+  margin-top: 4px;
+}
+
+.a3-import-modal .a3-find-file .upload-label {
+  display: inline-block;
+  padding: 5px 10px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  background: #eee;
+  border-radius: 2px 0 0 2px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.1s ease-in-out;
+}
+
+.a3-import-modal .a3-find-file .a3-file-name {
+  display: inline-block;
+  padding-left: 6px;
+  transition: all 0.1s ease-in-out;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  height: 29px;
+  line-height: 26px;
+  border: solid 1px #ccc;
+  border-left: 0;
+  border-radius: 0 2px 2px 0;
+  width: 100%;
+}
+
+.a3-cofirm-modal .modal-header {
+  display: none;
+}
+
+.a3-cofirm-modal .modal-body {
+  padding: 30px 25px 10px;
+}
+
+.a3-cofirm-modal .modal-footer {
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-align-items: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-justify-content: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  padding: 7px 25px 20px;
+}
+
+.a3-parameterlist-contents {
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+}
+
+/* color contextmenu */
+.a3-tooltip.a3-tooltip-category {
+  position: absolute;
+  background-color: #ffffff;
+  border: 1px solid #cccccc;
+  border-radius: 3px;
+  z-index: 1000;
+  width: 222px;
+  min-width: 222px;
+}
+
+.a3-tooltip.a3-tooltip-category .title {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.a3-tooltip.a3-tooltip-category .category-color-group {
+  float: none;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-wrap: nowrap;
+      -ms-flex-wrap: nowrap;
+          flex-wrap: nowrap;
+  overflow: auto;
+  -webkit-justify-content: space-around;
+      -ms-flex-pack: distribute;
+          justify-content: space-around;
+}
+
+.a3-tooltip.a3-tooltip-category .category-color-group:last-child {
+  margin-top: 5px;
+}
+
+.a3-tooltip.a3-tooltip-category .category-color {
+  float: left;
+  margin-right: 10px;
+  width: 27px;
+  height: 27px;
+  border-radius: 50%;
+  background-color: #eee;
+  cursor: pointer;
+  transition: all 0.1s ease-in-out;
+}
+
+.a3-tooltip.a3-tooltip-category .category-color:last-child {
+  margin: 0;
+}
+
+.a3-tooltip.a3-tooltip-category .category-color:hover {
+  opacity: 0.7;
+}
+
+.a3-tooltip.a3-tooltip-category .category-color.selected {
+  border: solid 2px #333;
+}
+
+.a3-tooltip.a3-tooltip-category .category-color.selected:hover {
+  opacity: 1;
+}

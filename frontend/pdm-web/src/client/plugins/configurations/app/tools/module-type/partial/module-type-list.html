@@ -1,0 +1,31 @@
+<div class="a3-app-configuration-header clearfix">
+    <div type="button" class="header-btn">
+        <button class="btn btn-default" type="button" [disabled]="!selectedData" (click)="$event.stopPropagation(); deleteModuleType();">Delete</button>
+        <button class="btn btn-default" type="button" [disabled]="!selectedData" (click)="$event.stopPropagation(); updateModuleType();">Modify</button>
+        <button class="btn btn-default" (click)="createModuleType()">Create</button>
+    </div>
+</div>
+
+<div class="a3-app-configuration-body">
+    <!-- User & Group 분할 영역 -->
+    <div class="a3-app-configuration-chart-wrapper no-padding">
+        <!--좌측 Hierarchy view 영역-->
+        <wj-flex-grid #flex
+          [itemsSource]="datas"
+          [isReadOnly]="true"
+          [selectionMode]="'Row'"
+          [headersVisibility]="'Column'"
+          (selectionChanged)="selectedRow(flex,$event)"
+          (window:resize)="onResize($event)">
+        <wj-flex-grid-filter></wj-flex-grid-filter>
+        <wj-flex-grid-column [header]="'Name'" [binding]="'name'" [width]="'*'"></wj-flex-grid-column>
+        <!--<wj-flex-grid-column [header]="'Description'" [binding]="'description'" [width]="160"></wj-flex-grid-column>-->
+        <wj-flex-grid-column [header]="'Create Time'" [binding]="'createDtts'" [align]="'left'" [width]="240">
+        <ng-template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">{{cell.item.createDtts|date:'medium'}}</ng-template>
+        </wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Modify Time'" [binding]="'updateDtts'" [align]="'left'" [width]="240">
+        <ng-template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">{{cell.item.updateDtts|date:'medium'}}</ng-template>
+        </wj-flex-grid-column>
+        </wj-flex-grid>
+    </div>
+</div>
