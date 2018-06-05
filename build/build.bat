@@ -1,14 +1,32 @@
-call edr_build.bat %*
-call edr_build_BD.bat %*
-call edm_build.bat %*
-call edl_build_setupkit.bat %*
+@echo off
+cls
+ECHO "eHMP Build Starting...."
 
-IF NOT EXIST release mkdir release
-copy ..\eDataLyzer\BISTel.eDataLyzer.Setup\Release\*.* .\release /y
-copy ..\eDataLyzer\packages\Install_eDataLyzer.bat .\release /y
-copy ..\eDataLyzer\packages\eDataRealm\eDataRealm.tar.gz .\release /y
-copy ..\eDataLyzer\packages\eDataRealmBD\eDataRealmBD.tar.gz .\release /y
-copy ..\eDataLyzer\packages\eDataManager\eDataManager.tar.gz .\release /y
-copy ..\buildinfo.txt .\release /y
+cd ..\frontend\build
+call build.bat
+cd ..\..\
 
-REM pause
+cd .\backend\build
+call build.bat
+cd ..\..\build
+
+IF EXIST release goto clean else create
+
+:clean
+echo release folder exists
+for /R %%x in (release) do if exist "%%x" del /q "%%x\*.*"
+rd /s /q release
+goto packaging
+
+:create
+mkdir release
+goto packaging
+
+:packaging
+
+xcopy ..\backend\build\package\* .\release /y
+
+:end
+
+
+echo "eHMP Build finished."
