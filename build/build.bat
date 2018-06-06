@@ -10,23 +10,18 @@ cd .\backend\build
 call build.bat
 cd ..\..\build
 
-IF EXIST release goto clean else create
+IF EXIST release goto cleanpackage else packaging
 
-:clean
+:cleanpackage
 echo release folder exists
 for /R %%x in (release) do if exist "%%x" del /q "%%x\*.*"
 rd /s /q release
 goto packaging
 
-:create
-mkdir release
-goto packaging
-
 :packaging
-
+mkdir release
 xcopy ..\backend\build\package\* .\release /y
 
 :end
-
 
 echo "eHMP Build finished."
