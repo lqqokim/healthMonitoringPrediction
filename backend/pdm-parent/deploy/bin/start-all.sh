@@ -3,8 +3,8 @@
 set -x
 
 # start services
-./serving-rest-start.sh start
+./serving-rest.sh start
 ./batch-stream-raw.sh start
 ./batch-stream-trace.sh start
-./datastore-start.sh start
-#./connector-log-start.sh start
+./datastore.sh start
+#./log-connector.sh start

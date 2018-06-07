@@ -1,4 +1,3 @@
-import { Renderer } from '@angular/core';
 //Angular
 import { Component, ViewEncapsulation, ViewChild, OnDestroy, AfterViewInit, ElementRef, ChangeDetectorRef, HostListener } from '@angular/core';
 
@@ -31,6 +30,10 @@ export class PdmRadarWidgetComponent extends WidgetApi implements OnSetup, OnDes
     alarmCount: number;
     warningCount: number;
 
+    detailsAnalysisLabel: string;
+    analysisLabel: string;
+    viewTrendChartLabel: string;
+
     private _areaId: any = 3;
     private _plant: any;
     private _props: any;
@@ -39,7 +42,7 @@ export class PdmRadarWidgetComponent extends WidgetApi implements OnSetup, OnDes
     isFull = false;
 
     constructor(
-        private renderer: Renderer
+        private translater: Translater
         // private _pdmRadarService: PdmRadarService
     ) {
         super();
@@ -128,7 +131,7 @@ export class PdmRadarWidgetComponent extends WidgetApi implements OnSetup, OnDes
                     event: item.event
                 },
                 template: {
-                    title: '상세분석',
+                    title: this.detailsAnalysisLabel,
                     type: ContextMenuTemplateInfo.WIDGET_BOTTOM_ACTION,
                     data: dsCd,
                     action: [
@@ -140,7 +143,7 @@ export class PdmRadarWidgetComponent extends WidgetApi implements OnSetup, OnDes
                         //     }
                         // },
                         {
-                            labelI18n: '분석',
+                            labelI18n: this.analysisLabel,
                             data: { eqpId: selectedItem.id, event: item.event, type: "eqp" },
                             callback: (data: any) => {
                                 this._syncMultiVariant(data.eqpId, null, data.type);
@@ -180,7 +183,7 @@ export class PdmRadarWidgetComponent extends WidgetApi implements OnSetup, OnDes
                     event: item.event
                 },
                 template: {
-                    title: '상세분석',
+                    title: this.detailsAnalysisLabel,
                     type: ContextMenuTemplateInfo.WIDGET_BOTTOM_ACTION,
                     data: dsCd,
                     action: []
@@ -196,14 +199,14 @@ export class PdmRadarWidgetComponent extends WidgetApi implements OnSetup, OnDes
             if (item.flag) {
                 context.template.action = [
                     {
-                        labelI18n: 'Trend chart 보기',
+                        labelI18n: this.viewTrendChartLabel,
                         data: item,
                         callback: (item: any) => {
                             this.AWVComponent.showTrendChartAtContext(item.type, item.eqpName, item.eqpId, item.paramData, item.index, item.flag);
                         }
                     },
                     {
-                        labelI18n: '분석',
+                        labelI18n: this.analysisLabel,
                         data: { eqpId: item.eqpId, paramId: item.paramData.data.paramId, event: item.event },
                         callback: (data: any) => {
                             this._syncMultiVariant(data.eqpId, data.paramId);
@@ -213,7 +216,7 @@ export class PdmRadarWidgetComponent extends WidgetApi implements OnSetup, OnDes
             } else {
                 context.template.action = [
                     {
-                        labelI18n: '분석',
+                        labelI18n: this.analysisLabel,
                         data: { eqpId: item.eqpId, paramId: item.paramData.data.paramId, event: item.event },
                         callback: (data: any) => {
                             this._syncMultiVariant(data.eqpId, data.paramId);
@@ -282,8 +285,16 @@ export class PdmRadarWidgetComponent extends WidgetApi implements OnSetup, OnDes
 
     private _init(): void {
         this.showSpinner();
+        this.setGlobalLabel();
         this._props = this.getProperties();
         this._setConfigInfo();
+    }
+
+    private setGlobalLabel(): void {
+        let translater = this.translater;
+        this.detailsAnalysisLabel = translater.instant('PDM.LABEL.DETAILS_ANALYSIS');
+        this.analysisLabel = translater.instant('PDM.LABEL.ANALYSIS');
+        this.viewTrendChartLabel = translater.instant('PDM.LABEL.VIEW_TREND_CHART');
     }
 
     ngOnDestroy() {

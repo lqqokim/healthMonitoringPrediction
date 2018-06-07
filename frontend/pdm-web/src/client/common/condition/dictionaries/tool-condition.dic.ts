@@ -621,4 +621,13 @@ export class ToolConditionDic {
             },
             newCondition);
     }
+
+    static monitoring( newCondition: ConditionValueType = {} ): ConditionType {
+        return compose(
+            CD.MONITORING,
+            {
+                required: true
+            },
+            newCondition);
+    }
 }

@@ -1,12 +1,9 @@
 package com.bistel.pdm.datastore;
 
-import com.bistel.pdm.common.settings.ConfigUtils;
-import com.typesafe.config.Config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
@@ -24,7 +21,7 @@ public class RepositorySinker {
     private final String topicPrefix;
     private final String groupId;
 
-    private ExecutorService executor = Executors.newFixedThreadPool(2);
+    private ExecutorService executor = Executors.newFixedThreadPool(4);
 
     public RepositorySinker(final String groupId, final String topicPrefix, String configPath) {
         this.groupId = groupId;
@@ -40,10 +37,16 @@ public class RepositorySinker {
         }
 
         executor.submit(new TraceRawConsumerRunnable(
-                producerProperties, this.groupId + "1", this.topicPrefix + "-raw"));
+                producerProperties, this.groupId + "_raw", this.topicPrefix + "-raw"));
 
         executor.submit(new TraceRmsConsumerRunnable(
-                producerProperties, this.groupId + "2", this.topicPrefix + "-trace"));
+                producerProperties, this.groupId + "_rms", this.topicPrefix + "-trace"));
+
+        executor.submit(new FeatureAggConsumerRunnable(
+                producerProperties, this.groupId + "_feature", this.topicPrefix + "-feature"));
+
+        executor.submit(new OutOfSpecConsumerRunnable(
+                producerProperties, this.groupId + "_OOS", this.topicPrefix + "-OOS"));
     }
 
     public void awaitTerminationAfterShutdown() {

@@ -16,7 +16,7 @@
                 </div>
             </li>
             <li class="form-group a3-input-group">
-                <label for="inputManufacture" class="control-label">Menufacture<span *ngIf="!isModify" class="a3-asterisk">*</span></label>
+                <label for="inputManufacture" class="control-label">Manufacture<span *ngIf="!isModify" class="a3-asterisk">*</span></label>
                 <input type="text" class="form-control" formControlName="manufacture" [ngClass]="{ 'has-error': registerForm.controls.manufacture.touched && registerForm.controls.manufacture.invalid }">
                 <!-- <div class='form-text error' *ngIf="registerForm.controls.manufacture.touched">
                     <div class="text-danger" *ngIf="registerForm.controls.manufacture.hasError('required')">Menufacture is required.</div>

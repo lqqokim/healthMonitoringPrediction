@@ -49,8 +49,8 @@
     <delete id="deleteAlarmByEqpId">
         delete from alarm_trx_pdm
         where param_mst_rawid in(select rawid from param_mst_pdm where eqp_mst_rawid = #{eqpId})
-        and a.alarm_dtts <![CDATA[>=]]> #{start}
-        and a.alarm_dtts <![CDATA[<]]> #{end}
+        and alarm_dtts <![CDATA[>=]]> #{start}
+        and alarm_dtts <![CDATA[<]]> #{end}
     </delete>
     <delete id="deleteEqpAlarm">
         delete from eqp_alarm_daily_sum_pdm

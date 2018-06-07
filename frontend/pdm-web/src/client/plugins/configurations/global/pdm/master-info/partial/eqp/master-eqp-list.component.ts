@@ -177,6 +177,14 @@ export class MasterEqpListComponent implements OnInit, OnChanges {
 
     saveData(): any {
         let eqpData = Object.assign({}, this.eqpData);
+
+        if (this.status === 'create' || (this.status === 'modify' && this.selectedRowData.eqpName !== eqpData.eqpName)) {
+            if (!this.checkUniqueData(eqpData)) {
+                this.notify.warn("PDM.NOTIFY.DUPLICATE_EQP");
+                return;
+            }
+        }
+
         this._showModal(false);
 
         if (this.status === 'copy') {
@@ -209,6 +217,20 @@ export class MasterEqpListComponent implements OnInit, OnChanges {
             console.log('eqp request', request);
             this._updateEqp(request);
         }
+    }
+
+    checkUniqueData(data: any): boolean {
+        let eqpDatas: any = this.eqpDatas;
+        let length: number = eqpDatas.length;
+        let result: boolean = true;
+
+        for (let i = 0; i < length; i++) {
+            if (eqpDatas[i].eqpName === data.eqpName) {
+                result = false;
+                break;
+            }
+        }
+        return result;
     }
 
     _updateEqp(request: any): void {

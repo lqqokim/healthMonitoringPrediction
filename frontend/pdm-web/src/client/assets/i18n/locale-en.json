@@ -522,7 +522,8 @@
         "RADAR_TYPE": "Type",
         "ANALYSIS_SPEC": "Analysis spec(Warning criteria)",
         "ANALYSIS_SPEC_VISIBLE": "Analysis spec visible",
-        "WORST_TOP": "Worst Top"
+        "WORST_TOP": "Worst Top",
+        "MONITORING": "Monitoring"
     },
     "CONTEXT": {
         "BUTTON": {
@@ -548,8 +549,9 @@
         "CONFIG": {
         },
         "LABEL": {
-            "DETAILS_ANALYSIS": "Details analysis",
-            "ANALYSIS": "Analysis"
+            "DETAILS_ANALYSIS": "Details Analysis",
+            "ANALYSIS": "Analysis",
+            "VIEW_TREND_CHART": "View Trend Chart"
         },
         "NOTIFY": {
             "NOT_EXIST_PARTS": "Please register your part first.",
@@ -558,7 +560,10 @@
             "DUPLICATE_NAME": "The Name already exists. Please use a different Name.",
             "REFER_PART": "The selected Part is referenced in the Parameter.",
             "DUPLICATE_BEARING": "A combination of the same Manufacture / ModelNumber exists.",
-            "DUPLICATE_AREA": "The same Name exists in Area."
+            "DUPLICATE_AREA": "Area with the same name exists.",
+            "DUPLICATE_EQP": "Area with the same name exists.",
+            "DUPLICATE_PARAMETER": "Parameter with the same name exists.",
+            "DUPLICATE_PART": "Part with the same name exists."
 		}
 	}
 }

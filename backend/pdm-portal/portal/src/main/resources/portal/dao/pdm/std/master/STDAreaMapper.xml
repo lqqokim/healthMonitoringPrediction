@@ -5,6 +5,7 @@
         select rawid as area_id, name,description,parent_rawid as parent_id,create_by,create_dtts,update_by,update_dtts
         from area_mst_pdm
         where parent_rawid = #{parentId}
+        order by name
     </select>
     <select id="selectAllArea" resultType="com.bistel.a3.portal.domain.pdm.db.Area">
         select rawid as area_id, name,description,parent_rawid as parent_id,create_by,create_dtts,update_by,update_dtts

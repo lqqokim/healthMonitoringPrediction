@@ -1,0 +1,180 @@
+# Start Up a 3-node ZooKeeper Ensemble ON SINGLE MACHINE
+
+docker run -d \
+   --net=host \
+   --name=zk-1 \
+   -e ZOOKEEPER_SERVER_ID=1 \
+   -e ZOOKEEPER_CLIENT_PORT=22181 \
+   -e ZOOKEEPER_TICK_TIME=2000 \
+   -e ZOOKEEPER_INIT_LIMIT=5 \
+   -e ZOOKEEPER_SYNC_LIMIT=2 \
+   -e ZOOKEEPER_SERVERS="192.168.7.229:22888:23888;192.168.7.229:32888:33888;192.168.7.229:42888:43888" \
+   -v /home/bistel/zk1-data:/var/lib/zookeeper/data \
+   -v /home/bistel/zk1-txn-logs:/var/lib/zookeeper/log \
+   confluentinc/cp-zookeeper:4.1.0
+
+docker run -d \
+   --net=host \
+   --name=zk-2 \
+   -e ZOOKEEPER_SERVER_ID=2 \
+   -e ZOOKEEPER_CLIENT_PORT=32181 \
+   -e ZOOKEEPER_TICK_TIME=2000 \
+   -e ZOOKEEPER_INIT_LIMIT=5 \
+   -e ZOOKEEPER_SYNC_LIMIT=2 \
+   -e ZOOKEEPER_SERVERS="192.168.7.229:22888:23888;192.168.7.229:32888:33888;192.168.7.229:42888:43888" \
+   -v /home/bistel/zk2-data:/var/lib/zookeeper/data \
+   -v /home/bistel/zk2-txn-logs:/var/lib/zookeeper/log \
+   confluentinc/cp-zookeeper:4.1.0
+
+docker run -d \
+   --net=host \
+   --name=zk-3 \
+   -e ZOOKEEPER_SERVER_ID=3 \
+   -e ZOOKEEPER_CLIENT_PORT=42181 \
+   -e ZOOKEEPER_TICK_TIME=2000 \
+   -e ZOOKEEPER_INIT_LIMIT=5 \
+   -e ZOOKEEPER_SYNC_LIMIT=2 \
+   -e ZOOKEEPER_SERVERS="192.168.7.229:22888:23888;192.168.7.229:32888:33888;192.168.7.229:42888:43888" \
+   -v /home/bistel/zk3-data:/var/lib/zookeeper/data \
+   -v /home/bistel/zk3-txn-logs:/var/lib/zookeeper/log \
+   confluentinc/cp-zookeeper:4.1.0
+
+# CHECK : docker logs zk-1
+
+for i in 22181 32181 42181; do
+  docker run --net=host --rm confluentinc/cp-zookeeper:4.1.0 bash -c "echo stat | nc localhost $i | grep Mode"
+done
+
+
+# Start Up 3 Kafka borkers ON SINGLE MACHINE
+
+docker run -d \
+    --net=host \
+    --name=kafka-1 \
+    -e KAFKA_JMX_PORT=9991 \
+    -e KAFKA_ZOOKEEPER_CONNECT=192.168.7.229:22181,192.168.7.229:32181,192.168.7.229:42181 \
+    -e KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://192.168.7.229:29092 \
+    -v /home/bistel/kafka1-data:/var/lib/kafka/data \
+    confluentinc/cp-kafka:4.1.0
+
+docker run -d \
+    --net=host \
+    --name=kafka-2 \
+    -e KAFKA_JMX_PORT=9992 \
+    -e KAFKA_ZOOKEEPER_CONNECT=192.168.7.229:22181,192.168.7.229:32181,192.168.7.229:42181 \
+    -e KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://192.168.7.229:39092 \
+    -v /home/bistel/kafka2-data:/var/lib/kafka/data \
+    confluentinc/cp-kafka:4.1.0
+
+docker run -d \
+     --net=host \
+     --name=kafka-3 \
+     -e KAFKA_JMX_PORT=9993 \
+     -e KAFKA_ZOOKEEPER_CONNECT=192.168.7.229:22181,192.168.7.229:32181,192.168.7.229:42181 \
+     -e KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://192.168.7.229:49092 \
+     -v /home/bistel/kafka3-data:/var/lib/kafka/data \
+     confluentinc/cp-kafka:4.1.0
+
+
+docker run -d \
+    --net=host \
+    --name=schema-registry \
+    -e SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL=192.168.7.229:32181 \
+    -e SCHEMA_REGISTRY_HOST_NAME=192.168.7.229 \
+    -e SCHEMA_REGISTRY_LISTENERS=http://192.168.7.229:8081 \
+    confluentinc/cp-schema-registry:4.1.0
+
+docker run -d \
+    --net=host \
+    --name=kafka-rest \
+    -e KAFKA_REST_ZOOKEEPER_CONNECT=192.168.7.229:32181 \
+    -e KAFKA_REST_LISTENERS=http://192.168.7.229:8082 \
+    -e KAFKA_REST_SCHEMA_REGISTRY_URL=http://192.168.7.229:8081 \
+    -e KAFKA_REST_HOST_NAME=192.168.7.229 \
+    confluentinc/cp-kafka-rest:4.1.0
+
+
+
+# create topics
+
+docker run \
+    --net=host \
+    --rm \
+    confluentinc/cp-kafka:4.1.0 \
+    kafka-topics --create \
+    --topic pdm-input-trace \
+    --partitions 10 \
+    --replication-factor 1 \
+    --if-not-exists \
+    --zookeeper 192.168.7.229:32181 \
+    --config retention.ms=3600000
+
+docker run \
+    --net=host \
+    --rm \
+    confluentinc/cp-kafka:4.1.0 \
+    kafka-topics --create \
+    --topic pdm-input-raw \
+    --partitions 10 \
+    --replication-factor 1 \
+    --if-not-exists \
+    --zookeeper 192.168.7.229:32181 \
+    --config retention.ms=3600000
+
+docker run \
+    --net=host \
+    --rm \
+    confluentinc/cp-kafka:4.1.0 \
+    kafka-topics --create \
+    --topic pdm-output-trace \
+    --partitions 10 \
+    --replication-factor 1 \
+    --if-not-exists \
+    --zookeeper 192.168.7.229:32181 \
+    --config retention.ms=3600000
+
+docker run \
+    --net=host \
+    --rm \
+    confluentinc/cp-kafka:4.1.0 \
+    kafka-topics --create \
+    --topic pdm-output-raw \
+    --partitions 10 \
+    --replication-factor 1 \
+    --if-not-exists \
+    --zookeeper 192.168.7.229:32181 \
+    --config retention.ms=3600000
+
+
+docker run \
+    --net=host \
+    --rm \
+    confluentinc/cp-kafka:4.1.0 \
+    kafka-topics --create \
+    --topic pdm-output-feature \
+    --partitions 10 \
+    --replication-factor 1 \
+    --if-not-exists \
+    --zookeeper 192.168.7.229:32181 \
+    --config retention.ms=3600000
+
+docker run \
+    --net=host \
+    --rm \
+    confluentinc/cp-kafka:4.1.0 \
+    kafka-topics --create \
+    --topic pdm-feature \
+    --partitions 10 \
+    --replication-factor 1 \
+    --if-not-exists \
+    --zookeeper 192.168.7.229:32181 \
+    --config retention.ms=3600000
+
+
+docker run \
+    --net=host \
+    --rm \
+    confluentinc/cp-kafka:4.1.0 \
+    kafka-topics \
+    --list \
+    --zookeeper 192.168.7.229:32181

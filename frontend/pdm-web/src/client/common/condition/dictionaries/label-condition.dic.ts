@@ -1212,4 +1212,13 @@ export class LabelConditionDic {
 			},
 			newCondition);
 	}
+
+	static monitoring(newCondition: ConditionValueType = {}): ConditionType {
+		return labelCompose(
+			LB.MONITORING,
+			{
+				i18n: 'DATA_LABEL.MONITORING'
+			},
+			newCondition);
+	}
 }

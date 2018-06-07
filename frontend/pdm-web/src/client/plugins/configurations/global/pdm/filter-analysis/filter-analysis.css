@@ -1,0 +1,83 @@
+.package-management.job-history-container .a3-modeling-filter-area{
+	padding: 5px 0px;
+}
+.package-management.job-history-container .code-category{
+	width: 100%;
+}
+.code-category .a3-arrow-wrapper.horizontal{
+	display: inline-block;
+}
+.code-category .code-btn-group{
+	display: inline-block;
+}
+.pdm-timeline-group .fab-label{
+	width: 240px;
+}
+
+
+.header-period-group {
+	width: 70%;
+}
+.a3-from-to {
+	/* float: left; */
+	display: flex;
+}
+
+
+table {
+	border: solid 1px gray;
+	margin: 5px;
+}
+table .filter_operator{
+	width:100px;
+}
+table .filter_fieldname{
+	width:200px;
+}
+table .filter_functionname{
+	width:100px;
+}
+table .filter_condition{
+	width:100px;
+}
+table .filter_value{
+	width:100px;
+}
+th,td{
+	padding:10px;
+}
+
+table .aggregation_function{
+	width:50px;
+}
+table .aggregation_groupValue{
+	width:50px;
+}
+table .aggregation_groupValue{
+	width:100px;
+}
+
+.container{
+	width:100%;
+	height:100%;
+	overflow-y: auto;
+}
+.data-body{
+	height:500px;
+}
+.chart-body{
+	height:500px;
+}
+
+.chart{
+	width:100%;
+	height:500px;
+}
+
+table tr td .rollover:hover{
+	cursor: pointer;
+}
+
+.tdcenter{
+	text-align: center;
+}

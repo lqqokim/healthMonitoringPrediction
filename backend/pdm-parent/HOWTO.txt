@@ -1,0 +1,97 @@
+
+
+# show topic list
+docker run \
+    --net=host \
+    --rm \
+    confluentinc/cp-kafka:4.1.0 \
+    kafka-topics \
+    --list \
+    --zookeeper 192.168.7.229:32181
+
+docker run \
+    --net=host \
+    --rm \
+    confluentinc/cp-kafka:4.1.0 \
+    kafka-topics \
+    --delete \
+    --topic pdm-input-trace \
+    --zookeeper 192.168.7.229:32181
+
+# alter topic config
+docker run \
+    --net=host \
+    --rm \
+    confluentinc/cp-kafka:4.1.0 \
+    kafka-topics \
+    --zookeeper 192.168.7.229:32181 \
+    --alter \
+    --topic pdm-input-trace \
+    --config retention.ms=1000
+
+# docker command
+
+# stop all containers
+> docker stop $(docker ps -a -q)
+
+# remove all containers
+> docker rm $(docker ps -a -q)
+
+# remove all images
+> docker rmi $(docker images -q)
+
+# exec bash
+> docker run --rm -it anapsix/alpine-java /bin/bash
+
+# java version
+> docker run -it --rm anapsix/alpine-java java -version
+
+# iostat for linux
+> sudo yum install sysstat.x86_64
+
+# build docker image
+> docker build -t bistelinc/serving .
+
+> docker run -d \
+    --net=host \
+    --name=serving-rest \
+    -e SERVING_HOST=localhost \
+    -e SERVING_PORT=28000 \
+    -e SERVING_REPOSITORY_URL=jdbc:oracle:thin:@//192.168.8.36:1521/pdm \
+    -e SERVING_REPOSITORY_USER=npdm \
+    -e SERVING_REPOSITORY_PASS=bistel01 \
+    -e SERVING_REPOSITORY_MAX_POOLSIZE=50 \
+    -e SERVING_REPOSITORY_MIN_IDLE=10 \
+    bistelinc/serving-rest:1.0.0
+
+
+# Increasing the amount of inotify watchers
+echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
+echo 256 > /proc/sys/fs/inotify/max_user_instances
+
+
+####################### docker image deploy ##################
+You can pull the image on a computer that have access to the internet.
+> sudo docker pull confluentinc/cp-zookeeper:4.1.0
+> sudo docker pull confluentinc/cp-kafka:4.1.0
+> sudo docker pull confluentinc/cp-schema-registry:4.1.0
+> sudp docker pull confluentinc/cp-kafka-rest:4.1.0
+
+Then you can save this image to a file
+> sudo docker save -o cp-zookeeper.docker confluentinc/cp-zookeeper:4.1.0
+> sudo docker save -o cp-kafka.docker confluentinc/cp-kafka:4.1.0
+> sudo docker save -o cp-kafka-rest.docker confluentinc/cp-kafka-rest:4.1.0
+> sudo docker save -o cp-schema-registry.docker confluentinc/cp-schema-registry:4.1.0
+
+Transfer the file on the offline computer (USB/CD/whatever) and load the image from the file:
+> sudo docker load cp-zookeeper.docker
+> sudo docker load cp-kafka.docker
+> sudo docker load cp-schema-registry.docker
+> sudo docker load cp-kafka-rest.docker
+
+
+# change column name
+alter table TRACE_TRX_PDM rename column reserved_col1 to rsd_01;
+
+# change column type
+alter table TRACE_TRX_PDM modify ( col1 varchar(10) );

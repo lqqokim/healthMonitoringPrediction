@@ -246,6 +246,9 @@ interface ICONDITION {
 	ANALYSIS_SPEC: string;
 	ANALYSIS_SPEC_VISIBLE: string;
 	WORST_TOP: string;
+	MONITORING: string;
+	MONITORING_ID: string;
+	MONITORING_NAME: string;	
 
 	TIME_PERIOD_30: string;
 	CUTOFF_TYPE_DAY: string;

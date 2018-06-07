@@ -1,3 +1,4 @@
+import { Translater } from './../../../sdk/i18n/translater';
 import { Subscription } from 'rxjs/Subscription';
 import { RequestOptions, Headers } from '@angular/http';
 import { Component, OnDestroy, ViewEncapsulation, OnInit, ViewChild, ElementRef, QueryList, ViewChildren, AfterViewInit, ContentChildren } from '@angular/core';
@@ -21,6 +22,9 @@ export class PdmRealTimeTrendComponent extends WidgetApi implements OnSetup, OnD
 
     isRefresh: boolean = true;
 
+    detailsAnalysisLabel: string;
+    analysisLabel: string;
+
     private _subscription: Subscription;
     private _props: any;
 
@@ -28,7 +32,8 @@ export class PdmRealTimeTrendComponent extends WidgetApi implements OnSetup, OnD
         private notify: NotifyService,
         private modalAction: ModalAction,
         private modalRequester: ModalRequester,
-        private applier: ModalApplier
+        private applier: ModalApplier,
+        private translater: Translater
     ) {
         super();
     }
@@ -104,7 +109,7 @@ export class PdmRealTimeTrendComponent extends WidgetApi implements OnSetup, OnD
                 event: items.event
             },
             template: {
-                title: '상세분석',
+                title: this.detailsAnalysisLabel,
                 type: ContextMenuTemplateInfo.WIDGET_BOTTOM_ACTION,
                 data: dsCd,
                 action: [
@@ -116,7 +121,7 @@ export class PdmRealTimeTrendComponent extends WidgetApi implements OnSetup, OnD
                     //     }
                     // },
                     {
-                        labelI18n: '분석',
+                        labelI18n: this.analysisLabel,
                         data: { areaId: item.eqp.area_id, eqpId: item.eqp.eqpId, event: items.event, type: "eqp" },
                         callback: (data: any) => {
                             this._syncMultiVariant(data.areaId, data.eqpId, null, data.type);
@@ -153,7 +158,7 @@ export class PdmRealTimeTrendComponent extends WidgetApi implements OnSetup, OnD
                 event: items.event
             },
             template: {
-                title: '상세분석',
+                title: this.detailsAnalysisLabel,
                 type: ContextMenuTemplateInfo.WIDGET_BOTTOM_ACTION,
                 data: dsCd,
                 action: [
@@ -165,7 +170,7 @@ export class PdmRealTimeTrendComponent extends WidgetApi implements OnSetup, OnD
                     //     }
                     // },
                     {
-                        labelI18n: '분석',
+                        labelI18n: this.analysisLabel,
                         data: { areaId: item.eqp.area_id, eqpId: item.eqp.eqpId, paramId: item.paramId, event: items.event, type: "param" },
                         callback: (data: any) => {
                             this._syncMultiVariant(data.areaId, data.eqpId, data.paramId, data.type);
@@ -201,8 +206,15 @@ export class PdmRealTimeTrendComponent extends WidgetApi implements OnSetup, OnD
 
     private _init(): void {
         this.showSpinner();
+        this.setGlobalLabel();
         this._props = this.getProperties();
         this._setConfigInfo(this._props);
+    }
+
+    private setGlobalLabel(): void {
+        let translater = this.translater;
+        this.detailsAnalysisLabel = translater.instant('PDM.LABEL.DETAILS_ANALYSIS');
+        this.analysisLabel = translater.instant('PDM.LABEL.ANALYSIS');
     }
 
     ngOnDestroy(): void {

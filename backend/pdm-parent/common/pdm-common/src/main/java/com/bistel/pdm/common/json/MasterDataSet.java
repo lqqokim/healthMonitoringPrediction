@@ -20,7 +20,7 @@ public class MasterDataSet {
     private Long parameterRawId;
 
     public String toKey(){
-        return this.areaName  + "," + this.equipmentName  + "," + this.parameterName;
+        return this.areaName  + "," + this.equipmentName  + ":" + this.parameterName;
     }
 
     public String getAreaName() {

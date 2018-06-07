@@ -175,6 +175,33 @@
         order by a.name
     </select>
 
+
+    <select id="selectList4to100" resultType="com.bistel.a3.portal.domain.pdm.master.EqpWithEtc">
+        select a.rawid as eqp_id,
+        a.name,
+        a.description,
+        <!--a.image,-->
+        b.name as data_type
+        from eqp_mst_pdm a,code_mst_pdm b
+        where a.data_type_cd = b.code (+)
+        <if test="areaId != null">
+            and area_mst_rawid = #{areaId}
+        </if>
+        and a.name in(
+        'Demo4','Demo5','Demo6','Demo7','Demo8','Demo9','Demo10',
+        'Demo14','Demo15','Demo16','Demo17','Demo18','Demo19','Demo20',
+        'Demo24','Demo25','Demo26','Demo27','Demo28','Demo29','Demo30',
+        'Demo31','Demo32','Demo33','Demo34','Demo35','Demo36','Demo37','Demo38','Demo39','Demo40',
+        'Demo41','Demo42','Demo43','Demo44','Demo45','Demo46','Demo47','Demo48','Demo49','Demo50',
+        'Demo51','Demo52','Demo53','Demo54','Demo55','Demo56','Demo57','Demo58','Demo59','Demo60',
+        'Demo61','Demo62','Demo63','Demo64','Demo65','Demo66','Demo67','Demo68','Demo69','Demo70',
+        'Demo71','Demo72','Demo73','Demo74','Demo75','Demo76','Demo77','Demo78','Demo79','Demo80',
+        'Demo81','Demo82','Demo83','Demo84','Demo85','Demo86','Demo87','Demo88','Demo89','Demo90',
+        'Demo91','Demo92','Demo93','Demo94','Demo95','Demo96','Demo97','Demo98','Demo99','Demo100')
+        order by a.name
+    </select>
+
+
     <select id="selectListDemoAll" resultType="com.bistel.a3.portal.domain.pdm.master.EqpWithEtc">
         select a.rawid as eqp_id,
         a.name,

@@ -47,7 +47,7 @@
                     <target>1.8</target>
                 </configuration>
             </plugin>
-            
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
@@ -100,7 +100,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>com.bistel.pdm.serving.bundle.ServingMain</mainClass>
+                            <mainClass>com.bistel.pdm.serving.bundle.ServingAppBootstrap</mainClass>
                         </manifest>
                         <manifestEntries>
                             <Class-Path>.</Class-Path>

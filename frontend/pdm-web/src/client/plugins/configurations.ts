@@ -24,6 +24,8 @@ import { JobExecuteConfigModule } from './configurations/global/manual/job-execu
 import { JobHistoryConfigModule } from './configurations/global/manual/job-history/job-history-config.module';
 import { MasterInfoModule } from './configurations/global/pdm/master-info/master-info.module';
 import { CodeModule } from './configurations/global/pdm/code/code-list.module';
+import { FilterAnalysisModule } from './configurations/global/pdm/filter-analysis/filter-analysis.module';
+import { FabMonitoringModule } from './configurations/global/pdm/fabmonitoring/fabmonitoring.module';
 import { CategoryModule } from './configurations/global/pdm/category/category-list.module';
 
 export const getConfigurationClassInfo = (menuId: string): any => {
@@ -83,6 +85,10 @@ export const getConfigurationClassInfo = (menuId: string): any => {
             return CategoryModule;
         case 'pdmCode':
             return CodeModule;
+        case 'pdmFilterAnalysis':
+            return FilterAnalysisModule;
+        case 'pdmFabMonitoring':
+            return FabMonitoringModule;
         default:
             // TODO: change Module Empty chart
             return FdtaAppConfigModule;

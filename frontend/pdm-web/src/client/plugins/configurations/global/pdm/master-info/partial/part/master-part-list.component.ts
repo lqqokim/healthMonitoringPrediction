@@ -247,6 +247,15 @@ export class MasterPartListComponent implements OnInit, OnChanges {
     }
 
     saveData(isView: boolean, bearing: string): void {
+        let partData: any = Object.assign({}, this.partData);
+
+        if (this.status === 'create' || (this.status === 'modify' && this.selectedRowData.name !== partData.name)) {
+            if (!this.checkUniqueData(partData)) {
+                this.notify.warn("PDM.NOTIFY.DUPLICATE_PART");
+                return;
+            }
+        }
+
         if (isView) {
             this.isGridView = false;
         }
@@ -261,7 +270,6 @@ export class MasterPartListComponent implements OnInit, OnChanges {
             this.partData.manufacture = null;
         }
 
-        let partData: any = Object.assign({}, this.partData);
         this._showModal(false);
 
         // let partData: any = this.partModify.getData();
@@ -291,6 +299,20 @@ export class MasterPartListComponent implements OnInit, OnChanges {
         }
 
         this.updatePart(request);
+    }
+
+    checkUniqueData(data: any): boolean {
+        let partDatas: any = this.partDatas;
+        let length: number = partDatas.length;
+        let result: boolean = true;
+
+        for (let i = 0; i < length; i++) {
+            if (partDatas[i].name === data.name) {
+                result = false;
+                break;
+            }
+        }
+        return result;
     }
 
     updatePart(request: any): void {

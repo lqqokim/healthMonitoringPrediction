@@ -20,7 +20,7 @@
     <tx:annotation-driven/>
 
     <!--Standard-->
-    <!-- fab 1-->
+     <!--fab 1-->
     <bean class="org.apache.commons.dbcp.BasicDataSource" id="fab1DataSource">
         <property name="driverClassName" value="${db.fab1.driverClassName}"/>
         <property name="url" value="${db.fab1.url}"/>

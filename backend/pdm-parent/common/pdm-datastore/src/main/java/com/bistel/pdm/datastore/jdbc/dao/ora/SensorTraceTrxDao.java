@@ -21,15 +21,15 @@ public class SensorTraceTrxDao implements SensorTraceDataDao {
     private static final String TRX_SEQ_SQL = "select SEQ_TRACE_TRX_PDM.nextval from DUAL";
 
     private static final String INSERT_SQL =
-            "insert into trace_trx_pdm (RAWID, PARAM_MST_RAWID, VALUE, RPM, ALARM_SPEC, " +
-                    "WARNING_SPEC, EVENT_DTTS, RESERVED_COL1, RESERVED_COL2, " +
-                    "RESERVED_COL3, RESERVED_COL4, RESERVED_COL5) " +
+            "insert into trace_trx_pdm (RAWID, PARAM_MST_RAWID, VALUE, ALARM_SPEC, " +
+                    "WARNING_SPEC, EVENT_DTTS, RESERVED_COL1, RESERVED_COL2, RESERVED_COL3, " +
+                    "RESERVED_COL4, RESERVED_COL5) " +
                     "values (SEQ_TRACE_TRX_PDM.nextval,?,?,?,?,?,?,?,?,?,?,?)";
 
     private static final String INSERT_SQL1 =
             "insert into trace_trx_pdm (RAWID, PARAM_MST_RAWID, VALUE, RPM, ALARM_SPEC, " +
-                    "WARNING_SPEC, EVENT_DTTS, RESERVED_COL1, RESERVED_COL2, " +
-                    "RESERVED_COL3, RESERVED_COL4, RESERVED_COL5) " +
+                    "WARNING_SPEC, EVENT_DTTS, RESERVED_COL1, RESERVED_COL2, RESERVED_COL3, " +
+                    "RESERVED_COL4, RESERVED_COL5) " +
                     "values (?,?,?,?,?,?,?,?,?,?,?,?)";
 
     public SensorTraceTrxDao() {
@@ -72,33 +72,45 @@ public class SensorTraceTrxDao implements SensorTraceDataDao {
                 // alarm spec
                 // warning spec
                 // time
-                // location
+                // rsd01~05
 
                 pstmt.setLong(1, Long.parseLong(values[0])); //param rawid
                 pstmt.setFloat(2, Float.parseFloat(values[1])); //value
 
-                pstmt.setNull(3, Types.INTEGER); //rpm
+                //pstmt.setNull(3, Types.INTEGER); //rpm
 
                 if (values[2] != null && values[2].length() > 0) {
-                    pstmt.setFloat(4, Float.parseFloat(values[2])); //alarm spec
+                    pstmt.setFloat(3, Float.parseFloat(values[2])); //alarm spec
                 } else {
-                    pstmt.setNull(4, Types.FLOAT);
+                    pstmt.setNull(3, Types.FLOAT);
                 }
 
                 if (values[3] != null && values[3].length() > 0) {
-                    pstmt.setFloat(5, Float.parseFloat(values[3])); //warning spec
+                    pstmt.setFloat(4, Float.parseFloat(values[3])); //warning spec
                 } else {
-                    pstmt.setNull(5, Types.FLOAT);
+                    pstmt.setNull(4, Types.FLOAT);
                 }
-                pstmt.setTimestamp(6, new Timestamp(Long.parseLong(values[4])));
+                pstmt.setTimestamp(5, new Timestamp(Long.parseLong(values[4])));
 
                 //reserved columns
                 if (values.length > 5) {
-                    pstmt.setString(7, values[5]); //location
-                    pstmt.setString(8, "");
-                    pstmt.setString(9, "");
-                    pstmt.setString(10, "");
-                    pstmt.setString(11, "");
+                    pstmt.setString(6, values[5]); //location
+                }
+
+                if (values.length > 6) {
+                    pstmt.setString(7, values[6]);
+                }
+
+                if (values.length > 7) {
+                    pstmt.setString(8, values[7]);
+                }
+
+                if (values.length > 8) {
+                    pstmt.setString(9, values[8]);
+                }
+
+                if (values.length > 9) {
+                    pstmt.setString(10, values[9]);
                 }
 
                 pstmt.addBatch();
@@ -108,7 +120,7 @@ public class SensorTraceTrxDao implements SensorTraceDataDao {
             try {
                 int[] ret = pstmt.executeBatch();
                 conn.commit();
-                log.debug("{} records are inserted.", ret.length);
+                log.debug("{} records are inserted into TRACE_TRX_PDM.", ret.length);
             } catch (Exception e) {
                 conn.rollback();
                 log.error(e.getMessage(), e);
@@ -165,7 +177,7 @@ public class SensorTraceTrxDao implements SensorTraceDataDao {
 
             int[] ret = pstmt.executeBatch();
             conn.commit();
-            log.debug("{} records are inserted.", ret.length);
+            log.debug("{} records are inserted into TRACE_TRX_PDM.", ret.length);
 
         } catch (SQLException e) {
             log.error(e.getMessage(), e);

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bistel.a3.portal.dao.pdm.std.master.STDEtcMapper">
+    <select id="selectMonitoring" resultType="com.bistel.a3.portal.domain.pdm.master.Monitoring">
+        select
+            *
+        from
+            monitoring_mst_pdm
+        <if test="name != null">
+            and name = #{name}
+        </if>
+
+    </select>
+    
+    <insert id="insertMonitoring">
+        <selectKey keyProperty="rawId" resultType="Long" order="BEFORE">
+            select seq_monitoring_mst_pdm.nextval FROM DUAL
+        </selectKey>
+        insert into monitoring_mst_pdm (rawid,name,image,datas,width,height,create_by,create_dtts,update_by,update_dtts)
+        values (#{rawId,jdbcType=NUMERIC},#{name,jdbcType=VARCHAR},#{image, jdbcType=VARCHAR}
+        ,#{datas, jdbcType=VARCHAR}
+        ,#{width,jdbcType=NUMERIC}
+        ,#{height,jdbcType=NUMERIC}
+        ,#{userName}
+        ,systimestamp,#{userName},systimestamp)
+    </insert>
+
+    <update id="updateMonitoring">
+        update monitoring_mst_pdm
+        set name = #{name},
+            image = #{image},
+            datas = #{datas},
+            width = #{width,jdbcType=NUMERIC},
+            height = #{height,jdbcType=NUMERIC},
+            update_by = #{userName},
+            update_dtts = systimestamp
+        where rawid = #{rawId}
+    </update>
+
+    <delete id="deleteMonitoring">
+        delete from monitoring_mst_pdm
+        where rawid = #{rawId}
+    </delete>
+
+   
+</mapper>

@@ -36,7 +36,7 @@ public class ServingLayerApplication extends Application {
     }
 
     private Set<Class<?>> doGetClasses() {
-        String packages = "com.bistel.pdm.serving.resource";
+        String packages = "com.bistel.pdm.serving.rest";
 
         log.info("Creating JAX-RS from endpoints in package(s) {}", packages);
         Objects.requireNonNull(packages);

@@ -1,0 +1,9 @@
+
+.commandbar{
+    height: 40px;
+    width: 100%;
+    background: white;
+    border: solid gray 1px;
+    padding: 5px;
+    display: flex;
+}

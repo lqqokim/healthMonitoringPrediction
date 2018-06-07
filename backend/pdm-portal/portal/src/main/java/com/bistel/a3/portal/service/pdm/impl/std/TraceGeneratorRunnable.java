@@ -45,14 +45,45 @@ public class TraceGeneratorRunnable implements Runnable {
 //                int sampleRandom = random.nextInt(sampleMax - sampleMin + 1) + sampleMin;
 //                this.sampleTraceWrite(p.getEqp_name(), p.getName(), sampleRandom);
 //
+
                     if (p.getName().equals("Motor Temperature"))
                     {
                         this.sampleTraceTempWrite(p.getEqp_name(), p.getName());
                     }
+                    else if(p.getParam_id().equals(2163L)) //Demo1 Moter DE Velocity Alarm
+                    {
+                        this.sampleTraceWrite(p.getEqp_name(), p.getName(), "EQP_TYPE1", "Velocity", "Alarm");
+                    }
+                    else if(p.getParam_id().equals(2188L)) //Demo2 Motor DE Velocity Alarm
+                    {
+                        this.sampleTraceWrite(p.getEqp_name(), p.getName(), "EQP_TYPE1", "Velocity", "Alarm_Unbalance");
+                    }
+                    else if(p.getParam_id().equals(2204L)) //Demo3 Fan DE1 Accleration Alarm
+                    {
+                        this.sampleTraceWrite(p.getEqp_name(), p.getName(), "EQP_TYPE1", "Acceleration", "Alarm");
+                    }
+                    else if(p.getParam_id().equals(8803L)) //Demo11 Fan DE1 Enveloping Alarm
+                    {
+                        this.sampleTraceWrite(p.getEqp_name(), p.getName(), "EQP_TYPE1", "Enveloping", "Alarm");
+                    }
+
+                    else if(p.getParam_id().equals(8900L)) //Demo12 Fan NDE Velocity Warning
+                    {
+                        this.sampleTraceWrite(p.getEqp_name(), p.getName(), "EQP_TYPE1", "Velocity", "Warning");
+                    }
+
+                    else if(p.getParam_id().equals(8924L)) //Demo13 Fan NDE Acceleration Warning
+                    {
+                        this.sampleTraceWrite(p.getEqp_name(), p.getName(), "EQP_TYPE1", "Velocity", "Warning");
+                    }
+
                     else
                     {
-                        this.sampleTraceWrite(p.getEqp_name(), p.getName(), "EQP_TYPE1", p.getParam_type_cd(), problemType);
+                        this.sampleTraceWrite(p.getEqp_name(), p.getName(), "EQP_TYPE1", p.getParam_type_cd(), "Normal");
                     }
+
+
+
 //            }
         }
     }
@@ -67,8 +98,6 @@ public class TraceGeneratorRunnable implements Runnable {
         SimpleDateFormat dtString = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); //Date -->String
         STDTraceDataMapper traceTrxMapper = SqlSessionUtil.getMapper(sessions, fabId, STDTraceDataMapper.class);
 
-        Date today = new Date();
-
         Double value = null;
         String data_type_cd = "RMS";
 
@@ -76,6 +105,8 @@ public class TraceGeneratorRunnable implements Runnable {
 
         Date toDay = new Date();
         toDay =DateUtils.truncate(toDay,Calendar.DATE); //2018-05-04
+
+
 
         sampleRawId = getSampleRawId(eqpType, dataType, problemType, traceTrxMapper);
 
@@ -167,7 +198,11 @@ public class TraceGeneratorRunnable implements Runnable {
             overallMinuteTrx=traceDataMapper.selectSampleTraceClosedTimeWithCurrentDESC(sampleRawId);
         }
 
-        String sEvent_timestamp = dtString.format(today);
+
+        long time = System.currentTimeMillis();
+        SimpleDateFormat dayTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+        String sEvent_timestamp = dayTime.format(new Date(time));
+
         value = overallMinuteTrx.getValue();
         String sValue = Double.toString(value);
 
@@ -246,7 +281,11 @@ public class TraceGeneratorRunnable implements Runnable {
 
         Double value = null;
         String data_type_cd = "RMS";
-        String sEvent_timestamp = dtString.format(today);
+
+        long time = System.currentTimeMillis();
+        SimpleDateFormat dayTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+        String sEvent_timestamp = dayTime.format(new Date(time));
+
 
         //온도 랜덤 생성
         Random random = new Random();

@@ -80,6 +80,18 @@ export class ConfigurationMenuService {
                         name: 'Code',
                         description: 'Pdm Code Management',
                         menus: <any>[]
+                    },
+                    {
+                        menuId: 'pdmFilterAnalysis',
+                        name: 'Filter Analysis',
+                        description: 'Pdm Filter Analysis',
+                        menus: <any>[]
+                    },
+                    {
+                        menuId: 'pdmFabMonitoring',
+                        name: 'Fab Mintoring',
+                        description: 'Pdm Fab Monitoring',
+                        menus: <any>[]
                     }
                 ]
             },

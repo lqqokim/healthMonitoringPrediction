@@ -7,47 +7,28 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public class ParameterSpecDataSet {
 
-    @JsonProperty("areaName")
-    private String areaName;
+    @JsonProperty("paramRawId")
+    private Long paramRawId;
 
-    @JsonProperty("equipmentName")
-    private String equipmentName;
-
-    @JsonProperty("parameterName")
-    private String parameterName;
-
-    @JsonProperty("alarmSpec")
-    private Float alarmSpec;
+    @JsonProperty("featureName")
+    private String featureName;
 
     @JsonProperty("warningSpec")
     private Float warningSpec;
 
-    public String toKey(){
-        return this.areaName  + "," + this.equipmentName  + "," + this.parameterName;
+    @JsonProperty("alarmSpec")
+    private Float alarmSpec;
+
+    public Long toKey() {
+        return this.paramRawId;
     }
 
-    public String getAreaName() {
-        return areaName;
+    public Long getParamRawId() {
+        return paramRawId;
     }
 
-    public void setAreaName(String areaName) {
-        this.areaName = areaName;
-    }
-
-    public String getEquipmentName() {
-        return equipmentName;
-    }
-
-    public void setEquipmentName(String equipmentName) {
-        this.equipmentName = equipmentName;
-    }
-
-    public String getParameterName() {
-        return parameterName;
-    }
-
-    public void setParameterName(String parameterName) {
-        this.parameterName = parameterName;
+    public void setParamRawId(Long paramRawId) {
+        this.paramRawId = paramRawId;
     }
 
     public Float getAlarmSpec() {
@@ -64,5 +45,13 @@ public class ParameterSpecDataSet {
 
     public void setWarningSpec(Float warningSpec) {
         this.warningSpec = warningSpec;
+    }
+
+    public String getFeatureName() {
+        return featureName;
+    }
+
+    public void setFeatureName(String featureName) {
+        this.featureName = featureName;
     }
 }

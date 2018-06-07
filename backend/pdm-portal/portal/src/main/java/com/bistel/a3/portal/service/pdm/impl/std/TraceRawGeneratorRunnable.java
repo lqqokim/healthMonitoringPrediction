@@ -65,11 +65,38 @@ public class TraceRawGeneratorRunnable implements Runnable {
 //            }
 
 
-                if (p.getName().equals("Motor Temperature")) {
-                } else {
-                this.sampleTraceRawWrite(p.getEqp_name(),p.getName(),"EQP_TYPE1", p.getParam_type_cd(), getProblemType());
-                }
+            if (p.getName().equals("Motor Temperature")) {
+            }
+            else if(p.getParam_id().equals(2163L)) //Demo1 Moter DE Velocity Alarm
+            {
+                this.sampleTraceRawWrite(p.getEqp_name(), p.getName(), "EQP_TYPE1", "Velocity", "Alarm");
+            }
+            else if(p.getParam_id().equals(2188L)) //Demo2 Motor DE Velocity Alarm
+            {
+                this.sampleTraceRawWrite(p.getEqp_name(), p.getName(), "EQP_TYPE1", "Velocity", "Alarm_Unbalance");
+            }
+            else if(p.getParam_id().equals(2204L)) //Fan DE1 Accleration Alarm
+            {
+                this.sampleTraceRawWrite(p.getEqp_name(), p.getName(), "EQP_TYPE1", "Acceleration", "Alarm");
+            }
+            else if(p.getParam_id().equals(8803L)) //Fan DE1 Enveloping Alarm
+            {
+                this.sampleTraceRawWrite(p.getEqp_name(), p.getName(), "EQP_TYPE1", "Enveloping", "Alarm");
+            }
 
+            else if(p.getParam_id().equals(8900L)) //Fan NDE Velocity Warning
+            {
+                this.sampleTraceRawWrite(p.getEqp_name(), p.getName(), "EQP_TYPE1", "Velocity", "Warning");
+            }
+
+            else if(p.getParam_id().equals(8924L)) //Fan NDE Acceleration Warning
+            {
+                this.sampleTraceRawWrite(p.getEqp_name(), p.getName(), "EQP_TYPE1", "Velocity", "Warning");
+            }
+            else
+            {
+                this.sampleTraceRawWrite(p.getEqp_name(), p.getName(), "EQP_TYPE1", p.getParam_type_cd(), "Normal");
+            }
         }
         logger.info("{} finished.", eqpName);
     }
@@ -133,7 +160,10 @@ public class TraceRawGeneratorRunnable implements Runnable {
         MeasureTrxWithBin measureTrxWithBinFreq = traceRawDataMapper.selectSampleTraceWithBinById(0, orgmeasuretrxid);
         MeasureTrxWithBin measureTrxWithBinTW = traceRawDataMapper.selectSampleTraceWithBinById(2, orgmeasuretrxid);
 
-        String sEvent_timestamp = dtString.format(today);
+        //시간
+        long time = System.currentTimeMillis();
+        SimpleDateFormat dayTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+        String sEvent_timestamp = dayTime.format(new Date(time));
 
         String max_freq = Long.toString(measureTrx.getEnd_freq());
         String freq_cnt = Integer.toString(measureTrx.getSpectra_line());

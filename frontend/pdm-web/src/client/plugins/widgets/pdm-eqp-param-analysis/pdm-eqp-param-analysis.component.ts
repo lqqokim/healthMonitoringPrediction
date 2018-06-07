@@ -180,15 +180,12 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
         private sessionStore: SessionStore,
         private renderer: Renderer2) {
         super();
-
-        this.alarmText = translater.instant('PDM.SPEC.ALARM');
-        this.warningText = translater.instant('PDM.SPEC.WARNING');
-        this.analysisText = translater.instant('PDM.LABEL.ANALYSIS');
     }
 
     //Init
     ngOnSetup() {
         this.showSpinner();
+        this.setGlobalLabel();
         this._props = this.getProperties();
         console.log('Analysis props', this._props);
         this._setProperties(this._props);
@@ -2758,6 +2755,13 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
                 this.setTreeData(child);
             });
         }
+    }
+
+    private setGlobalLabel(): void {
+        let translater = this.translater;
+        this.alarmText = translater.instant('PDM.SPEC.ALARM');
+        this.warningText = translater.instant('PDM.SPEC.WARNING');
+        this.analysisText = translater.instant('PDM.LABEL.ANALYSIS');
     }
 
     private _getImagePath(type: string): string {

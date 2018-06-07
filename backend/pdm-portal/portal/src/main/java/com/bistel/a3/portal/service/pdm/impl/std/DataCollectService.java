@@ -127,123 +127,181 @@ public class DataCollectService implements IDataCollectService {
     @Transactional
     public HashMap<String, Object> copyData(String fabId, long fromParamId, long toParamId, Date fromDate, Date toDate, Date targetDate) {
 
-        STDTraceDataMapper overallMinuteTrxMapper = SqlSessionUtil.getMapper(sessions, fabId, STDTraceDataMapper.class);
 
-        STDTraceRawDataMapper measureTrxMapper = SqlSessionUtil.getMapper(sessions, fabId, STDTraceRawDataMapper.class);
-        //SKFPumpMapper skfPumpMapper = SqlSessionUtil.getMapper(sessions, fabId, SKFPumpMapper.class);
+        STDTraceDataMapper traceTrxMapper = SqlSessionUtil.getMapper(sessions, fabId, STDTraceDataMapper.class);
+
+        STDTraceRawDataMapper traceRawTrxMapper = SqlSessionUtil.getMapper(sessions, fabId, STDTraceRawDataMapper.class);
+
+        STDParamMapper paramMapper = SqlSessionUtil.getMapper(sessions, fabId, STDParamMapper.class);
 
 
-        ////////////////////////////////////////////////////////////////////////////////////
-        SimpleDateFormat dtString = new SimpleDateFormat("yyyy-MM-dd");
-        SimpleDateFormat dtDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat dtString = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); //Date -->String
+        SimpleDateFormat dtDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); //String --> Date
 
-        //milli까지 표현되는 fromdata, todata
-        Date newFromDate = null;
-        Date newToDate = null;
+
+//        Long sampleRawId = getSampleRawId(fixProblemType,eqpType, dataType, problemType, traceTrxMapper);
+//        if (sampleRawId == null) return null;
+//
+//
+//        //get sample_trace
+//        List<OverallMinuteTrx> traceTrxes = traceTrxMapper.selectSampleTraceByRawId(sampleRawId);
+//        //해당기간의 overall객체 생성
+
+        List<OverallMinuteTrx> traceTrxes = traceTrxMapper.selectOverallMinuteTrxByParamId(fromParamId,fromDate,toDate);
+
         Date newTargetDate = null;
 
-        String sFromDate = dtString.format(fromDate);
-        sFromDate += " 00:00:00";
-        try {
-            newFromDate = dtDate.parse(sFromDate);
-        } catch (ParseException e) {
-            e.printStackTrace();
+        //put sample_trace
+        List<STDTraceTrx> batchData = new ArrayList<>();
+        for (int i = 0; i < traceTrxes.size(); i++) {
+
+            try {
+                OverallMinuteTrx traceTrx = traceTrxes.get(i);
+
+                //long newMillTime=overallMinuteTrx.getRead_dtts().getTime()+gapTargetDateFromDate;
+                //Date newOverallTime=DateUtil.createDate(newMillTime);
+
+                Date originDate = traceTrx.getRead_dtts();
+
+                String sOriginDate = dtString.format(originDate); //String 1970.01.01 12:34:56
+//                String sOriginTime[] = sOriginDate.split(" ");//String
+//
+//                String sTargetDate = dtString.format(targetDate);
+//                String sDate[] = sTargetDate.split(" ");
+//
+//                String sNewTargetDate = sDate[0] + " " + sOriginTime[1];
+                    long diff = originDate.getTime()- fromDate.getTime();
+                    newTargetDate = new Date(targetDate.getTime()+ diff);
+
+//                try {
+//                    newTargetDate = dtDate.parse(sNewTargetDate);
+//                } catch (ParseException e) {
+//                    e.printStackTrace();
+//                }
+
+                traceTrx.setRead_dtts(newTargetDate);
+                //logger.debug("sampletrace value: "+traceTrx.toString());
+                traceTrx.setParam_id(toParamId);
+
+                STDTraceTrx stdTraceTrx = new STDTraceTrx();
+                stdTraceTrx.setAlarm_spec(traceTrx.getAlarm());
+                stdTraceTrx.setWarning_spec(traceTrx.getWarn());
+                stdTraceTrx.setEvent_dtts(traceTrx.getRead_dtts());
+                stdTraceTrx.setParam_mst_rawid(toParamId);
+                stdTraceTrx.setValue(traceTrx.getValue());
+
+
+                //overallMinuteTrxMapper.insertOverallMinuteTrx(overallMinuteTrx);
+                traceTrxMapper.insertTraceTrx(stdTraceTrx);
+//            batchData.add(stdTraceTrx);\
+            }catch(Exception e){
+                e.printStackTrace();
+            }
         }
 
-        String sToDate = dtString.format(toDate);
-        sToDate += " 00:00:00";
-        try {
-            newToDate = dtDate.parse(sToDate);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-
-        String sTargetDate = dtString.format(targetDate);
-        sTargetDate += " 00:00:00";
-        try {
-            newTargetDate = dtDate.parse(sTargetDate);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-
-        ///////////////////////////////////////////////////////////////////////////////////////////
-
-        //long gapFromDateToDate=toDate.getTime()-fromDate.getTime();//FromDate와 TargetDate의 차이 값
-        long gapTargetDateFromDate = newTargetDate.getTime() - newFromDate.getTime();//TargetDate와 FromDate의 차이값
-
-        //get overall_minute_trx_pdm
-        List<OverallMinuteTrx> overallMinuteTrxes = overallMinuteTrxMapper.selectOverallMinuteTrxByParamId(fromParamId, newFromDate, newToDate);
-        //해당기간의 overall객체 생성
-
-        //put overall_minute_trx_pdm
-        for (int i = 0; i < overallMinuteTrxes.size(); i++) {
-
-            OverallMinuteTrx overallMinuteTrx = overallMinuteTrxes.get(i);
-
-            long newMillTime = overallMinuteTrx.getRead_dtts().getTime() + gapTargetDateFromDate;
-            Date newOverallTime = DateUtil.createDate(newMillTime);
-
-            overallMinuteTrx.setRead_dtts(newOverallTime);
-            overallMinuteTrx.setParam_id(toParamId);
-            //logger.debug("overallminute value: "+overallMinuteTrx.toString());
-            overallMinuteTrxMapper.insertOverallMinuteTrx(overallMinuteTrx);
-
-        }
+//        traceTrxMapper.insertTraceTrxBatch(batchData);
 
 
-        //get measure_trx_pdm
-        List<MeasureTrx> measureTrxes = measureTrxMapper.selectMeasureTrxWithSpec(fromParamId, newFromDate, newToDate);
+
+        //get sample_trace_raw
+        List<MeasureTrx> traceRawTrxes = traceRawTrxMapper.selectMeasureTrx(fromParamId,fromDate,toDate);
+
+
         //put measure_trx_pdm
-        for (int i = 0; i < measureTrxes.size(); i++) {
+        for (int i = 0; i < traceRawTrxes.size(); i++) {
 
-            MeasureTrx measureTrx = measureTrxes.get(i);
-            long orgmeasuretrxid = measureTrx.getMeasure_trx_id();
-            long newMillTime = measureTrx.getMeasure_dtts().getTime() + gapTargetDateFromDate;
-            Date newMeasureMillTime = DateUtil.createDate(newMillTime);
+            try {
+                MeasureTrx traceRawTrx = traceRawTrxes.get(i);
+                long orgmeasuretrxid = traceRawTrx.getMeasure_trx_id();
+                //
+                Date originDate = traceRawTrx.getMeasure_dtts();
 
-            long trxId = measureTrxMapper.selectMaxMeasureTrxId();
+                String sOriginDate = dtString.format(originDate); //String 1970.01.01 12:34:56
+                String sOriginTime[] = sOriginDate.split(" ");//String
+
+                String sTargetDate = dtString.format(targetDate);
+                String sDate[] = sTargetDate.split(" ");
+
+                String sNewTargetDate = sDate[0] + " " + sOriginTime[1];
+
+                try {
+                    newTargetDate = dtDate.parse(sNewTargetDate);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                //
+
+//            long trxId= traceRawTrxMapper.selectMaxMeasureTrxId();
+
+                Spec spec = paramMapper.selectSpec(toParamId);
+
+//            OverallMinuteTrx traceTrx = new OverallMinuteTrx();
+//            tracetrx.setValue(traceRawTrx.getValue());
+//            tracetrx.setAlarm(spec.getAlarm());
+//            tracetrx.setWarn(spec.getWarn());
+//            tracetrx.setParam_id(toParamId);
+//            tracetrx.setRead_dtts(newTargetDate);
+//            traceTrxMapper.insertOverallMinuteTrxWithSpec(tracetrx);
+
+                STDTraceTrx stdTraceTrx = new STDTraceTrx();
+
+                List<STDTraceTrx> result = traceTrxMapper.selectTraceDataByParamIdDate(toParamId, newTargetDate);
+                if (result.size() > 0) {
+                    stdTraceTrx = result.get(0);
+                } else {
+
+                    stdTraceTrx.setAlarm_spec(spec.getAlarm());
+                    stdTraceTrx.setWarning_spec(spec.getWarn());
+                    stdTraceTrx.setEvent_dtts(newTargetDate);
+                    stdTraceTrx.setParam_mst_rawid(toParamId);
+                    stdTraceTrx.setValue(traceRawTrx.getValue());
+                    //overallMinuteTrxMapper.insertOverallMinuteTrx(overallMinuteTrx);
+                    traceTrxMapper.insertTraceTrx(stdTraceTrx);
+                }
+
+                //typecd 1
+                MeasureTrxWithBin measureTrxWithBin = traceRawTrxMapper.selectSampleTraceWithBinById(0, orgmeasuretrxid);
+                STDTraceRawTrx stdTraceRawTrx = new STDTraceRawTrx();
+
+                stdTraceRawTrx.setBinary(measureTrxWithBin.getBinary());
+                stdTraceRawTrx.setData_type_cd("F");
+                stdTraceRawTrx.setEvent_dtts(newTargetDate);
+                stdTraceRawTrx.setMax_freq(measureTrxWithBin.getEnd_freq());
+                stdTraceRawTrx.setRpm(measureTrxWithBin.getRpm());
+                stdTraceRawTrx.setParam_mst_rawid(toParamId);
+                stdTraceRawTrx.setSampling_time(measureTrxWithBin.getSampling_time());
+                stdTraceRawTrx.setTrace_trx_rawid(stdTraceTrx.getRawid());
+                stdTraceRawTrx.setFreq_count(measureTrxWithBin.getSpectra_line());
 
 
-            measureTrx.setMeasure_trx_id(trxId + 1);
-            measureTrx.setMeasure_dtts(newMeasureMillTime);
-            measureTrx.setParam_id(toParamId);
+                traceRawTrxMapper.insertTraceRaw(stdTraceRawTrx);
 
-            measureTrxMapper.insertMeasureTrx(measureTrx);
 
-            //typecd 1
-            MeasureTrxWithBin measureTrxWithBin = measureTrxMapper.selectMeasureTrxWithBinById(String.valueOf(BinDataType.SPECTRUM.cd()), orgmeasuretrxid);
-            MeasureTrxBin measureTrxBin = new MeasureTrxBin();
-            measureTrxBin.setBin_data_type_cd("0");
-            measureTrxBin.setMeasure_trx_id(measureTrx.getMeasure_trx_id());
-            measureTrxBin.setBinary(measureTrxWithBin.getBinary());
-            measureTrxBin.setScale_factor(measureTrxWithBin.getScale_factor());
+                //typecd 2
+                measureTrxWithBin = traceRawTrxMapper.selectSampleTraceWithBinById(2, orgmeasuretrxid);
+                stdTraceRawTrx = new STDTraceRawTrx();
 
-            measureTrxMapper.insertMeasureTrxBin(measureTrxBin);
+                stdTraceRawTrx.setBinary(measureTrxWithBin.getBinary());
+                stdTraceRawTrx.setData_type_cd("T");
+                stdTraceRawTrx.setEvent_dtts(newTargetDate);
+                stdTraceRawTrx.setMax_freq(measureTrxWithBin.getEnd_freq());
+                stdTraceRawTrx.setRpm(measureTrxWithBin.getRpm());
+                stdTraceRawTrx.setParam_mst_rawid(toParamId);
+                stdTraceRawTrx.setSampling_time(measureTrxWithBin.getSampling_time());
+                stdTraceRawTrx.setTrace_trx_rawid(stdTraceTrx.getRawid());
+                stdTraceRawTrx.setFreq_count(measureTrxWithBin.getSpectra_line());
 
-            //typecd 2
-            measureTrxWithBin = measureTrxMapper.selectMeasureTrxWithBinById(String.valueOf(BinDataType.TIMEWAVE.cd()), orgmeasuretrxid);
-            measureTrxBin = new MeasureTrxBin();
-            measureTrxBin.setBin_data_type_cd("2");
-            measureTrxBin.setMeasure_trx_id(measureTrx.getMeasure_trx_id());
-            measureTrxBin.setBinary(measureTrxWithBin.getBinary());
-            measureTrxBin.setScale_factor(measureTrxWithBin.getScale_factor());
-
-            measureTrxMapper.insertMeasureTrxBin(measureTrxBin);
+//            traceRawTrxMapper.insertMeasureTrxBin(measureTrxBin);
+                traceRawTrxMapper.insertTraceRaw(stdTraceRawTrx);
+            }catch(Exception err){
+                logger.error(err.getMessage());
+            }
         }
-
-        //get measure_trx_bin_pdm
-        //measureTrxMapper.selectMeasureTrxWithBinById()
-
-
-        //change measureId
-        //put measure_trx_pdm
-        //put measure_trx_bin_pdm
 
         HashMap<String, Object> result = new HashMap<>();
         result.put("result", "success");
         result.put("data", "");
         return result;
-
     }
 
 
@@ -373,8 +431,9 @@ public class DataCollectService implements IDataCollectService {
     }
 
 
+
     @Override
-    public HashMap<String, Object> deleteAndCopy(String fabId, long paramId, Date fromDate, Date toDate, Date targetDate) {
+    public HashMap<String, Object> deleteAndCopy(String fabId, long fromParamId,long toParamId, Date fromDate, Date toDate, Date targetDate) {
 
 //        ParamDataMapper paramDataMapper = SqlSessionUtil.getMapper(sessions, "fab1", ParamDataMapper.class);
 
@@ -416,8 +475,8 @@ public class DataCollectService implements IDataCollectService {
 
         Date DeleteTo = DateUtil.createDate(millnewDeleteTo);
 
-        this.deleteData(fabId, paramId, newDeleteFrom, DeleteTo);
-        this.copyData(fabId, paramId, paramId, fromDate, toDate, targetDate);
+        this.deleteData(fabId, toParamId, newDeleteFrom, DeleteTo);
+        this.copyData(fabId, fromParamId, toParamId, fromDate, toDate, targetDate);
 
         return null;
     }
@@ -452,25 +511,86 @@ public class DataCollectService implements IDataCollectService {
     */
 
 
+
+    private boolean skip = false;
     @Override
-    public HashMap<String, Object> demoDataCopyByEqp(String fabId, long fromEqpId, long toEapId, Date fromDate, Date toDate, Date targetDate) {
+    @Transactional(readOnly = true)
+    @Scheduled(cron ="0/1 * * * * *")
+    public void schedulerDataCopyByEqp() throws NoSuchMethodException {
+
+//        if(skip==true) return;
+//        skip = true;
+//
+//
+//        STDEqpMapper eqpMapper=SqlSessionUtil.getMapper(sessions, "fab1", STDEqpMapper.class);
+//        List<EqpWithEtc> eqps100=eqpMapper.selectList4to100(200L);
+//        List<EqpWithEtc> eqps200=eqpMapper.selectList200(200L);
+//        List<EqpWithEtc> eqps300=eqpMapper.selectList300(200L);
+//        List<EqpWithEtc> eqps400=eqpMapper.selectList400(200L);
+//        List<EqpWithEtc> eqps500=eqpMapper.selectList500(200L);
+//
+//        Date today = DateUtils.truncate(new Date(),Calendar.DATE);
+//        Date yesterday = DateUtils.addDays(today, -1);
+//
+//        for(int i=0; i<eqps100.size(); i++)
+//        {
+//            this.demoDataCopyByEqp("fab1",2190L,eqps100.get(i).getEqp_id(),yesterday,today,today);
+//        }
+//        logger.info(" datacopy100 done");
+//
+//        for(int i=0; i<eqps200.size(); i++)
+//        {
+//            this.demoDataCopyByEqp("fab1",2453L,eqps200.get(i).getEqp_id(),yesterday,today,today);
+//        }
+//        logger.info(" datacopy200 done");
+//
+//        for(int i=0; i<eqps300.size(); i++)
+//        {
+//            this.demoDataCopyByEqp("fab1",2454L,eqps300.get(i).getEqp_id(),yesterday,today,today);
+//        }
+//        logger.info(" datacopy300 done");
+//
+//        for(int i=0; i<eqps400.size(); i++)
+//        {
+//            this.demoDataCopyByEqp("fab1",2455L,eqps400.get(i).getEqp_id(),yesterday,today,today);
+//        }
+//        logger.info(" datacopy400 done");
+//
+//        for(int i=0; i<eqps500.size(); i++)
+//        {
+//            this.demoDataCopyByEqp("fab1",179L,eqps500.get(i).getEqp_id(),yesterday,today,today);
+//        }
+//        logger.info(" datacopy500 done");
+
+    }
+
+    @Override
+    public HashMap<String, Object> demoDataCopyByEqp(String fabId, long fromEqpId, long toEapId, Date fromDate, Date toDate, Date targetDate)
+    {
 
 
-        //getparams
-        STDParamMapper paramDataMapper = SqlSessionUtil.getMapper(sessions, "fab1", STDParamMapper.class);
-        List<Param> fromParams = paramDataMapper.selectParamByEqp(fromEqpId);//DEMO1 EQP의 Param정보를 가져옴
-        List<Param> toParams = paramDataMapper.selectParamByEqp(toEapId);//Test01 EQP의 Param정보를 가져옴
+            //getparams
+            STDParamMapper paramDataMapper = SqlSessionUtil.getMapper(sessions, "fab1", STDParamMapper.class);
+            List<Param> fromParams = paramDataMapper.selectParamByEqp(fromEqpId);//DEMO1 EQP의 Param정보를 가져옴
+            List<Param> toParams = paramDataMapper.selectParamByEqp(toEapId);//Test01 EQP의 Param정보를 가져옴
 
-        long fromParamId = 0;
-        long toParamId = 0;
+            long fromParamId = 0;
+            long toParamId = 0;
 
-        for (int i = 0; i < fromParams.size(); i++) {
+            for (int i = 0; i < fromParams.size(); i++) {
 
-            fromParamId = fromParams.get(i).getParam_id();//Demo1의 Param한개
-            toParamId = toParams.get(i).getParam_id(); //Test1의 Param한개
+                fromParamId = fromParams.get(i).getParam_id();//Demo1의 Param한개
+                toParamId = toParams.get(i).getParam_id(); //Test1의 Param한개
 
-            copyData(fabId, fromParamId, toParamId, fromDate, toDate, targetDate);
-        }
+                long diffTime = toDate.getTime()-fromDate.getTime();
+
+                Date targetTodate = new Date(targetDate.getTime()+diffTime);
+
+                deleteData(fabId,toParamId,targetDate,targetTodate);
+                copyData(fabId, fromParamId, toParamId, fromDate, toDate, targetDate);
+            }
+
+
 
         return null;
     }
@@ -1270,8 +1390,8 @@ public class DataCollectService implements IDataCollectService {
             //Allen 2018-04-24
 //            List<EqpWithEtc> eqps = eqpMapper.selectList(200L);
 //            List<EqpWithEtc> eqps = eqpMapper.selectList4(200L);
-            List<EqpWithEtc> eqps = eqpMapper.selectList500(200L);
-//            List<EqpWithEtc> eqps = eqpMapper.selectList9(200L);
+//            List<EqpWithEtc> eqps = eqpMapper.selectList500(200L);
+            List<EqpWithEtc> eqps = eqpMapper.selectList9(200L);
 //            List<EqpWithEtc> eqps = eqpMapper.selectList500(200L);
             ArrayList<Long> eqpIds = new ArrayList<>();
             ArrayList<List<ParamWithCommonWithRpm>> params = new ArrayList<>();
@@ -1328,9 +1448,9 @@ public class DataCollectService implements IDataCollectService {
             //Allen 2018-04-24
             //List<EqpWithEtc> eqps = eqpMapper.selectList(200L);
 //            List<EqpWithEtc> eqps = eqpMapper.selectList4(200L);
-            List<EqpWithEtc> eqps = eqpMapper.selectList500(200L);
 //            List<EqpWithEtc> eqps = eqpMapper.selectList500(200L);
-//            List<EqpWithEtc> eqps = eqpMapper.selectList9(200L);
+//            List<EqpWithEtc> eqps = eqpMapper.selectList500(200L);
+            List<EqpWithEtc> eqps = eqpMapper.selectList9(200L);
             ArrayList<Long> eqpIds = new ArrayList<>();
             ArrayList<List<ParamWithCommonWithRpm>> params = new ArrayList<>();
 
@@ -1391,5 +1511,96 @@ public class DataCollectService implements IDataCollectService {
         }
 
     }
+
+    private boolean skipEnveloping = false;
+    @Override
+    @Transactional(readOnly = true)
+    @Scheduled(cron ="0/1 * * * * *")
+    public void schedulerMakeEnvelopingData() throws NoSuchMethodException {
+
+        if(skipEnveloping==true) return;
+        skipEnveloping = true;
+
+//        STDTraceRawDataMapper traceRawDataMapper=SqlSessionUtil.getMapper(sessions, "fab1", STDTraceRawDataMapper.class);
+//
+//        MeasureTrxWithBin measureTrxWithBin=traceRawDataMapper.selectMeasureTrxWithBinById("F",0L);
+//
+//        byte[] binary = measureTrxWithBin.getBinary();
+//
+//        double[] dFreq = this.byteToDoubleArray(binary);
+//
+//        double max=dFreq[0];
+//        int index=0;
+//        int size=dFreq.length;
+//        for(int i=1200; i<dFreq.length; i++)
+//        {
+//            dFreq[i-1200]=dFreq[i];
+//            dFreq[i-800]=dFreq[i];
+//            dFreq[i-400]=dFreq[i];
+//        }
+//        dFreq[320]=0.75;
+//        dFreq[640]=0.75;
+//        dFreq[960]=0.75;
+//        dFreq[1280]=0.75;
+//
+//        for(int i=0; i<dFreq.length; i++)
+//        {
+//            if(dFreq[i]>max)
+//            {
+//                max=dFreq[i];
+//            }
+//
+//            if(dFreq[i] == 0.75)
+//            {
+//                index=i;
+//                System.out.println("index: "+index+","+ "value: "+ dFreq[i]+ "size: "+ size);
+//
+//            }
+//
+//        }
+//
+//        binary=this.doubleToByteArray(dFreq);
+//        measureTrxWithBin.setBinary(binary);
+//
+//
+//        System.out.println("최댓값: "+max+" index: "+index +"size: "+dFreq.length);
+//        traceRawDataMapper.updateBinSpecOut(measureTrxWithBin);
+////확인
+//        measureTrxWithBin=traceRawDataMapper.selectMeasureTrxWithBinById("F",0L);
+//
+//        byte[] new_freq = measureTrxWithBin.getBinary();
+//
+//        double[] new_dFreq = this.byteToDoubleArray(new_freq);
+//
+//        for(int i=0; i<new_dFreq.length; i++)
+//        {
+//            if(new_dFreq[i]>max)
+//            {
+//                max=new_dFreq[i];
+//
+//            }
+//
+//            if(new_dFreq[i] == 0.75)
+//            {
+//                index=i;
+//                System.out.println(index+",");
+//
+//            }
+//
+//        }
+
+    }
+
+    public byte[] doubleToByteArray(double[] doubleArray){
+
+        int times = Double.SIZE / Byte.SIZE;
+        byte[] bytes = new byte[doubleArray.length * times];
+        for(int i=0;i<doubleArray.length;i++){
+            ByteBuffer.wrap(bytes, i*times, times).putDouble(doubleArray[i]);
+        }
+        return bytes;
+    }
+
+
 
 }

@@ -49,7 +49,7 @@
         where a.eqp_mst_rawid = #{eqpId}
         and a.eqp_mst_rawid = b.rawid
         and a.bearing_mst_rawid = bear.rawid(+)
-
+        order by a.name
 
 
     </select>

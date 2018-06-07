@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<assembly>
+    <id>bin</id>
+    <baseDirectory/>
+    <formats>
+        <format>tar.gz</format>
+    </formats>
+    <fileSets>
+        <fileSet>
+            <directory>../bin/</directory>
+            <outputDirectory />
+            <includes>
+                <include>*-batch-stream.sh</include>
+            </includes>
+            <excludes>
+                <exclude/>
+            </excludes>
+        </fileSet>
+        <fileSet>
+            <directory>./src/main/resources</directory>
+            <outputDirectory>config</outputDirectory>
+            <includes>
+                <include>*.properties</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>./target</directory>
+            <outputDirectory/>
+            <includes>
+                <include>pdm-batch-bundle-1.0-SNAPSHOT.jar</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>./src/main/resources</directory>
+            <outputDirectory>logs</outputDirectory>
+            <excludes>
+                <exclude>*.*</exclude>
+            </excludes>
+        </fileSet>
+    </fileSets>
+
+    <!-- use this section if you want to package dependencies -->
+    <!--<dependencySets>-->
+        <!--<dependencySet>-->
+            <!--<outputDirectory>lib</outputDirectory>-->
+            <!--<excludes>-->
+                <!--<exclude>org.slf4j:slf4j-jdk14</exclude>-->
+            <!--</excludes>-->
+            <!--<useProjectArtifact>false</useProjectArtifact>-->
+            <!--<scope>runtime</scope>-->
+        <!--</dependencySet>-->
+    <!--</dependencySets>-->
+</assembly>

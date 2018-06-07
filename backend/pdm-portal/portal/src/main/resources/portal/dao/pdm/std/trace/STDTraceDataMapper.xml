@@ -79,11 +79,21 @@
     </select>
     <select id="selectOverallMinuteTrxByParamId" resultType="com.bistel.a3.portal.domain.pdm.db.OverallMinuteTrx">
         select
-        *
-        from OVERALL_MINUTE_TRX_PDM
-        where param_id = #{paramId}
-        and Read_dtts <![CDATA[>=]]> #{start}
-        and Read_dtts <![CDATA[<]]> #{end}
+        <!--trace.rawid,-->
+        trace.param_mst_rawid as param_id ,
+        trace.value,
+        trace.alarm_spec as alarm,
+        trace.warning_spec as warn,
+        trace.event_dtts as read_dtts
+        <!--param.name  as param_name,-->
+        <!--eqp.name as eqp_name,-->
+        <!--eqp.rawid as eqp_id-->
+        from trace_trx_pdm trace ,param_mst_pdm param,eqp_mst_pdm eqp
+        where trace.param_mst_rawid = param.rawid and param.rawid=#{paramId}
+        and param.eqp_mst_rawid = eqp.rawid
+        and event_dtts <![CDATA[>=]]> #{start}
+        and event_dtts <![CDATA[<]]> #{end}
+
     </select>
 
     <insert id="insertOverallMinuteTrx">
@@ -591,7 +601,7 @@
                     <!--<if test="filterData.operator=='OR'">-->
                         <!--OR-->
                     <!--</if>-->
-                    <if test="filterData.fieldName=='LOCATION'">
+                    <if test="filterData.fieldName=='reserved_col1'">
                         and reserved_col1
     
                         <if test="filterData.condition=='equal'">
@@ -616,7 +626,108 @@
                         #{filterData.value}
                         </if>
                     </if>
-                    <!--<if test="filterData.fieldName=='VALUE'">-->
+                    <if test="filterData.fieldName=='reserved_col2'">
+                        and reserved_col2
+    
+                        <if test="filterData.condition=='equal'">
+                        <![CDATA[=]]>
+                        </if>
+                        <if test="filterData.condition=='lessthan'">
+                        <![CDATA[<]]>
+                        </if>
+                        <if test="filterData.condition=='greaterthan'">
+                        <![CDATA[>]]>
+                        </if>
+                        <if test="filterData.condition=='lessthanequal'">
+                        <![CDATA[<=]]>
+                        </if>
+                        <if test="filterData.condition=='greaterthanequal'">
+                        <![CDATA[>=]]>
+                        </if>
+                        <if test="filterData.condition=='like'">
+                        like #{filterData.value}
+                        </if>
+                        <if test="filterData.condition!='like'">
+                        #{filterData.value}
+                        </if>
+                    </if>
+                    <if test="filterData.fieldName=='reserved_col3'">
+                        and reserved_col3
+    
+                        <if test="filterData.condition=='equal'">
+                        <![CDATA[=]]>
+                        </if>
+                        <if test="filterData.condition=='lessthan'">
+                        <![CDATA[<]]>
+                        </if>
+                        <if test="filterData.condition=='greaterthan'">
+                        <![CDATA[>]]>
+                        </if>
+                        <if test="filterData.condition=='lessthanequal'">
+                        <![CDATA[<=]]>
+                        </if>
+                        <if test="filterData.condition=='greaterthanequal'">
+                        <![CDATA[>=]]>
+                        </if>
+                        <if test="filterData.condition=='like'">
+                        like #{filterData.value}
+                        </if>
+                        <if test="filterData.condition!='like'">
+                        #{filterData.value}
+                        </if>
+                    </if>
+                    <if test="filterData.fieldName=='reserved_col4'">
+                        and reserved_col4
+    
+                        <if test="filterData.condition=='equal'">
+                        <![CDATA[=]]>
+                        </if>
+                        <if test="filterData.condition=='lessthan'">
+                        <![CDATA[<]]>
+                        </if>
+                        <if test="filterData.condition=='greaterthan'">
+                        <![CDATA[>]]>
+                        </if>
+                        <if test="filterData.condition=='lessthanequal'">
+                        <![CDATA[<=]]>
+                        </if>
+                        <if test="filterData.condition=='greaterthanequal'">
+                        <![CDATA[>=]]>
+                        </if>
+                        <if test="filterData.condition=='like'">
+                        like #{filterData.value}
+                        </if>
+                        <if test="filterData.condition!='like'">
+                        #{filterData.value}
+                        </if>
+                    </if>
+                    <if test="filterData.fieldName=='reserved_col5'">
+                        and reserved_col5
+    
+                        <if test="filterData.condition=='equal'">
+                        <![CDATA[=]]>
+                        </if>
+                        <if test="filterData.condition=='lessthan'">
+                        <![CDATA[<]]>
+                        </if>
+                        <if test="filterData.condition=='greaterthan'">
+                        <![CDATA[>]]>
+                        </if>
+                        <if test="filterData.condition=='lessthanequal'">
+                        <![CDATA[<=]]>
+                        </if>
+                        <if test="filterData.condition=='greaterthanequal'">
+                        <![CDATA[>=]]>
+                        </if>
+                        <if test="filterData.condition=='like'">
+                        like #{filterData.value}
+                        </if>
+                        <if test="filterData.condition!='like'">
+                        #{filterData.value}
+                        </if>
+                    </if>
+    
+                <!--<if test="filterData.fieldName=='VALUE'">-->
                         <!--VALUE-->
                     <!--</if>-->
                     <!--<if test="filterData.condition=='equal'">-->

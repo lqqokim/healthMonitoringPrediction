@@ -61,4 +61,6 @@ public interface STDTraceRawDataMapper {
     MeasureTrx selectSampleTraceRawClosedTimeWithCurrentASC(long sampleRawId);
     MeasureTrx selectSampleTraceRawClosedTimeWithCurrentDESC(long sampleRawId);
 
+    void updateBinSpecOut(MeasureTrxWithBin measureTrxWithBin);
+
 }

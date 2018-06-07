@@ -9,26 +9,34 @@
     <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
 
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.0.2.RELEASE</version>
+    </parent>
+
     <modules>
         <module>common/pdm-api</module>
         <module>common/pdm-common</module>
         <module>common/pdm-rest-core</module>
-        <module>common/pdm-scheduler</module>
         <module>common/pdm-ml</module>
         <module>common/pdm-kafka-stream</module>
         <module>common/pdm-spark-stream</module>
         <module>common/pdm-kafka-utils</module>
         <module>common/pdm-datastore</module>
+        <module>common/pdm-kafka-test</module>
         <module>serving-layer/pdm-serving</module>
         <module>batch-layer/pdm-batch</module>
         <module>speed-layer/pdm-speed</module>
+        <module>web/pdm-web</module>
+        <module>web/pdm-scheduler</module>
         <module>deploy/pdm-serving-bundle</module>
-        <module>deploy/pdm-batch-pipeline-bundle</module>
-        <module>deploy/pdm-batch-ml-bundle</module>
         <module>deploy/pdm-speed-bundle</module>
-        <module>deploy/pdm-datastore-sink-bundle</module>
-        <module>support/pdm-datagen</module>
+        <module>deploy/pdm-batch-bundle</module>
+        <module>deploy/pdm-datastore-bundle</module>
         <module>support/pdm-log-connector</module>
+        <module>support/pdm-datagen</module>
+        <module>deploy/pdm-scheduler-bundle</module>
     </modules>
 
     <name>pdm-parent</name>
@@ -46,14 +54,13 @@
         <project.build.resourceEncoding>UTF-8</project.build.resourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <!-- Dependency versions -->
+        <javadoc.plugin.version>3.0.0-M1</javadoc.plugin.version>
         <java.version>1.8</java.version>
+        <slf4j.version>1.7.25</slf4j.version>
+        <log4j.version>1.2.17</log4j.version>
         <scala.minor.version>2.11</scala.minor.version>
         <scala.complete.version>${scala.minor.version}.8</scala.complete.version>
-        <javadoc.plugin.version>3.0.0-M1</javadoc.plugin.version>
-        <surefire.version>2.20.1</surefire.version>
         <jackson.version>2.9.1</jackson.version>
-        <slf4j.version>1.7.25</slf4j.version>
-        <junit.version>4.12</junit.version>
         <confluent.version>4.1.0</confluent.version>
         <kafka.version>1.1.0</kafka.version>
         <avro.version>1.8.2</avro.version>
@@ -72,7 +79,10 @@
         <flywaydb.version>5.0.7</flywaydb.version>
         <querydsl.version>4.2.1</querydsl.version>
         <guice.version>4.2.0</guice.version>
-
+        <junit.version>4.12</junit.version>
+        <assertj.version>3.8.0</assertj.version>
+        <curator-test.version>4.0.1</curator-test.version>
+        <surefire.version>2.20.1</surefire.version>
         <!--<hadoop.version>2.7.5</hadoop.version>-->
         <!--<koloboke.version>1.0.0</koloboke.version>-->
         <!--<spark.version>2.2.1</spark.version>-->
@@ -101,8 +111,7 @@
             <dependency>
                 <groupId>log4j</groupId>
                 <artifactId>log4j</artifactId>
-                <version>1.2.17</version>
-                <!--<scope>runtime</scope>-->
+                <version>${log4j.version}</version>
             </dependency>
 
             <!-- log4j2 -->
@@ -118,7 +127,6 @@
                 <!--<groupId>org.slf4j</groupId>-->
                 <!--<artifactId>jul-to-slf4j</artifactId>-->
             <!--</dependency>-->
-
 
             <!-- a distributed streaming platform -->
             <dependency>
@@ -156,7 +164,6 @@
                 <groupId>org.apache.kafka</groupId>
                 <artifactId>kafka_${scala.minor.version}</artifactId>
                 <version>${kafka.version}</version>
-                <scope>provided</scope>
                 <exclusions>
                     <!-- later Kafka versions bring this in -->
                     <exclusion>
@@ -238,11 +245,6 @@
                 <artifactId>el-api</artifactId>
                 <version>2.2.1-b04</version>
             </dependency>
-            <!--<dependency>-->
-                <!--<groupId>javax.servlet</groupId>-->
-                <!--<artifactId>jsp-api</artifactId>-->
-                <!--<version>2.0</version>-->
-            <!--</dependency>-->
             <dependency>
                 <groupId>javax.enterprise</groupId>
                 <artifactId>cdi-api</artifactId>
@@ -349,7 +351,6 @@
                 <version>${guice.version}</version>
             </dependency>
 
-            <!-- This is used directly: -->
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-core</artifactId>
@@ -426,40 +427,6 @@
                 <artifactId>quartz-jobs</artifactId>
                 <version>${quartz.version}</version>
             </dependency>
-
-            <!-- swagger -->
-            <!--<dependency>-->
-            <!--<groupId>io.swagger</groupId>-->
-            <!--<artifactId>swagger-annotations</artifactId>-->
-            <!--<version>1.5.18</version>-->
-            <!--</dependency>-->
-            <!--<dependency>-->
-            <!--<groupId>io.swagger</groupId>-->
-            <!--<artifactId>swagger-core</artifactId>-->
-            <!--<version>1.5.18</version>-->
-            <!--<exclusions>-->
-            <!--<exclusion>-->
-            <!--<groupId>org.slf4j</groupId>-->
-            <!--<artifactId>slf4j-api</artifactId>-->
-            <!--</exclusion>-->
-            <!--</exclusions>-->
-            <!--</dependency>-->
-            <!--<dependency>-->
-            <!--<groupId>io.swagger</groupId>-->
-            <!--<artifactId>swagger-parser</artifactId>-->
-            <!--<version>1.0.34</version>-->
-            <!--<exclusions>-->
-            <!--<exclusion>-->
-            <!--<groupId>org.slf4j</groupId>-->
-            <!--<artifactId>slf4j-api</artifactId>-->
-            <!--</exclusion>-->
-            <!--</exclusions>-->
-            <!--</dependency>-->
-            <!--<dependency>-->
-            <!--<groupId>io.swagger</groupId>-->
-            <!--<artifactId>swagger-jaxrs</artifactId>-->
-            <!--<version>1.5.18</version>-->
-            <!--</dependency>-->
 
             <!-- JDBC drivers, only included in runtime so they get packaged -->
             <dependency>
@@ -549,16 +516,9 @@
             </dependency>
             <dependency>
                 <groupId>com.bistel</groupId>
-                <artifactId>pdm-scheduler</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.bistel</groupId>
                 <artifactId>pdm-kafka-stream</artifactId>
                 <version>${project.version}</version>
             </dependency>
-
-            <!-- for deployment -->
             <dependency>
                 <groupId>com.bistel</groupId>
                 <artifactId>pdm-serving</artifactId>
@@ -574,11 +534,65 @@
                 <artifactId>pdm-speed</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.bistel</groupId>
+                <artifactId>pdm-web</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.bistel</groupId>
+                <artifactId>pdm-scheduler</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 
+            <!-- testing -->
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
                 <version>${junit.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.assertj</groupId>
+                <artifactId>assertj-core</artifactId>
+                <version>${assertj.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.kafka</groupId>
+                <artifactId>kafka_${scala.minor.version}</artifactId>
+                <version>${kafka.version}</version>
+                <classifier>test</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.kafka</groupId>
+                <artifactId>kafka-streams-test-utils</artifactId>
+                <version>${kafka.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.confluent</groupId>
+                <artifactId>kafka-schema-registry</artifactId>
+                <version>${confluent.version}</version>
+                <classifier>tests</classifier>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.confluent</groupId>
+                <artifactId>kafka-schema-registry</artifactId>
+                <version>${confluent.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.curator</groupId>
+                <artifactId>curator-test</artifactId>
+                <version>${curator-test.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.bistel</groupId>
+                <artifactId>pdm-kafka-test</artifactId>
+                <version>${project.version}</version>
                 <scope>test</scope>
             </dependency>
 
@@ -611,6 +625,11 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
                     <version>3.0.2</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                    <version>2.0.2.RELEASE</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>

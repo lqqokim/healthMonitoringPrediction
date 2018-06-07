@@ -1,0 +1,219 @@
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-heading" (click)="onClickToggleCondition()">Filter Condition
+            <span class="glyphicon glyphicon-chevron-up" aria-hidden="true"></span>
+        </div>
+        <div class="panel-body collapse" id="condition">
+
+            <div class="row">
+                <!-- <form> -->
+                <div class="form-group" class="col-md-3">
+                    <div class="a3-from-to" [from]="searchTimePeriod?.from" [to]="searchTimePeriod?.to" [format]="'yyyy/MM/dd hh:mm:ss'" (changedFromTo)="fromToChange($event)"></div>
+                </div>
+                <div class="form-group" class="col-md-2">
+                    <label for="inputFab">Fab</label>
+                    <select class="form-control" [(ngModel)]="selectedFab" name="fab" (ngModelChange)="changeSelectedFab($event)" style="width:240px;margin-left:5px;display:inline-block;">
+                        <option *ngFor="let plant of plants" [ngValue]="plant" [selected]="plant.fabId === selectedFab.fabId">
+                            {{plant.fabName}}
+                        </option>
+                    </select>
+                </div>
+                <div class="form-group" class="col-md-2">
+                    <label for="area">Area</label>
+                    <multi-select-combo [datas]="areas" [displayName]="'areaName'" (changeData)="onChangeArea($event)" [selectedItems]="selectedAreaDatas"></multi-select-combo>
+                </div>
+                <div class="form-group" class="col-md-2">
+                    <label for="eqp">Eqp</label>
+                    <multi-select-combo [datas]="eqps" [displayName]="'eqpName'" (changeData)="onChangeEqp($event)" [selectedItems]="selectedEqpDatas"></multi-select-combo>
+
+                </div>
+                <div class="form-group" class="col-md-2">
+                    <label for="parameter">Parameter</label>
+                    <multi-select-combo [datas]="parameters" [displayName]="'paramName'" (changeData)="onChangeParameter($event)" [selectedItems]="selectedParameterDatas"></multi-select-combo>
+                </div>
+                <!-- </form> -->
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <label>Aggregation</label>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th >
+                                    <label for="function">Function</label>
+                                </th>
+                                <th colspan="2">
+                                    <label for="groupby">Group By</label>
+                                </th>
+                            </tr>
+
+                        </thead>
+                        <tr>
+                            <td class="aggregation_function">
+                                <multi-select-combo [datas]="functions" [displayName]="'display'" (changeData)="onChangeFunction($event)" [selectedItems]="selectedFunctionDatas"></multi-select-combo>
+                            </td>
+                            <td class="aggregation_groupValue">
+
+                                <input type="number" class="form-control" [(ngModel)]="aggregationDatas.groupValue" name="groupValue">
+
+                            </td>
+                            <td class="aggregation_groupUnit">
+                                <select class="form-control" [(ngModel)]="aggregationDatas.groupUnit" name="group">
+                                    <option *ngFor="let item of groups" [ngValue]="item.value">
+                                        {{item.display}}
+                                    </option>
+                                </select>
+
+                            </td>
+                        </tr>
+                    </table>
+
+                </div>
+
+                <div class="col-md-5">
+                    <label>Filter Criteria</label>
+                    <table>
+                        <thead>
+                            <!-- <th class='operator'>Operator</th> -->
+                            <th class='filter_fieldname'>Field name</th>
+                            <th class='filter_function'>Function name</th>
+                            <th class='filter_condition'>Condition</th>
+                            <th class='filter_value'>Value</th>
+                            <th></th>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let data of filterCriteriaDatas;let i=index">
+                                <td>
+                                    <select class='form-control' [(ngModel)]="data.fieldName">
+                                        <option *ngFor="let item of filterCriteria.FieldName" [ngValue]="item.value">{{item.display}}</option>
+                                    </select>
+
+                                </td>
+                                <td>
+                                    <select class='form-control' [(ngModel)]="data.functionName" *ngIf="data.fieldName!='LOCATION'">
+                                        <option *ngFor="let item of functions" [ngValue]="item.value">{{item.display}}</option>
+                                    </select>
+
+                                </td>
+                                <td>
+                                    <select class='form-control' [(ngModel)]="data.condition">
+                                        <option *ngFor="let item of filterCriteria.Condition" [ngValue]="item.value">{{item.display}}</option>
+                                    </select>
+
+                                </td>
+                                <td>
+                                    <input type='text' class='form-control' [(ngModel)]="data.value">
+                                </td>
+                                <td>
+                                    <span *ngIf="i!=0" (click)="clickRemoveFilter(i)" class="glyphicon glyphicon-minus rollover"
+                                        aria-hidden="true"></span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="5" class="tdcenter">
+                                    <span (click)="clickAddFilter()" class="glyphicon glyphicon-plus  rollover" aria-hidden="true"></span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+            Overlay By Equipment
+            <input type="checkbox" (change)="checkboxChange($event)" [(ngModel)]="overalyType">
+            <button class='btn btn-info' (click)="search()">Search</button>
+            <button class='btn btn-warning' (click)="cancelSend()" [hidden]="true">Cancel</button>
+
+            <div class="progress" *ngIf="showProgress">
+                <div class="progress-bar progress-bar-striped active" role="progressbar" attr.aria-valuenow="{{percentage}}" aria-valuemin="0"
+                    aria-valuemax="100" [ngStyle]="{width: percentage+'%'}">
+                    {{percentage}}%
+                </div>
+            </div>
+
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">Chart
+            </div>
+            <div class="panel-body " id="chart">
+                <div class="chart">
+                    <a3c-bistel-chart [data]="trendData" [config]="trendConfig">
+                    </a3c-bistel-chart>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- <div class="panel panel-default">
+        <div class="panel-heading" >Datas
+        </div>
+        <div class="panel-bodydata-body" id="datas">
+
+            <wj-flex-grid #traceGrid [allowSorting]="true" style="height: calc(100% - 25px);" [itemsSource]="datas" [isReadOnly]="true"
+                [selectionMode]="3">
+                <wj-flex-grid-column [header]="'EQP Name'" [binding]="'eqpName'" [width]="'3*'" [cssClass]="'grid-column-cell'" [allowSorting]="true">
+                    <ng-template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+                        <span>
+                            {{cell.item.eqpName}}
+                        </span>
+                    </ng-template>
+                </wj-flex-grid-column>
+                <wj-flex-grid-column [header]="'Parameter Name'" [binding]="'paramName'" [width]="'3*'" [cssClass]="'grid-column-cell'" [allowSorting]="true">
+                    <ng-template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+                        <span>
+                            {{cell.item.paramName}}
+                        </span>
+                    </ng-template>
+                </wj-flex-grid-column>
+                <wj-flex-grid-column [header]="'Event Time'" [binding]="'event_dtts'" [width]="'3*'" [cssClass]="'grid-column-cell'" [allowSorting]="true">
+                    <ng-template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+                        <span>
+                            {{cell.item.event_dtts| date: 'yyyy-MM-dd hh:mm:ss'}}
+                        </span>
+                    </ng-template>
+                </wj-flex-grid-column>
+
+                <wj-flex-grid-column [header]="'Value'" [binding]="'value'" [width]="'3*'" [cssClass]="'grid-column-cell'" [allowSorting]="true">
+                    <ng-template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+                        <span>
+                            {{cell.item.value}}
+                        </span>
+                    </ng-template>
+                </wj-flex-grid-column>
+                <wj-flex-grid-column [header]="'Alarm Spec'" [binding]="'alarm_spec'" [width]="'3*'" [cssClass]="'grid-column-cell'" [allowSorting]="true">
+                    <ng-template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+                        <span>
+                            {{cell.item.alarm_spec}}
+                        </span>
+                    </ng-template>
+                </wj-flex-grid-column>
+                <wj-flex-grid-column [header]="'Warning Spec'" [binding]="'warning_spec'" [width]="'3*'" [cssClass]="'grid-column-cell'"
+                    [allowSorting]="true">
+                    <ng-template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+                        <span>
+                            {{cell.item.warning_spec}}
+                        </span>
+                    </ng-template>
+                </wj-flex-grid-column>
+                <wj-flex-grid-column [header]="'RPM'" [binding]="'rpm'" [width]="'3*'" [cssClass]="'grid-column-cell'" [allowSorting]="true">
+                    <ng-template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+                        <span>
+                            {{cell.item.rpm}}
+                        </span>
+                    </ng-template>
+                </wj-flex-grid-column>
+                <wj-flex-grid-column [header]="'Location'" [binding]="'reserved_col1'" [width]="'3*'" [cssClass]="'grid-column-cell'" [allowSorting]="true">
+                    <ng-template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+                        <span>
+                            {{cell.item.reserved_col1}}
+                        </span>
+                    </ng-template>
+                </wj-flex-grid-column>
+
+            </wj-flex-grid>
+
+        </div>
+    </div> -->
+
+
+    </div>

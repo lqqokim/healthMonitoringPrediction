@@ -497,6 +497,13 @@
 
     </insert>
 
+    <update id="updateBinSpecOut">
+        update trace_raw_trx_pdm
+        set binary_data=#{binary}
+        where trace_trx_rawid=0
+
+    </update>
+    
 
 
 </mapper>

@@ -111,6 +111,8 @@ interface ILABEL {
 	ANALYSIS_SPEC: string;
 	ANALYSIS_SPEC_VISIBLE: string;
 	WORST_TOP: string;
+	MONITORING: string;
+	MONITORING_NAME: string;	
 
 	STEP_DRIFT: string;
 	STEP_DOWN_TREND: string;

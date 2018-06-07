@@ -1,22 +1,28 @@
 package com.bistel.a3.portal.rest.pdm;
 
+import com.bistel.a3.portal.dao.pdm.std.master.STDEtcMapper;
+import com.bistel.a3.portal.domain.pdm.db.Area;
+import com.bistel.a3.portal.domain.pdm.master.Monitoring;
 import com.bistel.a3.portal.service.pdm.IReportService;
+import com.bistel.a3.portal.service.pdm.impl.std.EtcService;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 @RestController
 @RequestMapping("pdm/fabs")
 public class MonitoringController {
     @Autowired
     private IReportService reportService;
+
+    @Autowired
+    private EtcService etcService;
 
     @RequestMapping
     public Object getFabs() {
@@ -84,4 +90,30 @@ public class MonitoringController {
     public Object tree(@PathVariable("fabId") String fabId) {
         return reportService.getEqpTree(fabId);
     }
+
+
+
+    @RequestMapping("{fabId}/monitorings")
+    public List<Monitoring> getMonitorings(
+            @PathVariable("fabId") String fabId) {
+        return etcService.getMonitoring(fabId,null );
+    }
+    @RequestMapping(value = "{fabId}/monitorings",method = RequestMethod.POST)
+    public void createMonitoring(Principal user, @PathVariable String fabId, @RequestBody Monitoring monitoring) {
+        monitoring.setUserName(user.getName());
+        etcService.CreateMonitoring(fabId,monitoring);
+    }
+
+    @RequestMapping(value = "{fabId}/monitorings",method = RequestMethod.PUT)
+    public void updateMonitoring(Principal user, @PathVariable String fabId, @RequestBody Monitoring monitoring) {
+        monitoring.setUserName(user.getName());
+        etcService.UpdateMonitoring(fabId,monitoring);
+    }
+
+    @RequestMapping(value = "{fabId}/monitorings/{rawId}", method = RequestMethod.DELETE)
+    public void removeMonitoring(@PathVariable String fabId, @PathVariable Long rawId) {
+
+        etcService.DeleteMonitoring(fabId,rawId);
+    }
+
 }

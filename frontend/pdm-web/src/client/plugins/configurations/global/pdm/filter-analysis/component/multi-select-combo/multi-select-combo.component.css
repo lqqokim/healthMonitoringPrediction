@@ -1,0 +1,20 @@
+.listContainer {
+    height: 300px;
+    width: 100%;
+    overflow: auto;
+    border: solid 1px gray;
+}
+
+.btn-default {
+    background: white;
+    width:200px;
+    overflow: hidden;
+    height: 28px;
+}
+.search-term {
+    width:180px;
+}
+.allChk{
+    width:15px;
+    margin-top: 7px !important;
+}

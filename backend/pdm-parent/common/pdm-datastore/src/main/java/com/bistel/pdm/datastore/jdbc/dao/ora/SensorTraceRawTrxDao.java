@@ -25,8 +25,8 @@ public class SensorTraceRawTrxDao implements SensorRawDataDao {
 
     private static final String INSERT_SQL =
             "insert into trace_raw_trx_pdm (RAWID, PARAM_MST_RAWID, TRACE_TRX_RAWID, DATA_TYPE_CD, MAX_FREQ, FREQ_COUNT, " +
-                    "RPM, SAMPLING_TIME, BINARY_DATA, EVENT_DTTS, RESERVED_COL1, RESERVED_COL2, " +
-                    "RESERVED_COL3, RESERVED_COL4, RESERVED_COL5) " +
+                    "RPM, SAMPLING_TIME, BINARY_DATA, EVENT_DTTS, RESERVED_COL1, RESERVED_COL2, RESERVED_COL3, " +
+                    "RESERVED_COL4, RESERVED_COL5) " +
                     "values (SEQ_TRACE_RAW_TRX_PDM.nextval,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
     @Override
@@ -94,7 +94,7 @@ public class SensorTraceRawTrxDao implements SensorRawDataDao {
             try {
                 int[] ret = pstmt.executeBatch();
                 conn.commit();
-                log.debug("{} records are inserted.", ret.length);
+                log.debug("{} records are inserted into TRACE_RAW_TRX_PDM.", ret.length);
             } catch (Exception e) {
                 conn.rollback();
                 log.error(e.getMessage(), e);

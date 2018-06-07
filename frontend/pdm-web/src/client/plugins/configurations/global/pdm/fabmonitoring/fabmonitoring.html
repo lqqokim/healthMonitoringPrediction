@@ -1,0 +1,38 @@
+<div class="container">
+        <form class="form-inline">
+            <div class="form-group" >
+                <label for="inputFab">Fab</label>
+                <select class="form-control" [(ngModel)]="selectedFab" name="fab" (ngModelChange)="changeSelectedFab($event)" style="width:240px;margin-left:5px;display:inline-block;">
+                    <option *ngFor="let plant of plants" [ngValue]="plant" [selected]="plant.fabId === selectedFab.fabId">
+                        {{plant.fabName}}
+                    </option>
+                </select>
+            </div>
+            <div class="form-group" >
+                <label for="inputMonitoring">Monitoring</label>
+                <select class="form-control" [(ngModel)]="selectedMonitoring" name="inputMonitoring" (ngModelChange)="changeSelectedMonitoring($event)"
+                    style="width:240px;margin-left:5px;display:inline-block;">
+                    <option *ngFor="let item of monitorings" [ngValue]="item" [selected]="item.rawId === selectedMonitoring.rawId">
+                        {{item.name}}
+                    </option>
+                </select>
+            </div>
+            <!-- <div class="form-group" >
+                <label for="area">Area</label>
+                <multi-select-combo [datas]="areas" [displayName]="'areaName'" (changeData)="onChangeArea($event)" [selectedItems]="selectedAreaDatas"></multi-select-combo>
+            </div> -->
+
+            <label>layout name:</label>
+            <input type="text" [(ngModel)]="selectedMonitoring.name" name="monitoringName">
+            <button class="btn btn-success" class="" (click)="save()">Save</button> 
+            <button class="btn btn-success" class="" (click)="saveas()">Save as</button> 
+            <button class="btn btn-success" class="" (click)="newMonitoring()">New</button> 
+            <button class="btn btn-success" class="" (click)="delete()">Delete</button> 
+            <button class="btn btn-danger" class="" (click)="simulationStart()">{{simulationStop?'Simulation Start':'Simulation Stop'}}</button>
+
+        </form>
+        
+
+
+    <fab-editor [fabInfo]="selectedMonitoring"  #fabMonitoring></fab-editor>
+</div>

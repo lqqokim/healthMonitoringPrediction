@@ -14,7 +14,7 @@ export const analysis_spec_visible = (newConfig: FormConfigType = {}): FormConfi
             initValuePromise: (formConfigType: FormConfigType, cloneWidgetModel: WidgetModel): Promise<any> => {
                 const value = cloneWidgetModel.properties[CD.ANALYSIS_SPEC_VISIBLE];
                 const options = [{ data: true, label: 'true' }, { data: false, label: 'false' }]
-                console.log('analysis_spec_visible value', value);
+                // console.log('analysis_spec_visible value', value);
 
                 if (value === undefined) {
                     formConfigType.config.value = {

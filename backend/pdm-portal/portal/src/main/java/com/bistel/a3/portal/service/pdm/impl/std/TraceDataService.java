@@ -790,6 +790,9 @@ public class TraceDataService implements ITraceDataService {
         Pivot pivot = new Pivot();
         List<List<String>> results=null;
         try {
+            if(datas.size()==0){
+                return new ArrayList<>();
+            }
             results  =pivot.getPivotDataByTime(datas,"EVENT_DTTS","PARAMNAME");
         } catch (ParseException e) {
             e.printStackTrace();
@@ -809,7 +812,7 @@ public class TraceDataService implements ITraceDataService {
             boolean isOk = true;
             for (int i = 0; i < filterTraceRequest.getFilterCriteriaDatas().size(); i++) {
                 FilterCriteriaData filterCriteriaData = filterTraceRequest.getFilterCriteriaDatas().get(i);
-                if(filterCriteriaData.getFieldName().equals("-none-")) {
+                if(filterCriteriaData.getFieldName().equals("-none-") ||filterCriteriaData.getFieldName().indexOf("reserved_col")>=0) {
                     continue;
                 }
 

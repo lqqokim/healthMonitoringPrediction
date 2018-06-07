@@ -248,6 +248,9 @@ export const ConditionConstant = {
 	ANALYSIS_SPEC: 'analysisSpec',
 	ANALYSIS_SPEC_VISIBLE: 'analysisSpecVisible',
 	WORST_TOP: 'worstTop',
+	MONITORING: 'monitoring',
+	MONITORING_ID: 'rawId',
+	MONITORING_NAME: 'name',
 
 	TIME_PERIOD_30: 'timePeriod30',
 	CUTOFF_TYPE_DAY: 'cutoffTypeDay',

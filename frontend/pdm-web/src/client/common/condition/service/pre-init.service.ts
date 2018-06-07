@@ -33,6 +33,8 @@ export const getPreConditionFromAjax = (cd: string): Promise<PreInitConditionTyp
             return _setAnalysisSpec(cd);
         case CD.ANALYSIS_SPEC_VISIBLE:
             return _setAnalysisSpecVisible(cd);
+        case CD.MONITORING:
+            return _setMonitoring(cd);
         default:
             return _setDefault(cd);
     }
@@ -209,5 +211,18 @@ function _setWorstTop(cd: string): Promise<PreInitConditionType> {
     return Promise.resolve({
         condition: CD.WORST_TOP,
         data: 5
+    });
+}
+
+function _setMonitoring(cd: string): Promise<PreInitConditionType> {
+    let pdmModel = InjectorUtil.getService(PdmModelService);
+
+    return pdmModel.getPlants().then((plants: any[]) => {
+        return pdmModel.getMonitoring(plants[0].fabId).toPromise().then((monitorings: any[]) => {
+            return {
+                condition: cd,
+                data: monitorings.length > 0 ? monitorings[0] : null
+            };
+        });
     });
 }

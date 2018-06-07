@@ -27,7 +27,7 @@
             <directory>target</directory>
             <outputDirectory/>
             <includes>
-                <include>uber-pdm-log-connector-1.0-SNAPSHOT.jar</include>
+                <include>pdm-log-connector-1.0-SNAPSHOT.jar</include>
             </includes>
         </fileSet>
         <fileSet>

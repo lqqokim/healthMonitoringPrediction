@@ -16,7 +16,11 @@ export class PdmModelService extends ModelCommonService {
 			uriPath: `pdm/fabs`
 		});
 	}
-
+	getAllArea(fabId) {
+		return this.GET({
+			uriPath: `pdm/fabs/${fabId}/areas/all`
+		});
+	}
 	getAreaStatus(plantId, from, to) {
 		return this.GET({
 			uriPath: `pdm/fabs/${plantId}/areastatus`,
@@ -26,6 +30,44 @@ export class PdmModelService extends ModelCommonService {
 			}
 		});
 	}
+
+	getEqpsByAreaIds(plantId, areaIds) {
+		return this.POST({
+			uriPath: `pdm/fabs/${plantId}/areas/1/eqps/eqpsByAreaIds`,
+			params:areaIds 
+		});
+	}
+	getParamNameByEqpIds(plantId, eqpIds) {
+		return this.POST({
+			uriPath: `pdm/fabs/${plantId}/areas/1/eqps/paramNameByEqpIds`,
+			params: eqpIds
+		});
+	}
+	// getFilterTraceData(plantId, eqpIds,paramNames,fromDate:number,toDate:number) {
+	// 	return this.POST({
+	// 		uriPath: `pdm/fabs/${plantId}/filterTraceData?fromdate=${fromDate}&todate=${toDate}`,
+	// 		params: {'eqpIds':eqpIds,'paramNames':paramNames}
+	// 	});
+	// }
+	getEqpIdParamIdsInFilterTraceData(plantId, eqpIds,paramNames,fromDate:number,toDate:number,filterCriteriaDatas) {
+		return this.POST({
+			uriPath: `pdm/fabs/${plantId}/filterTraceData/eqpIdsParamIds?fromdate=${fromDate}&todate=${toDate}`,
+			params: {'eqpIds':eqpIds,'paramNames':paramNames,'filterCriteriaDatas':filterCriteriaDatas}
+		});
+	}
+	getFilterTraceDataByEqpIdParamIds(plantId, eqpId,eqpName,paramIds,paramNames,fromDate:number,toDate:number,filterCriteriaDatas,filterAggregation) {
+		return this.POST({
+			uriPath: `pdm/fabs/${plantId}/eqps/${eqpId}/filterTraceData?fromdate=${fromDate}&todate=${toDate}&eqpName=${eqpName}`,
+			params: {'filterCriteriaDatas':filterCriteriaDatas,filterAggregation:filterAggregation,paramIds:paramIds,paramNames:paramNames}
+		});
+	}
+	getFilterTraceDataByEqpIdParamId(plantId, eqpId,paramId,fromDate:number,toDate:number,filterCriteriaDatas,filterAggregation) {
+		return this.POST({
+			uriPath: `pdm/fabs/${plantId}/eqps/${eqpId}/params/${paramId}/filterTraceData?fromdate=${fromDate}&todate=${toDate}`,
+			params: {'filterCriteriaDatas':filterCriteriaDatas,filterAggregation:filterAggregation}
+		});
+	}
+
 
 	getEqpStatus(plantId, areaId, from, to) {
 		return this.GET({
@@ -471,6 +513,42 @@ export class PdmModelService extends ModelCommonService {
 				todate: param.params.toDate,
 				normalizeType: param.params.normalizeType
 			}
+		});
+	}
+
+	createMonitoring(fabId,param): Observable<any> {
+		let fabInfo = Object.assign({},param);
+		fabInfo.datas = JSON.stringify(fabInfo.datas);
+		return this.rxPOST({
+			uriPath: `pdm/fabs/${fabId}/monitorings`,
+			params: fabInfo
+		})
+	}
+	updateMonitoring(fabId,param): Observable<any> {
+		let fabInfo = Object.assign({},param);
+		fabInfo.datas = JSON.stringify(fabInfo.datas);
+		return this.rxPUT({
+			uriPath: `pdm/fabs/${fabId}/monitorings`,
+			params: fabInfo
+		})
+	}
+
+	deleteMonitoring(fabId,param): Observable<any> {
+		return this.rxDELETE({
+			uriPath: `pdm/fabs/${fabId}/monitorings/${param.rawId}`
+		})
+	}
+	getMonitoring(fabId): Observable<any>  {
+		return this.rxGET({
+			uriPath: `pdm/fabs/${fabId}/monitorings`,
+			params: {
+			}
+		}).map((datas)=>{
+			for(let i=0;i<datas.length;i++){
+				datas[i].datas = JSON.parse(datas[i].datas);
+			}
+			return datas;
+			
 		});
 	}
 }

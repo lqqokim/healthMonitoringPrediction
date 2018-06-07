@@ -60,6 +60,7 @@ public interface STDEqpMapper {
 
     List<EqpWithEtc> selectList500(@Param("areaId") Long areaId);
 
+    List<EqpWithEtc> selectList4to100(@Param("areaId") Long areaId);
 
 
 

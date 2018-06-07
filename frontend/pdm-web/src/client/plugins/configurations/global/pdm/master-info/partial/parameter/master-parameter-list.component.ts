@@ -164,7 +164,13 @@ export class MasterParameterListComponent extends WijmoApi implements OnInit, On
         } else if (!paramData.alarm && paramData.warning) {
             this.notify.info("PDM.NOTIFY.NOT_EXIST_ALARM");
             return;
+        }
 
+        if (this.status === 'create' || (this.status === 'modify' && this.selectedRowData.paramName !== paramData.eqpName)) {
+            if (!this.checkUniqueData(paramData)) {
+                this.notify.warn("PDM.NOTIFY.DUPLICATE_PARAMETER");
+                return;
+            }
         }
 
         this._showModal(false);
@@ -189,6 +195,20 @@ export class MasterParameterListComponent extends WijmoApi implements OnInit, On
         }
 
         this.updateParam(request);
+    }
+
+    checkUniqueData(data: any): boolean {
+        let paramDatas: any = this.paramDatas;
+        let length: number = paramDatas.length;
+        let result: boolean = true;
+
+        for (let i = 0; i < length; i++) {
+            if (paramDatas[i].paramName === data.paramName) {
+                result = false;
+                break;
+            }
+        }
+        return result;
     }
 
     nameKypress(event: KeyboardEvent) {

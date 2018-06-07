@@ -1,0 +1,94 @@
+.fabEditor   .property{
+    position: absolute;
+    left:300px;
+    top:200px;
+    z-index: 1000;
+}
+
+.fabEditor   .position-rectangle{
+    width:20px;
+    height:20px;
+    border: solid 1px gray;
+    background-color: yellow;
+    position: absolute !important;
+}
+
+.fabEditor   .position-rectangle p{
+    margin-left: 20px !important;
+}
+
+
+.fabEditor   .fab-canvas{
+    width:100%;
+    height:calc(100% - 40px);
+    background-repeat: no-repeat;
+    background-size:  100% 100%;
+    display:flex;
+    position: absolute;
+}
+.fabEditor   #fab-canvas-background{
+    width:100%;
+    height:100%;
+}
+.fabEditor   .position_selected{
+    border:solid 2px red;
+}
+
+.fabEditor   .car{
+    width:80px;
+    height:80px;
+    background-image: url(assets/images/apps/3dcar.jpeg);
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    position: absolute;
+    border-radius: 20px;
+    -webkit-transition: all 0.7s ease-out;
+    -moz-transition: all 0.7s ease-out;
+     -ms-transition: all 0.7s ease-out;
+      -o-transition: all 0.7s ease-out;
+         transition: all 0.7s ease-out;
+}
+.fabEditor   .positionInfo{
+    width:80px;
+    height:80px;
+    background-color: white;
+    opacity: 0.9;
+
+    /* background-image: url(assets/images/apps/3dcar.jpeg);
+    background-repeat: no-repeat;
+    background-size: 100% 100%; */
+    position: absolute;
+    /* border-radius: 20px; */
+    -webkit-transition: all 0.7s ease-out;
+    -moz-transition: all 0.7s ease-out;
+     -ms-transition: all 0.7s ease-out;
+      -o-transition: all 0.7s ease-out;
+         transition: all 0.7s ease-out;
+}
+
+
+
+.fabEditor   .car p{
+    text-align: center;
+    margin-top: -7px;
+}
+
+.fabEditor   .alarm {
+    animation: blinker 1s linear infinite;
+    /* border: solid red 5px; */
+    background-color: red;
+    opacity: 0.9;
+  }
+.fabEditor    .warning {
+    animation: blinker 1.5s linear infinite;
+    /* border:solid yellow 5px; */
+    background-color: yellow;
+    opacity: 0.9;
+
+  }
+  
+  @keyframes blinker {
+    50% {
+      opacity: 0;
+    }
+  }

@@ -3,6 +3,8 @@ package com.bistel.pdm.connector.log;
 import com.bistel.pdm.connector.io.DirectoryWatcher;
 import com.bistel.pdm.connector.io.TailerFactory;
 import com.bistel.pdm.connector.io.TailerThreadManager;
+import com.bistel.pdm.connector.log.Listener.DefaultLogTailerListener;
+import com.bistel.pdm.connector.log.Listener.PfeifferLogTailerListener;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.slf4j.Logger;
@@ -66,10 +68,15 @@ public class LogMonitor extends Thread {
         tailerFactory.setStartTailingFromEnd(false);
         tailerFactory.setRelinquishLockBetweenChunks(true);
 
-        LogTailerListener listener = new LogTailerListener();
+        DefaultLogTailerListener listener = new DefaultLogTailerListener();
         listener.setRawProducer(getRawProducer(producerProperties));
         listener.setRmsProducer(getRmsProducer(producerProperties));
         listener.setTopic(topicPrefixName);
+
+//        PfeifferLogTailerListener listener = new PfeifferLogTailerListener();
+//        listener.setRawProducer(getRawProducer(producerProperties));
+//        listener.setRmsProducer(getRmsProducer(producerProperties));
+//        listener.setTopic(topicPrefixName);
 
         tailerFactory.setListener(listener);
         return new TailerThreadManager(tailerFactory);

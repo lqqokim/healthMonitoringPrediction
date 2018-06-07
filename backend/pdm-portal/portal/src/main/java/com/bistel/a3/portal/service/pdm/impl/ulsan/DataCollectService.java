@@ -326,7 +326,7 @@ public class DataCollectService implements IDataCollectService {
 
             for (int i = 0; i < params.size(); i++)
             {
-                deleteAndCopy("fab1", params.get(i).getParam_id(),start, end, target);
+                deleteAndCopy("fab1", params.get(i).getParam_id(), params.get(i).getParam_id(),start, end, target);
             }
 
             //warning
@@ -341,7 +341,7 @@ public class DataCollectService implements IDataCollectService {
             end = DateUtils.addDays(start, 1);
 
             //copyData("fab1", 83,start, end, target);
-            deleteAndCopy("fab1", 83,start, end, target);//83번 param의 과거데이터를 현재데이터로 끌고 오기
+            deleteAndCopy("fab1", 83,83,start, end, target);//83번 param의 과거데이터를 현재데이터로 끌고 오기
             //Alarm
             sStart="2018-03-25 00:00:00";
             try {
@@ -352,17 +352,15 @@ public class DataCollectService implements IDataCollectService {
 
             end = DateUtils.addDays(start, 1);
 
-            deleteAndCopy("fab1", 2182,start, end, target);
+            deleteAndCopy("fab1", 2182,2182,start, end, target);
 
             logger.info("END   scheduled demoDataCopy [{} ~ {})", ff.format(start), ff.format(end));
         }
-
-
     }
 
 
     @Override
-    public HashMap<String, Object> deleteAndCopy(String fabId, long paramId, Date fromDate, Date toDate, Date targetDate) {
+    public HashMap<String, Object> deleteAndCopy(String fabId, long fromParamId,long toParamId, Date fromDate, Date toDate, Date targetDate) {
 
         ParamDataMapper paramDataMapper = SqlSessionUtil.getMapper(sessions, "fab1", ParamDataMapper.class);
 
@@ -404,8 +402,8 @@ public class DataCollectService implements IDataCollectService {
 
         Date DeleteTo=DateUtil.createDate(millnewDeleteTo);
 
-        this.deleteData(fabId,paramId,newDeleteFrom,DeleteTo);
-        this.copyData(fabId,paramId,paramId,fromDate,toDate,targetDate);
+        this.deleteData(fabId,toParamId,newDeleteFrom,DeleteTo);
+        this.copyData(fabId,fromParamId,toParamId,fromDate,toDate,targetDate);
 
         return null;
     }
@@ -618,6 +616,11 @@ public class DataCollectService implements IDataCollectService {
 //            logger.info("End   scheduled sampleTraceRawWrite(per 10Minute)"+currentTime);
 //
 //        }
+
+    }
+
+    @Override
+    public void schedulerDataCopyByEqp() throws NoSuchMethodException {
 
     }
 
@@ -873,6 +876,22 @@ public class DataCollectService implements IDataCollectService {
 
             logger.info("END   scheduled sampleDataCopy [{} ~ {})", ff.format(yesterday), ff.format(today));
         }
+
+
+    }
+
+
+    private boolean skipEnveloping = false;
+    @Override
+    @Transactional(readOnly = true)
+    @Scheduled(cron ="0/1 * * * * *")
+    public void schedulerMakeEnvelopingData() throws NoSuchMethodException {
+
+        if(skipEnveloping==true) return;
+        skipEnveloping = true;
+
+
+
 
     }
 

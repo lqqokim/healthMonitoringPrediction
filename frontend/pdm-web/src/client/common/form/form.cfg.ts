@@ -18,7 +18,7 @@ import { radar_type } from './configs/pdm/radar-type.cfg';
 import { analysis_spec } from './configs/pdm/analysis-spec.cfg';
 import { analysis_spec_visible } from './configs/pdm/analysis-spec-visible.cfg';
 import { worst_top } from './configs/pdm/worst-top.cfg';
-
+import { monitoring } from './configs/pdm/monitoring.cfg';
 
 export const Formcfg: any = {
     Tool: {
@@ -44,6 +44,7 @@ export const Formcfg: any = {
         radar_type,
         analysis_spec,
         analysis_spec_visible,
-        worst_top
+        worst_top,
+        monitoring
     }
 };

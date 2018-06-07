@@ -110,6 +110,7 @@ export const LabelConstant = {
 	ANALYSIS_SPEC: 'analysisSpec',
 	ANALYSIS_SPEC_VISIBLE: 'analysisSpecVisible',
 	WORST_TOP: 'worstTop',
+	MONITORING: 'monitoring',
 
 	STEP_DRIFT: 'stepDrift',
 	STEP_DOWN_TREND: 'stepDownTrend',

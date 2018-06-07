@@ -5,6 +5,7 @@ import { Component, OnInit, OnChanges, Input, ViewEncapsulation ,ViewChild} from
 import { PdmModelService } from './../../../../../common';
 import { AfterViewInit } from '@angular/core/src/metadata/lifecycle_hooks';
 import { PdmCommonService } from './../../../../../common/service/pdm-common.service';
+import { Translater } from '../../../../../sdk';
 
 @Component({
     moduleId: module.id,
@@ -37,14 +38,20 @@ export class TrendChartComponent implements OnInit, OnChanges,AfterViewInit {
     isTrendChartLegend = false;
     xMin;
     xMax;
+
+    alarmSpecLabel: string;
+    warningSpecLabel: string;
+
     constructor(
         private _pdmModelService: PdmModelService,
-        private _pdmCommonService:PdmCommonService
+        private _pdmCommonService:PdmCommonService,
+        private translater: Translater
     ) {
 
     }
 
     ngOnInit() {
+        this.setGlobalLabel();
         this.trendConfig = this.getTrendDataConfig({});
     }
 
@@ -87,7 +94,7 @@ export class TrendChartComponent implements OnInit, OnChanges,AfterViewInit {
                     fill: true,
                     fillStyle: 'rgba(255, 0, 0, .5)',
                     line: {
-                        name: `경고 (${spec_alarm.toFixed(2)})`,
+                        name: `${this.alarmSpecLabel} (${spec_alarm.toFixed(2)})`,
                         show: true, // default : false
                         value: spec_alarm,
                         color: '#ff0000',
@@ -103,7 +110,7 @@ export class TrendChartComponent implements OnInit, OnChanges,AfterViewInit {
                         tooltip: {
                             show: false,
                             formatter: () => {
-                                return `경고 (${spec_alarm.toFixed(2)})`;
+                                return `${this.alarmSpecLabel} (${spec_alarm.toFixed(2)})`;
                             }
                         },
                         draggable: {
@@ -133,7 +140,7 @@ export class TrendChartComponent implements OnInit, OnChanges,AfterViewInit {
                     fill: true,
                     fillStyle: 'rgba(255, 255, 0, .5)',
                     line: {
-                        name: `주의 (${spec_warning.toFixed(2)})`,
+                        name: `${this.warningSpecLabel} (${spec_warning.toFixed(2)})`,
                         show: true, // default : false
                         value: spec_warning,
                         color: '#ffff00',
@@ -149,7 +156,7 @@ export class TrendChartComponent implements OnInit, OnChanges,AfterViewInit {
                         tooltip: {
                             show: false,
                             formatter: () => {
-                                return `주의 (${spec_warning.toFixed(2)})`;
+                                return `${this.warningSpecLabel} (${spec_warning.toFixed(2)})`;
                             }
                         },
                         draggable: {
@@ -197,7 +204,7 @@ export class TrendChartComponent implements OnInit, OnChanges,AfterViewInit {
                         tooltip: {
                             show: true,
                             formatter: () => {
-                                return `주의 (${spec_warning.toFixed(2)})`;
+                                return `${this.warningSpecLabel} (${spec_warning.toFixed(2)})`;
                             }
                         },
                         draggable: {
@@ -247,7 +254,7 @@ export class TrendChartComponent implements OnInit, OnChanges,AfterViewInit {
                             tooltip: {
                                 show: true,
                                 formatter: () => {
-                                    return `주의 (${spec_warning.toFixed(2)})`;
+                                    return `${this.warningSpecLabel} (${spec_warning.toFixed(2)})`;
                                 }
                             },
                             draggable: {
@@ -356,5 +363,11 @@ export class TrendChartComponent implements OnInit, OnChanges,AfterViewInit {
         var result = new Date(date);
         result.setDate(result.getDate() + days);
         return result;
+    }
+
+    private setGlobalLabel(): void {
+        let translater = this.translater;
+        this.alarmSpecLabel = translater.instant('PDM.SPEC.ALARM');
+        this.warningSpecLabel = translater.instant('PDM.SPEC.WARNING');
     }
 }

@@ -4,6 +4,7 @@
     <select id="selectList" resultType="com.bistel.a3.portal.domain.pdm.db.Bearing">
         select rawid as bearing_id,model_number,manufacture,bpfo,bpfi,bsf,ftf,description
         from bearing_mst_pdm
+        order by model_number, manufacture
     </select>
 
     <select id="selectOne" resultType="com.bistel.a3.portal.domain.pdm.db.Bearing">

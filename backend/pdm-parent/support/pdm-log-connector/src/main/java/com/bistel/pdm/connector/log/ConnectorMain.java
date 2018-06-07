@@ -38,7 +38,7 @@ public class ConnectorMain {
             if (args.length <= 0) {
                 args = new String[]{"-brokers", "192.168.7.228",
                         "-topicPrefix", "pdm-input",
-                        "-watchDir", "/Users/hansonjang/pdm/allen-generator/fab1/Demo_Area/",
+                        "-watchDir", "/Users/hansonjang/pdm/test/",
                         "-clientId", "client-0",
                         "-kafkaConf", "/Users/hansonjang/Documents/opensource/pdm-parent/support/pdm-log-connector/target/classes/producer.properties",
                         "-log4jConf", "/Users/hansonjang/Documents/opensource/pdm-parent/support/pdm-log-connector/target/classes/log4j.properties"};

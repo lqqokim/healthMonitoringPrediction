@@ -50,11 +50,11 @@ public class TraceRmsConsumerRunnable implements Runnable {
         log.info("Reading topic: {}, db type: {}", topicName, DataSource.getDBType());
 
         while (true) {
-            ConsumerRecords<String, byte[]> records = consumer.poll(5000); //5 sec.
+            ConsumerRecords<String, byte[]> records = consumer.poll(1000); //1 sec.
             if (records.count() > 0) {
                 trxDao.storeRecord(records);
                 consumer.commitSync();
-                log.info("{} records are committed and stored to TRACE_TRX_PDM table.", records.count());
+                log.info("{} records are committed.", records.count());
             }
         }
     }

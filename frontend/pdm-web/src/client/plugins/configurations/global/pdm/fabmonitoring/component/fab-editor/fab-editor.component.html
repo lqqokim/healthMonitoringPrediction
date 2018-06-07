@@ -1,0 +1,37 @@
+<div class="fabEditor" >
+    <div class="panel panel-default property" id="draggable" *ngIf="mode=='editor'">
+        <div class="panel-heading">Property</div>
+        <div class="panel-body">
+            <input type="file" id="file" class="">
+            <button class="btn btn-info" class="" (click)="addPosition()">Add Position Mark</button>
+            <div *ngIf="selectedItem">
+                <input type='text' [(ngModel)]="selectedItem.left" name="left">
+                <input type='text' [(ngModel)]="selectedItem.top" name="top">
+                <input type='text' [(ngModel)]="selectedItem.name" name="name">
+            </div>
+
+        </div>
+    </div>
+
+
+    <div class="fab-canvas" #fabcanvas>
+        <!-- <img id="fab-canvas-background"> -->
+        <div id="{{item.name}}" class="position-rectangle" [ngClass]="{'position_selected': item==selectedItem }" [style.visibility]="mode=='editor'?'visible':'hidden'"
+            [draggable] [style.top.px]="item.top*rateHeight" [style.left.px]="item.left*rateWidth" *ngFor="let item of fabInfo.datas"
+            (mousedown)="onMousedown($event,item)" (mouseup)="onMouseup($event,item)">
+            <p>{{item.name}}</p>
+        </div>
+        <!-- <div class="car" id="{{item.name}}" [ngClass]="{'alarm':item.status=='alarm','warning':item.status=='warning'}" *ngFor="let item of actions"
+            [style.top.px]="getYByName(item.locationName,item.name)" [style.left.px]="getXByName(item.locationName,item.name)">
+            <p>{{item.name}}</p>
+        </div> -->
+        <div class="positionInfo" id="{{item.name}}" [ngClass]="{'alarm':item.status=='alarm','warning':item.status=='warning'}" *ngFor="let item of locationActions"
+            [style.top.px]="getYByName(item.locationName,item.name,'location')" [style.left.px]="getXByName(item.locationName,item.name)">
+            <barchart></barchart>
+        </div>
+
+
+
+    </div>
+
+</div>

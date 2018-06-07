@@ -67,7 +67,7 @@ public class TraceRawConsumerRunnable implements Runnable {
                 for (ConsumerRecord<String, byte[]> record : records) {
                     byte[] sensorData = record.value();
                     String valueString = new String(sensorData);
-                    String[] values = valueString.split(",");
+                    String[] values = valueString.split(",", -1);
 
                     /*
                     0 : paramRawid
@@ -96,7 +96,7 @@ public class TraceRawConsumerRunnable implements Runnable {
                     trxDao.storeRecord(traceRow);
                     trxRawDao.storeRecord(rawRow);
                     consumer.commitSync();
-                    log.info("{} records are committed and stored to TRACE_RAW_TRX_PDM table.", records.count());
+                    log.info("{} records are committed.", records.count());
                 }
             } catch (Exception e) {
                 log.error(e.getMessage(), e);
@@ -105,6 +105,20 @@ public class TraceRawConsumerRunnable implements Runnable {
     }
 
     private void parseFrequency(Map<String, Pair<Long, SensorRawData>> rawRow, String[] values, Long rawId) {
+        /*
+            0 : paramRawid
+            1 : value
+            2 : alarm spec
+            3 : warning spec
+            4 : time
+            5 : frequency count
+            6 : max frequency
+            7 : rpm
+            8 : sampling time
+            9 : frequency binary
+            10 : timewave binary
+        */
+
         SensorRawData rawDataFrequency = new SensorRawData();
         rawDataFrequency.setTraceTrxRawid(rawId);
         rawDataFrequency.setParamMstRawid(Long.parseLong(values[0]));
@@ -120,17 +134,53 @@ public class TraceRawConsumerRunnable implements Runnable {
         } else {
             rawDataFrequency.setWarningSpec(Float.parseFloat(values[3]));
         }
+        rawDataFrequency.setEventDtts(Long.parseLong(values[4]));
 
-        rawDataFrequency.setFreqCount(Integer.parseInt(values[6]));
-        rawDataFrequency.setMaxFreq(Integer.parseInt(values[5]));
+        rawDataFrequency.setFreqCount(Integer.parseInt(values[5]));
+        rawDataFrequency.setMaxFreq(Integer.parseInt(values[6]));
         rawDataFrequency.setRpm(Float.parseFloat(values[7]));
         rawDataFrequency.setSamplingTime(Float.parseFloat(values[8]));
-        rawDataFrequency.setEventDtts(Long.parseLong(values[4]));
         rawDataFrequency.setFrequencyData(values[9]);
+
+        //rsd 01~05
+        if (values.length > 11) {
+            rawDataFrequency.setReservedCol1(values[11]); //location
+
+            if (values.length > 12) {
+                rawDataFrequency.setReservedCol2(values[12]);
+
+                if (values.length > 13) {
+                    rawDataFrequency.setReservedCol3(values[13]);
+
+                    if (values.length > 14) {
+                        rawDataFrequency.setReservedCol4(values[14]);
+
+                        if (values.length > 15) {
+                            rawDataFrequency.setReservedCol5(values[15]);
+                        }
+                    }
+                }
+            }
+        }
+
         rawRow.put("F," + rawId, new Pair<>(rawId, rawDataFrequency)); //frequency
     }
 
     private void parseTimewave(Map<String, Pair<Long, SensorRawData>> rawRow, String[] values, Long rawId) {
+        /*
+            0 : paramRawid
+            1 : value
+            2 : alarm spec
+            3 : warning spec
+            4 : time
+            5 : frequency count
+            6 : max frequency
+            7 : rpm
+            8 : sampling time
+            9 : frequency binary
+            10 : timewave binary
+        */
+
         SensorRawData rawDataTimeWave = new SensorRawData();
         rawDataTimeWave.setTraceTrxRawid(rawId);
         rawDataTimeWave.setParamMstRawid(Long.parseLong(values[0]));
@@ -146,17 +196,52 @@ public class TraceRawConsumerRunnable implements Runnable {
         } else {
             rawDataTimeWave.setWarningSpec(Float.parseFloat(values[3]));
         }
+        rawDataTimeWave.setEventDtts(Long.parseLong(values[4]));
 
-        rawDataTimeWave.setFreqCount(Integer.parseInt(values[6]));
-        rawDataTimeWave.setMaxFreq(Integer.parseInt(values[5]));
+        rawDataTimeWave.setFreqCount(Integer.parseInt(values[5]));
+        rawDataTimeWave.setMaxFreq(Integer.parseInt(values[6]));
         rawDataTimeWave.setRpm(Float.parseFloat(values[7]));
         rawDataTimeWave.setSamplingTime(Float.parseFloat(values[8]));
-        rawDataTimeWave.setEventDtts(Long.parseLong(values[4]));
         rawDataTimeWave.setTimewaveData(values[10]);
+
+        //rsd 01~05
+        if (values.length > 11) {
+            rawDataTimeWave.setReservedCol1(values[11]); //location
+
+            if (values.length > 12) {
+                rawDataTimeWave.setReservedCol2(values[12]);
+
+                if (values.length > 13) {
+                    rawDataTimeWave.setReservedCol3(values[13]);
+
+                    if (values.length > 14) {
+                        rawDataTimeWave.setReservedCol4(values[14]);
+
+                        if (values.length > 15) {
+                            rawDataTimeWave.setReservedCol5(values[15]);
+                        }
+                    }
+                }
+            }
+        }
+
         rawRow.put("T," + rawId, new Pair<>(rawId, rawDataTimeWave)); //timewave
     }
 
     private void parseTrace(List<Pair<Long, SensorTraceData>> traceRow, String[] values, Long rawId) {
+       /*
+            0 : paramRawid
+            1 : value
+            2 : alarm spec
+            3 : warning spec
+            4 : time
+            5 : frequency count
+            6 : max frequency
+            7 : rpm
+            8 : sampling time
+            9 : frequency binary
+            10 : timewave binary
+        */
         SensorTraceData std = new SensorTraceData();
         std.setRawid(rawId);
         std.setEventDtts(Long.parseLong(values[4]));
@@ -176,11 +261,26 @@ public class TraceRawConsumerRunnable implements Runnable {
             std.setWarningSpec(Float.parseFloat(values[3]));
         }
 
-//        std.setReservedCol1(values[10]);
-//        std.setReservedCol2(values[11]);
-//        std.setReservedCol3(values[12]);
-//        std.setReservedCol4(values[13]);
-//        std.setReservedCol5(values[14]);
+        //rsd 01~05
+        if (values.length > 11) {
+            std.setReservedCol1(values[11]); //location
+
+            if (values.length > 12) {
+                std.setReservedCol2(values[12]);
+
+                if (values.length > 13) {
+                    std.setReservedCol3(values[13]);
+
+                    if (values.length > 14) {
+                        std.setReservedCol4(values[14]);
+
+                        if (values.length > 15) {
+                            std.setReservedCol5(values[15]);
+                        }
+                    }
+                }
+            }
+        }
 
         traceRow.add(new Pair<>(rawId, std));
     }

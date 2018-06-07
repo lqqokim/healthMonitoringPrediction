@@ -21,11 +21,20 @@ public interface IDataCollectService {
     @Scheduled(cron="${schedule.demoDataCopy}")
     void demoDataCopy() throws NoSuchMethodException;
 
-    HashMap<String, Object> deleteAndCopy(String fabId, long paramId, Date fromDate, Date toDate, Date targetDate);
+    HashMap<String, Object> deleteAndCopy(String fabId, long fromParamId, long toParamId, Date fromDate, Date toDate, Date targetDate);
 
     HashMap<String, Object> demoDataCopyByEqp(String fabId, long fromEqpId, long toEapId, Date fromDate, Date toDate, Date targetDate);
 
     void sampleDataCopy() throws NoSuchMethodException;
     void sampleTraceWrite() throws NoSuchMethodException ;
     void sampleTraceRawWrite() throws NoSuchMethodException;
+
+    @Transactional(readOnly = true)
+    @Scheduled(cron="0/1 * * * * *")
+    void schedulerDataCopyByEqp() throws NoSuchMethodException;
+
+    @Transactional(readOnly = true)
+    @Scheduled(cron="0/1 * * * * *")
+    void schedulerMakeEnvelopingData() throws NoSuchMethodException;
+
 }

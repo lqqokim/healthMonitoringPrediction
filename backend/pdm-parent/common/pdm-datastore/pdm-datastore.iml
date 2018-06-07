@@ -24,14 +24,14 @@
     <orderEntry type="library" name="Maven: io.confluent:kafka-schema-registry-client:4.1.0" level="project" />
     <orderEntry type="library" name="Maven: io.confluent:common-config:4.1.0" level="project" />
     <orderEntry type="library" name="Maven: io.confluent:common-utils:4.1.0" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.apache.kafka:kafka_2.11:1.1.0" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.kafka:kafka_2.11:1.1.0" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-databind:2.9.1" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-annotations:2.9.0" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: net.sf.jopt-simple:jopt-simple:5.0.4" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: com.yammer.metrics:metrics-core:2.2.0" level="project" />
+    <orderEntry type="library" name="Maven: net.sf.jopt-simple:jopt-simple:5.0.4" level="project" />
+    <orderEntry type="library" name="Maven: com.yammer.metrics:metrics-core:2.2.0" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.scala-lang:scala-library:2.11.8" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.scala-lang:scala-reflect:2.11.8" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: com.typesafe.scala-logging:scala-logging_2.11:3.7.2" level="project" />
+    <orderEntry type="library" name="Maven: org.scala-lang:scala-reflect:2.11.8" level="project" />
+    <orderEntry type="library" name="Maven: com.typesafe.scala-logging:scala-logging_2.11:3.7.2" level="project" />
     <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.7.25" level="project" />
     <orderEntry type="library" name="Maven: com.101tec:zkclient:0.10" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.apache.zookeeper:zookeeper:3.4.10" level="project" />

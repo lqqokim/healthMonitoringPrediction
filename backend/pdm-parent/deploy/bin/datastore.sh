@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 APPNAME="DataStore Layer"
 APPPID=datastore.pid
-APPJAR=pdm-datastore-sink-bundle-1.0-SNAPSHOT.jar
+APPJAR=pdm-datastore-bundle-1.0-SNAPSHOT.jar
 APPOPTS="-groupId consumer-group-1
 -topicPrefix pdm-output
 -kafkaConf ./config/consumer.properties
