@@ -92,6 +92,10 @@ export class FabEditorComponent implements OnInit, OnChanges,AfterViewInit{
             // var div = $('.fab-canvas');
             let div = $(this.fabcanvas.nativeElement);
             div.css('background-image', 'url("' + this.fabInfo.image + '")');
+        }else{
+            var div = $(this.fabcanvas.nativeElement);
+            div.css('background-image', '');
+
         }
         setTimeout(()=>{
             var div = $(this.fabcanvas.nativeElement);
@@ -253,7 +257,7 @@ export class FabEditorComponent implements OnInit, OnChanges,AfterViewInit{
             }else{
                 value = this.randomRange(100,(warning_spec-0.01)*100)/100;
             }
-            let info = "Name: EQP"+i.toString()+'\n'+ "Status: "+this.statusNames[index]+'\n'+"Location: "+this.locations[i];
+            let info = "Param: param"+i.toString()+'\n'+ "Status: "+this.statusNames[index]+'\n'+"Location: "+this.locations[i];
 
             this.setLocationAction(this.locations[i],this.statusNames[index],speed ,info,warning_spec,alarm_spec,value,maxvalue);
                 
