@@ -16,6 +16,7 @@ export class FabEditorComponent implements OnInit, OnChanges,AfterViewInit{
     @Input() fabInfo:FabInfo=new FabInfo();
     @Input() mode="editor";
     @ViewChild("fabcanvas") fabcanvas:ElementRef;
+    @ViewChild("property") property:ElementRef;
     // @Output() save: EventEmitter<any> = new EventEmitter();
 
     selectedItem =null ;
@@ -53,7 +54,7 @@ export class FabEditorComponent implements OnInit, OnChanges,AfterViewInit{
     }
     ngAfterViewInit(){
 
-        $( "#draggable" ).draggable({ cursor: "move"});
+        $( this.property.nativeElement ).draggable({ cursor: "move"});
 
 
         // $( "#draggable" ).draggable({ cursor: "move" });
@@ -199,6 +200,7 @@ export class FabEditorComponent implements OnInit, OnChanges,AfterViewInit{
     locations = [];
     simulationStop(){
         this.isSimulationStop = true;
+        this.clearAction();
     }
     simulationStart(){
         this.locations =[];
@@ -208,6 +210,7 @@ export class FabEditorComponent implements OnInit, OnChanges,AfterViewInit{
         }
         this.moveaction();
         this.locationStatusAction();
+        
         this.simulation();
         return !this.isSimulationStop;
     }
@@ -257,7 +260,7 @@ export class FabEditorComponent implements OnInit, OnChanges,AfterViewInit{
             }else{
                 value = this.randomRange(100,(warning_spec-0.01)*100)/100;
             }
-            let info = "Param: param"+i.toString()+'\n'+ "Status: "+this.statusNames[index]+'\n'+"Location: "+this.locations[i];
+            let info = "Param: param"+i.toString()+'\n'+'Value:'+value+'\n'+ "Status: "+this.statusNames[index] +'\n'+"Location: "+this.locations[i];
 
             this.setLocationAction(this.locations[i],this.statusNames[index],speed ,info,warning_spec,alarm_spec,value,maxvalue);
                 
