@@ -50,19 +50,19 @@ public class TraceGeneratorRunnable implements Runnable {
                     {
                         this.sampleTraceTempWrite(p.getEqp_name(), p.getName());
                     }
-                    else if(p.getParam_id().equals(2163L)) //Demo1 Moter DE Velocity Alarm
+                    else if(p.getParam_id().equals(2163L)) //Demo1 Moter DE Velocity Alarm_Misalignment
                     {
-                        this.sampleTraceWrite(p.getEqp_name(), p.getName(), "EQP_TYPE1", "Velocity", "Alarm");
+                        this.sampleTraceWrite(p.getEqp_name(), p.getName(), "EQP_TYPE1", "Velocity", "Alarm_Misalignment");
                     }
-                    else if(p.getParam_id().equals(2188L)) //Demo2 Motor DE Velocity Alarm
+                    else if(p.getParam_id().equals(2188L)) //Demo2 Motor DE Velocity Alarm_Unbalance
                     {
                         this.sampleTraceWrite(p.getEqp_name(), p.getName(), "EQP_TYPE1", "Velocity", "Alarm_Unbalance");
                     }
-                    else if(p.getParam_id().equals(2204L)) //Demo3 Fan DE1 Accleration Alarm
+                    else if(p.getParam_id().equals(2204L)) //Demo3 Fan DE1 Accleration Alarm_Lubrication
                     {
                         this.sampleTraceWrite(p.getEqp_name(), p.getName(), "EQP_TYPE1", "Acceleration", "Alarm");
                     }
-                    else if(p.getParam_id().equals(8803L)) //Demo11 Fan DE1 Enveloping Alarm
+                    else if(p.getParam_id().equals(8803L)) //Demo11 Fan DE1 Enveloping Alarm_
                     {
                         this.sampleTraceWrite(p.getEqp_name(), p.getName(), "EQP_TYPE1", "Enveloping", "Alarm");
                     }
