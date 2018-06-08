@@ -1,5 +1,5 @@
 <div class="fabEditor" >
-    <div class="panel panel-default property" id="draggable" *ngIf="mode=='editor'">
+    <div class="panel panel-default property" id="draggable" *ngIf="mode=='editor' && simulationStop">
         <div class="panel-heading">Property</div>
         <div class="panel-body">
             <input type="file" id="file" class="">
@@ -25,9 +25,14 @@
             [style.top.px]="getYByName(item.locationName,item.name)" [style.left.px]="getXByName(item.locationName,item.name)">
             <p>{{item.name}}</p>
         </div> -->
-        <div class="positionInfo" id="{{item.name}}" [ngClass]="{'alarm':item.status=='alarm','warning':item.status=='warning'}" *ngFor="let item of locationActions"
+        <div class="positionInfo" id="{{item.name}}" [attr.title]="item.info" [ngClass]="{'alarm':item.status=='alarm','warning':item.status=='warning'}" *ngFor="let item of locationActions"
             [style.top.px]="getYByName(item.locationName,item.name,'location')" [style.left.px]="getXByName(item.locationName,item.name)">
-            <barchart></barchart>
+            <div class='barchart'>
+                <barchart [data]="item.data"></barchart>
+            </div>
+            <div>
+                Speed:{{item.speed}}km/h
+            </div>
         </div>
 
 

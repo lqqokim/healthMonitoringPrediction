@@ -74,13 +74,13 @@
 }
 
 .fabEditor   .alarm {
-    animation: blinker 1s linear infinite;
+    /* animation: blinker 1s linear infinite; */
     /* border: solid red 5px; */
     background-color: red;
     opacity: 0.9;
   }
 .fabEditor    .warning {
-    animation: blinker 1.5s linear infinite;
+    /* animation: blinker 1.5s linear infinite; */
     /* border:solid yellow 5px; */
     background-color: yellow;
     opacity: 0.9;
@@ -92,3 +92,10 @@
       opacity: 0;
     }
   }
+
+  .fabEditor .barchart{
+      width:15px;
+      height:100%;
+      border: solid gray 1px;
+  }
+

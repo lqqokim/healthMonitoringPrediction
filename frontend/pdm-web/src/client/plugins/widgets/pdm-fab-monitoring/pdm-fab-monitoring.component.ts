@@ -6,6 +6,7 @@ import { WidgetRefreshType, WidgetApi, ContextMenuTemplateInfo, OnSetup } from '
 import { Translater, ContextMenuType, SpinnerComponent } from '../../../sdk';
 
 import { FabInfo } from '../../configurations/global/pdm/fabmonitoring/component/fab-editor/fabInfo';
+import { FabEditorComponent } from '../../configurations/global/pdm/fabmonitoring/component/fab-editor/fab-editor.component';
 
 // import { FabEditorComponent } from '../../configurations/global/pdm/fabmonitoring/component/fab-editor/fab-editor.component';
 
@@ -20,6 +21,7 @@ export class PdmFabMonitoringComponent extends WidgetApi implements OnInit, OnSe
 
     private _props: any;
     selectedMonitoring:FabInfo=new FabInfo();
+    @ViewChild("fabMonitoring") fabMonitoring:FabEditorComponent;
 
     constructor() {
         super();
@@ -47,6 +49,8 @@ export class PdmFabMonitoringComponent extends WidgetApi implements OnInit, OnSe
 
     setConfig(): void {
         this.selectedMonitoring = this._props.monitoring;
+        setTimeout(()=>{
+            this.fabMonitoring.simulationStart()},500);
         this.hideSpinner();
     }
 

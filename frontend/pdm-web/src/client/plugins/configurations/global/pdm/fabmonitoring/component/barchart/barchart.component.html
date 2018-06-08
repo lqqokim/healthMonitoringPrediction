@@ -1,3 +1,8 @@
 <div class="barchart" id={{chartId}}>
-   
+    <svg width="100%" height="100%">
+       <rect x="0" y="0" width="100%" height="100%" style="fill:white;stroke:gray;stroke-width:1;fill-opacity:1;stroke-opacity:1" />
+       <rect *ngIf="normal_height" x="0" [attr.y]="normal_y" width="100%" [attr.height]="normal_height" style="fill:blue;stroke:gry;stroke-width:1;fill-opacity:1;stroke-opacity:1" />
+       <rect *ngIf="normal_height" x="0" [attr.y]="warning_y" width="100%" [attr.height]="warning_height" style="fill:yellow;stroke:gray;stroke-width:1;fill-opacity:1;stroke-opacity:1" /> 
+       <rect *ngIf="normal_height" x="0" [attr.y]="alarm_y" width="100%" [attr.height]="alarm_height" style="fill:red;stroke:gray;stroke-width:1;fill-opacity:1;stroke-opacity:1" /> 
+    </svg>
 </div>

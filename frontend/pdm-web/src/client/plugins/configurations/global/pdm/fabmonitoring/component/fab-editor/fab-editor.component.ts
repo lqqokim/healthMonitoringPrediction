@@ -37,7 +37,7 @@ export class FabEditorComponent implements OnInit, OnChanges,AfterViewInit{
 
     locationSeq = 0;
 
-    simulationStop = true;
+    isSimulationStop = true;
 
     constructor(){ }
 
@@ -77,16 +77,20 @@ export class FabEditorComponent implements OnInit, OnChanges,AfterViewInit{
             var file = evt.target.files[0];
             reader.readAsDataURL(file);
         });
+
+
+   
+
     }
     setData(){
-        this.simulationStop = true;
+        // this.isSimulationStop = true;
         this.clearAction();
         if(this.fabInfo==null){
             return ;
         }
         if(this.fabInfo.image!=null){
             // var div = $('.fab-canvas');
-            var div = $(this.fabcanvas.nativeElement);
+            let div = $(this.fabcanvas.nativeElement);
             div.css('background-image', 'url("' + this.fabInfo.image + '")');
         }
         setTimeout(()=>{
@@ -189,18 +193,22 @@ export class FabEditorComponent implements OnInit, OnChanges,AfterViewInit{
 
 
     locations = [];
+    simulationStop(){
+        this.isSimulationStop = true;
+    }
     simulationStart(){
         this.locations =[];
-        this.simulationStop = !this.simulationStop;
+        this.isSimulationStop = false;
         for(let i=0;i<this.fabInfo.datas.length;i++){
             this.locations.push(this.fabInfo.datas[i].name);
         }
         this.moveaction();
+        this.locationStatusAction();
         this.simulation();
-        return !this.simulationStop;
+        return !this.isSimulationStop;
     }
     simulation(){
-        if(this.simulationStop){
+        if(this.isSimulationStop){
             this.clearAction();
            return;
         }
@@ -219,7 +227,8 @@ export class FabEditorComponent implements OnInit, OnChanges,AfterViewInit{
 
         for(let i=0;i<count/2;i++){
             let index =Math.floor(Math.random() * 3); 
-            this.setAction("test"+i.toString(),this.locations[(this.locationSeq+i)%count],this.statusNames[index],"test"+i.toString());
+            let info = "Name: EQP"+i.toString()+'\n'+ "Status: "+this.statusNames[index]+'\n'+"Location: "+this.locations[(this.locationSeq+i)%count];
+            this.setAction("EQP"+i.toString(),this.locations[(this.locationSeq+i)%count],this.statusNames[index],info);
                 
         }
         this.locationSeq ++;
@@ -231,12 +240,29 @@ export class FabEditorComponent implements OnInit, OnChanges,AfterViewInit{
         let count = this.fabInfo.datas.length;
 
         for(let i=0;i<count;i++){
-            let index =Math.floor(Math.random() * 3); 
-            let speed = Math.floor(Math.random()*100);
-            this.setLocationAction(this.locations[i],this.statusNames[index],speed ,"test"+i.toString());
+            const index =Math.floor(Math.random() * 3); 
+            const speed = Math.floor(Math.random()*100);
+            const warning_spec = 0.8 + this.randomRange(-100,100)/1000;
+            const alarm_spec = 1;
+            const maxvalue = 1.3;
+            let value = 0;
+            if(this.statusNames[index]=="alarm"){
+                value = this.randomRange(100,130)/100;
+            }else if(this.statusNames[index]=="warning"){
+                value = this.randomRange(warning_spec*100,99)/100;
+            }else{
+                value = this.randomRange(100,(warning_spec-0.01)*100)/100;
+            }
+            let info = "Name: EQP"+i.toString()+'\n'+ "Status: "+this.statusNames[index]+'\n'+"Location: "+this.locations[i];
+
+            this.setLocationAction(this.locations[i],this.statusNames[index],speed ,info,warning_spec,alarm_spec,value,maxvalue);
                 
         }
     }
+    randomRange(min,max) {
+        return  Math.floor((Math.random() * (max - min + 1)) + min );
+    }
+      
     public getDatas(){
         return this.fabInfo;
     }
@@ -260,13 +286,15 @@ export class FabEditorComponent implements OnInit, OnChanges,AfterViewInit{
         }
         
     }
-    public setLocationAction(locationName,status,speed,info){
+    public setLocationAction(locationName,status,speed,info,warning_spec,alarm_spec,value,maxvalue){
         if(this.locationActionsKey[locationName]){
             this.locationActionsKey[locationName].name ="loc_"+ locationName;
             this.locationActionsKey[locationName].locationName = locationName;
             this.locationActionsKey[locationName].status = status;
             this.locationActionsKey[locationName].speed = speed;
             this.locationActionsKey[locationName].info = info;
+            this.locationActionsKey[locationName].data = {warning:warning_spec,alarm:alarm_spec,value:value,maxvalue:maxvalue};
+
         }else{
             this.locationActions.push({locationName:locationName,status:status,speed:speed,info:info});
             this.locationActionsKey[locationName] = this.locationActions[this.locationActions.length-1];

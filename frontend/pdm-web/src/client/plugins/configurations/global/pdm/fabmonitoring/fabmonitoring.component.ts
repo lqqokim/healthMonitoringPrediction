@@ -41,7 +41,14 @@ export class FabMonitoringComponent implements OnInit {
     }
 
     simulationStart(){
-        this.simulationStop = !this.fabMonitoring.simulationStart();
+        if(this.simulationStop){
+            this.fabMonitoring.simulationStart();
+            this.simulationStop = false;
+        }else{
+            this.fabMonitoring.simulationStop();
+            this.simulationStop = true;
+        }
+        
     }
 
     save(){
