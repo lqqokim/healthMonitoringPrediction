@@ -45,6 +45,7 @@
         <property name="properties">
             <props>
                 <prop key="Oracle">oracle</prop>
+                <prop key="PostgreSQL">postgresql</prop>
             </props>
         </property>
     </bean>
