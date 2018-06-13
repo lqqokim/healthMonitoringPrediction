@@ -12,7 +12,7 @@
         a.description,
         (select name from code_mst_pdm where code=a.param_type_cd and category='param_type' and used_yn='Y') as param_type_name,
         (select name from code_mst_pdm where code=a.unit_cd and category='unit_type' and used_yn='Y') as unit_name,
-        (select rpm from manual_rpm_mst_pdm where param_mst_rawid = a.rawid) as rpm,
+       
         a.param_type_cd,
         a.unit_cd,
         a.parts_mst_rawid as parts_id,
@@ -37,7 +37,6 @@
         a.description,
         (select name from code_mst_pdm where code=a.param_type_cd and category='param_type' and used_yn='Y') as param_type_name,
         (select name from code_mst_pdm where code=a.unit_cd and category='unit_type' and used_yn='Y') as unit_name,
-        (select rpm from manual_rpm_mst_pdm where param_mst_rawid = a.rawid) as rpm,
         a.param_type_cd,
         a.unit_cd,
         a.parts_mst_rawid as parts_id,
@@ -59,7 +58,6 @@
             a.description,
             (select name from code_mst_pdm where code=a.param_type_cd) as eu_type,
             (select name from code_mst_pdm where code=a.unit_cd) as eu,
-            (select rpm from manual_rpm_mst_pdm where param_mst_rawid = a.rawid) as rpm
 
         from param_mst_pdm a
             join eqp_mst_pdm b on a.eqp_mst_rawid = b.eqp_id
@@ -182,7 +180,6 @@
         a.description,
         (select name from code_mst_pdm where code=a.param_type_cd and category='param_type' and used_yn='Y') as param_type_name,
         (select name from code_mst_pdm where code=a.unit_cd and category='unit_type' and used_yn='Y') as unit_name,
-        (select rpm from manual_rpm_mst_pdm where param_mst_rawid = a.rawid) as rpm,
         a.param_type_cd,
         a.unit_cd,
         a.parts_mst_rawid as parts_id,
@@ -222,7 +219,6 @@
         a.description,
         (select name from code_mst_pdm where code=a.param_type_cd and category='param_type' and used_yn='Y') as param_type_name,
         (select name from code_mst_pdm where code=a.unit_cd and category='unit_type' and used_yn='Y') as unit_name,
-        (select rpm from manual_rpm_mst_pdm where param_mst_rawid = a.rawid) as rpm,
         a.param_type_cd,
         a.unit_cd,
         a.parts_mst_rawid as parts_id,
@@ -244,7 +240,6 @@
         a.description,
         (select name from code_mst_pdm where code=a.param_type_cd and category='param_type' and used_yn='Y') as param_type_name,
         (select name from code_mst_pdm where code=a.unit_cd and category='unit_type' and used_yn='Y') as unit_name,
-        (select rpm from manual_rpm_mst_pdm where param_mst_rawid = a.rawid) as rpm,
         a.param_type_cd,
         a.unit_cd,
         a.parts_mst_rawid as parts_id,
