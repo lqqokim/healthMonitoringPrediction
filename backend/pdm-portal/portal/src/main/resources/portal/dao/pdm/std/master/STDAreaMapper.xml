@@ -19,7 +19,7 @@
         where rawid = #{areaId}
     </select>
 
-    <insert id="insertOne" parameterType="com.bistel.a3.portal.domain.pdm.db.Area">
+    <insert id="insertOne" parameterType="com.bistel.a3.portal.domain.pdm.db.Area"  databaseId="oracle">
         <selectKey keyProperty="area_id" resultType="Long" order="BEFORE">
             select seq_area_mst_pdm.nextval FROM DUAL
         </selectKey>
@@ -101,7 +101,7 @@
         select
         rawid as area_id,
         name,
-        parent_id,
+        parent_rawid as parent_id,
         CONNECT_BY_ISLEAF as leaf
         from area_mst_pdm
         start with parent_rawid = 0
