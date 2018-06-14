@@ -111,7 +111,6 @@ export class AlarmWarningBadComponent implements OnInit, OnChanges {
                     // numberRows: 1
                     textColor: "#000000",
                     fontSize: "5pt",
-                    
                 }
             },
             eventLine: {
@@ -127,9 +126,14 @@ export class AlarmWarningBadComponent implements OnInit, OnChanges {
             },
             seriesDefaults: {
                 showMarker: false,
-                animation: {
-                    speed: 2000
+                rendererOptions: {
+                    smooth: true,
+                    animation: {
+                        speed: 2000
+                    }
+                    
                 }
+                
             },
             series: [],            
             axes: {

@@ -539,38 +539,25 @@
         
             eqp.name as eqpName,
             param.name as paramName,
+        <if test="aggregationData.use==false" >
+            value,
+            event_dtts
+        </if>
+         <if test="aggregationData.use==true" >
             sum(value) as sum,
             min(value) as min,
             max(value) as max,
             avg(value) as avg,
             count(value) as count,
-    
-        <!--<foreach collection="aggregationData.functions" item="function">-->
-                <!--<if test="function=='sum'">-->
-                    <!--sum(value) as sum,-->
-                <!--</if>-->
-                <!--<if test="function=='min'">-->
-                    <!--min(value) as min,-->
-                <!--</if>-->
-                <!--<if test="function=='max'">-->
-                    <!--max(value) as max,-->
-                <!--</if>-->
-                <!--<if test="function=='avg'">-->
-                    <!--avg(value) as avg,-->
-                <!--</if>-->
-                <!--<if test="function=='count'">-->
-                    <!--count(value) as count,-->
-                <!--</if>-->
-            <!--</foreach>-->
-            
-    
-        <if test="aggregationData.groupUnit=='seconds'" >
-                to_char(event_dtts,'yyyy-MM-dd HH24:mi:') || trim(to_char(round(to_number( to_char(event_dtts,'ss'))/${aggregationData.groupValue}-0.4),'00')) as event_dtts
-        </if>
-        <if test="aggregationData.groupUnit=='minutes'" >
-            
-                to_char(event_dtts,'yyyy-MM-dd HH24:') || trim(to_char(round(to_number( to_char(event_dtts,'mi'))/${aggregationData.groupValue}-0.4),'00'))||':00' as event_dtts
-        </if>
+       
+
+            <if test="aggregationData.groupUnit=='seconds'" >
+                    to_char(event_dtts,'yyyy-MM-dd HH24:mi:') || trim(to_char(round(to_number( to_char(event_dtts,'ss'))/${aggregationData.groupValue}-0.4),'00')) as event_dtts
+            </if>
+            <if test="aggregationData.groupUnit=='minutes'" >
+                
+                    to_char(event_dtts,'yyyy-MM-dd HH24:') || trim(to_char(round(to_number( to_char(event_dtts,'mi'))/${aggregationData.groupValue}-0.4),'00'))||':00' as event_dtts
+            </if>
             <if test="aggregationData.groupUnit=='hours'" >
                 to_char(event_dtts,'yyyy-MM-dd ') || trim(to_char(round(to_number( to_char(event_dtts,'HH24'))/${aggregationData.groupValue}-0.4),'00'))||':00:00' as event_dtts
             </if>
@@ -578,7 +565,7 @@
                 to_char(event_dtts,'yyyy-MM-') || trim(to_char(round(to_number( to_char(event_dtts,'dd'))/${aggregationData.groupValue}-0.4+1),'00'))||' 00:00:00'  as event_dtts
             </if>
 
-            
+      </if>
             
         from trace_trx_pdm trx,param_mst_pdm param,eqp_mst_pdm eqp
         where trx.param_mst_rawid = param.rawid
@@ -727,35 +714,9 @@
                         </if>
                     </if>
     
-                <!--<if test="filterData.fieldName=='VALUE'">-->
-                        <!--VALUE-->
-                    <!--</if>-->
-                    <!--<if test="filterData.condition=='equal'">-->
-                         <!--<![CDATA[=]]>-->
-                    <!--</if>-->
-                    <!--<if test="filterData.condition=='lessthan'">-->
-                         <!--<![CDATA[<]]>-->
-                    <!--</if>-->
-                    <!--<if test="filterData.condition=='greaterthan'">-->
-                         <!--<![CDATA[>]]>-->
-                    <!--</if>-->
-                    <!--<if test="filterData.condition=='lessthanequal'">-->
-                         <!--<![CDATA[<=]]>-->
-                    <!--</if>-->
-                    <!--<if test="filterData.condition=='greaterthanequal'">-->
-                         <!--<![CDATA[>=]]>-->
-                    <!--</if>-->
-                    <!--<if test="filterData.condition=='like'">-->
-                        <!--like #{filterData.value}-->
-                    <!--</if>-->
-        <!---->
-                    <!--<if test="filterData.condition!='like'">-->
-                        <!--#{filterData.value}-->
-                    <!--</if>-->
-                    <!--&lt;!&ndash;#{filterData.operator} #{filterData.fieldName} #{filterData.condition} #{filterData.value}&ndash;&gt;-->
-                <!--</if>-->
+ 
         	</foreach>
-        <!---->
+   <if test="aggregationData.use==true" >
             group by   eqp.name,
             param.name,
             <if test="aggregationData.groupUnit=='seconds'" >
@@ -772,7 +733,7 @@
                 to_char(event_dtts,'yyyy-MM-') || trim(to_char(round(to_number( to_char(event_dtts,'dd'))/${aggregationData.groupValue}-0.4+1),'00'))||' 00:00:00'
             </if>
         
-        
+   </if>
         order by event_dtts
     
 

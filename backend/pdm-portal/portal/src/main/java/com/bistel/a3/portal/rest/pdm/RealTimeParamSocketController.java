@@ -79,7 +79,7 @@ public class RealTimeParamSocketController {
     }
 
 
-	@Scheduled(cron = "0/3 * * * * *")
+//	@Scheduled(cron = "0/1 * * * * *")
 	public void realtimeDataCreate(){
 		Long paramId = 95l;
 
@@ -88,7 +88,7 @@ public class RealTimeParamSocketController {
 		Random rn = new Random();
 		for (int i = 0; i < 3; i++) {
 			List<Object> data = new ArrayList<>();
-			data.add(datetime+i*1000);
+			data.add(datetime+i*100);
 			data.add(rn.nextFloat());
 
 			timeValue.add(data);
