@@ -20,6 +20,22 @@ export class StompService {
     // http websocket url�용�여 connect륄한 method
     public connect(_webSocketUrl: string) : void {
         let self = this;
+
+        if(_webSocketUrl==null){
+            let url = '';
+            let config = JSON.parse('<%= ENV_CONFIG %>');
+            if (config && config.ENV) {
+                if (config.ENV === 'DEV') {
+                    url =  `http://localhost:8080${RestfulUtil.getAPIAddress()}service/socket/portal-endpoint`;
+                } else if (config.ENV === 'PROD') {
+                    url = `http://${window.location.host}${RestfulUtil.getAPIAddress()}service/socket/portal-endpoint`;
+                }
+            } else {
+                url = `http://localhost:8080${RestfulUtil.getAPIAddress()}service/socket/portal-endpoint`;
+            }
+            _webSocketUrl = url;
+        }
+
         //let webSocket = new WebSocket(_webSocketUrl);
         let webSocket = new SockJS(_webSocketUrl);
         this._stompClient = Stomp.over(webSocket);
@@ -33,7 +49,7 @@ export class StompService {
         });
     }
 
-    public send(subject:string,message:any,callback) {
+    public send(preId,subject:string,message:any,callback) {
         /**
          * sample data
          * 
@@ -47,59 +63,67 @@ export class StompService {
          */
 
         let stompSubject  = new Subject();
-        let id = UUIDUtil.generateID();
+        let id = preId;
+        if(id==null){
+            id = UUIDUtil.generateID();
+        }
+        
         message['id'] = id;
         message["replySubject"] ="/topic/"+id;
         let sendDatas = [];
         let sendStomp = this._stompClient;
-        let stomReply = this._stompClient.subscribe('/topic/'+id, function (stompResponse) { 
-            // stompResponse = {command, headers, body with JSON 
-            // reflecting the object returned by Spring framework}
-            let payload = JSON.parse(stompResponse.body);
-            if(id!=payload['id']) {
-                console.log("not match id:"+payload['id']);
-                return;
-            }
-            if(payload['status']=="RequestNext"){
-                let sendmessage = sendDatas[0].message;
-                sendmessage['sequence'] = sendDatas[0].sequence;
-                sendmessage['status'] = sendDatas[0].status;
-                sendmessage['parameterData'] = sendDatas[0].parameterData;
-                sendDatas.splice(0,1);
-                sendStomp.send("/app/"+subject, {}, JSON.stringify(sendmessage));
-            }else{
-                callback(payload);
-                stompSubject.next(payload);
-            }
-        });
-        let str_message = JSON.stringify(message.parameters);
-        message.parameters=null;
-        let sendCount = 1;
-        sendCount =Math.round( (str_message.length)/10000+0.5);
-        for(let i=0;i<sendCount;i++){
-            //message['sequence'] =i+1;
-            let sequence = i+1;
-            //message.paramterData =str_message.substr(i*10000,10000);
-            let messageString =str_message.substr(i*10000,10000);
-            let status = "";
-            if(i+1==sendCount){
-                //message['status'] ="Finish";
-                status = "Finish";
-            }else if(i==0){
-                //message['status'] ="First";
-                status = "First";
-            }else{
-                //message['status'] ="Progress";
-                status ="Progress";
-            }
-            message.parameterData="";
-            sendDatas.push({message:message, parameterData:messageString,sequence:sequence,status:status});            
+        let stomReply;
+        if(preId==null){
+            stomReply = this._stompClient.subscribe('/topic/'+id, function (stompResponse) { 
+                // stompResponse = {command, headers, body with JSON 
+                // reflecting the object returned by Spring framework}
+                let payload = JSON.parse(stompResponse.body);
+                // if(id!=payload['id']) {
+                //     console.log("not match id:"+payload['id']);
+                //     return;
+                // }
+                // if(payload['status']=="RequestNext"){
+                //     let sendmessage = sendDatas[0].message;
+                //     sendmessage['sequence'] = sendDatas[0].sequence;
+                //     sendmessage['status'] = sendDatas[0].status;
+                //     sendmessage['parameterData'] = sendDatas[0].parameterData;
+                //     sendDatas.splice(0,1);
+                //     sendStomp.send("/app/"+subject, {}, JSON.stringify(sendmessage));
+                // }else{
+                    callback(payload);
+                    stompSubject.next(payload);
+                // }
+            });
         }
-        let sendmessage = sendDatas[0].message;
-        sendmessage['sequence'] = sendDatas[0].sequence;
-        sendmessage['status'] = sendDatas[0].status;
-        sendmessage['parameterData'] = sendDatas[0].parameterData;
-        sendDatas.splice(0,1);
+        
+        // let str_message = JSON.stringify(message.parameters);
+        // message.parameters=null;
+        // let sendCount = 1;
+        // sendCount =Math.round( (str_message.length)/10000+0.5);
+        // for(let i=0;i<sendCount;i++){
+        //     //message['sequence'] =i+1;
+        //     let sequence = i+1;
+        //     //message.paramterData =str_message.substr(i*10000,10000);
+        //     let messageString =str_message.substr(i*10000,10000);
+        //     let status = "";
+        //     if(i+1==sendCount){
+        //         //message['status'] ="Finish";
+        //         status = "Finish";
+        //     }else if(i==0){
+        //         //message['status'] ="First";
+        //         status = "First";
+        //     }else{
+        //         //message['status'] ="Progress";
+        //         status ="Progress";
+        //     }
+        //     message.parameterData="";
+        //     sendDatas.push({message:message, parameterData:messageString,sequence:sequence,status:status});            
+        // }
+        let sendmessage = message;
+        // sendmessage['sequence'] = sendDatas[0].sequence;
+        // sendmessage['status'] = sendDatas[0].status;
+        // sendmessage['parameterData'] = sendDatas[0].parameterData;
+        // sendDatas.splice(0,1);
         this._stompClient.send("/app/"+subject, {}, JSON.stringify(sendmessage));
         
         // let stomReply = stompSubject.asObservable().subscribe(payload=>{
@@ -109,7 +133,8 @@ export class StompService {
         //     }
         //     callback(payload);
         // });
-        return stomReply;
+        // return stomReply;
+        return id;
     }
 
     public finishSend(stompReply:Subscription){

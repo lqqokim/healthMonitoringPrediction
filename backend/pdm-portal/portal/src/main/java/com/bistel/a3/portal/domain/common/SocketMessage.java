@@ -9,9 +9,7 @@ public class SocketMessage {
 	HashMap<String,Object> parameters;
 	Object reply;
 	String replySubject;
-	String parameterData;
 	String userId;
-	int sequence;
 	public static  enum Status {Request,Response,RequestNext}
 	public static  enum Type {First,Progress,Finish}
 		
@@ -56,20 +54,6 @@ public class SocketMessage {
 		this.id = id;
 	}
 
-	public int getSequence() {
-		return sequence;
-	}
-	public void setSequence(int sequence) {
-		this.sequence = sequence;
-	}
-
-	public String getParameterData() {
-		return parameterData;
-	}
-
-	public void setParameterData(String paramterData) {
-		this.parameterData = paramterData;
-	}
 
 	public String getUserId() {
 		return userId;
