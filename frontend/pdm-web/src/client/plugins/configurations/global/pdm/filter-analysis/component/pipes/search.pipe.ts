@@ -48,7 +48,7 @@ export class SearchComboPipe implements PipeTransform {
     }
     getNumber(str){
         let data = str.match(/[+-]?\d+(?:\.\d+)?/g).map(Number);
-        if(data.length>1){
+        if(data.length>=1){
             return data[0]
         }else{
             return null;

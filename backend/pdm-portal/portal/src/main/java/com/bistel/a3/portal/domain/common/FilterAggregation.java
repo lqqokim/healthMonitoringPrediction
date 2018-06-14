@@ -6,6 +6,15 @@ public class FilterAggregation {
     private List<String> functions;
     private int groupValue;
     private String groupUnit;
+    private boolean use=true;
+
+    public boolean isUse() {
+        return use;
+    }
+
+    public void setUse(boolean use) {
+        this.use = use;
+    }
 
     public List<String> getFunctions() {
         return functions;

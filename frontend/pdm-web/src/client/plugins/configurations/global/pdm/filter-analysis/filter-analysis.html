@@ -35,39 +35,41 @@
             </div>
             <div class="row">
                 <div class="col-md-4">
-                    <label>Aggregation</label>
-                    <table>
-                        <thead>
+                    <input type="checkbox" [(ngModel)]="aggregationDatas.use" >
+                    <label (click)="checkboxClick()">Aggregation</label>
+                    <fieldset [disabled]="aggregationDatas.use==false">
+                        <table id="aggregation">
+                            <thead>
+                                <tr>
+                                    <th >
+                                        <label for="function">Function</label>
+                                    </th>
+                                    <th colspan="2">
+                                        <label for="groupby">Group By</label>
+                                    </th>
+                                </tr>
+
+                            </thead>
                             <tr>
-                                <th >
-                                    <label for="function">Function</label>
-                                </th>
-                                <th colspan="2">
-                                    <label for="groupby">Group By</label>
-                                </th>
+                                <td class="aggregation_function">
+                                    <multi-select-combo [datas]="functions" [displayName]="'display'" (changeData)="onChangeFunction($event)" [selectedItems]="selectedFunctionDatas"></multi-select-combo>
+                                </td>
+                                <td class="aggregation_groupValue">
+
+                                    <input type="number" class="form-control" [(ngModel)]="aggregationDatas.groupValue" name="groupValue">
+
+                                </td>
+                                <td class="aggregation_groupUnit">
+                                    <select class="form-control" [(ngModel)]="aggregationDatas.groupUnit" name="group">
+                                        <option *ngFor="let item of groups" [ngValue]="item.value">
+                                            {{item.display}}
+                                        </option>
+                                    </select>
+
+                                </td>
                             </tr>
-
-                        </thead>
-                        <tr>
-                            <td class="aggregation_function">
-                                <multi-select-combo [datas]="functions" [displayName]="'display'" (changeData)="onChangeFunction($event)" [selectedItems]="selectedFunctionDatas"></multi-select-combo>
-                            </td>
-                            <td class="aggregation_groupValue">
-
-                                <input type="number" class="form-control" [(ngModel)]="aggregationDatas.groupValue" name="groupValue">
-
-                            </td>
-                            <td class="aggregation_groupUnit">
-                                <select class="form-control" [(ngModel)]="aggregationDatas.groupUnit" name="group">
-                                    <option *ngFor="let item of groups" [ngValue]="item.value">
-                                        {{item.display}}
-                                    </option>
-                                </select>
-
-                            </td>
-                        </tr>
-                    </table>
-
+                        </table>
+                    </fieldset>
                 </div>
 
                 <div class="col-md-5">

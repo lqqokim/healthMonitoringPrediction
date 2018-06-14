@@ -68,7 +68,8 @@ export class FilterAnalysisComponent implements OnInit {
         {operator:'AND',fieldName:'-none-',functionName:'count' ,condition:'equal',value:''},
     ]
 
-    aggregationDatas={functions:['count'],groupValue:'1',groupUnit:'minutes'};
+    aggregationDatas={functions:['count'],groupValue:'1',groupUnit:'minutes',use:true};
+    useAggregation = true;
 
     searchTimePeriod={
         from:null,
@@ -358,7 +359,14 @@ export class FilterAnalysisComponent implements OnInit {
         this.cancelRequest = true;
     }
 
-
+    checkboxClick(){
+        this.aggregationDatas.use = !this.aggregationDatas.use ;
+        if(this.aggregationDatas.use){
+            $('#aggregation').attr('disabled','');
+        }else{
+            $('#aggregation').attr('disabled','disabled');
+        }
+    }
     eqpNParamIds =[];
     getFilterDatas(datas){
         let tempEqpNParamIds ={};
@@ -389,6 +397,10 @@ export class FilterAnalysisComponent implements OnInit {
         this.totalCount = this.eqpNParamIds.length;
         this.currentCount =1;
         this.percentage = this.currentCount*100 / this.totalCount;
+        this.percentage =this.percentage - (100- this.percentage) * 0.1;
+        if(this.percentage==100){
+            this.percentage = 99;
+        }
         this.percentage =this.percentage.toFixed(0);
 
         this.showProgress = true;
