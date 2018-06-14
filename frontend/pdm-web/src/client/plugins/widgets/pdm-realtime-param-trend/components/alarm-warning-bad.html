@@ -1,0 +1,35 @@
+
+<button (click)="requestMonitoring()">Send</button>
+<div class="trend-chart" *ngFor="let awData of paramDatas; let i = index;" #AWChart >
+    <div >
+        <span>{{awData.eqpName}}-{{awData.paramName}}</span>
+    </div>
+    <div class="trend-chart-button pull-right">
+        <!-- <button class="btn btn-default" id="wjPopup" (click)="expandChart($event, AWChart, i, awData.type)">
+            <i class="fa fa-search-plus"></i>
+        </button> -->
+        <button *ngIf="awData.datas.length > 0" class="btn btn-default" (click)="showLegend(awData, i);">
+            <i class="fa fa-bar-chart" data-toggle="dropdown"></i>
+        </button>
+    </div>
+    <div class="chart-area" *ngIf="awData.datas.length > 0" (mouseover)="mouseover($event, awData, i, AWChart);">
+        <a3c-bistel-chart id="AWChart" #AWChart 
+            (click)="onChartClick($event, awData, i, AWChart);" 
+            [data]="awData.datas" 
+            [config]="awData.config"
+            [chartEvents]="awData.chartEvent" 
+            [eventLines]="awData.eventLines"
+            style="width: 100%;" class="chart-body">
+        </a3c-bistel-chart>
+    </div>
+</div>
+
+
+<wj-popup owner="#wjPopup" #chartPopup class="a3-global-modal-dialog pdm-eqp-param-analysis-popup">
+    <div class="a3-global-modal-content">
+        <div class="modal-body" #popupBody></div>
+        <div class="modal-footer">
+            <button class="btn btn-default" (click)="closePopup();">Close</button>
+        </div>
+    </div>
+</wj-popup>
