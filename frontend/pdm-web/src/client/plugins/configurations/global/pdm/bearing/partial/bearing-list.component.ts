@@ -125,7 +125,7 @@ export class BearingListComponent implements OnInit {
     deleteBearing(): void {
         this.modalAction.showConfirmDelete({
             info: {
-                title: this.selectedRowData.menufacture,
+                title: this.selectedRowData.manufacture,
                 confirmMessage: this.translater.get('MESSAGE.APP_CONFIG.AUTHORITY.DELETE_SELECTED_USER', { user: this.selectedRowData.modelNumber })['value']
             },
             requester: this.requester
@@ -142,8 +142,8 @@ export class BearingListComponent implements OnInit {
     _deleteBearing(): void {
         let fabId = this.selectedFab.fabId;
         let modelNumber = this.selectedRowData.modelNumber;
-        let menufacture = this.selectedRowData.manufacture;
-        this.pdmConfigService.deleteBearing(fabId, modelNumber, menufacture)
+        let manufacture = this.selectedRowData.manufacture;
+        this.pdmConfigService.deleteBearing(fabId, modelNumber, manufacture)
             .then((res: any) => {
                 this._getBearings();
             }).catch((error: any) => {
