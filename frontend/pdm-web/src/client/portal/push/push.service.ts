@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Subscription } from 'rxjs/Subscription';
 
-import { CommonWebSocketService, SessionStore, InjectorUtil, NotifyService, Translater } from '../../sdk';
+import { CommonWebSocketService, SessionStore, InjectorUtil, NotifyService, Translater,StompService } from '../../sdk';
 import { PushAction, StateManager, UserModel, UserAction, SessionService } from '../../common';
 import { RouterService } from '../router/router.service';
 
@@ -21,12 +21,15 @@ export class PushService {
         private userAction: UserAction,
         private notifier: NotifyService,
         private router: RouterService,
-        private translater: Translater
+        private translater: Translater,
+        private stompService:StompService
     ) {
         setTimeout(() => this._state(), 1000);
     }
 
     _state() {
+
+
         this.userSubscription = this.stateManager.rxUser().subscribe((user: UserModel) => {
             // connect when user login
             if (user.actionType === ActionType.SIGNED_USER) {
@@ -38,6 +41,7 @@ export class PushService {
                 }
                 const session = InjectorUtil.getService(SessionService);
                 this.websocketService.createWebSocket(this.NOTIFICATION_URL, session.getUserId());
+                this.stompService.connect(null);
                 this._listenPushMessage();
             } else if (user.actionType === ActionType.LOGOUT_USER) {
                 this.websocketService.close();
@@ -48,6 +52,7 @@ export class PushService {
         if (!this.websocketService.isOpened() && this.sessionStore.isSignin()) {
             const session = InjectorUtil.getService(SessionService);
             this.websocketService.createWebSocket(this.NOTIFICATION_URL, session.getUserId());
+            this.stompService.connect(null);
             this._listenPushMessage();
         }
     }
