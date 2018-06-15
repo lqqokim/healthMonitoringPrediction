@@ -1,4 +1,42 @@
 
+.container > form {
+    margin: 10px 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.container > form .form-group {
+    margin-right: 8px;
+    display: flex;
+    align-items: center;
+}
+
+.container > form .form-group > select {
+    width: 240px;
+}
+
+.container > form label {
+    margin-right: 8px;
+}
+
+.container > form button {
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    outline: none;
+    margin-left:5px;
+}
+
+.container > form input[type=text] {
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    outline: none;
+}
+
 .commandbar{
     height: 40px;
     width: 100%;

@@ -89,7 +89,7 @@ export class ConfigurationMenuService {
                     },
                     {
                         menuId: 'pdmFabMonitoring',
-                        name: 'Fab Mintoring',
+                        name: 'Fab Monitoring',
                         description: 'Pdm Fab Monitoring',
                         menus: <any>[]
                     }

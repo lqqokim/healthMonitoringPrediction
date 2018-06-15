@@ -7,7 +7,6 @@ import { Observable }     from 'rxjs/Observable';
   moduleId:module.id,
   selector: 'multi-select-combo',
   templateUrl: `multi-select-combo.component.html`,
-  
   styleUrls: [`multi-select-combo.component.css`]
 })
 export class MultiSelectComboComponent implements OnInit, OnChanges,DoCheck{
@@ -32,7 +31,7 @@ export class MultiSelectComboComponent implements OnInit, OnChanges,DoCheck{
     private allCheckStatus: boolean = false;
     private selectedOriginalData: Array<any[]> = [];
     private selectedOriginalDataString:String;
-    constructor(){ }
+    constructor(){}
 
     ngOnInit(){ 
         $(this.dropdownElem.nativeElement).on('hide.bs.dropdown', ()=>{
@@ -40,9 +39,7 @@ export class MultiSelectComboComponent implements OnInit, OnChanges,DoCheck{
                 // this.changeData.emit(this.selectedOriginalData);
                 this.selectedOriginalDataString = this.selectDatas;
             }
-            
-            
-        })  
+        });
     }
 
     ngOnChanges() {
@@ -86,7 +83,6 @@ export class MultiSelectComboComponent implements OnInit, OnChanges,DoCheck{
 
     }
     updateChecked(selectObject,event){
-    
         selectObject.checked = event.target.checked;
         this.selectDatas='';
         this.allCheckStatus = this._allcheckToggleStatus(this.filterdDatas);
@@ -94,7 +90,6 @@ export class MultiSelectComboComponent implements OnInit, OnChanges,DoCheck{
     }
 
     updateCheckedToggle(event: any) : void {
-        
         this.allCheckStatus = this._allcheckToggleStatus(this.filterdDatas);
         // allCheckStatus false -> all datas checked true setting
         // allCheckStatus true -> all datas checked false setting
@@ -103,6 +98,14 @@ export class MultiSelectComboComponent implements OnInit, OnChanges,DoCheck{
             this.updateCheckedProcess(this.filterdDatas[i].displayName, this.filterdDatas[i].checked );
         }
         this.allCheckStatus = !this.allCheckStatus;
+    }
+
+    updateCheckedToggle_allBtn(e): void {
+        e.stopPropagation();
+        if( e.target.tagName.toLowerCase() != 'button' ){ return; }
+
+        this.updateCheckedToggle(e);
+        $(e.target).attr('chkbox', (this.allCheckStatus ? 'checked': '') );
     }
 
     updateCheckedProcess(displayName,selectedObjectChecked){

@@ -5,18 +5,17 @@
     z-index: 1000;
 }
 
-.fabEditor   .position-rectangle{
+.fabEditor .position-rectangle{
     width:20px;
     height:20px;
-    border: solid 1px gray;
     background-color: yellow;
     position: absolute !important;
+    border-radius:50px; 
 }
 
 .fabEditor   .position-rectangle p{
     margin-left: 20px !important;
 }
-
 
 .fabEditor   .fab-canvas{
     width:100%;
@@ -42,50 +41,53 @@
     background-size: 100% 100%;
     position: absolute;
     border-radius: 20px;
-    -webkit-transition: all 0.7s ease-out;
-    -moz-transition: all 0.7s ease-out;
-     -ms-transition: all 0.7s ease-out;
-      -o-transition: all 0.7s ease-out;
-         transition: all 0.7s ease-out;
+    -webkit-transition: all 0.7s ease-in-out;
+    -moz-transition: all 0.7s ease-in-out;
+     -ms-transition: all 0.7s ease-in-out;
+      -o-transition: all 0.7s ease-in-out;
+         transition: all 0.7s ease-in-out;
 }
-.fabEditor   .positionInfo{
-    width:80px;
-    height:80px;
-    background-color: white;
-    opacity: 0.9;
+
+.fabEditor .positionInfo {
+    width: 46px;
+    height:46px;
+    background-color: #0078ff;
+    /* opacity: 0.9; */
 
     /* background-image: url(assets/images/apps/3dcar.jpeg);
     background-repeat: no-repeat;
     background-size: 100% 100%; */
     position: absolute;
-    /* border-radius: 20px; */
-    -webkit-transition: all 0.7s ease-out;
-    -moz-transition: all 0.7s ease-out;
-     -ms-transition: all 0.7s ease-out;
-      -o-transition: all 0.7s ease-out;
-         transition: all 0.7s ease-out;
+    -webkit-transition: background 0.3s ease-in-out;
+    -moz-transition: background 0.3s ease-in-out;
+     -ms-transition: background 0.3s ease-in-out;
+      -o-transition: background 0.3s ease-in-out;
+         transition: background 0.3s ease-in-out;
+
+    border-radius: 50px;
+    box-shadow: 0 2px 1px rgba(0,0,0,0.3);
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
-
-
 
 .fabEditor   .car p{
     text-align: center;
     margin-top: -7px;
 }
 
-.fabEditor   .alarm {
+.fabEditor .alarm {
     /* animation: blinker 1s linear infinite; */
     /* border: solid red 5px; */
     background-color: red;
-    opacity: 0.9;
-  }
-.fabEditor    .warning {
+}
+
+.fabEditor .warning {
     /* animation: blinker 1.5s linear infinite; */
     /* border:solid yellow 5px; */
-    background-color: yellow;
-    opacity: 0.9;
+    background-color: #ffcc00;
+}
 
-  }
   
   @keyframes blinker {
     50% {
@@ -93,9 +95,68 @@
     }
   }
 
-  .fabEditor .barchart{
-      width:15px;
-      height:100%;
-      border: solid gray 1px;
-  }
+.fabEditor .positionInfo:hover { z-index:99999; opacity:1 !important; }
+.fabEditor .positionInfo > barchart {
+    width: 80%;
+    height: 80%;
+    position: absolute;
+    display: block;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
+    border-radius: 100px;
+    overflow: hidden;
+    background: #fff;
+    border: 3px solid #fff;
+}
 
+.fabEditor .positionInfo > [type=infoView] {
+    display:block;
+    position:absolute;
+    top:100%;
+    margin-top: 5px;
+    border-radius: 3px;
+    background:#fff;
+    letter-spacing: -0.025em;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    font-size: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+    padding:5px 10px;
+}
+
+.fabEditor .positionInfo > [type=infoView] > ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.fabEditor .positionInfo > [type=infoView] > ul > li {
+    line-height: 1;
+    text-align: center;
+}
+
+.fabEditor .positionInfo > [type=infoView] > ul > li:first-child {
+    font-weight: bold;
+}
+
+.fabEditor div[inputFile] { display:flex; justify-content:center; align-items:flex-start; flex-direction:row; }
+.fabEditor div[inputFile] > div[fileName] { position:relative; display:flex; align-items:center; justify-content:flex-start; box-sizing:border-box; border:1px solid #ccc; border-right:0; background:#f5f5f5; border-radius:3px 0 0 3px; font-size:12px; padding:3px 8px; margin:0; width:200px; min-height:30px; color:#333; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; word-wrap:normal; }
+.fabEditor div[inputFile] > input[type=file] { display:none; }
+.fabEditor div[inputFile] > label { display:flex; align-items:center; justify-content:center; box-sizing:border-box; background:#337ab7; border:1px solid #2e6da4; font-size:12px; color:#fff; padding:3px 8px; cursor:pointer; border-radius:0 3px 3px 0; min-width:80px; min-height:30px; }
+.fabEditor div[inputFile] > label:hover { background:#fff; color:#337ab7; }
+
+.fabEditor div[inputFile] > div[fileName] > span[progress] { display:block; position:absolute; left:0; bottom:0; right:0; height:2px; background:#337ab7; margin:auto auto 0 0; visibility:hidden; opacity:0; transition:opacity 0.2s ease-in-out; }
+.fabEditor div[inputFile] > div[fileName] > span[progress=on] { visibility:visible; opacity:1; }
+
+.fabEditor .panel-body > button { width:100%; margin-top:10px; outline:none; }
+.fabEditor .panel-body > [selectedInputs] { margin-top:10px; display:flex; justify-content:space-between; align-items:center; }
+.fabEditor .panel-body > [selectedInputs] > input { height:30px; display:flex; justify-content:center; align-items:center; text-align:center; outline:none; font-size:12px; color:#333; }
+.fabEditor .panel-body > [selectedInputs] > input:focus { border-color:#333; }
+.fabEditor .panel-body > [selectedInputs] > input[name=left] { width:60px; }
+.fabEditor .panel-body > [selectedInputs] > input[name=top] { width:60px; }
+.fabEditor .panel-body > [selectedInputs] > input[name=name] { width:150px; }
