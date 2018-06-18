@@ -69,7 +69,7 @@ public class TraceRawGeneratorRunnable implements Runnable {
             }
             else if(p.getParam_id().equals(2163L)) //Demo1 Moter DE Velocity Alarm
             {
-                this.sampleTraceRawWrite(p.getEqp_name(), p.getName(), "EQP_TYPE1", "Velocity", "Alarm");
+                this.sampleTraceRawWrite(p.getEqp_name(), p.getName(), "EQP_TYPE1", "Velocity", "Alarm_Misalignment");
             }
             else if(p.getParam_id().equals(2188L)) //Demo2 Motor DE Velocity Alarm
             {
@@ -77,11 +77,11 @@ public class TraceRawGeneratorRunnable implements Runnable {
             }
             else if(p.getParam_id().equals(2204L)) //Fan DE1 Accleration Alarm
             {
-                this.sampleTraceRawWrite(p.getEqp_name(), p.getName(), "EQP_TYPE1", "Acceleration", "Alarm");
+                this.sampleTraceRawWrite(p.getEqp_name(), p.getName(), "EQP_TYPE1", "Acceleration", "Alarm_Lubrication");
             }
             else if(p.getParam_id().equals(8803L)) //Fan DE1 Enveloping Alarm
             {
-                this.sampleTraceRawWrite(p.getEqp_name(), p.getName(), "EQP_TYPE1", "Enveloping", "Alarm");
+                this.sampleTraceRawWrite(p.getEqp_name(), p.getName(), "EQP_TYPE1", "Enveloping", "Alarm_Bearing");
             }
 
             else if(p.getParam_id().equals(8900L)) //Fan NDE Velocity Warning

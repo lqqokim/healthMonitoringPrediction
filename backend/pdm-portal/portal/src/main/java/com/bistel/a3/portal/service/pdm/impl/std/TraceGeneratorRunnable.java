@@ -60,11 +60,11 @@ public class TraceGeneratorRunnable implements Runnable {
                     }
                     else if(p.getParam_id().equals(2204L)) //Demo3 Fan DE1 Accleration Alarm_Lubrication
                     {
-                        this.sampleTraceWrite(p.getEqp_name(), p.getName(), "EQP_TYPE1", "Acceleration", "Alarm");
+                        this.sampleTraceWrite(p.getEqp_name(), p.getName(), "EQP_TYPE1", "Acceleration", "Alarm_Lubrication");
                     }
-                    else if(p.getParam_id().equals(8803L)) //Demo11 Fan DE1 Enveloping Alarm_
+                    else if(p.getParam_id().equals(8803L)) //Demo11 Fan DE1 Enveloping Alarm
                     {
-                        this.sampleTraceWrite(p.getEqp_name(), p.getName(), "EQP_TYPE1", "Enveloping", "Alarm");
+                        this.sampleTraceWrite(p.getEqp_name(), p.getName(), "EQP_TYPE1", "Enveloping", "Alarm_Bearing");
                     }
 
                     else if(p.getParam_id().equals(8900L)) //Demo12 Fan NDE Velocity Warning
