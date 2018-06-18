@@ -6,6 +6,9 @@ import { BISTEL_SDKModule } from '../../sdk/sdk.module';
 import { ModelingTreeComponent } from '../common/modeling-tree/modeling-tree.component';
 import { TreeComponent } from '../common/modeling-tree/tree/tree.component';
 
+import { FabAreaEqpParamTreeComponent } from '../common/fab-area-eqp-param-tree/fab-area-eqp-param-tree.component';
+import { CheckTreeComponent } from '../common/fab-area-eqp-param-tree/check-tree/check-tree.component';
+
 
 @NgModule({
     imports: [
@@ -16,11 +19,15 @@ import { TreeComponent } from '../common/modeling-tree/tree/tree.component';
     declarations: [
         ModelingTreeComponent,
         TreeComponent,
-        
+        FabAreaEqpParamTreeComponent,
+        CheckTreeComponent
+
     ],
     exports: [
         ModelingTreeComponent,
-        TreeComponent
+        TreeComponent,
+        FabAreaEqpParamTreeComponent,
+        CheckTreeComponent
     ]
     // ,
     // entryComponents: [

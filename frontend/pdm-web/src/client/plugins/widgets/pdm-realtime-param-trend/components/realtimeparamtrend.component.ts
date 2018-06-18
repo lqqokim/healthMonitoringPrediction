@@ -1,4 +1,4 @@
-import { Component, ViewEncapsulation, OnInit, OnChanges, Input, EventEmitter, Output, ViewChild, ElementRef } from '@angular/core';
+import { Component, ViewEncapsulation, OnInit, OnChanges, Input, EventEmitter, Output, ViewChild, ElementRef ,OnDestroy} from '@angular/core';
 import { PdmModelService } from '../../../../common';
 
 import * as wjcInput from 'wijmo/wijmo.input';
@@ -8,6 +8,7 @@ import { BistelChartComponent, Translater } from '../../../../sdk';
 
 import { StompService } from '../../../../sdk';
 import { SessionStore } from "../../../../sdk/session/session-store.service";
+import { FabAreaEqpParamTreeComponent } from '../../../common/fab-area-eqp-param-tree/fab-area-eqp-param-tree.component';
 
 
 @Component({
@@ -17,10 +18,11 @@ import { SessionStore } from "../../../../sdk/session/session-store.service";
     styleUrls: ['./alarm-warning-bad.css'],
     encapsulation: ViewEncapsulation.None
 })
-export class AlarmWarningBadComponent implements OnInit, OnChanges {
+export class AlarmWarningBadComponent implements OnInit, OnChanges,OnDestroy {
     @ViewChild('chartPopup') chartPopup: wjcInput.Popup;
     @ViewChild('popupBody') popupBody: ElementRef;
     @ViewChild('AWChart') AWChart: any;
+    @ViewChild('tree') tree: FabAreaEqpParamTreeComponent;
     // @ViewChild('NWChart') NWChart: any;
 
     @Input() condition: any;
@@ -94,7 +96,9 @@ export class AlarmWarningBadComponent implements OnInit, OnChanges {
             this._getDatas();
         }
     }
-
+    ngOnDestroy(){
+        this.resetMonitoring();
+    }
 
     getTrendChartConfig(curConfig: any): any {
         let chartConfig: any = {
@@ -187,34 +191,61 @@ export class AlarmWarningBadComponent implements OnInit, OnChanges {
     }
 
 
-
-    requestMonitoring(){
+    resetMonitoring(){
         let message={};
         message['parameters']={};
-        message['parameters']['parameterIds']=[95];
+        message['parameters']['parameterIds']=[];
+        message['parameters']['fabId'] = this.tree.selectedFab.fabId;
+
+        this.paramDatas=[];
+
+        this.preMessageId = this._stompService.send(this.preMessageId,'realtime_param',message,payload => {
+        });
+    }
+
+    requestMonitoring(){
+        let node = this.tree.getSelectedNodes();
+        let parameters = [];
+        for (let index = 0; index < node.length; index++) {
+            const element = node[index];
+            if(element.nodeType=='parameter'){
+                parameters.push(element.paramId);
+            }
+            
+        }
+        let message={};
+        message['parameters']={};
+        message['parameters']['parameterIds']=parameters;
+        message['parameters']['fabId'] = this.tree.selectedFab.fabId;
+
+        this.paramDatas=[];
 
         this.preMessageId = this._stompService.send(this.preMessageId,'realtime_param',message,payload => {
             //this.serverResponse = payload.outputField;
             console.log(payload);
-            let isFind = false;
+            let isFind = false; //기존 Chart에 있나 Find
             for(let i=0;i<this.paramDatas.length;i++){
                 if(this.paramDatas[i].paramId==payload.reply.paramId){
-                    let seriesData = this.paramDatas[i].datas[0];
-                   seriesData=seriesData.concat(payload.reply.datas);
                     isFind = true;
-
-                    let endTime = seriesData[seriesData.length-1][0];
-                    let startTime = endTime - this.windowSize*1000;
-                    for(let j=0;j<seriesData.length;j++){
-                        let dataTime = seriesData[j][0];
-                        if(dataTime>startTime){
-                            if(j>0){
-                                seriesData.splice(0,j);
-                            }
-
-                            break;
-                        }
+                    let seriesData = this.paramDatas[i].datas[0];
+                    if(seriesData.length>0){
+                        seriesData=seriesData.concat(payload.reply.datas);
+                        
+    
+                        // let endTime = seriesData[seriesData.length-1][0];
+                        // let startTime = endTime - this.windowSize*1000;
+                        // for(let j=0;j<seriesData.length;j++){
+                        //     let dataTime = seriesData[j][0];
+                        //     if(dataTime>startTime){
+                        //         if(j>0){
+                        //             seriesData.splice(0,j);
+                        //         }
+    
+                        //         break;
+                        //     }
+                        // }
                     }
+                   
                     this.paramDatas[i].datas[0] = seriesData;
 
 
@@ -223,7 +254,7 @@ export class AlarmWarningBadComponent implements OnInit, OnChanges {
                 }
             }
             if(!isFind){
-                let paramData = {eqpName:'Roots1 W',paramName:'AP8016989',paramId:payload.reply.paramId,config:this.getTrendChartConfig('AW'),eventLines:[],chartEvent:{},datas:[payload.reply.datas]};
+                let paramData = {eqpName:payload.reply.eqpName,paramName:payload.reply.paramName,paramId:payload.reply.paramId,config:this.getTrendChartConfig('AW'),eventLines:[],chartEvent:{},datas:[payload.reply.datas]};
                 this.paramDatas.push(paramData);
             }
 

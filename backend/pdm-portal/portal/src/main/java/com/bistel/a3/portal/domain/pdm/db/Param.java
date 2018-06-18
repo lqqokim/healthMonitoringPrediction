@@ -9,6 +9,9 @@ public class Param {
     @JsonProperty("eqpId")
     private Long eqp_id;
 
+    @JsonProperty("eqpName")
+    private String eqp_Name;
+
     @JsonProperty("paramType")
     private Long param_type;
 
@@ -30,6 +33,15 @@ public class Param {
     private String param_type_name;
     private Long parts_id;
     private String parts_name;
+
+
+    public String getEqp_Name() {
+        return eqp_Name;
+    }
+
+    public void setEqp_Name(String eqp_Name) {
+        this.eqp_Name = eqp_Name;
+    }
 
     public String getParts_name() {
         return parts_name;
