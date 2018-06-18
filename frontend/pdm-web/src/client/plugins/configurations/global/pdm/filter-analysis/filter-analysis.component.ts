@@ -309,10 +309,15 @@ export class FilterAnalysisComponent implements OnInit {
     }
 
     onClickToggleCondition(){
+        let target = $('#condition');
+        let arrowIcon = target.siblings('.panel-heading').children('span');
+
         if(this.conditionShow){
-            $('#condition').collapse('hide');
-        }else{
-            $('#condition').collapse('show');
+            target.collapse('hide');
+            arrowIcon.removeAttr('show').attr('hide', '');
+        } else {
+            target.collapse('show');
+            arrowIcon.removeAttr('hide').attr('show', '');
         }
 
         this.conditionShow = ! this.conditionShow; 

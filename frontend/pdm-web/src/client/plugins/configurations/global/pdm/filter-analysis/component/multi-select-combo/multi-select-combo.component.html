@@ -1,17 +1,19 @@
 <div>
-    <div class="dropdown" #dropdownToggleElem  (focusout)="dropdownClose()" >
+    <div class="dropdown" #dropdownToggleElem (focusout)="dropdownClose()" >
         <button class="btn btn-default dropdown-toggle" (click)="dropdownToggle();$event.preventDefault();" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             {{selectedDataLength !== 0 ? 'select : ' + selectedDataLength : ''}}
             <span class="caret"></span>
         </button>
         
         <ul  class="dropdown-menu" aria-labelledby="dropdownMenu1">
-            <div style="width:200px;">
-                <input type="checkbox" [ngModel]="allCheckStatus" (change)="updateCheckedToggle($event)" class="allChk" >
-                <input #searchTerm (keyup)="searchTermEvent(searchTerm.value);" class="search-term"  />
-            </div>
-            <li  *ngFor="let data of filterdDatas"> 
-                <label (click)="$event.stopPropagation();" [attr.for]="displayName === '' ? data : data[displayName]"><input type="checkbox" [ngModel]="data.checked" [attr.id]="displayName === '' ? data : data[displayName]" (change)="updateChecked(data,$event)">
+            <li>
+                <!-- <input type="checkbox" [ngModel]="allCheckStatus" (change)="updateCheckedToggle($event)" class="allChk" > -->
+                <button chkbox (click)="updateCheckedToggle_allBtn($event);"></button>
+                <input #searchTerm (keyup)="searchTermEvent(searchTerm.value);" class="search-term" />
+            </li>
+            <li *ngFor="let data of filterdDatas"> 
+                <input type="checkbox" [ngModel]="data.checked" [attr.id]="displayName === '' ? data : data[displayName]" (change)="updateChecked(data,$event)">
+                <label (click)="$event.stopPropagation();" [attr.for]="displayName === '' ? data : data[displayName]">
                     {{ displayName === '' ? data : data[displayName] }}
                 </label>
             </li>

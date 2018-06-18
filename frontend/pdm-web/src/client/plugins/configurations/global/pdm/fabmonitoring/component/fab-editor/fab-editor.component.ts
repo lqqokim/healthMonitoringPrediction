@@ -2,6 +2,7 @@
 import { Component,ViewChild,ElementRef,OnInit,EventEmitter,Output, Input, OnChanges,AfterViewInit,ViewEncapsulation } from '@angular/core';
 import { Observable }     from 'rxjs/Observable';
 import { FabInfo } from './fabInfo';
+import { elementDef } from '@angular/core/src/view';
 
 @Component({
   moduleId:module.id,
@@ -11,13 +12,17 @@ import { FabInfo } from './fabInfo';
   styleUrls: [`fab-editor.component.css`],
   encapsulation:ViewEncapsulation.None
 })
-export class FabEditorComponent implements OnInit, OnChanges,AfterViewInit{
+export class FabEditorComponent implements OnInit, OnChanges, AfterViewInit{
 
     @Input() fabInfo:FabInfo=new FabInfo();
     @Input() mode="editor";
     @ViewChild("fabcanvas") fabcanvas:ElementRef;
     @ViewChild("property") property:ElementRef;
     // @Output() save: EventEmitter<any> = new EventEmitter();
+
+    jq_fabCanvas:any = undefined;
+    jq_fabCanvas_target:any = {};
+    jq_fabCanvas_my:any = {};
 
     selectedItem =null ;
     rateWidth = 1;
@@ -32,8 +37,6 @@ export class FabEditorComponent implements OnInit, OnChanges,AfterViewInit{
     locationActions=[];
     locationActionsKey={};
 
-    
-
     statusNames =['normal','alarm','warning'];
 
     locationSeq = 0;
@@ -42,6 +45,43 @@ export class FabEditorComponent implements OnInit, OnChanges,AfterViewInit{
 
     constructor(){ }
 
+    // fabCanvas 셀렉터 퍼포먼스 up (10 ~ 100배 select speed up)
+    getFabCanvas(){
+        if( this.jq_fabCanvas === undefined ){
+            this.jq_fabCanvas = $(this.fabcanvas.nativeElement);
+        }
+        return this.jq_fabCanvas;
+    }
+    getFabCanvas_target( jqueryElem, key ){
+        if( !this.jq_fabCanvas_target.hasOwnProperty(key) ){
+            this.jq_fabCanvas_target[key] = jqueryElem.find(`#${key}`);
+        }
+        return this.jq_fabCanvas_target[key];
+    }
+    getFabCanvas_my_size( jqueryElem, key, type ){
+        if( !this.jq_fabCanvas_my.hasOwnProperty(key) ){
+            var elem = jqueryElem.find(`#${key}.positionInfo`);
+
+            // 엘리먼트가 없으면 0
+            if( elem.length == 0 ){ return 0; }
+
+            // 절반 크기 (이미지 중앙 위치)
+            this.jq_fabCanvas_my[key] = {
+                w: Math.round(elem.width() * 0.5),
+                h: Math.round(elem.height() * 0.5)
+            };
+        }
+        return this.jq_fabCanvas_my[key][type];
+    }
+    fabCanvas_elem_destroy(){
+        for( var key in this.jq_fabCanvas_target ){
+            delete this.jq_fabCanvas_target[key];
+        }
+
+        for( var key in this.jq_fabCanvas_my ){
+            delete this.jq_fabCanvas_target[key];
+        }
+    }
 
     ngOnInit(){ 
         window.addEventListener("resize", ()=>{
@@ -52,37 +92,41 @@ export class FabEditorComponent implements OnInit, OnChanges,AfterViewInit{
     ngOnChanges() {
         this.setData();
     }
-    ngAfterViewInit(){
 
+    ngAfterViewInit(){
         $( this.property.nativeElement ).draggable({ cursor: "move"});
 
-
         // $( "#draggable" ).draggable({ cursor: "move" });
-        $('#file').change((evt)=>{
-            var img = $('<img id="temp_image">');
-            // var div = $('.fab-canvas');
-            var div = $(this.fabcanvas.nativeElement);
-            $(document.body).append(img);
+        $('#file').change((e)=>{
+            // let div = $('.fab-canvas');
+            let file = e.target.files[0];
+            if( file === undefined ){ return; }
+
+            let div = this.getFabCanvas();
+            let imgUrl = URL.createObjectURL(file);
+            let name = file.name;
+            let progressbar = $(e.target).siblings('[filename] > [progress]');
+
+            $(e.target).siblings('[fileName]').html( name );
         
-            var reader = new FileReader();
-            reader.onload = ((img)=> { 
-                return (ev)=> {
-                    var image = ev.target.result;
-                    img[0].src = image;
-                    div.css('background-image', 'url("' + image + '")');
-                    this.fabInfo.image =  image;
-                    $('#temp_image').remove();
-                };
-            })(img);
+            let reader = new FileReader();
+            reader.onloadstart = () => {
+                progressbar.attr('progress', 'on');
+            };
+            reader.onload = ()=>{ 
+                div.css({ backgroundImage: `url(${imgUrl})` });
+                this.fabInfo.image = imgUrl;
+                progressbar.attr('progress', '');
+            };
+            reader.onprogress = (e)=>{
+                let loaded = Math.round((e.loaded / e.total) * 100);
+                progressbar.css({width:`${loaded}%`});
+            };
         
-            var file = evt.target.files[0];
             reader.readAsDataURL(file);
         });
-
-
-   
-
     }
+
     setData(){
         // this.isSimulationStop = true;
         this.clearAction();
@@ -98,22 +142,21 @@ export class FabEditorComponent implements OnInit, OnChanges,AfterViewInit{
             div.css('background-image', '');
 
         }
+
         setTimeout(()=>{
             var div = $(this.fabcanvas.nativeElement);
             this.currWidth=div.width();
             this.currHeight=div.height();
             if(this.fabInfo.width==null){
-                this.fabInfo.width =  this.currWidth;
-                this.fabInfo.height =  this.currHeight;
+                this.fabInfo.width = this.currWidth;
+                this.fabInfo.height = this.currHeight;
                 this.rateWidth = 1;
                 this.rateHeight = 1;
             }else{
                 this.rateWidth = this.currWidth/this.fabInfo.width;
                 this.rateHeight = this.currHeight/this.fabInfo.height;
             }
-    
         },500);
-
     }
 
     addPosition(){
@@ -125,35 +168,32 @@ export class FabEditorComponent implements OnInit, OnChanges,AfterViewInit{
         // $( `#${name}` ).draggable({ cursor: "move" });
         this.selectedItem = item;
     }
-    getXByName(name,myElementId){
-        var div = $(this.fabcanvas.nativeElement);
-        let x =parseInt(div.find('#'+name).css('left'));
-        let myWidth = div.find('#'+myElementId).width();
-        if(myWidth!=null){
-            x = x-myWidth/2;
-        }
-        return x;
+
+    getXByName(name, myElementId){
+        let div = this.getFabCanvas();
+        let target = this.getFabCanvas_target( div, name );
+        let myWidth:number = this.getFabCanvas_my_size( div, myElementId, 'w' );
+
+        return (
+            parseInt(target.css('left'), 10) + (target.width() * 0.5) - myWidth
+        );
     }
-    getYByName(name,myElementId,type){
-        var div = $(this.fabcanvas.nativeElement);
-        let y =parseInt(div.find('#'+name).css('top'));
-        y= y + div.find('#'+name).height()/2;
-        let myHeight = div.find('#'+myElementId).height();
-        if(myHeight!=null){
-            if(type==null){
-                y = y-myHeight/2;
-            }else{
-                y = y-myHeight;
-            }
-            
-        }
-        return y;
+    getYByName(name, myElementId){
+        let div = this.getFabCanvas();
+        let target = this.getFabCanvas_target( div, name );
+        let myHeight:number = this.getFabCanvas_my_size( div, myElementId, 'h' );
+
+        return (
+            parseInt(target.css('top'), 10) + (target.height() * 0.5) - myHeight
+        );
     }
+
     onResize(){
         if(this.fabInfo==null){
             return ;
         }
-        var div = $(this.fabcanvas.nativeElement);
+        var div = this.getFabCanvas();
+
         let newCurrWidth=div.width();
         let newCurrHeight=div.height();
 
@@ -161,6 +201,7 @@ export class FabEditorComponent implements OnInit, OnChanges,AfterViewInit{
             this.fabInfo.datas[i].left = this.fabInfo.datas[i].left * this.rateWidth* newCurrWidth /this.currWidth;
             this.fabInfo.datas[i].top = this.fabInfo.datas[i].top * this.rateHeight*newCurrHeight/this.currHeight; 
         }
+
         this.rateHeight = 1;
         this.rateWidth = 1;
         this.currHeight = newCurrHeight;
@@ -176,7 +217,6 @@ export class FabEditorComponent implements OnInit, OnChanges,AfterViewInit{
         if(event.target.tagName==="P"){
             item.left = parseInt($(event.target.parentElement).css('left'));
             item.top = parseInt($(event.target.parentElement).css('top'));
-    
         }else{
             item.left = parseInt($(event.target).css('left'));
             item.top = parseInt($(event.target).css('top'));
@@ -200,6 +240,7 @@ export class FabEditorComponent implements OnInit, OnChanges,AfterViewInit{
     locations = [];
     simulationStop(){
         this.isSimulationStop = true;
+        this.fabCanvas_elem_destroy();
         this.clearAction();
     }
     simulationStart(){
@@ -305,8 +346,7 @@ export class FabEditorComponent implements OnInit, OnChanges,AfterViewInit{
         }else{
             this.locationActions.push({locationName:locationName,status:status,speed:speed,info:info});
             this.locationActionsKey[locationName] = this.locationActions[this.locationActions.length-1];
-        }
-        
+        }        
     }
 
 }

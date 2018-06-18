@@ -1,4 +1,6 @@
-.barchart{
-    width:100%;
-    height:100%;
-}
+.barchart { display:block; width:100%; height:100%; position:relative; }
+.barchart > div { position:absolute; left:0; right:0; transition:top 0.3s ease-in-out, height 0.3s ease-in-out; }
+
+.barchart div[type=normal] { background:#0078ff; bottom:0; }
+.barchart div[type=warning] { background:#ff0; }
+.barchart div[type=alarm] { background:#f00; }

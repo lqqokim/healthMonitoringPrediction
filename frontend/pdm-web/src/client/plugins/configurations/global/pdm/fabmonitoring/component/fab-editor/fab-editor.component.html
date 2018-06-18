@@ -2,9 +2,16 @@
     <div class="panel panel-default property"  #property [style.visibility]="mode=='editor' &&  isSimulationStop?'visible':'hidden'">
         <div class="panel-heading">Property</div>
         <div class="panel-body">
-            <input type="file" id="file" class="">
-            <button class="btn btn-info" class="" (click)="addPosition()">Add Position Mark</button>
-            <div *ngIf="selectedItem">
+            <div inputFile>
+                <div fileName>
+                    <span name></span>
+                    <span progress></span>
+                </div>
+                <input type="file" id="file" accept='image/*'>
+                <label for='file'>Map image</label>
+            </div>
+            <button class="btn btn-info" (click)="addPosition()">Add Position Mark</button>
+            <div selectedInputs *ngIf="selectedItem">
                 <input type='text' [(ngModel)]="selectedItem.left" name="left">
                 <input type='text' [(ngModel)]="selectedItem.top" name="top">
                 <input type='text' [(ngModel)]="selectedItem.name" name="name">
@@ -16,27 +23,38 @@
 
     <div class="fab-canvas" #fabcanvas>
         <!-- <img id="fab-canvas-background"> -->
-        <div id="{{item.name}}" class="position-rectangle" [ngClass]="{'position_selected': item==selectedItem }" [style.visibility]="mode=='editor'?'visible':'hidden'"
-            [draggable] [style.top.px]="item.top*rateHeight" [style.left.px]="item.left*rateWidth" *ngFor="let item of fabInfo.datas"
-            (mousedown)="onMousedown($event,item)" (mouseup)="onMouseup($event,item)">
-            <p>{{item.name}}</p>
+        <div *ngFor="let item of fabInfo.datas"
+            id="{{item.name}}"
+            class="position-rectangle"
+            [ngClass]="{'position_selected': item==selectedItem }"
+            [style.visibility]="mode=='editor'?'visible':'hidden'"
+            [draggable]
+            [style.top.px]="item.top*rateHeight"
+            [style.left.px]="item.left*rateWidth"
+            (mousedown)="onMousedown($event,item)" (mouseup)="onMouseup($event,item)"
+        >
+            <!-- <p>{{item.name}}</p> -->
         </div>
         <!-- <div class="car" id="{{item.name}}" [ngClass]="{'alarm':item.status=='alarm','warning':item.status=='warning'}" *ngFor="let item of actions"
             [style.top.px]="getYByName(item.locationName,item.name)" [style.left.px]="getXByName(item.locationName,item.name)">
             <p>{{item.name}}</p>
         </div> -->
-        <div class="positionInfo" id="{{item.name}}" [attr.title]="item.info" [ngClass]="{'alarm':item.status=='alarm','warning':item.status=='warning'}" *ngFor="let item of locationActions"
-            [style.top.px]="getYByName(item.locationName,item.name,'location')" [style.left.px]="getXByName(item.locationName,item.name)">
-            <div class='barchart'>
-                <barchart [data]="item.data"></barchart>
-            </div>
-            <div>
-                Speed:{{item.speed}}km/h
+        <div *ngFor="let item of locationActions"
+            id="{{item.name}}"
+            class="positionInfo"
+            [attr.title]="item.info"
+            [ngClass]="{'alarm':item.status=='alarm','warning':item.status=='warning'}"
+            [style.top.px]="getYByName(item.locationName, item.name)"
+            [style.left.px]="getXByName(item.locationName, item.name)"
+        >
+            <barchart [data]="item.data"></barchart>
+            <div type='infoView'>
+                <ul>
+                    <li>{{item.speed}}km/h</li>
+                    <li>{{item.locationName}}</li>
+                </ul>
             </div>
         </div>
-
-
-
     </div>
 
 </div>
