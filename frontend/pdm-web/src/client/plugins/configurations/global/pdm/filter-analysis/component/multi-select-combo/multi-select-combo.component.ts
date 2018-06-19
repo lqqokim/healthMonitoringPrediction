@@ -37,7 +37,8 @@ export class MultiSelectComboComponent implements OnInit, OnChanges,DoCheck{
         $(this.dropdownElem.nativeElement).on('hide.bs.dropdown', ()=>{
             if(this.selectedOriginalDataString!=this.selectDatas||this.selectDatas.length==0){
                 // this.changeData.emit(this.selectedOriginalData);
-                this.selectedOriginalDataString = this.selectDatas;
+                // this.selectedOriginalDataString = this.selectDatas;
+                this.dropdownClose();
             }
         });
     }
