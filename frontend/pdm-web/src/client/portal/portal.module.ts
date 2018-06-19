@@ -95,6 +95,8 @@ import { PushService } from './push/push.service';
 
 import '../operators';
 
+import { TreeModule } from 'ng2-tree';
+
 @NgModule({
     imports: [
         BrowserModule,
@@ -104,7 +106,8 @@ import '../operators';
         A3_CommonModule,
         A3_CommonModule.forRoot(),
 
-        RouterModule.forRoot(A3PortalRoutes)
+        RouterModule.forRoot(A3PortalRoutes),
+        TreeModule
     ],
     declarations: [
         PortalComponent,
