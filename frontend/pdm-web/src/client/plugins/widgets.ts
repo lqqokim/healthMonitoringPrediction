@@ -10,6 +10,7 @@ import { PdmRadarWidgetModule } from './widgets/pdm-radar/pdm-radar-widget.modul
 import { PdmRealTimeTrendModule } from './widgets/pdm-realtime-trend/pdm-realtime-trend.module';
 import { PdmFabMonitoringModule } from './widgets/pdm-fab-monitoring/pdm-fab-monitoring.module';
 import { PdmRealTimeParamTrendModule } from './widgets/pdm-realtime-param-trend/pdm-realtime-param-trend.module';
+import { PdmWostEqpListModule } from './widgets/pdm-worst-eqp-list/pdm-worst-eqp-list.module';
 
 export const getWidgetClassInfo = (widgetName: string): any => {
     console.log('getWidgetClassInfo => ', widgetName);
@@ -38,6 +39,8 @@ export const getWidgetClassInfo = (widgetName: string): any => {
             return PdmRealTimeParamTrendModule;            
         case 'pdmFabMonitoring':
             return PdmFabMonitoringModule;
+        case 'pdmWorstEqpList':
+            return PdmWostEqpListModule;
         default:
             // TODO: change Module Empty chart
             return PdmAreaStatusOverviewModule;
