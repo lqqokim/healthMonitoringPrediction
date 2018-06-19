@@ -92,6 +92,12 @@ export class ConfigurationMenuService {
                         name: 'Fab Monitoring',
                         description: 'Pdm Fab Monitoring',
                         menus: <any>[]
+                    },
+                    {
+                        menuId: 'pdmModelSimulator',
+                        name: 'Modeling Simulator',
+                        description: 'Modeling Simulator',
+                        menus: <any>[]
                     }
                 ]
             },

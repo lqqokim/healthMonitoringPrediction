@@ -1,0 +1,15 @@
+<div id="container">
+    <div class="row param-container" *ngFor="let param of params">
+        <div class="col-sm-2">
+            <label>
+                <input type="radio" name="param" [(ngModel)]="selectedParam" [value]="param.name" (click)="onClickParam(param)">
+                {{param.name}}
+            </label>
+            <input type="number" [(ngModel)]="param.conditionValue" (input)="onChange($event,param)" *ngIf="selectedParam==param.name">
+        </div>
+        <div class="col-sm-10  chart-container">
+            <a3c-bistel-chart [data]="param.datas" [config]="trendConfig" [eventLines]="param.eventLines" [chartEvents]="param.eventConfig">
+            </a3c-bistel-chart>
+        </div>
+    </div>
+</div>

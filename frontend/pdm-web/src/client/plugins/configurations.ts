@@ -28,6 +28,8 @@ import { FilterAnalysisModule } from './configurations/global/pdm/filter-analysi
 import { FabMonitoringModule } from './configurations/global/pdm/fabmonitoring/fabmonitoring.module';
 import { CategoryModule } from './configurations/global/pdm/category/category-list.module';
 
+import { ModelSimulatorModule }  from './configurations/global/pdm/model-simulator/model-simulator.module';
+
 export const getConfigurationClassInfo = (menuId: string): any => {
 
     switch (menuId) {
@@ -89,6 +91,8 @@ export const getConfigurationClassInfo = (menuId: string): any => {
             return FilterAnalysisModule;
         case 'pdmFabMonitoring':
             return FabMonitoringModule;
+        case 'pdmModelSimulator':
+            return ModelSimulatorModule;
         default:
             // TODO: change Module Empty chart
             return FdtaAppConfigModule;
