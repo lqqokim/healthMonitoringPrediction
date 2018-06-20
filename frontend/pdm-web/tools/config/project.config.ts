@@ -163,7 +163,8 @@ export class ProjectConfig extends SeedConfig {
             {src: `${this.APP_SRC}/sdk/charts/lib/styleUtils.js`, inject: true, vendor: false},
             // {src: `${this.APP_SRC}/sdk/libs/c3/c3.js`, inject: true, vendor: false},
 
-            {src: `${this.APP_SRC}/sdk/charts/c3-chart/c3.js`, inject: true, vendor: false},
+           {src: `${this.APP_SRC}/sdk/charts/c3-chart/c3.js`, inject: true, vendor: false},
+            // {src: `${this.APP_SRC}/sdk/libs/c3-chart/c3.js`, inject: true, vendor: false},
             {src: `${this.APP_SRC}/sdk/charts/bar/bar.js`, inject: true, vendor: false},
             {src: `${this.APP_SRC}/sdk/charts/block/block.js`, inject: true, vendor: false},
             // {src: `${this.APP_SRC}/sdk/charts/boxplot/boxfield.js`, inject: true, vendor: false},

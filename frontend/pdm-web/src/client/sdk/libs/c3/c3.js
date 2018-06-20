@@ -4484,7 +4484,10 @@
                 };
             }
         }
-        return isFunction(format) ? function (v) { console.log(v); return format.call($$, v); } : format;
+        return isFunction(format) ? function (v) { 
+            // console.log(v); 
+            return format.call($$, v); 
+        } : format;
     };
     Axis.prototype.getTickValues = function getTickValues(tickValues, axis) {
         return tickValues ? tickValues : axis ? axis.tickValues() : undefined;
@@ -8215,7 +8218,8 @@
     } else if ('undefined' !== typeof exports && 'undefined' !== typeof module) {
         module.exports = c3;
     } else {
-        window.c3 = c3;
+        // window.c3 = c3;
+        window.c3Chart = c3;
     }
 
 })(window);

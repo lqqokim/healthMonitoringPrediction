@@ -9,8 +9,10 @@ import { PdmTestModule } from './widgets/pdm-test/pdm-test.module';
 import { PdmRadarWidgetModule } from './widgets/pdm-radar/pdm-radar-widget.module';
 import { PdmRealTimeTrendModule } from './widgets/pdm-realtime-trend/pdm-realtime-trend.module';
 import { PdmFabMonitoringModule } from './widgets/pdm-fab-monitoring/pdm-fab-monitoring.module';
+import { PdmBarWidgetModule } from './widgets/pdm-bar/pdm-bar-widget.module';
 import { PdmRealTimeParamTrendModule } from './widgets/pdm-realtime-param-trend/pdm-realtime-param-trend.module';
 import { PdmWostEqpListModule } from './widgets/pdm-worst-eqp-list/pdm-worst-eqp-list.module';
+import { PdmLineStatusSummaryWidgetModule } from './widgets/pdm-line-status-aummary/pdm-line-status-summary-widget.module';
 
 export const getWidgetClassInfo = (widgetName: string): any => {
     console.log('getWidgetClassInfo => ', widgetName);
@@ -41,6 +43,10 @@ export const getWidgetClassInfo = (widgetName: string): any => {
             return PdmFabMonitoringModule;
         case 'pdmWorstEqpList':
             return PdmWostEqpListModule;
+        case 'pdmBar':
+            return PdmBarWidgetModule;
+        case 'pdmLineStatusSummary':
+            return PdmLineStatusSummaryWidgetModule;
         default:
             // TODO: change Module Empty chart
             return PdmAreaStatusOverviewModule;
