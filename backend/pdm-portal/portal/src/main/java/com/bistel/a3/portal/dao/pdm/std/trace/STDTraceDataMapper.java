@@ -3,10 +3,7 @@ package com.bistel.a3.portal.dao.pdm.std.trace;
 import com.bistel.a3.portal.domain.common.FilterAggregation;
 import com.bistel.a3.portal.domain.common.FilterCriteriaData;
 import com.bistel.a3.portal.domain.common.FilterTraceRequest;
-import com.bistel.a3.portal.domain.pdm.Count;
-import com.bistel.a3.portal.domain.pdm.ParamVariance;
-import com.bistel.a3.portal.domain.pdm.RpmWithPart;
-import com.bistel.a3.portal.domain.pdm.STDTraceData;
+import com.bistel.a3.portal.domain.pdm.*;
 import com.bistel.a3.portal.domain.pdm.db.OverallMinuteTrx;
 import com.bistel.a3.portal.domain.pdm.db.Part;
 import com.bistel.a3.portal.domain.pdm.db.STDTraceTrx;
@@ -66,6 +63,8 @@ public interface STDTraceDataMapper {
 
 
     List<HashMap<String,Object>> selectFilterTraceDataByEqpIdWithAggregation(@Param("eqpId") Long eqpId,@Param("start") Date start, @Param("end") Date end,@Param("filterDatas") List<FilterCriteriaData> filterDatas,@Param("aggregationData") FilterAggregation aggregationData);
+
+    List<HashMap<String,Object>> selectTraceAggregationByEvent(@Param("paramId") Long paramId,@Param("start") Date start, @Param("end") Date end,@Param("eventType") String eventType, @Param("adHocTime") Integer adHocTime);
 }
 
 

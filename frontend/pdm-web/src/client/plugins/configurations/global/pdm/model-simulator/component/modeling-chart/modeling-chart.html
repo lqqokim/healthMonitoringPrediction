@@ -1,5 +1,26 @@
 <div id="container">
-    <div class="row param-container" *ngFor="let param of params">
+    <table>
+        <thead>
+            <th class="parameter">Parameter</th>
+            <th>Chart</th>
+        </thead>
+        <tr class="param-info" *ngFor="let param of params">
+            <td>
+                <label>
+                    <input type="radio" name="param" [(ngModel)]="selectedParam" [value]="param.paramId" (click)="onClickParam(param)"> {{param.name}}
+                </label>
+                <input type="number" class="conditionValue" [(ngModel)]="conditionValue" (input)="onChange($event,param)" *ngIf="selectedParam==param.paramId">
+            </td>
+            <td>
+                <div class="chart-container">
+                    <a3c-bistel-chart [data]="param.datas" [config]="trendConfig" [eventLines]="param.eventLines" [chartEvents]="param.eventConfig">
+                    </a3c-bistel-chart>
+                </div>
+            </td>
+        </tr>
+    </table>
+
+    <!-- <div class="row param-container" *ngFor="let param of params">
         <div class="col-sm-1">
             <label>
                 <input type="radio" name="param" [(ngModel)]="selectedParam" [value]="param.paramId" (click)="onClickParam(param)">
@@ -11,5 +32,5 @@
             <a3c-bistel-chart  [data]="param.datas" [config]="trendConfig" [eventLines]="param.eventLines" [chartEvents]="param.eventConfig">
             </a3c-bistel-chart>
         </div>
-    </div>
+    </div> -->
 </div>

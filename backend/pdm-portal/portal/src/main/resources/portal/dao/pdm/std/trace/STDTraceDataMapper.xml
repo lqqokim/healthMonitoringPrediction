@@ -533,6 +533,7 @@
     </select>
     
 
+
     <select id="selectFilterTraceDataByEqpIdWithAggregation" resultType="java.util.HashMap">
     
         select
@@ -814,13 +815,40 @@
 
 
 
+    <select id="selectTraceAggregationByEvent" resultType="java.util.HashMap">
+          select
 
+                <if test="eventType=='Time'" >
+                    to_char(event_dtts,'yyyy-MM-dd HH24:') || trim(to_char(round(to_number( to_char(event_dtts,'mi'))/${adHocTime}-0.4),'00'))||':00' as event_dtts,
+                </if>
+                <if test="eventType=='Event'" >
+                    max(event_dtts) as event_dtts
+                </if>
+                sum(value) as sum,
+                min(value) as min,
+                max(value) as max,
+                avg(value) as mean,
+                count(value) as count,
+                median(value) as median,
+                percentile_disc(0.25) within group (order by value desc)  as q1,
+                percentile_disc(0.25) within group (order by value desc)  as q3
+        
+                
 
+        from trace_trx_pdm trx,param_mst_pdm param,eqp_mst_pdm eqp
+        where trx.param_mst_rawid = param.rawid
+            and param.eqp_mst_rawid = eqp.rawid
+            and event_dtts  <![CDATA[>=]]> #{start}
+            and event_dtts  <![CDATA[<]]>  #{end}
+            and param.rawid =#{paramId}
 
+        <if test="eventType=='Time'" >
+            group by to_char(event_dtts,'yyyy-MM-dd HH24:') || trim(to_char(round(to_number( to_char(event_dtts,'mi'))/${adHocTime}-0.4),'00'))||':00'
+        </if>
 
+    </select>
 
-
-
+   
 
 
 

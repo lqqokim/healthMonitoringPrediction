@@ -23,6 +23,7 @@ import { ModelingChartComponent } from './component/modeling-chart/modeling-char
 })
 export class ModelSimulatorComponent implements OnInit {
     @ViewChild('tree') tree: FabAreaEqpParamTreeComponent;
+    @ViewChild('tree2') tree2: FabAreaEqpParamTreeComponent;
     @ViewChild('modelChart') modelChart:ModelingChartComponent;
 
     // params = [
@@ -50,6 +51,20 @@ export class ModelSimulatorComponent implements OnInit {
 
     eventType ="event";
     eventLines =[];
+
+    aggregations=[
+        {f:'Mean',checked:false},
+        {f:'Max',checked:false},
+        {f:'Min',checked:false},
+        {f:'Median',checked:false},
+        {f:'Sum',checked:false},
+        {f:'Q1',checked:false},
+        {f:'Q3',checked:false},
+        {f:'Count',checked:false},
+    ];
+    aggregationTime=1;
+
+    simulation_params =[];
 
     constructor(private pdmModelService: PdmModelService,private pdmConfigService: PdmConfigService) {
         this.searchTimePeriod.to = new Date().getTime();
@@ -133,7 +148,37 @@ export class ModelSimulatorComponent implements OnInit {
     }
   
     AdHocSummary(){
+        let conditionValue = this.modelChart.getConditionValue();
+        let fabId = this.tree2.selectedFab.fabId;
+        let conditionParamId = this.modelChart.getConditionParamId();
+        let node = this.tree2.getSelectedNodes();
+        let parameters = [];
+        for (let index = 0; index < node.length; index++) {
+            const element = node[index];
+            if(element.nodeType=='parameter'){
+                parameters.push(element);
+            }
+            
+        }
+        let adHocFunctions =[];
+        for(let i=0;i<this.aggregations.length;i++){
+            if(this.aggregations[i].checked){
+                adHocFunctions.push(this.aggregations[i].f);
+            }
+        }
 
+        for(let i=0;i<parameters.length;i++){
+            this.pdmModelService.getTraceDataEventSimulationByConditionValue(fabId,this.paramDatas[i].paramId,
+                this.searchTimePeriod2.from,this.searchTimePeriod2.to,conditionParamId, conditionValue,adHocFunctions,this.aggregationTime,this.eventType).subscribe((datas)=>{
+                    let keys = Object.keys(datas);
+                    for(let i=0;i<keys.length;i++){
+                        this.simulation_params.push({name:parameters[i].name,adHoc:keys[i],datas:[datas[keys[i]]]});
+                    }
+                    
+                    
+                })
+        }
+        
     }
  
 }

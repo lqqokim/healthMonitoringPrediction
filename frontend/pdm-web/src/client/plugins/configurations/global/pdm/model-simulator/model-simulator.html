@@ -1,12 +1,12 @@
-<div class="progress" *ngIf="showProgress" >
-        <div class="progress-bar progress-bar-striped active" role="progressbar" attr.aria-valuenow="{{percentage}}" aria-valuemin="0"
-            aria-valuemax="100" [ngStyle]="{width: percentage+'%'}">
-            {{percentage}}%
-        </div>
+<div class="progress" *ngIf="showProgress">
+    <div class="progress-bar progress-bar-striped active" role="progressbar" attr.aria-valuenow="{{percentage}}" aria-valuemin="0"
+        aria-valuemax="100" [ngStyle]="{width: percentage+'%'}">
+        {{percentage}}%
     </div>
+</div>
 <div id="container">
     <table>
-        <tr>
+        <tr class="modeling-container">
             <td class='condition'>
                 <label>Options</label>
                 <label>
@@ -28,19 +28,41 @@
                 <button class="btn btn-primary" (click)="drawEvent()">Draw Event</button>
             </td>
             <td class="chart">
-                <modeling-chart #modelChart [params]="paramDatas" [eventLines]="eventLines"></modeling-chart>
+                <div class="chart-container">
+                    <modeling-chart #modelChart [params]="paramDatas" [eventLines]="eventLines"></modeling-chart>
+                </div>
+
             </td>
         </tr>
-        <tr>
+        <tr class="modeling-container">
             <td class='condition'>
-                    <div class="a3-from-to" [from]="searchTimePeriod2?.from" [to]="searchTimePeriod2?.to" [format]="'yyyy/MM/dd hh:mm:ss'" (changedFromTo)="fromToChange2($event)"></div>
-                    <div class="eqp-tree">
-                            <fab-area-eqp-param-tree #tree2></fab-area-eqp-param-tree>
+                <div class="a3-from-to" [from]="searchTimePeriod2?.from" [to]="searchTimePeriod2?.to" [format]="'yyyy/MM/dd hh:mm:ss'" (changedFromTo)="fromToChange2($event)"></div>
+                <br>
+                <div class="eqp-tree">
+                    <fab-area-eqp-param-tree #tree2></fab-area-eqp-param-tree>
+                </div>
+                <br>
+                <div class="aggregation" >
+                    <label>Ad-Hoc Functions</label>
+                    <div *ngFor="let item of aggregations; let i=index">
+                        <label>
+                            <input type="checkbox" [(ngModel)]="item.checked"> {{item.f}}
+                        </label>
                     </div>
-                    <button class="btn btn-primary" (click)="AdHocSummary()">Ad-Hoc Summary</button>
+                </div>
+                <div class="aggregation" *ngIf="eventType=='time'">
+                    <label>Aggregation Time</label>
+                    <input type="number" [(ngModel)]="aggregationTime">
+                    <label>minutes</label>
+                </div>
+                <br>
+                <button class="btn btn-primary" (click)="AdHocSummary()">Ad-Hoc Summary</button>
             </td>
             <td class="chart">
-                <modeling-simulator-chart></modeling-simulator-chart>
+                <div class="chart-container">
+                    <modeling-simulator-chart [params]="simulation_params"></modeling-simulator-chart>
+                </div>
+
             </td>
     </table>
 </div>

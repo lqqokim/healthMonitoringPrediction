@@ -10,12 +10,14 @@ import { Observable } from 'rxjs/Observable';
 })
 export class ModelingSimulatorChartComponent implements OnInit, OnChanges, DoCheck {
 
+    @Input() params;
+
     selectedParam;
-    params = [
-        { name: 'param1', isEventParam: false, conditionValue: null, datas: [],eventConfig:[] },
-        { name: 'param2', isEventParam: false, conditionValue: null, datas: [],eventConfig:[] },
-        { name: 'param3', isEventParam: false, conditionValue: null, datas: [] ,eventConfig:[]}
-    ]
+    // params = [
+    //     { name: 'param1', isEventParam: false, conditionValue: null, datas: [],eventConfig:[] },
+    //     { name: 'param2', isEventParam: false, conditionValue: null, datas: [],eventConfig:[] },
+    //     { name: 'param3', isEventParam: false, conditionValue: null, datas: [] ,eventConfig:[]}
+    // ]
     events = [
 
     ];
@@ -91,20 +93,20 @@ export class ModelingSimulatorChartComponent implements OnInit, OnChanges, DoChe
 
     ngOnInit() {
 
-        let startDateTime = new Date().getTime() - 100 * 1000;
-        for (let i = 0; i < this.params.length; i++) {
-            let datas = [];
-            for (let j = 0; j < 100; j++) {
-                datas.push([new Date(startDateTime + j * 1000), this.randomRange(1, 100)]);
-            }
-            this.params[i].datas.push(datas);
-        }
+        // let startDateTime = new Date().getTime() - 100 * 1000;
+        // for (let i = 0; i < this.params.length; i++) {
+        //     let datas = [];
+        //     for (let j = 0; j < 100; j++) {
+        //         datas.push([new Date(startDateTime + j * 1000), this.randomRange(1, 100)]);
+        //     }
+        //     this.params[i].datas.push(datas);
+        // }
 
-        this.events.push([this.params[0].datas[0][10][0], this.params[0].datas[0][15][0]]);
+        // this.events.push([this.params[0].datas[0][10][0], this.params[0].datas[0][15][0]]);
 
-        this.events.push([this.params[0].datas[0][20][0], this.params[0].datas[0][40][0]]);
+        // this.events.push([this.params[0].datas[0][20][0], this.params[0].datas[0][40][0]]);
 
-        this.events.push([this.params[0].datas[0][70][0], this.params[0].datas[0][80][0]]);
+        // this.events.push([this.params[0].datas[0][70][0], this.params[0].datas[0][80][0]]);
 
     }
     randomRange(maximum, minimum) {

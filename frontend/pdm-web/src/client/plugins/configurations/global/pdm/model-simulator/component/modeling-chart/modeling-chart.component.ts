@@ -16,6 +16,7 @@ export class ModelingChartComponent implements OnInit, OnChanges, DoCheck {
     
     selectedParam;
     conditionValue;
+    conditionParamId;
     // params = [
     //     { name: 'param1', isEventParam: false, conditionValue: null, datas: [],eventConfig:[] },
     //     { name: 'param2', isEventParam: false, conditionValue: null, datas: [],eventConfig:[] },
@@ -225,6 +226,8 @@ export class ModelingChartComponent implements OnInit, OnChanges, DoCheck {
             return a+b;
         })/param.datas[0].length;
 
+        this.conditionParamId = param.paramId;
+
         this.setStatusEventConfig();
         this.drawConditionLine(param);
     }
@@ -296,5 +299,8 @@ export class ModelingChartComponent implements OnInit, OnChanges, DoCheck {
     }
     public getConditionValue(){
         return this.conditionValue;
+    }
+    public getConditionParamId(){
+        return this.conditionParamId;
     }
 }

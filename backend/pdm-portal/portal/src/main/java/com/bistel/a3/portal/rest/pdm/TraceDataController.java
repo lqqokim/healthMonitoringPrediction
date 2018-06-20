@@ -8,10 +8,7 @@ import com.bistel.a3.portal.service.pdm.ITraceRawDataService;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -19,6 +16,7 @@ import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 @RestController
@@ -46,5 +44,13 @@ public class TraceDataController {
                                @RequestParam("condition") Float condition,
                                @RequestParam("fromdate") Long fromdate, @RequestParam("todate") Long todate) {
         return traceDataService.getEventSimulation(fabId, paramId, fromdate, todate,condition);
+    }
+    @RequestMapping(method = RequestMethod.POST, value ="params/{paramId}/eventsimulationbyconditionvalue")
+    public Object getTraceDataSimulationByEvent(@PathVariable("fabId") String fabId, @PathVariable("paramId") Long paramId,
+                                                @RequestParam("conditionParamId") Long conditionParamId,@RequestParam("conditionValue") Float conditionValue,
+                                                @RequestParam("eventType") String eventType,@RequestParam("adHocTime") Integer adHocTime,
+                                                @RequestParam("fromdate") Long fromdate, @RequestParam("todate") Long todate,
+                                                @RequestBody List<String> adHocFucntions) {
+        return traceDataService.getEventSimulationByConditionValue(fabId, paramId, fromdate, todate,conditionParamId,conditionValue,eventType,adHocFucntions,adHocTime);
     }
 }

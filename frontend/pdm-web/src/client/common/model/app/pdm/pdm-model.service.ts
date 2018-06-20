@@ -534,6 +534,22 @@ export class PdmModelService extends ModelCommonService {
 			}
 		});
 	}
+	getTraceDataEventSimulationByConditionValue(fabId,paramId,fromDate,toDate,conditionParamId,conditionValue,adHocFunctions,adHocTime,eventType): Observable<any> {
+		return this.rxPOST({
+			uriPath: `pdm/fabs/${fabId}/areas/0/eqps/0/params/${paramId}/eventsimulationbyconditionvalue?fromdate=${fromDate}&todate=${toDate}&eventType=${eventType}&adHocTime=${adHocTime}&conditionValue=${conditionValue}&conditionParamId=${conditionParamId}`,
+			params:
+				adHocFunctions
+			
+		})
+		// return this.GET({
+		// 	uriPath: `pdm/fabs/${fabId}/areas/0/eqps/0/params/${paramId}/eventsimulation`,
+		// 	params: {
+		// 		fromdate: fromDate,
+		// 		todate: toDate,
+		// 		condition:condition
+		// 	}
+		// });
+	}
 
 
 	createMonitoring(fabId,param): Observable<any> {

@@ -49,4 +49,7 @@ public interface ITraceDataService {
     List<EqpParamDatas> getFilterTraceDataByEqpIdParamIds(String fabId, Long eqpId,String eqpName, List<Long> paramIds, List<String> paramNames, Date from, Date to, FilterTraceRequest bodyData);
 
     Object getEventSimulation(String fabId, Long paramId, Long fromdate, Long todate, Float condition);
+
+    Object getEventSimulationByConditionValue(String fabId,Long paramId,Long fromdate,Long todate,Long conditionParamId,Float conditonValue,String eventType,List<String> adHocFunctions,Integer adHocTime);
+
 }

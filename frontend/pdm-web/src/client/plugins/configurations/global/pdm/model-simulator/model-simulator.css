@@ -27,3 +27,20 @@ table{
 .progress{
 	width:100%;
 }
+.aggregation{
+	width: 100%;
+    padding: 10px;
+	border: solid 1px lightgray;
+}
+aggregation > input{
+	width:70px;
+}
+
+.modeling-container{
+	height:800px;
+}
+.chart-container{
+	height:100%;
+	width:100%;
+	overflow: auto;
+}

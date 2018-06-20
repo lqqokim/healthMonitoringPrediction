@@ -913,29 +913,7 @@ public class TraceDataService implements ITraceDataService {
         return eqpParamDatas;
     }
 
-    @Override
-    public Object getEventSimulation(String fabId, Long paramId, Long fromdate, Long todate, Float condition) {
 
-        List<List<Object>> traceDatas = this.getTraceData(fabId,paramId,fromdate,todate);
-        boolean isStart = false;
-        List<List<Object>> result = new ArrayList<>();
-
-        List<Object> startEnd = new ArrayList<>();
-        for (int i = 0; i < traceDatas.size(); i++) {
-            if(isStart && Float.valueOf( traceDatas.get(i).get(1).toString())<=condition){
-                isStart = false;
-                startEnd.add(traceDatas.get(i).get(0));
-                result.add(startEnd);
-                startEnd = new ArrayList<>();
-            }else if(isStart ==false && Float.valueOf( traceDatas.get(i).get(1).toString())>=condition) {
-                isStart = true;
-                startEnd.add(traceDatas.get(i).get(0));
-            }
-        }
-
-
-        return result;
-    }
 
     @Override
     public List<STDTraceTrx> getFilterTraceDataByEqpIdParamId(String fabId, Long eqpId, Long paramId, Date from, Date to, FilterTraceRequest filterTraceRequest) {
@@ -950,4 +928,127 @@ public class TraceDataService implements ITraceDataService {
 
         return datas;
     }
+
+
+    @Override
+    public Object getEventSimulation(String fabId, Long paramId, Long fromdate, Long todate, Float conditonValue) {
+
+        List<List<Object>> traceDatas = this.getTraceData(fabId,paramId,fromdate,todate);
+        boolean isStart = false;
+        List<List<Object>> result = new ArrayList<>();
+
+        List<Object> startEnd = new ArrayList<>();
+        for (int i = 0; i < traceDatas.size(); i++) {
+            if(isStart && Float.valueOf( traceDatas.get(i).get(1).toString())<=conditonValue){
+                isStart = false;
+                startEnd.add(traceDatas.get(i).get(0));
+                result.add(startEnd);
+                startEnd = new ArrayList<>();
+            }else if(isStart ==false && Float.valueOf( traceDatas.get(i).get(1).toString())>=conditonValue) {
+                isStart = true;
+                startEnd.add(traceDatas.get(i).get(0));
+            }
+        }
+
+
+        return result;
+    }
+    @Override
+    public Object getEventSimulationByConditionValue(String fabId,Long paramId,Long fromdate,Long todate,Long conditionParamId,Float conditonValue,String eventType,List<String> adHocFunctions,Integer adHocTime){
+
+        List<List<Long>> events =(List<List<Long>>) this.getEventSimulation(fabId,conditionParamId,fromdate,todate,conditonValue);
+
+        STDTraceDataMapper mapper = SqlSessionUtil.getMapper(sessions, fabId, STDTraceDataMapper.class);
+
+        List<List<Object>> mean = new ArrayList<>();
+        List<List<Object>> max = new ArrayList<>();
+        List<List<Object>> min = new ArrayList<>();
+        List<List<Object>> count = new ArrayList<>();
+        List<List<Object>> median = new ArrayList<>();
+        List<List<Object>> q1 = new ArrayList<>();
+        List<List<Object>> q3 = new ArrayList<>();
+        List<List<Object>> sum = new ArrayList<>();
+
+
+        for (int i = 0; i < events.size(); i++) {
+            Date fromEvent = new Date(events.get(i).get(0));
+            Date toEvent = new Date(events.get(i).get(1));
+
+            List<HashMap<String,Object>> datas = mapper.selectTraceAggregationByEvent(paramId, fromEvent,toEvent,eventType,adHocTime);
+            for (int j = 0; j < datas.size(); j++) {
+                HashMap<String,Object> data = datas.get(j);
+                List<Object> oneData = new ArrayList<>();
+                oneData.add(toEvent.getTime());
+                oneData.add(data.get("MEAN"));
+                mean.add(oneData);
+
+                oneData = new ArrayList<>();
+                oneData.add(toEvent.getTime());
+                oneData.add(data.get("MAX"));
+                max.add(oneData);
+
+
+                oneData = new ArrayList<>();
+                oneData.add(toEvent.getTime());
+                oneData.add(data.get("MIN"));
+                min.add(oneData);
+
+                oneData = new ArrayList<>();
+                oneData.add(toEvent.getTime());
+                oneData.add(data.get("COUNT"));
+                count.add(oneData);
+
+                oneData = new ArrayList<>();
+                oneData.add(toEvent.getTime());
+                oneData.add(data.get("MEDIAN"));
+                median.add(oneData);
+
+                oneData = new ArrayList<>();
+                oneData.add(toEvent.getTime());
+                oneData.add(data.get("SUM"));
+                sum.add(oneData);
+
+                oneData = new ArrayList<>();
+                oneData.add(toEvent.getTime());
+                oneData.add(data.get("Q1"));
+                q1.add(oneData);
+
+                oneData = new ArrayList<>();
+                oneData.add(toEvent.getTime());
+                oneData.add(data.get("Q3"));
+                q3.add(oneData);
+            }
+
+        }
+        HashMap<String,List<List<Object>>> result= new HashMap<>();
+        if(adHocFunctions.contains("Mean")){
+            result.put("Mean",mean);
+        }
+        if(adHocFunctions.contains("Max")){
+            result.put("Max",max);
+        }
+        if(adHocFunctions.contains("Min")){
+            result.put("Min",min);
+        }
+        if(adHocFunctions.contains("Median")){
+            result.put("Median",median);
+        }
+        if(adHocFunctions.contains("Sum")){
+            result.put("Sum",sum);
+        }
+        if(adHocFunctions.contains("Count")){
+            result.put("Count",count);
+        }
+        if(adHocFunctions.contains("Q1")){
+            result.put("Q1",q1);
+        }
+        if(adHocFunctions.contains("Q3")){
+            result.put("Q3",q3);
+        }
+
+
+
+        return result;
+    }
+
 }
