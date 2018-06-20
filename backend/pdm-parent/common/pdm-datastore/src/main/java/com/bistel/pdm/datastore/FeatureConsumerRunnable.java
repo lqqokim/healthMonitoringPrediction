@@ -2,8 +2,8 @@ package com.bistel.pdm.datastore;
 
 import com.bistel.pdm.datastore.jdbc.DBType;
 import com.bistel.pdm.datastore.jdbc.DataSource;
-import com.bistel.pdm.datastore.jdbc.dao.OutOfSpecDataDao;
-import com.bistel.pdm.datastore.jdbc.dao.ora.OutOfSpecTrxDao;
+import com.bistel.pdm.datastore.jdbc.dao.FeatureDataDao;
+import com.bistel.pdm.datastore.jdbc.dao.ora.FeatureTrxDao;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.slf4j.Logger;
@@ -16,28 +16,26 @@ import java.util.concurrent.TimeUnit;
 /**
  *
  */
-public class OutOfSpecConsumerRunnable implements Runnable {
-    private static final Logger log = LoggerFactory.getLogger(OutOfSpecConsumerRunnable.class);
-
-    private final static int PollingDurations = 1;
+public class FeatureConsumerRunnable implements Runnable {
+    private static final Logger log = LoggerFactory.getLogger(FeatureConsumerRunnable.class);
 
     private final KafkaConsumer<String, byte[]> consumer;
     private final String topicName;
 
-    private OutOfSpecDataDao trxDao;
+    private FeatureDataDao trxDao;
 
-    public OutOfSpecConsumerRunnable(Properties property, String groupId, String topicName) {
+    public FeatureConsumerRunnable(Properties property, String groupId, String topicName) {
         this.consumer = new KafkaConsumer<>(createConsumerConfig(groupId, property));
         this.topicName = topicName;
 
         if (DataSource.getDBType() == DBType.oracle) {
-            trxDao = new OutOfSpecTrxDao();
+            trxDao = new FeatureTrxDao();
             log.info("loaded data object of oracle.");
         } else if (DataSource.getDBType() == DBType.postgresql) {
             // to do
             log.info("loaded data object of postgresql.");
         } else {
-            trxDao = new OutOfSpecTrxDao();
+            trxDao = new FeatureTrxDao();
             log.info("loaded data object of default(oracle).");
         }
     }
@@ -50,7 +48,7 @@ public class OutOfSpecConsumerRunnable implements Runnable {
         log.info("Reading topic: {}, db type: {}", topicName, DataSource.getDBType());
 
         while (true) {
-            ConsumerRecords<String, byte[]> records = consumer.poll(TimeUnit.SECONDS.toMillis(PollingDurations));
+            ConsumerRecords<String, byte[]> records = consumer.poll(TimeUnit.MINUTES.toMillis(1));
             if (records.count() > 0) {
                 trxDao.storeRecord(records);
                 consumer.commitSync();

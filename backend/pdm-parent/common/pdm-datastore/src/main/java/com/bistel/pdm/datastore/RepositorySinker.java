@@ -1,5 +1,6 @@
 package com.bistel.pdm.datastore;
 
+import com.bistel.pdm.lambda.kafka.master.MasterDataUpdater;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,12 +22,16 @@ public class RepositorySinker {
     private final String topicPrefix;
     private final String groupId;
 
-    private ExecutorService executor = Executors.newFixedThreadPool(4);
+    private ExecutorService executor = Executors.newFixedThreadPool(5);
 
-    public RepositorySinker(final String groupId, final String topicPrefix, String configPath) {
+    public RepositorySinker(final String groupId, final String topicPrefix, String servingAddr, String configPath) {
         this.groupId = groupId;
         this.topicPrefix = topicPrefix;
         this.configPath = configPath;
+
+        String targetUrl = servingAddr + "/pdm/api/master/latest/param";
+        log.info("call to {}", targetUrl);
+        MasterDataUpdater.updateParameterMasterDataSet(targetUrl);
     }
 
     public void start() throws IOException {
@@ -36,17 +41,20 @@ public class RepositorySinker {
             log.debug("loaded config file : {}", this.configPath);
         }
 
-        executor.submit(new TraceRawConsumerRunnable(
+        executor.submit(new TimewaveConsumerRunnable(
                 producerProperties, this.groupId + "_raw", this.topicPrefix + "-raw"));
 
-        executor.submit(new TraceRmsConsumerRunnable(
-                producerProperties, this.groupId + "_rms", this.topicPrefix + "-trace"));
+        executor.submit(new TraceConsumerRunnable(
+                producerProperties, this.groupId + "_trace", this.topicPrefix + "-trace"));
 
-        executor.submit(new FeatureAggConsumerRunnable(
+        executor.submit(new FeatureConsumerRunnable(
                 producerProperties, this.groupId + "_feature", this.topicPrefix + "-feature"));
 
-        executor.submit(new OutOfSpecConsumerRunnable(
-                producerProperties, this.groupId + "_OOS", this.topicPrefix + "-OOS"));
+        executor.submit(new FaultConsumerRunnable(
+                producerProperties, this.groupId + "_fault", this.topicPrefix + "-fault"));
+
+        executor.submit(new EventConsumerRunnable(
+                producerProperties, this.groupId + "_event", this.topicPrefix + "-event"));
     }
 
     public void awaitTerminationAfterShutdown() {

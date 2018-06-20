@@ -13,13 +13,13 @@ import java.util.concurrent.TimeUnit;
 /**
  *
  */
-public class FeatureAggregationTrxDao implements FeatureDataDao {
-    private static final Logger log = LoggerFactory.getLogger(FeatureAggregationTrxDao.class);
+public class FeatureTrxDao implements FeatureDataDao {
+    private static final Logger log = LoggerFactory.getLogger(FeatureTrxDao.class);
 
     private static final String INSERT_SQL =
             "insert into param_feature_agg_trx_pdm " +
-                    "(RAWID, PARAM_FEATURE_MST_RAWID, WINDOW_SIZE_MS, WINDOW_ADVANCE_MS, DATA_POINT, VALUE, EVENT_DTTS) " +
-                    "values (seq_param_feature_agg_trx_pdm.nextval, ?, ?, ?, ?, ?, ?)";
+                    "(RAWID, PARAM_FEATURE_MST_RAWID, VALUE, SUM_BEGIN_DTTS, SUM_END_DTTS) " +
+                    "values (seq_param_feature_agg_trx_pdm.nextval, ?, ?, ?, ?)";
 
     @Override
     public void storeRecord(ConsumerRecords<String, byte[]> records) {
@@ -34,22 +34,20 @@ public class FeatureAggregationTrxDao implements FeatureDataDao {
                 String[] values = valueString.split(",");
                 log.debug("comming message : {}", valueString);
 
-                Long param_feature_rawid = Long.parseLong(values[1]);
-                int dataCounts = 0; //Integer.parseInt(values[1]);
-                Timestamp timestamp = new Timestamp(Long.parseLong(values[0]));
-
-                // time, param_feature_rawid, dataCount,
-                // pointSum, pointMin, pointMax, pointMean, pointStdDev, pointMedian;
-                for (int i = 2; i < values.length; i++) {
-                    pstmt.setLong(1, param_feature_rawid); //param feature mst rawid
-                    pstmt.setFloat(2, TimeUnit.MINUTES.toMillis(1));
-                    pstmt.setNull(3, Types.FLOAT);
-                    pstmt.setFloat(4, dataCounts);
-                    pstmt.setFloat(5, Float.parseFloat(values[i]));
-                    pstmt.setTimestamp(6, timestamp);
-
-                    pstmt.addBatch();
-                }
+//                Long param_feature_rawid = Long.parseLong(values[1]);
+//                Timestamp timestamp = new Timestamp(Long.parseLong(values[0]));
+//
+//                // time, param_feature_rawid,
+//                // pointSum, pointMin, pointMax, pointMean, pointStdDev, pointMedian;
+//                for (int i = 2; i < values.length; i++) {
+//                    pstmt.setLong(1, param_feature_rawid); //param feature mst rawid
+//                    pstmt.setFloat(2, TimeUnit.MINUTES.toMillis(1));
+//                    pstmt.setNull(3, Types.FLOAT);
+//                    pstmt.setFloat(5, Float.parseFloat(values[i]));
+//                    pstmt.setTimestamp(6, timestamp);
+//
+//                    pstmt.addBatch();
+//                }
             }
 
             try {

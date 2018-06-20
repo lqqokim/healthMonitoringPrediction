@@ -1,0 +1,123 @@
+package com.bistel.pdm.common.json;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+/**
+ *
+ */
+public class EventMasterDataSet {
+
+    @JsonProperty("areaName")
+    private String areaName;
+
+    @JsonProperty("equipmentName")
+    private String equipmentName;
+
+    @JsonProperty("eqpRawId")
+    private Long eqpRawId;
+
+    @JsonProperty("eventRawId")
+    private Long eventRawId;
+
+    @JsonProperty("eventName")
+    private String eventName;
+
+    @JsonProperty("eventTypeCD")
+    private String eventTypeCD;
+
+    @JsonProperty("parameterName")
+    private String parameterName;
+
+    @JsonProperty("conditionValue")
+    private Float conditionValue;
+
+    @JsonProperty("processYN")
+    private String processYN;
+
+    @JsonProperty("paramParseIndex")
+    private Integer paramParseIndex;
+
+    public String toKey(){
+        return this.areaName  + "," + this.equipmentName;
+    }
+
+    public String getAreaName() {
+        return areaName;
+    }
+
+    public void setAreaName(String areaName) {
+        this.areaName = areaName;
+    }
+
+    public String getEquipmentName() {
+        return equipmentName;
+    }
+
+    public void setEquipmentName(String eqpName) {
+        this.equipmentName = eqpName;
+    }
+
+    public Long getEqpRawId() {
+        return eqpRawId;
+    }
+
+    public void setEqpRawId(Long eqpRawId) {
+        this.eqpRawId = eqpRawId;
+    }
+
+    public Long getEventRawId() {
+        return eventRawId;
+    }
+
+    public void setEventRawId(Long eventRawId) {
+        this.eventRawId = eventRawId;
+    }
+
+    public String getEventName() {
+        return eventName;
+    }
+
+    public void setEventName(String eventName) {
+        this.eventName = eventName;
+    }
+
+    public String getEventTypeCD() {
+        return eventTypeCD;
+    }
+
+    public void setEventTypeCD(String eventTypeCD) {
+        this.eventTypeCD = eventTypeCD;
+    }
+
+    public String getParameterName() {
+        return parameterName;
+    }
+
+    public void setParameterName(String parameterName) {
+        this.parameterName = parameterName;
+    }
+
+    public Float getConditionValue() {
+        return conditionValue;
+    }
+
+    public void setConditionValue(Float conditionValue) {
+        this.conditionValue = conditionValue;
+    }
+
+    public String getProcessYN() {
+        return processYN;
+    }
+
+    public void setProcessYN(String processYN) {
+        this.processYN = processYN;
+    }
+
+    public Integer getParamParseIndex() {
+        return paramParseIndex;
+    }
+
+    public void setParamParseIndex(Integer paramParseIndex) {
+        this.paramParseIndex = paramParseIndex;
+    }
+}

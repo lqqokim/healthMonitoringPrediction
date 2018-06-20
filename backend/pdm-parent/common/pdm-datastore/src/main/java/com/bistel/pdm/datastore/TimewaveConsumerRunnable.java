@@ -22,15 +22,15 @@ import java.util.*;
 /**
  *
  */
-public class TraceRawConsumerRunnable implements Runnable {
-    private static final Logger log = LoggerFactory.getLogger(TraceRawConsumerRunnable.class);
+public class TimewaveConsumerRunnable implements Runnable {
+    private static final Logger log = LoggerFactory.getLogger(TimewaveConsumerRunnable.class);
     private final KafkaConsumer<String, byte[]> consumer;
     private final String topicName;
 
     private SensorTraceDataDao trxDao;
     private SensorRawDataDao trxRawDao;
 
-    public TraceRawConsumerRunnable(Properties property, String groupId, String topicName) {
+    public TimewaveConsumerRunnable(Properties property, String groupId, String topicName) {
         this.consumer = new KafkaConsumer<>(createConsumerConfig(groupId, property));
         this.topicName = topicName;
 

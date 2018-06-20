@@ -1,21 +1,33 @@
 package com.bistel.pdm.lambda.kafka.master;
 
-import com.bistel.pdm.common.collection.Pair;
+import com.bistel.pdm.common.json.EventMasterDataSet;
+import com.bistel.pdm.common.json.ParameterMasterDataSet;
+import com.bistel.pdm.common.json.ParameterSpecDataSet;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class MasterDataCache {
-    private final Map<String, Long> masterDataSet = new ConcurrentHashMap<>();
-    private final Map<Long, Pair<Float, Float>> paramSpecDataSet = new ConcurrentHashMap<>(); //alarm, warning
 
-    //param_rawid : feature_rawid, param_name, feature_name, main_yn, aggregate_yn
-    private final Map<Long, ArrayList<String[]>> featureDataSet = new ConcurrentHashMap<>();
+    // EQP
+    private final Map<String, Long> eqpMasterDataSet = new ConcurrentHashMap<>();
+
+    // param
+    private final Map<String, List<ParameterMasterDataSet>> paramMasterDataSet = new ConcurrentHashMap<>();
+
+    // event
+    private final Map<String, List<EventMasterDataSet>> eventMasterDataSet = new ConcurrentHashMap<>();
+
+    // upper/lower alarm, warning
+    private final Map<Long, List<ParameterSpecDataSet>> paramSpecDataSet = new ConcurrentHashMap<>();
+
+    // param_rawid : feature_rawid, param_name, feature_name, main_yn
+    private final Map<Long, List<String[]>> featureDataSet = new ConcurrentHashMap<>();
 
     // Private constructor prevents instantiation from other classes
-    private MasterDataCache() {
-    }
+    private MasterDataCache() { }
 
     /**
      * SingletonHolder is loaded on the first execution of Singleton.getInstance()
@@ -29,28 +41,35 @@ public class MasterDataCache {
         return SingletonHolder.INSTANCE;
     }
 
-    public void putMaster(String key, Long rawId) {
-        this.masterDataSet.put(key, rawId);
+    public Map<String, Long> getEqpMasterDataSet() {
+        return eqpMasterDataSet;
     }
 
-    public Long getRawId(String key) {
-        return this.masterDataSet.get(key);
+    public Map<String, List<ParameterMasterDataSet>> getParamMasterDataSet() {
+        return paramMasterDataSet;
     }
 
-    public int getMasterDataSize(){
-        return this.masterDataSet.size();
+    public Map<String, List<EventMasterDataSet>> getEventMasterDataSet() {
+        return eventMasterDataSet;
     }
 
-    public boolean getMasterContainsKey(String key) {
-        return this.masterDataSet.containsKey(key);
+    public EventMasterDataSet getEventForProcess(String key) {
+        EventMasterDataSet result = null;
+        for(EventMasterDataSet data : eventMasterDataSet.get(key)){
+            if(data.getProcessYN().equalsIgnoreCase("Y")){
+                result = data;
+                break;
+            }
+        }
+        return result;
     }
 
-    public void putAlarmWarningSpec(Long key, Pair<Float, Float> value) {
-        this.paramSpecDataSet.put(key, value);
+    public Map<Long, List<ParameterSpecDataSet>> getParamSpecDataSet() {
+        return paramSpecDataSet;
     }
 
-    public Pair<Float, Float> getAlarmWarningSpec(Long key) {
-        return this.paramSpecDataSet.get(key);
+    public Map<Long, List<String[]>> getFeatureDataSet() {
+        return featureDataSet;
     }
 
     public void putFeature(Long paramRawId, String[] columns) {
@@ -59,18 +78,10 @@ public class MasterDataCache {
             row.add(columns);
             this.featureDataSet.put(paramRawId, row);
         } else {
-            ArrayList<String[]> row = this.featureDataSet.get(paramRawId);
+            List<String[]> row = this.featureDataSet.get(paramRawId);
             row.add(columns);
 
             this.featureDataSet.put(paramRawId, row);
         }
-    }
-
-    public ArrayList<String[]> getFeaturesByRawId(String paramRawId) {
-        return this.featureDataSet.get(Long.parseLong(paramRawId));
-    }
-
-    public int getFeatureDataSize(){
-        return this.featureDataSet.size();
     }
 }

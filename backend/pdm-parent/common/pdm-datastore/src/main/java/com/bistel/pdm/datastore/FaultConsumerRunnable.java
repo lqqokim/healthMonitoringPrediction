@@ -2,12 +2,8 @@ package com.bistel.pdm.datastore;
 
 import com.bistel.pdm.datastore.jdbc.DBType;
 import com.bistel.pdm.datastore.jdbc.DataSource;
-import com.bistel.pdm.datastore.jdbc.dao.SensorRawDataDao;
-import com.bistel.pdm.datastore.jdbc.dao.SensorTraceDataDao;
-import com.bistel.pdm.datastore.jdbc.dao.ora.SensorTraceRawTrxDao;
-import com.bistel.pdm.datastore.jdbc.dao.ora.SensorTraceTrxDao;
-import com.bistel.pdm.datastore.jdbc.dao.pg.SensorTraceRawTrxPostgreDao;
-import com.bistel.pdm.datastore.jdbc.dao.pg.SensorTraceTrxPostgreDao;
+import com.bistel.pdm.datastore.jdbc.dao.OutOfSpecDataDao;
+import com.bistel.pdm.datastore.jdbc.dao.ora.OutOfSpecTrxDao;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.slf4j.Logger;
@@ -15,29 +11,33 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 /**
  *
  */
-public class TraceRmsConsumerRunnable implements Runnable {
-    private static final Logger log = LoggerFactory.getLogger(TraceRmsConsumerRunnable.class);
+public class FaultConsumerRunnable implements Runnable {
+    private static final Logger log = LoggerFactory.getLogger(FaultConsumerRunnable.class);
+
+    private final static int PollingDurations = 1;
+
     private final KafkaConsumer<String, byte[]> consumer;
     private final String topicName;
 
-    private SensorTraceDataDao trxDao;
+    private OutOfSpecDataDao trxDao;
 
-    public TraceRmsConsumerRunnable(Properties property, String groupId, String topicName) {
+    public FaultConsumerRunnable(Properties property, String groupId, String topicName) {
         this.consumer = new KafkaConsumer<>(createConsumerConfig(groupId, property));
         this.topicName = topicName;
 
-        if(DataSource.getDBType() == DBType.oracle){
-            trxDao = new SensorTraceTrxDao();
+        if (DataSource.getDBType() == DBType.oracle) {
+            trxDao = new OutOfSpecTrxDao();
             log.info("loaded data object of oracle.");
-        } else if(DataSource.getDBType() == DBType.postgresql){
-            trxDao = new SensorTraceTrxPostgreDao();
+        } else if (DataSource.getDBType() == DBType.postgresql) {
+            // to do
             log.info("loaded data object of postgresql.");
         } else {
-            trxDao = new SensorTraceTrxDao();
+            trxDao = new OutOfSpecTrxDao();
             log.info("loaded data object of default(oracle).");
         }
     }
@@ -50,7 +50,7 @@ public class TraceRmsConsumerRunnable implements Runnable {
         log.info("Reading topic: {}, db type: {}", topicName, DataSource.getDBType());
 
         while (true) {
-            ConsumerRecords<String, byte[]> records = consumer.poll(1000); //1 sec.
+            ConsumerRecords<String, byte[]> records = consumer.poll(TimeUnit.SECONDS.toMillis(PollingDurations));
             if (records.count() > 0) {
                 trxDao.storeRecord(records);
                 consumer.commitSync();
@@ -73,6 +73,10 @@ public class TraceRmsConsumerRunnable implements Runnable {
         props.put("auto.offset.reset", prop.getProperty("auto.offset.reset"));
         props.put("key.deserializer", prop.getProperty("key.deserializer"));
         props.put("value.deserializer", prop.getProperty("value.deserializer"));
+
+//        props.put("schema.registry.url", prop.getProperty(""));
+//        props.put("specific.avro.reader", prop.getProperty(""));
+
         return props;
     }
 }

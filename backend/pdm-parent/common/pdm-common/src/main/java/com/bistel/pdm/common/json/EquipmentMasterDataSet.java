@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 /**
  *
  */
-public class MasterDataSet {
+public class EquipmentMasterDataSet {
 
     @JsonProperty("areaName")
     private String areaName;
@@ -13,14 +13,11 @@ public class MasterDataSet {
     @JsonProperty("equipmentName")
     private String equipmentName;
 
-    @JsonProperty("parameterName")
-    private String parameterName;
-
-    @JsonProperty("parameterRawId")
-    private Long parameterRawId;
+    @JsonProperty("eqpRawId")
+    private Long eqpRawId;
 
     public String toKey(){
-        return this.areaName  + "," + this.equipmentName  + ":" + this.parameterName;
+        return this.areaName  + "," + this.equipmentName;
     }
 
     public String getAreaName() {
@@ -39,19 +36,11 @@ public class MasterDataSet {
         this.equipmentName = eqpName;
     }
 
-    public String getParameterName() {
-        return parameterName;
+    public Long getEqpRawId() {
+        return eqpRawId;
     }
 
-    public void setParameterName(String paramName) {
-        this.parameterName = paramName;
-    }
-
-    public Long getParameterRawId() {
-        return parameterRawId;
-    }
-
-    public void setParameterRawId(Long paramRawId) {
-        this.parameterRawId = paramRawId;
+    public void setEqpRawId(Long eqpRawId) {
+        this.eqpRawId = eqpRawId;
     }
 }

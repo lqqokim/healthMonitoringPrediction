@@ -1,6 +1,6 @@
 package com.bistel.pdm.speed.bundle;
 
-import com.bistel.pdm.speed.FaultDetector;
+import com.bistel.pdm.speed.SpeedTaskDef;
 import org.apache.commons.cli.*;
 import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
@@ -40,12 +40,12 @@ public class SpeedStreamAppBootstrap {
         logProperties.load(new FileInputStream(logPath));
         PropertyConfigurator.configure(logProperties);
 
-        try (FaultDetector processor =
-                     new FaultDetector(appId, brokers,
-                             inTopic, outTopic, servingAddr)) {
-
-            processor.start();
-        }
+//        try (SpeedTaskDef processor =
+//                     new SpeedTaskDef(appId, brokers,
+//                             inTopic, outTopic, servingAddr)) {
+//
+//            processor.start();
+//        }
     }
 
     private static CommandLine parseCommandLine(String[] args) {

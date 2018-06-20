@@ -4,6 +4,7 @@ APPPID=datastore.pid
 APPJAR=pdm-datastore-bundle-1.0-SNAPSHOT.jar
 APPOPTS="-groupId consumer-group-1
 -topicPrefix pdm-output
+-servingAddr http://192.168.7.227:28000
 -kafkaConf ./config/consumer.properties
 -log4jConf ./config/log4j.properties"
 

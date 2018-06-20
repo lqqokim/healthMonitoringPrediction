@@ -29,6 +29,7 @@ public final class ServingAppBootstrap {
         }
 
         log.info("args size={}, args={}", args.length, args);
+        log.info("e.g.> curl -X GET http://localhost:28000/pdm/api/master/latest/equipment ");
         log.info("e.g.> curl -X GET http://localhost:28000/pdm/api/master/latest/param ");
         log.info("e.g.> curl -X GET http://localhost:28000/pdm/api/master/latest/spec ");
         log.info("e.g.> curl -X GET http://localhost:28000/pdm/api/master/latest/feature ");

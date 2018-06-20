@@ -17,11 +17,15 @@ public class ParameterSpecDataDao {
 
     private final static String SPEC_DS_SQL =
             "select " +
-                    "p.rawid, f.feature_name, t.warning_spec, t.alarm_spec " +
-                    "from param_mst_pdm p, param_feature_mst_pdm f, trace_spec_mst_pdm t " +
+                    "p.rawid, " +
+                    "t.upper_alarm_spec, " +
+                    "t.upper_warning_spec, " +
+                    "t.target, " +
+                    "t.lower_alarm_spec, " +
+                    "t.lower_warning_spec " +
+                    "from param_mst_pdm p, trace_spec_mst_pdm t " +
                     "where p.rawid=t.param_mst_rawid " +
-                    "and p.rawid=f.param_mst_rawid " +
-                    "and f.main_yn = 'Y' ";
+                    " ";
 
     public List<ParameterSpecDataSet> getParamSpecDataSet() throws SQLException {
         List<ParameterSpecDataSet> resultRows = new ArrayList<>();
@@ -35,9 +39,11 @@ public class ParameterSpecDataDao {
             while (rs.next()) {
                 ParameterSpecDataSet ds = new ParameterSpecDataSet();
                 ds.setParamRawId(rs.getLong(1));
-                ds.setFeatureName(rs.getString(2));
-                ds.setAlarmSpec(rs.getFloat(3));
-                ds.setWarningSpec(rs.getFloat(4));
+                ds.setUpperAlarmSpec(rs.getFloat(2));
+                ds.setUpperWarningSpec(rs.getFloat(3));
+                ds.setTarget(rs.getFloat(4));
+                ds.setLowerAlarmSpec(rs.getFloat(5));
+                ds.setLowerWarningSpec(rs.getFloat(6));
 
                 resultRows.add(ds);
             }

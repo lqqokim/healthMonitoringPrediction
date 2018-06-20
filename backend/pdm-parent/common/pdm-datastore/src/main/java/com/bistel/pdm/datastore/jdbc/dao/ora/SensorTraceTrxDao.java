@@ -1,9 +1,11 @@
 package com.bistel.pdm.datastore.jdbc.dao.ora;
 
 import com.bistel.pdm.common.collection.Pair;
+import com.bistel.pdm.common.json.ParameterMasterDataSet;
 import com.bistel.pdm.datastore.jdbc.DataSource;
 import com.bistel.pdm.datastore.jdbc.dao.SensorTraceDataDao;
 import com.bistel.pdm.datastore.model.SensorTraceData;
+import com.bistel.pdm.lambda.kafka.master.MasterDataCache;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.slf4j.Logger;
@@ -21,20 +23,19 @@ public class SensorTraceTrxDao implements SensorTraceDataDao {
     private static final String TRX_SEQ_SQL = "select SEQ_TRACE_TRX_PDM.nextval from DUAL";
 
     private static final String INSERT_SQL =
-            "insert into trace_trx_pdm (RAWID, PARAM_MST_RAWID, VALUE, ALARM_SPEC, " +
-                    "WARNING_SPEC, EVENT_DTTS, RESERVED_COL1, RESERVED_COL2, RESERVED_COL3, " +
-                    "RESERVED_COL4, RESERVED_COL5) " +
-                    "values (SEQ_TRACE_TRX_PDM.nextval,?,?,?,?,?,?,?,?,?,?,?)";
+            "insert into trace_trx_pdm (RAWID, PARAM_MST_RAWID, VALUE, " +
+                    "UPPER_ALARM_SPEC, UPPER_WARNING_SPEC, TARGET, " +
+                    "LOWER_ALARM_SPEC, LOWER_WARNING_SPEC, EVENT_DTTS, " +
+                    "RESERVED_COL1, RESERVED_COL2, RESERVED_COL3, RESERVED_COL4, RESERVED_COL5) " +
+                    "values (SEQ_TRACE_TRX_PDM.nextval,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
     private static final String INSERT_SQL1 =
             "insert into trace_trx_pdm (RAWID, PARAM_MST_RAWID, VALUE, RPM, ALARM_SPEC, " +
-                    "WARNING_SPEC, EVENT_DTTS, RESERVED_COL1, RESERVED_COL2, RESERVED_COL3, " +
-                    "RESERVED_COL4, RESERVED_COL5) " +
+                    "WARNING_SPEC, EVENT_DTTS, " +
+                    "RESERVED_COL1, RESERVED_COL2, RESERVED_COL3, RESERVED_COL4, RESERVED_COL5) " +
                     "values (?,?,?,?,?,?,?,?,?,?,?,?)";
 
-    public SensorTraceTrxDao() {
-
-    }
+    public SensorTraceTrxDao() { }
 
     @Override
     public Long getTraceRawId() throws SQLException {
@@ -66,54 +67,51 @@ public class SensorTraceTrxDao implements SensorTraceDataDao {
 
                 byte[] sensorData = record.value();
                 String valueString = new String(sensorData);
+
+                // time, area, eqp, p1, p2, p3, p4, ... pn, rsd01, rsd02, rsd03, rsd04, rsd05
                 String[] values = valueString.split(",");
-                // paramRawid
-                // value
-                // alarm spec
-                // warning spec
-                // time
-                // rsd01~05
 
-                pstmt.setLong(1, Long.parseLong(values[0])); //param rawid
-                pstmt.setFloat(2, Float.parseFloat(values[1])); //value
+                List<ParameterMasterDataSet> paramData =
+                        MasterDataCache.getInstance().getParamMasterDataSet().get(record.key());
 
-                //pstmt.setNull(3, Types.INTEGER); //rpm
+                for(ParameterMasterDataSet param : paramData){
+                    pstmt.setLong(1, param.getParameterRawId()); //param rawid
+                    pstmt.setFloat(2, Float.parseFloat(values[param.getParamParseIndex()])); //value
 
-                if (values[2] != null && values[2].length() > 0) {
-                    pstmt.setFloat(3, Float.parseFloat(values[2])); //alarm spec
-                } else {
-                    pstmt.setNull(3, Types.FLOAT);
+                    if (param.getUpperAlarmSpec() != null) {
+                        pstmt.setFloat(3, param.getUpperAlarmSpec()); //upper alarm spec
+                    } else {
+                        pstmt.setNull(3, Types.FLOAT);
+                    }
+
+                    if (param.getUpperWarningSpec() != null) {
+                        pstmt.setFloat(4, param.getUpperWarningSpec()); //upper warning spec
+                    } else {
+                        pstmt.setNull(4, Types.FLOAT);
+                    }
+
+                    if (param.getTarget() != null) {
+                        pstmt.setFloat(5, param.getTarget()); //target
+                    } else {
+                        pstmt.setNull(5, Types.FLOAT);
+                    }
+
+                    if (param.getLowerAlarmSpec() != null) {
+                        pstmt.setFloat(6, param.getLowerAlarmSpec()); //lower alarm spec
+                    } else {
+                        pstmt.setNull(6, Types.FLOAT);
+                    }
+
+                    if (param.getLowerWarningSpec() != null) {
+                        pstmt.setFloat(7, param.getLowerWarningSpec()); //lower warning spec
+                    } else {
+                        pstmt.setNull(7, Types.FLOAT);
+                    }
+
+                    pstmt.setTimestamp(8, new Timestamp(Long.parseLong(values[0])));
+
+                    pstmt.addBatch();
                 }
-
-                if (values[3] != null && values[3].length() > 0) {
-                    pstmt.setFloat(4, Float.parseFloat(values[3])); //warning spec
-                } else {
-                    pstmt.setNull(4, Types.FLOAT);
-                }
-                pstmt.setTimestamp(5, new Timestamp(Long.parseLong(values[4])));
-
-                //reserved columns
-                if (values.length > 5) {
-                    pstmt.setString(6, values[5]); //location
-                }
-
-                if (values.length > 6) {
-                    pstmt.setString(7, values[6]);
-                }
-
-                if (values.length > 7) {
-                    pstmt.setString(8, values[7]);
-                }
-
-                if (values.length > 8) {
-                    pstmt.setString(9, values[8]);
-                }
-
-                if (values.length > 9) {
-                    pstmt.setString(10, values[9]);
-                }
-
-                pstmt.addBatch();
                 //log.debug("offset = " + record.offset() + " value = " + valueString);
             }
 
