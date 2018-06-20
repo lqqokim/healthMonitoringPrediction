@@ -549,7 +549,7 @@ public class ReportService implements com.bistel.a3.portal.service.pdm.IReportSe
         Overall result = new Overall();
 
         OverallSpec spec = getOverallSpec(fabId, paramId);
-        List<List<Object>> data = overallService.getOverallMinuteTrx(fabId, paramId, fromdate, todate);
+        List<List<Object>> data = overallService.getTraceData(fabId, paramId, fromdate, todate);
         result.setAlarm(spec.getAlarm());
         result.setWarn(spec.getWarn());
         result.setData(data);
@@ -564,7 +564,7 @@ public class ReportService implements com.bistel.a3.portal.service.pdm.IReportSe
         Date to = new Date(todate);
         Date from = DateUtils.addDays(to, regressionDays * -1);
 
-        List<List<Object>> regressionData = overallService.getOverallMinuteTrx(fabId, paramId, from.getTime(), to.getTime());
+        List<List<Object>> regressionData = overallService.getTraceData(fabId, paramId, from.getTime(), to.getTime());
 
         SimpleRegression regression = new SimpleRegression();
         for(List<Object> record : regressionData) {

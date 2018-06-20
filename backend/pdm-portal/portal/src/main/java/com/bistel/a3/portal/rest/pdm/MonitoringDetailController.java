@@ -1,13 +1,10 @@
 package com.bistel.a3.portal.rest.pdm;
 
 import com.bistel.a3.common.util.DateUtil;
-import com.bistel.a3.portal.domain.pdm.db.Eqp;
 import com.bistel.a3.portal.service.pdm.*;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.BeanFactoryAnnotationUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -47,7 +44,7 @@ public class MonitoringDetailController {
 
     @RequestMapping("params/{paramId}/overallminute")
     public Object overallminute(@PathVariable("fabId") String fabId, @PathVariable("paramId") Long paramId, @RequestParam("fromdate") Long fromdate, @RequestParam("todate") Long todate) {
-        return traceDataService.getOverallMinuteTrx(fabId, paramId, fromdate, todate);
+        return traceDataService.getTraceData(fabId, paramId, fromdate, todate);
     }
 
     @RequestMapping("params/{paramId}/overallminutespec")

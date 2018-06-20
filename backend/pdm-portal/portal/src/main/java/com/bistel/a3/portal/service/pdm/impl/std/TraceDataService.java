@@ -742,7 +742,7 @@ public class TraceDataService implements ITraceDataService {
         rpmWithPart.setStddev(stddev);
     }
 
-    public List<List<Object>> getOverallMinuteTrx(String fabId, Long paramId, Long fromdate, Long todate) {
+    public List<List<Object>> getTraceData(String fabId, Long paramId, Long fromdate, Long todate) {
         STDReportMapper mapper = SqlSessionUtil.getMapper(sessions, fabId, STDReportMapper.class);
         List<BasicData> data = mapper.selectData(paramId, new Date(fromdate), new Date(todate));
         return changeList(data);
@@ -911,6 +911,30 @@ public class TraceDataService implements ITraceDataService {
 
 
         return eqpParamDatas;
+    }
+
+    @Override
+    public Object getEventSimulation(String fabId, Long paramId, Long fromdate, Long todate, Float condition) {
+
+        List<List<Object>> traceDatas = this.getTraceData(fabId,paramId,fromdate,todate);
+        boolean isStart = false;
+        List<List<Object>> result = new ArrayList<>();
+
+        List<Object> startEnd = new ArrayList<>();
+        for (int i = 0; i < traceDatas.size(); i++) {
+            if(isStart && Float.valueOf( traceDatas.get(i).get(1).toString())<=condition){
+                isStart = false;
+                startEnd.add(traceDatas.get(i).get(0));
+                result.add(startEnd);
+                startEnd = new ArrayList<>();
+            }else if(isStart ==false && Float.valueOf( traceDatas.get(i).get(1).toString())>=condition) {
+                isStart = true;
+                startEnd.add(traceDatas.get(i).get(0));
+            }
+        }
+
+
+        return result;
     }
 
     @Override

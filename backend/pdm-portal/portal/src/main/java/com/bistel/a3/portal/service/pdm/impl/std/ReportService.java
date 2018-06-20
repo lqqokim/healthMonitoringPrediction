@@ -19,7 +19,6 @@ import com.bistel.a3.portal.util.TransactionUtil;
 import com.bistel.a3.portal.util.pdm.Outlier;
 import com.j256.simplemagic.ContentInfo;
 import com.j256.simplemagic.ContentInfoUtil;
-import jersey.repackaged.com.google.common.collect.Lists;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.math3.stat.StatUtils;
@@ -44,8 +43,6 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -657,7 +654,7 @@ public class ReportService implements IReportService {
         Overall result = new Overall();
 
         OverallSpec spec = getOverallSpec(fabId, paramId);
-        List<List<Object>> data = overallService.getOverallMinuteTrx(fabId, paramId, fromdate, todate);
+        List<List<Object>> data = overallService.getTraceData(fabId, paramId, fromdate, todate);
         result.setAlarm(spec.getAlarm());
         result.setWarn(spec.getWarn());
         result.setData(data);
@@ -672,7 +669,7 @@ public class ReportService implements IReportService {
         Date to = new Date(todate);
         Date from = DateUtils.addDays(to, regressionDays * -1);
 
-        List<List<Object>> regressionData = overallService.getOverallMinuteTrx(fabId, paramId, from.getTime(), to.getTime());
+        List<List<Object>> regressionData = overallService.getTraceData(fabId, paramId, from.getTime(), to.getTime());
 
         SimpleRegression regression = new SimpleRegression();
         for(List<Object> record : regressionData) {

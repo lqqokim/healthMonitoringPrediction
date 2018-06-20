@@ -37,7 +37,7 @@ public interface ITraceDataService {
 
     List<String> manualClassification(ManualClassification request);
 
-    List<List<Object>> getOverallMinuteTrx(String fabId, Long paramId, Long fromdate, Long todate);
+    List<List<Object>> getTraceData(String fabId, Long paramId, Long fromdate, Long todate);
 
     List<HashMap<String,Object>> getFilterTraceData(String fabId, List<Long> eqpIds, List<String> paramNames, Date from, Date to);
 
@@ -47,4 +47,6 @@ public interface ITraceDataService {
     List<STDTraceTrx> getFilterTraceDataByEqpIdParamId(String fabId, Long eqpId, Long paramId, Date from, Date to, FilterTraceRequest filterTraceRequest);
 
     List<EqpParamDatas> getFilterTraceDataByEqpIdParamIds(String fabId, Long eqpId,String eqpName, List<Long> paramIds, List<String> paramNames, Date from, Date to, FilterTraceRequest bodyData);
+
+    Object getEventSimulation(String fabId, Long paramId, Long fromdate, Long todate, Float condition);
 }

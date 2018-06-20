@@ -515,6 +515,26 @@ export class PdmModelService extends ModelCommonService {
 			}
 		});
 	}
+	getTraceDataByParamId(fabId,paramId,fromDate,toDate): Promise<any> {
+		return this.GET({
+			uriPath: `pdm/fabs/${fabId}/areas/0/eqps/0/params/${paramId}/tracedata`,
+			params: {
+				fromdate: fromDate,
+				todate: toDate
+			}
+		});
+	}
+	getTraceDataEventSimulation(fabId,paramId,fromDate,toDate,condition): Promise<any> {
+		return this.GET({
+			uriPath: `pdm/fabs/${fabId}/areas/0/eqps/0/params/${paramId}/eventsimulation`,
+			params: {
+				fromdate: fromDate,
+				todate: toDate,
+				condition:condition
+			}
+		});
+	}
+
 
 	createMonitoring(fabId,param): Observable<any> {
 		let fabInfo = Object.assign({},param);

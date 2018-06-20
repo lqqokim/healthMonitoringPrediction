@@ -6,13 +6,13 @@ import { BISTEL_SDKModule } from '../../../sdk/sdk.module';
 
 // This Module's Components
 import { PdmWostEqpListComponent } from './pdm-worst-eqp-list.component';
-import { TreeModule } from 'ng2-tree';
+// import { TreeModule } from 'ng2-tree';
 
 @NgModule({
     imports: [
         BISTEL_SDKModule,
         A3_CommonModule,
-        TreeModule
+        // TreeModule
     ],
     declarations: [
         PdmWostEqpListComponent

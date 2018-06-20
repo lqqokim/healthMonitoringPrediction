@@ -1,29 +1,24 @@
 
 import { Component, ViewChild, ElementRef, OnInit, EventEmitter, Output, Input, OnChanges, DoCheck } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
-import { BistelChartComponent } from '../../../../../../../sdk/charts/charts/bistel-chart.component';
 
 @Component({
     moduleId: module.id,
-    selector: 'modeling-chart',
-    templateUrl: `modeling-chart.html`,
-    styleUrls: [`modeling-chart.css`]
+    selector: 'modeling-simulator-chart',
+    templateUrl: `modeling-simulator-chart.html`,
+    styleUrls: [`modeling-simulator-chart.css`]
 })
-export class ModelingChartComponent implements OnInit, OnChanges, DoCheck {
+export class ModelingSimulatorChartComponent implements OnInit, OnChanges, DoCheck {
 
-    @Input() params;
-    @Input() eventLines;
-    
     selectedParam;
-    conditionValue;
-    // params = [
-    //     { name: 'param1', isEventParam: false, conditionValue: null, datas: [],eventConfig:[] },
-    //     { name: 'param2', isEventParam: false, conditionValue: null, datas: [],eventConfig:[] },
-    //     { name: 'param3', isEventParam: false, conditionValue: null, datas: [] ,eventConfig:[]}
-    // ]
-    // events = [
+    params = [
+        { name: 'param1', isEventParam: false, conditionValue: null, datas: [],eventConfig:[] },
+        { name: 'param2', isEventParam: false, conditionValue: null, datas: [],eventConfig:[] },
+        { name: 'param3', isEventParam: false, conditionValue: null, datas: [] ,eventConfig:[]}
+    ]
+    events = [
 
-    // ];
+    ];
     statusEventConfig = [];
     trendConfig: any = {
         legend: {
@@ -96,20 +91,20 @@ export class ModelingChartComponent implements OnInit, OnChanges, DoCheck {
 
     ngOnInit() {
 
-        // let startDateTime = new Date().getTime() - 100 * 1000;
-        // for (let i = 0; i < this.params.length; i++) {
-        //     let datas = [];
-        //     for (let j = 0; j < 100; j++) {
-        //         datas.push([new Date(startDateTime + j * 1000), this.randomRange(1, 100)]);
-        //     }
-        //     this.params[i].datas.push(datas);
-        // }
+        let startDateTime = new Date().getTime() - 100 * 1000;
+        for (let i = 0; i < this.params.length; i++) {
+            let datas = [];
+            for (let j = 0; j < 100; j++) {
+                datas.push([new Date(startDateTime + j * 1000), this.randomRange(1, 100)]);
+            }
+            this.params[i].datas.push(datas);
+        }
 
-        // this.events.push([this.params[0].datas[0][10][0], this.params[0].datas[0][15][0]]);
+        this.events.push([this.params[0].datas[0][10][0], this.params[0].datas[0][15][0]]);
 
-        // this.events.push([this.params[0].datas[0][20][0], this.params[0].datas[0][40][0]]);
+        this.events.push([this.params[0].datas[0][20][0], this.params[0].datas[0][40][0]]);
 
-        // this.events.push([this.params[0].datas[0][70][0], this.params[0].datas[0][80][0]]);
+        this.events.push([this.params[0].datas[0][70][0], this.params[0].datas[0][80][0]]);
 
     }
     randomRange(maximum, minimum) {
@@ -117,7 +112,7 @@ export class ModelingChartComponent implements OnInit, OnChanges, DoCheck {
     }
     ngOnChanges() {
 
-        this.setStatusEventConfig();
+
     }
     ngDoCheck() {
         //    this.selectecItemAction();
@@ -126,7 +121,7 @@ export class ModelingChartComponent implements OnInit, OnChanges, DoCheck {
     setStatusEventConfig() {
         this.statusEventConfig = [];
 
-        for (let i = 0; i < this.eventLines.length; i++) {
+        for (let i = 0; i < this.events.length; i++) {
 
             this.statusEventConfig.push({
                 show: true,
@@ -134,12 +129,12 @@ export class ModelingChartComponent implements OnInit, OnChanges, DoCheck {
                 axis: 'xaxis',
                 //background: true,
                 fill: true,
-                fillStyle: 'rgba(0, 255, 0, .1)',
+                fillStyle: 'rgba(0, 255, 0, .5)',
                 start: {
                     name: `event area`,
                     show: true, // default : false
                     // start: this.events[i][0],
-                    value: this.eventLines[i][0],
+                    value: this.events[i][0],
                     color: '#ff0000',
                     width: 1,       // default : 1
                     adjust: 0,      // default : 0
@@ -157,7 +152,7 @@ export class ModelingChartComponent implements OnInit, OnChanges, DoCheck {
                         }
                     },
                     draggable: {
-                        show: false
+                        show: true
                     },
                     label: {
                         show: false,         // default : false
@@ -175,7 +170,7 @@ export class ModelingChartComponent implements OnInit, OnChanges, DoCheck {
                     name: `event area`,
                     show: true, // default : false
                     // start: this.events[i][0],
-                    value: this.eventLines[i][1],
+                    value: this.events[i][1],
                     color: '#ff0000',
                     width: 1,       // default : 1
                     adjust: 0,      // default : 0
@@ -193,7 +188,7 @@ export class ModelingChartComponent implements OnInit, OnChanges, DoCheck {
                         }
                     },
                     draggable: {
-                        show: false
+                        show: true
                     },
                     label: {
                         show: false,         // default : false
@@ -221,9 +216,6 @@ export class ModelingChartComponent implements OnInit, OnChanges, DoCheck {
         this.drawConditionLine(param);
     }
     onClickParam(param) {
-        this.conditionValue = param.datas[0].map(a=>a[1]).reduce((a,b)=>{
-            return a+b;
-        })/param.datas[0].length;
 
         this.setStatusEventConfig();
         this.drawConditionLine(param);
@@ -240,6 +232,9 @@ export class ModelingChartComponent implements OnInit, OnChanges, DoCheck {
             }
         }
 
+        if (selectedParamObj.conditionValue == null) {
+            selectedParamObj.conditionValue = 1;
+        }
 
         let eventLines = [];
         eventLines.push({
@@ -252,7 +247,7 @@ export class ModelingChartComponent implements OnInit, OnChanges, DoCheck {
             line: {
                 name: `condition value`,
                 show: true, // default : false
-                value: this.conditionValue,
+                value: selectedParamObj.conditionValue,
                 color: '#ff0000',
                 width: 1,       // default : 1
                 adjust: 0,      // default : 0
@@ -270,10 +265,7 @@ export class ModelingChartComponent implements OnInit, OnChanges, DoCheck {
                     }
                 },
                 draggable: {
-                    show: true,
-                    dragStop:(ev, newValue, neighbor, plot)=>{
-                        this.conditionValue = newValue;
-                    }
+                    show: true
                 },
                 label: {
                     show: false,         // default : false
@@ -290,11 +282,5 @@ export class ModelingChartComponent implements OnInit, OnChanges, DoCheck {
         });
         eventLines = eventLines.concat(this.statusEventConfig);
         selectedParamObj.eventLines = eventLines;
-    }
-    public getParamId(){
-        return this.selectedParam;
-    }
-    public getConditionValue(){
-        return this.conditionValue;
     }
 }

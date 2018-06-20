@@ -100,7 +100,7 @@ public class RealTimeParamSocketController {
 	}
 
 	private List<List<Object>> getParamData(String fabId,Long paramId, Date fromDate, Date toDate) {
-		return traceDataService.getOverallMinuteTrx(fabId,paramId,fromDate.getTime(),toDate.getTime());
+		return traceDataService.getTraceData(fabId,paramId,fromDate.getTime(),toDate.getTime());
 	}
 
 	public void realtimeSendData(Long paramId,List<List<Object>> timeValues,ParamWithCommon paramInfo){

@@ -5,7 +5,7 @@ import { PdmWostEqpListService } from './pdm-worst-eqp-list.service';
 import { PdmCommonService } from '../../../common/service/pdm-common.service';
 
 //* ng2-tree Interface
-import { TreeModel } from 'ng2-tree';
+// import { TreeModel } from 'ng2-tree';
 
 @Component({
     moduleId: module.id,
@@ -20,24 +20,24 @@ export class PdmWostEqpListComponent extends WidgetApi implements OnSetup, OnDes
     areaColumn: string;
     
     //* ng2-tree 내용
-    tree: TreeModel = {
-        value: 'Programming languages by programming paradigm',
-        children: [{
-            value: 'Object-oriented programming',
-            children: [
-                {value: 'Java'},
-                {value: 'C++'},
-                {value: 'C#'},
-            ]
-        }, {
-            value: 'Prototype-based programming',
-            children: [
-                {value: 'JavaScript'},
-                {value: 'CoffeeScript'},
-                {value: 'Lua'},
-            ]
-        }]
-    };
+    // tree: TreeModel = {
+    //     value: 'Programming languages by programming paradigm',
+    //     children: [{
+    //         value: 'Object-oriented programming',
+    //         children: [
+    //             {value: 'Java'},
+    //             {value: 'C++'},
+    //             {value: 'C#'},
+    //         ]
+    //     }, {
+    //         value: 'Prototype-based programming',
+    //         children: [
+    //             {value: 'JavaScript'},
+    //             {value: 'CoffeeScript'},
+    //             {value: 'Lua'},
+    //         ]
+    //     }]
+    // };
     
     // TODO: Contour chart disable
 

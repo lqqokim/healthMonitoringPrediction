@@ -640,7 +640,7 @@ public class TraceDataService implements com.bistel.a3.portal.service.pdm.ITrace
     }
 
     @Override
-    public List<List<Object>> getOverallMinuteTrx(String fabId, Long paramId, Long fromdate, Long todate) {
+    public List<List<Object>> getTraceData(String fabId, Long paramId, Long fromdate, Long todate) {
         ParamDataMapper mapper = SqlSessionUtil.getMapper(sessions, fabId, ParamDataMapper.class);
         List<BasicData> data = mapper.selectData(paramId, new Date(fromdate), new Date(todate));
         return changeList(data);
@@ -667,6 +667,11 @@ public class TraceDataService implements com.bistel.a3.portal.service.pdm.ITrace
 
     @Override
     public List<EqpParamDatas> getFilterTraceDataByEqpIdParamIds(String fabId, Long eqpId,String eqpName, List<Long> paramIds, List<String> paramNames, Date from, Date to, FilterTraceRequest bodyData) {
+        return null;
+    }
+
+    @Override
+    public Object getEventSimulation(String fabId, Long paramId, Long fromdate, Long todate, Float condition) {
         return null;
     }
 
