@@ -2,11 +2,11 @@ import { Component, OnInit, OnChanges, SimpleChanges, EventEmitter, Output } fro
 
 @Component({
     moduleId: module.id,
-    selector: 'line-status-summary',
-    templateUrl: './line-status-summary.html',
-    styleUrls: ['./line-status-summary.css']
+    selector: 'alarm-count-summary',
+    templateUrl: './alarm-count-summary.html',
+    styleUrls: ['./alarm-count-summary.css']
 })
-export class LineStatusSummaryComponent implements OnInit, OnChanges {
+export class PdmAlarmCountSummaryComponent implements OnInit, OnChanges {
     @Output() endChartLoad: EventEmitter<any> = new EventEmitter();
     
     chartId;
@@ -25,26 +25,26 @@ export class LineStatusSummaryComponent implements OnInit, OnChanges {
     }
 
     setChartData(): void {
-        const normals: any[] = ['normal', 25, 23, 26, 22, 27];
-        const warnings: any[] = ['warning', 4, 5, 3, 1, 3];
-        const alarms: any[] = ['alarm', 6, 1, 2, 1, 3];
-        const failures: any[] = ['failure', 1, 1, 2, 1, 1];
-        const offlines: any[] = ['offline', 2, 1, 3, 1, 2];
+        const alarms: any[] = ['alarm', 5, 4, 6, 5, 4];
+        const warnings: any[] = ['warning', 7, 8, 9, 12, 11];
         const axisCategories: string[] = ['x', '1Line', '2Line', '3Line', '4Line', '5Line'];
-        const chartData: any[] = [axisCategories, normals, warnings, alarms, failures, offlines];
+        const chartData: any[] = [axisCategories, alarms];
 
         setTimeout(() => {
-            this.generateChart(chartData, axisCategories);
+            this.generateChart(chartData, axisCategories, warnings);
             this.endChartLoad.emit(true);
         }, 500);
     }
 
-    generateChart(chartData: any[], axisCategories: string[]): void {
+    generateChart(chartData: any[], axisCategories: string[], warnings): void {
         const chart: any = c3Chart.generate({
             bindto: `#${this.chartId}`,
+            legend: {
+                position: 'right'
+            },
             size: {
-                height: 300,
-                width: 680
+                height: 350,
+                width: 700
             },
             padding: {
                 top: 20
@@ -54,21 +54,13 @@ export class LineStatusSummaryComponent implements OnInit, OnChanges {
                 x: 'x',
                 columns: chartData,
                 names: {
-                    normal: 'Normal',
-                    warning: 'Warning',
                     alarm: 'Alarm',
-                    failure: 'Failure',
-                    offline: 'Offline'
+                    warning: 'Warning'
                 },
                 colors: {
-                    normal: 'green',
-                    warning: 'orange',
                     alarm: 'red',
-                    failure: 'black',
-                    offline: 'gray'
-                },
-                // groups: [['normal', 'warning', 'alarm', 'failure', 'offline']],
-                order: 'asc'
+                    warning: 'orange'
+                }
             },
             zoom: {
                 enabled: false
@@ -98,14 +90,12 @@ export class LineStatusSummaryComponent implements OnInit, OnChanges {
             //     },
             // }
         });
-
-        setTimeout(() => {
-            chart.groups([['normal', 'warning', 'alarm']])
-        }, 500);
         
         setTimeout(() => {
-            chart.groups([['normal', 'warning', 'alarm', 'failure', 'offline']])
-        }, 1000);
+            chart.load({
+                columns: [warnings]
+            });
+        }, 500);
     }
 
     private guid() {
