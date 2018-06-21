@@ -13,6 +13,7 @@ export class RealtimeChartComponent implements OnInit, OnChanges, OnDestroy, Aft
     @Input() timeWindow: any;
     @Input() shiftTime: any;
     @Input() alarmSpec: any;
+    @Input() warningSpec:any;
     @Input() datas: any[];
 
     id = "r" + UUIDUtil.new().replace(/-/g, '');
@@ -36,7 +37,8 @@ export class RealtimeChartComponent implements OnInit, OnChanges, OnDestroy, Aft
 
     $data;
     $dataGroup;
-    $spec;
+    $alarm_spec;
+    $warning_spec;
 
     width;
     height;
@@ -95,6 +97,7 @@ export class RealtimeChartComponent implements OnInit, OnChanges, OnDestroy, Aft
     setScale() {
         let minmax = d3.extent(this.datas[0], (d) => { return d[1] });
         minmax.push(this.alarmSpec);
+        minmax.push(this.warningSpec);
         this.xScale.domain([this.startX, this.endX]).rangeRound([0, this.width - (this.margin.left + this.margin.right)])
         this.yScale.domain(d3.extent(minmax)).rangeRound([this.height - (this.margin.top + this.margin.bottom), 0])
         // this.xAxisCall.scale(this.xScale)
@@ -125,7 +128,7 @@ export class RealtimeChartComponent implements OnInit, OnChanges, OnDestroy, Aft
             .attr('stroke-width', 1.5)
 
 
-        this.$spec = this.svg.append('g')
+        this.$alarm_spec = this.svg.append('g')
             .attr('transform', 'translate(' + this.margin.left + ',' + this.margin.top + ')')
             .append('path')
             // .datum(data)
@@ -134,6 +137,18 @@ export class RealtimeChartComponent implements OnInit, OnChanges, OnDestroy, Aft
             .attr('stroke-linejoin', 'round')
             .attr('stroke-linecap', 'round')
             .attr('stroke-width', 1.5)
+
+
+        this.$warning_spec= this.svg.append('g')
+        .attr('transform', 'translate(' + this.margin.left + ',' + this.margin.top + ')')
+        .append('path')
+        // .datum(data)
+        .attr('fill', 'none')
+        .attr('stroke', 'yellow')
+        .attr('stroke-linejoin', 'round')
+        .attr('stroke-linecap', 'round')
+        .attr('stroke-width', 1.5)
+
 
     }
 
@@ -159,13 +174,20 @@ export class RealtimeChartComponent implements OnInit, OnChanges, OnDestroy, Aft
             .attr('d', this.line);
 
         let sepecData = [];
+        let warningSepecData = [];
         if (this.datas[0].length > 0) {
             sepecData.push([  this.datas[0][0][0],  this.alarmSpec ]);
             sepecData.push([ this.datas[0][this.datas[0].length - 1][0], this.alarmSpec ]);
+            warningSepecData.push([  this.datas[0][0][0],  this.warningSpec ]);
+            warningSepecData.push([ this.datas[0][this.datas[0].length - 1][0], this.warningSpec ]);
         }
 
 
-        this.$spec.datum(sepecData)
+
+        this.$alarm_spec.datum(sepecData)
+            .attr('d', this.line)
+
+        this.$warning_spec.datum(warningSepecData)
             .attr('d', this.line)
 
         this.$dataGroup.selectAll('.point').remove();

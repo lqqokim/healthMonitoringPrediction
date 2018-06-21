@@ -67,7 +67,7 @@ export class RealtimeParamTrendComponent implements OnInit, OnChanges,OnDestroy 
 
     preMessageId=null;
 
-    paramDatas:{eqpName:string,paramName:string,paramId:number,config:{},eventLines:any[],chartEvent:{},datas:any[]}[]=[];
+    paramDatas:{eqpName:string,paramName:string,paramId:number,config:{},eventLines:any[],alarm_spec:number,warning_spec:number,chartEvent:{},datas:any[]}[]=[];
     windowSize = 60;//sec
 
     constructor(
@@ -250,11 +250,13 @@ export class RealtimeParamTrendComponent implements OnInit, OnChanges,OnDestroy 
 
 
                     this.paramDatas[i].datas=this.paramDatas[i].datas.concat();
+                    this.paramDatas[i].alarm_spec = payload.reply.alarm_spec;
+                    this.paramDatas[i].warning_spec = payload.reply.warning_spec;
                     break;
                 }
             }
             if(!isFind){
-                let paramData = {eqpName:payload.reply.eqpName,paramName:payload.reply.paramName,paramId:payload.reply.paramId,config:this.getTrendChartConfig('AW'),eventLines:[],chartEvent:{},datas:[payload.reply.datas]};
+                let paramData = {eqpName:payload.reply.eqpName,paramName:payload.reply.paramName,paramId:payload.reply.paramId,config:this.getTrendChartConfig('AW'),eventLines:[],alarm_spec:payload.reply.alarm_spec,warning_spec:payload.reply.warning_spce,chartEvent:{},datas:[payload.reply.datas]};
                 this.paramDatas.push(paramData);
             }
 

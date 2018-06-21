@@ -1,13 +1,11 @@
 
-<div class="realtimeparamtrend row">
+<div class="realtimeparamtrend">
     <div class="col-md-2 tree-container">
 
         <div class="tree-div">
             <fab-area-eqp-param-tree #tree></fab-area-eqp-param-tree>
         </div>
-        <br>
-        <br>
-        <button (click)="requestMonitoring()" class="btn btn-primary"> Start</button>
+        <button (click)="requestMonitoring()" class="btn btn-primary"> Start Monitoring</button>
 
     </div>
 
@@ -18,7 +16,7 @@
             </div>
 
             <div class="chart-area" *ngIf="awData.datas.length > 0" (mouseover)="mouseover($event, awData, i, AWChart);">
-                <realtime-chart [timeWindow]="60000" [shiftTime]="1000" [alarmSpec]="0.9" [datas]="awData.datas"></realtime-chart>
+                <realtime-chart [timeWindow]="60000" [shiftTime]="1000" [alarmSpec]="awData.alarm_spec"  [warningSpec]="awData.warning_spec" [datas]="awData.datas"></realtime-chart>
             </div>
         </div>
     </div>

@@ -2,7 +2,7 @@
 .realtimeparamtrend{
     height:100%;
     width:100%;
-    padding-left: 10px;
+    /* padding-left: 10px; */
 }
 .realtimeparamtrend .tree-container{
     height: 100%;
@@ -12,8 +12,9 @@
 }
 .realtimeparamtrend .tree-div{
     width: 100%;
-    height: calc(100% - 120px);
+    height: calc(100% - 40px);
     border: solid 1px lightgray;
+    margin-bottom: 10px;
 }
 
 .realtimeparamtrend .chart-container{

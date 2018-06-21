@@ -124,6 +124,8 @@ public class RealTimeParamSocketController {
 				reply.put("datas",timeValues);
 				reply.put("eqpName",paramInfo.getEqp_Name());
 				reply.put("paramName",paramInfo.getName());
+				reply.put("alarm_spec",paramInfo.getAlarm());
+				reply.put("warning_spec",paramInfo.getWarn());
 
 				replyMessage.setReply(reply);
 
