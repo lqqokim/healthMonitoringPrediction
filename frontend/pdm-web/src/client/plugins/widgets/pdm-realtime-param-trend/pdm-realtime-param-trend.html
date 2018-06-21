@@ -1,4 +1,4 @@
-<div class="trend-chart-container">
+<div class="pdm-realtime-param-trend">
     <!-- <h3 class="panel-title">EQP Trend chart</h3> -->
     <!-- <div class="fab-label">
         <label for="normalizeType">Nomalize Type</label>
@@ -7,11 +7,11 @@
         </select>
     </div> -->
 
-    <alarm-warning-bad 
+    <realtime-param-trend
         [condition]="condition" 
         (showContext)="showContext($event)"
         (showParamContext)="showParamContext($event)"
         (changeRefresh)="changeRefresh($event)"
         (progress)="progress($event);">
-    </alarm-warning-bad>
+    </realtime-param-trend>
 </div>

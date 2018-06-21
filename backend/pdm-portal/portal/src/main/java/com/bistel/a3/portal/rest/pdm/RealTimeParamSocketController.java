@@ -79,19 +79,23 @@ public class RealTimeParamSocketController {
 			Date toDate = new Date();
 
 			//real
-//			List<List<Object>> datas = getParamData(fabId,paramId,fromDate,toDate);
+			List<List<Object>> datas = getParamData(fabId,paramId,fromDate,toDate);
+
+			List<Object>  info = monitoringParamLastUpdateDate.get(paramId);
+			info.set(0,toDate);
 
 
-			//demo
-			Long datetime = new Date().getTime();
-			List<List<Object>> datas = new ArrayList<>();
-			for (int i = 0; i < 3; i++) {
-				List<Object> data = new ArrayList<>();
-				data.add(datetime + i * 100);
-				data.add(rand.nextFloat());
 
-				datas.add(data);
-			}
+//			//demo
+//			Long datetime = new Date().getTime();
+//			List<List<Object>> datas = new ArrayList<>();
+//			for (int i = 0; i < 3; i++) {
+//				List<Object> data = new ArrayList<>();
+//				data.add(datetime + i * 100);
+//				data.add(rand.nextFloat());
+//
+//				datas.add(data);
+//			}
 
 
 

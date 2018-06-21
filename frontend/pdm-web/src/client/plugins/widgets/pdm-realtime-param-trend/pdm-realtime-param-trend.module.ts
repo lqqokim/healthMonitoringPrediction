@@ -14,7 +14,7 @@ import { PdmRealTimeTrendChartConfig } from './config/chart.config';
 import { ViewConfig } from './config/view.config';
 
 import { PdmRealTimeParamTrendComponent } from './pdm-realtime-param-trend.component';
-import { AlarmWarningBadComponent } from './components/realtimeparamtrend.component';
+import { RealtimeParamTrendComponent } from './components/realtimeparamtrend.component';
 
 import { RealtimeChartComponent } from './components/realtimechart.component';
 
@@ -26,7 +26,7 @@ import { RealtimeChartComponent } from './components/realtimechart.component';
     ],
     declarations: [
         PdmRealTimeParamTrendComponent,
-        AlarmWarningBadComponent,
+        RealtimeParamTrendComponent,
         RealtimeChartComponent
     ],
     exports: [

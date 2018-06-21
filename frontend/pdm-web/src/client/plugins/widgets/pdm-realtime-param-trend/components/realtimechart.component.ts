@@ -182,8 +182,8 @@ export class RealtimeChartComponent implements OnInit, OnChanges, OnDestroy, Aft
             })
             // .attr("cx", function(d, i) {return xScale(d.date)} )
             // .attr("cy", function(d,i) {return xScaye(d.value)})
-            .on('mouseover', () => { d3.select(this).attr('r', 8) })
-            .on('mouseout', () => { d3.select(this).attr('r', 4) })
+            // .on('mouseover', () => { d3.select(this).attr('r', 8) })
+            // .on('mouseout', () => { d3.select(this).attr('r', 4) })
         // .on('click', function(d, i) {console.log( d, i)})
 
 

@@ -1,14 +1,14 @@
-.container{
+.realtimechart{
 
     width: 100%;
     height:100%;
 }
 
-svg{
+.realtimechart svg{
     width:100%;
     height:100%;
 }
-text {
+.realtimechart text {
     fill: black;
     font-family: arial;
 		    font-size: 12px;

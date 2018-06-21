@@ -13,12 +13,12 @@ import { FabAreaEqpParamTreeComponent } from '../../../common/fab-area-eqp-param
 
 @Component({
     moduleId: module.id,
-    selector: 'alarm-warning-bad',
-    templateUrl: './alarm-warning-bad.html',
-    styleUrls: ['./alarm-warning-bad.css'],
+    selector: 'realtime-param-trend',
+    templateUrl: './realtimeparamtrend.html',
+    styleUrls: ['./realtimeparamtrend.css'],
     encapsulation: ViewEncapsulation.None
 })
-export class AlarmWarningBadComponent implements OnInit, OnChanges,OnDestroy {
+export class RealtimeParamTrendComponent implements OnInit, OnChanges,OnDestroy {
     @ViewChild('chartPopup') chartPopup: wjcInput.Popup;
     @ViewChild('popupBody') popupBody: ElementRef;
     @ViewChild('AWChart') AWChart: any;

@@ -1,29 +1,24 @@
-<div class="row">
-    <div class="col-md-2">
-            <button (click)="requestMonitoring()" class="btn btn-info"> Send</button>
-            <fab-area-eqp-param-tree #tree ></fab-area-eqp-param-tree>
+
+<div class="realtimeparamtrend row">
+    <div class="col-md-2 tree-container">
+
+        <div class="tree-div">
+            <fab-area-eqp-param-tree #tree></fab-area-eqp-param-tree>
+        </div>
+        <br>
+        <br>
+        <button (click)="requestMonitoring()" class="btn btn-primary"> Start</button>
 
     </div>
 
-    <div class="col-md-10">
+    <div class="col-md-10 chart-container">
         <div class="trend-chart" *ngFor="let awData of paramDatas; let i = index;" #AWChart>
-            <div>
-                <span>{{awData.eqpName}}-{{awData.paramName}}</span>
+            <div class="chart-title">
+                <label>EQP Name:{{awData.eqpName}} Parameter Name:{{awData.paramName}}</label>
             </div>
-            <div class="trend-chart-button pull-right">
-                <!-- <button class="btn btn-default" id="wjPopup" (click)="expandChart($event, AWChart, i, awData.type)">
-            <i class="fa fa-search-plus"></i>
-        </button> -->
-                <button *ngIf="awData.datas.length > 0" class="btn btn-default" (click)="showLegend(awData, i);">
-                    <i class="fa fa-bar-chart" data-toggle="dropdown"></i>
-                </button>
-            </div>
-            <div class="chart-area" *ngIf="awData.datas.length > 0" (mouseover)="mouseover($event, awData, i, AWChart);">
-                <!-- <a3c-bistel-chart id="AWChart" #AWChart (click)="onChartClick($event, awData, i, AWChart);" [data]="awData.datas" [config]="awData.config"
-                    [chartEvents]="awData.chartEvent" [eventLines]="awData.eventLines" style="width: 100%;" class="chart-body">
-                </a3c-bistel-chart> -->
-                <realtime-chart [timeWindow]="60000" [shiftTime]="1000" [alarmSpec]="0.9" [datas]="awData.datas"></realtime-chart>
 
+            <div class="chart-area" *ngIf="awData.datas.length > 0" (mouseover)="mouseover($event, awData, i, AWChart);">
+                <realtime-chart [timeWindow]="60000" [shiftTime]="1000" [alarmSpec]="0.9" [datas]="awData.datas"></realtime-chart>
             </div>
         </div>
     </div>
