@@ -44,3 +44,9 @@ aggregation > input{
 	width:100%;
 	overflow: auto;
 }
+
+.candoit{
+	color: #fff !important;
+    background-color: #5bc0de  !important;
+    border-color: #46b8da  !important;
+}

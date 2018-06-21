@@ -22,6 +22,9 @@ export class ModelingSimulatorChartComponent implements OnInit, OnChanges, DoChe
 
     ];
     statusEventConfig = [];
+
+    sort={parameter:'none',adHoc:'none'};
+
     trendConfig: any = {
         legend: {
             show: false,
@@ -93,20 +96,9 @@ export class ModelingSimulatorChartComponent implements OnInit, OnChanges, DoChe
 
     ngOnInit() {
 
-        // let startDateTime = new Date().getTime() - 100 * 1000;
-        // for (let i = 0; i < this.params.length; i++) {
-        //     let datas = [];
-        //     for (let j = 0; j < 100; j++) {
-        //         datas.push([new Date(startDateTime + j * 1000), this.randomRange(1, 100)]);
-        //     }
-        //     this.params[i].datas.push(datas);
-        // }
 
-        // this.events.push([this.params[0].datas[0][10][0], this.params[0].datas[0][15][0]]);
-
-        // this.events.push([this.params[0].datas[0][20][0], this.params[0].datas[0][40][0]]);
-
-        // this.events.push([this.params[0].datas[0][70][0], this.params[0].datas[0][80][0]]);
+    }
+    public init(){
 
     }
     randomRange(maximum, minimum) {
@@ -119,6 +111,54 @@ export class ModelingSimulatorChartComponent implements OnInit, OnChanges, DoChe
     ngDoCheck() {
         //    this.selectecItemAction();
         //        console.log(this.displayName+":"+this.selectedItems.length);
+    }
+    sortByKey(array, key,sortType) {
+       
+        return array.sort(function(a, b) {
+            var x = a[key]; var y = b[key];
+            if(sortType=="asc"){
+                return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+            }else{
+                return ((x > y) ? -1 : ((x < y) ? 1 : 0));
+            }
+            
+        });
+    }
+    sortClick(type){
+
+        if(type=='parameter'){
+            if(this.sort.parameter!='none'){
+                if(this.sort.parameter=="asc"){
+                    this.sort.parameter="desc";
+                    this.sortByKey(this.params,"name",'desc');
+                }else{
+                    this.sort.parameter="asc";
+                    this.sortByKey(this.params,"name",'asc');
+                }
+            }else{
+                this.sort.parameter="asc";
+                this.sortByKey(this.params,"name",'asc');
+            }
+
+            this.sort.adHoc="none";
+
+        }else{
+            if(this.sort.adHoc!='none'){
+                if(this.sort.adHoc=="asc"){
+                    this.sort.adHoc="desc";
+                    this.sortByKey(this.params,"adHoc",'desc');
+                }else{
+                    this.sort.adHoc="asc";
+                    this.sortByKey(this.params,"adHoc",'asc');
+                }
+            }else{
+                this.sort.adHoc="asc";
+                this.sortByKey(this.params,"adHoc",'asc');
+            }
+
+            this.sort.parameter="none";
+        }
+
     }
     setStatusEventConfig() {
         this.statusEventConfig = [];

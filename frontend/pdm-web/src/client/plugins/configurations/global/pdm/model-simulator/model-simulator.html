@@ -5,6 +5,7 @@
     </div>
 </div>
 <div id="container">
+        <div a3-spinner #componentSpinner [type]="'component'" ></div>
     <table>
         <tr class="modeling-container">
             <td class='condition'>
@@ -21,15 +22,15 @@
                 <br>
                 <br>
                 <div class="eqp-tree">
-                    <fab-area-eqp-param-tree #tree></fab-area-eqp-param-tree>
+                    <fab-area-eqp-param-tree (changeParamSelection)="nodeClick($event)" #tree></fab-area-eqp-param-tree>
                 </div>
                 <br>
-                <button class="btn btn-primary" (click)="drawChart()">Draw Chart</button>
-                <button class="btn btn-primary" (click)="drawEvent()">Draw Event</button>
+                <button class="btn btn-primary" [ngClass]="{candoit:treeParamSelect}" (click)="drawChart()" [disabled]='this.showProgress||treeParamSelect==false'>Draw Chart</button>
+                <button class="btn btn-primary" [ngClass]="{candoit:canDrawEvent && selectedParam}" (click)="drawEvent()" [disabled]='canDrawEvent==false  || this.showProgress || selectedParam==false'>Draw Event</button>
             </td>
             <td class="chart">
                 <div class="chart-container">
-                    <modeling-chart #modelChart [params]="paramDatas" [eventLines]="eventLines"></modeling-chart>
+                    <modeling-chart #modelChart [params]="paramDatas" [eventLines]="eventLines" (selectParam)="selectParam($event)"></modeling-chart>
                 </div>
 
             </td>
@@ -39,14 +40,14 @@
                 <div class="a3-from-to" [from]="searchTimePeriod2?.from" [to]="searchTimePeriod2?.to" [format]="'yyyy/MM/dd hh:mm:ss'" (changedFromTo)="fromToChange2($event)"></div>
                 <br>
                 <div class="eqp-tree">
-                    <fab-area-eqp-param-tree #tree2></fab-area-eqp-param-tree>
+                    <fab-area-eqp-param-tree (changeParamSelection)="nodeClick2($event)" #tree2></fab-area-eqp-param-tree>
                 </div>
                 <br>
                 <div class="aggregation" >
                     <label>Ad-Hoc Functions</label>
                     <div *ngFor="let item of aggregations; let i=index">
                         <label>
-                            <input type="checkbox" [(ngModel)]="item.checked"> {{item.f}}
+                            <input type="checkbox" [(ngModel)]="item.checked" (change)="clickCheck()"> {{item.f}}
                         </label>
                     </div>
                 </div>
@@ -56,11 +57,11 @@
                     <label>minutes</label>
                 </div>
                 <br>
-                <button class="btn btn-primary" (click)="AdHocSummary()">Ad-Hoc Summary</button>
+                <button class="btn btn-primary"  [ngClass]="{candoit:canDrawAdHoc&& aggregationChecked && tree2ParamSelect}" (click)="adHocSummary()" [disabled]='canDrawAdHoc==false || this.showProgress || aggregationChecked==false || tree2ParamSelect==false'>Ad-Hoc Summary</button>
             </td>
             <td class="chart">
                 <div class="chart-container">
-                    <modeling-simulator-chart [params]="simulation_params"></modeling-simulator-chart>
+                    <modeling-simulator-chart #simulationChart [params]="simulation_params"></modeling-simulator-chart>
                 </div>
 
             </td>

@@ -13,8 +13,8 @@ export class ModelingChartComponent implements OnInit, OnChanges, DoCheck {
 
     @Input() params;
     @Input() eventLines;
-    
-    selectedParam;
+    @Output() selectParam = new EventEmitter<any>();
+    selectedParamId;
     conditionValue;
     conditionParamId;
     // params = [
@@ -93,6 +93,7 @@ export class ModelingChartComponent implements OnInit, OnChanges, DoCheck {
             console.log(ev);
         }
     };
+    sort={parameter:'none',adHoc:'none'};
     constructor() { }
 
     ngOnInit() {
@@ -123,6 +124,63 @@ export class ModelingChartComponent implements OnInit, OnChanges, DoCheck {
     ngDoCheck() {
         //    this.selectecItemAction();
         //        console.log(this.displayName+":"+this.selectedItems.length);
+    
+    }
+    sortByKey(array, key,sortType) {
+       
+        return array.sort(function(a, b) {
+            var x = a[key]; var y = b[key];
+            if(sortType=="asc"){
+                return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+            }else{
+                return ((x > y) ? -1 : ((x < y) ? 1 : 0));
+            }
+            
+        });
+    }
+    sortClick(type){
+
+        if(type=='parameter'){
+            if(this.sort.parameter!='none'){
+                if(this.sort.parameter=="asc"){
+                    this.sort.parameter="desc";
+                    this.sortByKey(this.params,"name",'desc');
+                }else{
+                    this.sort.parameter="asc";
+                    this.sortByKey(this.params,"name",'asc');
+                }
+            }else{
+                this.sort.parameter="asc";
+                this.sortByKey(this.params,"name",'asc');
+            }
+
+            this.sort.adHoc="none";
+
+        }else{
+            if(this.sort.adHoc!='none'){
+                if(this.sort.adHoc=="asc"){
+                    this.sort.adHoc="desc";
+                    this.sortByKey(this.params,"adHoc",'desc');
+                }else{
+                    this.sort.adHoc="asc";
+                    this.sortByKey(this.params,"adHoc",'asc');
+                }
+            }else{
+                this.sort.adHoc="asc";
+                this.sortByKey(this.params,"adHoc",'asc');
+            }
+
+            this.sort.parameter="none";
+        }
+
+    }
+    public init(){
+        this.selectedParamId=null;
+        this.conditionValue=null;
+        this.conditionParamId=null;
+    }
+    public initEvent(){
+
     }
     setStatusEventConfig() {
         this.statusEventConfig = [];
@@ -211,10 +269,14 @@ export class ModelingChartComponent implements OnInit, OnChanges, DoCheck {
             });
         }
 
+        let param = null;
         for(let i=0;i<this.params.length;i++){
             this.params[i]['eventLines'] = this.statusEventConfig;
+            if(this.selectedParamId!=null && this.selectedParamId==this.params[i].paramId){
+                param = this.params[i];
+            }
         }
-
+        this.drawConditionLine(param);
     }
 
     onChange(event, param) {
@@ -222,6 +284,8 @@ export class ModelingChartComponent implements OnInit, OnChanges, DoCheck {
         this.drawConditionLine(param);
     }
     onClickParam(param) {
+        this.selectParam.emit(param);
+
         this.conditionValue = param.datas[0].map(a=>a[1]).reduce((a,b)=>{
             return a+b;
         })/param.datas[0].length;
@@ -230,11 +294,12 @@ export class ModelingChartComponent implements OnInit, OnChanges, DoCheck {
 
         this.setStatusEventConfig();
         this.drawConditionLine(param);
+       
     }
     drawConditionLine(param) {
         let selectedParamObj = null;
         for (let i = 0; i < this.params.length; i++) {
-            this.params[i]['eventLines'] = [];
+            // this.params[i]['eventLines'] = [];
             if (this.params[i].name == param.name) {
                 selectedParamObj = this.params[i];
                 this.params[i].isEventParam = true;
@@ -292,10 +357,13 @@ export class ModelingChartComponent implements OnInit, OnChanges, DoCheck {
             }
         });
         eventLines = eventLines.concat(this.statusEventConfig);
-        selectedParamObj.eventLines = eventLines;
+        if(selectedParamObj!=null){
+            selectedParamObj.eventLines = eventLines;
+        }
+        
     }
     public getParamId(){
-        return this.selectedParam;
+        return this.selectedParamId;
     }
     public getConditionValue(){
         return this.conditionValue;

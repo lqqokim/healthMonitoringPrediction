@@ -18,6 +18,7 @@ export class FabAreaEqpParamTreeComponent implements OnInit, AfterViewInit, OnCh
     @ViewChild('componentSpinner') componentSpinner: SpinnerComponent;
     @ViewChild('tv') tv;
     @Output() nodeClick: EventEmitter<any> = new EventEmitter();
+    @Output() changeParamSelection: EventEmitter<any> = new EventEmitter();
     @Input() fab: any;
 
     public selectedFab: any;
@@ -261,10 +262,12 @@ export class FabAreaEqpParamTreeComponent implements OnInit, AfterViewInit, OnCh
         if(ev.type=="node"){
             this.selectedItem.isChecked = !this.selectedItem.isChecked;
             this.changeChecked(this.selectedItem,this.selectedItem.isChecked);
+            this.changeParamSelection.emit([this.selectedItem]);
         }
        
         // this.selectedNode = ev.treeview.selectedNode;
         this.nodeClick.emit(ev);
+        
 
         this.autoScroll();
 
@@ -538,6 +541,8 @@ export class FabAreaEqpParamTreeComponent implements OnInit, AfterViewInit, OnCh
 
                 // this._getParts(params);
                 this.selectedItem.children = params;
+
+                this.changeParamSelection.emit(params);
             }).catch((error: any) => {
 
             });

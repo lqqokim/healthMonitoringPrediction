@@ -41,3 +41,6 @@ table td{
 .param-info{
     height: 250px;
 }
+.sortable:hover{
+     cursor:pointer;
+}
