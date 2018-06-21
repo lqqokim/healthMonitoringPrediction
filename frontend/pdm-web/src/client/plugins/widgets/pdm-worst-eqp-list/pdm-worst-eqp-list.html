@@ -6,11 +6,22 @@
         </dl>
         <dl>
             <dt>Time Period</dt>
+<<<<<<< .merge_file_a06036
             <dd>2018.05.25 00:00 ~ 2018.05.26 00:00</dd>
         </dl>
     </div>
 
     <tree [tree]="tree"></tree>
+=======
+            <dd>{{viewTimeperiod()}}</dd>
+        </dl>
+        <ol *ngFor="let row of drawColors">
+            <li><i [style.background]="row.color"></i>{{row.name}}</li>
+        </ol>
+    </div>
+
+    <!-- <tree [tree]="tree"></tree> '-->
+>>>>>>> .merge_file_a11340
 
     <div list>
         <div head>
@@ -21,6 +32,7 @@
                 <li status>Status Change</li>
             </ul>
         </div>
+<<<<<<< .merge_file_a06036
         <div cont>
             <ul>
                 <li num>1</li>
@@ -51,6 +63,20 @@
                 <li equi>EQP97</li>
                 <li score>0.66</li>
                 <li status>#</li>
+=======
+        <div cont *ngFor="let item of listData">
+            <ul>
+                <li num>{{item.order}}</li>
+                <li equi>{{item.equipment}}</li>
+                <li score>{{item.score}}</li>
+                <li status>
+                    <status-change
+                        [statusData]="item.status"
+                        [timePeriod]="timePeriod"
+                        [drawColors]="drawColors"
+                    ></status-change>
+                </li>
+>>>>>>> .merge_file_a11340
             </ul>
         </div>
     </div>
