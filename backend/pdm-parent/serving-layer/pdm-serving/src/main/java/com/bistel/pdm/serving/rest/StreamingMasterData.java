@@ -3,6 +3,7 @@ package com.bistel.pdm.serving.rest;
 import com.bistel.pdm.common.json.*;
 import com.bistel.pdm.serving.Exception.Message;
 import com.bistel.pdm.serving.jdbc.dao.ParamFeatureDataDao;
+import com.bistel.pdm.serving.jdbc.dao.ParamHealthDataDao;
 import com.bistel.pdm.serving.jdbc.dao.ParameterSpecDataDao;
 import com.bistel.pdm.serving.jdbc.dao.StreamingMasterDataDao;
 import org.slf4j.Logger;
@@ -109,6 +110,24 @@ public class StreamingMasterData {
             featureDataSet = repository.getAllFeatures();
             log.info("Provides the latest feature info. count={}", featureDataSet.size());
             return Response.status(Response.Status.OK).entity(featureDataSet).build();
+
+        } catch (SQLException e) {
+            log.error(e.getMessage(), e);
+            return Response.status(Response.Status.NOT_FOUND).entity(new Message(e.getMessage())).build();
+        }
+    }
+
+    @GET
+    @Path("/latest/health")
+    public Response reloadParamHealthAll() {
+
+        ParamHealthDataDao repository = new ParamHealthDataDao();
+        List<ParameterHealthDataSet> healthDataSet = null;
+
+        try {
+            healthDataSet = repository.getParamHealthDataSet();
+            log.info("Provides the latest feature info. count={}", healthDataSet.size());
+            return Response.status(Response.Status.OK).entity(healthDataSet).build();
 
         } catch (SQLException e) {
             log.error(e.getMessage(), e);

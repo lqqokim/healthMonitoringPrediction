@@ -28,7 +28,8 @@ public abstract class AbstractPipeline implements Closeable {
     private final String outputFeatureTopic = "pdm-output-feature";
     private final String outputFaultTopic = "pdm-output-fault";
 
-    private final String featureTopic = "pdm-feature";
+    private final String routeTraceRunTopic = "pdm-route-run";
+    private final String routeFeatureTopic = "pdm-route-feature";
 
     protected AbstractPipeline(String brokers, String schemaUrl, String servingAddr) {
 //        Objects.requireNonNull(config);
@@ -64,7 +65,11 @@ public abstract class AbstractPipeline implements Closeable {
         log.info("call to {}", targetUrl);
         MasterDataUpdater.updateParamFeatureDataSet(targetUrl);
 
-        log.info("all master data(equipment, param, event, spec, features) is reloaded.");
+        targetUrl = servingAddr + "/pdm/api/master/latest/health";
+        log.info("call to {}", targetUrl);
+        MasterDataUpdater.updateParamHealthDataSet(targetUrl);
+
+        log.info("all master data(equipment, param, event, spec, features, health) is reloaded.");
     }
 
     protected abstract String getApplicationId();
@@ -101,11 +106,15 @@ public abstract class AbstractPipeline implements Closeable {
         return outputFaultTopic;
     }
 
-    public String getFeatureTopic() {
-        return featureTopic;
+    public String getRouteFeatureTopic() {
+        return routeFeatureTopic;
     }
 
     public String getSchemaRegistryUrl() {
         return schemaRegistryUrl;
+    }
+
+    public String getRouteTraceRunTopic() {
+        return routeTraceRunTopic;
     }
 }

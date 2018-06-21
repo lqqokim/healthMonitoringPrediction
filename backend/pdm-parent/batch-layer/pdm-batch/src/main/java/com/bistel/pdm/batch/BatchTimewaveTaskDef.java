@@ -1,6 +1,5 @@
 package com.bistel.pdm.batch;
 
-import com.bistel.pdm.batch.processor.*;
 import com.bistel.pdm.common.enums.DataType;
 import com.bistel.pdm.lambda.kafka.AbstractPipeline;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -81,28 +80,29 @@ public class BatchTimewaveTaskDef extends AbstractPipeline {
                         Serdes.String());
 
         topology.addSource("input-trace", "pdm-input-trace");
-        topology.addProcessor("filtering", StreamFilterProcessor::new, "input-trace")
-                .addProcessor("branching", StatusMarkProcessor::new, "filtering")
-                .addStateStore(previousMessageSupplier, "branching")
 
-                .addProcessor("event", EventProcessor::new, "branching")
-                .addSink("output-event", "pdm-output-event", "event");
-
-        topology.addProcessor("trace", TraceProcessor::new, "branching")
-                .addStateStore(processingWindowSupplier, "trace")
-                .addSink("output-trace", "pdm-output-trace", "trace")
-                .addSink("features", "pdm-features", "trace")
-
-                .addProcessor("fd-01", FD01Processor::new, "trace")
-                .addSink("fault-01", "pdm-output-fault", "fd-01");
-
-
-        topology.addSource("input-features", "pdm-features")
-                .addSink("output-features", "pdm-output-features", "input-features");
-
-        topology.addProcessor("fd-02", FD01Processor::new, "input-features");
-//        topology.addProcessor("fd-03", FD01Processor::new, "input-features");
-//        topology.addProcessor("fd-04", FD01Processor::new, "input-features");
+//        topology.addProcessor("filtering", StreamFilterProcessor::new, "input-trace")
+//                .addProcessor("branching", StatusMarkProcessor::new, "filtering")
+//                .addStateStore(previousMessageSupplier, "branching")
+//
+//                .addProcessor("event", EventProcessor::new, "branching")
+//                .addSink("output-event", "pdm-output-event", "event");
+//
+//        topology.addProcessor("trace", TraceProcessor::new, "branching")
+//                .addStateStore(processingWindowSupplier, "trace")
+//                .addSink("output-trace", "pdm-output-trace", "trace")
+//                .addSink("features", "pdm-features", "trace")
+//
+//                .addProcessor("fd-01", FD01Processor::new, "trace")
+//                .addSink("fault-01", "pdm-output-fault", "fd-01");
+//
+//
+//        topology.addSource("input-features", "pdm-features")
+//                .addSink("output-features", "pdm-output-features", "input-features");
+//
+//        topology.addProcessor("fd-02", FD01Processor::new, "input-features");
+////        topology.addProcessor("fd-03", FD01Processor::new, "input-features");
+////        topology.addProcessor("fd-04", FD01Processor::new, "input-features");
 
         return new KafkaStreams(topology, getStreamProperties());
     }

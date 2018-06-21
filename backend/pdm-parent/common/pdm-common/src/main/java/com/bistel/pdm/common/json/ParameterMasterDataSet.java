@@ -38,7 +38,7 @@ public class ParameterMasterDataSet {
     private Float lowerAlarmSpec;
 
     public String toKey(){
-        return this.areaName  + "," + this.equipmentName  + ":" + this.parameterName;
+        return this.areaName  + "," + this.equipmentName;
     }
 
     public String getAreaName() {

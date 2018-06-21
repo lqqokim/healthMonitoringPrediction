@@ -63,27 +63,19 @@ public class BatchTraceTaskDef extends AbstractPipeline {
 
         topology.addSource("input-trace", this.getInputTraceTopic());
         topology.addProcessor("filtering", StreamFilterProcessor::new, "input-trace")
-                .addProcessor("branching", StatusMarkProcessor::new, "filtering")
-                .addStateStore(previousMessageSupplier, "branching")
-
-                .addProcessor("event", EventProcessor::new, "branching")
+                .addProcessor("marking", StatusMarkProcessor::new, "filtering")
+                .addSink("output-trace", this.getOutputTraceTopic(), "marking")
+                .addProcessor("event-extractor", EventExtractorProcessor::new, "marking")
+                .addStateStore(previousMessageSupplier, "event-extractor")
+                .addProcessor("event", EventProcessor::new, "event-extractor")
                 .addSink("output-event", this.getOutputEventTopic(), "event");
 
-        topology.addProcessor("trace", TraceProcessor::new, "branching")
+        topology.addProcessor("aggregator", FeatureAggregatorProcessor::new, "event")
                 .addStateStore(processingWindowSupplier, "trace")
-                .addSink("output-trace", this.getOutputTraceTopic(), "trace")
-                .addSink("features", this.getFeatureTopic(), "trace")
+                .addSink("route-run", this.getRouteTraceRunTopic(), "aggregator")
+                .addSink("route-feature", this.getRouteFeatureTopic(), "aggregator")
+                .addSink("output-feature", this.getOutputFeatureTopic(), "aggregator");
 
-                .addProcessor("fd-01", FD01Processor::new, "trace")
-                .addSink("fault-01", this.getOutputFaultTopic(), "fd-01");
-
-
-        topology.addSource("input-features", this.getFeatureTopic())
-                .addSink("output-features", this.getOutputFeatureTopic(), "input-features");
-
-        topology.addProcessor("fd-02", FD01Processor::new, "input-features");
-//        topology.addProcessor("fd-03", FD01Processor::new, "input-features");
-//        topology.addProcessor("fd-04", FD01Processor::new, "input-features");
 
         return new KafkaStreams(topology, getStreamProperties());
     }

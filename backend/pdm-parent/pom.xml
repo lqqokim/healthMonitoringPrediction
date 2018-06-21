@@ -79,6 +79,7 @@
         <flywaydb.version>5.0.7</flywaydb.version>
         <querydsl.version>4.2.1</querydsl.version>
         <guice.version>4.2.0</guice.version>
+        <antlr.version>4.7</antlr.version>
         <junit.version>4.12</junit.version>
         <assertj.version>3.8.0</assertj.version>
         <curator-test.version>4.0.1</curator-test.version>
@@ -283,6 +284,13 @@
                 <groupId>org.scala-lang</groupId>
                 <artifactId>scala-reflect</artifactId>
                 <version>${scala.complete.version}</version>
+            </dependency>
+
+            <!-- for relational operators parser -->
+            <dependency>
+                <groupId>org.antlr</groupId>
+                <artifactId>antlr4-runtime</artifactId>
+                <version>${antlr.version}</version>
             </dependency>
 
             <!-- configuration -->

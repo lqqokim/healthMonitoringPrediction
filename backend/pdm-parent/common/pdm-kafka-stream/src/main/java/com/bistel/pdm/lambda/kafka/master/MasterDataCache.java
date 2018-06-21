@@ -1,6 +1,7 @@
 package com.bistel.pdm.lambda.kafka.master;
 
 import com.bistel.pdm.common.json.EventMasterDataSet;
+import com.bistel.pdm.common.json.ParameterHealthDataSet;
 import com.bistel.pdm.common.json.ParameterMasterDataSet;
 import com.bistel.pdm.common.json.ParameterSpecDataSet;
 
@@ -22,6 +23,9 @@ public class MasterDataCache {
 
     // upper/lower alarm, warning
     private final Map<Long, List<ParameterSpecDataSet>> paramSpecDataSet = new ConcurrentHashMap<>();
+
+    // health logic
+    private final Map<Long, List<ParameterHealthDataSet>> paramHealthDataSet = new ConcurrentHashMap<>();
 
     // param_rawid : feature_rawid, param_name, feature_name, main_yn
     private final Map<Long, List<String[]>> featureDataSet = new ConcurrentHashMap<>();
@@ -51,6 +55,21 @@ public class MasterDataCache {
 
     public Map<String, List<EventMasterDataSet>> getEventMasterDataSet() {
         return eventMasterDataSet;
+    }
+
+    public Map<Long, List<ParameterHealthDataSet>> getParamHealthDataSet() {
+        return paramHealthDataSet;
+    }
+
+    public ParameterHealthDataSet getParamHealthFD01(Long key){
+        ParameterHealthDataSet healthData = null;
+        for(ParameterHealthDataSet health : this.paramHealthDataSet.get(key)){
+            if(health.getHealthCode().equalsIgnoreCase("FD_OOS")){
+                healthData = health;
+                break;
+            }
+        }
+        return healthData;
     }
 
     public EventMasterDataSet getEventForProcess(String key) {
