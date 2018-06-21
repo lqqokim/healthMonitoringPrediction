@@ -6,11 +6,14 @@
         </dl>
         <dl>
             <dt>Time Period</dt>
-            <dd>2018.05.25 00:00 ~ 2018.05.26 00:00</dd>
+            <dd>{{viewTimeperiod()}}</dd>
         </dl>
+        <ol *ngFor="let row of drawColors">
+            <li><i [style.background]="row.color"></i>{{row.name}}</li>
+        </ol>
     </div>
 
-    <tree [tree]="tree"></tree>
+    <!-- <tree [tree]="tree"></tree> '-->
 
     <div list>
         <div head>
@@ -21,36 +24,19 @@
                 <li status>Status Change</li>
             </ul>
         </div>
-        <div cont>
+
+        <div cont *ngFor="let item of listData">
             <ul>
-                <li num>1</li>
-                <li equi>EQP34</li>
-                <li score>0.83</li>
-                <li status>#</li>
-            </ul>
-            <ul>
-                <li num>2</li>
-                <li equi>EQP51</li>
-                <li score>0.75</li>
-                <li status>#</li>
-            </ul>
-            <ul>
-                <li num>3</li>
-                <li equi>EQP02</li>
-                <li score>0.72</li>
-                <li status>#</li>
-            </ul>
-            <ul>
-                <li num>4</li>
-                <li equi>EQP14</li>
-                <li score>0.69</li>
-                <li status>#</li>
-            </ul>
-            <ul>
-                <li num>5</li>
-                <li equi>EQP97</li>
-                <li score>0.66</li>
-                <li status>#</li>
+                <li num>{{item.order}}</li>
+                <li equi>{{item.equipment}}</li>
+                <li score>{{item.score}}</li>
+                <li status>
+                    <status-change
+                        [statusData]="item.status"
+                        [timePeriod]="timePeriod"
+                        [drawColors]="drawColors"
+                    ></status-change>
+                </li>
             </ul>
         </div>
     </div>

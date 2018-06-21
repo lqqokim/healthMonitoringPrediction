@@ -65,6 +65,7 @@ declare var Boxplot: any;
 declare var BulletBar: any;
 declare var BulletTime: any;
 declare var c3Chart: any;
+// declare var c3: any;
 // Column
 declare var ColumnChart: any;
 declare var ColumnArea: any;

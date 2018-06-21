@@ -6,7 +6,9 @@ import { BISTEL_SDKModule } from '../../../sdk/sdk.module';
 
 // This Module's Components
 import { PdmWostEqpListComponent } from './pdm-worst-eqp-list.component';
+import { StatusChangeComponent } from './components/status-change.component';
 // import { TreeModule } from 'ng2-tree';
+
 
 @NgModule({
     imports: [
@@ -15,7 +17,8 @@ import { PdmWostEqpListComponent } from './pdm-worst-eqp-list.component';
         // TreeModule
     ],
     declarations: [
-        PdmWostEqpListComponent
+        PdmWostEqpListComponent,
+        StatusChangeComponent
     ],
     exports: [
         PdmWostEqpListComponent
