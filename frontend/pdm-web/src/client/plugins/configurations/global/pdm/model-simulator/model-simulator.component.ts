@@ -57,13 +57,14 @@ export class ModelSimulatorComponent implements OnInit {
 
     aggregations = [
         { f: 'Mean', checked: false },
+        { f: 'STD DEV', checked: false },
         { f: 'Max', checked: false },
-        { f: 'Min', checked: false },
-        { f: 'Median', checked: false},
-        { f: 'Sum', checked: false },
-        { f: 'Q1', checked: false },
         { f: 'Q3', checked: false },
+        { f: 'Median', checked: false},
+        { f: 'Q1', checked: false },
+        { f: 'Min', checked: false },
         { f: 'Count', checked: false },
+        { f: 'Sum', checked: false },
     ];
     aggregationChecked = false;
     aggregationTime = 1;
@@ -272,8 +273,8 @@ export class ModelSimulatorComponent implements OnInit {
                     this.searchTimePeriod2.from, this.searchTimePeriod2.to, conditionParamId, conditionValue, adHocFunctions, this.aggregationTime, this.eventType).subscribe((datas) => {
 
                         let keys = Object.keys(datas);
-                        for (let i = 0; i < keys.length; i++) {
-                            this.simulation_params.push({ name: parameters[i].name, adHoc: keys[i], datas: [datas[keys[i]]] });
+                        for (let j = 0; j < keys.length; j++) {
+                            this.simulation_params.push({ name: parameters[i].name, adHoc: keys[j], datas: [datas[keys[j]]] });
                         }
 
                         this.current++;

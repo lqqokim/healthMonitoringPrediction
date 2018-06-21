@@ -1,10 +1,10 @@
 <div class="pdm-configuration-builder master-info clearfix">
-    <div class="pdm-wijmo-body">
+    <div class="pdm-body">
         <div class="fab-label" *ngIf="!fab">
             <!-- <span class="title" style="border: 0px solid; border-radius: 5px;background-color: #25447D;width: 281px;color: white;">
                     Master Data</span> -->
             <label for="inputFab">Fab</label>
-            <select class="form-control" [(ngModel)]="selectedFab" (ngModelChange)="changeSelectedFab($event)" style="width:240px;margin-left:5px;display:inline-block;">
+            <select class="form-control inputFab" [(ngModel)]="selectedFab" (ngModelChange)="changeSelectedFab($event)" >
                 <option *ngFor="let plant of plants" [ngValue]="plant" [selected]="plant.fabId === selectedFab.fabId">
                     {{plant.fabName}}
                 </option>

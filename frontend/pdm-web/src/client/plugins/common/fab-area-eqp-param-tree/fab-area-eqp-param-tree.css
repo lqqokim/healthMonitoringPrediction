@@ -5,12 +5,17 @@
     position: relative;
 }
 
-.pdm-configuration-builder .pdm-wijmo-body {
-    width: 300px;
+.pdm-configuration-builder .pdm-body {
+    width: 100%;
     height: 100%;
     padding: 10px;
     float: left;
     border-right: 1px solid #eee;
+}
+.pdm-configuration-builder .inputFab{
+    width:calc(100% - 20px);
+    margin-left:5px;
+    display:inline-block;
 }
 .pdm-configuration-builder .pdm-master-body {
     width: calc(100% - 300px);

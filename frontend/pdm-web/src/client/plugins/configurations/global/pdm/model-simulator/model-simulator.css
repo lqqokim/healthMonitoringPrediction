@@ -1,51 +1,51 @@
-#container ,table{
+.model-simulator ,table{
 	width:100%;
 	height:100%;
 	overflow: auto;
 }
-table{
+.model-simulator table{
 	width:100%;
 	height:100%;
 }
 
-.condition{
-	width: 190px;
+.model-simulator .condition{
+	width: 250px;
     padding: 10px;
 	border: solid 1px gray;
 	vertical-align: top;
 }
-.chart{
+.model-simulator .chart{
 	padding:10px;
 	border: solid 1px gray;
 }
-.eqp-tree{
+.model-simulator .eqp-tree{
 	height:300px;
 	overflow: auto;
 	border: solid 1px lightgray;
 }
 
-.progress{
+.model-simulator .progress{
 	width:100%;
 }
-.aggregation{
+.model-simulator .aggregation{
 	width: 100%;
     padding: 10px;
 	border: solid 1px lightgray;
 }
-aggregation > input{
+.model-simulator aggregation > input{
 	width:70px;
 }
 
-.modeling-container{
+.model-simulator .modeling-container{
 	height:800px;
 }
-.chart-container{
+.model-simulator .chart-container{
 	height:100%;
 	width:100%;
 	overflow: auto;
 }
 
-.candoit{
+.model-simulator .candoit{
 	color: #fff !important;
     background-color: #5bc0de  !important;
     border-color: #46b8da  !important;

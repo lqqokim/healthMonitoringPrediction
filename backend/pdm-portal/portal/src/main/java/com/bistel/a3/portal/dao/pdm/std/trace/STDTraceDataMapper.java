@@ -65,6 +65,8 @@ public interface STDTraceDataMapper {
     List<HashMap<String,Object>> selectFilterTraceDataByEqpIdWithAggregation(@Param("eqpId") Long eqpId,@Param("start") Date start, @Param("end") Date end,@Param("filterDatas") List<FilterCriteriaData> filterDatas,@Param("aggregationData") FilterAggregation aggregationData);
 
     List<HashMap<String,Object>> selectTraceAggregationByEvent(@Param("paramId") Long paramId,@Param("start") Date start, @Param("end") Date end,@Param("eventType") String eventType, @Param("adHocTime") Integer adHocTime);
+    List<HashMap<String,Object>> selectTraceAggregationByEventWithConditionValue(@Param("paramId") Long paramId,@Param("start") Date start, @Param("end") Date end,@Param("eventType") String eventType, @Param("adHocTime") Integer adHocTime);
 }
+
 
 

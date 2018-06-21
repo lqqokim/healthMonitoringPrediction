@@ -1,24 +1,28 @@
-.param-container{
+.modeling-chart{
+    width:100%;
+    height: 100%;
+}
+.modeling-chart .param-container{
     width:100%;
     height:200px;
 }
 
-.chart-container{
+.modeling-chart .chart-container{
     /* width:100%; */
     height:100%;
 }
 
-.conditionValue{
+.modeling-chart .conditionValue{
     width:80px;
 }
 
 
-table{
+.modeling-chart table{
     width:100%;
     height:100%;
 }
 
-table th{
+.modeling-chart table th{
     font-size: 14px;
     font-weight: normal;
     color: #039;
@@ -26,16 +30,16 @@ table th{
     padding: 10px 8px;  
     text-align: center;
 }
-table tr{
+.modeling-chart table tr{
     border-bottom: 1px solid #ddd;
 }
-table td{
+.modeling-chart table td{
     text-align: left;
 }
-.param-info{
+.modeling-chart .param-info{
     height: 250px;
 }
 
-.parameter{
+.modeling-chart .parameter{
     width:140px;
 }

@@ -968,6 +968,7 @@ public class TraceDataService implements ITraceDataService {
         List<List<Object>> q1 = new ArrayList<>();
         List<List<Object>> q3 = new ArrayList<>();
         List<List<Object>> sum = new ArrayList<>();
+        List<List<Object>> stddev = new ArrayList<>();
 
 
         for (int i = 0; i < events.size(); i++) {
@@ -1017,6 +1018,11 @@ public class TraceDataService implements ITraceDataService {
                 oneData.add(toEvent.getTime());
                 oneData.add(data.get("Q3"));
                 q3.add(oneData);
+
+                oneData = new ArrayList<>();
+                oneData.add(toEvent.getTime());
+                oneData.add(data.get("STDDEV"));
+                stddev.add(oneData);
             }
 
         }
@@ -1044,6 +1050,9 @@ public class TraceDataService implements ITraceDataService {
         }
         if(adHocFunctions.contains("Q3")){
             result.put("Q3",q3);
+        }
+        if(adHocFunctions.contains("STD DEV")){
+            result.put("STD DEV",stddev);
         }
 
 
