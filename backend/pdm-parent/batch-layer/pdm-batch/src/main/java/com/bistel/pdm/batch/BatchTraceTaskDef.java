@@ -57,7 +57,13 @@ public class BatchTraceTaskDef extends AbstractPipeline {
 
         StoreBuilder<KeyValueStore<String, String>> previousMessageSupplier =
                 Stores.keyValueStoreBuilder(
-                        Stores.persistentKeyValueStore("persistent-previous"),
+                        Stores.persistentKeyValueStore("sustain-previous"),
+                        Serdes.String(),
+                        Serdes.String());
+
+        StoreBuilder<KeyValueStore<String, String>> eventTimeSupplier =
+                Stores.keyValueStoreBuilder(
+                        Stores.persistentKeyValueStore("sustain-eventtime"),
                         Serdes.String(),
                         Serdes.String());
 
@@ -71,11 +77,11 @@ public class BatchTraceTaskDef extends AbstractPipeline {
                 .addSink("output-event", this.getOutputEventTopic(), "event");
 
         topology.addProcessor("aggregator", FeatureAggregatorProcessor::new, "event")
-                .addStateStore(processingWindowSupplier, "trace")
+                .addStateStore(processingWindowSupplier, "aggregator")
+                .addStateStore(eventTimeSupplier, "aggregator")
                 .addSink("route-run", this.getRouteTraceRunTopic(), "aggregator")
                 .addSink("route-feature", this.getRouteFeatureTopic(), "aggregator")
                 .addSink("output-feature", this.getOutputFeatureTopic(), "aggregator");
-
 
         return new KafkaStreams(topology, getStreamProperties());
     }

@@ -25,7 +25,9 @@ public class FeatureAggregatorProcessor extends AbstractProcessor<String, byte[]
 
     private final static String SEPARATOR = ",";
 
-    private KeyValueStore<String, byte[]> kvStore;
+    private KeyValueStore<String, byte[]> kvWindowStore;
+    private KeyValueStore<String, Long> kvEventTimeStore;
+
     //private WindowStore<String, byte[]> kvTempStore;
 
     @Override
@@ -33,9 +35,10 @@ public class FeatureAggregatorProcessor extends AbstractProcessor<String, byte[]
     public void init(ProcessorContext context) {
         super.init(context);
 
-        kvStore = (KeyValueStore) context().getStateStore("processing-window");
-        //kvTempStore = (WindowStore) context().getStateStore("processing-interval");
+        kvWindowStore = (KeyValueStore) context().getStateStore("persistent-window");
+        kvEventTimeStore = (KeyValueStore) context().getStateStore("sustain-eventtime");
 
+        //kvTempStore = (WindowStore) context().getStateStore("processing-interval");
 
 //        // schedule a punctuate() method every 1000 milliseconds based on stream-time
 //        context().schedule(TimeUnit.MINUTES.toMillis(1), PunctuationType.STREAM_TIME, (timestamp) -> {
@@ -81,10 +84,17 @@ public class FeatureAggregatorProcessor extends AbstractProcessor<String, byte[]
         String[] currStatusAndTime = columns[columns.length - 2].split(":");
         String[] prevStatusAndTime = columns[columns.length - 1].split(":");
 
+        if (prevStatusAndTime[0].equalsIgnoreCase("I")
+                && !prevStatusAndTime[0].equalsIgnoreCase(currStatusAndTime[0])) {
+            Long paramTime = parseStringToTimestamp(currStatusAndTime[1]);
+            // start event
+            kvEventTimeStore.put(partitionKey, paramTime);
+        }
+
         if (currStatusAndTime[0].equalsIgnoreCase("R")) {
             Long paramTime = parseStringToTimestamp(currStatusAndTime[1]);
             this.context().forward(partitionKey, streamByteRecord, "route-run"); // detect fault by real-time
-            kvStore.put(partitionKey + ":" + paramTime, streamByteRecord);
+            kvWindowStore.put(partitionKey + ":" + paramTime, streamByteRecord);
 
         } else {
             //end
@@ -98,7 +108,7 @@ public class FeatureAggregatorProcessor extends AbstractProcessor<String, byte[]
                 List<String> keyList = new ArrayList<>();
                 List<byte[]> paramDataList = new ArrayList<>();
 
-                KeyValueIterator<String, byte[]> iter = this.kvStore.all();
+                KeyValueIterator<String, byte[]> iter = this.kvWindowStore.all();
                 while (iter.hasNext()) {
                     KeyValue<String, byte[]> entry = iter.next();
                     String key = entry.key.split(":")[0];
@@ -111,7 +121,7 @@ public class FeatureAggregatorProcessor extends AbstractProcessor<String, byte[]
                 iter.close();
 
                 for (String k : keyList) {
-                    this.kvStore.delete(k);
+                    this.kvWindowStore.delete(k);
                 }
 
                 List<ParameterMasterDataSet> parameterMasterDataSets =
@@ -146,7 +156,7 @@ public class FeatureAggregatorProcessor extends AbstractProcessor<String, byte[]
                         stats.addValue(i);
                     }
 
-                    Long sumStartDtts = parseStringToTimestamp(currStatusAndTime[1]);
+                    Long sumStartDtts = kvEventTimeStore.get(partitionKey);
                     Long sumEndDtts = parseStringToTimestamp(prevStatusAndTime[1]);
 
                     // param rawid, count, max, min, median, avg, stddev, q1, q3, startDtts, endDtts

@@ -29,8 +29,7 @@ public class EventExtractorProcessor extends AbstractProcessor<String, byte[]> {
     public void init(ProcessorContext processorContext) {
         super.init(processorContext);
 
-        // retrieve the key-value store named "processing-previous"
-        kvStore = (KeyValueStore) this.context().getStateStore("processing-previous");
+        kvStore = (KeyValueStore) this.context().getStateStore("sustain-previous");
     }
 
     @Override
@@ -47,6 +46,7 @@ public class EventExtractorProcessor extends AbstractProcessor<String, byte[]> {
         // extract event
         if (kvStore.get(partitionKey) == null) {
             kvStore.put(partitionKey, nowMsgStatusCodeAndTime);
+
         } else {
             prevStatusAndTime = kvStore.get(partitionKey);
             String[] prevStatusCodeAndTime = prevStatusAndTime.split(":");
@@ -70,7 +70,7 @@ public class EventExtractorProcessor extends AbstractProcessor<String, byte[]> {
 
         // time, area, eqp, p1, p2, p3, p4, ... pn,curr_status:time,prev_status:time
         String newMsg = recordValue + "," + prevStatusAndTime;
-        context().forward(partitionKey, newMsg, "aggregation");
+        context().forward(partitionKey, newMsg, "aggregator");
 
         context().commit();
     }

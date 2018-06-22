@@ -61,7 +61,7 @@ public class SpeedTaskDef extends AbstractPipeline {
 
 
         topology.addSource("input-trace-run", this.getRouteTraceRunTopic())
-                .addProcessor("outofspec", DetectOOSProcessor::new, "input-features")
+                .addProcessor("outofspec", DetectOOSProcessor::new, "input-trace-run")
                 .addStateStore(alarmCountSupplier, "outofspec")
                 .addStateStore(warningCountSupplier, "outofspec")
                 .addSink("output-fault", this.getOutputFaultTopic(), "outofspec");
