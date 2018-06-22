@@ -1,0 +1,59 @@
+.equipment-parameter-trend ,table{
+	width:100%;
+	height:100%;
+	overflow: auto;
+}
+.equipment-parameter-trend table{
+	width:100%;
+	height:100%;
+}
+
+.equipment-parameter-trend .condition{
+	width: 250px;
+    padding: 10px;
+	border: solid 1px gray;
+	vertical-align: top;
+}
+.equipment-parameter-trend .chart{
+	padding:10px;
+	border: solid 1px gray;
+}
+.equipment-parameter-trend .eqp-tree{
+    height: calc(100% - 190px);
+    overflow: auto;
+    border: solid 1px lightgray;
+}
+
+.equipment-parameter-trend .progress{
+	width:100%;
+}
+.equipment-parameter-trend .aggregation{
+	width: 100%;
+    padding: 10px;
+	border: solid 1px lightgray;
+}
+.equipment-parameter-trend aggregation > input{
+	width:70px;
+}
+
+.equipment-parameter-trend .modeling-container{
+	height:800px;
+}
+.equipment-parameter-trend .chart-container{
+	height:100%;
+	width:100%;
+	overflow: auto;
+}
+
+.equipment-parameter-trend .candoit{
+	color: #fff !important;
+    background-color: #5bc0de  !important;
+    border-color: #46b8da  !important;
+}
+
+.equipment-parameter-trend button{
+	width:100%;
+}
+.modeling-container .condition button{
+	margin-bottom: 10px;
+}

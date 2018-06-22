@@ -1,0 +1,30 @@
+<div class="progress" *ngIf="showProgress">
+    <div class="progress-bar progress-bar-striped active" role="progressbar" attr.aria-valuenow="{{percentage}}" aria-valuemin="0"
+        aria-valuemax="100" [ngStyle]="{width: percentage+'%'}">
+        {{percentage}}%
+    </div>
+</div>
+<div class="equipment-parameter-trend">
+        <div a3-spinner #componentSpinner [type]="'component'" ></div>
+    <table>
+        <tr class="modeling-container">
+            <td class='condition'>
+                <div class="a3-from-to" [from]="searchTimePeriod?.from" [to]="searchTimePeriod?.to" [format]="'yyyy/MM/dd hh:mm:ss'" (changedFromTo)="fromToChange($event)"></div>
+                <br>
+                <br>
+                <div class="eqp-tree">
+                    <fab-area-eqp-param-tree (changeParamSelection)="nodeClick($event)" #tree></fab-area-eqp-param-tree>
+                </div>
+                <br>
+                <button class="btn btn-primary" [ngClass]="{candoit:treeParamSelect}" (click)="drawChart()" [disabled]='this.showProgress||treeParamSelect==false'>Draw Chart</button>
+            </td>
+            <td class="chart">
+                <div class="chart-container">
+                    <equipment-parameter-trend-chart #modelChart [params]="paramDatas" (selectParam)="selectParam($event)"></equipment-parameter-trend-chart>
+                </div>
+
+            </td>
+        </tr>
+       
+    </table>
+</div>

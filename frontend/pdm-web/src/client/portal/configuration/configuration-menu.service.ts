@@ -98,7 +98,15 @@ export class ConfigurationMenuService {
                         name: 'Modeling Simulator',
                         description: 'Modeling Simulator',
                         menus: <any>[]
-                    }
+                    },
+                    {
+                        menuId: 'pdmEqupmentParameterTrend',
+                        name: 'Equipment Parameter Trend',
+                        description: 'Equipment Parameter Trend',
+                        menus: <any>[]
+                    },
+
+                    
                 ]
             },
             {

@@ -29,6 +29,7 @@ import { FabMonitoringModule } from './configurations/global/pdm/fabmonitoring/f
 import { CategoryModule } from './configurations/global/pdm/category/category-list.module';
 
 import { ModelSimulatorModule }  from './configurations/global/pdm/model-simulator/model-simulator.module';
+import { EquipmentParameterTrendModule  } from './configurations/global/pdm/equipment-parameter-trend/equipment-parameter-trend.module';
 
 export const getConfigurationClassInfo = (menuId: string): any => {
 
@@ -93,6 +94,8 @@ export const getConfigurationClassInfo = (menuId: string): any => {
             return FabMonitoringModule;
         case 'pdmModelSimulator':
             return ModelSimulatorModule;
+        case 'pdmEqupmentParameterTrend':
+            return EquipmentParameterTrendModule;
         default:
             // TODO: change Module Empty chart
             return FdtaAppConfigModule;

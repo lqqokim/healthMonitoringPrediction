@@ -1,0 +1,62 @@
+.equipment-parameter-trend-chart{
+    width:100%;
+    height: 100%;
+}
+.equipment-parameter-trend-chart .param-container{
+    width:100%;
+    height:200px;
+}
+
+.equipment-parameter-trend-chart .chart-container{
+    /* width:100%; */
+    height:100%;
+}
+
+.equipment-parameter-trend-chart .conditionValue{
+    width:80px;
+}
+
+
+.equipment-parameter-trend-chart table{
+    width:100%;
+    height:100%;
+}
+
+.equipment-parameter-trend-chart table th{
+    font-size: 14px;
+    font-weight: normal;
+    color: #039;
+    border-bottom: 2px solid #6678b1;
+    padding: 10px 8px;  
+    text-align: center;
+}
+.equipment-parameter-trend-chart table tr{
+    border-bottom: 1px solid #ddd;
+}
+.equipment-parameter-trend-chart table td{
+    text-align: left;
+}
+.equipment-parameter-trend-chart .param-info{
+    height: 250px;
+    width:100%;
+}
+
+.equipment-parameter-trend-chart .parameter{
+    width:140px;
+}
+
+.equipment-parameter-trend-chart .equipmentStatus{
+    display: flex;
+    height: 150px;
+    border: solid 1px lightgray;
+    padding: 5px;
+}
+.equipment-parameter-trend-chart .equipmentStatus label{
+    width:140px;
+}
+
+.equipment-parameter-trend-chart .status-chart{
+    width: calc(100% - 140px);
+    height: 100%;
+}
+
