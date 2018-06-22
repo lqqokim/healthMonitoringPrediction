@@ -744,7 +744,7 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
         this.chartType = type;
         this.isShowInfo = false;
 
-        const backdropEl: any = $('#backdrop')[0];
+        const backdropEl: any = $('#bar_backdrop')[0];
 
         if (!backdropEl.hidden) {
             backdropEl.hidden = true;
@@ -871,6 +871,7 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
         }
 
         if (this.selectedItem) {
+            // console.log('selectedItem', this.selectedItem)
             this.showContext.emit({
                 selectedItem: this.selectedItem,
                 event: event
