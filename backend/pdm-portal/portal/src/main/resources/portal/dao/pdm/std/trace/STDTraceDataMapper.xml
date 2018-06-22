@@ -847,12 +847,7 @@
 
     </select>
     <select id="selectTraceAggregationByEventWithConditionValue" resultType="java.util.HashMap">
-        
-        
-        
-        
-        
-        
+
           select
 
                 <if test="eventType=='Time'" >
@@ -870,17 +865,75 @@
                 stddev(value) as stddev,
                 percentile_disc(0.25) within group (order by value desc)  as q1,
                 percentile_disc(0.25) within group (order by value desc)  as q3
-
-        from trace_trx_pdm trx,param_mst_pdm param,eqp_mst_pdm eqp
-        where trx.param_mst_rawid = param.rawid
-            and param.eqp_mst_rawid = eqp.rawid
-            and event_dtts  <![CDATA[>=]]> #{start}
-            and event_dtts  <![CDATA[<]]>  #{end}
-            and param.rawid =#{paramId}
-
+        
+        FROM
+    (
+        SELECT
+            t.event_dtts,
+            t.value,
+            CASE
+                    WHEN (
+                        t.event_dtts <![CDATA[>=]]> i.start_dtts
+                        AND t.event_dtts <![CDATA[<]]> i.end_dtts
+                    ) THEN i.idx
+                END
+            idx
+        FROM
+            trace_trx_pdm t,
+            (
+                SELECT
+                    ROWNUM AS idx,
+                    event_dtts start_dtts,
+                    LEAD(event_dtts) OVER(
+                        ORDER BY
+                            event_dtts
+                    ) AS end_dtts
+                FROM
+                    (
+                        SELECT
+                            LAG(i.status) OVER(
+                                ORDER BY
+                                    i.event_dtts
+                            ) prev_status,
+                            i.status AS curr_status,
+                            i.event_dtts
+                        FROM
+                            (
+                                SELECT
+                                        CASE
+                                            WHEN value <![CDATA[>=]]> #{conditionValue}   THEN 1
+                                            ELSE 0
+                                        END
+                                    AS status,
+                                        value,
+                                        event_dtts
+                                FROM
+                                    trace_trx_pdm
+                                WHERE
+                                    param_mst_rawid = #{conditionParamId}
+                                    AND   event_dtts BETWEEN to_timestamp(#{start},'YYYYMMDD HH24MISS') AND to_timestamp(#{end},'YYYYMMDD HH24MISS')
+                            ) i
+                    )
+                WHERE
+                    prev_status IS NOT NULL
+                    AND   curr_status IS NOT NULL
+                    AND   prev_status != curr_status
+            ) i
+        WHERE
+            t.event_dtts BETWEEN to_timestamp(#{start},'YYYYMMDD HH24MISS') AND to_timestamp(#{end},'YYYYMMDD HH24MISS')
+            AND   t.param_mst_rawid = ${paramId}
+            AND   t.event_dtts <![CDATA[>=]]> i.start_dtts
+            AND   t.event_dtts <![CDATA[<]]> i.end_dtts
+         ORDER BY
+                 event_dtts
         <if test="eventType=='Time'" >
             group by to_char(event_dtts,'yyyy-MM-dd HH24:') || trim(to_char(round(to_number( to_char(event_dtts,'mi'))/${adHocTime}-0.4),'00'))||':00'
         </if>
+    )
+    GROUP BY
+        idx
+               
+        
 
     </select>
 

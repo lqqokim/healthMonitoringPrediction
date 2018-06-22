@@ -120,7 +120,7 @@ export class ModelSimulatorComponent implements OnInit {
                 this.pdmModelService.getTraceDataByParamId(fabId, parameters[i].paramId, this.searchTimePeriod.from, this.searchTimePeriod.to).then((datas) => {
                     console.log(datas);
                     if (datas.length > 0) {
-                        let paramInfo = { name: parameters[i].paramName, paramId: parameters[i].paramId, datas: [datas] };
+                        let paramInfo = { name: parameters[i].paramName, paramId: parameters[i].paramId, datas: [datas],from:this.searchTimePeriod.from, to:this.searchTimePeriod.to };
                         this.paramDatas.push(paramInfo);
                     }
 
@@ -274,7 +274,7 @@ export class ModelSimulatorComponent implements OnInit {
 
                         let keys = Object.keys(datas);
                         for (let j = 0; j < keys.length; j++) {
-                            this.simulation_params.push({ name: parameters[i].name, adHoc: keys[j], datas: [datas[keys[j]]] });
+                            this.simulation_params.push({ name: parameters[i].name, adHoc: keys[j], datas: [datas[keys[j]]],from:this.searchTimePeriod2.from,to: this.searchTimePeriod2.to });
                         }
 
                         this.current++;

@@ -105,7 +105,11 @@ export class ModelingSimulatorChartComponent implements OnInit, OnChanges, DoChe
         return Math.floor(Math.random() * (maximum - minimum + 1)) + minimum
     }
     ngOnChanges() {
+        if(this.params!=null && this.params.length>0){
+            this.trendConfig['axes']['xaxis']['min'] = this.params[0].from;
+            this.trendConfig['axes']['xaxis']['max'] = this.params[0].max;
 
+        }
 
     }
     ngDoCheck() {

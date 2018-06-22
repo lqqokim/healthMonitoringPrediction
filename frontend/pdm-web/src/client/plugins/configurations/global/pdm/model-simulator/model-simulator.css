@@ -50,3 +50,10 @@
     background-color: #5bc0de  !important;
     border-color: #46b8da  !important;
 }
+
+.model-simulator button{
+	width:100%;
+}
+.modeling-container .condition button{
+	margin-bottom: 10px;
+}

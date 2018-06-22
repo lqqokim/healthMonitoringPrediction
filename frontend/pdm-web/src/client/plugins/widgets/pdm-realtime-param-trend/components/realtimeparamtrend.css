@@ -10,6 +10,12 @@
     /* margin-left: 10px; */
     padding: 5px;
 }
+.realtimeparamtrend .tree-container button{
+    width:100%;
+    color: #fff !important;
+    background-color: #5bc0de  !important;
+    border-color: #46b8da  !important;
+}
 .realtimeparamtrend .tree-div{
     width: 100%;
     height: calc(100% - 40px);
