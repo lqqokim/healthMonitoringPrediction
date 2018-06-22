@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 APPNAME="Log Connector Layer"
 APPPID=connector.pid
-APPJAR=uber-pdm-log-connector-1.0-SNAPSHOT.jar
+APPJAR=pdm-log-connector-1.0-SNAPSHOT.jar
 APPOPTS=" -brokers 192.168.7.228:29092,192.168.7.228:39092,192.168.7.228:49092
 -watchDir /home/bistel/fab1/Demo_Area/
 -clientId log-connector-1

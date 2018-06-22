@@ -56,6 +56,8 @@ public class EventExtractorProcessor extends AbstractProcessor<String, byte[]> {
 
                 Long actualParamTime = parseStringToTimestamp(nowStatusCodeAndTime[1]);
                 String eventMessage = actualParamTime + "," + event.getEventRawId() + "," + event.getEventTypeCD();
+
+                log.debug("Throw the start event!!! {}", partitionKey);
                 context().forward(partitionKey, eventMessage, "event");
 
             } else if (prevStatusCodeAndTime[0].equalsIgnoreCase("R")
@@ -63,6 +65,8 @@ public class EventExtractorProcessor extends AbstractProcessor<String, byte[]> {
 
                 Long actualParamTime = parseStringToTimestamp(prevStatusCodeAndTime[1]);
                 String eventMessage = actualParamTime + "," + event.getEventRawId() + "," + event.getEventTypeCD();
+
+                log.debug("Throw the end event!!! {}", partitionKey);
                 context().forward(partitionKey, eventMessage, "event");
             }
             kvStore.put(partitionKey, nowMsgStatusCodeAndTime);

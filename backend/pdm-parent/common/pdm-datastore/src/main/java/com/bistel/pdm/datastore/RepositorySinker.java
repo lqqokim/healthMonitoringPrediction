@@ -18,15 +18,14 @@ import java.util.concurrent.TimeUnit;
 public class RepositorySinker {
     private static final Logger log = LoggerFactory.getLogger(RepositorySinker.class);
 
+    private final String topicPrefix = "pdm-output";
     private final String configPath;
-    private final String topicPrefix;
     private final String groupId;
 
     private ExecutorService executor = Executors.newFixedThreadPool(5);
 
-    public RepositorySinker(final String groupId, final String topicPrefix, String servingAddr, String configPath) {
+    public RepositorySinker(final String groupId, String servingAddr, String configPath) {
         this.groupId = groupId;
-        this.topicPrefix = topicPrefix;
         this.configPath = configPath;
 
         String targetUrl = servingAddr + "/pdm/api/master/latest/param";

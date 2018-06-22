@@ -1,15 +1,11 @@
 package com.bistel.pdm.batch;
 
-import com.bistel.pdm.common.enums.DataType;
 import com.bistel.pdm.lambda.kafka.AbstractPipeline;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.Topology;
-import org.apache.kafka.streams.state.KeyValueStore;
-import org.apache.kafka.streams.state.StoreBuilder;
-import org.apache.kafka.streams.state.Stores;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,12 +27,12 @@ public class BatchTimewaveTaskDef extends AbstractPipeline {
         this.applicationId = applicationId;
     }
 
-    public void start(DataType datatype) {
+    public void start() {
         if (this.applicationId != null) {
             log.info("Starting Batch Layer - {}", this.applicationId);
         }
 
-        KafkaStreams streams = processStreams(datatype);
+        KafkaStreams streams = processStreams();
         //streams.cleanUp(); //don't do this in prod as it clears your state stores
         streams.start();
 
@@ -44,65 +40,11 @@ public class BatchTimewaveTaskDef extends AbstractPipeline {
         Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
     }
 
-    private KafkaStreams processStreams(final DataType dataType) {
-
-//        WindowBytesStoreSupplier windowBytesStoreSupplier =
-//                Stores.persistentWindowStore("processing-temporary",
-//                        TimeUnit.DAYS.toMillis(1),
-//                        3,
-//                        TimeUnit.MINUTES.toMillis(1),
-//                        false);
-//
-//        StoreBuilder<WindowStore<String, byte[]>> tempStore =
-//                Stores.windowStoreBuilder(windowBytesStoreSupplier, Serdes.String(), Serdes.ByteArray());
-
-//        StoreBuilder<WindowStore<String, byte[]>> temporaryWindowSupplier =
-//                Stores.persistentWindowStore("", )
-//                        .keyValueStoreBuilder(
-//                        Stores.persistentKeyValueStore("processing-temporary"),
-//                        Serdes.String(),
-//                        Serdes.ByteArray());
-
+    private KafkaStreams processStreams() {
 
         final Topology topology = new Topology();
 
-        // Using a `KeyValueStoreBuilder` to build a `KeyValueStore`.
-        StoreBuilder<KeyValueStore<String, byte[]>> processingWindowSupplier =
-                Stores.keyValueStoreBuilder(
-                        Stores.persistentKeyValueStore("persistent-window"),
-                        Serdes.String(),
-                        Serdes.ByteArray());
-
-        StoreBuilder<KeyValueStore<String, String>> previousMessageSupplier =
-                Stores.keyValueStoreBuilder(
-                        Stores.persistentKeyValueStore("persistent-previous"),
-                        Serdes.String(),
-                        Serdes.String());
-
-        topology.addSource("input-trace", "pdm-input-trace");
-
-//        topology.addProcessor("filtering", StreamFilterProcessor::new, "input-trace")
-//                .addProcessor("branching", StatusMarkProcessor::new, "filtering")
-//                .addStateStore(previousMessageSupplier, "branching")
-//
-//                .addProcessor("event", EventProcessor::new, "branching")
-//                .addSink("output-event", "pdm-output-event", "event");
-//
-//        topology.addProcessor("trace", TraceProcessor::new, "branching")
-//                .addStateStore(processingWindowSupplier, "trace")
-//                .addSink("output-trace", "pdm-output-trace", "trace")
-//                .addSink("features", "pdm-features", "trace")
-//
-//                .addProcessor("fd-01", FD01Processor::new, "trace")
-//                .addSink("fault-01", "pdm-output-fault", "fd-01");
-//
-//
-//        topology.addSource("input-features", "pdm-features")
-//                .addSink("output-features", "pdm-output-features", "input-features");
-//
-//        topology.addProcessor("fd-02", FD01Processor::new, "input-features");
-////        topology.addProcessor("fd-03", FD01Processor::new, "input-features");
-////        topology.addProcessor("fd-04", FD01Processor::new, "input-features");
+        topology.addSource("input-trace", this.getInputTimewaveTopic());
 
         return new KafkaStreams(topology, getStreamProperties());
     }

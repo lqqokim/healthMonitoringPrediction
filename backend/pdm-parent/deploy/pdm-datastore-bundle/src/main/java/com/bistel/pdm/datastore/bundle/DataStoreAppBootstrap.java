@@ -18,7 +18,6 @@ public class DataStoreAppBootstrap {
 
     private static final String PROP_KAFKA_CONF = "kafkaConf";
     private static final String GROUP_ID = "groupId";
-    private static final String TOPIC_PREFIX = "topicPrefix";
     private static final String SERVING_ADDR = "servingAddr";
     private static final String LOG_PATH = "log4jConf";
 
@@ -30,7 +29,6 @@ public class DataStoreAppBootstrap {
 
             if (args.length <= 0) {
                 args = new String[]{"-groupId", "pdm-store-1",
-                        "-topicPrefix", "pdm-output",
                         "-servingAddr", "http://192.168.7.227:28000",
                         "-kafkaConf", "/Users/hansonjang/Documents/opensource/pdm-parent/common/pdm-datastore/target/classes/consumer.properties",
                         "-log4jConf", "/Users/hansonjang/Documents/opensource/pdm-parent/deploy/pdm-datastore-sink-bundle/target/classes/log4j.properties"};
@@ -40,7 +38,6 @@ public class DataStoreAppBootstrap {
             CommandLine commandLine = parseCommandLine(args);
 
             String groupId = commandLine.getOptionValue(GROUP_ID);
-            String topicPrefix = commandLine.getOptionValue(TOPIC_PREFIX);
             String servingAddr = commandLine.getOptionValue(SERVING_ADDR);
             String configPath = commandLine.getOptionValue(PROP_KAFKA_CONF);
             String logPath = commandLine.getOptionValue(LOG_PATH);
@@ -49,7 +46,7 @@ public class DataStoreAppBootstrap {
             logProperties.load(new FileInputStream(logPath));
             PropertyConfigurator.configure(logProperties);
 
-            RepositorySinker server = new RepositorySinker(groupId, topicPrefix, servingAddr, configPath);
+            RepositorySinker server = new RepositorySinker(groupId, servingAddr, configPath);
             server.start();
 
             Runtime.getRuntime().addShutdownHook(new Thread(server::shutdown));
@@ -64,18 +61,16 @@ public class DataStoreAppBootstrap {
 
     private static CommandLine parseCommandLine(String[] args) {
         Option groupId = new Option(GROUP_ID, true, "consumer group id");
-        Option topicPrefix = new Option(TOPIC_PREFIX, true, "kafka topic for input messages");
         Option servingAddr = new Option(SERVING_ADDR, true, "serving address");
         Option config = new Option(PROP_KAFKA_CONF, true, "kafka config path");
         Option logPath = new Option(LOG_PATH, true, "log config path");
 
         options.addOption(groupId)
-                .addOption(topicPrefix)
                 .addOption(servingAddr)
                 .addOption(config)
                 .addOption(logPath);
 
-        if (args.length < 5) {
+        if (args.length < 4) {
             printUsageAndExit();
         }
         CommandLineParser parser = new DefaultParser();

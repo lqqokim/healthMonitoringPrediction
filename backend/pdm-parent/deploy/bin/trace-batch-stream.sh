@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 APPNAME="Batch Layer - TRACE"
 APPPID=batch-trace.pid
-APPJAR=uber-pdm-batch-pipeline-bundle-1.0-SNAPSHOT.jar
+APPJAR=pdm-batch-bundle-1.0-SNAPSHOT.jar
 APPOPTS="-appId trace_01
 -brokers 192.168.7.228:29092,192.168.7.228:39092,192.168.7.228:49092
 -registryUrl http://192.168.7.228:8081

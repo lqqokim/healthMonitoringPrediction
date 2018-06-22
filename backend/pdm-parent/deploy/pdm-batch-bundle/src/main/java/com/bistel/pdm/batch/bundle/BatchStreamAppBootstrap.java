@@ -2,7 +2,6 @@ package com.bistel.pdm.batch.bundle;
 
 import com.bistel.pdm.batch.BatchTimewaveTaskDef;
 import com.bistel.pdm.batch.BatchTraceTaskDef;
-import com.bistel.pdm.common.enums.DataType;
 import org.apache.commons.cli.*;
 import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
@@ -47,9 +46,9 @@ public final class BatchStreamAppBootstrap {
                 processor.start();
             }
         } else if (pipeline.equalsIgnoreCase("RAW")) {
-//            try (BatchTimewaveTaskDef processor = new BatchTimewaveTaskDef(appId, brokers, schemaUrl, servingAddr)) {
-//                processor.start(DataType.TimeWave);
-//            }
+            try (BatchTimewaveTaskDef processor = new BatchTimewaveTaskDef(appId, brokers, schemaUrl, servingAddr)) {
+                processor.start();
+            }
         } else {
             log.info("Not supported.");
         }

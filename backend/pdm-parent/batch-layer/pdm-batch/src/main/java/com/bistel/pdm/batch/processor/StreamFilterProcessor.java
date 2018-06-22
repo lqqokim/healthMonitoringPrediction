@@ -22,7 +22,7 @@ public class StreamFilterProcessor extends AbstractProcessor<String, byte[]> {
         if (!MasterDataCache.getInstance().getEqpMasterDataSet().containsKey(partitionKey)) {
             log.info("{} does not existed.", partitionKey);
         } else {
-            this.context().forward(partitionKey, streamByteRecord);
+            this.context().forward(partitionKey, streamByteRecord, "marking");
             // commit the current processing progress
             this.context().commit();
         }

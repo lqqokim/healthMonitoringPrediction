@@ -45,7 +45,6 @@ public class BatchTraceTaskDef extends AbstractPipeline {
     }
 
     private KafkaStreams processStreams() {
-
         final Topology topology = new Topology();
 
         // Using a `KeyValueStoreBuilder` to build a `KeyValueStore`.
@@ -55,7 +54,7 @@ public class BatchTraceTaskDef extends AbstractPipeline {
                         Serdes.String(),
                         Serdes.ByteArray());
 
-        StoreBuilder<KeyValueStore<String, String>> previousMessageSupplier =
+        StoreBuilder<KeyValueStore<String, String>> sustainPreviousSupplier =
                 Stores.keyValueStoreBuilder(
                         Stores.persistentKeyValueStore("sustain-previous"),
                         Serdes.String(),
@@ -73,7 +72,7 @@ public class BatchTraceTaskDef extends AbstractPipeline {
                 .addProcessor("extracting", EventExtractorProcessor::new, "marking")
                 .addProcessor("event", EventProcessor::new, "extracting")
                 .addProcessor("aggregator", FeatureAggregatorProcessor::new, "extracting")
-                .addStateStore(previousMessageSupplier, "extracting")
+                .addStateStore(sustainPreviousSupplier, "extracting")
                 .addStateStore(processingWindowSupplier, "aggregator")
                 .addStateStore(eventTimeSupplier, "aggregator")
                 .addSink("output-event", this.getOutputEventTopic(), "event")
@@ -91,6 +90,7 @@ public class BatchTraceTaskDef extends AbstractPipeline {
         // against which the application is run.
         streamsConfiguration.put(StreamsConfig.APPLICATION_ID_CONFIG, this.getApplicationId());
         //streamsConfiguration.put(StreamsConfig.CLIENT_ID_CONFIG, "pdm-batch-02");
+
         // Where to find Kafka broker(s).
         streamsConfiguration.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, this.getBroker());
 

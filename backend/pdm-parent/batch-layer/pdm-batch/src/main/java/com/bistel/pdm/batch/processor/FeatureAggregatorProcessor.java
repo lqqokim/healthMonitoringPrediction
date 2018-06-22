@@ -84,6 +84,8 @@ public class FeatureAggregatorProcessor extends AbstractProcessor<String, byte[]
         String[] currStatusAndTime = columns[columns.length - 2].split(":");
         String[] prevStatusAndTime = columns[columns.length - 1].split(":");
 
+        log.debug("prev, curr - ({}, {})", prevStatusAndTime[0], currStatusAndTime[0]);
+
         if (prevStatusAndTime[0].equalsIgnoreCase("I")
                 && !prevStatusAndTime[0].equalsIgnoreCase(currStatusAndTime[0])) {
             Long paramTime = parseStringToTimestamp(currStatusAndTime[1]);
@@ -102,6 +104,7 @@ public class FeatureAggregatorProcessor extends AbstractProcessor<String, byte[]
                     currStatusAndTime[0].equalsIgnoreCase("I")) {
 
                 //end trace
+                log.debug("are you ready? kill them!!!");
                 this.context().forward(partitionKey, "kill-them", "route-run");
 
                 //aggregation
@@ -173,8 +176,11 @@ public class FeatureAggregatorProcessor extends AbstractProcessor<String, byte[]
                             .append(sumStartDtts).append(",")
                             .append(sumEndDtts);
 
-                    context().forward(partitionKey, sbParamAgg.toString(), "route-feature");
-                    context().forward(partitionKey, sbParamAgg.toString(), "output-feature");
+                    String msg = sbParamAgg.toString();
+                    log.debug("aggregation - key : {}, value : {} ", partitionKey, msg);
+
+                    context().forward(partitionKey, msg.getBytes(), "route-feature");
+                    context().forward(partitionKey, msg.getBytes(), "output-feature");
                 }
             }
         }
