@@ -67,18 +67,17 @@ public class BatchTraceTaskDef extends AbstractPipeline {
                         Serdes.String(),
                         Serdes.String());
 
-        topology.addSource("input-trace", this.getInputTraceTopic());
-        topology.addProcessor("filtering", StreamFilterProcessor::new, "input-trace")
+        topology.addSource("input-trace", this.getInputTraceTopic())
+                .addProcessor("filtering", StreamFilterProcessor::new, "input-trace")
                 .addProcessor("marking", StatusMarkProcessor::new, "filtering")
-                .addSink("output-trace", this.getOutputTraceTopic(), "marking")
-                .addProcessor("event-extractor", EventExtractorProcessor::new, "marking")
-                .addStateStore(previousMessageSupplier, "event-extractor")
-                .addProcessor("event", EventProcessor::new, "event-extractor")
-                .addSink("output-event", this.getOutputEventTopic(), "event");
-
-        topology.addProcessor("aggregator", FeatureAggregatorProcessor::new, "event")
+                .addProcessor("extracting", EventExtractorProcessor::new, "marking")
+                .addProcessor("event", EventProcessor::new, "extracting")
+                .addProcessor("aggregator", FeatureAggregatorProcessor::new, "extracting")
+                .addStateStore(previousMessageSupplier, "extracting")
                 .addStateStore(processingWindowSupplier, "aggregator")
                 .addStateStore(eventTimeSupplier, "aggregator")
+                .addSink("output-event", this.getOutputEventTopic(), "event")
+                .addSink("output-trace", this.getOutputTraceTopic(), "marking")
                 .addSink("route-run", this.getRouteTraceRunTopic(), "aggregator")
                 .addSink("route-feature", this.getRouteFeatureTopic(), "aggregator")
                 .addSink("output-feature", this.getOutputFeatureTopic(), "aggregator");

@@ -47,19 +47,17 @@ public final class BatchStreamAppBootstrap {
                 processor.start();
             }
         } else if (pipeline.equalsIgnoreCase("RAW")) {
-            try (BatchTimewaveTaskDef processor = new BatchTimewaveTaskDef(appId, brokers, schemaUrl, servingAddr)) {
-                processor.start(DataType.TimeWave);
-            }
+//            try (BatchTimewaveTaskDef processor = new BatchTimewaveTaskDef(appId, brokers, schemaUrl, servingAddr)) {
+//                processor.start(DataType.TimeWave);
+//            }
         } else {
             log.info("Not supported.");
         }
-
     }
 
     private static CommandLine parseCommandLine(String[] args) {
         Option appId = new Option(APPLICATION_ID, true, "application id");
         Option broker = new Option(BROKERS, true, "input/output broker");
-
         Option schemaUrl = new Option(SCHEMA_REGISTRY_URL, true, "schema registry url");
         Option servingAddr = new Option(SERVING_ADDR, true, "serving address");
         Option pipeline = new Option(PIPELINE, true, "streaming pipeline");
