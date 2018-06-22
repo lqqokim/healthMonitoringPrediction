@@ -13,7 +13,7 @@
                 <label>
                     <input type="radio" name="param" [(ngModel)]="selectedParamId" [value]="param.paramId" (change)="onClickParam(param)"> {{param.name}}
                 </label>
-                <input type="number" class="conditionValue" [(ngModel)]="conditionValue" (input)="onChange($event,param)" *ngIf="selectedParam==param.paramId">
+                <input type="number" class="conditionValue" [(ngModel)]="conditionValue" (input)="onChange($event,param)" *ngIf="selectedParamId==param.paramId">
             </td>
             <td>
                 <div class="chart-container">
