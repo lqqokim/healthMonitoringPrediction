@@ -269,7 +269,7 @@ export class ModelSimulatorComponent implements OnInit {
         for (let i = 0; i < parameters.length; i++) {
             this.showProgress = true;
             try {
-                this.pdmModelService.getTraceDataEventSimulationByConditionValue(fabId, this.paramDatas[i].paramId,
+                this.pdmModelService.getTraceDataEventSimulationByConditionValue(fabId, parameters[i].paramId,
                     this.searchTimePeriod2.from, this.searchTimePeriod2.to, conditionParamId, conditionValue, adHocFunctions, this.aggregationTime, this.eventType).subscribe((datas) => {
 
                         let keys = Object.keys(datas);
