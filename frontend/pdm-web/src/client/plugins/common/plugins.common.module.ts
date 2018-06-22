@@ -9,6 +9,7 @@ import { TreeComponent } from '../common/modeling-tree/tree/tree.component';
 import { FabAreaEqpParamTreeComponent } from '../common/fab-area-eqp-param-tree/fab-area-eqp-param-tree.component';
 import { CheckTreeComponent } from '../common/fab-area-eqp-param-tree/check-tree/check-tree.component';
 
+import { StatusChartComponent }  from '../common/status-chart/status-chart.component';
 
 @NgModule({
     imports: [
@@ -20,14 +21,16 @@ import { CheckTreeComponent } from '../common/fab-area-eqp-param-tree/check-tree
         ModelingTreeComponent,
         TreeComponent,
         FabAreaEqpParamTreeComponent,
-        CheckTreeComponent
+        CheckTreeComponent,
+        StatusChartComponent
 
     ],
     exports: [
         ModelingTreeComponent,
         TreeComponent,
         FabAreaEqpParamTreeComponent,
-        CheckTreeComponent
+        CheckTreeComponent,
+        StatusChartComponent
     ]
     // ,
     // entryComponents: [

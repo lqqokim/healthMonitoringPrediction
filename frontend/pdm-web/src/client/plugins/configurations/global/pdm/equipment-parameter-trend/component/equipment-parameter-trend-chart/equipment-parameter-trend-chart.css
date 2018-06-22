@@ -47,16 +47,26 @@
 
 .equipment-parameter-trend-chart .equipmentStatus{
     display: flex;
-    height: 150px;
+    height: 100px;
     border: solid 1px lightgray;
     padding: 5px;
 }
 .equipment-parameter-trend-chart .equipmentStatus label{
     width:140px;
+    margin-top: 18px;
+    margin-left: 5px;
 }
 
 .equipment-parameter-trend-chart .status-chart{
     width: calc(100% - 140px);
     height: 100%;
+    margin-left: 30px;
+    margin-right: 10px;
 }
-
+.equipment-parameter-trend-chart .table-container{
+    width: 100%;
+    height: calc(100% - 110px);
+    border: solid 1px lightgray;
+    margin-top: 10px;
+    overflow-y: auto;
+}
