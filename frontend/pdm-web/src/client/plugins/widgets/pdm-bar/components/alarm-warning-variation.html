@@ -4,21 +4,24 @@
             <span>Alarm Warning</span>
         </div>
         <div class="alarm-width-calc">
-            <div id="alarmWarning{{i}}" class="pdm-radar-wrapper" (mouseenter)="mouseEnter(item, $event, i)"
+            <div id="alarmWarning{{i}}" class="pdm-radar-wrapper" (click)="onEqpClick($event, item)" (mouseenter)="mouseEnter(item, $event, i)"
                 *ngFor="let item of alarmWarningDatas; let i = index;" [ngClass]="{'alram-type-danger':item.type === 'alarm', 'alram-type-warning':item.type ==='warning', 'type-none': item.type === ''}">
                 <div class="pdm-radar-section clearfix" (click)="onClickSection(item.type, i);" 
                     [ngClass]="{'alarm-section-active': selectedAWSection === i, 'warning-section-active': selectedAWSection === i && 1 >= alarmDatas.length}">
                     <div class="pdm-radar-title" *ngIf="item.chartData && item.options">
                         <div class="pdm-radar-name">{{item.name}}</div>
                         <div class="pdm-radar-time">
-                            <span class="fa fa-search-plus" (click)="expandChart($event, item, 0)" aria-hidden="true"></span>
+                            <span class="fa fa-search-plus" (click)="expandChart($event, item, 0); $event.stopPropagation();" aria-hidden="true"></span>
                             <!-- <button *ngIf="isShowExpandBtn" class="btn btn-default" id="wjPopup" (click)="expandChart($event, barChart, 2)">
                                 <i class="fa fa-search-plus"></i>
                             </button> -->
                         </div>
                     </div>
                     <div class="pdm-radar-chart" *ngIf="item.chartData && item.options">
-                        <bar-chart [item]="item"></bar-chart>
+                        <bar-chart 
+                            [item]="item"
+                            (paramClick)="onParamClick(item.type, item.name, item.id, $event, i);"
+                        ></bar-chart>
                     </div>
                 </div>
             </div>
@@ -45,11 +48,14 @@
                     <div class="pdm-radar-title" *ngIf="item.chartData && item.options">
                         <div class="pdm-radar-name">{{item.name}}</div>
                         <div class="pdm-radar-time">
-                            <span class="fa fa-search-plus" (click)="expandChart($event, item, 1)" aria-hidden="true"></span>
+                            <span class="fa fa-search-plus" (click)="expandChart($event, item, 1); $event.stopPropagation();" aria-hidden="true"></span>
                         </div>
                     </div>
                     <div class="pdm-radar-chart" *ngIf="item.chartData && item.options">
-                        <bar-chart [item]="item"></bar-chart>
+                        <bar-chart 
+                            (paramClick)="onParamClick(item.type, item.name, item.id, $event, i);"
+                            [item]="item">
+                        </bar-chart>
                     </div>
                 </div>
             </div>
@@ -75,11 +81,14 @@
                     <div class="pdm-radar-title" *ngIf="item.chartData && item.options">
                         <div class="pdm-radar-name">{{item.name}}</div>
                         <div class="pdm-radar-time">
-                            <span class="fa fa-search-plus" (click)="expandChart($event, item, 2)" aria-hidden="true"></span>
+                            <span class="fa fa-search-plus" (click)="expandChart($event, item, 2); $event.stopPropagation();" aria-hidden="true"></span>
                         </div>
                     </div>
                     <div class="pdm-radar-chart" *ngIf="item.chartData && item.options">
-                        <bar-chart [item]="item"></bar-chart>
+                        <bar-chart 
+                            (paramClick)="onParamClick(item.type, item.name, item.id, $event, i);"
+                            [item]="item">
+                        </bar-chart>
                     </div>
                 </div>
             </div>
@@ -144,9 +153,13 @@
             <div></div>
         </div>
         <!-- <div class="pdm-chart-area" (click)="onEqpClick($event, selectedItem,true)"  -->
-        <div class="pdm-chart-area"
+        <div class="pdm-chart-area" (click)="onEqpClick($event, selectedItem,true)" 
             [ngClass]="{'alarm-info-hover':selectedItem.type === 'alarm', 'warning-info-hover': selectedItem.type === 'warning', 'bad-info-hover': selectedItem.type === 'B5', 'good-info-hover': selectedItem.type === 'G5'}">
-            <bar-chart [item]="selectedItem" (endExpandLoad)="endExpandLoad($event)"></bar-chart>
+            <bar-chart 
+                [item]="selectedItem" 
+                (endExpandLoad)="endExpandLoad($event)" 
+                (paramClick)="onParamClick(selectedItem.type, selectedItem.name, selectedItem.id, $event, selectedItem.index, 'isInfo');">
+            </bar-chart>
         </div>
     </div>
 </div>

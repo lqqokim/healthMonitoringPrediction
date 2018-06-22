@@ -1,4 +1,4 @@
-import { Component, OnInit, OnChanges, OnDestroy, Input, Output, SimpleChanges, EventEmitter } from '@angular/core';
+import { Component, OnInit, OnChanges, OnDestroy, Input, Output, SimpleChanges, EventEmitter, Renderer, ElementRef, ViewChild } from '@angular/core';
 
 import * as pdmRadarI from './../../model/pdm-radar.interface';
 
@@ -11,6 +11,8 @@ import * as pdmRadarI from './../../model/pdm-radar.interface';
 export class BarChartComponent implements OnInit, OnChanges, OnInit {
     @Input() item: pdmRadarI.ChartDataType;
     @Output() endExpandLoad: EventEmitter<any> = new EventEmitter();
+    @Output() paramClick: EventEmitter<any> = new EventEmitter();
+    @ViewChild('bar') canvasElem: ElementRef;
 
     chartConfig: any;
     chartData: any;
@@ -19,12 +21,34 @@ export class BarChartComponent implements OnInit, OnChanges, OnInit {
 
     chartId: any;
 
-    constructor() {
+    private readonly SIZE = {
+        HEIGTH: 235,
+        WIDTH: 320
+    };
 
+    private readonly EXPAND_SIZE = {
+        HEIGTH: 700,
+        WIDTH: 1175
+    };
+
+    private parentElem: ElementRef['nativeElement'] = undefined;
+    private widgetElem: ElementRef['nativeElement'] = undefined;
+    private resizeListenerFunc: Function;
+    private resizeCallback: Function = this.onResize.bind(this);
+
+    constructor(renderer: Renderer) {
+        this.resizeListenerFunc = renderer.listen('window', 'resize', this.resizeCallback);
     }
 
     ngOnInit() {
+        this.parentElem = this.canvasElem.nativeElement.parentElement;
+        this.widgetElem = $(this.parentElem).parents('li.a3-widget-container')[0];
+        this.widgetElem.addEventListener('transitionend', this.resizeCallback, false);
+        // console.log('widgetElem', this.widgetElem);
+    }
 
+    onResize(e?: Event) {
+        // console.log('onResize', e);
     }
 
     ngOnChanges(changes: SimpleChanges) {
@@ -55,7 +79,7 @@ export class BarChartComponent implements OnInit, OnChanges, OnInit {
         if (item.type === 'alarm' || item.type === 'warning') {
             this.setAWChartData(item);
         } else {
-            this.setGBChartData(item);
+            this.setBGChartData(item);
         }
     }
 
@@ -75,25 +99,30 @@ export class BarChartComponent implements OnInit, OnChanges, OnInit {
     setAlarmData(avgWithAWs, avgDailys, axisCategoryies, item): void {
         let overAlarms: any[] = [];
         let datas: any[] = [];
+        let sumAvgAlarmAndOvers: any[] = [];
         const alarmSpec: number = 1;
 
         for (let i = 0; i < avgWithAWs.length; i++) {
             let avgWithAW: number;
             let overAlarm: number;
+            let sumAvgAlarmAndOver: number;
 
             if (avgWithAWs[i] > alarmSpec) {
                 overAlarm = avgWithAWs[i] - alarmSpec;
                 avgWithAW = alarmSpec;
+                sumAvgAlarmAndOver = avgWithAW;
             } else {
                 overAlarm = null;
                 avgWithAW = avgWithAWs[i];
+                sumAvgAlarmAndOver = avgWithAW;
             }
 
             datas.push({
                 axis: axisCategoryies[i],
                 avgWithAW: avgWithAW,
                 avgDaily: avgDailys[i],
-                overAlarm: overAlarm
+                overAlarm: overAlarm,
+                sumAvgAlarmAndOver: sumAvgAlarmAndOver
             });
         }
 
@@ -104,23 +133,27 @@ export class BarChartComponent implements OnInit, OnChanges, OnInit {
         // datas = _.sortBy(datas, 'avgWithAW');
 
         setTimeout(() => {
-            const barLength: number = item['isExpand'] ? datas.length : 5;
-            _.sortBy(datas, 'avgWithAW').reverse().map((d: any, i: number) => {
+            const barLength: number = item['isExpand'] ? datas.length : 6;
+            _.sortBy(datas, 'sumAvgAlarmAndOver').reverse().map((d: any, i: number) => {
                 if (i < barLength) {
                     avgWithAWs.push(d.avgWithAW);
                     avgDailys.push(d.avgDaily);
                     axisCategoryies.push(d.axis);
                     overAlarms.push(d.overAlarm);
+                    sumAvgAlarmAndOvers.push({
+                        axis: d.axis,
+                        value: d.sumAvgAlarmAndOver
+                    });
                 }
             });
 
             avgWithAWs.unshift('avgWithAW');
             avgDailys.unshift('avgDaily');
             overAlarms.unshift('overAlarm');
-            axisCategoryies.unshift('x');
+            // axisCategoryies.unshift('x');
             const chartData: any[] = [overAlarms, avgWithAWs, avgDailys];
 
-            this.AWChartGenerator(item, chartData, axisCategoryies);
+            this.AWChartGenerator(item, chartData, axisCategoryies, sumAvgAlarmAndOvers);
         }, 500);
     }
 
@@ -131,20 +164,24 @@ export class BarChartComponent implements OnInit, OnChanges, OnInit {
         for (let i = 0; i < avgWithAWs.length; i++) {
             let avgWithAW: number;
             let overWarning: number;
+            let sumAvgWarningAndOver: number;
 
             if (avgWithAWs[i] > warns[i]) {
                 overWarning = avgWithAWs[i] - warns[i];
                 avgWithAW = warns[i];
+                sumAvgWarningAndOver = avgWithAW + overWarning;
             } else {
                 overWarning = null;
                 avgWithAW = avgWithAWs[i];
+                sumAvgWarningAndOver = avgWithAW;
             }
 
             datas.push({
                 axis: axisCategoryies[i],
                 avgWithAW: avgWithAW,
                 avgDaily: avgDailys[i],
-                overWarning: overWarning
+                overWarning: overWarning,
+                sumAvgWarningAndOver: sumAvgWarningAndOver
             });
         }
 
@@ -155,8 +192,8 @@ export class BarChartComponent implements OnInit, OnChanges, OnInit {
         // datas = _.sortBy(datas, 'avgWithAW');
 
         setTimeout(() => {
-            const barLength: number = item['isExpand'] ? datas.length : 5;
-            _.sortBy(datas, 'avgWithAW').reverse().map((d: any, i: number) => {
+            const barLength: number = item['isExpand'] ? datas.length : 6;
+            _.sortBy(datas, 'sumAvgWarningAndOver').reverse().map((d: any, i: number) => {
                 if (i < barLength) {
                     avgWithAWs.push(d.avgWithAW);
                     avgDailys.push(d.avgDaily);
@@ -168,14 +205,14 @@ export class BarChartComponent implements OnInit, OnChanges, OnInit {
             avgWithAWs.unshift('avgWithAW');
             avgDailys.unshift('avgDaily');
             overWarnings.unshift('overWarning');
-            axisCategoryies.unshift('x');
+            // axisCategoryies.unshift('x');
             const chartData: any[] = [overWarnings, avgWithAWs, avgDailys];
 
             this.AWChartGenerator(item, chartData, axisCategoryies);
         }, 500);
     }
 
-    AWChartGenerator(item: pdmRadarI.ChartDataType, chartData, axisCategoryies): void {
+    AWChartGenerator(item: pdmRadarI.ChartDataType, chartData, axisCategoryies, sumAvgAlarmAndOvers?): void {
         // console.log('chartData', chartData);
         let names: any = {};
         let colors: any = {};
@@ -216,8 +253,8 @@ export class BarChartComponent implements OnInit, OnChanges, OnInit {
             const chart: any = c3Chart.generate({
                 bindto: `#barChart${item.id}${item.type}`,
                 size: {
-                    height: 235,
-                    width: 320
+                    height: this.SIZE.HEIGTH,
+                    width: this.SIZE.WIDTH
                 },
                 data: {
                     type: 'bar',
@@ -225,33 +262,41 @@ export class BarChartComponent implements OnInit, OnChanges, OnInit {
                     names: names,
                     colors: colors,
                     groups: groups,
-                    order: 'asc'
+                    order: 'asc',
+                    onclick: (data, path) => {
+                        let paramData: any = item.chartData.avgWithAWs.find((d: any) => {
+                            return d.axis === axisCategoryies[data.index];
+                        });
+
+                        this.paramClick.emit(paramData);
+                    }
                 },
                 legend: {
-                    // item: {
-                    //     onclick: (d) => {
-                    //         if (d === 'overAlarm') {
-                    //             // chart.focus('avgWithAW');
-                    //             // chart.focus('overAlarm');
-                    //             // show(d); //when I click legend show some data
-                    //             chart.hide(d);
-                    //             chart.show();
-                    //         }
-                    //     },
-                    //     onmouseout: (d) => {
-                    //         // if (d === 'overAlarm' || d === 'avgWithAW') {
-                    //         //     chart.focus('avgWithAW');
-                    //         //     chart.focus('overAlarm');
-                    //         //     // chart.select('avgWithAW');
-                    //         // }
-                    //     },
-                    //     onmouseover: (d) => {
-                    //         if (d === 'overAlarm' || d === 'avgWithAW') {
-                    //             chart.select('overAlarm');
-                    //             chart.select('avgWithAW');
-                    //         }
-                    //     }
-                    // }
+                    item: {
+                        onclick: (d) => {
+                            // console.log('onclick', d);
+                            // if (d === 'overAlarm') {
+                            //     // chart.focus('avgWithAW');
+                            //     // chart.focus('overAlarm');
+                            //     // show(d); //when I click legend show some data
+                            //     chart.hide(d);
+                            //     chart.show();
+                            // }
+                        },
+                        // onmouseout: (d) => {
+                        //     // if (d === 'overAlarm' || d === 'avgWithAW') {
+                        //     //     chart.focus('avgWithAW');
+                        //     //     chart.focus('overAlarm');
+                        //     //     // chart.select('avgWithAW');
+                        //     // }
+                        // },
+                        // onmouseover: (d) => {
+                        //     if (d === 'overAlarm' || d === 'avgWithAW') {
+                        //         chart.select('overAlarm');
+                        //         chart.select('avgWithAW');
+                        //     }
+                        // }
+                    }
                 },
                 zoom: {
                     enabled: false
@@ -265,18 +310,29 @@ export class BarChartComponent implements OnInit, OnChanges, OnInit {
                 grid: {
                     y: {
                         lines: [
-                            { value: 1, text: 'Alarm (1)', class: 'color-grid', position: 'middle' }
+                            { value: 1, text: 'Alarm', class: 'color-grid', position: 'middle' }
                         ]
                     }
                 },
                 tooltip: {
                     format: {
                         title: (d) => {
-                            return axisCategoryies[d+1];
+                            return axisCategoryies[d];
                         },
-                        value: (value, ratio, id) => {
-                            // console.log(value, ratio, id);
-                            return Number(value).toFixed(6);
+                        value: (value: number, ratio, id: string) => {
+                            let resultVal: number;
+
+                            if (id === 'avgWithAW') {
+                                for (let i = 0; i < chartData[1].length; i++) {
+                                    if(value === chartData[1][i]) {
+                                        resultVal = chartData[0][i] + value;
+                                        break;
+                                    }
+                                }
+                            } else {
+                                resultVal = value;
+                            }
+                            return Number(resultVal).toFixed(6);
                         }
                     },
                     // contents: (d, defaultTitleFormat, defaultValueFormat, color) => {
@@ -285,21 +341,28 @@ export class BarChartComponent implements OnInit, OnChanges, OnInit {
                 }
             });
         } else {
-            chartData.unshift(axisCategoryies);
+            // chartData.unshift(axisCategoryies);
             const chart: any = c3Chart.generate({
                 bindto: `#barChart${item.id}${item.type}_expand`,
                 size: {
-                    height: 700,
-                    width: 1175
+                    height: this.EXPAND_SIZE.HEIGTH,
+                    width: this.EXPAND_SIZE.WIDTH
                 },
                 data: {
                     type: 'bar',
-                    x: 'x',
+                    // x: 'x',
                     columns: chartData,
                     names: names,
                     colors: colors,
                     groups: groups,
-                    order: 'asc'
+                    order: 'asc',
+                    onclick: (data, path) => {
+                        let paramData: any = item.chartData.avgWithAWs.find((d: any) => {
+                            return d.axis === axisCategoryies[data.index];
+                        });
+
+                        this.paramClick.emit(paramData);
+                    }
                 },
                 legend: {
                     position: 'inset',
@@ -354,17 +417,29 @@ export class BarChartComponent implements OnInit, OnChanges, OnInit {
                 grid: {
                     y: {
                         lines: [
-                            { value: 1, text: 'Alarm (1)', class: 'color-grid', position: 'middle' }
+                            { value: 1, text: 'Alarm', class: 'color-grid', position: 'middle' }
                         ]
                     }
                 },
                 tooltip: {
                     format: {
                         title: (d) => {
-                            return axisCategoryies[d+1];
+                            return axisCategoryies[d];
                         },
-                        value: (value, ratio, id) => {
-                            return Number(value).toFixed(6);
+                        value: (value: number, ratio, id: string) => {
+                            let resultVal: number;
+
+                            if (id === 'avgWithAW') {
+                                for (let i = 0; i < chartData[1].length; i++) {
+                                    if(value === chartData[1][i]) {
+                                        resultVal = chartData[0][i] + value;
+                                        break;
+                                    }
+                                }
+                            } else {
+                                resultVal = value;
+                            }
+                            return Number(resultVal).toFixed(6);
                         }
                     },
                     // contents: (d, defaultTitleFormat, defaultValueFormat, color) => {
@@ -379,17 +454,20 @@ export class BarChartComponent implements OnInit, OnChanges, OnInit {
         // console.log('selector', $('g.c3-legend-item').parent());
     }
 
-    setGBChartData(item: pdmRadarI.ChartDataType): void {
+    setBGChartData(item: pdmRadarI.ChartDataType): void {
         let avgSpecs: any[] = item.chartData.avgSpecs.map((d: any) => d.value);
         let avgDailys: any[] = item.chartData.avgDailys.map((d: any) => d.value);
         let axisCategoryies: any[] = item.chartData.alarms.map((d: any) => d.axis);
         let datas: any[] = [];
 
         for (let i = 0; i < avgSpecs.length; i++) {
+            let gap: number;
+
             datas.push({
                 axis: axisCategoryies[i],
                 avgSpec: avgSpecs[i],
-                avgDaily: avgDailys[i]
+                avgDaily: avgDailys[i],
+                gap: avgDailys[i] - avgSpecs[i]
             });
         }
 
@@ -398,8 +476,8 @@ export class BarChartComponent implements OnInit, OnChanges, OnInit {
         axisCategoryies = [];
 
         setTimeout(() => {
-            const barLength: number = item['isExpand'] ? datas.length : 5;
-            _.sortBy(datas, 'avgDaily').reverse().map((d: any, i: number) => {
+            const barLength: number = item['isExpand'] ? datas.length : 6;
+            _.sortBy(datas, 'gap').reverse().map((d: any, i: number) => {
                 if (i < barLength) {
                     avgSpecs.push(d.avgSpec);
                     avgDailys.push(d.avgDaily);
@@ -409,7 +487,7 @@ export class BarChartComponent implements OnInit, OnChanges, OnInit {
 
             avgSpecs.unshift('avgSpec');
             avgDailys.unshift('avgDaily');
-            axisCategoryies.unshift('x');
+            // axisCategoryies.unshift('x');
             const chartData: any[] = [avgDailys, avgSpecs];
             this.BGChartGenerator(item, chartData, axisCategoryies);
         }, 500);
@@ -422,8 +500,8 @@ export class BarChartComponent implements OnInit, OnChanges, OnInit {
             const chart: any = c3Chart.generate({
                 bindto: `#barChart${item.id}${item.type}`,
                 size: {
-                    height: 235,
-                    width: 320
+                    height: this.SIZE.HEIGTH,
+                    width: this.SIZE.WIDTH
                 },
                 data: {
                     type: 'bar',
@@ -436,6 +514,13 @@ export class BarChartComponent implements OnInit, OnChanges, OnInit {
                         avgSpec: 'olive',
                         avgDaily: dailyColor
                     },
+                    onclick: (data, path) => {
+                        let paramData: any = item.chartData.avgDailys.find((d: any) => {
+                            return d.axis === axisCategoryies[data.index];
+                        });
+
+                        this.paramClick.emit(paramData);
+                    }
                     // groups: [['avgWithAW', 'overAlarm']]
                 },
                 zoom: {
@@ -450,14 +535,14 @@ export class BarChartComponent implements OnInit, OnChanges, OnInit {
                 grid: {
                     y: {
                         lines: [
-                            { value: 1, text: 'Alarm (1)', class: 'color-grid', position: 'middle' }
+                            { value: 1, text: 'Alarm', class: 'color-grid', position: 'middle' }
                         ]
                     }
                 },
                 tooltip: {
                     format: {
                         title: (d) => {
-                            return axisCategoryies[d+1];
+                            return axisCategoryies[d];
                         },
                         value: (value, ratio, id) => {
                             // console.log(value, ratio, id);
@@ -467,16 +552,16 @@ export class BarChartComponent implements OnInit, OnChanges, OnInit {
                 }
             });
         } else {
-            chartData.unshift(axisCategoryies);
+            // chartData.unshift(axisCategoryies);
             const chart: any = c3Chart.generate({
                 bindto: `#barChart${item.id}${item.type}_expand`,
                 size: {
-                    height: 700,
-                    width: 1175
+                    height: this.EXPAND_SIZE.HEIGTH,
+                    width: this.EXPAND_SIZE.WIDTH
                 },
                 data: {
                     type: 'bar',
-                    x: 'x',
+                    // x: 'x',
                     columns: chartData,
                     names: {
                         avgSpec: '90Days avg',
@@ -486,6 +571,13 @@ export class BarChartComponent implements OnInit, OnChanges, OnInit {
                         avgSpec: 'olive',
                         avgDaily: dailyColor
                     },
+                    onclick: (data, path) => {
+                        let paramData: any = item.chartData.avgDailys.find((d: any) => {
+                            return d.axis === axisCategoryies[data.index];
+                        });
+
+                        this.paramClick.emit(paramData);
+                    }
                     // groups: [['avgWithAW', 'overAlarm']]
                 },
                 legend: {
@@ -509,7 +601,7 @@ export class BarChartComponent implements OnInit, OnChanges, OnInit {
                 grid: {
                     y: {
                         lines: [
-                            { value: 1, text: 'Alarm (1)', class: 'color-grid', position: 'middle' }
+                            { value: 1, text: 'Alarm', class: 'color-grid', position: 'middle' }
                         ]
                     }
                 },
@@ -584,7 +676,7 @@ export class BarChartComponent implements OnInit, OnChanges, OnInit {
                 tooltip: {
                     show: true,
                     formatter: () => {
-                        return `Alarm (1)`;
+                        return `Alarm`;
                     }
                 },
                 draggable: {
