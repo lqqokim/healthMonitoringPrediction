@@ -1,6 +1,8 @@
 package com.bistel.pdm.batch.processor;
 
 import com.bistel.pdm.common.json.EventMasterDataSet;
+import com.bistel.pdm.lambda.kafka.expression.RuleEvaluator;
+import com.bistel.pdm.lambda.kafka.expression.RuleVariables;
 import com.bistel.pdm.lambda.kafka.master.MasterDataCache;
 import org.apache.kafka.streams.processor.AbstractProcessor;
 import org.apache.kafka.streams.processor.ProcessorContext;
@@ -27,10 +29,21 @@ public class StatusMarkProcessor extends AbstractProcessor<String, byte[]> {
         String[] recordColumns = recordValue.split(SEPARATOR);
 
         EventMasterDataSet event = MasterDataCache.getInstance().getEventForProcess(partitionKey);
-        float paramValue = Float.parseFloat(recordColumns[event.getParamParseIndex()]);
+        if(event == null){
+            log.info("There are no registered events.");
+            return;
+        }
+
+        double paramValue = Double.parseDouble(recordColumns[event.getParamParseIndex()]);
+        log.debug("param:{}, value : {}, condition:{}", event.getParameterName(), paramValue, event.getCondition());
+
+        RuleVariables ruleVariables = new RuleVariables();
+        ruleVariables.putValue("value", paramValue);
+        RuleEvaluator ruleEvaluator = new RuleEvaluator(ruleVariables);
+        boolean isRun = ruleEvaluator.evaluate(event.getCondition());
 
         String statusCode;
-        if (paramValue >= event.getConditionValue()) {
+        if (isRun) {
             statusCode = "R";
         } else {
             statusCode = "I";

@@ -101,7 +101,7 @@ public class StreamingMasterDataDao {
             "select " +
                     "area.name area_name, eqp.name as eqp_name, eqp.rawid, event.rawid as event_rawid, " +
                     "event.event_name, event.event_type_cd, param.name as param_name, " +
-                    "event.condition_value, event.process_yn, param.parse_index " +
+                    "event.condition, event.process_yn, param.parse_index " +
                     "from area_mst_pdm area, eqp_mst_pdm eqp, param_mst_pdm param, eqp_event_mst_pdm event " +
                     "where area.rawid=eqp.area_mst_rawid " +
                     "and eqp.rawid=param.eqp_mst_rawid " +
@@ -127,7 +127,7 @@ public class StreamingMasterDataDao {
                 ds.setEventName(rs.getString(5));
                 ds.setEventTypeCD(rs.getString(6));
                 ds.setParameterName(rs.getString(7));
-                ds.setConditionValue(rs.getFloat(8));
+                ds.setCondition(rs.getString(8));
                 ds.setProcessYN(rs.getString(9));
                 ds.setParamParseIndex(rs.getInt(10));
 

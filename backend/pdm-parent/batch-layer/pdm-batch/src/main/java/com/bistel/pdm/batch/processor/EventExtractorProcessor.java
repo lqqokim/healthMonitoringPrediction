@@ -37,8 +37,6 @@ public class EventExtractorProcessor extends AbstractProcessor<String, byte[]> {
         String recordValue = new String(streamByteRecord);
         String[] recordColumns = recordValue.split(SEPARATOR);
 
-        EventMasterDataSet event = MasterDataCache.getInstance().getEventForProcess(partitionKey);
-
         String nowMsgStatusCodeAndTime = recordColumns[recordColumns.length - 1];
         String[] nowStatusCodeAndTime = nowMsgStatusCodeAndTime.split(":");
         String prevStatusAndTime = ":";
@@ -54,6 +52,7 @@ public class EventExtractorProcessor extends AbstractProcessor<String, byte[]> {
             if (prevStatusCodeAndTime[0].equalsIgnoreCase("I")
                     && !prevStatusCodeAndTime[0].equalsIgnoreCase(nowStatusCodeAndTime[0])) {
 
+                EventMasterDataSet event = MasterDataCache.getInstance().getEventByType(partitionKey, "S");
                 Long actualParamTime = parseStringToTimestamp(nowStatusCodeAndTime[1]);
                 String eventMessage = actualParamTime + "," + event.getEventRawId() + "," + event.getEventTypeCD();
 
@@ -63,6 +62,7 @@ public class EventExtractorProcessor extends AbstractProcessor<String, byte[]> {
             } else if (prevStatusCodeAndTime[0].equalsIgnoreCase("R")
                     && !prevStatusCodeAndTime[0].equalsIgnoreCase(nowStatusCodeAndTime[0])) {
 
+                EventMasterDataSet event = MasterDataCache.getInstance().getEventByType(partitionKey, "E");
                 Long actualParamTime = parseStringToTimestamp(prevStatusCodeAndTime[1]);
                 String eventMessage = actualParamTime + "," + event.getEventRawId() + "," + event.getEventTypeCD();
 
@@ -74,7 +74,7 @@ public class EventExtractorProcessor extends AbstractProcessor<String, byte[]> {
 
         // time, area, eqp, p1, p2, p3, p4, ... pn,curr_status:time,prev_status:time
         String newMsg = recordValue + "," + prevStatusAndTime;
-        context().forward(partitionKey, newMsg, "aggregator");
+        context().forward(partitionKey, newMsg.getBytes(), "aggregator");
 
         context().commit();
     }

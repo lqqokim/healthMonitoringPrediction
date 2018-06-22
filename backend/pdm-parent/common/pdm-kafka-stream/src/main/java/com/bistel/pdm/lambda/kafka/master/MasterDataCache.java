@@ -63,23 +63,47 @@ public class MasterDataCache {
 
     public ParameterHealthDataSet getParamHealthFD01(Long key){
         ParameterHealthDataSet healthData = null;
-        for(ParameterHealthDataSet health : this.paramHealthDataSet.get(key)){
-            if(health.getHealthCode().equalsIgnoreCase("FD_OOS")){
-                healthData = health;
-                break;
+
+        if(this.paramHealthDataSet.get(key) != null){
+            for(ParameterHealthDataSet health : this.paramHealthDataSet.get(key)){
+                if(health.getHealthCode().equalsIgnoreCase("FD_OOS")){
+                    healthData = health;
+                    break;
+                }
             }
         }
+
         return healthData;
     }
 
     public EventMasterDataSet getEventForProcess(String key) {
         EventMasterDataSet result = null;
-        for(EventMasterDataSet data : eventMasterDataSet.get(key)){
-            if(data.getProcessYN().equalsIgnoreCase("Y")){
-                result = data;
-                break;
+
+        if(eventMasterDataSet.get(key) != null){
+            for(EventMasterDataSet data : eventMasterDataSet.get(key)){
+                if(data.getProcessYN().equalsIgnoreCase("Y")
+                        && data.getEventTypeCD().equalsIgnoreCase("S")){
+                    result = data;
+                    break;
+                }
             }
         }
+
+        return result;
+    }
+
+    public EventMasterDataSet getEventByType(String key, String type) {
+        EventMasterDataSet result = null;
+        if(eventMasterDataSet.get(key) != null){
+            for(EventMasterDataSet data : eventMasterDataSet.get(key)){
+                if(data.getProcessYN().equalsIgnoreCase("Y")
+                        && data.getEventTypeCD().equalsIgnoreCase(type)){
+                    result = data;
+                    break;
+                }
+            }
+        }
+
         return result;
     }
 

@@ -23,8 +23,8 @@ public class RelationalListener extends RuleBaseListener {
         RuleParser.RelationalExpressionContext relationalExpression =
                 ctx.relationalExpression();
         if (relationalExpression != null) {
-            Integer secondOperand = (Integer) primaryExpressions.pop();
-            Integer firstOperand = (Integer) primaryExpressions.pop();
+            Double secondOperand = (Double) primaryExpressions.pop();
+            Double firstOperand = (Double) primaryExpressions.pop();
             String operator = ctx.getChild(1).getText();
             Boolean primaryExpression = null;
             switch (operator) {

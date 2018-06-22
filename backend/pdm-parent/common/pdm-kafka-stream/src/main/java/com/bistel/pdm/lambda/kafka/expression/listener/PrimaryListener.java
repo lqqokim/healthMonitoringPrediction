@@ -31,7 +31,7 @@ public class PrimaryListener extends RuleBaseListener {
     public void exitPrimaryExpression(RuleParser.PrimaryExpressionContext ctx) {
 
         if (pushPrimaryExpression(ctx.DECIMAL_CONSTANT(),
-                Integer::valueOf))
+                Double::valueOf))
             return;
 
         if (pushPrimaryExpression(ctx.IDENTIFIER(),

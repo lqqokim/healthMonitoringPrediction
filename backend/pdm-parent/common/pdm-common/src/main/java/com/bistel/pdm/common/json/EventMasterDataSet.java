@@ -28,8 +28,8 @@ public class EventMasterDataSet {
     @JsonProperty("parameterName")
     private String parameterName;
 
-    @JsonProperty("conditionValue")
-    private Float conditionValue;
+    @JsonProperty("condition")
+    private String condition;
 
     @JsonProperty("processYN")
     private String processYN;
@@ -97,12 +97,12 @@ public class EventMasterDataSet {
         this.parameterName = parameterName;
     }
 
-    public Float getConditionValue() {
-        return conditionValue;
+    public String getCondition() {
+        return condition;
     }
 
-    public void setConditionValue(Float conditionValue) {
-        this.conditionValue = conditionValue;
+    public void setCondition(String condition) {
+        this.condition = condition;
     }
 
     public String getProcessYN() {
