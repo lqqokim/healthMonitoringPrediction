@@ -60,11 +60,11 @@ public class BatchTraceTaskDef extends AbstractPipeline {
                         Serdes.String(),
                         Serdes.String());
 
-        StoreBuilder<KeyValueStore<String, String>> eventTimeSupplier =
+        StoreBuilder<KeyValueStore<String, Long>> eventTimeSupplier =
                 Stores.keyValueStoreBuilder(
                         Stores.persistentKeyValueStore("sustain-eventtime"),
                         Serdes.String(),
-                        Serdes.String());
+                        Serdes.Long());
 
         topology.addSource("input-trace", this.getInputTraceTopic())
                 .addProcessor("filtering", StreamFilterProcessor::new, "input-trace")
@@ -75,8 +75,9 @@ public class BatchTraceTaskDef extends AbstractPipeline {
                 .addStateStore(sustainPreviousSupplier, "extracting")
                 .addStateStore(processingWindowSupplier, "aggregator")
                 .addStateStore(eventTimeSupplier, "aggregator")
-                .addSink("output-event", this.getOutputEventTopic(), "event")
+
                 .addSink("output-trace", this.getOutputTraceTopic(), "marking")
+                .addSink("output-event", this.getOutputEventTopic(), "event")
                 .addSink("route-run", this.getRouteTraceRunTopic(), "aggregator")
                 .addSink("route-feature", this.getRouteFeatureTopic(), "aggregator")
                 .addSink("output-feature", this.getOutputFeatureTopic(), "aggregator");

@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  *
@@ -57,8 +58,10 @@ public class TimewaveConsumerRunnable implements Runnable {
         log.info("Reading topic: {}, db type: {} ", topicName, DataSource.getDBType());
 
         while (true) {
-            ConsumerRecords<String, byte[]> records = consumer.poll(10000); //10 sec.
+            ConsumerRecords<String, byte[]> records = consumer.poll(TimeUnit.SECONDS.toMillis(30));
             if (records.count() <= 0) continue;
+
+            log.debug(" polling {} records", records.count());
 
             try {
                 Map<String, Pair<Long, SensorRawData>> rawRow = new HashMap<>();

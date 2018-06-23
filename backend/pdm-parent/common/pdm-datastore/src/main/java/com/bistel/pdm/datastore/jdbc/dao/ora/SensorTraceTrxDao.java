@@ -57,74 +57,90 @@ public class SensorTraceTrxDao implements SensorTraceDataDao {
 
     @Override
     public void storeRecord(ConsumerRecords<String, byte[]> records) {
-        try (Connection conn = DataSource.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(INSERT_SQL)) {
-
+        try (Connection conn = DataSource.getConnection()) {
             conn.setAutoCommit(false);
 
-            for (ConsumerRecord<String, byte[]> record : records) {
-                //log.debug("offset={}, key={}, value={}", record.offset(), record.key(), record.value());
+            try(PreparedStatement pstmt = conn.prepareStatement(INSERT_SQL)) {
 
-                byte[] sensorData = record.value();
-                String valueString = new String(sensorData);
+                int batchCount = 0;
+                for (ConsumerRecord<String, byte[]> record : records) {
+                    //log.debug("offset={}, key={}, value={}", record.offset(), record.key(), record.value());
 
-                // time, area, eqp, p1, p2, p3, p4, ... pn, rsd01, rsd02, rsd03, rsd04, rsd05
-                String[] values = valueString.split(",");
+                    byte[] sensorData = record.value();
+                    String valueString = new String(sensorData);
 
-                List<ParameterMasterDataSet> paramData =
-                        MasterDataCache.getInstance().getParamMasterDataSet().get(record.key());
+                    // time, area, eqp, p1, p2, p3, p4, ... pn,
+                    String[] values = valueString.split(",");
 
-                for(ParameterMasterDataSet param : paramData){
-                    pstmt.setLong(1, param.getParameterRawId()); //param rawid
-                    pstmt.setFloat(2, Float.parseFloat(values[param.getParamParseIndex()])); //value
+                    List<ParameterMasterDataSet> paramData =
+                            MasterDataCache.getInstance().getParamMasterDataSet().get(record.key());
+                    log.debug("{} : {} params",record.key(), paramData.size());
 
-                    if (param.getUpperAlarmSpec() != null) {
-                        pstmt.setFloat(3, param.getUpperAlarmSpec()); //upper alarm spec
-                    } else {
-                        pstmt.setNull(3, Types.FLOAT);
+                    for (ParameterMasterDataSet param : paramData) {
+
+                        pstmt.setLong(1, param.getParameterRawId()); //param rawid
+                        pstmt.setFloat(2, Float.parseFloat(values[param.getParamParseIndex()])); //value
+
+                        log.debug("rawid:{}, value:{}", param.getParameterRawId(), Float.parseFloat(values[param.getParamParseIndex()]));
+
+                        if (param.getUpperAlarmSpec() != null) {
+                            pstmt.setFloat(3, param.getUpperAlarmSpec()); //upper alarm spec
+                        } else {
+                            pstmt.setNull(3, Types.FLOAT);
+                        }
+
+                        if (param.getUpperWarningSpec() != null) {
+                            pstmt.setFloat(4, param.getUpperWarningSpec()); //upper warning spec
+                        } else {
+                            pstmt.setNull(4, Types.FLOAT);
+                        }
+
+                        if (param.getTarget() != null) {
+                            pstmt.setFloat(5, param.getTarget()); //target
+                        } else {
+                            pstmt.setNull(5, Types.FLOAT);
+                        }
+
+                        if (param.getLowerAlarmSpec() != null) {
+                            pstmt.setFloat(6, param.getLowerAlarmSpec()); //lower alarm spec
+                        } else {
+                            pstmt.setNull(6, Types.FLOAT);
+                        }
+
+                        if (param.getLowerWarningSpec() != null) {
+                            pstmt.setFloat(7, param.getLowerWarningSpec()); //lower warning spec
+                        } else {
+                            pstmt.setNull(7, Types.FLOAT);
+                        }
+
+                        pstmt.setTimestamp(8, new Timestamp(Long.parseLong(values[0])));
+
+                        pstmt.addBatch();
+
+                        if (++batchCount == 100) {
+                            pstmt.executeBatch();
+                            pstmt.clearBatch();
+                            batchCount = 0;
+                            log.debug("{} records are inserted into TRACE_TRX_PDM.", batchCount);
+                        }
                     }
-
-                    if (param.getUpperWarningSpec() != null) {
-                        pstmt.setFloat(4, param.getUpperWarningSpec()); //upper warning spec
-                    } else {
-                        pstmt.setNull(4, Types.FLOAT);
-                    }
-
-                    if (param.getTarget() != null) {
-                        pstmt.setFloat(5, param.getTarget()); //target
-                    } else {
-                        pstmt.setNull(5, Types.FLOAT);
-                    }
-
-                    if (param.getLowerAlarmSpec() != null) {
-                        pstmt.setFloat(6, param.getLowerAlarmSpec()); //lower alarm spec
-                    } else {
-                        pstmt.setNull(6, Types.FLOAT);
-                    }
-
-                    if (param.getLowerWarningSpec() != null) {
-                        pstmt.setFloat(7, param.getLowerWarningSpec()); //lower warning spec
-                    } else {
-                        pstmt.setNull(7, Types.FLOAT);
-                    }
-
-                    pstmt.setTimestamp(8, new Timestamp(Long.parseLong(values[0])));
-
-                    pstmt.addBatch();
                 }
-                //log.debug("offset = " + record.offset() + " value = " + valueString);
-            }
 
-            try {
-                int[] ret = pstmt.executeBatch();
+                if (batchCount > 0) {
+                    pstmt.executeBatch();
+                    pstmt.clearBatch();
+                    log.debug("{} records are inserted into TRACE_TRX_PDM.", batchCount);
+                }
                 conn.commit();
-                log.debug("{} records are inserted into TRACE_TRX_PDM.", ret.length);
+
             } catch (Exception e) {
                 conn.rollback();
                 log.error(e.getMessage(), e);
+            } finally {
+                conn.setAutoCommit(true);
             }
 
-        } catch (SQLException e) {
+        } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
     }
@@ -176,6 +192,8 @@ public class SensorTraceTrxDao implements SensorTraceDataDao {
             int[] ret = pstmt.executeBatch();
             conn.commit();
             log.debug("{} records are inserted into TRACE_TRX_PDM.", ret.length);
+
+            conn.setAutoCommit(true);
 
         } catch (SQLException e) {
             log.error(e.getMessage(), e);

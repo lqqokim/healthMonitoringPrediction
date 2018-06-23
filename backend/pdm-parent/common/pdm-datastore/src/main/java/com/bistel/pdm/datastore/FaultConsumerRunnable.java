@@ -52,6 +52,7 @@ public class FaultConsumerRunnable implements Runnable {
         while (true) {
             ConsumerRecords<String, byte[]> records = consumer.poll(TimeUnit.SECONDS.toMillis(PollingDurations));
             if (records.count() > 0) {
+                log.debug(" polling {} records", records.count());
                 trxDao.storeRecord(records);
                 consumer.commitSync();
                 log.info("{} records are committed.", records.count());

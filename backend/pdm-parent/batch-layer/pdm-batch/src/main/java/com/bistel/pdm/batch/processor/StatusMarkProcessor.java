@@ -9,11 +9,17 @@ import org.apache.kafka.streams.processor.ProcessorContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 /**
  *
  */
 public class StatusMarkProcessor extends AbstractProcessor<String, byte[]> {
     private static final Logger log = LoggerFactory.getLogger(StatusMarkProcessor.class);
+
+    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
     private final static String SEPARATOR = ",";
 
@@ -35,7 +41,7 @@ public class StatusMarkProcessor extends AbstractProcessor<String, byte[]> {
         }
 
         double paramValue = Double.parseDouble(recordColumns[event.getParamParseIndex()]);
-        log.debug("param:{}, value : {}, condition:{}", event.getParameterName(), paramValue, event.getCondition());
+        log.debug("event param:{}, value : {}, condition:{}", event.getParameterName(), paramValue, event.getCondition());
 
         RuleVariables ruleVariables = new RuleVariables();
         ruleVariables.putValue("value", paramValue);
@@ -48,15 +54,28 @@ public class StatusMarkProcessor extends AbstractProcessor<String, byte[]> {
         } else {
             statusCode = "I";
         }
-        log.debug("key : {}, status : {} ", partitionKey, statusCode);
+
+        Long actualParamTime = parseStringToTimestamp(recordColumns[0]);
+        log.debug(" {} - {} ", partitionKey, statusCode);
 
         // add trace with status code
         // time, area, eqp, p1, p2, p3, p4, ... pn,curr_status:time
-        recordValue = recordValue + "," + statusCode + ":" + recordColumns[0];
-        context().forward(partitionKey, recordValue.getBytes(), "output-trace");
-        context().forward(partitionKey, recordValue.getBytes(), "extracting");
-
-        // commit the current processing progress
+        recordValue = recordValue + "," + statusCode + ":" + actualParamTime;
+        context().forward(partitionKey, recordValue.getBytes());
         context().commit();
+    }
+
+    private static Long parseStringToTimestamp(String item) {
+        Long time = 0L;
+
+        try {
+            Date parsedDate = dateFormat.parse(item);
+            Timestamp timestamp = new Timestamp(parsedDate.getTime());
+            time = timestamp.getTime();
+        } catch (Exception e) {
+            log.error(e.getMessage() + " : " + item, e);
+        }
+
+        return time;
     }
 }

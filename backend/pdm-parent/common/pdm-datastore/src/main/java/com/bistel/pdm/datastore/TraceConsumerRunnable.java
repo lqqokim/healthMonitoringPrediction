@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 /**
  *
@@ -50,8 +51,9 @@ public class TraceConsumerRunnable implements Runnable {
         log.info("Reading topic: {}, db type: {}", topicName, DataSource.getDBType());
 
         while (true) {
-            ConsumerRecords<String, byte[]> records = consumer.poll(1000); //1 sec.
+            ConsumerRecords<String, byte[]> records = consumer.poll(TimeUnit.SECONDS.toMillis(1)); //1 sec.
             if (records.count() > 0) {
+                log.debug(" polling {} records", records.count());
                 trxDao.storeRecord(records);
                 consumer.commitSync();
                 log.info("{} records are committed.", records.count());

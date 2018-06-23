@@ -7,8 +7,8 @@ import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.*;
-import java.util.concurrent.TimeUnit;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 
 /**
  *
@@ -23,16 +23,17 @@ public class FeatureTrxDao implements FeatureDataDao {
 
     @Override
     public void storeRecord(ConsumerRecords<String, byte[]> records) {
-        try (Connection conn = DataSource.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(INSERT_SQL)) {
+        try (Connection conn = DataSource.getConnection()) {
 
             conn.setAutoCommit(false);
+            try (PreparedStatement pstmt = conn.prepareStatement(INSERT_SQL)) {
 
-            for (ConsumerRecord<String, byte[]> record : records) {
-                byte[] features = record.value();
-                String valueString = new String(features);
-                String[] values = valueString.split(",");
-                log.debug("comming message : {}", valueString);
+                int batchCount = 0;
+                for (ConsumerRecord<String, byte[]> record : records) {
+                    byte[] features = record.value();
+                    String valueString = new String(features);
+                    String[] values = valueString.split(",");
+                    log.debug("comming message : {}", valueString);
 
 //                Long param_feature_rawid = Long.parseLong(values[1]);
 //                Timestamp timestamp = new Timestamp(Long.parseLong(values[0]));
@@ -47,18 +48,30 @@ public class FeatureTrxDao implements FeatureDataDao {
 //                    pstmt.setTimestamp(6, timestamp);
 //
 //                    pstmt.addBatch();
-//                }
-            }
 
-            try {
-                int[] ret = pstmt.executeBatch();
+                    if (++batchCount == 100) {
+                        pstmt.executeBatch();
+                        pstmt.clearBatch();
+                        batchCount = 0;
+                        log.debug("{} records are inserted into PARAM_FEATURE_AGG_TRX_PDM.", batchCount);
+                    }
+//                }
+                }
+
+                if (batchCount > 0) {
+                    pstmt.executeBatch();
+                    pstmt.clearBatch();
+                    log.debug("{} records are inserted into PARAM_FEATURE_AGG_TRX_PDM.", batchCount);
+                }
                 conn.commit();
-                log.debug("{} records are inserted into PARAM_FEATURE_AGG_TRX_PDM.", ret.length);
+
             } catch (Exception e) {
                 conn.rollback();
                 log.error(e.getMessage(), e);
+            } finally {
+                conn.setAutoCommit(true);
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
     }

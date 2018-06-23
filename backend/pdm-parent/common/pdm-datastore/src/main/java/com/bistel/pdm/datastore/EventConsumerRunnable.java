@@ -50,8 +50,9 @@ public class EventConsumerRunnable implements Runnable {
         log.info("Reading topic: {}, db type: {}", topicName, DataSource.getDBType());
 
         while (true) {
-            ConsumerRecords<String, byte[]> records = consumer.poll(TimeUnit.SECONDS.toMillis(PollingDurations));
+            ConsumerRecords<String, byte[]> records = consumer.poll(TimeUnit.SECONDS.toMillis(1));
             if (records.count() > 0) {
+                log.debug(" polling {} records", records.count());
                 trxDao.storeRecord(records);
                 consumer.commitSync();
                 log.info("{} records are committed.", records.count());

@@ -29,39 +29,36 @@ public class StreamingMasterDataDao {
                     "from area_mst_pdm area, eqp_mst_pdm eqp, param_mst_pdm param, trace_spec_mst_pdm spec " +
                     "where area.rawid=eqp.area_mst_rawid " +
                     "and eqp.rawid=param.eqp_mst_rawid " +
-                    "and param.rawid=spec.param_mst_rawid " +
+                    "and param.rawid=spec.param_mst_rawid(+) " +
                     "";
 
     public List<ParameterMasterDataSet> getParamMasterDataSet() throws SQLException {
         List<ParameterMasterDataSet> resultRows = new ArrayList<>();
 
         try (Connection conn = DataSource.getConnection();
-             PreparedStatement pst = conn.prepareStatement(PARAM_MASTER_DS_SQL);
-             ResultSet rs = pst.executeQuery()) {
+             PreparedStatement pst = conn.prepareStatement(PARAM_MASTER_DS_SQL)) {
 
             log.debug("sql:{}", PARAM_MASTER_DS_SQL);
 
-            while (rs.next()) {
-                ParameterMasterDataSet ds = new ParameterMasterDataSet();
-                ds.setAreaName(rs.getString(1));
-                ds.setEquipmentName(rs.getString(2));
-                ds.setParameterName(rs.getString(3));
-                ds.setParamParseIndex(rs.getInt(4));
-                ds.setParameterRawId(rs.getLong(5));
+            try (ResultSet rs = pst.executeQuery();) {
+                while (rs.next()) {
+                    ParameterMasterDataSet ds = new ParameterMasterDataSet();
+                    ds.setAreaName(rs.getString(1));
+                    ds.setEquipmentName(rs.getString(2));
+                    ds.setParameterName(rs.getString(3));
+                    ds.setParamParseIndex(rs.getInt(4));
+                    ds.setParameterRawId(rs.getLong(5));
 
-                ds.setUpperAlarmSpec(rs.getFloat(6));
-                ds.setUpperWarningSpec(rs.getFloat(7));
-                ds.setTarget(rs.getFloat(8));
-                ds.setLowerAlarmSpec(rs.getFloat(9));
-                ds.setLowerWarningSpec(rs.getFloat(10));
+                    ds.setUpperAlarmSpec(rs.getFloat(6));
+                    ds.setUpperWarningSpec(rs.getFloat(7));
+                    ds.setTarget(rs.getFloat(8));
+                    ds.setLowerAlarmSpec(rs.getFloat(9));
+                    ds.setLowerWarningSpec(rs.getFloat(10));
 
-                resultRows.add(ds);
+                    resultRows.add(ds);
+                }
             }
-        } catch (SQLException e) {
-            log.error(e.getMessage(), e);
-            throw e;
         }
-
         return resultRows;
     }
 

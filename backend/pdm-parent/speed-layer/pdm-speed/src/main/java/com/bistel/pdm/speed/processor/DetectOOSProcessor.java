@@ -43,6 +43,11 @@ public class DetectOOSProcessor extends AbstractProcessor<String, byte[]> {
         List<ParameterMasterDataSet> paramData =
                 MasterDataCache.getInstance().getParamMasterDataSet().get(partitionKey);
 
+        if(paramData == null){
+            log.debug("There are no registered the parameter.");
+            return;
+        }
+
         if (recordColumns[0].equalsIgnoreCase("kill-them")) {
             //aggregation whether alarm or warning.
 
@@ -55,16 +60,30 @@ public class DetectOOSProcessor extends AbstractProcessor<String, byte[]> {
                 ParameterHealthDataSet healthData =
                         MasterDataCache.getInstance().getParamHealthFD01(param.getParameterRawId());
 
-                ruleVariables.putValue("value", this.kvAlarmStore.get(paramKey));
+                if(healthData == null){
+                    log.debug("There are no registered the health spec.");
+                    continue;
+                }
+
+                double val = (double) this.kvAlarmStore.get(paramKey);
+                log.debug("alarm =[ value : {}, condition : {} ]", val, healthData.getAlarmCondition());
+
+                ruleVariables.putValue("value", val);
                 RuleEvaluator ruleEvaluator = new RuleEvaluator(ruleVariables);
                 boolean isAlarm = ruleEvaluator.evaluate(healthData.getAlarmCondition()); // will return true
 
                 if (!isAlarm) {
-                    ruleVariables.putValue("value", this.kvWarningStore.get(paramKey));
+
+                    // check warning
+                    val = (double) this.kvWarningStore.get(paramKey);
+                    log.debug("warning =[ value : {}, condition : {} ]", val, healthData.getWarningCondition());
+
+                    ruleVariables.putValue("value", val);
                     ruleEvaluator = new RuleEvaluator(ruleVariables);
                     boolean isWarning = ruleEvaluator.evaluate(healthData.getWarningCondition()); // will return true
 
                     if (isWarning) {
+                        // Warning
                         StringBuilder sb = new StringBuilder();
                         sb.append(param.getParameterRawId()).append(",")
                                 .append(healthData.getParamHealthRawId()).append(',')
@@ -78,6 +97,7 @@ public class DetectOOSProcessor extends AbstractProcessor<String, byte[]> {
                         this.kvAlarmStore.delete(paramKey);
 
                     } else {
+                        // Normal
                         StringBuilder sb = new StringBuilder();
                         sb.append(param.getParameterRawId()).append(",")
                                 .append(healthData.getParamHealthRawId()).append(',')
@@ -91,6 +111,8 @@ public class DetectOOSProcessor extends AbstractProcessor<String, byte[]> {
                         this.kvAlarmStore.delete(paramKey);
                     }
                 } else {
+
+                    // Alarm
                     StringBuilder sb = new StringBuilder();
                     sb.append(param.getParameterRawId()).append(",")
                             .append(healthData.getParamHealthRawId()).append(',')

@@ -24,36 +24,49 @@ public class EventTrxDao implements EventDataDao {
 
     @Override
     public void storeRecord(ConsumerRecords<String, byte[]> records) {
-        try (Connection conn = DataSource.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(INSERT_SQL)) {
+        try (Connection conn = DataSource.getConnection()) {
 
             conn.setAutoCommit(false);
+            try (PreparedStatement pstmt = conn.prepareStatement(INSERT_SQL)) {
 
-            for (ConsumerRecord<String, byte[]> record : records) {
-                //log.debug("offset={}, key={}, value={}", record.offset(), record.key(), record.value());
+                int batchCount = 0;
+                for (ConsumerRecord<String, byte[]> record : records) {
+                    //log.debug("offset={}, key={}, value={}", record.offset(), record.key(), record.value());
 
-                byte[] eventData = record.value();
-                String valueString = new String(eventData);
-                String[] values = valueString.split(",");
-                // time, event mst rawid, event type cd
+                    byte[] eventData = record.value();
+                    String valueString = new String(eventData);
+                    String[] values = valueString.split(",");
+                    // time, event mst rawid, event type cd
 
-                pstmt.setLong(1, Long.parseLong(values[1])); //eqp_event_mst_rawid
-                pstmt.setFloat(2, Float.parseFloat(values[2])); //event type cd (S,E)
-                pstmt.setTimestamp(3, new Timestamp(Long.parseLong(values[0])));
+                    pstmt.setLong(1, Long.parseLong(values[1])); //eqp_event_mst_rawid
+                    pstmt.setFloat(2, Float.parseFloat(values[2])); //event type cd (S,E)
+                    pstmt.setTimestamp(3, new Timestamp(Long.parseLong(values[0])));
 
-                pstmt.addBatch();
-                //log.debug("offset = " + record.offset() + " value = " + valueString);
-            }
+                    pstmt.addBatch();
+                    //log.debug("offset = " + record.offset() + " value = " + valueString);
 
-            try {
-                int[] ret = pstmt.executeBatch();
+                    if (++batchCount == 100) {
+                        pstmt.executeBatch();
+                        pstmt.clearBatch();
+                        batchCount = 0;
+                        log.debug("{} records are inserted into EQP_EVENT_TRX_PDM.", batchCount);
+                    }
+                }
+
+                if (batchCount > 0) {
+                    pstmt.executeBatch();
+                    pstmt.clearBatch();
+                    log.debug("{} records are inserted into EQP_EVENT_TRX_PDM.", batchCount);
+                }
                 conn.commit();
-                log.debug("{} records are inserted into EQP_EVENT_TRX_PDM.", ret.length);
+
             } catch (Exception e) {
                 conn.rollback();
                 log.error(e.getMessage(), e);
-            }
 
+            } finally {
+                conn.setAutoCommit(true);
+            }
         } catch (SQLException e) {
             log.error(e.getMessage(), e);
         }

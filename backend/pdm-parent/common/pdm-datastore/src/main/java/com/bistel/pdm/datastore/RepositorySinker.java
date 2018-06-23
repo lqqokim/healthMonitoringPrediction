@@ -18,7 +18,12 @@ import java.util.concurrent.TimeUnit;
 public class RepositorySinker {
     private static final Logger log = LoggerFactory.getLogger(RepositorySinker.class);
 
-    private final String topicPrefix = "pdm-output";
+    private final String outputEventTopic = "pdm-output-event";
+    private final String outputTraceTopic = "pdm-output-trace";
+    private final String outputTimewaveTopic = "pdm-output-raw";
+    private final String outputFeatureTopic = "pdm-output-feature";
+    private final String outputFaultTopic = "pdm-output-fault";
+
     private final String configPath;
     private final String groupId;
 
@@ -41,19 +46,19 @@ public class RepositorySinker {
         }
 
         executor.submit(new TimewaveConsumerRunnable(
-                producerProperties, this.groupId + "_raw", this.topicPrefix + "-raw"));
+                producerProperties, this.groupId + "_raw", outputTimewaveTopic));
 
         executor.submit(new TraceConsumerRunnable(
-                producerProperties, this.groupId + "_trace", this.topicPrefix + "-trace"));
+                producerProperties, this.groupId + "_trace", outputTraceTopic));
 
         executor.submit(new FeatureConsumerRunnable(
-                producerProperties, this.groupId + "_feature", this.topicPrefix + "-feature"));
+                producerProperties, this.groupId + "_feature", outputFeatureTopic));
 
         executor.submit(new FaultConsumerRunnable(
-                producerProperties, this.groupId + "_fault", this.topicPrefix + "-fault"));
+                producerProperties, this.groupId + "_fault", outputFaultTopic));
 
         executor.submit(new EventConsumerRunnable(
-                producerProperties, this.groupId + "_event", this.topicPrefix + "-event"));
+                producerProperties, this.groupId + "_event", outputEventTopic));
     }
 
     public void awaitTerminationAfterShutdown() {

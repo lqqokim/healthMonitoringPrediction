@@ -18,8 +18,6 @@ import java.util.Date;
 public class EventExtractorProcessor extends AbstractProcessor<String, byte[]> {
     private static final Logger log = LoggerFactory.getLogger(EventExtractorProcessor.class);
 
-    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-
     private KeyValueStore<String, String> kvStore;
 
     private final static String SEPARATOR = ",";
@@ -53,21 +51,23 @@ public class EventExtractorProcessor extends AbstractProcessor<String, byte[]> {
                     && !prevStatusCodeAndTime[0].equalsIgnoreCase(nowStatusCodeAndTime[0])) {
 
                 EventMasterDataSet event = MasterDataCache.getInstance().getEventByType(partitionKey, "S");
-                Long actualParamTime = parseStringToTimestamp(nowStatusCodeAndTime[1]);
-                String eventMessage = actualParamTime + "," + event.getEventRawId() + "," + event.getEventTypeCD();
+                String eventMessage = nowStatusCodeAndTime[1] + ","
+                        + event.getEventRawId() + "," + event.getEventTypeCD();
 
                 log.debug("Throw the start event!!! {}", partitionKey);
-                context().forward(partitionKey, eventMessage, "event");
+                context().forward(partitionKey, eventMessage.getBytes(), "event");
+                context().commit();
 
             } else if (prevStatusCodeAndTime[0].equalsIgnoreCase("R")
                     && !prevStatusCodeAndTime[0].equalsIgnoreCase(nowStatusCodeAndTime[0])) {
 
                 EventMasterDataSet event = MasterDataCache.getInstance().getEventByType(partitionKey, "E");
-                Long actualParamTime = parseStringToTimestamp(prevStatusCodeAndTime[1]);
-                String eventMessage = actualParamTime + "," + event.getEventRawId() + "," + event.getEventTypeCD();
+                String eventMessage = prevStatusCodeAndTime[1] + ","
+                        + event.getEventRawId() + "," + event.getEventTypeCD();
 
                 log.debug("Throw the end event!!! {}", partitionKey);
-                context().forward(partitionKey, eventMessage, "event");
+                context().forward(partitionKey, eventMessage.getBytes(), "event");
+                context().commit();
             }
             kvStore.put(partitionKey, nowMsgStatusCodeAndTime);
         }
@@ -75,21 +75,6 @@ public class EventExtractorProcessor extends AbstractProcessor<String, byte[]> {
         // time, area, eqp, p1, p2, p3, p4, ... pn,curr_status:time,prev_status:time
         String newMsg = recordValue + "," + prevStatusAndTime;
         context().forward(partitionKey, newMsg.getBytes(), "aggregator");
-
         context().commit();
-    }
-
-    private static Long parseStringToTimestamp(String item) {
-        Long time = 0L;
-
-        try {
-            Date parsedDate = dateFormat.parse(item);
-            Timestamp timestamp = new Timestamp(parsedDate.getTime());
-            time = timestamp.getTime();
-        } catch (Exception e) {
-            log.error(e.getMessage() + " : " + item, e);
-        }
-
-        return time;
     }
 }

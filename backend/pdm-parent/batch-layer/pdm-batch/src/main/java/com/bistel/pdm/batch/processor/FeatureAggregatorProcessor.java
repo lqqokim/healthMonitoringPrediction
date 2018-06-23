@@ -11,17 +11,16 @@ import org.apache.kafka.streams.state.KeyValueStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  *
  */
 public class FeatureAggregatorProcessor extends AbstractProcessor<String, byte[]> {
     private static final Logger log = LoggerFactory.getLogger(FeatureAggregatorProcessor.class);
-
-    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
     private final static String SEPARATOR = ",";
 
@@ -84,18 +83,21 @@ public class FeatureAggregatorProcessor extends AbstractProcessor<String, byte[]
         String[] currStatusAndTime = columns[columns.length - 2].split(":");
         String[] prevStatusAndTime = columns[columns.length - 1].split(":");
 
-        log.debug("prev, curr - ({}, {})", prevStatusAndTime[0], currStatusAndTime[0]);
+        log.debug(" ({} to {})", prevStatusAndTime[0], currStatusAndTime[0]);
 
         if (prevStatusAndTime[0].equalsIgnoreCase("I")
                 && !prevStatusAndTime[0].equalsIgnoreCase(currStatusAndTime[0])) {
-            Long paramTime = parseStringToTimestamp(currStatusAndTime[1]);
+            Long paramTime = Long.parseLong(currStatusAndTime[1]);
             // start event
             kvEventTimeStore.put(partitionKey, paramTime);
         }
 
         if (currStatusAndTime[0].equalsIgnoreCase("R")) {
-            Long paramTime = parseStringToTimestamp(currStatusAndTime[1]);
-            this.context().forward(partitionKey, streamByteRecord, "route-run"); // detect fault by real-time
+            Long paramTime = Long.parseLong(currStatusAndTime[1]);
+
+            context().forward(partitionKey, streamByteRecord, "route-run"); // detect fault by real-time
+            context().commit();
+
             kvWindowStore.put(partitionKey + ":" + paramTime, streamByteRecord);
 
         } else {
@@ -105,7 +107,8 @@ public class FeatureAggregatorProcessor extends AbstractProcessor<String, byte[]
 
                 //end trace
                 log.debug("are you ready? kill them!!!");
-                this.context().forward(partitionKey, "kill-them", "route-run");
+                context().forward(partitionKey, "kill-them".getBytes(), "route-run");
+                context().commit();
 
                 //aggregation
                 List<String> keyList = new ArrayList<>();
@@ -160,7 +163,7 @@ public class FeatureAggregatorProcessor extends AbstractProcessor<String, byte[]
                     }
 
                     Long sumStartDtts = kvEventTimeStore.get(partitionKey);
-                    Long sumEndDtts = parseStringToTimestamp(prevStatusAndTime[1]);
+                    Long sumEndDtts = Long.parseLong(prevStatusAndTime[1]);
 
                     // param rawid, count, max, min, median, avg, stddev, q1, q3, startDtts, endDtts
                     StringBuilder sbParamAgg = new StringBuilder();
@@ -177,28 +180,13 @@ public class FeatureAggregatorProcessor extends AbstractProcessor<String, byte[]
                             .append(sumEndDtts);
 
                     String msg = sbParamAgg.toString();
-                    log.debug("aggregation - key : {}, value : {} ", partitionKey, msg);
+                    log.debug(" {} : {} ", partitionKey, msg);
 
                     context().forward(partitionKey, msg.getBytes(), "route-feature");
                     context().forward(partitionKey, msg.getBytes(), "output-feature");
+                    context().commit();
                 }
             }
         }
-
-        context().commit();
-    }
-
-    private static Long parseStringToTimestamp(String item) {
-        Long time = 0L;
-
-        try {
-            Date parsedDate = dateFormat.parse(item);
-            Timestamp timestamp = new Timestamp(parsedDate.getTime());
-            time = timestamp.getTime();
-        } catch (Exception e) {
-            log.error(e.getMessage() + " : " + item, e);
-        }
-
-        return time;
     }
 }
