@@ -380,6 +380,9 @@ export class SeedConfig {
             `/node_modules/d3-format/package.json`,
             `/node_modules/d3-time/package.json`,
             `/node_modules/d3-time-format/package.json`,
+            // `!/node_modules/uuid/package.json`,
+            // '!/node_modules/crypto/package.json',
+            // '/node_modules/ng2-tree/package.json',
             // `/node_modules/localforage/package.json`
         ],
         paths: {
@@ -434,6 +437,7 @@ export class SeedConfig {
             'd3-format': `node_modules/d3-format/build/d3-format.js`,
             'd3-time': `node_modules/d3-time/build/d3-time.js`,
             'd3-time-format': `node_modules/d3-time-format/build/d3-time-format.js`,
+            'crypto': `sdk/libs/crypto/index.js`,
             // 'localforage': `node_modules/localforage/dist/localforage.js`,
 
 
@@ -485,6 +489,9 @@ export class SeedConfig {
             'ng2-toasty': 'node_modules/ng2-toasty/bundles/index.umd.js',
             'stompjs': 'node_modules/stompjs/lib/stomp.js',
             'ng.tree': 'node_modules/ng.tree/ng.tree.js',
+            'ng2-tree': 'node_modules/ng2-tree/index.js',
+            'crypto-js': 'node_modules/crypto-js/crypto-js.js',
+            'crypto': `src/client/sdk/libs/crypto/index.js`,
             // 'localforage': `node_modules/localforage/dist/localforage.js`,
             // 'angular2-off-click': 'node_modules/angular2-off-click/dist/src/index.js',
 
@@ -792,7 +799,6 @@ export class SeedConfig {
     }
 
     addPackageBundles(pack: ExtendPackages) {
-
         if (pack.path) {
             this.SYSTEM_CONFIG_DEV.paths[pack.name] = pack.path;
             this.SYSTEM_BUILDER_CONFIG.paths[pack.name] = pack.path;
