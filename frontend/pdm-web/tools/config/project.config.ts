@@ -267,7 +267,8 @@ export class ProjectConfig extends SeedConfig {
             {src: `${this.CSS_SRC}/widget-pdm.css`, inject: true, vendor: false},
             {src: `${this.CSS_SRC}/category-configuration.css`, inject: true, vendor: false},
             {src: `${this.CSS_SRC}/table-div.css`, inject: true, vendor: false},
-            {src: `${this.CSS_SRC}/pdm-global-style.css`, inject: true, vendor: false}
+            {src: `${this.CSS_SRC}/pdm-global-style.css`, inject: true, vendor: false},
+            {src: `${this.CSS_SRC}/ng2-tree.css`, inject: true, vendor: false}
         ];
 
         /* Add to or override NPM module configurations: */

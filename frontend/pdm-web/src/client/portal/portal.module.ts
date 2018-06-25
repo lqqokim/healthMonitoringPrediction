@@ -4,6 +4,8 @@ import { RouterModule } from '@angular/router';
 import { COMPILER_PROVIDERS } from '@angular/compiler';
 import { BrowserModule } from '@angular/platform-browser';
 
+import { TreeModule } from 'ng2-tree';
+
 import { BISTEL_SDKModule } from '../sdk';
 import { A3_CommonModule } from '../common';
 
@@ -95,8 +97,6 @@ import { PushService } from './push/push.service';
 
 import '../operators';
 
-// import { TreeModule } from 'ng2-tree';
-
 @NgModule({
     imports: [
         BrowserModule,
@@ -107,7 +107,7 @@ import '../operators';
         A3_CommonModule.forRoot(),
 
         RouterModule.forRoot(A3PortalRoutes),
-        // TreeModule
+        TreeModule
     ],
     declarations: [
         PortalComponent,
