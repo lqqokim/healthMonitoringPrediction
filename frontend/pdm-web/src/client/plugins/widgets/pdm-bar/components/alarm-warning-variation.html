@@ -41,7 +41,7 @@
             <span>Jeopardy</span>
         </div>
         <div class="alarm-width-calc">
-            <div id="bad{{i}}" class="pdm-radar-wrapper" (mouseenter)="mouseEnter(item, $event, i)" 
+            <div id="bad{{i}}" class="pdm-radar-wrapper" (click)="onEqpClick($event, item)" (mouseenter)="mouseEnter(item, $event, i)" 
                 *ngFor="let item of B5Datas; let i = index;" [ngClass]="{'alram-type-bad':item.type === 'B5', 'type-none': item.type === ''}">
                 <div class="pdm-radar-section clearfix" (click)="onClickSection(item.type, i);" 
                 [ngClass]="{'bad-section-active': selectedBadSection === i}">
