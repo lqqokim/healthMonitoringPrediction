@@ -1,11 +1,11 @@
-<div class="widget pdm-line-status-summary-container">
+<div class="widget pdm-line-status-summary-container" #container>
     <div class="title clearfix">
         <div class="pdm-radar-legend pull-left">
             <span class="a3-synced-title">Time Period : </span> {{viewTimePriod.fromDate}} ~ {{viewTimePriod.toDate}}
         </div>
     </div>
 
-    <line-status-summary 
+    <line-status-summary #statusSummary
         [condition]="condition"
         (endChartLoad)="endChartLoad($event)">
     </line-status-summary>

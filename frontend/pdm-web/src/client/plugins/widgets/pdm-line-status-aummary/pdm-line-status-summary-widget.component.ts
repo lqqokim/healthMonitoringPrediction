@@ -1,5 +1,7 @@
-import { Component, OnInit, OnChanges } from '@angular/core';
+import { Component, OnInit, OnChanges, ViewEncapsulation, ElementRef, ViewChild } from '@angular/core';
 import { WidgetApi, WidgetRefreshType, OnSetup } from '../../../common';
+import { LineStatusSummaryComponent } from './components/line-status-summary.component';
+
 
 import * as IDataType from './model/data-type.interface';
 
@@ -10,14 +12,20 @@ import * as IDataType from './model/data-type.interface';
     styleUrls: ['./pdm-line-status-summary-widget.css']
 })
 export class PdmLineStatusSummaryWidgetComponent extends WidgetApi implements OnInit {
-
+    @ViewChild('container') container: ElementRef;
+    @ViewChild('statusSummary') statusSummary: LineStatusSummaryComponent;
+    
     viewTimePriod: any = {
         fromDate: 0,
         toDate: 0
     };
 
     condition: IDataType.ContitionType;
+    changeSize: any;
     private _props: any;
+
+    private _currentEl: ElementRef['nativeElement'] = undefined;
+    private resizeCallback: Function = this.onResize.bind(this);
 
     constructor() {
         super();
@@ -28,7 +36,25 @@ export class PdmLineStatusSummaryWidgetComponent extends WidgetApi implements On
     }
 
     ngOnInit() {
+        this._currentEl = $(this.container.nativeElement).parents('li.a3-widget-container')[0];
+        this._currentEl.addEventListener('transitionend', this.resizeCallback, false);
+        this.onResize();
+    }
 
+    onResize(e?: TransitionEvent): void {
+        if ((e !== undefined && !e.isTrusted) || this._currentEl === undefined) { return; }
+        if (e) {
+            setTimeout(() => {
+                this.statusSummary.onChartResize();                
+            }, 500);
+            // setTimeout(() => {
+            //     let targetEl = $(e.target)[0];
+            //     let chartEl = $(`#${this.chartId}`);
+            //     console.log('chartEl', chartEl);
+            //     console.log('height', targetEl.clientHeight, 'width', targetEl.clientWidth);
+            //     this.chart.resize({ height: targetEl.clientHeight - 22, width: targetEl.clientWidth - 154})
+            // }, 200);
+        }
     }
 
     refresh({ type, data }: WidgetRefreshType) {

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnChanges, SimpleChanges, EventEmitter, Output, Input } from '@angular/core';
+import { Component, OnInit, OnChanges, SimpleChanges, EventEmitter, Output, Input, ViewChild, ElementRef, ViewEncapsulation } from '@angular/core';
 
 import * as IDataType from './../model/data-type.interface';
 
@@ -6,25 +6,38 @@ import * as IDataType from './../model/data-type.interface';
     moduleId: module.id,
     selector: 'line-status-summary',
     templateUrl: './line-status-summary.html',
-    styleUrls: ['./line-status-summary.css']
+    styleUrls: ['./line-status-summary.css'],
 })
 export class LineStatusSummaryComponent implements OnInit, OnChanges {
     @Output() endChartLoad: EventEmitter<any> = new EventEmitter();
     @Input() condition: IDataType.ContitionType;
-    
+
     chartId;
+
+    private chart: any;
     private _props: any;
 
     constructor() {
     }
 
     ngOnChanges(changes: SimpleChanges) {
-        this.chartId = this.guid();        
-        this.setChartData();
+        for (let propName in changes) {
+            let change = changes[propName];
+            let curVal = change.currentValue;
+
+            if (propName === 'condition') {
+                this.chartId = this.guid();
+                this.setChartData();
+            }
+        }
     }
 
     ngOnInit() {
 
+    }
+
+    onChartResize(): void {
+        this.chart.resize();
     }
 
     setChartData(): void {
@@ -43,12 +56,12 @@ export class LineStatusSummaryComponent implements OnInit, OnChanges {
     }
 
     generateChart(chartData: any[], axisCategories: string[]): void {
-        const chart: any = c3Chart.generate({
+        this.chart = c3Chart.generate({
             bindto: `#${this.chartId}`,
-            size: {
-                height: 300,
-                width: 680
-            },
+            // size: {
+            //     height: 300,
+            //     width: 680
+            // },
             padding: {
                 top: 20
             },
@@ -70,7 +83,7 @@ export class LineStatusSummaryComponent implements OnInit, OnChanges {
                     failure: 'black',
                     offline: 'gray'
                 },
-                // groups: [['normal', 'warning', 'alarm', 'failure', 'offline']],
+                groups: [['normal', 'warning', 'alarm', 'failure', 'offline']],
                 order: 'asc'
             },
             zoom: {
@@ -102,19 +115,19 @@ export class LineStatusSummaryComponent implements OnInit, OnChanges {
             // }
         });
 
-        setTimeout(() => {
-            chart.groups([['normal', 'warning', 'alarm']])
-        }, 500);
-        
-        setTimeout(() => {
-            chart.groups([['normal', 'warning', 'alarm', 'failure', 'offline']])
-        }, 1000);
+        // setTimeout(() => {
+        //     this.chart.groups([['normal', 'warning', 'alarm']]);
+        // }, 500);
+
+        // setTimeout(() => {
+        //     this.chart.groups([['normal', 'warning', 'alarm', 'failure', 'offline']]);
+        // }, 1000);
     }
 
     private guid() {
         return 'xxx'.replace(/[xy]/g, (c) => {
-          var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-          return "C" + v.toString(16);
+            var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+            return "C" + v.toString(16);
         });
-      }
+    }
 }
