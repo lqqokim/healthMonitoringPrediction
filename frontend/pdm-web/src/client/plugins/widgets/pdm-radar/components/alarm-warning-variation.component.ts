@@ -448,14 +448,28 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
                         value: param.avgSpec
                     });
 
+                    let avgDaily: number;
+                    if(param.avgDaily > 1) {
+                        avgDaily = 1;
+                    } else {
+                        avgDaily = param.avgDaily;
+                    }
+
                     avgDailys.push({ //하루평균
                         axis: param.paramName,
-                        value: param.avgDaily
+                        value: avgDaily
                     });
+
+                    let avgWithAW: number;
+                    if(param.avgWithAW > 1) {
+                        avgWithAW = 1;
+                    } else {
+                        avgWithAW = param.avgWithAW;
+                    }
 
                     avgWithAWs.push({ //평균값(Warning, Alarm)
                         axis: param.paramName,
-                        value: param.avgWithAW,
+                        value: avgWithAW,
                         data: param
                     })
 
