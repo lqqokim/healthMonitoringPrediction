@@ -1,4 +1,6 @@
-import { Component, OnInit, OnChanges, SimpleChanges, EventEmitter, Output } from '@angular/core';
+import { Component, OnInit, OnChanges, SimpleChanges, EventEmitter, Output, Input } from '@angular/core';
+
+import * as IDataType from './../model/data-type.interface';
 
 @Component({
     moduleId: module.id,
@@ -8,6 +10,7 @@ import { Component, OnInit, OnChanges, SimpleChanges, EventEmitter, Output } fro
 })
 export class LineStatusSummaryComponent implements OnInit, OnChanges {
     @Output() endChartLoad: EventEmitter<any> = new EventEmitter();
+    @Input() condition: IDataType.ContitionType;
     
     chartId;
     private _props: any;
@@ -16,12 +19,12 @@ export class LineStatusSummaryComponent implements OnInit, OnChanges {
     }
 
     ngOnChanges(changes: SimpleChanges) {
-        
+        this.chartId = this.guid();        
+        this.setChartData();
     }
 
     ngOnInit() {
-        this.chartId = this.guid();        
-        this.setChartData();
+
     }
 
     setChartData(): void {

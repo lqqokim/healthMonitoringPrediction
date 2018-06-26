@@ -31,7 +31,7 @@ export class Properties extends ConditionApi {
 	form(): [FormConfigType] {
 		const newConfig: FormConfigType = {
 			config: {
-				// isTimePeriod: false,
+				isTimePeriod: false,
 				format: 'yyyy/MM/dd hh:mm:ss'
 			}
 		};
