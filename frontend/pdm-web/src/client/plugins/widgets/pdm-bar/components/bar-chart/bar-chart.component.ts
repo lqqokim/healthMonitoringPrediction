@@ -411,7 +411,7 @@ export class BarChartComponent implements OnInit, OnChanges, OnInit {
                 axis: {
                     x: {
                         type: 'category',
-                        // categories: axisCategoryies
+                        categories: axisCategoryies
                     }
                 },
                 grid: {
@@ -595,7 +595,7 @@ export class BarChartComponent implements OnInit, OnChanges, OnInit {
                 axis: {
                     x: {
                         type: 'category',
-                        // categories: axisCategoryies
+                        categories: axisCategoryies
                     }
                 },
                 grid: {
