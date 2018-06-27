@@ -103,7 +103,6 @@ export class FabEditorComponent implements OnInit, OnChanges, AfterViewInit{
             if( file === undefined ){ return; }
 
             let div = this.getFabCanvas();
-            let imgUrl = URL.createObjectURL(file);
             let name = file.name;
             let progressbar = $(e.target).siblings('[filename] > [progress]');
 
@@ -114,6 +113,7 @@ export class FabEditorComponent implements OnInit, OnChanges, AfterViewInit{
                 progressbar.attr('progress', 'on');
             };
             reader.onload = ()=>{ 
+                const imgUrl = reader.result;
                 div.css({ backgroundImage: `url(${imgUrl})` });
                 this.fabInfo.image = imgUrl;
                 progressbar.attr('progress', '');
