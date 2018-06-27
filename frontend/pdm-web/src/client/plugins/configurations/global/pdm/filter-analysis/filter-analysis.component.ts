@@ -264,11 +264,14 @@ export class FilterAnalysisComponent implements OnInit {
 
     }
 
-    changeFieldNames(event) {
+    changeFieldNames(event, index) {
+        let fieldEl = $(`#field${index}`)[0];
         if (event.target.value.indexOf('reserved_col') > 0) {
-            this.isLocationDisabled = true;
+            fieldEl.disabled = true;
         } else {
-            this.isLocationDisabled = false;
+            if(fieldEl.disabled === true) {
+                fieldEl.disabled = false;
+            }
         }
     }
 

@@ -90,22 +90,22 @@
                                     <tbody>
                                         <tr *ngFor="let data of filterCriteriaDatas;let i=index">
                                             <td>
-                                                <select class='form-control' [(ngModel)]="data.fieldName" (change)="changeFieldNames($event);">
+                                                <select class='form-control' [(ngModel)]="data.fieldName" (change)="changeFieldNames($event, i);">
                                                     <option *ngFor="let item of filterCriteria.FieldName" [ngValue]="item.value">{{item.display}}</option>
                                                 </select>
                                             </td>
                                             <td>
-                                                <select class='form-control' [(ngModel)]="data.functionName" *ngIf="data.fieldName!='LOCATION'" [disabled]="isLocationDisabled">
+                                                <select id="field{{i}}" class='form-control' [(ngModel)]="data.functionName" *ngIf="data.fieldName!='LOCATION'" [disabled]="isLocationDisabled">
                                                     <option *ngFor="let item of functions" [ngValue]="item.value">{{item.display}}</option>
                                                 </select>
                                             </td>
                                             <td>
-                                                <select class='form-control' [(ngModel)]="data.condition" [disabled]="isLocationDisabled">
+                                                <select class='form-control' [(ngModel)]="data.condition">
                                                     <option *ngFor="let item of filterCriteria.Condition" [ngValue]="item.value">{{item.display}}</option>
                                                 </select>
                                             </td>
                                             <td>
-                                                <input type='text' class='form-control' [(ngModel)]="data.value" [disabled]="isLocationDisabled">
+                                                <input type='text' class='form-control' [(ngModel)]="data.value">
                                             </td>
                                             <td remove>
                                                 <span *ngIf="i!=0" (click)="clickRemoveFilter(i)" class="glyphicon glyphicon-minus rollover"
