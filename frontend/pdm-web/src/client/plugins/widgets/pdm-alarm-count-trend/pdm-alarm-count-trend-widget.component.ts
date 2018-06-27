@@ -3,17 +3,17 @@ import { WidgetApi, WidgetRefreshType, OnSetup } from '../../../common';
 
 import * as IDataType from './model/data-type.interface';
 
-import { AlarmCountSummaryComponent } from './components/alarm-count-summary.component';
+import { AlarmCountTrendComponent } from './components/alarm-count-trend.component';
 
 @Component({
     moduleId: module.id,
-    selector: 'pdm-alarm-count-summary-widget',
-    templateUrl: './pdm-alarm-count-summary-widget.html',
-    styleUrls: ['./pdm-alarm-count-summary-widget.css']
+    selector: 'pdm-alarm-count-trend-widget',
+    templateUrl: './pdm-alarm-count-trend-widget.html',
+    styleUrls: ['./pdm-alarm-count-trend-widget.css']
 })
-export class PdmAlarmCountSummaryWidgetComponent extends WidgetApi implements OnInit {
+export class PdmAlarmCountTrendWidgetComponent extends WidgetApi implements OnInit {
     @ViewChild('container') container: ElementRef;
-    @ViewChild('alarmCountSummaryComp') alarmCountSummaryComp: AlarmCountSummaryComponent;
+    @ViewChild('alarmCountTrendComp') alarmCountTrendComp: AlarmCountTrendComponent;
 
     viewTimePriod: any = {
         fromDate: 0,
@@ -39,11 +39,11 @@ export class PdmAlarmCountSummaryWidgetComponent extends WidgetApi implements On
         this._currentEl.addEventListener('transitionend', this.resizeCallback, false);
         this.onResize();
     }
-    
+
     onResize(e?: TransitionEvent): void {
         if ((e !== undefined && !e.isTrusted) || this._currentEl === undefined) { return; }
         if (e) {
-            this.alarmCountSummaryComp.onChartResize();                
+            this.alarmCountTrendComp.onChartResize();                
         }
     }
 

@@ -14,6 +14,8 @@ import { PdmRealTimeParamTrendModule } from './widgets/pdm-realtime-param-trend/
 import { PdmWostEqpListModule } from './widgets/pdm-worst-eqp-list/pdm-worst-eqp-list.module';
 import { PdmLineStatusSummaryWidgetModule } from './widgets/pdm-line-status-aummary/pdm-line-status-summary-widget.module';
 import { PdmAlarmCountSummaryWidgetModule } from './widgets/pdm-alarm-count-summary/pdm-alarm-count-summary-widget.module';
+import { PdmLineStatusTrendWidgetModule } from './widgets/pdm-line-status-trend/pdm-line-status-trend-widget.module';
+import { PdmAlarmCountTrendWidgetModule } from './widgets/pdm-alarm-count-trend/pdm-alarm-count-trend-widget.module';
 
 export const getWidgetClassInfo = (widgetName: string): any => {
     console.log('getWidgetClassInfo => ', widgetName);
@@ -50,6 +52,10 @@ export const getWidgetClassInfo = (widgetName: string): any => {
             return PdmLineStatusSummaryWidgetModule;
         case 'pdmAlarmCountSummary':
             return PdmAlarmCountSummaryWidgetModule;
+        case 'pdmLineStatusTrend':
+            return PdmLineStatusTrendWidgetModule;
+        case 'pdmAlarmCountTrend':
+            return PdmAlarmCountTrendWidgetModule;
         default:
             // TODO: change Module Empty chart
             return PdmAreaStatusOverviewModule;

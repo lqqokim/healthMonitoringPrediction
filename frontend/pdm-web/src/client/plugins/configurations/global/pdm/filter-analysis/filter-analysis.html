@@ -95,7 +95,7 @@
                                                 </select>
                                             </td>
                                             <td>
-                                                <select id="field{{i}}" class='form-control' [(ngModel)]="data.functionName" *ngIf="data.fieldName!='LOCATION'" [disabled]="isLocationDisabled">
+                                                <select id="field{{i}}" class='form-control' [(ngModel)]="data.functionName" *ngIf="data.fieldName!='LOCATION'">
                                                     <option *ngFor="let item of functions" [ngValue]="item.value">{{item.display}}</option>
                                                 </select>
                                             </td>

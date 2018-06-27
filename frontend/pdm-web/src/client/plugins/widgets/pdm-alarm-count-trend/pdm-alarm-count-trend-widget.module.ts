@@ -11,8 +11,8 @@ import { Properties } from './config/properties';
 import { PdmRadarChartConfig } from './config/chart.config';
 import { ViewConfig } from './config/view.config';
 
-import { PdmAlarmCountSummaryWidgetComponent } from './pdm-alarm-count-summary-widget.component';
-import { AlarmCountSummaryComponent } from './components/alarm-count-summary.component';
+import { PdmAlarmCountTrendWidgetComponent } from './pdm-alarm-count-trend-widget.component';
+import { AlarmCountTrendComponent } from './components/alarm-count-trend.component';
 
 @NgModule({
     imports: [
@@ -20,17 +20,17 @@ import { AlarmCountSummaryComponent } from './components/alarm-count-summary.com
         BISTEL_SDKModule
     ],
     declarations: [
-        PdmAlarmCountSummaryWidgetComponent,
-        AlarmCountSummaryComponent
+        PdmAlarmCountTrendWidgetComponent,
+        AlarmCountTrendComponent
     ],
     exports: [
-        PdmAlarmCountSummaryWidgetComponent
+        PdmAlarmCountTrendWidgetComponent
     ]
 })
-export class PdmAlarmCountSummaryWidgetModule {
+export class PdmAlarmCountTrendWidgetModule {
     static config(): any {
         return {
-            component: PdmAlarmCountSummaryWidgetComponent,
+            component: PdmAlarmCountTrendWidgetComponent,
             properties: Properties,
             inCondition: InCondition,
             outCondition: OutCondition,

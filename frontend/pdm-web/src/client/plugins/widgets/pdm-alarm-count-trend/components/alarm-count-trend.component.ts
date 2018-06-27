@@ -4,11 +4,11 @@ import * as IDataType from './../model/data-type.interface';
 
 @Component({
     moduleId: module.id,
-    selector: 'alarm-count-summary',
-    templateUrl: './alarm-count-summary.html',
-    styleUrls: ['./alarm-count-summary.css']
+    selector: 'alarm-count-trend',
+    templateUrl: './alarm-count-trend.html',
+    styleUrls: ['./alarm-count-trend.css']
 })
-export class AlarmCountSummaryComponent implements OnInit, OnChanges {
+export class AlarmCountTrendComponent implements OnInit, OnChanges {
     @Output() endChartLoad: EventEmitter<any> = new EventEmitter();
     @Input() condition: IDataType.ContitionType;
     
@@ -33,9 +33,9 @@ export class AlarmCountSummaryComponent implements OnInit, OnChanges {
     }
 
     setChartData(): void {
-        const alarms: any[] = ['alarm', 5, 4, 6, 5, 4];
-        const warnings: any[] = ['warning', 7, 8, 9, 12, 11];
-        const axisCategories: string[] = ['x', '1Line', '2Line', '3Line', '4Line', '5Line'];
+        const alarms: any[] = ['alarm', 23, 15, 23, 21, 24, 22, 21, 24];
+        const warnings: any[] = ['warning', 34, 32, 29, 35, 36, 40, 46];
+        const axisCategories: string[] = ['x', '5/19', '5/20', '5/21', '5/22', '5/23', '5/24', '5/25'];
         const chartData: any[] = [axisCategories, alarms, warnings];
 
         setTimeout(() => {
