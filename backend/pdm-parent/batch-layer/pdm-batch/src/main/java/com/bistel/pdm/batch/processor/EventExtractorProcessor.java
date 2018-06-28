@@ -42,7 +42,7 @@ public class EventExtractorProcessor extends AbstractProcessor<String, byte[]> {
         // extract event
         if (kvStore.get(partitionKey) == null) {
             kvStore.put(partitionKey, nowMsgStatusCodeAndTime);
-
+            prevStatusAndTime = nowMsgStatusCodeAndTime;
         } else {
             prevStatusAndTime = kvStore.get(partitionKey);
             String[] prevStatusCodeAndTime = prevStatusAndTime.split(":");
@@ -54,7 +54,7 @@ public class EventExtractorProcessor extends AbstractProcessor<String, byte[]> {
                 String eventMessage = nowStatusCodeAndTime[1] + ","
                         + event.getEventRawId() + "," + event.getEventTypeCD();
 
-                log.debug("Throw the start event!!! {}", partitionKey);
+                log.debug("[{}] - process started.", partitionKey);
                 context().forward(partitionKey, eventMessage.getBytes(), "event");
                 context().commit();
 
@@ -65,7 +65,7 @@ public class EventExtractorProcessor extends AbstractProcessor<String, byte[]> {
                 String eventMessage = prevStatusCodeAndTime[1] + ","
                         + event.getEventRawId() + "," + event.getEventTypeCD();
 
-                log.debug("Throw the end event!!! {}", partitionKey);
+                log.debug("[{}] - process ended.", partitionKey);
                 context().forward(partitionKey, eventMessage.getBytes(), "event");
                 context().commit();
             }

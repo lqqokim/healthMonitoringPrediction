@@ -18,7 +18,7 @@ public class EventProcessor extends AbstractProcessor<String, byte[]> {
 
     @Override
     public void process(String partitionKey, byte[] streamByteRecord) {
-        log.debug("Throw the event to output-event. {}", partitionKey);
+        log.debug("[{}] - Throw the event to output-event.", partitionKey);
         this.context().forward(partitionKey, streamByteRecord, "output-event");
         this.context().commit();
     }

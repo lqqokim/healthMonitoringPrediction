@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.*;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 /**
@@ -29,13 +30,15 @@ public class SensorTraceTrxDao implements SensorTraceDataDao {
                     "RESERVED_COL1, RESERVED_COL2, RESERVED_COL3, RESERVED_COL4, RESERVED_COL5) " +
                     "values (SEQ_TRACE_TRX_PDM.nextval,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
-    private static final String INSERT_SQL1 =
-            "insert into trace_trx_pdm (RAWID, PARAM_MST_RAWID, VALUE, RPM, ALARM_SPEC, " +
-                    "WARNING_SPEC, EVENT_DTTS, " +
-                    "RESERVED_COL1, RESERVED_COL2, RESERVED_COL3, RESERVED_COL4, RESERVED_COL5) " +
-                    "values (?,?,?,?,?,?,?,?,?,?,?,?)";
+//    private static final String INSERT_SQL1 =
+//            "insert into trace_trx_pdm (RAWID, PARAM_MST_RAWID, VALUE, RPM, " +
+//                    "ALARM_SPEC, " +
+//                    "WARNING_SPEC, EVENT_DTTS, " +
+//                    "RESERVED_COL1, RESERVED_COL2, RESERVED_COL3, RESERVED_COL4, RESERVED_COL5) " +
+//                    "values (?,?,?,?,?,?,?,?,?,?,?,?)";
 
-    public SensorTraceTrxDao() { }
+    public SensorTraceTrxDao() {
+    }
 
     @Override
     public Long getTraceRawId() throws SQLException {
@@ -60,7 +63,7 @@ public class SensorTraceTrxDao implements SensorTraceDataDao {
         try (Connection conn = DataSource.getConnection()) {
             conn.setAutoCommit(false);
 
-            try(PreparedStatement pstmt = conn.prepareStatement(INSERT_SQL)) {
+            try (PreparedStatement pstmt = conn.prepareStatement(INSERT_SQL)) {
 
                 int totalCount = 0;
                 int batchCount = 0;
@@ -75,14 +78,11 @@ public class SensorTraceTrxDao implements SensorTraceDataDao {
 
                     List<ParameterMasterDataSet> paramData =
                             MasterDataCache.getInstance().getParamMasterDataSet().get(record.key());
-                    log.debug("{} : {} params",record.key(), paramData.size());
+                    log.debug("{} - {} parameters", record.key(), paramData.size());
 
                     for (ParameterMasterDataSet param : paramData) {
-
                         pstmt.setLong(1, param.getParameterRawId()); //param rawid
                         pstmt.setFloat(2, Float.parseFloat(values[param.getParamParseIndex()])); //value
-
-                        log.debug("rawid:{}, value:{}", param.getParameterRawId(), Float.parseFloat(values[param.getParamParseIndex()]));
 
                         if (param.getUpperAlarmSpec() != null) {
                             pstmt.setFloat(3, param.getUpperAlarmSpec()); //upper alarm spec
@@ -114,7 +114,13 @@ public class SensorTraceTrxDao implements SensorTraceDataDao {
                             pstmt.setNull(7, Types.FLOAT);
                         }
 
-                        pstmt.setTimestamp(8, new Timestamp(Long.parseLong(values[0])));
+                        pstmt.setTimestamp(8, getTimeStampFromString(values[0]));
+
+                        pstmt.setNull(9, Types.VARCHAR);
+                        pstmt.setNull(10, Types.VARCHAR);
+                        pstmt.setNull(11, Types.VARCHAR);
+                        pstmt.setNull(12, Types.VARCHAR);
+                        pstmt.setNull(13, Types.VARCHAR);
 
                         pstmt.addBatch();
 
@@ -153,7 +159,7 @@ public class SensorTraceTrxDao implements SensorTraceDataDao {
         try (Connection conn = DataSource.getConnection()) {
 
             conn.setAutoCommit(false);
-            try (PreparedStatement pstmt = conn.prepareStatement(INSERT_SQL1)) {
+            try (PreparedStatement pstmt = conn.prepareStatement(INSERT_SQL)) {
 
                 int totalCount = 0;
                 int batchCount = 0;
@@ -165,31 +171,32 @@ public class SensorTraceTrxDao implements SensorTraceDataDao {
                     pstmt.setLong(2, sensorData.getParamMstRawid());
                     pstmt.setFloat(3, sensorData.getValue());
 
-                    if (sensorData.getRpm() != null) {
-                        pstmt.setFloat(4, sensorData.getRpm());
-                    } else {
-                        pstmt.setNull(4, Types.INTEGER);
-                    }
+//                    if (sensorData.getRpm() != null) {
+//                        pstmt.setFloat(4, sensorData.getRpm());
+//                    } else {
+//                        pstmt.setNull(4, Types.INTEGER);
+//                    }
+//
+//                    if (sensorData.getAlarmSpec() != null) {
+//                        pstmt.setFloat(5, sensorData.getAlarmSpec());
+//                    } else {
+//                        pstmt.setNull(5, Types.FLOAT);
+//                    }
+//
+//                    if (sensorData.getWarningSpec() != null) {
+//                        pstmt.setFloat(6, sensorData.getWarningSpec());
+//                    } else {
+//                        pstmt.setNull(6, Types.FLOAT);
+//                    }
 
-                    if (sensorData.getAlarmSpec() != null) {
-                        pstmt.setFloat(5, sensorData.getAlarmSpec());
-                    } else {
-                        pstmt.setNull(5, Types.FLOAT);
-                    }
-
-                    if (sensorData.getWarningSpec() != null) {
-                        pstmt.setFloat(6, sensorData.getWarningSpec());
-                    } else {
-                        pstmt.setNull(6, Types.FLOAT);
-                    }
-                    pstmt.setTimestamp(7, new Timestamp(sensorData.getEventDtts()));
+                    pstmt.setTimestamp(8, new Timestamp(sensorData.getEventDtts()));
 
                     //reserved columns
-                    pstmt.setString(8, sensorData.getReservedCol1());
-                    pstmt.setString(9, sensorData.getReservedCol2());
-                    pstmt.setString(10, sensorData.getReservedCol3());
-                    pstmt.setString(11, sensorData.getReservedCol4());
-                    pstmt.setString(12, sensorData.getReservedCol5());
+                    pstmt.setString(9, sensorData.getReservedCol1());
+                    pstmt.setString(10, sensorData.getReservedCol2());
+                    pstmt.setString(11, sensorData.getReservedCol3());
+                    pstmt.setString(12, sensorData.getReservedCol4());
+                    pstmt.setString(13, sensorData.getReservedCol5());
 
                     pstmt.addBatch();
 
@@ -218,5 +225,19 @@ public class SensorTraceTrxDao implements SensorTraceDataDao {
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
+    }
+
+    private Timestamp getTimeStampFromString(String timeFormatString) {
+        Timestamp timestamp = null;
+
+        try {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS");
+            java.util.Date parsedDate = dateFormat.parse(timeFormatString);
+            timestamp = new java.sql.Timestamp(parsedDate.getTime());
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+
+        return timestamp;
     }
 }

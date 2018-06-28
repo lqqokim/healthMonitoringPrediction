@@ -36,12 +36,13 @@ public class StatusMarkProcessor extends AbstractProcessor<String, byte[]> {
 
         EventMasterDataSet event = MasterDataCache.getInstance().getEventForProcess(partitionKey);
         if(event == null){
-            log.info("There are no registered events.");
+            log.info("[{}] - There are no registered events.", partitionKey);
             return;
         }
 
         double paramValue = Double.parseDouble(recordColumns[event.getParamParseIndex()]);
-        log.debug("event param:{}, value : {}, condition:{}", event.getParameterName(), paramValue, event.getCondition());
+        log.debug("[{}] - event param:{}, value : {}, condition:{}", partitionKey,
+                event.getParameterName(), paramValue, event.getCondition());
 
         RuleVariables ruleVariables = new RuleVariables();
         ruleVariables.putValue("value", paramValue);
@@ -56,7 +57,7 @@ public class StatusMarkProcessor extends AbstractProcessor<String, byte[]> {
         }
 
         Long actualParamTime = parseStringToTimestamp(recordColumns[0]);
-        log.debug(" {} - {} ", partitionKey, statusCode);
+        log.debug("[{}]- {} ", partitionKey, statusCode);
 
         // add trace with status code
         // time, area, eqp, p1, p2, p3, p4, ... pn,curr_status:time

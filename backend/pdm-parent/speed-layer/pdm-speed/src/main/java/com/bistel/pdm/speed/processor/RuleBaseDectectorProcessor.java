@@ -13,11 +13,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-/**
- *
- */
-public class DetectOOSProcessor extends AbstractProcessor<String, byte[]> {
-    private static final Logger log = LoggerFactory.getLogger(DetectOOSProcessor.class);
+public class RuleBaseDectectorProcessor extends AbstractProcessor<String, byte[]> {
+    private static final Logger log = LoggerFactory.getLogger(RuleBaseDectectorProcessor.class);
 
     private final static String SEPARATOR = ",";
 
@@ -44,7 +41,7 @@ public class DetectOOSProcessor extends AbstractProcessor<String, byte[]> {
                 MasterDataCache.getInstance().getParamMasterDataSet().get(partitionKey);
 
         if(paramData == null){
-            log.debug("There are no registered the parameter.");
+            log.debug("[{}] - There are no registered the parameter.", partitionKey);
             return;
         }
 
@@ -61,12 +58,12 @@ public class DetectOOSProcessor extends AbstractProcessor<String, byte[]> {
                         MasterDataCache.getInstance().getParamHealthFD01(param.getParameterRawId());
 
                 if(healthData == null){
-                    log.debug("There are no registered the health spec.");
+                    log.debug("[{}] - There are no registered the health spec.", partitionKey);
                     continue;
                 }
 
                 double val = (double) this.kvAlarmStore.get(paramKey);
-                log.debug("alarm =[ value : {}, condition : {} ]", val, healthData.getAlarmCondition());
+                log.debug("[{}] - alarm =[ value : {}, condition : {} ]", partitionKey, val, healthData.getAlarmCondition());
 
                 ruleVariables.putValue("value", val);
                 RuleEvaluator ruleEvaluator = new RuleEvaluator(ruleVariables);
@@ -76,7 +73,7 @@ public class DetectOOSProcessor extends AbstractProcessor<String, byte[]> {
 
                     // check warning
                     val = (double) this.kvWarningStore.get(paramKey);
-                    log.debug("warning =[ value : {}, condition : {} ]", val, healthData.getWarningCondition());
+                    log.debug("[{}] - warning =[ value : {}, condition : {} ]", partitionKey, val, healthData.getWarningCondition());
 
                     ruleVariables.putValue("value", val);
                     ruleEvaluator = new RuleEvaluator(ruleVariables);
@@ -93,23 +90,25 @@ public class DetectOOSProcessor extends AbstractProcessor<String, byte[]> {
                                 .append(healthData.getWarningCondition());
 
                         context().forward(partitionKey, sb.toString().getBytes(), "output-fault");
+                        log.debug("[{}] - WARNING to output-fault.", paramKey);
 
                         this.kvWarningStore.delete(paramKey);
                         this.kvAlarmStore.delete(paramKey);
 
                     } else {
                         // Normal
-//                        StringBuilder sb = new StringBuilder();
-//                        sb.append(param.getParameterRawId()).append(",")
-//                                .append(healthData.getParamHealthRawId()).append(',')
-//                                .append("0").append(",")
-//                                .append("N").append(",")
-//                                .append(context().timestamp());
-//
-//                        context().forward(partitionKey, sb.toString().getBytes(), "output-fault");
-//
-//                        this.kvWarningStore.delete(paramKey);
-//                        this.kvAlarmStore.delete(paramKey);
+                        StringBuilder sb = new StringBuilder();
+                        sb.append(param.getParameterRawId()).append(",")
+                                .append(healthData.getParamHealthRawId()).append(',')
+                                .append("0").append(",")
+                                .append("N").append(",")
+                                .append(context().timestamp());
+
+                        context().forward(partitionKey, sb.toString().getBytes(), "output-fault");
+                        log.debug("[{}] - NORMAL to output-fault.", paramKey);
+
+                        this.kvWarningStore.delete(paramKey);
+                        this.kvAlarmStore.delete(paramKey);
                     }
                 } else {
 
@@ -124,6 +123,7 @@ public class DetectOOSProcessor extends AbstractProcessor<String, byte[]> {
 
                     //time, param_rawid, health_rawid, vlaue, A/W, condition
                     context().forward(partitionKey, sb.toString().getBytes(), "output-fault");
+                    log.debug("[{}] - ALARM to output-fault.", paramKey);
 
                     this.kvWarningStore.delete(paramKey);
                     this.kvAlarmStore.delete(paramKey);

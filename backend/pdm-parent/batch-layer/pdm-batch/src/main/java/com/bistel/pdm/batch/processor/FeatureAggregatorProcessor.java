@@ -83,7 +83,7 @@ public class FeatureAggregatorProcessor extends AbstractProcessor<String, byte[]
         String[] currStatusAndTime = columns[columns.length - 2].split(":");
         String[] prevStatusAndTime = columns[columns.length - 1].split(":");
 
-        log.debug(" ({} to {})", prevStatusAndTime[0], currStatusAndTime[0]);
+        log.debug("[{}] - ({} to {})", partitionKey, prevStatusAndTime[0], currStatusAndTime[0]);
 
         if (prevStatusAndTime[0].equalsIgnoreCase("I")
                 && !prevStatusAndTime[0].equalsIgnoreCase(currStatusAndTime[0])) {
@@ -98,6 +98,7 @@ public class FeatureAggregatorProcessor extends AbstractProcessor<String, byte[]
             context().forward(partitionKey, streamByteRecord, "route-run"); // detect fault by real-time
             context().commit();
 
+            log.debug("[{}] - routed the stream to route-run.", partitionKey);
             kvWindowStore.put(partitionKey + ":" + paramTime, streamByteRecord);
 
         } else {
@@ -106,7 +107,7 @@ public class FeatureAggregatorProcessor extends AbstractProcessor<String, byte[]
                     currStatusAndTime[0].equalsIgnoreCase("I")) {
 
                 //end trace
-                log.debug("are you ready? kill them!!!");
+                log.debug("[{}] - The event changed from R to I, let's aggregate stats.", partitionKey);
                 context().forward(partitionKey, "kill-them".getBytes(), "route-run");
                 context().commit();
 
@@ -154,6 +155,8 @@ public class FeatureAggregatorProcessor extends AbstractProcessor<String, byte[]
                     }
                 }
 
+                log.debug("[{}] - There are {} parameters.", partitionKey, paramValues.size());
+
                 for (Long paramRawId : paramValues.keySet()) {
                     DescriptiveStatistics stats = new DescriptiveStatistics();
 
@@ -164,6 +167,8 @@ public class FeatureAggregatorProcessor extends AbstractProcessor<String, byte[]
 
                     Long sumStartDtts = kvEventTimeStore.get(partitionKey);
                     Long sumEndDtts = Long.parseLong(prevStatusAndTime[1]);
+
+                    if(sumStartDtts == null) sumStartDtts = sumEndDtts;
 
                     // startDtts, endDtts, param rawid, count, max, min, median, avg, stddev, q1, q3
                     StringBuilder sbStats = new StringBuilder();
@@ -185,6 +190,8 @@ public class FeatureAggregatorProcessor extends AbstractProcessor<String, byte[]
                     context().forward(partitionKey, msg.getBytes(), "route-feature");
                     context().forward(partitionKey, msg.getBytes(), "output-feature");
                     context().commit();
+
+                    log.debug("[{}] - forward aggregated stream to route-feature, output-feature.", partitionKey);
                 }
             }
         }

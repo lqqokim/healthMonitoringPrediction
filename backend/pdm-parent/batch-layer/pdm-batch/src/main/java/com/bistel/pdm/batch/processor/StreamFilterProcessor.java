@@ -20,7 +20,7 @@ public class StreamFilterProcessor extends AbstractProcessor<String, byte[]> {
     @Override
     public void process(String partitionKey, byte[] streamByteRecord) {
         if (!MasterDataCache.getInstance().getEqpMasterDataSet().containsKey(partitionKey)) {
-            log.info("{} does not existed.", partitionKey);
+            log.info("[{}] - Not existed.", partitionKey);
         } else {
             context().forward(partitionKey, streamByteRecord);
             // commit the current processing progress

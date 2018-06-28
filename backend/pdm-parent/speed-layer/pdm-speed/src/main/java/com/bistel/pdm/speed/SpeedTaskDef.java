@@ -1,7 +1,7 @@
 package com.bistel.pdm.speed;
 
 import com.bistel.pdm.lambda.kafka.AbstractPipeline;
-import com.bistel.pdm.speed.processor.DetectOOSProcessor;
+import com.bistel.pdm.speed.processor.RealTimeDetectorProcessor;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KafkaStreams;
@@ -61,7 +61,7 @@ public class SpeedTaskDef extends AbstractPipeline {
 
 
         topology.addSource("input-trace-run", this.getRouteTraceRunTopic())
-                .addProcessor("outofspec", DetectOOSProcessor::new, "input-trace-run")
+                .addProcessor("outofspec", RealTimeDetectorProcessor::new, "input-trace-run")
                 .addStateStore(alarmCountSupplier, "outofspec")
                 .addStateStore(warningCountSupplier, "outofspec")
                 .addSink("output-fault", this.getOutputFaultTopic(), "outofspec");

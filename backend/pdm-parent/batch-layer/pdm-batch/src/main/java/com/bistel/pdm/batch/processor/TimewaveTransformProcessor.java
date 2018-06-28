@@ -97,7 +97,7 @@ public class TimewaveTransformProcessor extends AbstractProcessor<String, byte[]
             }
         }
 
-        log.debug("param rawid : {}", param.getParameterRawId());
+        log.debug("[{}] - param rawid : {}", partitionKey, param.getParameterRawId());
         context().forward(partitionKey, streamByteRecord);
         // commit the current processing progress
         context().commit();
