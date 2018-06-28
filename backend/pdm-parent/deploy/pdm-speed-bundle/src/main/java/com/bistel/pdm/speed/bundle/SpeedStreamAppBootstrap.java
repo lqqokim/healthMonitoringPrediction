@@ -1,6 +1,6 @@
 package com.bistel.pdm.speed.bundle;
 
-import com.bistel.pdm.speed.FaultDetector;
+import com.bistel.pdm.speed.SpeedTaskDef;
 import org.apache.commons.cli.*;
 import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
@@ -18,8 +18,7 @@ public class SpeedStreamAppBootstrap {
 
     private static final String APPLICATION_ID = "appId";
     private static final String BROKERS = "brokers";
-    private static final String INPUT_TOPIC = "inputTopic";
-    private static final String OUTPUT_TOPIC = "outputTopic";
+    private static final String SCHEMA_REGISTRY_URL = "registryUrl";
     private static final String SERVING_ADDR = "servingAddr";
     private static final String LOG_PATH = "log4jConf";
 
@@ -31,8 +30,7 @@ public class SpeedStreamAppBootstrap {
         CommandLine commandLine = parseCommandLine(args);
         String appId = commandLine.getOptionValue(APPLICATION_ID);
         String brokers = commandLine.getOptionValue(BROKERS);
-        String inTopic = commandLine.getOptionValue(INPUT_TOPIC);
-        String outTopic = commandLine.getOptionValue(OUTPUT_TOPIC);
+        String schemaUrl = commandLine.getOptionValue(SCHEMA_REGISTRY_URL);
         String servingAddr = commandLine.getOptionValue(SERVING_ADDR);
         String logPath = commandLine.getOptionValue(LOG_PATH);
 
@@ -40,10 +38,7 @@ public class SpeedStreamAppBootstrap {
         logProperties.load(new FileInputStream(logPath));
         PropertyConfigurator.configure(logProperties);
 
-        try (FaultDetector processor =
-                     new FaultDetector(appId, brokers,
-                             inTopic, outTopic, servingAddr)) {
-
+        try (SpeedTaskDef processor = new SpeedTaskDef(appId, brokers, schemaUrl, servingAddr)) {
             processor.start();
         }
     }
@@ -51,16 +46,14 @@ public class SpeedStreamAppBootstrap {
     private static CommandLine parseCommandLine(String[] args) {
         Option appId = new Option(APPLICATION_ID, true, "application id");
         Option broker = new Option(BROKERS, true, "input/output broker");
-        Option inTopic = new Option(INPUT_TOPIC, true, "input topic name");
-        Option outTopic = new Option(OUTPUT_TOPIC, true, "output topic name");
+        Option schemaUrl = new Option(SCHEMA_REGISTRY_URL, true, "schema registry url");
         Option servingAddr = new Option(SERVING_ADDR, true, "serving address");
         Option logPath = new Option(LOG_PATH, true, "config path");
 
-        options.addOption(appId).addOption(broker)
-                .addOption(inTopic).addOption(outTopic)
+        options.addOption(appId).addOption(broker).addOption(schemaUrl)
                 .addOption(servingAddr).addOption(logPath);
 
-        if (args.length < 6) {
+        if (args.length < 5) {
             printUsageAndExit();
         }
         CommandLineParser parser = new DefaultParser();

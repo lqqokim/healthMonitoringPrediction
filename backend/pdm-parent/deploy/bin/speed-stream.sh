@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
 APPNAME="Speed Layer"
 APPPID=speed.pid
-APPJAR=uber-pdm-speed-pipeline-bundle-1.0-SNAPSHOT.jar
+APPJAR=pdm-speed-bundle-1.0-SNAPSHOT.jar
 APPOPTS="-appId speed_01
 -brokers 192.168.7.228:29092,192.168.7.228:39092,192.168.7.228:49092
--inputTopic pdm-feature
--outputTopic pdm-output-OOS
+-registryUrl http://192.168.7.228:8081
 -servingAddr http://192.168.7.227:28000
 -log4jConf ./config/log4j-trace.properties"
 

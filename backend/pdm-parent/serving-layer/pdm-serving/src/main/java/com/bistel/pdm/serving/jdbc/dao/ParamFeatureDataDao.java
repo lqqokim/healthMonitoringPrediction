@@ -15,10 +15,13 @@ import java.util.List;
 public class ParamFeatureDataDao {
     private static final Logger log = LoggerFactory.getLogger(ParamFeatureDataDao.class);
 
-    private final static String MASTER_DS_SQL =
+    private final static String FEATURE_DS_SQL =
             "select " +
-                    "p.rawid as param_rawid, f.rawid as feature_rawid, " +
-                    "p.name as param_name, f.feature_name, f.main_yn, f.aggregate_yn " +
+                    "p.rawid as param_rawid, " +
+                    "f.rawid as feature_rawid, " +
+                    "p.name as param_name, " +
+                    "f.feature_name, " +
+                    "f.main_yn " +
                     "from param_mst_pdm p, param_feature_mst_pdm f " +
                     "where p.rawid=f.param_mst_rawid ";
 
@@ -26,10 +29,10 @@ public class ParamFeatureDataDao {
         List<FeatureDataSet> resultRows = new ArrayList<>();
 
         try (Connection conn = DataSource.getConnection();
-             PreparedStatement pst = conn.prepareStatement(MASTER_DS_SQL);
+             PreparedStatement pst = conn.prepareStatement(FEATURE_DS_SQL);
              ResultSet rs = pst.executeQuery()) {
 
-            log.debug("sql:{}", MASTER_DS_SQL);
+            log.debug("sql:{}", FEATURE_DS_SQL);
 
             while (rs.next()) {
                 FeatureDataSet ds = new FeatureDataSet();
@@ -38,7 +41,6 @@ public class ParamFeatureDataDao {
                 ds.setParamName(rs.getString(3));
                 ds.setFeatureName(rs.getString(4));
                 ds.setMainYN(rs.getString(5));
-                ds.setAggregateYN(rs.getString(6));
 
                 resultRows.add(ds);
             }

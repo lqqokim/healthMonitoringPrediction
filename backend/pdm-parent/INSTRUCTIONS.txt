@@ -163,12 +163,36 @@ docker run \
     --rm \
     confluentinc/cp-kafka:4.1.0 \
     kafka-topics --create \
-    --topic pdm-feature \
-    --partitions 10 \
+    --topic pdm-output-fault \
+    --partitions 5 \
     --replication-factor 1 \
     --if-not-exists \
-    --zookeeper 192.168.7.229:32181 \
+    --zookeeper 192.168.1.172:32181 \
     --config retention.ms=3600000
+
+
+docker run \
+    --net=host \
+    --rm \
+    confluentinc/cp-kafka:4.1.0 \
+    kafka-topics --create \
+    --topic pdm-output-event \
+    --partitions 5 \
+    --replication-factor 1 \
+    --if-not-exists \
+    --zookeeper 192.168.1.172:32181 \
+    --config retention.ms=3600000
+
+docker run \
+    --net=host \
+    --rm \
+    confluentinc/cp-kafka:4.1.0 \
+    kafka-topics --create \
+    --topic pdm-feature \
+    --partitions 5 \
+    --replication-factor 1 \
+    --if-not-exists \
+    --zookeeper 192.168.1.172:32181
 
 
 docker run \

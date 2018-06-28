@@ -13,79 +13,63 @@ import java.io.Closeable;
 public abstract class AbstractPipeline implements Closeable {
     private static final Logger log = LoggerFactory.getLogger(AbstractPipeline.class);
 
-    protected String applicationId;
-
-    private final String broker;
-    private final String inputTopic;
-
-    private final String outputTopic;
-    private final String outputFeatureTopic;
-
-    private final String featureTopic;
+    protected static final String stateDir = "/tmp/kafka-streams";
 
     private final String schemaRegistryUrl;
 
-    protected AbstractPipeline(String brokers,
-                               String inTopicName,
-                               String outTopicName,
-                               String outputFeatureTopic,
-                               String featureTopic,
-                               String schemaUrl,
-                               String servingAddr) {
+    private final String broker;
 
+    private final String inputTraceTopic = "pdm-input-trace";
+    private final String inputTimewaveTopic = "pdm-input-raw";
+
+    private final String outputEventTopic = "pdm-output-event";
+    private final String outputTraceTopic = "pdm-output-trace";
+    private final String outputTimewaveTopic = "pdm-output-raw";
+    private final String outputFeatureTopic = "pdm-output-feature";
+    private final String outputFaultTopic = "pdm-output-fault";
+
+    private final String routeTraceRunTopic = "pdm-route-run";
+    private final String routeFeatureTopic = "pdm-route-feature";
+
+    protected AbstractPipeline(String brokers, String schemaUrl, String servingAddr) {
 //        Objects.requireNonNull(config);
 //        log.info("Configuration:\n{}", ConfigUtils.prettyPrint(config));
 
-        this.applicationId = this.getApplicationId();
         this.broker = brokers;
-
-        this.inputTopic = inTopicName;
-        this.outputTopic = outTopicName;
-        this.outputFeatureTopic = outputFeatureTopic;
-        this.featureTopic = featureTopic;
-
         this.schemaRegistryUrl = schemaUrl;
 
-        this.reload(servingAddr);
-    }
-
-    protected AbstractPipeline(String brokers,
-                               String inTopicName,
-                               String outTopicName,
-                               String servingAddr) {
-
-//        Objects.requireNonNull(config);
-//        log.info("Configuration:\n{}", ConfigUtils.prettyPrint(config));
-
-        this.applicationId = this.getApplicationId();
-        this.broker = brokers;
-
-        this.inputTopic = inTopicName;
-        this.outputTopic = outTopicName;
-
-        this.outputFeatureTopic = "";
-        this.featureTopic = "";
-        this.schemaRegistryUrl = "";
-
+        // reload master
         this.reload(servingAddr);
     }
 
     public void reload(String servingAddr) {
         log.info("request to update master...");
 
-        String tartgetUrl = servingAddr + "/pdm/api/master/latest/param";
-        log.info("call to {}", tartgetUrl);
-        MasterDataUpdater.updateMasterDataSet(tartgetUrl);
+        String targetUrl = servingAddr + "/pdm/api/master/latest/equipment";
+        log.info("call to {}", targetUrl);
+        MasterDataUpdater.updateEqpMasterDataSet(targetUrl);
 
-        tartgetUrl = servingAddr + "/pdm/api/master/latest/spec";
-        log.info("call to {}", tartgetUrl);
-        MasterDataUpdater.updateParamSpecDataSet(tartgetUrl);
+        targetUrl = servingAddr + "/pdm/api/master/latest/param";
+        log.info("call to {}", targetUrl);
+        MasterDataUpdater.updateParameterMasterDataSet(targetUrl);
 
-        tartgetUrl = servingAddr + "/pdm/api/master/latest/features";
-        log.info("call to {}", tartgetUrl);
-        MasterDataUpdater.updateParamFeatureDataSet(tartgetUrl);
+        targetUrl = servingAddr + "/pdm/api/master/latest/event";
+        log.info("call to {}", targetUrl);
+        MasterDataUpdater.updateEventMasterDataSet(targetUrl);
 
-        log.info("all master data(param, spec, features) is reloaded.");
+        targetUrl = servingAddr + "/pdm/api/master/latest/spec";
+        log.info("call to {}", targetUrl);
+        MasterDataUpdater.updateParamSpecDataSet(targetUrl);
+
+        targetUrl = servingAddr + "/pdm/api/master/latest/features";
+        log.info("call to {}", targetUrl);
+        MasterDataUpdater.updateParamFeatureDataSet(targetUrl);
+
+        targetUrl = servingAddr + "/pdm/api/master/latest/health";
+        log.info("call to {}", targetUrl);
+        MasterDataUpdater.updateParamHealthDataSet(targetUrl);
+
+        log.info("all master data(equipment, param, event, spec, features, health) is reloaded.");
     }
 
     protected abstract String getApplicationId();
@@ -94,23 +78,43 @@ public abstract class AbstractPipeline implements Closeable {
         return broker;
     }
 
-    public String getInputTopic() {
-        return inputTopic;
+    public String getInputTraceTopic() {
+        return inputTraceTopic;
+    }
+
+    public String getInputTimewaveTopic() {
+        return inputTimewaveTopic;
+    }
+
+    public String getOutputEventTopic() {
+        return outputEventTopic;
+    }
+
+    public String getOutputTraceTopic() {
+        return outputTraceTopic;
+    }
+
+    public String getOutputTimewaveTopic() {
+        return outputTimewaveTopic;
     }
 
     public String getOutputFeatureTopic() {
         return outputFeatureTopic;
     }
 
-    public String getFeatureTopic() {
-        return featureTopic;
+    public String getOutputFaultTopic() {
+        return outputFaultTopic;
     }
 
-    public String getOutputTopic() {
-        return outputTopic;
+    public String getRouteFeatureTopic() {
+        return routeFeatureTopic;
     }
 
     public String getSchemaRegistryUrl() {
         return schemaRegistryUrl;
+    }
+
+    public String getRouteTraceRunTopic() {
+        return routeTraceRunTopic;
     }
 }

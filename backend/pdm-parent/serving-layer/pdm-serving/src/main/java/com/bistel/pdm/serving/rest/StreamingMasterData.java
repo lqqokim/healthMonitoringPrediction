@@ -1,10 +1,9 @@
 package com.bistel.pdm.serving.rest;
 
-import com.bistel.pdm.common.json.FeatureDataSet;
-import com.bistel.pdm.common.json.MasterDataSet;
-import com.bistel.pdm.common.json.ParameterSpecDataSet;
+import com.bistel.pdm.common.json.*;
 import com.bistel.pdm.serving.Exception.Message;
 import com.bistel.pdm.serving.jdbc.dao.ParamFeatureDataDao;
+import com.bistel.pdm.serving.jdbc.dao.ParamHealthDataDao;
 import com.bistel.pdm.serving.jdbc.dao.ParameterSpecDataDao;
 import com.bistel.pdm.serving.jdbc.dao.StreamingMasterDataDao;
 import org.slf4j.Logger;
@@ -29,15 +28,51 @@ public class StreamingMasterData {
     private static final Logger log = LoggerFactory.getLogger(StreamingMasterData.class);
 
     @GET
-    @Path("/latest/param")
-    public Response reloadAll() {
+    @Path("/latest/equipment")
+    public Response reloadEqpAll() {
 
         StreamingMasterDataDao repository = new StreamingMasterDataDao();
-        List<MasterDataSet> masterDataSet = null;
+        List<EquipmentMasterDataSet> masterDataSet = null;
 
         try {
-            masterDataSet = repository.getMasterDataSet();
-            log.info("Provides the latest master info. count={}", masterDataSet.size());
+            masterDataSet = repository.getEqpMasterDataSet();
+            log.info("Provides the latest equipment master info. count={}", masterDataSet.size());
+            return Response.status(Response.Status.OK).entity(masterDataSet).build();
+
+        } catch (SQLException e) {
+            log.error(e.getMessage(), e);
+            return Response.status(Response.Status.NOT_FOUND).entity(new Message(e.getMessage())).build();
+        }
+    }
+
+    @GET
+    @Path("/latest/param")
+    public Response reloadParamAll() {
+
+        StreamingMasterDataDao repository = new StreamingMasterDataDao();
+        List<ParameterMasterDataSet> masterDataSet = null;
+
+        try {
+            masterDataSet = repository.getParamMasterDataSet();
+            log.info("Provides the latest parameter master info. count={}", masterDataSet.size());
+            return Response.status(Response.Status.OK).entity(masterDataSet).build();
+
+        } catch (SQLException e) {
+            log.error(e.getMessage(), e);
+            return Response.status(Response.Status.NOT_FOUND).entity(new Message(e.getMessage())).build();
+        }
+    }
+
+    @GET
+    @Path("/latest/event")
+    public Response reloadEventAll() {
+
+        StreamingMasterDataDao repository = new StreamingMasterDataDao();
+        List<EventMasterDataSet> masterDataSet = null;
+
+        try {
+            masterDataSet = repository.getEventMasterDataSet();
+            log.info("Provides the latest event master info. count={}", masterDataSet.size());
             return Response.status(Response.Status.OK).entity(masterDataSet).build();
 
         } catch (SQLException e) {
@@ -55,7 +90,7 @@ public class StreamingMasterData {
 
         try {
             paramSpecDataSet = repository.getParamSpecDataSet();
-            log.info("Provides the latest spec info. count={}", paramSpecDataSet.size());
+            log.info("Provides the latest parameter spec info. count={}", paramSpecDataSet.size());
             return Response.status(Response.Status.OK).entity(paramSpecDataSet).build();
 
         } catch (SQLException e) {
@@ -75,6 +110,24 @@ public class StreamingMasterData {
             featureDataSet = repository.getAllFeatures();
             log.info("Provides the latest feature info. count={}", featureDataSet.size());
             return Response.status(Response.Status.OK).entity(featureDataSet).build();
+
+        } catch (SQLException e) {
+            log.error(e.getMessage(), e);
+            return Response.status(Response.Status.NOT_FOUND).entity(new Message(e.getMessage())).build();
+        }
+    }
+
+    @GET
+    @Path("/latest/health")
+    public Response reloadParamHealthAll() {
+
+        ParamHealthDataDao repository = new ParamHealthDataDao();
+        List<ParameterHealthDataSet> healthDataSet = null;
+
+        try {
+            healthDataSet = repository.getParamHealthDataSet();
+            log.info("Provides the latest feature info. count={}", healthDataSet.size());
+            return Response.status(Response.Status.OK).entity(healthDataSet).build();
 
         } catch (SQLException e) {
             log.error(e.getMessage(), e);

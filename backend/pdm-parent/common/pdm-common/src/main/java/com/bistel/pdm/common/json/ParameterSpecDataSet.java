@@ -10,14 +10,20 @@ public class ParameterSpecDataSet {
     @JsonProperty("paramRawId")
     private Long paramRawId;
 
-    @JsonProperty("featureName")
-    private String featureName;
+    @JsonProperty("upperWarningSpec")
+    private Float upperWarningSpec;
 
-    @JsonProperty("warningSpec")
-    private Float warningSpec;
+    @JsonProperty("upperAlarmSpec")
+    private Float upperAlarmSpec;
 
-    @JsonProperty("alarmSpec")
-    private Float alarmSpec;
+    @JsonProperty("target")
+    private Float target;
+
+    @JsonProperty("lowerWarningSpec")
+    private Float lowerWarningSpec;
+
+    @JsonProperty("lowerAlarmSpec")
+    private Float lowerAlarmSpec;
 
     public Long toKey() {
         return this.paramRawId;
@@ -31,27 +37,43 @@ public class ParameterSpecDataSet {
         this.paramRawId = paramRawId;
     }
 
-    public Float getAlarmSpec() {
-        return alarmSpec;
+    public Float getUpperWarningSpec() {
+        return upperWarningSpec;
     }
 
-    public void setAlarmSpec(Float alarmSpec) {
-        this.alarmSpec = alarmSpec;
+    public void setUpperWarningSpec(Float upperWarningSpec) {
+        this.upperWarningSpec = upperWarningSpec;
     }
 
-    public Float getWarningSpec() {
-        return warningSpec;
+    public Float getUpperAlarmSpec() {
+        return upperAlarmSpec;
     }
 
-    public void setWarningSpec(Float warningSpec) {
-        this.warningSpec = warningSpec;
+    public void setUpperAlarmSpec(Float upperAlarmSpec) {
+        this.upperAlarmSpec = upperAlarmSpec;
     }
 
-    public String getFeatureName() {
-        return featureName;
+    public Float getTarget() {
+        return target;
     }
 
-    public void setFeatureName(String featureName) {
-        this.featureName = featureName;
+    public void setTarget(Float target) {
+        this.target = target;
+    }
+
+    public Float getLowerWarningSpec() {
+        return lowerWarningSpec;
+    }
+
+    public void setLowerWarningSpec(Float lowerWarningSpec) {
+        this.lowerWarningSpec = lowerWarningSpec;
+    }
+
+    public Float getLowerAlarmSpec() {
+        return lowerAlarmSpec;
+    }
+
+    public void setLowerAlarmSpec(Float lowerAlarmSpec) {
+        this.lowerAlarmSpec = lowerAlarmSpec;
     }
 }

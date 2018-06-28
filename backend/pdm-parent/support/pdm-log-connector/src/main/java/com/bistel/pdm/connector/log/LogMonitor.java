@@ -68,15 +68,15 @@ public class LogMonitor extends Thread {
         tailerFactory.setStartTailingFromEnd(false);
         tailerFactory.setRelinquishLockBetweenChunks(true);
 
-        DefaultLogTailerListener listener = new DefaultLogTailerListener();
-        listener.setRawProducer(getRawProducer(producerProperties));
-        listener.setRmsProducer(getRmsProducer(producerProperties));
-        listener.setTopic(topicPrefixName);
-
-//        PfeifferLogTailerListener listener = new PfeifferLogTailerListener();
+//        DefaultLogTailerListener listener = new DefaultLogTailerListener();
 //        listener.setRawProducer(getRawProducer(producerProperties));
 //        listener.setRmsProducer(getRmsProducer(producerProperties));
 //        listener.setTopic(topicPrefixName);
+
+        PfeifferLogTailerListener listener = new PfeifferLogTailerListener();
+        listener.setRawProducer(getRawProducer(producerProperties));
+        listener.setRmsProducer(getRmsProducer(producerProperties));
+        listener.setTopic(topicPrefixName);
 
         tailerFactory.setListener(listener);
         return new TailerThreadManager(tailerFactory);

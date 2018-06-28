@@ -22,9 +22,6 @@ public class FeatureDataSet {
     @JsonProperty("mainYN")
     private String mainYN;
 
-    @JsonProperty("aggregateYN")
-    private String aggregateYN;
-
     public Long getParamRawId() {
         return paramRawId;
     }
@@ -63,13 +60,5 @@ public class FeatureDataSet {
 
     public void setMainYN(String mainYN) {
         this.mainYN = mainYN;
-    }
-
-    public String getAggregateYN() {
-        return aggregateYN;
-    }
-
-    public void setAggregateYN(String aggregateYN) {
-        this.aggregateYN = aggregateYN;
     }
 }
