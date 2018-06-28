@@ -90,6 +90,8 @@ export class FilterAnalysisComponent implements OnInit {
     // eqpNParamIds = [];
     eqpIdsParamIds = [];
     datas = [];
+    
+    selectedNormalize = false;
 
     percentage: any = 0;
     totalCount = 0;
@@ -100,8 +102,17 @@ export class FilterAnalysisComponent implements OnInit {
     overalyType = false;
 
     trendData = [[[1, 1], [2, 2], [3, 0.5], [4, 3], [5, 1.5]]];
+    trendData_org :any;
 
     isLocationDisabled: boolean = false;
+
+    periods = [
+        {name:'5 Minutes',value:5*60*1000},
+        {name:'10 Minutes',value:10*60*1000},
+        {name:'1 Hour',value:60*60*1000},
+        {name:'1 Day',value:24*60*60*1000},
+    ]
+    selectedPeriod=5*60*1000;
 
     trendConfig: any = {
         legend: {
@@ -162,16 +173,33 @@ export class FilterAnalysisComponent implements OnInit {
 
 
     constructor(private pdmModelService: PdmModelService, private pdmConfigService: PdmConfigService) {
+        let period:any =  localStorage.getItem("filter-analysis-period");
+        if(period!=null){
+            this.selectedPeriod = JSON.parse(period);
+        }
+
         this.searchTimePeriod.to = new Date().getTime();
-        let fromDate = new Date();
-        fromDate.setDate(fromDate.getDate() - 1);
-        this.searchTimePeriod.from = fromDate.getTime();
+        // let fromDate = new Date();
+        // fromDate.setTime(fromDate.getTime() - 5*60*1000);
+        // this.searchTimePeriod.from = fromDate.getTime();
+        this.changeSelectedPeriod(null);
+
+
+        let functions = localStorage.getItem("filter-analysis-aggregation-functions");
+        this.selectedFunctionDatas = JSON.parse(functions);
+        let groupUnits = localStorage.getItem("filter-analysis-aggregation-groupUnit");
+        this.aggregationDatas.groupUnit = JSON.parse(groupUnits);
+        let groupValue = localStorage.getItem("filter-analysis-aggregation-groupValue");
+        this.aggregationDatas.groupValue = JSON.parse(groupValue);
+
+
     }
 
     ngOnInit() {
         $('#condition').collapse('show');
         this.conditionShow = true;
         this._getPlants();
+
     }
 
 
@@ -247,13 +275,13 @@ export class FilterAnalysisComponent implements OnInit {
                     this.filterCriteria.FieldName.push({ display: element, value: element });
                 }
 
-                let eqpIds = localStorage.getItem("filter-analysis-eqps");
-                if (eqpIds != null) {
-                    if (this.selectedEqpIds == eqpIds) {
+                // let eqpIds = localStorage.getItem("filter-analysis-eqps");
+                // if (eqpIds != null) {
+                    // if (this.selectedEqpIds == eqpIds) {
                         let paramDatas = localStorage.getItem("filter-analysis-paramDatas");
                         this.selectedParameterDatas = JSON.parse(paramDatas);
-                    }
-                }
+                    // }
+                // }
 
 
 
@@ -264,16 +292,6 @@ export class FilterAnalysisComponent implements OnInit {
 
     }
 
-    changeFieldNames(event, index) {
-        let fieldEl = $(`#field${index}`)[0];
-        if (event.target.value.indexOf('reserved_col') > 0) {
-            fieldEl.disabled = true;
-        } else {
-            if(fieldEl.disabled === true) {
-                fieldEl.disabled = false;
-            }
-        }
-    }
 
 
     changeSelectedFab(event) {
@@ -350,6 +368,7 @@ export class FilterAnalysisComponent implements OnInit {
             const element = event[index];
             this.aggregationDatas.functions.push(element.value);
         }
+        this.selectedFunctionDatas = event;
     }
     fromToChange(data: any) {
         this.searchTimePeriod = data;
@@ -362,6 +381,11 @@ export class FilterAnalysisComponent implements OnInit {
         localStorage.setItem("filter-analysis-areaDatas", JSON.stringify(this.selectedAreaDatas));
         localStorage.setItem("filter-analysis-eqpDatas", JSON.stringify(this.selectedEqpDatas));
         localStorage.setItem("filter-analysis-paramDatas", JSON.stringify(this.selectedParameterDatas));
+        localStorage.setItem("filter-analysis-period", JSON.stringify(this.selectedPeriod));
+        localStorage.setItem("filter-analysis-aggregation-functions", JSON.stringify(this.selectedFunctionDatas));
+        localStorage.setItem("filter-analysis-aggregation-groupUnit", JSON.stringify(this.aggregationDatas.groupUnit));
+        localStorage.setItem("filter-analysis-aggregation-groupValue", JSON.stringify(this.aggregationDatas.groupValue));
+
 
         this.pdmModelService.getEqpIdParamIdsInFilterTraceData(this.selectedFab.fabId, this.selectedEqpIds, this.selectedParameters,
             this.searchTimePeriod.from, this.searchTimePeriod.to, this.filterCriteriaDatas)
@@ -423,6 +447,7 @@ export class FilterAnalysisComponent implements OnInit {
 
         this.showProgress = true;
         this.datas = [];
+        
         this.cancelRequest = false;
 
         this.trendConfig['series'] = [];
@@ -573,11 +598,58 @@ export class FilterAnalysisComponent implements OnInit {
                 });
         } else {
             this.showProgress = false;
+            if(this.selectedNormalize){
+                this.clickNormalize(null);
+            }
         }
     }
     changeTimeToIndex(datas) {
         for (let i = 0; i < datas.length; i++) {
             datas[i][0] = i;
+        }
+    }
+    clickBackward(){
+        const gap =  this.searchTimePeriod.to - this.searchTimePeriod.from;
+
+        this.searchTimePeriod.to = this.searchTimePeriod.from;
+        this.searchTimePeriod.from = this.searchTimePeriod.to -gap;
+        this.search();
+    }
+    clickForeward(){
+        const gap =  this.searchTimePeriod.to - this.searchTimePeriod.from;
+
+        this.searchTimePeriod.from = this.searchTimePeriod.to;
+        this.searchTimePeriod.to = this.searchTimePeriod.from+gap;
+
+        this.search();
+
+
+    }
+    changeSelectedPeriod(event){
+
+        this.searchTimePeriod.from = this.searchTimePeriod.to - this.selectedPeriod ;
+
+    }
+    clickNormalize(event){
+        if(this.selectedNormalize){
+            this.trendData_org = JSON.stringify(this.trendData);
+            let maxs =  [];
+            for(let i=0;i<this.trendData.length;i++){
+                if(this.trendData[i].length>0){
+                    maxs.push(Math.max.apply(null,this.trendData[i].map((d)=>{return d[1]})));
+                    for(let j=0;j<this.trendData[i].length;j++){
+                        try{
+                            this.trendData[i][j][1] = this.trendData[i][j][1]/maxs[i];
+                        }catch(e){
+                            console.log(e);
+                        }
+                    }
+                }
+            }
+            this.trendData = this.trendData.concat([]);
+            
+        }else{
+            this.trendData = JSON.parse(this.trendData_org);
         }
     }
 

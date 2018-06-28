@@ -156,3 +156,21 @@ label[chkbox] > input[type=checkbox]:checked + label::after { position:absolute;
 	#condition div[info] > div[formRight] #aggregation tbody tr td > label { display:block; background:#f9f9f9; font-weight:bold; border:1px solid #ccc; border-bottom:0; padding:5px 6px; }
 	#condition div[info] > div[formRight] [disabled] #aggregation tbody tr td > label { background:#fff; color:#ddd; }
 }
+
+.backward-button {
+    padding-bottom: 0px;
+    padding-right: 15px;
+    padding-left: 10px;
+}
+.foreward-button{
+    padding-bottom: 0px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+.btn-group{
+	margin-left: 20px;
+}
+
+.panel-heading input{
+	margin-left:10px;
+}

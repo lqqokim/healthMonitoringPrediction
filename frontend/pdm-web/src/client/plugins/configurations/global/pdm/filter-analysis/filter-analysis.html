@@ -10,6 +10,12 @@
                     <div formLeft>
                         <div>
                             <div class="a3-from-to" [from]="searchTimePeriod?.from" [to]="searchTimePeriod?.to" [format]="'yyyy/MM/dd hh:mm:ss'" (changedFromTo)="fromToChange($event)"></div>
+                            <label >Period</label>
+                            <select class="form-control" [(ngModel)]="selectedPeriod" name="fab" (ngModelChange)="changeSelectedPeriod($event)">
+                                <option *ngFor="let item of periods" [ngValue]="item.value" >
+                                    {{item.name}}
+                                </option>
+                            </select>
                         </div>
                         <div>
                             <div sbox>
@@ -39,7 +45,7 @@
                     <div formRight>
                         <div>
                             <label chkbox (click)="checkboxClick()">
-                                <input type="checkbox" [(ngModel)]="aggregationDatas.use" >
+                                <input type="checkbox" [(ngModel)]="aggregationDatas.use">
                                 <label>Aggregation</label>
                             </label>
 
@@ -73,7 +79,7 @@
                                         </td>
                                     </tr>
                                 </table>
-                            </fieldset>     
+                            </fieldset>
                         </div>
                         <div>
                             <div criteria>
@@ -90,12 +96,12 @@
                                     <tbody>
                                         <tr *ngFor="let data of filterCriteriaDatas;let i=index">
                                             <td>
-                                                <select class='form-control' [(ngModel)]="data.fieldName" (change)="changeFieldNames($event, i);">
+                                                <select class='form-control' [(ngModel)]="data.fieldName">
                                                     <option *ngFor="let item of filterCriteria.FieldName" [ngValue]="item.value">{{item.display}}</option>
                                                 </select>
                                             </td>
                                             <td>
-                                                <select id="field{{i}}" class='form-control' [(ngModel)]="data.functionName" *ngIf="data.fieldName!='LOCATION'">
+                                                <select id="field{{i}}" class='form-control' [(ngModel)]="data.functionName" *ngIf="data.fieldName.indexOf('reserved_col')<0">
                                                     <option *ngFor="let item of functions" [ngValue]="item.value">{{item.display}}</option>
                                                 </select>
                                             </td>
@@ -108,8 +114,7 @@
                                                 <input type='text' class='form-control' [(ngModel)]="data.value">
                                             </td>
                                             <td remove>
-                                                <span *ngIf="i!=0" (click)="clickRemoveFilter(i)" class="glyphicon glyphicon-minus rollover"
-                                                    aria-hidden="true"></span>
+                                                <span *ngIf="i!=0" (click)="clickRemoveFilter(i)" class="glyphicon glyphicon-minus rollover" aria-hidden="true"></span>
                                             </td>
                                         </tr>
                                     </tbody>
@@ -149,7 +154,18 @@
     </div>
 
     <div class="panel panel-default">
-        <div class="panel-heading">Chart</div>
+        <div class="panel-heading">Chart
+            <div class="btn-group" role="group" aria-label="...">
+                <button type="button" class="btn btn-default backward-button" (click)="clickBackward()">
+                    <span class="glyphicon glyphicon-forward" show aria-hidden="true"></span>
+                </button>
+                <button type="button" class="btn btn-default foreward-button" (click)="clickForeward()">
+                    <span class="glyphicon glyphicon-backward" show aria-hidden="true"></span>
+                </button>
+            </div>
+            <input type="checkbox" [(ngModel)]="selectedNormalize" (change)="clickNormalize($event)">Normalize
+        </div>
+
         <div class="panel-body" id="chart">
             <div>
                 <div class="chart">
