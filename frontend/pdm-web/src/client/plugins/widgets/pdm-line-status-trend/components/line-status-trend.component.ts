@@ -11,8 +11,8 @@ import * as IDataType from './../model/data-type.interface';
 export class LineStatusTrendComponent implements OnInit, OnChanges {
     @Output() endChartLoad: EventEmitter<any> = new EventEmitter();
     @Input() condition: IDataType.ContitionType;
-    
-    chartId: any;
+
+    chartId: string;
     chart: any;
     private _props: any;
 
@@ -20,8 +20,19 @@ export class LineStatusTrendComponent implements OnInit, OnChanges {
     }
 
     ngOnChanges(changes: SimpleChanges) {
-        this.chartId = this.guid();        
-        this.setChartData();
+        for (let propName in changes) {
+            let change = changes[propName];
+            const curVal = change.currentValue;
+            let item: any;
+
+            if (propName === 'condition') {
+                item = curVal;
+            }
+
+            this.chartId = this.guid();
+            this.setChartData(item);
+        }
+
     }
 
     ngOnInit() {
@@ -32,22 +43,54 @@ export class LineStatusTrendComponent implements OnInit, OnChanges {
         this.chart.resize();
     }
 
-    setChartData(): void {
+    setChartData(item): void {
         const normals: any[] = ['normal', 25, 23, 26, 22, 27, 29, 31];
-        const warnings: any[] = ['warning', 4, 5, 3, 1, 3, 7];
-        const alarms: any[] = ['alarm', 6, 1, 2, 1, 3, 2, 1];
-        const failures: any[] = ['failure', 1, 1, 2, 1, 1, 3, 1];
-        const offlines: any[] = ['offline', 2, 1, 3, 1, 2, 4, 1];
-        const axisCategories: string[] = ['x', '6/26', '6/27', '6/28', '6/29', '6/30', '7/1', '7/2'];
+        const warnings: any[] = ['warning', 4, 9, 3, 12, 3, 7];
+        const alarms: any[] = ['alarm', 6, 1, 2, 1, 3, 2, 4];
+        const failures: any[] = ['failure', 3, 1, 2, 1, 5, 3, 5];
+        const offlines: any[] = ['offline', 2, 3, 3, 1, 2, 4, 1];
+        const axisCategories: string[] = ['x', '2018-06-23', '2018-06-24', '2018-06-25', '2018-06-26', '2018-06-27', '2018-06-28'];
         const chartData: any[] = [axisCategories, normals, warnings, alarms, failures, offlines];
 
         setTimeout(() => {
-            this.generateChart(chartData, axisCategories);
+            // this.generateBarChart(chartData, axisCategories);
+            this.generateLineChart(chartData, axisCategories);
             this.endChartLoad.emit(true);
         }, 500);
     }
 
-    generateChart(chartData: any[], axisCategories: string[]): void {
+    generateLineChart(chartData: any[], axisCategories: string[]): void {
+        const colors: string[] = ['green', 'orange', 'red', 'black', 'gray'];
+        this.chart = c3Chart.generate({
+            bindto: `#${this.chartId}`,
+            data: {
+                x: 'x',
+                // xFormat: '%Y%m%d', // 'xFormat' can be used as custom format of 'x'
+                columns: chartData,
+                type: 'line',
+                colors: {
+                    normal: 'green',
+                    warning: 'orange',
+                    alarm: 'red',
+                    failure: 'black',
+                    offline: 'gray'
+                },
+                // color: (color: string, data: any): string => {
+                //     return colors[data.index];
+                // },
+            },
+            axis: {
+                x: {
+                    type: 'timeseries',
+                    tick: {
+                        format: '%Y-%m-%d'
+                    }
+                }
+            }
+        });
+    }
+
+    generateBarChart(chartData: any[], axisCategories: string[]): void {
         this.chart = c3Chart.generate({
             bindto: `#${this.chartId}`,
             // size: {
@@ -110,7 +153,7 @@ export class LineStatusTrendComponent implements OnInit, OnChanges {
         // setTimeout(() => {
         //     chart.groups([['normal', 'warning', 'alarm']])
         // }, 500);
-        
+
         // setTimeout(() => {
         //     chart.groups([['normal', 'warning', 'alarm', 'failure', 'offline']])
         // }, 1000);
@@ -118,8 +161,8 @@ export class LineStatusTrendComponent implements OnInit, OnChanges {
 
     private guid() {
         return 'xxx'.replace(/[xy]/g, (c) => {
-          var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-          return "C" + v.toString(16);
+            var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+            return "C" + v.toString(16);
         });
-      }
+    }
 }
