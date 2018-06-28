@@ -53,6 +53,18 @@ public class MasterDataCache {
         return paramMasterDataSet;
     }
 
+    public ParameterMasterDataSet getParameter(String partitionKey, String paramName){
+        ParameterMasterDataSet param = new ParameterMasterDataSet();
+        List<ParameterMasterDataSet> params = paramMasterDataSet.get(partitionKey);
+        for(ParameterMasterDataSet p : params){
+            if(p.getParameterName().equalsIgnoreCase(paramName)){
+                param = p;
+            }
+        }
+
+        return param;
+    }
+
     public Map<String, List<EventMasterDataSet>> getEventMasterDataSet() {
         return eventMasterDataSet;
     }

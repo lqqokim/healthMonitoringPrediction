@@ -46,19 +46,19 @@ public class RepositorySinker {
         }
 
         executor.submit(new TimewaveConsumerRunnable(
-                producerProperties, this.groupId + "_raw", outputTimewaveTopic));
+                producerProperties, this.groupId + "-raw", outputTimewaveTopic));
 
         executor.submit(new TraceConsumerRunnable(
-                producerProperties, this.groupId + "_trace", outputTraceTopic));
+                producerProperties, this.groupId + "-trace", outputTraceTopic));
 
         executor.submit(new FeatureConsumerRunnable(
-                producerProperties, this.groupId + "_feature", outputFeatureTopic));
+                producerProperties, this.groupId + "-feature", outputFeatureTopic));
 
         executor.submit(new FaultConsumerRunnable(
-                producerProperties, this.groupId + "_fault", outputFaultTopic));
+                producerProperties, this.groupId + "-fault", outputFaultTopic));
 
         executor.submit(new EventConsumerRunnable(
-                producerProperties, this.groupId + "_event", outputEventTopic));
+                producerProperties, this.groupId + "-event", outputEventTopic));
     }
 
     public void awaitTerminationAfterShutdown() {

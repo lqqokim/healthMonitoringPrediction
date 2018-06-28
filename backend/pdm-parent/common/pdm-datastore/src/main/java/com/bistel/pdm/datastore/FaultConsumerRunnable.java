@@ -2,8 +2,8 @@ package com.bistel.pdm.datastore;
 
 import com.bistel.pdm.datastore.jdbc.DBType;
 import com.bistel.pdm.datastore.jdbc.DataSource;
-import com.bistel.pdm.datastore.jdbc.dao.OutOfSpecDataDao;
-import com.bistel.pdm.datastore.jdbc.dao.ora.OutOfSpecTrxDao;
+import com.bistel.pdm.datastore.jdbc.dao.FaultDataDao;
+import com.bistel.pdm.datastore.jdbc.dao.ora.FaultTrxDao;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.slf4j.Logger;
@@ -24,20 +24,20 @@ public class FaultConsumerRunnable implements Runnable {
     private final KafkaConsumer<String, byte[]> consumer;
     private final String topicName;
 
-    private OutOfSpecDataDao trxDao;
+    private FaultDataDao trxDao;
 
     public FaultConsumerRunnable(Properties property, String groupId, String topicName) {
         this.consumer = new KafkaConsumer<>(createConsumerConfig(groupId, property));
         this.topicName = topicName;
 
         if (DataSource.getDBType() == DBType.oracle) {
-            trxDao = new OutOfSpecTrxDao();
+            trxDao = new FaultTrxDao();
             log.info("loaded data object of oracle.");
         } else if (DataSource.getDBType() == DBType.postgresql) {
             // to do
             log.info("loaded data object of postgresql.");
         } else {
-            trxDao = new OutOfSpecTrxDao();
+            trxDao = new FaultTrxDao();
             log.info("loaded data object of default(oracle).");
         }
     }

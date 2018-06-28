@@ -62,6 +62,7 @@ public class SensorTraceTrxDao implements SensorTraceDataDao {
 
             try(PreparedStatement pstmt = conn.prepareStatement(INSERT_SQL)) {
 
+                int totalCount = 0;
                 int batchCount = 0;
                 for (ConsumerRecord<String, byte[]> record : records) {
                     //log.debug("offset={}, key={}, value={}", record.offset(), record.key(), record.value());
@@ -118,20 +119,22 @@ public class SensorTraceTrxDao implements SensorTraceDataDao {
                         pstmt.addBatch();
 
                         if (++batchCount == 100) {
+                            totalCount += batchCount;
                             pstmt.executeBatch();
                             pstmt.clearBatch();
                             batchCount = 0;
-                            log.debug("{} records are inserted into TRACE_TRX_PDM.", batchCount);
                         }
                     }
                 }
 
                 if (batchCount > 0) {
+                    totalCount += batchCount;
                     pstmt.executeBatch();
                     pstmt.clearBatch();
-                    log.debug("{} records are inserted into TRACE_TRX_PDM.", batchCount);
                 }
+
                 conn.commit();
+                log.debug("{} records are inserted into TRACE_TRX_PDM.", totalCount);
 
             } catch (Exception e) {
                 conn.rollback();
@@ -147,58 +150,73 @@ public class SensorTraceTrxDao implements SensorTraceDataDao {
 
     @Override
     public void storeRecord(List<Pair<Long, SensorTraceData>> records) throws SQLException {
-        try (Connection conn = DataSource.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(INSERT_SQL1)) {
+        try (Connection conn = DataSource.getConnection()) {
 
             conn.setAutoCommit(false);
+            try (PreparedStatement pstmt = conn.prepareStatement(INSERT_SQL1)) {
 
-            for (Pair<Long, SensorTraceData> record : records) {
-                //log.debug("offset={}, key={}, value={}", record.offset(), record.key(), record.value());
+                int totalCount = 0;
+                int batchCount = 0;
+                for (Pair<Long, SensorTraceData> record : records) {
+                    //log.debug("offset={}, key={}, value={}", record.offset(), record.key(), record.value());
 
-                SensorTraceData sensorData = record.getSecond();
-                pstmt.setLong(1, record.getFirst());
-                pstmt.setLong(2, sensorData.getParamMstRawid());
-                pstmt.setFloat(3, sensorData.getValue());
+                    SensorTraceData sensorData = record.getSecond();
+                    pstmt.setLong(1, record.getFirst());
+                    pstmt.setLong(2, sensorData.getParamMstRawid());
+                    pstmt.setFloat(3, sensorData.getValue());
 
-                if (sensorData.getRpm() != null) {
-                    pstmt.setFloat(4, sensorData.getRpm());
-                } else {
-                    pstmt.setNull(4, Types.INTEGER);
+                    if (sensorData.getRpm() != null) {
+                        pstmt.setFloat(4, sensorData.getRpm());
+                    } else {
+                        pstmt.setNull(4, Types.INTEGER);
+                    }
+
+                    if (sensorData.getAlarmSpec() != null) {
+                        pstmt.setFloat(5, sensorData.getAlarmSpec());
+                    } else {
+                        pstmt.setNull(5, Types.FLOAT);
+                    }
+
+                    if (sensorData.getWarningSpec() != null) {
+                        pstmt.setFloat(6, sensorData.getWarningSpec());
+                    } else {
+                        pstmt.setNull(6, Types.FLOAT);
+                    }
+                    pstmt.setTimestamp(7, new Timestamp(sensorData.getEventDtts()));
+
+                    //reserved columns
+                    pstmt.setString(8, sensorData.getReservedCol1());
+                    pstmt.setString(9, sensorData.getReservedCol2());
+                    pstmt.setString(10, sensorData.getReservedCol3());
+                    pstmt.setString(11, sensorData.getReservedCol4());
+                    pstmt.setString(12, sensorData.getReservedCol5());
+
+                    pstmt.addBatch();
+
+                    if (++batchCount == 100) {
+                        totalCount += batchCount;
+                        pstmt.executeBatch();
+                        pstmt.clearBatch();
+                        batchCount = 0;
+                    }
                 }
 
-                if (sensorData.getAlarmSpec() != null) {
-                    pstmt.setFloat(5, sensorData.getAlarmSpec());
-                } else {
-                    pstmt.setNull(5, Types.FLOAT);
+                if (batchCount > 0) {
+                    totalCount += batchCount;
+                    pstmt.executeBatch();
+                    pstmt.clearBatch();
                 }
+                conn.commit();
+                log.debug("{} records are inserted into TRACE_TRX_PDM.", totalCount);
 
-                if (sensorData.getWarningSpec() != null) {
-                    pstmt.setFloat(6, sensorData.getWarningSpec());
-                } else {
-                    pstmt.setNull(6, Types.FLOAT);
-                }
-                pstmt.setTimestamp(7, new Timestamp(sensorData.getEventDtts()));
-
-                //reserved columns
-                pstmt.setString(8, sensorData.getReservedCol1());
-                pstmt.setString(9, sensorData.getReservedCol2());
-                pstmt.setString(10, sensorData.getReservedCol3());
-                pstmt.setString(11, sensorData.getReservedCol4());
-                pstmt.setString(12, sensorData.getReservedCol5());
-
-                pstmt.addBatch();
+            } catch (Exception e) {
+                conn.rollback();
+                log.error(e.getMessage(), e);
+            } finally {
+                conn.setAutoCommit(true);
             }
-
-            int[] ret = pstmt.executeBatch();
-            conn.commit();
-            log.debug("{} records are inserted into TRACE_TRX_PDM.", ret.length);
-
-            conn.setAutoCommit(true);
-
-        } catch (SQLException e) {
+        } catch (Exception e) {
             log.error(e.getMessage(), e);
-            throw e;
         }
     }
-
 }

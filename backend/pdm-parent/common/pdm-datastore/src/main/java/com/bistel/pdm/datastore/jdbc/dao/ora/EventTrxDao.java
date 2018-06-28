@@ -29,6 +29,7 @@ public class EventTrxDao implements EventDataDao {
             conn.setAutoCommit(false);
             try (PreparedStatement pstmt = conn.prepareStatement(INSERT_SQL)) {
 
+                int totalCount = 0;
                 int batchCount = 0;
                 for (ConsumerRecord<String, byte[]> record : records) {
                     //log.debug("offset={}, key={}, value={}", record.offset(), record.key(), record.value());
@@ -46,19 +47,20 @@ public class EventTrxDao implements EventDataDao {
                     //log.debug("offset = " + record.offset() + " value = " + valueString);
 
                     if (++batchCount == 100) {
+                        totalCount += batchCount;
                         pstmt.executeBatch();
                         pstmt.clearBatch();
                         batchCount = 0;
-                        log.debug("{} records are inserted into EQP_EVENT_TRX_PDM.", batchCount);
                     }
                 }
 
                 if (batchCount > 0) {
+                    totalCount += batchCount;
                     pstmt.executeBatch();
                     pstmt.clearBatch();
-                    log.debug("{} records are inserted into EQP_EVENT_TRX_PDM.", batchCount);
                 }
                 conn.commit();
+                log.debug("{} records are inserted into EQP_EVENT_TRX_PDM.", totalCount);
 
             } catch (Exception e) {
                 conn.rollback();

@@ -1,7 +1,7 @@
 package com.bistel.pdm.datastore.jdbc.dao.ora;
 
 import com.bistel.pdm.datastore.jdbc.DataSource;
-import com.bistel.pdm.datastore.jdbc.dao.OutOfSpecDataDao;
+import com.bistel.pdm.datastore.jdbc.dao.FaultDataDao;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.slf4j.Logger;
@@ -11,13 +11,16 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.Timestamp;
 
-public class OutOfSpecTrxDao implements OutOfSpecDataDao {
-    private static final Logger log = LoggerFactory.getLogger(OutOfSpecTrxDao.class);
+/**
+ *
+ */
+public class FaultTrxDao implements FaultDataDao {
+    private static final Logger log = LoggerFactory.getLogger(FaultTrxDao.class);
 
     private static final String INSERT_SQL =
-            "insert into ALARM_TRX_PDM " +
-                    "(RAWID, PARAM_MST_RAWID, ALARM_TYPE_CD, VALUE, ALARM_SPEC, WARNING_SPEC, ALARM_DTTS) " +
-                    "values (seq_alarm_trx_pdm.nextval, ?, ?, ?, ?, ?, ?)";
+            "insert into PARAM_FAULT_TRX_PDM " +
+                    "(RAWID, PARAM_MST_RAWID, HEALTH_LOGIC_MST_RAWID, ALARM_TYPE_CD, VALUE, CONDITION, ALARM_DTTS) " +
+                    "values (seq_param_fault_trx_pdm.nextval, ?, ?, ?, ?, ?, ?)";
 
 
     @Override
@@ -27,41 +30,44 @@ public class OutOfSpecTrxDao implements OutOfSpecDataDao {
             conn.setAutoCommit(false);
             try (PreparedStatement pstmt = conn.prepareStatement(INSERT_SQL)) {
 
+                int totalCount = 0;
                 int batchCount = 0;
                 for (ConsumerRecord<String, byte[]> record : records) {
                     byte[] features = record.value();
                     String valueString = new String(features);
 
                     String[] values = valueString.split(",");
-                    log.debug("comming message : {}", valueString);
+                    // time, param_rawid, health_rawid, vlaue, A/W, condition
 
-                    Long param_rawid = Long.parseLong(values[1]);
                     Timestamp timestamp = new Timestamp(Long.parseLong(values[0]));
+                    Long param_rawid = Long.parseLong(values[1]);
+                    Long param_health_rawid = Long.parseLong(values[2]);
 
-                    //time, paramRawId, feature, value, alarm type, warning spec, alarm spec
                     pstmt.setLong(1, param_rawid); //param mst rawid
-                    pstmt.setString(2, values[4]); //alarm type
-                    pstmt.setFloat(3, Float.parseFloat(values[3]));
-                    pstmt.setFloat(4, Float.parseFloat(values[5]));
-                    pstmt.setFloat(5, Float.parseFloat(values[6]));
+                    pstmt.setLong(2, param_health_rawid);
+                    pstmt.setString(3, values[4]); //alarm type code
+                    pstmt.setFloat(4, Float.parseFloat(values[3])); //value
+                    pstmt.setString(5, values[5]); //condition
                     pstmt.setTimestamp(6, timestamp);
 
                     pstmt.addBatch();
 
                     if (++batchCount == 100) {
+                        totalCount += batchCount;
                         pstmt.executeBatch();
                         pstmt.clearBatch();
                         batchCount = 0;
-                        log.debug("{} records are inserted into ALARM_TRX_PDM.", batchCount);
                     }
                 }
 
                 if (batchCount > 0) {
+                    totalCount += batchCount;
                     pstmt.executeBatch();
                     pstmt.clearBatch();
-                    log.debug("{} records are inserted into ALARM_TRX_PDM.", batchCount);
                 }
+
                 conn.commit();
+                log.debug("{} records are inserted into PARAM_FAULT_TRX_PDM.", totalCount);
 
             } catch (Exception e) {
                 conn.rollback();

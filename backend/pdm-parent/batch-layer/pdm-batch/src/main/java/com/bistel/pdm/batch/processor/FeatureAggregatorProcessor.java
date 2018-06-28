@@ -165,21 +165,21 @@ public class FeatureAggregatorProcessor extends AbstractProcessor<String, byte[]
                     Long sumStartDtts = kvEventTimeStore.get(partitionKey);
                     Long sumEndDtts = Long.parseLong(prevStatusAndTime[1]);
 
-                    // param rawid, count, max, min, median, avg, stddev, q1, q3, startDtts, endDtts
-                    StringBuilder sbParamAgg = new StringBuilder();
-                    sbParamAgg.append(paramRawId).append(",")
+                    // startDtts, endDtts, param rawid, count, max, min, median, avg, stddev, q1, q3
+                    StringBuilder sbStats = new StringBuilder();
+                    sbStats.append(sumStartDtts).append(",")
+                            .append(sumEndDtts).append(",")
+                            .append(paramRawId).append(",")
                             .append(values.size()).append(",")
-                            .append(stats.getMax()).append(",")
                             .append(stats.getMin()).append(",")
+                            .append(stats.getMax()).append(",")
                             .append(stats.getPercentile(50)).append(",")
                             .append(stats.getMean()).append(",")
                             .append(stats.getStandardDeviation()).append(",")
                             .append(stats.getPercentile(25)).append(",")
-                            .append(stats.getPercentile(75)).append(",")
-                            .append(sumStartDtts).append(",")
-                            .append(sumEndDtts);
+                            .append(stats.getPercentile(75));
 
-                    String msg = sbParamAgg.toString();
+                    String msg = sbStats.toString();
                     log.debug(" {} : {} ", partitionKey, msg);
 
                     context().forward(partitionKey, msg.getBytes(), "route-feature");

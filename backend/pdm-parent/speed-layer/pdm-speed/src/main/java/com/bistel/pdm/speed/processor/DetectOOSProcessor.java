@@ -85,11 +85,12 @@ public class DetectOOSProcessor extends AbstractProcessor<String, byte[]> {
                     if (isWarning) {
                         // Warning
                         StringBuilder sb = new StringBuilder();
-                        sb.append(param.getParameterRawId()).append(",")
+                        sb.append(context().timestamp()).append(",")
+                                .append(param.getParameterRawId()).append(",")
                                 .append(healthData.getParamHealthRawId()).append(',')
                                 .append(this.kvWarningStore.get(paramKey)).append(",")
                                 .append("W").append(",")
-                                .append(context().timestamp());
+                                .append(healthData.getWarningCondition());
 
                         context().forward(partitionKey, sb.toString().getBytes(), "output-fault");
 
@@ -98,28 +99,30 @@ public class DetectOOSProcessor extends AbstractProcessor<String, byte[]> {
 
                     } else {
                         // Normal
-                        StringBuilder sb = new StringBuilder();
-                        sb.append(param.getParameterRawId()).append(",")
-                                .append(healthData.getParamHealthRawId()).append(',')
-                                .append("0").append(",")
-                                .append("N").append(",")
-                                .append(context().timestamp());
-
-                        context().forward(partitionKey, sb.toString().getBytes(), "output-fault");
-
-                        this.kvWarningStore.delete(paramKey);
-                        this.kvAlarmStore.delete(paramKey);
+//                        StringBuilder sb = new StringBuilder();
+//                        sb.append(param.getParameterRawId()).append(",")
+//                                .append(healthData.getParamHealthRawId()).append(',')
+//                                .append("0").append(",")
+//                                .append("N").append(",")
+//                                .append(context().timestamp());
+//
+//                        context().forward(partitionKey, sb.toString().getBytes(), "output-fault");
+//
+//                        this.kvWarningStore.delete(paramKey);
+//                        this.kvAlarmStore.delete(paramKey);
                     }
                 } else {
 
                     // Alarm
                     StringBuilder sb = new StringBuilder();
-                    sb.append(param.getParameterRawId()).append(",")
+                    sb.append(context().timestamp()).append(",")
+                            .append(param.getParameterRawId()).append(",")
                             .append(healthData.getParamHealthRawId()).append(',')
                             .append(this.kvAlarmStore.get(paramKey)).append(",")
                             .append("A").append(",")
-                            .append(context().timestamp());
+                            .append(healthData.getAlarmCondition());
 
+                    //time, param_rawid, health_rawid, vlaue, A/W, condition
                     context().forward(partitionKey, sb.toString().getBytes(), "output-fault");
 
                     this.kvWarningStore.delete(paramKey);
