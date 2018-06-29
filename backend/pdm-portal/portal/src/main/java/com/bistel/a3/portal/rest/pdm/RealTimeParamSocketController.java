@@ -4,10 +4,12 @@ import com.bistel.a3.portal.domain.common.SocketMessage;
 import com.bistel.a3.portal.domain.pdm.master.ParamWithCommon;
 import com.bistel.a3.portal.service.pdm.IReportService;
 import com.bistel.a3.portal.service.pdm.ITraceDataService;
+import com.bistel.a3.portal.socket.WebSocketEventListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Controller;
@@ -20,7 +22,12 @@ import java.util.stream.Collectors;
 public class RealTimeParamSocketController {
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	public static HashMap<Long,List<String>> monitoringParamAndReplySubjects = new HashMap<>();
+	//paramId1: 	reaplySubject1 : simpSessionId1
+    //				reaplySubject2 : simpSessionId2
+	//paramId2: 	reaplySubject1 : simpSessionId1
+	//				reaplySubject2	 simpSessionId2
+
+	public static HashMap<Long,List<List<String>>> monitoringParamAndReplySubjects = new HashMap<>();
 	public static HashMap<Long,List<Object>> monitoringParamLastUpdateDate = new HashMap<>(); //key:paramId value;[Date,FabId]
 
 	@Autowired
@@ -33,7 +40,8 @@ public class RealTimeParamSocketController {
 	private IReportService reportService;
 
     @MessageMapping("/realtime_param")
-    public void realtimeParam(SocketMessage message) throws Exception {
+    public void realtimeParam(SocketMessage message,SimpMessageHeaderAccessor headerAccessor) throws Exception {
+    	String simpSessionId = headerAccessor.getHeader("simpSessionId").toString();
     	logger.debug("realtime_param");
 		realTimeStart = true;
 
@@ -51,10 +59,16 @@ public class RealTimeParamSocketController {
 		for (int i = 0; i < paramRawIds.size(); i++) {
 			ParamWithCommon paramWithCommon = reportService.getParamWithComm(fabId,paramRawIds.get(i));
 			if(monitoringParamAndReplySubjects.containsKey(paramRawIds.get(i))){
-				monitoringParamAndReplySubjects.get(paramRawIds.get(i)).add(replySubject);
+				List<String> replySubjectAndSimpSessionId = new ArrayList<>();
+				replySubjectAndSimpSessionId.add(replySubject);
+				replySubjectAndSimpSessionId.add(simpSessionId);
+				monitoringParamAndReplySubjects.get(paramRawIds.get(i)).add(replySubjectAndSimpSessionId);
 			}else{
-				List<String> subjecs = new ArrayList<>();
-				subjecs.add(replySubject);
+				List<List<String>> subjecs = new ArrayList<>();
+				List<String> replySubjectAndSimpSessionId = new ArrayList<>();
+				replySubjectAndSimpSessionId.add(replySubject);
+				replySubjectAndSimpSessionId.add(simpSessionId);
+				subjecs.add(replySubjectAndSimpSessionId);
 				monitoringParamAndReplySubjects.put(paramRawIds.get(i),subjecs);
 			}
 			List<Object> values = new ArrayList<>();
@@ -70,6 +84,9 @@ public class RealTimeParamSocketController {
 	@Scheduled(cron = "0/3 * * * * *")
 	public void realtimeDataCreate(){
 		if(realTimeStart == false) return;
+
+		clearParamWithNotExistSimpSessionId(WebSocketEventListener.simpSessionIds);
+
 
 		Random rand = new Random(System.currentTimeMillis());
 		for(Long paramId :monitoringParamAndReplySubjects.keySet()) {
@@ -109,12 +126,12 @@ public class RealTimeParamSocketController {
 
 	public void realtimeSendData(Long paramId,List<List<Object>> timeValues,ParamWithCommon paramInfo){
 
-    	List<String> subjects = monitoringParamAndReplySubjects.get(paramId);
+    	List<List<String>> subjectAndSimptSessionIds = monitoringParamAndReplySubjects.get(paramId);
 
-    	if(subjects!=null && subjects.size()>0){
+    	if(subjectAndSimptSessionIds!=null && subjectAndSimptSessionIds.size()>0){
 
-			for (int i = 0; i < subjects.size(); i++) {
-				String subject = subjects.get(i);
+			for (int i = 0; i < subjectAndSimptSessionIds.size(); i++) {
+				String subject = subjectAndSimptSessionIds.get(i).get(0);
 				SocketMessage replyMessage = new SocketMessage();
 				replyMessage.setStatus(SocketMessage.Status.Response.toString());
 				replyMessage.setType(SocketMessage.Type.Progress.toString());
@@ -140,13 +157,13 @@ public class RealTimeParamSocketController {
 		List<Long> keys =new ArrayList<>( monitoringParamAndReplySubjects.keySet()) ;
 		for (int j=keys.size()-1;j>=0;j-- ) {
 			Long key = keys.get(j);
-			List<String> subjecs = monitoringParamAndReplySubjects.get(key);
-			for (int i = subjecs.size()-1; i >=0 ; i--) {
-				if(subjecs.get(i).equals(replySubject)){
-					subjecs.remove(i);
+			List<List<String>> subjecAndSimpSessionId = monitoringParamAndReplySubjects.get(key);
+			for (int i = subjecAndSimpSessionId.size()-1; i >=0 ; i--) {
+				if(subjecAndSimpSessionId.get(i).get(0).equals(replySubject)){
+					subjecAndSimpSessionId.remove(i);
 				}
 			}
-			if(subjecs.size()==0){
+			if(subjecAndSimpSessionId.size()==0){
 				monitoringParamAndReplySubjects.remove(key);
 			}
 		}
@@ -160,6 +177,58 @@ public class RealTimeParamSocketController {
 			}
 		}
 
+	}
+	private void clearParamWithNotExistSimpSessionId(List<String> simpSessionIds)  {
+
+
+		List<String> removeSimpSessionIds =  getRemoveSimpSessionIds(simpSessionIds);
+
+		for (int k = 0; k < removeSimpSessionIds.size(); k++) {
+			String simpSessionId = removeSimpSessionIds.get(k);
+
+			List<Long> keys =new ArrayList<>( monitoringParamAndReplySubjects.keySet()) ;
+			for (int j=keys.size()-1;j>=0;j-- ) {
+				Long key = keys.get(j);
+				List<List<String>> subjecAndSimpSessionId = monitoringParamAndReplySubjects.get(key);
+				for (int i = subjecAndSimpSessionId.size()-1; i >=0 ; i--) {
+					if(subjecAndSimpSessionId.get(i).get(1).equals(simpSessionId)){
+						subjecAndSimpSessionId.remove(i);
+					}
+				}
+				if(subjecAndSimpSessionId.size()==0){
+					monitoringParamAndReplySubjects.remove(key);
+				}
+			}
+			if(monitoringParamAndReplySubjects.size()==0){
+				monitoringParamLastUpdateDate = new HashMap<>();
+			}else {
+
+				List<Long> removeKeys = new ArrayList<>();
+				for (Long key : monitoringParamLastUpdateDate.keySet()) {
+					if(!monitoringParamAndReplySubjects.containsKey(key)){
+						//monitoringParamLastUpdateDate.remove(key);
+						removeKeys.add(key);
+					}
+				}
+				for (int i = 0; i < removeKeys.size(); i++) {
+					monitoringParamLastUpdateDate.remove(removeKeys.get(i));
+				}
+			}
+		}
+
+	}
+
+	private List<String> getRemoveSimpSessionIds(List<String> simpSessionIds) {
+		List<String> removeSimpSessionIds = new ArrayList<>();
+		for (Long key :monitoringParamAndReplySubjects.keySet()) {
+			for (int j = 0; j < monitoringParamAndReplySubjects.get(key).size(); j++) {
+				String simpSessionId = monitoringParamAndReplySubjects.get(key).get(j).get(1);
+				if(simpSessionIds.indexOf(simpSessionId)<0){
+					removeSimpSessionIds.add(simpSessionId);
+				}
+			}
+		}
+		return removeSimpSessionIds;
 	}
 
 }
