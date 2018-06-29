@@ -634,14 +634,28 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
                         value: param.warn
                     });
 
+                    let avgSpec: number;
+                    if(param.avgSpec > 1) {
+                        avgSpec = 1
+                    } else {
+                        avgSpec = param.avgSpec;
+                    }
+
                     avgSpecs.push({ // 90일평균
                         axis: param.paramName,
-                        value: param.avgSpec
+                        value: avgSpec
                     });
+
+                    let avgDaily: number;
+                    if(param.avgDaily > 1) {
+                        avgDaily = 1
+                    } else {
+                        avgDaily = param.avgDaily;
+                    }
 
                     avgDailys.push({ // 하루평균
                         axis: param.paramName,
-                        value: param.avgDaily,
+                        value: avgDaily,
                         data: param
                     });
 
@@ -785,14 +799,28 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
                         value: param.warn
                     });
 
+                    let avgSpec: number;
+                    if(param.avgSpec > 1) {
+                        avgSpec = 1
+                    } else {
+                        avgSpec = param.avgSpec;
+                    }
+
                     avgSpecs.push({ // 90일평균
                         axis: param.paramName,
-                        value: param.avgSpec
+                        value: avgSpec
                     });
+
+                    let avgDaily: number;
+                    if(param.avgDaily > 1) {
+                        avgDaily = 1
+                    } else {
+                        avgDaily = param.avgDaily;
+                    }
 
                     avgDailys.push({ // 하루평균
                         axis: param.paramName,
-                        value: param.avgDaily,
+                        value: avgDaily,
                         data: param
                     });
 
