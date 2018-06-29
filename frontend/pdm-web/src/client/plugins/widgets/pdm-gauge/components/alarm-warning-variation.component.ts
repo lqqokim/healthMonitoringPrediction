@@ -1,12 +1,11 @@
 //Angular
-import { Component, OnInit, Output, OnChanges, Input, ViewChild, ViewEncapsulation, SimpleChanges, EventEmitter, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, Output, OnChanges, Input, ViewChild, ViewEncapsulation, SimpleChanges, EventEmitter, ChangeDetectorRef, ElementRef } from '@angular/core';
 
 //MI
 import { PdmModelService } from './../../../../common';
 import { PdmRadarService } from './../model/pdm-radar.service';
 import * as pdmRadarI from './../model/pdm-radar.interface';
 
-import { PdmRadarWidgetComponent } from './../pdm-radar-widget.component';
 import { ContextMenuType } from '../../../../sdk';
 
 @Component({
@@ -19,7 +18,6 @@ import { ContextMenuType } from '../../../../sdk';
 })
 export class AlarmWarningVariationComponent implements OnInit, OnChanges {
     @ViewChild('TrendChart') TrendChart: any;
-    @ViewChild('Backdrop') Backdrop: any;
 
     @Input() condition: any;
     @Input() fullScreen: any;
@@ -76,6 +74,10 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
 
     paramSelected = false;
 
+    isShowExpandBtn = true;
+
+    expandLoad = false;
+
     constructor(
         private _pdmModelService: PdmModelService,
         private _pdmRadarService: PdmRadarService,
@@ -85,9 +87,7 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
     }
 
     ngOnInit() {
-        // this.alarmWarningDatas = this.getSampleData("AW");
-        // this.B5Datas = this.getSampleData("B5");
-        // this.G5Datas = this.getSampleData("G5");
+
     }
 
     onscroll(ev: any) {
@@ -128,145 +128,6 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
                 $('.Good5-type').show();
             }
         }
-    }
-
-    getSampleData(type) {
-        let datas = [];
-        if (type != undefined) {
-            for (let i = 0; i < 5; i++) {
-                let data_type = type;
-                if (type == "AW") {
-                    if (i > 2) {
-                        data_type = "warning";
-                    } else {
-                        data_type = "alarm";
-                    }
-                }
-
-                let data = [
-                    [
-                        { axis: "Email", value: 1 },
-                        { axis: "Social Networks", value: 1 },
-                        { axis: "Internet Banking", value: 1 },
-                        { axis: "News Sportsites", value: 1 },
-                        { axis: "Search Engine", value: 1 },
-                        { axis: "View Shopping sites", value: 1 },
-                        { axis: "Paying Online", value: 1 },
-                        { axis: "Buy Online", value: 1 },
-                    ],
-                    [
-                        { axis: "Email", value: 0.8 },
-                        { axis: "Social Networks", value: 0.8 },
-                        { axis: "Internet Banking", value: 0.8 },
-                        { axis: "News Sportsites", value: 0.8 },
-                        { axis: "Search Engine", value: 0.8 },
-                        { axis: "View Shopping sites", value: 0.8 },
-                        { axis: "Paying Online", value: 0.8 },
-                        { axis: "Buy Online", value: 0.8 },
-                    ], [
-                        { axis: "Email", value: this.getValue(data_type) },
-                        { axis: "Social Networks", value: this.getValue(data_type) },
-                        { axis: "Internet Banking", value: this.getValue(data_type) },
-                        { axis: "News Sportsites", value: this.getValue(data_type) },
-                        { axis: "Search Engine", value: this.getValue(data_type) },
-                        { axis: "View Shopping sites", value: this.getValue(data_type) },
-                        { axis: "Paying Online", value: this.getValue(data_type) },
-                        { axis: "Buy Online", value: this.getValue(data_type) },
-                    ], [
-                        { axis: "Email", value: this.getValue(data_type) },
-                        { axis: "Social Networks", value: this.getValue(data_type) },
-                        { axis: "Internet Banking", value: this.getValue(data_type) },
-                        { axis: "News Sportsites", value: this.getValue(data_type) },
-                        { axis: "Search Engine", value: this.getValue(data_type) },
-                        { axis: "View Shopping sites", value: this.getValue(data_type) },
-                        { axis: "Paying Online", value: this.getValue(data_type) },
-                        { axis: "Buy Online", value: this.getValue(data_type) },
-                    ], [
-                        { axis: "Email", value: this.getValueMain(data_type) },
-                        { axis: "Social Networks", value: this.getValueMain(data_type) },
-                        { axis: "Internet Banking", value: this.getValueMain(data_type) },
-                        { axis: "News Sportsites", value: this.getValueMain(data_type) },
-                        { axis: "Search Engine", value: this.getValueMain(data_type) },
-                        { axis: "View Shopping sites", value: this.getValueMain(data_type) },
-                        { axis: "Paying Online", value: this.getValueMain(data_type) },
-                        { axis: "Buy Online", value: this.getValueMain(data_type) },
-                    ]
-                ];
-
-                let options = {
-                    maxValue: 0.6,
-                    levels: 6,
-                    // ExtraWidthX: 300,
-                    series: [{ fill: false, circle: false }, { fill: false, circle: false }, { fill: true, circle: false }, { fill: true, circle: false }],
-                    color: (i) => {
-                        let c = ['red', 'yellow', 'olive', 'aqua', 'yellow', 'green', 'blue'];
-                        return c[i];
-                    }
-                }
-                if (type == "AW") {
-                    if (i > 2) { // warning
-                        options.color = (i) => {
-                            let c = ['red', 'yellow', 'olive', 'aqua', 'yellow', 'green', 'blue'];
-                            return c[i];
-                        }
-                        datas.push({ type: 'warning', name: 'W-eqp' + i, duration: '2h 30m', problemreason: '', chartData: data, options: options });
-                    } else { // alarm
-                        options.color = (i) => {
-                            let c = ['red', 'yellow', 'olive', 'aqua', 'red', 'green', 'blue'];
-                            return c[i];
-
-                        }
-                        datas.push({ type: 'alarm', name: 'A-eqp' + i, duration: '2h 30m', problemreason: 'alarm problem', chartData: data, options: options });
-                    }
-                } else if (type == "B5") {
-                    options.series = [{ fill: false, circle: false }, { fill: false, circle: false }, { fill: true, circle: false }, { fill: true, circle: false }]
-
-
-                    options.color = (i) => {
-                        let c = ['red', 'yellow', 'olive', 'aqua', 'blue', 'green', 'blue'];
-                        return c[i];
-
-                    }
-                    datas.push({ type: 'B5', name: 'B5-eqp' + i, duration: '', problemreason: '', chartData: data, options: options });
-                } else if (type == "G5") {
-                    options.color = (i) => {
-                        let c = ['red', 'yellow', 'olive', 'aqua', 'green', 'green', 'blue'];
-                        return c[i];
-                    }
-                    datas.push({ type: 'G5', name: 'G5-eqp' + i, duration: '', problemreason: '', chartData: data, options: options });
-                }
-            }
-        }
-        // console.log('datas', datas);
-        return datas;
-    }
-
-    getValue(type: string): any {
-        let min = 0.2;
-        let max = 0.6;
-        // if (type == "alarm") {
-        //     min = 0.7;
-        //     max = 1.0;
-        // } else if (type == "warning") {
-        //     min = 0.5;
-        //     max = 0.8;
-        // }
-        return Math.random() * (max - min) + min;
-    }
-
-    getValueMain(type: string): any {
-        let min = 0.4;
-        let max = 0.8;
-
-        if (type == "alarm") {
-            min = 0.7;
-            max = 1.0;
-        } else if (type == "warning") {
-            min = 0.5;
-            max = 0.8;
-        }
-
-        return Math.random() * (max - min) + min;
     }
 
     getRadarDatas(type: string): any {
@@ -344,49 +205,6 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
 
                             }
 
-
-                            //     if (alarmDatas.length > 0 && warningDatas.length > 0) {
-                            //         alarmWarningDatas = alarmDatas.concat(warningDatas);
-
-                            //         if (alarmWarningDatas.length < 5) {
-                            //             const dataLength = alarmWarningDatas.length;
-                            //             for (let i = 0; i < 5 - dataLength; i++) {
-                            //                 alarmWarningDatas.push({ type: 'warning', name: '', duration: '', problemreason: '', chartData: null, options: null });
-                            //             }
-                            //         }
-                            //     } else if (alarmDatas.length > 0 && !warningDatas.length) {
-                            //         alarmWarningDatas = alarmDatas;
-
-                            //         if (alarmWarningDatas.length < 5) {
-                            //             const dataLength = alarmWarningDatas.length;
-                            //             for (let i = 0; i < 5 - dataLength; i++) {
-                            //                 alarmWarningDatas.push({ type: 'alarm', name: '', duration: '', problemreason: '', chartData: null, options: null });
-                            //             }
-                            //         }
-                            //     } else if (!alarmDatas.length && warningDatas.length > 0) {
-                            //         alarmWarningDatas = warningDatas;
-
-                            //         if (alarmWarningDatas.length < 5) {
-                            //             const dataLength = alarmWarningDatas.length;
-                            //             for (let i = 0; i < 5 - dataLength; i++) {
-                            //                 alarmWarningDatas.push({ type: 'warning', name: '', duration: '', problemreason: '', chartData: null, options: null });
-                            //             }
-                            //         }
-                            //     } else if (!alarmDatas.length && !alarmDatas.length) {
-                            //         for (let i = 0; i < 5; i++) {
-                            //             alarmWarningDatas.push({ type: 'alarm', name: '', duration: '', problemreason: '', chartData: null, options: null });
-                            //         }
-                            //     }
-
-                            //     this.alarmWarningDatas = alarmWarningDatas;
-                            //     console.log('alarmWarningDatas', this.alarmWarningDatas);
-
-                            // }).catch(e => {
-                            //     console.log('AW Promise all catch', e.message);
-                            //     for (let i = 0; i < 5; i++) {
-                            //         alarmWarningDatas.push({ type: 'alarm', name: '', duration: '', problemreason: '', chartData: null, options: null });
-                            //     }
-
                             this.alarmWarningDatas = alarmWarningDatas;
                         });
                 } else if (!eqps.length) {
@@ -401,8 +219,8 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
     }
 
     _getAWRadars(eqp: any): Promise<any> {
-        let alarmData: any = {};
-        let warningData: any = {};
+        let alarmData: pdmRadarI.ChartDataType;
+        let warningData: pdmRadarI.ChartDataType;
         let alarmWarningData: any = {};
         let radarParamsParam: pdmRadarI.RadarParamsRequestParam = {
             fabId: undefined,
@@ -420,15 +238,15 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
         return this._pdmRadarService.getRadarParams(radarParamsParam)
             .then((params: any) => {
                 let options: any = this.getChartOption();
-                let data = [];
-                let alarms = [];
-                let wanrs = [];
-                let avgSpecs = [];
-                let avgDailys = [];
-                let avgWithAWs = [];
-                let AWwithAvgs = [];
-                let variations = [];
-                let classifications = [];
+                let data: any = {};
+                let alarms: any[] = [];
+                let warns: any[] = [];
+                let avgSpecs: any[] = [];
+                let avgDailys: any[] = [];
+                let avgWithAWs: any[] = [];
+                let AWwithAvgs: any[] = [];
+                let variations: any[] = [];
+                let classifications: any[] = [];
 
                 for (let i = 0; i < params.length; i++) {
                     let param: any = params[i];
@@ -438,7 +256,7 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
                         value: param.alarm
                     });
 
-                    wanrs.push({ //주의
+                    warns.push({ //주의
                         axis: param.paramName,
                         value: param.warn
                     });
@@ -448,37 +266,31 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
                         value: param.avgSpec
                     });
 
-                    let avgDaily: number;
-                    if(param.avgDaily > 1) {
-                        avgDaily = 1;
-                    } else {
-                        avgDaily = param.avgDaily;
-                    }
-
                     avgDailys.push({ //하루평균
                         axis: param.paramName,
-                        value: avgDaily
+                        value: param.avgDaily
                     });
-
-                    let avgWithAW: number;
-                    if(param.avgWithAW > 1) {
-                        avgWithAW = 1;
-                    } else {
-                        avgWithAW = param.avgWithAW;
-                    }
 
                     avgWithAWs.push({ //평균값(Warning, Alarm)
                         axis: param.paramName,
-                        value: avgWithAW,
+                        value: param.avgWithAW,
                         data: param
-                    })
+                    });
 
                     AWwithAvgs.push(param.avgWithAW);//for max alarm or waring
                     variations.push(param.variation);
                 }
 
-                // data = [alarms, wanrs, avgSpecs, avgDailys, avgWithAWs];
-                data = [alarms, wanrs, avgDailys, avgWithAWs];
+                // data = [alarms, warns, avgSpecs, avgDailys, avgWithAWs];
+                // data = [alarms, warns, avgDailys, avgWithAWs];
+
+                data = {
+                    alarms: alarms,
+                    warns: warns,
+                    avgWithAWs: avgWithAWs,
+                    avgDailys: avgDailys
+                };
+
                 options.series = [{ fill: false, circle: false }, { fill: false, circle: false }, { fill: true, circle: false }];
 
                 // const maxAvgWithAW = avgWithAWs.reduce((prev, current) => {// Find max avgWithAW
@@ -490,7 +302,7 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
                 let maxParam;
 
                 for (let i = 0; i < params.length; i++) {
-                    try{
+                    try {
                         if (maxAWwithAvg === params[i].avgWithAW) {
                             maxParam = params[i];
                             details = {
@@ -505,7 +317,7 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
 
                             break;
                         }
-                    }catch(err){
+                    } catch (err) {
                         console.log(err);
                     }
                 }
@@ -613,9 +425,10 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
         return this._pdmRadarService.getRadarParams(radarParamsParam).then(
             (params: any) => {
                 let options: any = this.getChartOption();
-                let data = [];
+                // let data = [];
+                let data: any = {};
                 let alarms = [];
-                let wanrs = [];
+                let warns = [];
                 let avgSpecs = [];
                 let avgDailys = [];
                 let variations = [];
@@ -629,33 +442,19 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
                         value: param.alarm
                     });
 
-                    wanrs.push({ // 주의
+                    warns.push({ // 주의
                         axis: param.paramName,
                         value: param.warn
                     });
 
-                    let avgSpec: number;
-                    if(param.avgSpec > 1) {
-                        avgSpec = 1
-                    } else {
-                        avgSpec = param.avgSpec;
-                    }
-
                     avgSpecs.push({ // 90일평균
                         axis: param.paramName,
-                        value: avgSpec
+                        value: param.avgSpec
                     });
-
-                    let avgDaily: number;
-                    if(param.avgDaily > 1) {
-                        avgDaily = 1
-                    } else {
-                        avgDaily = param.avgDaily;
-                    }
 
                     avgDailys.push({ // 하루평균
                         axis: param.paramName,
-                        value: avgDaily,
+                        value: param.avgDaily,
                         data: param
                     });
 
@@ -668,7 +467,14 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
                     // console.log(radarParamsParam.eqpId, param.paramName, param.avgDaily - param.avgSpec)
                 }
 
-                data = [alarms, wanrs, avgSpecs, avgDailys];
+                // data = [alarms, wanrs, avgSpecs, avgDailys];
+                data = {
+                    alarms: alarms,
+                    warns: warns,
+                    avgSpecs: avgSpecs,
+                    avgDailys: avgDailys
+                };
+
                 options.series = [{ fill: false, circle: false }, { fill: false, circle: false }, { fill: true, circle: false }];
                 options.color = (i: number) => {
                     let c: string[] = ['#eea29a', '#ffff56', 'olive', '#ff009d', 'aqua', 'green', 'blue'];
@@ -679,7 +485,7 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
                 let details: any = {};
 
                 for (let i = 0; i < params.length; i++) {
-                    try{
+                    try {
                         if (maxRatioVariation === params[i].avgDaily - params[i].avgSpec) {
                             let minMaxRatioVariation = maxRatioVariation;
                             if (maxRatioVariation != 0) {
@@ -697,7 +503,7 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
 
                             break;
                         }
-                    }catch(err){
+                    } catch (err) {
                         console.log(err);
                     }
                 }
@@ -778,9 +584,10 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
         return this._pdmRadarService.getRadarParams(radarParamsParam).then(
             (params: any) => {
                 let options: any = this.getChartOption();
-                let data = [];
+                // let data = [];
+                let data: any = {};
                 let alarms = []
-                let wanrs = [];
+                let warns = [];
                 let avgSpecs = [];
                 let avgDailys = [];
                 let variations = [];
@@ -794,33 +601,19 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
                         value: param.alarm
                     });
 
-                    wanrs.push({ // 주의
+                    warns.push({ // 주의
                         axis: param.paramName,
                         value: param.warn
                     });
 
-                    let avgSpec: number;
-                    if(param.avgSpec > 1) {
-                        avgSpec = 1
-                    } else {
-                        avgSpec = param.avgSpec;
-                    }
-
                     avgSpecs.push({ // 90일평균
                         axis: param.paramName,
-                        value: avgSpec
+                        value: param.avgSpec
                     });
-
-                    let avgDaily: number;
-                    if(param.avgDaily > 1) {
-                        avgDaily = 1
-                    } else {
-                        avgDaily = param.avgDaily;
-                    }
 
                     avgDailys.push({ // 하루평균
                         axis: param.paramName,
-                        value: avgDaily,
+                        value: param.avgDaily,
                         data: param
                     });
 
@@ -831,7 +624,14 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
                     variations.push(param.variation);
                 }
 
-                data = [alarms, wanrs, avgSpecs, avgDailys];
+                // data = [alarms, wanrs, avgSpecs, avgDailys];
+                data = {
+                    alarms: alarms,
+                    warns: warns,
+                    avgSpecs: avgSpecs,
+                    avgDailys: avgDailys
+                };
+
                 options.series = [{ fill: false, circle: false }, { fill: false, circle: false }, { fill: true, circle: false }];
                 options.color = (i: number) => {
                     let c: string[] = ['#eea29a', '#ffff56', 'olive', '#22b8cf', 'aqua', 'green', 'blue'];
@@ -842,7 +642,7 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
                 let details: any = {};
 
                 for (let i = 0; i < params.length; i++) {
-                    try{
+                    try {
                         if (params[i].avgDaily != null && params[i].avgSpec != null && minRatioVariation === params[i].avgDaily - params[i].avgSpec) {
                             let minMaxRatioVariation = minRatioVariation;
                             if (minMaxRatioVariation != 0) {
@@ -859,7 +659,7 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
 
                             break;
                         }
-                    }catch(err){
+                    } catch (err) {
                         console.log(err);
                     }
                 }
@@ -913,9 +713,9 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
         if (val) {
             let split = val.toString().split('.');
             let slice;
-            if(split.length==2){
-                slice= split[1].slice(0, num);
-            }else{
+            if (split.length == 2) {
+                slice = split[1].slice(0, num);
+            } else {
                 return val;
             }
 
@@ -925,52 +725,15 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
         }
     }
 
-    // Event
-    // mouseEnter(item, event) {
-    //     if (item.chartData) {
-    //         this.selectedItem = this.objectUnion({}, item);
-    //         this.selectedItem.options.ShowLabel = true;
-
-    //         this.showInfo = true;
-
-    //         this.setBoxLocation(event.x, event.y);
-    //     } else {
-    //         this.selectedItem = undefined;
-    //     }
-    // }
-
     mouseEnter(item: any, event: any, index: number): void | any {
-        if (this.isShowInfo) {
-            return;
-        }
-
         if (item.chartData) {
             this.selectedItem = this.objectUnion({}, item);
             this.selectedItem['index'] = index;
         } else {
             this.selectedItem = undefined;
         }
-    }
 
-    mouseLeave(item: any): void {
-        if (!this.isMouseEnterDetail) {
-            this.showInfo = false;
-        }
-    }
-
-    mouseMove(event: any): void {
-        this.setBoxLocation(event.x, event.y);
-        this.mouseY = event.y;
-    }
-
-    mouseEnterDetail(): void {
-        this.isMouseEnterDetail = true;
-        this.showInfo = true;
-    }
-
-    mouseLeaveDetail(): void {
-        this.isMouseEnterDetail = false;
-        this.showInfo = false;
+        // console.log('selectedItem', this.selectedItem);
     }
 
     showTrendChartAtContext(type: string, eqpName: string, eqpId: any, paramData: any, index: number, isInfo?: string): void {
@@ -981,7 +744,7 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
         this.chartType = type;
         this.isShowInfo = false;
 
-        const backdropEl: any = $('#backdrop')[0];
+        const backdropEl: any = $('#bar_backdrop')[0];
 
         if (!backdropEl.hidden) {
             backdropEl.hidden = true;
@@ -1012,36 +775,6 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
         if (isInfo == null) {
             this.paramSelected = true;
         }
-
-
-        // let obj = $('.alarm-warning-type')[0].getBoundingClientRect();
-        // this.trendHeight = obj.height + "px";
-
-        // if (type === 'alarm' || type === 'warning') {
-        //     this.trendX = 0 + "px";
-        //     if (this.fullScreen) {
-        //         if (this.mouseY < obj.height / 3 * 2) {
-        //             this.trendY = obj.height / 3 * 2 + "px";
-        //         } else {
-        //             this.trendY = "0px";
-        //         }
-        //         this.trendHeight = obj.height / 3 + "px";
-
-        //     } else {
-        //         this.trendY = obj.height + "px";
-        //     }
-        // } else if (type === "B5") {
-        //     let obj1 = $('.Good5-type')[0].getBoundingClientRect();
-        //     this.trendX = 0 + "px";
-        //     this.trendY = obj1.y - obj.y + "px";
-
-        // } else if (type === "G5") {
-        //     let obj1 = $('.Bad5-type')[0].getBoundingClientRect();
-        //     this.trendX = 0 + "px";
-        //     this.trendY = obj1.y - obj.y + "px";
-        // }
-
-        // this.trendParamId = null;
 
         if (this.selectedItem) {
             this.showParamContext.emit({
@@ -1101,13 +834,12 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
             lastCol = dataLength - 1;
         }
 
-        const trendChartEl: any = $('#trendChart')[0];
+        const trendChartEl: any = $('#bar_trendChart')[0];
         // trendChartEl.hidden = false;
         $(selector + lastCol).after(trendChartEl);
     }
 
     onEqpClick(event: any, item: any, isPopup): void {
-
         if (isPopup == null) {
             isPopup = false;
         }
@@ -1120,7 +852,7 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
             this.paramSelected = false;
         }
 
-        const trendChartEl: any = $('#trendChart')[0];
+        const trendChartEl: any = $('#bar_trendChart')[0];
         if (!trendChartEl.hidden) { // Close trend chart
             // trendChartEl.hidden = true;
         }
@@ -1139,6 +871,7 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
         }
 
         if (this.selectedItem) {
+            // console.log('selectedItem', this.selectedItem)
             this.showContext.emit({
                 selectedItem: this.selectedItem,
                 event: event
@@ -1166,20 +899,27 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
         }
     }
 
-    zoom(zoom: string, item: any, event?: any): void {
-        if (zoom == "in") {
-            item.options.zoom += 0.5;
-        } else if (zoom == "out") {
-            item.options.zoom -= 0.5;
-        } else if (zoom == "refresh") {
-            item.options.zoom = 1;
+    endExpandLoad(ev) {
+        if(ev) {
+            this.expandLoad = true;
+        }
+    }
+
+    expandChart(ev, item, index) {
+        if (item.chartData) {
+            this.selectedItem['isExpand'] = true;
+            this.isShowInfo = true;
+            this.showInfo = true;
+            const backdropEl: any = $('#bar_backdrop')[0];
+
+            if (backdropEl.hidden) {
+                backdropEl.hidden = false;
+            }
         }
 
-        if (item.options.zoom < 1) {
-            item.options.zoom = 1;
-        }
-
-        item.options = this.objectUnion({}, item.options);
+        setTimeout(() => {
+            $('.widget-pdm-radar .pdm-radar-info-hover').addClass('prih-on');
+        }, 100);
     }
 
     showRadarInfo(item: any, event: any, index: number): void | any {
@@ -1189,7 +929,7 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
             this.isShowInfo = true;
             this.showInfo = true;
 
-            const backdropEl: any = $('#backdrop')[0];
+            const backdropEl: any = $('#bar_backdrop')[0];
 
             if (backdropEl.hidden) {
                 backdropEl.hidden = false;
@@ -1199,7 +939,7 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
                 this.paramSelected = false;
             }
 
-            const trendChartEl: any = $('#trendChart')[0];
+            const trendChartEl: any = $('#bar_trendChart')[0];
             // this.setBoxLocation(event.x, event.y);
             setTimeout(() => {
                 $('.widget-pdm-radar .pdm-radar-info-hover').addClass('prih-on');
@@ -1208,17 +948,16 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
     }
 
     closeRadarInfo(): void {
-        if (this.isShowInfo) {
-            this.isShowInfo = false;
-            this.showInfo = false;
-            const backdropEl: any = $('#backdrop')[0];
+        this.expandLoad = false;
+        this.isShowInfo = false;
+        this.showInfo = false;
+        const backdropEl: any = $('#bar_backdrop')[0];
 
-            if (!backdropEl.hidden) { //Open backdrop
-                backdropEl.hidden = true;
-            }
+        if (!backdropEl.hidden) { //Open backdrop
+            backdropEl.hidden = true;
+        }
 
-            this.initActive();
-        } 
+        this.initActive();
     }
 
     closeTrendChart(): void {
