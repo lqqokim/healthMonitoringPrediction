@@ -5,7 +5,8 @@
     <!-- <div class="a3-navbar-bi"
              [ngClass]="{'dashboard': homeType === gnbTypeId.DASHBOARD, 'workspace': homeType === gnbTypeId.WORKSPACE}"
              (click)="goHome();"></div> -->
-
+    <a href="#" (click)="$event.preventDefault(); goGlobalConfig();"><span class="menu-span glyphicon glyphicon-menu-hamburger
+        " aria-hidden="true"></span></a>
     <div class="line"></div>
 
     <!-- <div *ngIf="homeType === gnbTypeId.DASHBOARD" class="dropdown pull-left">

@@ -1018,7 +1018,7 @@ select {
 }
 
 .a3-snb-title-group {
-  width: calc(100% - 46px);
+  width: calc(100% - 80px);
   height: 28px;
 }
 
@@ -1224,11 +1224,20 @@ i.input-text {
   margin-top: 6px;
   padding-right: 0px;
   padding-left: 13px;
+  
 }
 
 .a3-navbar-header span {
   display: inline-block;
   float: left;
+  
+}
+
+.menu-span{
+  font-size: 20px !important;
+  color: white !important;
+  margin-left: 5px !important;
+  margin-top: 2px !important;
 }
 
 .a3-navbar-header .a3-navbar-simbol {
