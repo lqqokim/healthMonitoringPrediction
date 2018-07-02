@@ -142,6 +142,7 @@
     "@angular/router": "^4.3.0",
     "@ngrx/core": "1.2.0",
     "@ngrx/store": "2.2.1",
+    "angular-split": "^1.0.0-rc.3",
     "angular2-cookie": "^1.2.3",
     "angular2-websocket": "^0.9.5",
     "core-js": "^2.5.1",

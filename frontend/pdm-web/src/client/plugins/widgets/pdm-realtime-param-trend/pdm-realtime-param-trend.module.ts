@@ -18,11 +18,14 @@ import { RealtimeParamTrendComponent } from './components/realtimeparamtrend.com
 
 import { RealtimeChartComponent } from './components/realtimechart.component';
 
+import { AngularSplitModule } from 'angular-split';
+
 @NgModule({
     imports: [
         A3_CommonModule,
         BISTEL_SDKModule,
-        PluginCommonModule
+        PluginCommonModule,
+        AngularSplitModule
     ],
     declarations: [
         PdmRealTimeParamTrendComponent,

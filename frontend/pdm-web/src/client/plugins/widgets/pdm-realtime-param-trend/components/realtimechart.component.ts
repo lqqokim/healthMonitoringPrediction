@@ -6,7 +6,8 @@ import { UUIDUtil } from '../../../../sdk/utils/uuid.util';
     selector: 'realtime-chart',
     templateUrl: './realtimechart.html',
     styleUrls: ['./realtimechart.css'],
-    encapsulation: ViewEncapsulation.None
+    encapsulation: ViewEncapsulation.None,
+   
 })
 export class RealtimeChartComponent implements OnInit, OnChanges, OnDestroy, AfterViewInit {
 
@@ -53,7 +54,7 @@ export class RealtimeChartComponent implements OnInit, OnChanges, OnDestroy, Aft
     }
 
     ngOnInit() {
-
+ 
     }
 
     ngOnChanges(changes: any) {
@@ -62,6 +63,7 @@ export class RealtimeChartComponent implements OnInit, OnChanges, OnDestroy, Aft
     ngOnDestroy() {
         this.stopRealTime();
     }
+  
     public startRealTime() {
         this.endX = new Date();
         this.startX = new Date(this.endX.getTime() - this.timeWindow);
@@ -76,11 +78,13 @@ export class RealtimeChartComponent implements OnInit, OnChanges, OnDestroy, Aft
                 this.startX = new Date(this.endX.getTime() - this.timeWindow);
 
                 this.dataShift();
-
+                this.resize();
                 this.setScale()
                 this.updateAxis()
                 this.updateLine();
             }, this.shiftTime)
+
+            // d3.select(window).on('resize.updatesvg', this.updateWindow);    
     }
     public stopRealTime() {
         clearInterval(this.intervalInstant);
@@ -213,6 +217,12 @@ export class RealtimeChartComponent implements OnInit, OnChanges, OnDestroy, Aft
 
 
     }
+    resize(){
+        const chartSelect = '#' + this.id;
+        this.width = document.querySelector(chartSelect).parentElement.clientWidth
+        this.height = document.querySelector(chartSelect).parentElement.clientHeight
+
+    }
     ngAfterViewInit() {
 
         const chartSelect = '#' + this.id;
@@ -233,5 +243,5 @@ export class RealtimeChartComponent implements OnInit, OnChanges, OnDestroy, Aft
         // }
     }
 
-
+ 
 }
