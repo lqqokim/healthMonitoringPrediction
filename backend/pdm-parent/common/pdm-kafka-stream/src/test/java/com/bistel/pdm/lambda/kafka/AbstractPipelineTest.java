@@ -10,6 +10,6 @@ public class AbstractPipelineTest {
     @Test
     public void reloadTest() {
         String tartgetUrl = "http://192.168.7.230:28000/pdm/api/master/latest/features";
-        MasterDataUpdater.updateParamFeatureDataSet(tartgetUrl);
+        //MasterDataUpdater.updateParamFeatureDataSet(tartgetUrl);
     }
 }

@@ -1,7 +1,7 @@
 package com.bistel.pdm.speed;
 
 import com.bistel.pdm.lambda.kafka.AbstractPipeline;
-import com.bistel.pdm.speed.processor.RealTimeDetectorProcessor;
+import com.bistel.pdm.speed.processor.*;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KafkaStreams;
@@ -47,30 +47,46 @@ public class SpeedTaskDef extends AbstractPipeline {
     private KafkaStreams processStreams() {
         final Topology topology = new Topology();
 
-        StoreBuilder<KeyValueStore<String, Integer>> alarmCountSupplier =
-                Stores.keyValueStoreBuilder(
-                        Stores.persistentKeyValueStore("persistent-fd01-alarm"),
-                        Serdes.String(),
-                        Serdes.Integer());
-
-        StoreBuilder<KeyValueStore<String, Integer>> warningCountSupplier =
-                Stores.keyValueStoreBuilder(
-                        Stores.persistentKeyValueStore("persistent-fd01-warning"),
-                        Serdes.String(),
-                        Serdes.Integer());
-
-
-        topology.addSource("input-trace-run", this.getRouteTraceRunTopic())
-                .addProcessor("outofspec", RealTimeDetectorProcessor::new, "input-trace-run")
-                .addStateStore(alarmCountSupplier, "outofspec")
-                .addStateStore(warningCountSupplier, "outofspec")
-                .addSink("output-fault", this.getOutputFaultTopic(), "outofspec");
-
-//                .addProcessor("calculateHealth", CalculateHealthIndexProcessor::new, "detectChange")
-//                .addSink("output-health", "pdm-output-health", "calculateHealth")
+//        StoreBuilder<KeyValueStore<String, Integer>> alarmRuleSupplier =
+//                Stores.keyValueStoreBuilder(
+//                        Stores.persistentKeyValueStore("fd02-alarm"),
+//                        Serdes.String(),
+//                        Serdes.Integer());
 //
-//                .addProcessor("predict", PredictFaultProcessor::new, "input-features")
-//                .addSink("output-predict", "pdm-output-predict", "predict");
+//        StoreBuilder<KeyValueStore<String, Integer>> warningRuleSupplier =
+//                Stores.keyValueStoreBuilder(
+//                        Stores.persistentKeyValueStore("fd02-warning"),
+//                        Serdes.String(),
+//                        Serdes.Integer());
+
+        StoreBuilder<KeyValueStore<String, String>> statusContextSupplier =
+                Stores.keyValueStoreBuilder(
+                        Stores.persistentKeyValueStore("status-context"),
+                        Serdes.String(),
+                        Serdes.String());
+
+        topology.addSource("input-trace", this.getInputTraceTopic())
+                .addProcessor("speed01", FilterByMasterProcessor::new, "input-trace")
+                .addProcessor("speed02", MarkStatusProcessor::new, "speed01")
+                .addProcessor("speed03", ExtractEventProcessor::new, "speed02")
+                .addStateStore(statusContextSupplier, "speed02")
+                .addProcessor("fd01", DetectByRealTimeProcessor::new, "speed02")
+                .addSink("output-trace", this.getOutputTraceTopic(), "speed02")
+                .addSink("output-event", this.getOutputEventTopic(), "speed03")
+                .addSink("output-fault", this.getOutputFaultTopic(), "fd01");
+
+//        topology.addSource("input-trace", this.getInputTraceTopic())
+//                .addProcessor("speed01", FilterByMasterProcessor::new, "input-trace")
+//                .addProcessor("speed02", MarkStatusProcessor::new, "speed01")
+//                .addProcessor("speed03", ExtractEventProcessor::new, "speed02")
+//                .addStateStore(statusContextSupplier, "speed03")
+//                .addProcessor("fd01", DetectByRealTimeProcessor::new, "speed02")
+//                //.addProcessor("fd02", DetectByRuleProcessor::new, "speed02")
+//
+//                .addSink("output-trace", this.getOutputTraceTopic(), "speed02")
+//                .addSink("output-event", this.getOutputEventTopic(), "speed03")
+//                .addSink("output-fault", this.getOutputFaultTopic(), "fd01");
+//                //.addSink("output-fault", this.getOutputFaultTopic(), "fd02");
 
         return new KafkaStreams(topology, getStreamProperties());
     }

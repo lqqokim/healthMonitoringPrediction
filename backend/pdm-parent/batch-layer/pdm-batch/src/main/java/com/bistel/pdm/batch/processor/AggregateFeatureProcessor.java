@@ -19,59 +19,21 @@ import java.util.Map;
 /**
  *
  */
-public class FeatureAggregatorProcessor extends AbstractProcessor<String, byte[]> {
-    private static final Logger log = LoggerFactory.getLogger(FeatureAggregatorProcessor.class);
+public class AggregateFeatureProcessor extends AbstractProcessor<String, byte[]> {
+    private static final Logger log = LoggerFactory.getLogger(AggregateFeatureProcessor.class);
 
     private final static String SEPARATOR = ",";
 
-    private KeyValueStore<String, byte[]> kvWindowStore;
-    private KeyValueStore<String, Long> kvEventTimeStore;
-
-    //private WindowStore<String, byte[]> kvTempStore;
+    private KeyValueStore<String, byte[]> kvProcessWindowStore;
+    private KeyValueStore<String, Long> kvSummaryTimeStore;
 
     @Override
     @SuppressWarnings("unchecked")
     public void init(ProcessorContext context) {
         super.init(context);
 
-        kvWindowStore = (KeyValueStore) context().getStateStore("persistent-window");
-        kvEventTimeStore = (KeyValueStore) context().getStateStore("sustain-eventtime");
-
-        //kvTempStore = (WindowStore) context().getStateStore("processing-interval");
-
-//        // schedule a punctuate() method every 1000 milliseconds based on stream-time
-//        context().schedule(TimeUnit.MINUTES.toMillis(1), PunctuationType.STREAM_TIME, (timestamp) -> {
-//
-//            long timeFrom = 0; // beginning of time = oldest available
-//            long timeTo = System.currentTimeMillis(); // now (in processing-time)
-//            WindowStoreIterator<byte[]> iterator = kvTempStore.fetch("europe", timeFrom, timeTo);
-//
-//            KeyValueIterator<> iter = kvTempStore.all();
-//
-//            while (iterator.hasNext()) {
-//                KeyValue<Long, byte[]> next = iterator.next();
-//                long windowTimestamp = next.key;
-//                System.out.println("Count of 'europe' @ time " + windowTimestamp + " is " + next.value);
-//            }
-//
-//        });
-
-//        context().schedule(TimeUnit.MINUTES.toMillis(1), PunctuationType.STREAM_TIME, (timestamp) -> {
-//            KeyValueIterator<String, byte[]> iter = this.kvStore.all();
-//            while (iter.hasNext()) {
-//                KeyValue<String, byte[]> entry = iter.next();
-//                //context.forward(entry.key, entry.value);
-//            }
-//            iter.close();
-//
-//
-//            StringBuilder sb = new StringBuilder();
-//            sb.append("count,sum,min,max,avg,median,stddev");
-//
-//            context.forward("", sb.toString().getBytes());
-//            // commit the current processing progress
-//            context.commit();
-//        });
+        kvProcessWindowStore = (KeyValueStore) context().getStateStore("process-window");
+        kvSummaryTimeStore = (KeyValueStore) context().getStateStore("summary-time");
     }
 
     @Override
@@ -89,17 +51,12 @@ public class FeatureAggregatorProcessor extends AbstractProcessor<String, byte[]
                 && !prevStatusAndTime[0].equalsIgnoreCase(currStatusAndTime[0])) {
             Long paramTime = Long.parseLong(currStatusAndTime[1]);
             // start event
-            kvEventTimeStore.put(partitionKey, paramTime);
+            kvSummaryTimeStore.put(partitionKey, paramTime);
         }
 
         if (currStatusAndTime[0].equalsIgnoreCase("R")) {
             Long paramTime = Long.parseLong(currStatusAndTime[1]);
-
-            context().forward(partitionKey, streamByteRecord, "route-run"); // detect fault by real-time
-            context().commit();
-
-            log.debug("[{}] - routed the stream to route-run.", partitionKey);
-            kvWindowStore.put(partitionKey + ":" + paramTime, streamByteRecord);
+            kvProcessWindowStore.put(partitionKey + ":" + paramTime, streamByteRecord);
 
         } else {
             //end
@@ -108,14 +65,12 @@ public class FeatureAggregatorProcessor extends AbstractProcessor<String, byte[]
 
                 //end trace
                 log.debug("[{}] - The event changed from R to I, let's aggregate stats.", partitionKey);
-                context().forward(partitionKey, "kill-them".getBytes(), "route-run");
-                context().commit();
 
                 //aggregation
                 List<String> keyList = new ArrayList<>();
                 List<byte[]> paramDataList = new ArrayList<>();
 
-                KeyValueIterator<String, byte[]> iter = this.kvWindowStore.all();
+                KeyValueIterator<String, byte[]> iter = this.kvProcessWindowStore.all();
                 while (iter.hasNext()) {
                     KeyValue<String, byte[]> entry = iter.next();
                     String key = entry.key.split(":")[0];
@@ -128,7 +83,7 @@ public class FeatureAggregatorProcessor extends AbstractProcessor<String, byte[]
                 iter.close();
 
                 for (String k : keyList) {
-                    this.kvWindowStore.delete(k);
+                    this.kvSummaryTimeStore.delete(k);
                 }
 
                 List<ParameterMasterDataSet> parameterMasterDataSets =
@@ -165,34 +120,32 @@ public class FeatureAggregatorProcessor extends AbstractProcessor<String, byte[]
                         stats.addValue(i);
                     }
 
-                    Long sumStartDtts = kvEventTimeStore.get(partitionKey);
+                    Long sumStartDtts = kvSummaryTimeStore.get(partitionKey);
                     Long sumEndDtts = Long.parseLong(prevStatusAndTime[1]);
 
                     if(sumStartDtts == null) sumStartDtts = sumEndDtts;
 
                     // startDtts, endDtts, param rawid, count, max, min, median, avg, stddev, q1, q3
-                    StringBuilder sbStats = new StringBuilder();
-                    sbStats.append(sumStartDtts).append(",")
-                            .append(sumEndDtts).append(",")
-                            .append(paramRawId).append(",")
-                            .append(values.size()).append(",")
-                            .append(stats.getMin()).append(",")
-                            .append(stats.getMax()).append(",")
-                            .append(stats.getPercentile(50)).append(",")
-                            .append(stats.getMean()).append(",")
-                            .append(stats.getStandardDeviation()).append(",")
-                            .append(stats.getPercentile(25)).append(",")
-                            .append(stats.getPercentile(75));
+                    String msg = String.valueOf(sumStartDtts) + "," +
+                            sumEndDtts + "," +
+                            paramRawId + "," +
+                            values.size() + "," +
+                            stats.getMin() + "," +
+                            stats.getMax() + "," +
+                            stats.getPercentile(50) + "," +
+                            stats.getMean() + "," +
+                            stats.getStandardDeviation() + "," +
+                            stats.getPercentile(25) + "," +
+                            stats.getPercentile(75);
 
-                    String msg = sbStats.toString();
-                    log.debug(" {} : {} ", partitionKey, msg);
+                    log.debug("[{}] - {} ", partitionKey, msg);
 
-                    context().forward(partitionKey, msg.getBytes(), "route-feature");
-                    context().forward(partitionKey, msg.getBytes(), "output-feature");
+                    context().forward(partitionKey, msg.getBytes());
                     context().commit();
-
-                    log.debug("[{}] - forward aggregated stream to route-feature, output-feature.", partitionKey);
                 }
+
+                log.debug("[{}] - forward aggregated stream to route-feature, output-feature.", partitionKey);
+                log.debug("");
             }
         }
     }

@@ -163,38 +163,6 @@ public class MasterDataUpdater {
         }
     }
 
-    public static void updateParamFeatureDataSet(String targetUrl) {
-        ResteasyClient client = new ResteasyClientBuilder().build();
-        Response response = client.target(targetUrl).request().get();
-        String body = response.readEntity(String.class);
-
-        ObjectMapper mapper = new ObjectMapper();
-        List<FeatureDataSet> paramFeatureDataList = null;
-
-        try {
-            if (body.length() <= 0) {
-                log.info("feature data does not exists. message: " + body);
-            } else {
-                paramFeatureDataList = mapper.readValue(body, new TypeReference<List<FeatureDataSet>>() {
-                });
-
-                for (FeatureDataSet data : paramFeatureDataList) {
-                    String[] columns =
-                            new String[]{Long.toString(data.getFeatureRawId()), data.getParamName(),
-                                    data.getFeatureName(), data.getMainYN()};
-
-                    MasterDataCache.getInstance().putFeature(data.getParamRawId(), columns);
-                }
-                log.info("{} reference has been updated.", paramFeatureDataList.size());
-            }
-        } catch (IOException e) {
-            log.error(e.getMessage(), e);
-        } finally {
-            response.close();
-            client.close();
-        }
-    }
-
     public static void updateParamHealthDataSet(String targetUrl) {
         ResteasyClient client = new ResteasyClientBuilder().build();
         Response response = client.target(targetUrl).request().get();
