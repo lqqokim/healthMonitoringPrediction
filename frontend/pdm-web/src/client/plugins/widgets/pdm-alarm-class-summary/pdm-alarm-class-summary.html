@@ -1,0 +1,21 @@
+<div class="widget widget-pdm-alarm-class-summary">
+    <div info>
+        <dl>
+            <dt>target</dt>
+            <dd>1 Line</dd>
+        </dl>
+        <dl>
+            <dt>Time Period</dt>
+            <dd>{{viewTimeperiod()}}</dd>
+        </dl>
+    </div>
+
+    <div list>
+        <div>
+            <donutChart
+                [chartColor]="chartColor"
+                [chartData]="chartData"
+            ></donutChart>
+        </div>
+    </div>
+</div>

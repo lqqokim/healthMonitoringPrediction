@@ -17,6 +17,7 @@ import { PdmAlarmCountSummaryWidgetModule } from './widgets/pdm-alarm-count-summ
 import { PdmLineStatusTrendWidgetModule } from './widgets/pdm-line-status-trend/pdm-line-status-trend-widget.module';
 import { PdmAlarmCountTrendWidgetModule } from './widgets/pdm-alarm-count-trend/pdm-alarm-count-trend-widget.module';
 import { PdmGaugeWidgetModule } from './widgets/pdm-gauge/pdm-gauge-widget.module';
+import { PdmAlarmClassSummaryModule } from './widgets/pdm-alarm-class-summary/pdm-alarm-class-summary.module';
 
 export const getWidgetClassInfo = (widgetName: string): any => {
     console.log('getWidgetClassInfo => ', widgetName);
@@ -59,6 +60,8 @@ export const getWidgetClassInfo = (widgetName: string): any => {
             return PdmAlarmCountTrendWidgetModule;
         case 'pdmGauge':
             return PdmGaugeWidgetModule;
+        case 'pdmAlarmClassSummary':
+            return PdmAlarmClassSummaryModule;
         default:
             // TODO: change Module Empty chart
             return PdmAreaStatusOverviewModule;
