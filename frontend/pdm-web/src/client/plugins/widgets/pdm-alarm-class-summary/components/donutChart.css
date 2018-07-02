@@ -1,0 +1,21 @@
+donutChart { display:block; position:relative; }
+
+/* 차트 마우스 오버 효과 */
+donutchart > svg path:hover { fill-opacity:0.8; fill:#000; cursor:pointer; }
+
+/* 라벨 이벤트x 기본 세팅 */
+donutchart > svg text { pointer-events:none; text-shadow:0 1px 3px rgba(0,0,0,0.5); text-anchor:middle; fill:#fff; font:bold 12px sans-serif; }
+
+/* 차트 라벨 (하단/우측) */
+donutChart > ul.list { position:absolute; }
+donutChart > ul.list > li { position:relative; padding-left:10px; font-size:14px; color:#333; }
+donutChart > ul.list.small > li { font-size:12px; }
+
+donutChart > ul.list > li > i { display:block; position:absolute; left:0; top:0; bottom:0; margin:auto 0; width:7px; height:7px; background:#eee; border-radius:3px; }
+
+donutChart > ul.list.bottom { left:0; right:0; bottom:10px; display:flex; justify-content:center; align-items:center; }
+donutChart > ul.list.bottom > li { margin-left:12px; }
+donutChart > ul.list.bottom > li:first-child { margin-left:0; }
+
+donutChart > ul.list.right { top:0; right:10px; bottom:0; display:flex; justify-content:center; align-items:flex-start; flex-direction:column; }
+donutChart > ul.list.right > li { padding:2px 0 2px 14px; }
