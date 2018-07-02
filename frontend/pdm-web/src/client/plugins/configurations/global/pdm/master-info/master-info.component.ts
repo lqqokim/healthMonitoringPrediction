@@ -125,90 +125,94 @@ export class MasterInfoComponent implements OnInit, AfterViewInit {
     }
 
     selectNode(ev: any): void {
-        const nodeType = ev.treeview.nodeType;
-
-        if (nodeType === this.TYPES.AREA || nodeType === this.TYPES.EQP) {
-            if (!this.isShowArea) {
-                this.isShowArea = true;
-            }
-
-            this.selectedItem = ev.treeview;
-            this.selectedItem.isOpen = true;
-            this.selectedEv = ev;
-            this.isLoading = true;
-
-            const children: any[] = this.selectedItem.children;
-
-            if (nodeType === this.TYPES.AREA && this.selectedItem.parentId !== 0) {
-                let parentNode = this.searchTree('nodeId', this.initialTreeDatas[0], this.selectedItem.parentId);
-                this.parentNode = parentNode;
-
-                if (parentNode.nodeType === this.TYPES.AREA && parentNode.parentId !== 0) {
-                    this.isShowArea = false;
+        try {
+            const nodeType = ev.treeview.nodeType;
+            
+            if (nodeType === this.TYPES.AREA || nodeType === this.TYPES.EQP) {
+                if (!this.isShowArea) {
+                    this.isShowArea = true;
                 }
-            }
 
-            if ((!children.length || this.selectedItem.isChildLoaded === undefined || this.selectedItem.isChildLoaded === false) && this.selectedItem.parentId !== 0) { // api call
-                this.selectedItem.isChildLoaded = true;
-                this._getChildByType();
-            } else if (children.length > 0 || this.selectedItem.parentId === 0) { // exist data
-                if (nodeType === this.TYPES.AREA) {
-                    this.nodeType = this.TYPES.AREA;
-                    let areas = [];
-                    let eqps = [];
+                this.selectedItem = ev.treeview;
+                this.selectedItem.isOpen = true;
+                this.selectedEv = ev;
+                this.isLoading = true;
 
-                    for (let i = 0; i < children.length; i++) {
-                        if (children[i].nodeType === this.TYPES.AREA) {
-                            areas.push(children[i]);
-                        } else if (children[i].nodeType === this.TYPES.EQP) {
-                            eqps.push(children[i]);
-                        }
+                const children: any[] = this.selectedItem.children;
+
+                if (nodeType === this.TYPES.AREA && this.selectedItem.parentId !== 0) {
+                    let parentNode = this.searchTree('nodeId', this.initialTreeDatas[0], this.selectedItem.parentId);
+                    this.parentNode = parentNode;
+
+                    if (parentNode.nodeType === this.TYPES.AREA && parentNode.parentId !== 0) {
+                        this.isShowArea = false;
                     }
+                }
 
-                    if (this.isShowArea) {
-                        this.areaData = {
-                            areas: areas,
-                            areaList: this.areaList,
+                if ((!children.length || this.selectedItem.isChildLoaded === undefined || this.selectedItem.isChildLoaded === false) && this.selectedItem.parentId !== 0) { // api call
+                    this.selectedItem.isChildLoaded = true;
+                    this._getChildByType();
+                } else if (children.length > 0 || this.selectedItem.parentId === 0) { // exist data
+                    if (nodeType === this.TYPES.AREA) {
+                        this.nodeType = this.TYPES.AREA;
+                        let areas = [];
+                        let eqps = [];
+
+                        for (let i = 0; i < children.length; i++) {
+                            if (children[i].nodeType === this.TYPES.AREA) {
+                                areas.push(children[i]);
+                            } else if (children[i].nodeType === this.TYPES.EQP) {
+                                eqps.push(children[i]);
+                            }
+                        }
+
+                        if (this.isShowArea) {
+                            this.areaData = {
+                                areas: areas,
+                                areaList: this.areaList,
+                                fabId: this.selectedFab.fabId,
+                                areaId: this.selectedItem.areaId
+                            };
+                        }
+
+                        this.eqpData = {
+                            eqps: eqps,
                             fabId: this.selectedFab.fabId,
-                            areaId: this.selectedItem.areaId
+                            areaId: this.selectedItem.areaId,
+                            areaName: this.selectedItem.areaName
+                        };
+                    } else if (this.selectedItem.nodeType === this.TYPES.EQP) {
+                        this.nodeType = this.TYPES.EQP;
+                        let params = [];
+                        let parts = [];
+
+                        for (let i = 0; i < children.length; i++) {
+                            if (children[i].nodeType === this.TYPES.PARAMETER) {
+                                params.push(children[i]);
+                            } else if (children[i].nodeType === this.TYPES.PART) {
+                                parts.push(children[i]);
+                            }
+                        }
+
+                        this.partData = {
+                            parts: parts,
+                            fabId: this.selectedFab.fabId,
+                            eqpId: this.selectedItem.eqpId,
+                            eqpName: this.selectedItem.eqpName,
+                        };
+                        this.paramData = {
+                            params: params,
+                            fabId: this.selectedFab.fabId,
+                            eqpId: this.selectedItem.eqpId,
+                            eqpName: this.selectedItem.eqpName,
                         };
                     }
 
-                    this.eqpData = {
-                        eqps: eqps,
-                        fabId: this.selectedFab.fabId,
-                        areaId: this.selectedItem.areaId,
-                        areaName: this.selectedItem.areaName
-                    };
-                } else if (this.selectedItem.nodeType === this.TYPES.EQP) {
-                    this.nodeType = this.TYPES.EQP;
-                    let params = [];
-                    let parts = [];
-
-                    for (let i = 0; i < children.length; i++) {
-                        if (children[i].nodeType === this.TYPES.PARAMETER) {
-                            params.push(children[i]);
-                        } else if (children[i].nodeType === this.TYPES.PART) {
-                            parts.push(children[i]);
-                        }
-                    }
-
-                    this.partData = {
-                        parts: parts,
-                        fabId: this.selectedFab.fabId,
-                        eqpId: this.selectedItem.eqpId,
-                        eqpName: this.selectedItem.eqpName,
-                    };
-                    this.paramData = {
-                        params: params,
-                        fabId: this.selectedFab.fabId,
-                        eqpId: this.selectedItem.eqpId,
-                        eqpName: this.selectedItem.eqpName,
-                    };
+                    this.isLoading = false;
                 }
-
-                this.isLoading = false;
             }
+        } catch (e) {
+            console.log(e);
         }
     }
 
