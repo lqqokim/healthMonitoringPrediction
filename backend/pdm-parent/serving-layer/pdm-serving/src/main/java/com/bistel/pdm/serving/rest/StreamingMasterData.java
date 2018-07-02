@@ -100,24 +100,6 @@ public class StreamingMasterData {
     }
 
     @GET
-    @Path("/latest/features")
-    public Response reloadFeatureAll() {
-
-        ParamFeatureDataDao repository = new ParamFeatureDataDao();
-        List<FeatureDataSet> featureDataSet = null;
-
-        try {
-            featureDataSet = repository.getAllFeatures();
-            log.info("Provides the latest feature info. count={}", featureDataSet.size());
-            return Response.status(Response.Status.OK).entity(featureDataSet).build();
-
-        } catch (SQLException e) {
-            log.error(e.getMessage(), e);
-            return Response.status(Response.Status.NOT_FOUND).entity(new Message(e.getMessage())).build();
-        }
-    }
-
-    @GET
     @Path("/latest/health")
     public Response reloadParamHealthAll() {
 

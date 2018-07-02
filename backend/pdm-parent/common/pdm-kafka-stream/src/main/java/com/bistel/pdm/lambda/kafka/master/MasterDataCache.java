@@ -27,9 +27,6 @@ public class MasterDataCache {
     // health logic
     private final Map<Long, List<ParameterHealthDataSet>> paramHealthDataSet = new ConcurrentHashMap<>();
 
-    // param_rawid : feature_rawid, param_name, feature_name, main_yn
-    private final Map<Long, List<String[]>> featureDataSet = new ConcurrentHashMap<>();
-
     // Private constructor prevents instantiation from other classes
     private MasterDataCache() { }
 
@@ -88,6 +85,21 @@ public class MasterDataCache {
         return healthData;
     }
 
+    public ParameterHealthDataSet getParamHealthFD02(Long key){
+        ParameterHealthDataSet healthData = null;
+
+        if(this.paramHealthDataSet.get(key) != null){
+            for(ParameterHealthDataSet health : this.paramHealthDataSet.get(key)){
+                if(health.getHealthCode().equalsIgnoreCase("FD_RULE_1")){
+                    healthData = health;
+                    break;
+                }
+            }
+        }
+
+        return healthData;
+    }
+
     public EventMasterDataSet getEventForProcess(String key) {
         EventMasterDataSet result = null;
 
@@ -123,20 +135,4 @@ public class MasterDataCache {
         return paramSpecDataSet;
     }
 
-    public Map<Long, List<String[]>> getFeatureDataSet() {
-        return featureDataSet;
-    }
-
-    public void putFeature(Long paramRawId, String[] columns) {
-        if(!this.featureDataSet.containsKey(paramRawId)){
-            ArrayList<String[]> row = new ArrayList<>();
-            row.add(columns);
-            this.featureDataSet.put(paramRawId, row);
-        } else {
-            List<String[]> row = this.featureDataSet.get(paramRawId);
-            row.add(columns);
-
-            this.featureDataSet.put(paramRawId, row);
-        }
-    }
 }
