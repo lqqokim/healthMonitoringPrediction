@@ -206,7 +206,7 @@ export class GaugeChartComponent implements OnInit, OnChanges {
         const label: string = `Target days avg: ${avgSpecs[0].toFixed(4)} / Paramter: ${axisCategoryies[0]}`;
 
         setTimeout(() => {
-            this.chartData = [avgSpecs[0]];
+            this.chartData = [[avgSpecs[0]]];
             this.chartConfig = {
                 legend: {
                     show: true
