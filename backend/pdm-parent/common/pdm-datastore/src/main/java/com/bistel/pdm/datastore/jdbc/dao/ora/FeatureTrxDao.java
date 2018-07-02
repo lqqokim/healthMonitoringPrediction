@@ -18,9 +18,9 @@ public class FeatureTrxDao implements FeatureDataDao {
     private static final Logger log = LoggerFactory.getLogger(FeatureTrxDao.class);
 
     private static final String INSERT_SQL =
-            "insert into param_feature_agg_trx_pdm " +
+            "insert into param_feature_trx_pdm " +
                     "(RAWID, PARAM_MST_RAWID, BEGIN_DTTS, END_DTTS, COUNT, MIN, MAX, MEDIAN, MEAN, STDDEV, Q1, Q3) " +
-                    "values (seq_param_feature_agg_trx_pdm.nextval, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                    "values (seq_param_feature_trx_pdm.nextval, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     @Override
     public void storeRecord(ConsumerRecords<String, byte[]> records) {

@@ -14,8 +14,8 @@ import java.util.Date;
 /**
  *
  */
-public class TimewaveTransformProcessor extends AbstractProcessor<String, byte[]> {
-    private static final Logger log = LoggerFactory.getLogger(TimewaveTransformProcessor.class);
+public class TransformTimewaveProcessor extends AbstractProcessor<String, byte[]> {
+    private static final Logger log = LoggerFactory.getLogger(TransformTimewaveProcessor.class);
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
     private final static String SEPARATOR = ",";
 
@@ -78,7 +78,7 @@ public class TimewaveTransformProcessor extends AbstractProcessor<String, byte[]
 
         //rsd 01~05
         if (columns.length > 12) {
-            sbValue.append(columns[12]).append(","); //location
+            sbValue.append(columns[12]).append(","); // e.g location
 
             if (columns.length > 13) {
                 sbValue.append(columns[13]).append(",");
@@ -97,9 +97,8 @@ public class TimewaveTransformProcessor extends AbstractProcessor<String, byte[]
             }
         }
 
-        log.debug("param rawid : {}", param.getParameterRawId());
+        log.debug("[{}] - param rawid : {}", partitionKey, param.getParameterRawId());
         context().forward(partitionKey, streamByteRecord);
-        // commit the current processing progress
         context().commit();
     }
 

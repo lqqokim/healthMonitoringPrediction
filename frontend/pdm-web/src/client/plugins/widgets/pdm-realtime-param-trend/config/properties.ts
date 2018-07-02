@@ -23,7 +23,7 @@ export class Properties extends ConditionApi {
 	config(): [ConditionType] {
 		return [
 			Condic.Tool.plant(),
-			Condic.Tool.worst_top()
+			// Condic.Tool.worst_top()
 		];
 	}
 
@@ -33,7 +33,7 @@ export class Properties extends ConditionApi {
 	form(): [FormConfigType] {
 		return [
 			Formcfg.Factory.plant(),
-			Formcfg.Factory.worst_top(),
+			// Formcfg.Factory.worst_top(),
 			Formcfg.Common.communication(),
 			Formcfg.Common.auto_refresh()
 		];

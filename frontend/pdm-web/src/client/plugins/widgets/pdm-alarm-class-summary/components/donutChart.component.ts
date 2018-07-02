@@ -203,8 +203,8 @@ export class donutChartComponent implements OnInit, OnChanges, OnDestroy {
 
         const max = this.svgArcPaths.length; 
 
-        d3.selectAll('path').remove();
-        d3.selectAll('text').remove();
+        d3.select(this.currElem).selectAll('path').remove();
+        d3.select(this.currElem).selectAll('text').remove();
         
         this.svgArcPaths.splice(0, max);
         this.svgLabels.splice(0, max);
@@ -216,7 +216,7 @@ export class donutChartComponent implements OnInit, OnChanges, OnDestroy {
     arcTween( arc: any, idx: number, startAngle: number, endAngle: number ): void {
         let _curr: number = startAngle;
         const _target: number = endAngle;
-        const _speed: number = 0.1;
+        const _speed: number = 0.125;
         const _max: number = _target - ((_target - _curr) * 0.001);
 
         let t = new Timer(()=>{

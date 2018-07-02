@@ -40,7 +40,7 @@ public class EventTrxDao implements EventDataDao {
                     // time, event mst rawid, event type cd
 
                     pstmt.setLong(1, Long.parseLong(values[1])); //eqp_event_mst_rawid
-                    pstmt.setFloat(2, Float.parseFloat(values[2])); //event type cd (S,E)
+                    pstmt.setString(2, values[2]); //event type cd (S,E)
                     pstmt.setTimestamp(3, new Timestamp(Long.parseLong(values[0])));
 
                     pstmt.addBatch();

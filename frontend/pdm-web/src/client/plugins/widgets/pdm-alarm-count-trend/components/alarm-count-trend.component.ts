@@ -33,9 +33,9 @@ export class AlarmCountTrendComponent implements OnInit, OnChanges {
     }
 
     setChartData(): void {
-        const alarms: any[] = ['alarm', 23, 15, 23, 21, 24, 22, 21, 24];
+        const alarms: any[] = ['alarm', 23, 15, 23, 21, 24, 22, 21];
         const warnings: any[] = ['warning', 34, 32, 29, 35, 36, 40, 46];
-        const axisCategories: string[] = ['x', '5/19', '5/20', '5/21', '5/22', '5/23', '5/24', '5/25'];
+        const axisCategories: string[] = ['x', '2018-06-23', '2018-06-24', '2018-06-25', '2018-06-26', '2018-06-27', '2018-06-28', '2018-06-29'];
         const chartData: any[] = [axisCategories, alarms, warnings];
 
         setTimeout(() => {
@@ -45,59 +45,85 @@ export class AlarmCountTrendComponent implements OnInit, OnChanges {
     }
 
     generateChart(chartData: any[], axisCategories: string[], warnings): void {
+        const colors: string[] = ['green', 'orange', 'red', 'black', 'gray'];
         this.chart = c3Chart.generate({
             bindto: `#${this.chartId}`,
-            legend: {
-                position: 'right'
-            },
-            // size: {
-            //     height: 350,
-            //     width: 700
-            // },
-            padding: {
-                top: 20
-            },
             data: {
-                type: 'bar',
                 x: 'x',
+                // xFormat: '%Y%m%d', // 'xFormat' can be used as custom format of 'x'
                 columns: chartData,
-                names: {
-                    alarm: 'Alarm',
-                    warning: 'Warning'
-                },
+                type: 'line',
                 colors: {
                     alarm: 'red',
                     warning: 'orange'
-                }
-            },
-            zoom: {
-                enabled: false
+                },
+                // color: (color: string, data: any): string => {
+                //     return colors[data.index];
+                // },
             },
             axis: {
                 x: {
-                    type: 'category',
-                    // categories: axisCategories
+                    type: 'timeseries',
+                    tick: {
+                        format: '%Y-%m-%d'
+                    }
                 }
-            },
-            grid: {
-                // y: {
-                //     lines: [
-                //         { value: 1, text: 'Alarm (1)', class: 'color-grid', position: 'middle' }
-                //     ]
-                // }
-            },
-            // tooltip: {
-            //     format: {
-            //         title: (d) => {
-            //             return axisCategoryies[d];
-            //         },
-            //         value: (value, ratio, id) => {
-            //             // console.log(value, ratio, id);
-            //             return Number(value).toFixed(6);
-            //         }
-            //     },
-            // }
+            }
         });
+
+        // this.chart = c3Chart.generate({
+        //     bindto: `#${this.chartId}`,
+        //     legend: {
+        //         position: 'right'
+        //     },
+        //     // size: {
+        //     //     height: 350,
+        //     //     width: 700
+        //     // },
+        //     padding: {
+        //         top: 20
+        //     },
+        //     data: {
+        //         type: 'bar',
+        //         x: 'x',
+        //         columns: chartData,
+        //         names: {
+        //             alarm: 'Alarm',
+        //             warning: 'Warning'
+        //         },
+        //         colors: {
+        //             alarm: 'red',
+        //             warning: 'orange'
+        //         }
+        //     },
+        //     zoom: {
+        //         enabled: false
+        //     },
+        //     axis: {
+        //         x: {
+        //             type: 'category',
+        //             // categories: axisCategories
+        //         }
+        //     },
+        //     grid: {
+        //         // y: {
+        //         //     lines: [
+        //         //         { value: 1, text: 'Alarm (1)', class: 'color-grid', position: 'middle' }
+        //         //     ]
+        //         // }
+        //     },
+        //     // tooltip: {
+        //     //     format: {
+        //     //         title: (d) => {
+        //     //             return axisCategoryies[d];
+        //     //         },
+        //     //         value: (value, ratio, id) => {
+        //     //             // console.log(value, ratio, id);
+        //     //             return Number(value).toFixed(6);
+        //     //         }
+        //     //     },
+        //     // }
+        // });
         
         // setTimeout(() => {
         //     chart.load({

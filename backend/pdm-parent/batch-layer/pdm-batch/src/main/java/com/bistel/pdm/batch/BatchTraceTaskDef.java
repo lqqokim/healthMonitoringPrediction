@@ -47,40 +47,37 @@ public class BatchTraceTaskDef extends AbstractPipeline {
     private KafkaStreams processStreams() {
         final Topology topology = new Topology();
 
-        // Using a `KeyValueStoreBuilder` to build a `KeyValueStore`.
-        StoreBuilder<KeyValueStore<String, byte[]>> processingWindowSupplier =
+        StoreBuilder<KeyValueStore<String, String>> statusContextSupplier =
                 Stores.keyValueStoreBuilder(
-                        Stores.persistentKeyValueStore("persistent-window"),
-                        Serdes.String(),
-                        Serdes.ByteArray());
-
-        StoreBuilder<KeyValueStore<String, String>> sustainPreviousSupplier =
-                Stores.keyValueStoreBuilder(
-                        Stores.persistentKeyValueStore("sustain-previous"),
+                        Stores.persistentKeyValueStore("status-context"),
                         Serdes.String(),
                         Serdes.String());
 
-        StoreBuilder<KeyValueStore<String, Long>> eventTimeSupplier =
+        StoreBuilder<KeyValueStore<String, byte[]>> processingWindowSupplier =
                 Stores.keyValueStoreBuilder(
-                        Stores.persistentKeyValueStore("sustain-eventtime"),
+                        Stores.persistentKeyValueStore("process-window"),
+                        Serdes.String(),
+                        Serdes.ByteArray());
+
+        StoreBuilder<KeyValueStore<String, Long>> summaryTimeSupplier =
+                Stores.keyValueStoreBuilder(
+                        Stores.persistentKeyValueStore("summary-time"),
                         Serdes.String(),
                         Serdes.Long());
 
         topology.addSource("input-trace", this.getInputTraceTopic())
-                .addProcessor("filtering", StreamFilterProcessor::new, "input-trace")
-                .addProcessor("marking", StatusMarkProcessor::new, "filtering")
-                .addProcessor("extracting", EventExtractorProcessor::new, "marking")
-                .addProcessor("event", EventProcessor::new, "extracting")
-                .addProcessor("aggregator", FeatureAggregatorProcessor::new, "extracting")
-                .addStateStore(sustainPreviousSupplier, "extracting")
-                .addStateStore(processingWindowSupplier, "aggregator")
-                .addStateStore(eventTimeSupplier, "aggregator")
+                .addProcessor("batch01", FilterByMasterProcessor::new, "input-trace")
+                .addProcessor("batch02", StatusContextProcessor::new, "batch01")
+                .addProcessor("batch03", AggregateFeatureProcessor::new, "batch02")
+                .addStateStore(statusContextSupplier, "batch02")
+                .addStateStore(processingWindowSupplier, "batch03")
+                .addStateStore(summaryTimeSupplier, "batch03")
+                .addSink("output-feature", this.getOutputFeatureTopic(), "batch03");
+//                .addSink("route-feature", this.getRouteFeatureTopic(), "batch03");
 
-                .addSink("output-trace", this.getOutputTraceTopic(), "marking")
-                .addSink("output-event", this.getOutputEventTopic(), "event")
-                .addSink("route-run", this.getRouteTraceRunTopic(), "aggregator")
-                .addSink("route-feature", this.getRouteFeatureTopic(), "aggregator")
-                .addSink("output-feature", this.getOutputFeatureTopic(), "aggregator");
+//        topology.addSource("input-feature", this.getRouteFeatureTopic())
+//                .addProcessor("fd03", TrendChangeProcessor::new, "input-feature")
+//                .addSink("output-fault", this.getOutputFaultTopic(), "fd03");
 
         return new KafkaStreams(topology, getStreamProperties());
     }

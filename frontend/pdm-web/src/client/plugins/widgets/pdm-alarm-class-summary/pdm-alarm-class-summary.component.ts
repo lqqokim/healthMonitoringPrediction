@@ -67,7 +67,7 @@ export class PdmAlarmClassSummaryComponent extends WidgetApi implements OnSetup,
         setTimeout(()=>{
             this.chartData = this.chartData2;
             console.log('바꿈', this.chartData );
-        }, 5000);
+        }, 10000);
     }
 
     viewTimeperiod(): string {

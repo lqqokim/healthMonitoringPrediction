@@ -7,10 +7,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Filter by attribute into master info.
+ * Filter by master info.
  */
-public class StreamFilterProcessor extends AbstractProcessor<String, byte[]> {
-    private static final Logger log = LoggerFactory.getLogger(StreamFilterProcessor.class);
+public class FilterByMasterProcessor extends AbstractProcessor<String, byte[]> {
+    private static final Logger log = LoggerFactory.getLogger(FilterByMasterProcessor.class);
 
     @Override
     public void init(ProcessorContext context) {
@@ -20,10 +20,9 @@ public class StreamFilterProcessor extends AbstractProcessor<String, byte[]> {
     @Override
     public void process(String partitionKey, byte[] streamByteRecord) {
         if (!MasterDataCache.getInstance().getEqpMasterDataSet().containsKey(partitionKey)) {
-            log.info("{} does not existed.", partitionKey);
+            log.info("[{}] - Not existed.", partitionKey);
         } else {
             context().forward(partitionKey, streamByteRecord);
-            // commit the current processing progress
             context().commit();
         }
     }

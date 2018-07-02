@@ -1,67 +1,152 @@
-//package com.bistel.pdm.batch.processor;
-//
-//import org.apache.kafka.streams.KeyValue;
-//import org.apache.kafka.streams.processor.Processor;
-//import org.apache.kafka.streams.processor.ProcessorContext;
-//import org.apache.kafka.streams.processor.PunctuationType;
-//import org.apache.kafka.streams.state.KeyValueIterator;
-//import org.apache.kafka.streams.state.KeyValueStore;
-//import org.slf4j.Logger;
-//import org.slf4j.LoggerFactory;
-//
-///**
-// *
-// */
-//public class AggregateFeatureProcessor implements Processor<String, byte[]> {
-//    private static final Logger log = LoggerFactory.getLogger(AggregateFeatureProcessor.class);
-//
-//    private final static String SEPARATOR = ",";
-//
-//    private ProcessorContext context;
-//    private KeyValueStore<String, byte[]> kvStore;
-//
-//    @Override
-//    @SuppressWarnings("unchecked")
-//    public void init(ProcessorContext processorContext) {
-//        // keep the processor context locally because we need it in punctuate() and commit()
-//        this.context = processorContext;
-//
-//        // retrieve the key-value store named "persistent-processing"
-//        kvStore = (KeyValueStore) context.getStateStore("persistent-processing");
-//
-//        // schedule a punctuate() method every 1000 milliseconds based on stream-time
-//        this.context.schedule(1000, PunctuationType.STREAM_TIME, (timestamp) -> {
-//            KeyValueIterator<String, byte[]> iter = this.kvStore.all();
-//            while (iter.hasNext()) {
-//                KeyValue<String, byte[]> entry = iter.next();
-//                //context.forward(entry.key, entry.value);
-//            }
-//            iter.close();
-//
-//
-//            StringBuilder sb = new StringBuilder();
-//            sb.append("count,sum,min,max,avg,median,stddev");
-//
-//            context.forward("", sb.toString().getBytes());
-//            // commit the current processing progress
-//            context.commit();
-//        });
-//    }
-//
-//    @Override
-//    public void process(String s, byte[] bytes) {
-//
-//    }
-//
-//    @Override
-//    @Deprecated
-//    public void punctuate(long l) {
-//        // this method is deprecated and should not be used anymore
-//    }
-//
-//    @Override
-//    public void close() {
-//        // close any resources managed by this processor
-//        // Note: Do not close any StateStores as these are managed by the library
-//    }
-//}
+package com.bistel.pdm.batch.processor;
+
+import com.bistel.pdm.common.json.ParameterMasterDataSet;
+import com.bistel.pdm.lambda.kafka.master.MasterDataCache;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import org.apache.kafka.streams.KeyValue;
+import org.apache.kafka.streams.processor.AbstractProcessor;
+import org.apache.kafka.streams.processor.ProcessorContext;
+import org.apache.kafka.streams.state.KeyValueIterator;
+import org.apache.kafka.streams.state.KeyValueStore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ *
+ */
+public class AggregateFeatureProcessor extends AbstractProcessor<String, byte[]> {
+    private static final Logger log = LoggerFactory.getLogger(AggregateFeatureProcessor.class);
+
+    private final static String SEPARATOR = ",";
+
+    private KeyValueStore<String, byte[]> kvProcessWindowStore;
+    private KeyValueStore<String, Long> kvSummaryTimeStore;
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public void init(ProcessorContext context) {
+        super.init(context);
+
+        kvProcessWindowStore = (KeyValueStore) context().getStateStore("process-window");
+        kvSummaryTimeStore = (KeyValueStore) context().getStateStore("summary-time");
+    }
+
+    @Override
+    public void process(String partitionKey, byte[] streamByteRecord) {
+        String value = new String(streamByteRecord);
+        // time, area, eqp, p1, p2, p3, p4, ... pn,curr_status:time,prev_status:time
+        String[] columns = value.split(SEPARATOR, -1);
+
+        String[] currStatusAndTime = columns[columns.length - 2].split(":");
+        String[] prevStatusAndTime = columns[columns.length - 1].split(":");
+
+        log.debug("[{}] - ({} to {})", partitionKey, prevStatusAndTime[0], currStatusAndTime[0]);
+
+        if (prevStatusAndTime[0].equalsIgnoreCase("I")
+                && !prevStatusAndTime[0].equalsIgnoreCase(currStatusAndTime[0])) {
+            Long paramTime = Long.parseLong(currStatusAndTime[1]);
+            // start event
+            kvSummaryTimeStore.put(partitionKey, paramTime);
+        }
+
+        if (currStatusAndTime[0].equalsIgnoreCase("R")) {
+            Long paramTime = Long.parseLong(currStatusAndTime[1]);
+            kvProcessWindowStore.put(partitionKey + ":" + paramTime, streamByteRecord);
+
+        } else {
+            //end
+            if (prevStatusAndTime[0].equalsIgnoreCase("R") &&
+                    currStatusAndTime[0].equalsIgnoreCase("I")) {
+
+                //end trace
+                log.debug("[{}] - The event changed from R to I, let's aggregate stats.", partitionKey);
+
+                //aggregation
+                List<String> keyList = new ArrayList<>();
+                List<byte[]> paramDataList = new ArrayList<>();
+
+                KeyValueIterator<String, byte[]> iter = this.kvProcessWindowStore.all();
+                while (iter.hasNext()) {
+                    KeyValue<String, byte[]> entry = iter.next();
+                    String key = entry.key.split(":")[0];
+
+                    if (partitionKey.equalsIgnoreCase(key)) {
+                        keyList.add(entry.key);
+                        paramDataList.add(entry.value);
+                    }
+                }
+                iter.close();
+
+                for (String k : keyList) {
+                    this.kvSummaryTimeStore.delete(k);
+                }
+
+                List<ParameterMasterDataSet> parameterMasterDataSets =
+                        MasterDataCache.getInstance().getParamMasterDataSet().get(partitionKey);
+
+                Map<Long, ArrayList<Double>> paramValues = new HashMap<>();
+
+                for (byte[] record : paramDataList) {
+                    // aggregate min, max, count, avg, median, std.dev, ... per parameter.
+                    String rec = new String(record);
+                    //param_rawid, value, alarm spec, warning spec, time
+                    String[] recordCols = rec.split(SEPARATOR, -1);
+
+                    for (ParameterMasterDataSet p : parameterMasterDataSets) {
+
+                        if (!paramValues.containsKey(p.getParameterRawId())) {
+                            ArrayList<Double> values = new ArrayList<>();
+                            values.add(Double.parseDouble(recordCols[p.getParamParseIndex()]));
+                            paramValues.put(p.getParameterRawId(), values);
+                        } else {
+                            ArrayList<Double> values = paramValues.get(p.getParameterRawId());
+                            values.add(Double.parseDouble(recordCols[p.getParamParseIndex()]));
+                        }
+                    }
+                }
+
+                log.debug("[{}] - There are {} parameters.", partitionKey, paramValues.size());
+
+                for (Long paramRawId : paramValues.keySet()) {
+                    DescriptiveStatistics stats = new DescriptiveStatistics();
+
+                    ArrayList<Double> values = paramValues.get(paramRawId);
+                    for (double i : values) {
+                        stats.addValue(i);
+                    }
+
+                    Long sumStartDtts = kvSummaryTimeStore.get(partitionKey);
+                    Long sumEndDtts = Long.parseLong(prevStatusAndTime[1]);
+
+                    if(sumStartDtts == null) sumStartDtts = sumEndDtts;
+
+                    // startDtts, endDtts, param rawid, count, max, min, median, avg, stddev, q1, q3
+                    String msg = String.valueOf(sumStartDtts) + "," +
+                            sumEndDtts + "," +
+                            paramRawId + "," +
+                            values.size() + "," +
+                            stats.getMin() + "," +
+                            stats.getMax() + "," +
+                            stats.getPercentile(50) + "," +
+                            stats.getMean() + "," +
+                            stats.getStandardDeviation() + "," +
+                            stats.getPercentile(25) + "," +
+                            stats.getPercentile(75);
+
+                    log.debug("[{}] - {} ", partitionKey, msg);
+
+                    context().forward(partitionKey, msg.getBytes());
+                    context().commit();
+                }
+
+                log.debug("[{}] - forward aggregated stream to route-feature, output-feature.", partitionKey);
+                log.debug("");
+            }
+        }
+    }
+}
