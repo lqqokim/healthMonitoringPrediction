@@ -1,0 +1,37 @@
+<input
+    *ngIf="config.filtering"
+    placeholder="Filter all columns"
+    [ngTableFiltering]="config.filtering"
+    class="form-control"
+    (tableChanged)="onChangeTable(config)"
+/>
+    
+<ng-table
+    [config]="config"
+    (tableChanged)="onChangeTable(config)"
+    (cellClicked)="onCellClick($event)"
+    [rows]="rows" [columns]="columns"
+></ng-table>
+
+
+<div class='paginationArea' *ngIf="config.paging">
+    <ul *ngIf="pager.pages && pager.pages.length" class="pagination">
+        <li [ngClass]="{disabled:pager.currPage === 1}">
+            <a (click)="pager.setPage(1)">First</a>
+        </li>
+        <li [ngClass]="{disabled:pager.currPage === 1}">
+            <a (click)="pager.setPage(pager.currPage - 1)">Prev</a>
+        </li>
+        <li *ngFor="let page of pager.pages" [ngClass]="{active:pager.currPage === page}">
+            <a (click)="pager.setPage(page)">{{page}}</a>
+        </li>
+        <li [ngClass]="{disabled:pager.currPage === pager.totalPages}">
+            <a (click)="pager.setPage(pager.currPage + 1)">Next</a>
+        </li>
+        <li [ngClass]="{disabled:pager.currPage === pager.totalPages}">
+            <a (click)="pager.setPage(pager.totalPages)">Last</a>
+        </li>
+    </ul>
+</div>
+
+<!-- <pre *ngIf="config.paging" class="card card-block card-header">Page: {{page}} / {{numPages}}</pre> -->
