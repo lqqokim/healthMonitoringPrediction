@@ -4,7 +4,7 @@
             <span>Alarm Warning</span>
         </div>
         <div class="alarm-width-calc">
-            <div id="alarmWarning{{i}}" class="pdm-radar-wrapper" (click)="onEqpClick($event, item)" (mouseenter)="mouseEnter(item, $event, i)"
+            <div id="alarmWarning{{i}}" class="pdm-radar-wrapper" (click)="onParamClick(item, i)" (mouseenter)="mouseEnter(item, $event, i)"
                 *ngFor="let item of alarmWarningDatas; let i = index;" [ngClass]="{'alram-type-danger':item.type === 'alarm', 'alram-type-warning':item.type ==='warning', 'type-none': item.type === ''}">
                 <div class="pdm-radar-section clearfix" (click)="onClickSection(item.type, i);" [ngClass]="{'alarm-section-active': selectedAWSection === i, 'warning-section-active': selectedAWSection === i && 1 >= alarmDatas.length}">
                     <div class="pdm-radar-title" *ngIf="item.chartData && item.options">
@@ -21,7 +21,10 @@
                             [item]="item"
                             (paramClick)="onParamClick(item.type, item.name, item.id, $event, i);"
                         ></bar-chart> -->
-                        <gauge-chart [item]="item"></gauge-chart>
+                        <gauge-chart 
+                            (emitData)="emitData($event)"
+                            [item]="item">
+                        </gauge-chart>
                     </div>
                 </div>
             </div>
@@ -41,7 +44,7 @@
             <span>Jeopardy</span>
         </div>
         <div class="alarm-width-calc">
-            <div id="bad{{i}}" class="pdm-radar-wrapper" (click)="onEqpClick($event, item)" (mouseenter)="mouseEnter(item, $event, i)"
+            <div id="bad{{i}}" class="pdm-radar-wrapper" (click)="onParamClick(item, i)" (mouseenter)="mouseEnter(item, $event, i)"
                 *ngFor="let item of B5Datas; let i = index;" [ngClass]="{'alram-type-bad':item.type === 'B5', 'type-none': item.type === ''}">
                 <div class="pdm-radar-section clearfix" (click)="onClickSection(item.type, i);" [ngClass]="{'bad-section-active': selectedBadSection === i}">
                     <div class="pdm-radar-title" *ngIf="item.chartData && item.options">
@@ -55,7 +58,10 @@
                             (paramClick)="onParamClick(item.type, item.name, item.id, $event, i);"
                             [item]="item">
                         </bar-chart> -->
-                        <gauge-chart [item]="item"></gauge-chart>
+                        <gauge-chart 
+                            (emitData)="emitData($event)"
+                            [item]="item">
+                        </gauge-chart>
                     </div>
                 </div>
             </div>
@@ -74,7 +80,7 @@
             <span>Good</span>
         </div>
         <div class="alarm-width-calc">
-            <div id="good{{i}}" class="pdm-radar-wrapper" (mouseenter)="mouseEnter(item, $event, i)" *ngFor="let item of G5Datas; let i = index;"
+            <div id="good{{i}}" class="pdm-radar-wrapper" (click)="onParamClick(item, i)" (mouseenter)="mouseEnter(item, $event, i)" *ngFor="let item of G5Datas; let i = index;"
                 [ngClass]="{'alram-type-good':item.type === 'G5', 'type-none': item.type === ''}">
                 <div class="pdm-radar-section clearfix" (click)="onClickSection(item.type, i);" [ngClass]="{'good-section-active': selectedGoodSection === i}">
                     <div class="pdm-radar-title" *ngIf="item.chartData && item.options">
@@ -88,7 +94,10 @@
                             (paramClick)="onParamClick(item.type, item.name, item.id, $event, i);"
                             [item]="item">
                         </bar-chart> -->
-                        <gauge-chart [item]="item"></gauge-chart>
+                        <gauge-chart 
+                            (emitData)="emitData($event)"
+                            [item]="item">
+                        </gauge-chart>
                     </div>
                 </div>
             </div>
