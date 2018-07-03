@@ -90,7 +90,7 @@ export class NavigationComponent implements OnInit, OnDestroy {
 
     _createBuildInfo() {
         // this.buildInfo = 'DFD 1.0 (Build No: #<%=BUILD_NO%>, Build Date: <%=BUILD_DATE%>)';
-        this.buildInfo = 'PdM 1.0.0 rtm';
+        this.buildInfo = 'HMP 1.1.0';
     }
 
     isAdmin() {

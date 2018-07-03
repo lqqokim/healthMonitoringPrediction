@@ -162,10 +162,12 @@ export class RealtimeChartComponent implements OnInit, OnChanges, OnDestroy, Aft
 
         this.svg.select(".x")
             // .transition(t)
+            .attr("transform", "translate(" + [this.margin.left, this.height - this.margin.bottom] + ")")
             .call(this.xAxisCall)
 
         this.svg.select(".y")
             .transition(t)
+            .attr("transform", "translate(" + [this.margin.left, this.margin.top] + ")")
             .call(this.yAxisCall)
 
     }

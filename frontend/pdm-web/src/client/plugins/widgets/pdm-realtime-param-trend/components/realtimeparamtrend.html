@@ -16,7 +16,7 @@
                 </div>
 
                 <div class="chart-area" *ngIf="awData.datas.length > 0" (mouseover)="mouseover($event, awData, i, AWChart);">
-                    <realtime-chart [timeWindow]="60000" [shiftTime]="1000" [alarmSpec]="awData.alarm_spec" [warningSpec]="awData.warning_spec"
+                    <realtime-chart [timeWindow]="600000" [shiftTime]="1000" [alarmSpec]="awData.alarm_spec" [warningSpec]="awData.warning_spec"
                         [datas]="awData.datas"></realtime-chart>
                 </div>
             </div>
