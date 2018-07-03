@@ -39,7 +39,7 @@ export class Properties extends ConditionApi {
 		return [
 			Formcfg.Factory.plant(),
 			Formcfg.Common.time_period(newConfig),
-			Formcfg.Common.communication()
+			// Formcfg.Common.communication()
 			
 		];
 	}
