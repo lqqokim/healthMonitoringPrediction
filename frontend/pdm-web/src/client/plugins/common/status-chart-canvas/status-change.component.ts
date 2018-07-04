@@ -105,7 +105,9 @@ export class StatusChangeComponent implements OnInit, OnDestroy {
 
         //* 위젯 컴포넌트가 transition으로 효과로 인해 캔버스 리사이즈 크기가 제대로 반영 시키기 위함
         this.widgetElem = $(this.parentElem).parents('li.a3-widget-container')[0];
-        this.widgetElem.addEventListener('transitionend', this.resizeCallback, false);
+        if( this.widgetElem !== undefined ){
+            this.widgetElem.addEventListener('transitionend', this.resizeCallback, false);
+        }
 
         //* 캔버스 마우스 이벤트 등록
         this.canvasElem.nativeElement.addEventListener('mousemove', this.m_moveCallback, false);
@@ -119,7 +121,9 @@ export class StatusChangeComponent implements OnInit, OnDestroy {
     ngOnDestroy(){
         // 등록된 이벤트 제거
         this.resizeListenerFunc();
-        this.widgetElem.removeEventListener('transitionend', this.resizeCallback);
+        if( this.widgetElem !== undefined ){
+            this.widgetElem.removeEventListener('transitionend', this.resizeCallback);
+        }
         this.canvasElem.nativeElement.removeEventListener('mousemove', this.m_moveCallback);
         this.canvasElem.nativeElement.removeEventListener('mouseout', this.m_outCallback);
         this.canvasElem.nativeElement.removeEventListener('mousedown', this.m_downCallback);
