@@ -60,12 +60,12 @@ export class PdmAlarmCountSummaryWidgetComponent extends WidgetApi implements On
     _setConfigInfo(props: any) {
         let now: Date = new Date();
         const startOfDay: Date = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        const to: Date = startOfDay; // today 00:00:00
+        const to: number = startOfDay.getTime(); // today 00:00:00
 
         this.condition = {
-            fabId: props[CD.PLANT_ID],
+            fabId: props['plant']['fabId'],
             timePeriod: {
-                from: props[CD.TIME_PERIOD]['from'],
+                from: props['timePeriod']['from'],
                 to: to
             }
         };
@@ -74,7 +74,7 @@ export class PdmAlarmCountSummaryWidgetComponent extends WidgetApi implements On
         this.viewTimePriod.toDate = this.covertDateFormatter(to);
     }
 
-    covertDateFormatter(timestamp: Date): string {
+    covertDateFormatter(timestamp: number): string {
         const date = new Date(timestamp);
         return `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()} 00:00`;
     }

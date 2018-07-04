@@ -13,7 +13,7 @@ import { PdmFabMonitoringModule } from './widgets/pdm-fab-monitoring/pdm-fab-mon
 import { PdmBarWidgetModule } from './widgets/pdm-bar/pdm-bar-widget.module';
 import { PdmRealTimeParamTrendModule } from './widgets/pdm-realtime-param-trend/pdm-realtime-param-trend.module';
 import { PdmWostEqpListModule } from './widgets/pdm-worst-eqp-list/pdm-worst-eqp-list.module';
-import { PdmLineStatusSummaryWidgetModule } from './widgets/pdm-line-status-aummary/pdm-line-status-summary-widget.module';
+import { PdmLineStatusSummaryWidgetModule } from './widgets/pdm-line-status-summary/pdm-line-status-summary-widget.module';
 import { PdmAlarmCountSummaryWidgetModule } from './widgets/pdm-alarm-count-summary/pdm-alarm-count-summary-widget.module';
 import { PdmLineStatusTrendWidgetModule } from './widgets/pdm-line-status-trend/pdm-line-status-trend-widget.module';
 import { PdmAlarmCountTrendWidgetModule } from './widgets/pdm-alarm-count-trend/pdm-alarm-count-trend-widget.module';

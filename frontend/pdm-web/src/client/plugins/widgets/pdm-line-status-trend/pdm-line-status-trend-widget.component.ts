@@ -53,6 +53,9 @@ export class PdmLineStatusTrendWidgetComponent extends WidgetApi implements OnIn
             this._props = data;
             this._setConfigInfo(this._props);
         } else if (type === A3_WIDGET.SYNC_INCONDITION_REFRESH) {
+            this.showSpinner();
+            this._props = data;
+            this._setConfigInfo(this._props);
             console.log('LINE STATUS SYNC', data);
         }
     }
@@ -63,9 +66,9 @@ export class PdmLineStatusTrendWidgetComponent extends WidgetApi implements OnIn
         const to: number = startOfDay.getTime(); // today 00:00:00
 
         this.condition = {
-            fabId: props[CD.PLANT],
+            fabId: props['plant']['fabId'],
             timePeriod: {
-                from: props[CD.TIME_PERIOD]['from'],
+                from: props['timePeriod']['from'],
                 to: to
             }
         };

@@ -14,6 +14,7 @@ import { ViewConfig } from './config/view.config';
 import { PdmLineStatusTrendWidgetComponent } from './pdm-line-status-trend-widget.component';
 import { LineStatusTrendComponent } from './components/line-status-trend.component';
 
+
 @NgModule({
     imports: [
         A3_CommonModule,

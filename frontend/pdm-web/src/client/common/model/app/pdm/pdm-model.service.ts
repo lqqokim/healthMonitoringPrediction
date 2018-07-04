@@ -587,4 +587,55 @@ export class PdmModelService extends ModelCommonService {
 			
 		});
 	}
+
+	getRadarParam1s(param: pdmRadarI.RadarParamsRequestParam): Promise<any> {
+		return this.GET({
+			uriPath: `pdm/fabs/${param.fabId}/eqps/${param.eqpId}/radar`,
+			params: {
+				fromdate: param.params.fromDate,
+				todate: param.params.toDate
+			}
+		});
+	}
+
+	getLineStatusSummary(fabId, params): Promise<any> {
+		return this.GET({
+			uriPath: `pdm/fabs/${fabId}/lineStatusSummary`,
+			params: {
+				fromdate: 1530284400000,
+				todate: 1530370800000
+			}
+		});
+	}
+
+	getLineStatusTrend(fabId, areaId, params): Promise<any> {
+		return this.GET({
+			uriPath: `pdm/fabs/${fabId}/areas/${200}/lineStatusTrend`,
+			params: {
+				fromdate: 1530284400000,
+				todate: 1530370800000
+			}
+		});
+	}
+
+
+	getAlarmCountSummary(fabId, params): Promise<any> {
+		return this.GET({
+			uriPath: `pdm/fabs/${fabId}/alarmCountSummary`,
+			params: {
+				fromdate: 1530284400000,
+				todate: 1530370800000
+			}
+		});
+	}
+
+	getAlarmCountTrend(fabId, areaId, params): Promise<any> {
+		return this.GET({
+			uriPath: `pdm/fabs/${fabId}/areas/${areaId}/alarmCountTrend`,
+			params: {
+				fromdate: 1530284400000,
+				todate: 1530370800000
+			}
+		});
+	}
 }

@@ -1,5 +1,5 @@
 import { Component, OnInit, OnChanges, SimpleChanges, EventEmitter, Output, Input, ViewChild, ElementRef, ViewEncapsulation } from '@angular/core';
-
+import { PdmModelService } from './../../../../common';
 import * as IDataType from './../model/data-type.interface';
 
 @Component({
@@ -18,18 +18,23 @@ export class LineStatusSummaryComponent implements OnInit, OnChanges {
     private chart: any;
     private _props: any;
 
-    constructor() {
+    constructor(private _pdmModel: PdmModelService) {
     }
 
     ngOnChanges(changes: SimpleChanges) {
-        for (let propName in changes) {
-            let change = changes[propName];
-            let curVal = change.currentValue;
+        // for (let propName in changes) {
+        //     let currentValue = changes[propName].currentValue;
 
-            if (propName === 'condition') {
-                this.chartId = this.guid();
-                this.setChartData();
-            }
+        //     if (currentValue && propName === 'condition') {
+        //         const condition = currentValue;
+        //         this.chartId = this.guid();
+        //         this.getSummaryData(condition);
+        //     }
+        // }
+        if (changes['condition'] !== null && changes['condition']['currentValue']) {
+            let condition = changes['condition']['currentValue'];
+            this.chartId = this.guid();
+            this.getSummaryData(condition);
         }
     }
 
@@ -41,6 +46,22 @@ export class LineStatusSummaryComponent implements OnInit, OnChanges {
         // let chartEl = $(`#${this.chartId}`)[0];
         // console.log('chartEl', chartEl);
         this.chart.resize();
+    }
+
+    getSummaryData(condition) {
+        const fabId = condition.fabId;
+        const params = {
+            fromdate: condition.timePeriod.from,
+            todate: condition.timePeriod.to
+        };
+
+        this._pdmModel.getLineStatusSummary(fabId, params)
+            .then((res) => {
+                console.log('getLineStatusSummary', res);
+                this.setChartData();
+            }).catch((err) => {
+                console.log('err', err);
+            });
     }
 
     setChartData(): void {
