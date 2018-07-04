@@ -2,12 +2,31 @@ package com.bistel.a3.portal.domain.pdm;
 
 public class AlarmClassification {
 
+    private Long area_rawid;
+    private String area_name;
     private int total;
     private int unbalance;
     private int misalignment;
     private int bearing;
     private int lublication;
     private int etc;
+
+
+    public Long getArea_rawid() {
+        return area_rawid;
+    }
+
+    public void setArea_rawid(Long area_rawid) {
+        this.area_rawid = area_rawid;
+    }
+
+    public String getArea_name() {
+        return area_name;
+    }
+
+    public void setArea_name(String area_name) {
+        this.area_name = area_name;
+    }
 
     public int getTotal() {
         return total;

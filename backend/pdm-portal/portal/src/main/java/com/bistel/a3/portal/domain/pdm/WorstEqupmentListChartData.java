@@ -8,6 +8,9 @@ public class WorstEqupmentListChartData {
     private Date start;
     private Date end;
 
+
+
+
     public String getType() {
         return type;
     }

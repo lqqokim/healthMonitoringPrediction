@@ -12,16 +12,15 @@ public interface ISummaryDataService {
 
     List<AreaFaultCountSummary> getAlarmCountSummary(String fabId, Date fromdate, Date todate);
 
-    List<AreaFaultCountSummary> getAlarmCountTrend(String fabId, String areaId, Date from, Date to);
+    List<AreaFaultCountSummary> getAlarmCountTrend(String fabId, Long areaId, Date fromdate, Date todate);
 
-    AlarmClassification getAlarmClassificationSummary(String fabId, Date from, Date to);
+    AlarmClassification getAlarmClassificationSummary(String fabId,Long areaId, Date fromdate, Date todate);
 
-    List<AlarmHistory> getAlarmHistory(String fabId, Date from, Date to);
+    List<AlarmHistory> getAlarmHistory(String fabId,Long areaId, Date fromdate, Date todate);
 
+    List<AreaFaultCountSummary> lineStatusSummary(String fabId, Date fromdate, Date todate);
 
-    List<AreaFaultCountSummary> lineStatusSummary(String fabId, Date from, Date to);
+    List<AreaFaultCountSummary> lineStatusTrend(String fabId, Long areaId, Date fromdate, Date todate);
 
-    List<AreaFaultCountSummary> lineStatusTrend(String fabId, String areaId, Date from, Date to);
-
-    List<WorstEquipmentList> worstEquipmentList(String fabId, Date from, Date to);
+    List<WorstEquipmentList> worstEquipmentList(String fabId, Long areaId , Date fromdate, Date todate);
 }

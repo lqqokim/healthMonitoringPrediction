@@ -12,6 +12,27 @@ public class AlarmHistory {
     private String category;
     private String fault_class;
     private String description;
+    private String area_name;
+    private Long area_rawid;
+
+
+    public String getArea_name() {
+        return area_name;
+    }
+
+    public void setArea_name(String area_name) {
+        this.area_name = area_name;
+    }
+
+    public Long getArea_rawid() {
+        return area_rawid;
+    }
+
+    public void setArea_rawid(Long area_rawid) {
+        this.area_rawid = area_rawid;
+    }
+
+
 
     public Date getTime() {
         return time;

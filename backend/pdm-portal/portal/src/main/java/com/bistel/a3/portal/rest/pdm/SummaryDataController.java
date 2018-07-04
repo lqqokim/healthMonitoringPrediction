@@ -32,39 +32,41 @@ public class SummaryDataController {
     }
 
 
-    @RequestMapping("alarmCountTrend")
+    @RequestMapping("/areas/{areaId}/alarmCountTrend")
     public Object getAlarmCountTrend(@PathVariable("fabId") String fabId,
-                                     @PathVariable("areaId") String areaId,
+                                     @PathVariable("areaId") Long areaId,
                                        @RequestParam("fromdate") Long fromdate,
                                        @RequestParam("todate") Long todate) {
 
-
+        areaId=200L;
         Date from = new Date(fromdate);
         Date to = new Date(todate);
 
         return summaryDataService.getAlarmCountTrend(fabId, areaId, from, to);
     }
 
-    @RequestMapping("alarmClassificationSummary")
+    @RequestMapping("/areas/{areaId}/alarmClassificationSummary")
     public Object getAlarmClassificationSummary(@PathVariable("fabId") String fabId,
+                                                     @PathVariable("areaId") Long areaId,
                                                      @RequestParam("fromdate") Long fromdate,
                                                       @RequestParam("todate") Long todate) {
-
+        areaId=200L;
         Date from = new Date(fromdate);
         Date to = new Date(todate);
 
-        return summaryDataService.getAlarmClassificationSummary(fabId, from, to);
+        return summaryDataService.getAlarmClassificationSummary(fabId, areaId, from, to);
     }
 
-    @RequestMapping("alarmHistory")
+    @RequestMapping("/areas/{areaId}/alarmHistory")
     public Object alarmHistory(@PathVariable("fabId") String fabId,
+                               @PathVariable("areaId") Long areaId,
                                                      @RequestParam("fromdate") Long fromdate,
                                                      @RequestParam("todate") Long todate) {
-
+        areaId=200L;
         Date from = new Date(fromdate);
         Date to = new Date(todate);
 
-        return summaryDataService.getAlarmHistory(fabId, from, to);
+        return summaryDataService.getAlarmHistory(fabId,areaId, from, to);
     }
 
     //Done
@@ -79,27 +81,30 @@ public class SummaryDataController {
         return summaryDataService.lineStatusSummary(fabId, from, to);
     }
 
-    @RequestMapping("lineStatusTrend")
+    @RequestMapping("/areas/{areaId}/lineStatusTrend")
     public Object lineStatusTrend(@PathVariable("fabId") String fabId,
-                                  @PathVariable("areaId") String areaId,
+                                  @PathVariable("areaId") Long areaId,
                                     @RequestParam("fromdate") Long fromdate,
                                     @RequestParam("todate") Long todate) {
 
+        areaId=200L;
         Date from = new Date(fromdate);
         Date to = new Date(todate);
 
         return summaryDataService.lineStatusTrend(fabId,areaId, from, to);
     }
 
-    @RequestMapping("worstEquipmentList")
+    @RequestMapping("/areas/{areaId}/worstEquipmentList")
     public Object worstEquipmentList(@PathVariable("fabId") String fabId,
+                                     @PathVariable("areaId") Long areaId,
                                   @RequestParam("fromdate") Long fromdate,
                                   @RequestParam("todate") Long todate) {
 
+        areaId=200L;
         Date from = new Date(fromdate);
         Date to = new Date(todate);
 
-        return summaryDataService.worstEquipmentList(fabId, from, to);
+        return summaryDataService.worstEquipmentList(fabId,areaId, from, to);
     }
 
 }
