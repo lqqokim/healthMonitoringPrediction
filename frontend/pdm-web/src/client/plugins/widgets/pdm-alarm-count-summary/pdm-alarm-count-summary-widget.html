@@ -1,14 +1,17 @@
 <div class="widget alarm-count-summary-container" #container>
     <div class="a3-chart-header border-bottom">
         <div class="condition pull-left">
-						<span class="a3-synced-title">Time Period : </span>
-						<span>{{viewTimePriod.fromDate}} ~ {{viewTimePriod.toDate}}</span>
+            <span class="a3-synced-title">Target : </span>
+            <span>fab1</span>
+            <span class="a3-synced-title">Time Period : </span>
+            <span>{{viewTimePriod.fromDate}} ~ {{viewTimePriod.toDate}}</span>
         </div>
     </div>
 		
     <div class="chart-body div01">
         <alarm-count-summary #alarmCountSummaryComp
             [condition]="condition"
+            (onSync)="onSync($event)"
             (endChartLoad)="endChartLoad($event)">
         </alarm-count-summary>
     </div>	

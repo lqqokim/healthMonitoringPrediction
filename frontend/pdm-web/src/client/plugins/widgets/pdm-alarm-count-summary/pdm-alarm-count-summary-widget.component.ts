@@ -85,6 +85,20 @@ export class PdmAlarmCountSummaryWidgetComponent extends WidgetApi implements On
         }
     }
 
+    onSync(item: any): void {
+        let outCd = this.getOutCondition('config');
+        const plant: any = this._props[CD.PLANT];
+        const area: any = item.area;
+        const timePeriod: any = this._props[CD.TIME_PERIOD];
+
+        outCd[CD.PLANT] = plant;
+        outCd[CD.AREA] = area;
+        outCd[CD.TIME_PERIOD] = timePeriod;
+        // console.log('outCd => ', outCd);
+
+        this.syncOutCondition(outCd);
+    }
+
     private _init(): void {
         this.showSpinner();
         // this.setGlobalLabel();

@@ -53,7 +53,7 @@ export class PdmLineStatusTrendWidgetComponent extends WidgetApi implements OnIn
             this._props = data;
             this._setConfigInfo(this._props);
         } else if (type === A3_WIDGET.SYNC_INCONDITION_REFRESH) {
-
+            console.log('LINE STATUS SYNC', data);
         }
     }
 

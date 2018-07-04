@@ -13,11 +13,11 @@ export class ViewConfig extends ViewApi {
         ];
     }
 
-    paramDisplayContext(): [ConditionType] {
-        return [
-            Condic.Label.paramName()
-        ];
-    }
+    // paramDisplayContext(): [ConditionType] {
+    //     return [
+    //         Condic.Label.paramName()
+    //     ];
+    // }
 
     displayConfiguration(): [ConditionType] {
         const newConfig: ConditionValueType = {

@@ -9,8 +9,9 @@ import * as IDataType from './../model/data-type.interface';
     styleUrls: ['./alarm-count-summary.css']
 })
 export class AlarmCountSummaryComponent implements OnInit, OnChanges {
-    @Output() endChartLoad: EventEmitter<any> = new EventEmitter();
     @Input() condition: IDataType.ContitionType;
+    @Output() endChartLoad: EventEmitter<any> = new EventEmitter();
+    @Output() onSync: EventEmitter<any> = new EventEmitter();
     
     chartId: any;
     chart: any;
@@ -68,6 +69,14 @@ export class AlarmCountSummaryComponent implements OnInit, OnChanges {
                 colors: {
                     alarm: 'red',
                     warning: 'orange'
+                },
+                onclick: (d: any, s) => {
+                    this.onSync.emit({
+                        area: {
+                            areaId: 1,
+                            areaName: axisCategories[d.index + 1]
+                        }
+                    });
                 }
             },
             zoom: {

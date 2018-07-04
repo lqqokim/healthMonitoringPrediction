@@ -4,21 +4,27 @@ import {
 	Condic
 } from '../../../../common';
 
-export class InCondition extends ConditionApi {
+export class OutCondition extends ConditionApi {
 
 	// tslint:disable-next-line:no-empty
-	init() {}
+	init() { }
 
 	config(): [ConditionType] {
 		return [
 			Condic.Tool.plant({
 				required: true
 			}),
-			Condic.Tool.area({
-				required: true
+			Condic.Tool.eqp_id({
+				required: false
+			}),
+			Condic.Tool.param_id({
+				required: false
 			}),
 			Condic.Common.time_period({
 				required: true
+			}),
+			Condic.Common.category({
+				required: false
 			})
 		];
 	}
