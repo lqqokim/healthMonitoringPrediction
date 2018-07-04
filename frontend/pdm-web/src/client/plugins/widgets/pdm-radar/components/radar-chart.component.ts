@@ -80,14 +80,14 @@ export class RadarChartComponent implements OnInit, AfterViewInit, OnChanges {
     if (!this.options.ShowLabel) {
       // this.w = this.w -(this.w-this.w*this.options.zoom);
       // this.h = this.h -(this.h-this.h*this.options.zoom)- this.h*0.213;// 50;
-      this.options.TranslateX =  this.w*0.2;// 50;
+      this.options.TranslateX =  this.w*0.18;// 50;
       this.options.TranslateY =  this.h*0.084;// 10;
       if(greatest=="W"){
-        this.w = this.w - this.options.TranslateX*2 +this.h*0.2;
+        this.w = this.w - this.options.TranslateX*2 +this.h*0.18;
         this.h = this.h - this.options.TranslateY*2 ;
       }else{
         this.w = this.w - this.options.TranslateX*2 ;
-        this.h = this.h - this.options.TranslateY*2 -this.h*0.2;
+        this.h = this.h - this.options.TranslateY*2 -this.h*0.18;
       }
       // this.options.ExtraWidthX = $('#' + this.chartId).innerWidth() - this.w  - this.options.TranslateX; // 100;
       this.options.ExtraWidthX = this.options.TranslateX*2;

@@ -8,6 +8,7 @@ import { PdmCurrentAnalysisModule } from './widgets/pdm-current-analysis/pdm-cur
 import { PdmTestModule } from './widgets/pdm-test/pdm-test.module';
 import { PdmRadarWidgetModule } from './widgets/pdm-radar/pdm-radar-widget.module';
 import { PdmRealTimeTrendModule } from './widgets/pdm-realtime-trend/pdm-realtime-trend.module';
+import { PdmRealTimeMainModule } from './widgets/pdm-realtime-main/pdm-realtime-main.module';
 import { PdmFabMonitoringModule } from './widgets/pdm-fab-monitoring/pdm-fab-monitoring.module';
 import { PdmBarWidgetModule } from './widgets/pdm-bar/pdm-bar-widget.module';
 import { PdmRealTimeParamTrendModule } from './widgets/pdm-realtime-param-trend/pdm-realtime-param-trend.module';
@@ -18,6 +19,7 @@ import { PdmLineStatusTrendWidgetModule } from './widgets/pdm-line-status-trend/
 import { PdmAlarmCountTrendWidgetModule } from './widgets/pdm-alarm-count-trend/pdm-alarm-count-trend-widget.module';
 import { PdmGaugeWidgetModule } from './widgets/pdm-gauge/pdm-gauge-widget.module';
 import { PdmAlarmClassSummaryModule } from './widgets/pdm-alarm-class-summary/pdm-alarm-class-summary.module';
+import { PdmAlarmHistoryModule } from './widgets/pdm-alarm-history/pdm-alarm-history.module';
 
 export const getWidgetClassInfo = (widgetName: string): any => {
     console.log('getWidgetClassInfo => ', widgetName);
@@ -42,6 +44,8 @@ export const getWidgetClassInfo = (widgetName: string): any => {
             return PdmRadarWidgetModule;
         case 'pdmRealTimeTrend':
             return PdmRealTimeTrendModule;
+        case 'pdmRealTimeMain':
+            return PdmRealTimeMainModule;
         case 'pdmRealTimeParamTrend':
             return PdmRealTimeParamTrendModule;            
         case 'pdmFabMonitoring':
@@ -62,6 +66,8 @@ export const getWidgetClassInfo = (widgetName: string): any => {
             return PdmGaugeWidgetModule;
         case 'pdmAlarmClassSummary':
             return PdmAlarmClassSummaryModule;
+        case 'pdmAlarmHistory':
+            return PdmAlarmHistoryModule;
         default:
             // TODO: change Module Empty chart
             return PdmAreaStatusOverviewModule;
