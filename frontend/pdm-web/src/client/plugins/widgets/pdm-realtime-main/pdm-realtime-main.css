@@ -1,0 +1,83 @@
+.pdm-realtime-main{
+    height: 100%;
+    width: 100%;
+}
+
+.pdm-realtime-main .text-info{
+    height: 8%;
+    border: solid 2px lightgray;
+    padding: 15px;
+    margin-bottom: 5px;
+}
+
+.pdm-realtime-main .text-info td{
+    height: 8%;
+    /* padding-left: 25px; */
+    margin-bottom: 5px;
+    /* padding-right: 65px; */
+}
+.pdm-realtime-main .text-info span{
+    font-size:25px !important;
+}
+.pdm-realtime-main .realtime-info{
+    height: 45%;
+    border: solid 1px lightgray;
+    margin-bottom: 5px;
+}
+.pdm-realtime-main .alarm-fault-info{
+    height: 45%;
+    border: solid 1px lightgray;
+    margin-bottom: 5px;
+}
+
+.pdm-realtime-main .height-100{
+    height:100%;
+    overflow: auto;
+}
+
+.pdm-realtime-main .fault-classification{
+    height: 50%;
+}
+.pdm-realtime-main .fault-prediction{
+    height: 50%;
+}
+
+.pdm-realtime-main .chart{
+    height:calc(100% - 20px);
+}
+
+.pdm-realtime-main .healthindex{
+    width:15%;
+}
+
+.pdm-realtime-main .alarm{
+    width:15%;
+}
+.pdm-realtime-main .classification{
+    width:55%;
+}
+.pdm-realtime-main .rul{
+    width:15%;
+}
+
+.pdm-realtime-main table{
+    width:100%;
+}
+.pdm-realtime-main .alarm-fault-info table th,
+.pdm-realtime-main .alarm-fault-info table td{
+  text-align: left;
+}
+.pdm-realtime-main .alarm-fault-info table{
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1em 0;
+}
+.pdm-realtime-main .alarm-fault-info table th,
+.pdm-realtime-main .alarm-fault-info table td{
+  border: 1px solid #B3BFAA;
+  padding: .5em 1em;
+}
+
+.pdm-realtime-main .alarm-fault-info table th{ background: #D5E0CC; }
+.pdm-realtime-main .alarm-fault-info table td{ background: #fff; }
+

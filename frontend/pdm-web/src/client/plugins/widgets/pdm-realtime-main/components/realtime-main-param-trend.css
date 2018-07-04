@@ -1,0 +1,50 @@
+
+.realtimeparamtrend{
+    height:100%;
+    width:100%;
+    /* padding-left: 10px; */
+}
+.realtimeparamtrend .tree-container{
+    height: 100%;
+    border: solid 1px gray;
+    /* margin-left: 10px; */
+    padding: 5px;
+}
+.realtimeparamtrend .tree-container button{
+    width:100%;
+    color: #fff !important;
+    background-color: #5bc0de  !important;
+    border-color: #46b8da  !important;
+}
+.realtimeparamtrend .tree-div{
+    width: 100%;
+    height: calc(100% - 40px);
+    border: solid 1px lightgray;
+    margin-bottom: 10px;
+}
+
+.realtimeparamtrend .chart-container{
+    height: 100%;
+    border-top: solid 1px gray;
+    border-bottom: solid 1px gray;
+    border-right: solid 1px gray;
+    /* margin-left: 10px; */
+    /* padding: 5px; */
+    overflow: auto;
+}
+.realtimeparamtrend .trend-chart{
+    height: 290px;
+    width: 100%;
+    padding-top: 15px;
+    padding-bottom: 10px;
+    border-bottom:solid 1px gray;
+}
+.realtimeparamtrend .chart-area{
+    height: calc(100% - 18px);
+    width: 100%;
+}
+.realtimeparamtrend .chart-title{
+    text-align: center;
+    height: 30px;
+}
+

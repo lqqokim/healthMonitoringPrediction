@@ -8,6 +8,7 @@ import { PdmCurrentAnalysisModule } from './widgets/pdm-current-analysis/pdm-cur
 import { PdmTestModule } from './widgets/pdm-test/pdm-test.module';
 import { PdmRadarWidgetModule } from './widgets/pdm-radar/pdm-radar-widget.module';
 import { PdmRealTimeTrendModule } from './widgets/pdm-realtime-trend/pdm-realtime-trend.module';
+import { PdmRealTimeMainModule } from './widgets/pdm-realtime-main/pdm-realtime-main.module';
 import { PdmFabMonitoringModule } from './widgets/pdm-fab-monitoring/pdm-fab-monitoring.module';
 import { PdmBarWidgetModule } from './widgets/pdm-bar/pdm-bar-widget.module';
 import { PdmRealTimeParamTrendModule } from './widgets/pdm-realtime-param-trend/pdm-realtime-param-trend.module';
@@ -42,6 +43,8 @@ export const getWidgetClassInfo = (widgetName: string): any => {
             return PdmRadarWidgetModule;
         case 'pdmRealTimeTrend':
             return PdmRealTimeTrendModule;
+        case 'pdmRealTimeMain':
+            return PdmRealTimeMainModule;
         case 'pdmRealTimeParamTrend':
             return PdmRealTimeParamTrendModule;            
         case 'pdmFabMonitoring':
