@@ -3,7 +3,7 @@ import { WidgetRefreshType, WidgetApi, OnSetup } from '../../../common';
 import { Translater } from '../../../sdk';
 import { PdmWostEqpListService } from './pdm-worst-eqp-list.service';
 import { PdmCommonService } from '../../../common/service/pdm-common.service';
-import { ITimePeriod, IWorstEeqList } from '../../common/status-chart-canvas/status-change.component';
+import { IWorstEeqList, ITimePeriod } from '../../common/status-chart-canvas/status-change.component';
 
 //* ng2-tree Interface
 // import { TreeModel } from 'ng2-tree';
@@ -28,10 +28,13 @@ export class PdmWostEqpListComponent extends WidgetApi implements OnSetup, OnDes
         {name:'offline', color:'#a6a6a6'}
     ];
 
-    timePeriod: ITimePeriod = {
-        start : 1532044800000, // new Date(2018, 6, 20, 09, 0, 0, 0).getTime(),
-        end : 1532077200000 // new Date(2018, 6, 20, 18, 0, 0, 0).getTime()
+    private timePeriod: ITimePeriod = {
+        fromDate : 1532044800000, // new Date(2018, 6, 20, 09, 0, 0, 0).getTime(),
+        toDate : 1532077200000 // new Date(2018, 6, 20, 18, 0, 0, 0).getTime()
     };
+
+    private targetName: string = 'All Lines';
+
     /*
         new Date(2018, 6, 20, 09, 0, 0, 0).getTime() - 1532044800000
         new Date(2018, 6, 20, 10, 59, 0, 0).getTime() - 1532051940000
@@ -139,13 +142,6 @@ export class PdmWostEqpListComponent extends WidgetApi implements OnSetup, OnDes
 
     private init(){
         this.hideSpinner();
-    }
-
-    viewTimeperiod(): string {
-        return (
-            moment(this.timePeriod.start).add(-1, 'months').format('YYYY-MM-DD HH:mm') +' ~ '+
-            moment(this.timePeriod.end).add(-1, 'months').format('YYYY-MM-DD HH:mm')
-        );
     }
 
     /**

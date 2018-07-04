@@ -12,24 +12,22 @@ import { ViewConfig } from './config/view.config';
 
 // This Module's Components
 import { PdmWostEqpListComponent } from './pdm-worst-eqp-list.component';
-import { StatusChangeComponent } from '../../common/status-chart-canvas/status-change.component';
-import { TreeModule } from 'ng2-tree';
+import { PluginCommonModule } from '../../common/plugins.common.module';
 
 
 @NgModule({
     imports: [
         BISTEL_SDKModule,
         A3_CommonModule,
-        TreeModule
+        PluginCommonModule
     ],
     declarations: [
-        PdmWostEqpListComponent,
-        StatusChangeComponent
+        PdmWostEqpListComponent
     ],
     exports: [
         PdmWostEqpListComponent
     ],
-    schemas: [ CUSTOM_ELEMENTS_SCHEMA ]
+    // schemas: [ CUSTOM_ELEMENTS_SCHEMA ]
 })
 export class PdmWostEqpListModule {
     static config(): any {

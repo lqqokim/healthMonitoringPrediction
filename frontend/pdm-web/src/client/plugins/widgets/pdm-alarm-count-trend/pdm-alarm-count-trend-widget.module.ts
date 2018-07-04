@@ -13,11 +13,13 @@ import { ViewConfig } from './config/view.config';
 
 import { PdmAlarmCountTrendWidgetComponent } from './pdm-alarm-count-trend-widget.component';
 import { AlarmCountTrendComponent } from './components/alarm-count-trend.component';
+import { PluginCommonModule } from '../../common/plugins.common.module';
 
 @NgModule({
     imports: [
         A3_CommonModule,
-        BISTEL_SDKModule
+        BISTEL_SDKModule,
+        PluginCommonModule
     ],
     declarations: [
         PdmAlarmCountTrendWidgetComponent,

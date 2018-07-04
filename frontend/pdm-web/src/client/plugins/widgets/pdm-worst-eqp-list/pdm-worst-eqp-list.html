@@ -1,19 +1,9 @@
 <div class="widget widget-pdm-worst-eqp-list">
-	<div class="a3-chart-header border-bottom">
-		<div class="condition pull-left">
-			<span class="a3-synced-title">Target : </span>
-			<span>1 Line</span>
-			<span class="a3-synced-title">Time Period : </span>
-			<span>{{viewTimeperiod()}}</span>
-		</div>
-		<div class="condition pull-right">
-			<ol *ngFor="let row of drawColors">
-				<li>
-					<i [style.background]="row.color"></i>{{row.name}}</li>
-			</ol>
-		</div>
-	</div>
-
+    <widget-chart-condition
+		[target]='targetName'
+		[timePeriod]='timePeriod'
+    ></widget-chart-condition>
+    
 	<div list>
 		<div head>
 			<ul>
@@ -34,7 +24,15 @@
 				</li>
 			</ul>
 		</div>
-	</div>
+    </div>
+    
+    <div class="condition legend">
+        <ol>
+            <li *ngFor="let row of drawColors">
+                <i [style.background]="row.color"></i>{{row.name}}
+            </li>
+        </ol>
+    </div>
 
     <!-- <tree [tree]="tree"></tree> -->
 </div>

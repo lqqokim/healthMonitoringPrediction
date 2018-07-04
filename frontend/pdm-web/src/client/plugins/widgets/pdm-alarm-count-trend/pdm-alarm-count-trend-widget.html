@@ -1,17 +1,13 @@
 <div class="widget alarm-count-trend-container" #container>
-        <div class="a3-chart-header border-bottom">
-            <div class="condition pull-left">
-                <span class="a3-synced-title">Target : </span>
-                <span>line 1</span>
-                <span class="a3-synced-title">Time Period : </span> 
-                <span>{{viewTimePriod.fromDate}} ~ {{viewTimePriod.toDate}}</span>
-            </div>
-        </div>
-            
-        <div class="chart-body div01">
-            <alarm-count-trend #alarmCountTrendComp
-                [condition]="condition"
-                (endChartLoad)="endChartLoad($event)">
-            </alarm-count-trend>
-        </div>	
-    </div>
+    <widget-chart-condition
+		[target]='targetName'
+		[timePeriod]='viewTimePriod'
+    ></widget-chart-condition>
+		
+    <div class="chart-body div01">
+        <alarm-count-trend #alarmCountTrendComp
+            [condition]="condition"
+            (endChartLoad)="endChartLoad($event)">
+        </alarm-count-trend>
+    </div>	
+</div>

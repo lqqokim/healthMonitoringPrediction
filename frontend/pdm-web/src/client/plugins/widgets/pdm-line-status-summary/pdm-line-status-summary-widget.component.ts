@@ -4,6 +4,7 @@ import { LineStatusSummaryComponent } from './components/line-status-summary.com
 
 
 import * as IDataType from './model/data-type.interface';
+import { ITimePeriod } from '../../common/widget-chart-condition/widget-chart-condition.component';
 
 @Component({
     moduleId: module.id,
@@ -14,11 +15,13 @@ import * as IDataType from './model/data-type.interface';
 export class PdmLineStatusSummaryWidgetComponent extends WidgetApi implements OnInit {
     @ViewChild('container') container: ElementRef;
     @ViewChild('statusSummary') statusSummary: LineStatusSummaryComponent;
-    
-    viewTimePriod: any = {
-        fromDate: 0,
-        toDate: 0
+
+    private viewTimePriod: ITimePeriod = {
+        fromDate : 0,
+        toDate : 0
     };
+
+    private targetName: string = 'All Lines';
 
     condition: IDataType.ContitionType;
     changeSize: any;
@@ -80,8 +83,10 @@ export class PdmLineStatusSummaryWidgetComponent extends WidgetApi implements On
             }
         };
 
-        this.viewTimePriod.fromDate = this.covertDateFormatter(props[CD.TIME_PERIOD]['from']);
-        this.viewTimePriod.toDate = this.covertDateFormatter(to);
+        // this.viewTimePriod.fromDate = this.covertDateFormatter(props[CD.TIME_PERIOD]['from']);
+        // this.viewTimePriod.toDate = this.covertDateFormatter(to);
+        this.viewTimePriod.fromDate = props[CD.TIME_PERIOD]['from'];
+        this.viewTimePriod.toDate = to;
     }
 
     covertDateFormatter(timestamp: number): string {

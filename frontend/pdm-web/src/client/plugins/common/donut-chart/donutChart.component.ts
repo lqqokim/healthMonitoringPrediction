@@ -43,7 +43,7 @@ export interface IColorSet {
     encapsulation: ViewEncapsulation.None
 })
 
-export class donutChartComponent implements OnInit, OnChanges, OnDestroy {
+export class DonutChartComponent implements OnInit, OnChanges, OnDestroy {
 
     @ViewChild('list') listElem: ElementRef;
 

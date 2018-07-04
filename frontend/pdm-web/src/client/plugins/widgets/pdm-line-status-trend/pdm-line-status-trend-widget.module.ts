@@ -13,12 +13,14 @@ import { ViewConfig } from './config/view.config';
 
 import { PdmLineStatusTrendWidgetComponent } from './pdm-line-status-trend-widget.component';
 import { LineStatusTrendComponent } from './components/line-status-trend.component';
+import { PluginCommonModule } from '../../common/plugins.common.module';
 
 
 @NgModule({
     imports: [
         A3_CommonModule,
-        BISTEL_SDKModule
+        BISTEL_SDKModule,
+        PluginCommonModule
     ],
     declarations: [
         PdmLineStatusTrendWidgetComponent,

@@ -31,8 +31,8 @@ export interface IWorstEeqList {
 };
 
 export interface ITimePeriod {
-    start: number;
-    end: number;
+    fromDate: number;
+    toDate: number;
 };
 
 export interface IInfoBoxStyle {
@@ -133,7 +133,7 @@ export class StatusChangeComponent implements OnInit, OnDestroy {
         // 그려질 폭 설정
         this.drawData.period = {
             min: 0,
-            max: this.timePeriod.end - this.timePeriod.start
+            max: this.timePeriod.toDate - this.timePeriod.fromDate
         };
 
         // status 시간 기준 그려질 폭 퍼센트(%) 계산
@@ -141,8 +141,8 @@ export class StatusChangeComponent implements OnInit, OnDestroy {
         for( i=0; i<len; i++ ){
             this.drawData.data.push({
                 type: this.statusData[i].type,
-                min: (this.statusData[i].start - this.timePeriod.start) / this.drawData.period.max,
-                max: (this.statusData[i].end - this.timePeriod.start) / this.drawData.period.max
+                min: (this.statusData[i].start - this.timePeriod.fromDate) / this.drawData.period.max,
+                max: (this.statusData[i].end - this.timePeriod.fromDate) / this.drawData.period.max
             });
         }
 
@@ -183,7 +183,7 @@ export class StatusChangeComponent implements OnInit, OnDestroy {
 
             // 마커 위치 표기될 내용 설정
             this.markerInfo.push(
-                moment(this.timePeriod.start + Math.round(margin)).format('HH:mm')
+                moment(this.timePeriod.fromDate + Math.round(margin)).format('HH:mm')
             );
         }
     }
@@ -292,7 +292,7 @@ export class StatusChangeComponent implements OnInit, OnDestroy {
         // (오버) 해당좌표 날짜, status명 표기
         else {
             let
-                currTimestamp: number = this.timePeriod.start + Math.round(this.drawData.period.max * percentX),
+                currTimestamp: number = this.timePeriod.fromDate + Math.round(this.drawData.period.max * percentX),
                 currTime: string = moment(currTimestamp).add(-1, 'months').format('YY.MM.DD HH:mm:ss')
             ;
 
