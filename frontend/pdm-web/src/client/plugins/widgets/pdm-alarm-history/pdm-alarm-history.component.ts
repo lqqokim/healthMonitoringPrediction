@@ -1,9 +1,9 @@
 import { Component, ViewEncapsulation, ViewChild, OnDestroy, AfterViewInit, ElementRef, ChangeDetectorRef } from '@angular/core';
 import { WidgetRefreshType, WidgetApi, OnSetup } from '../../../common';
 import { Translater } from '../../../sdk';
-import { PdmWostEqpListService } from './pdm-alarm-class-summary.service';
+import { PdmAlarmHistoryService } from './pdm-alarm-history.service';
 import { PdmCommonService } from '../../../common/service/pdm-common.service';
-import { IDonutChartData, IColorSet } from '../../common/donut-chart/donutChart.component';
+import { TableData } from '../../common/ng2-table/table.component';
 
 export interface ITimePeriod {
     start: number;
@@ -12,43 +12,38 @@ export interface ITimePeriod {
 
 @Component({
     moduleId: module.id,
-    selector: 'pdm-alarm-class-summary',
-    templateUrl: 'pdm-alarm-class-summary.html',
-    styleUrls: ['pdm-alarm-class-summary.css'],
-    providers: [PdmWostEqpListService, PdmCommonService],
+    selector: 'pdm-alarm-history',
+    templateUrl: 'pdm-alarm-history.html',
+    styleUrls: ['pdm-alarm-history.css'],
+    providers: [PdmAlarmHistoryService, PdmCommonService],
     encapsulation: ViewEncapsulation.None
 })
 
-export class PdmAlarmClassSummaryComponent extends WidgetApi implements OnSetup, OnDestroy, AfterViewInit {
+export class PdmAlarmHistoryComponent extends WidgetApi implements OnSetup, OnDestroy, AfterViewInit {
 
     private timePeriod: ITimePeriod = {
         start : 1532044800000, // new Date(2018, 6, 20, 09, 0, 0, 0).getTime(),
         end : 1532077200000 // new Date(2018, 6, 20, 18, 0, 0, 0).getTime()
     };
 
-    private chartColor: Array<IColorSet> = [
-        {name:'Unblance', color:'#4472c4' },
-        {name:'Misalignment', color:'#ed7d31' },
-        {name:'Bearing', color:'#a5a5a5' },
-        {name:'Lubrication', color:'#ffc000' },
-        {name:'Etc', color:'#5b9bd5' }
+    public columns: Array<TableData> = [
+        {title: 'Time', name: 'Time' },
+        {title: 'EQP', name: 'EQP', sort:'', filtering: {filterString: '', placeholder: 'Filter by EPQ'}},
+        {title: 'Param', name: 'Param', sort: 'asc'},
+        {title: 'Category', name: 'Category', filtering: {filterString: '', placeholder: 'Filter by Category'}},
+        {title: 'Fault Class', name: 'FaultClass', filtering: {filterString: '', placeholder: 'Filter by Fault Class'} },
+        {title: 'Description', name: 'Description'}
     ];
 
-    private chartData: Array<IDonutChartData> = [
-        {name:"Unblance", count:10},
-        {name:"Misalignment", count:7},
-        {name:"Bearing", count:20},
-        {name:"Lubrication", count:2},
-        {name:"Etc", count:38}
+    public data:Array<any> = [
+        {Time: '', EQP:'EQP34', Param:'Vibration1', Category:'Alarm', FaultClass: 'Unbalance', Description: ''},
+        {Time: '', EQP:'EQP36', Param:'Temp', Category:'Alarm', FaultClass: 'N/A', Description: ''},
+        {Time: '', EQP:'EQP34', Param:'Vibration1', Category:'Alarm', FaultClass: 'N/A', Description: ''},
+        {Time: '', EQP:'EQP34', Param:'Pressure', Category:'Warning', FaultClass: 'N/A', Description: ''},
+        {Time: '', EQP:'EQP34', Param:'Vibration1', Category:'Alarm', FaultClass: 'N/A', Description: ''},
     ];
 
-    private chartData2: Array<IDonutChartData> = [
-        {name:"Unblance", count:100},
-        {name:"Misalignment", count:37},
-        {name:"Bearing", count:40},
-        {name:"Lubrication", count:25},
-        {name:"Etc", count:38}
-    ];
+    public paging:boolean = true;
 
     constructor(
     ){
@@ -63,11 +58,6 @@ export class PdmAlarmClassSummaryComponent extends WidgetApi implements OnSetup,
 
     private init(){
         this.hideSpinner();
-
-        setTimeout(()=>{
-            this.chartData = this.chartData2;
-            console.log('바꿈', this.chartData );
-        }, 10000);
     }
 
     viewTimeperiod(): string {

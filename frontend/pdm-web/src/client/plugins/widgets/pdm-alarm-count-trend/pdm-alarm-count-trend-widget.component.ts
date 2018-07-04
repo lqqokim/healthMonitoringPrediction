@@ -42,7 +42,7 @@ export class PdmAlarmCountTrendWidgetComponent extends WidgetApi implements OnIn
 
     onResize(e?: TransitionEvent): void {
         if ((e !== undefined && !e.isTrusted) || this._currentEl === undefined) { return; }
-        if (e) {
+        if (e && !e.initEvent) {
             this.alarmCountTrendComp.onChartResize();                
         }
     }

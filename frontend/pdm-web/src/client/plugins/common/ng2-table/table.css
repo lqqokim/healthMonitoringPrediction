@@ -1,0 +1,19 @@
+/* 테이블 태그 display:block → table 강제 변환 */
+ng-table { display:block; }
+ng-table > table { display:table; }
+
+/* 헤더 여백 */
+ng-table > table > thead > tr > th { padding:10px 0 !important; position:relative; }
+
+/* 헤더 정렬 아이콘 위치 설정 */
+/* ng-table > table > thead > tr > th > i.pull-right { position:absolute; right:5px; top:0; bottom:0; margin:0; display:flex; justify-content:center; align-items:center; } */
+ng-table > table > thead > tr > th > i.pull-right { display:block; margin:0 5px; }
+
+/* 테이블 셀 안쪽 input(filter) */
+ng-table > table > tbody > tr > td > input { width:100% !important; height:25px !important; }
+
+/* bootstap.css의 float 사용으로 인한 레이아웃 틀어짐 방지 */
+.paginationArea { padding:10px 0; }
+.paginationArea::after { content:''; display:block; clear:both; }
+.paginationArea > ul { display:flex; justify-content:center; align-items:center; margin:0; padding:0; float:none; }
+.paginationArea > ul > li { margin:0; padding:0; display:block; width:auto; height:auto; margin-left:-1px; }

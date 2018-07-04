@@ -144,7 +144,7 @@ export class MasterInfoComponent implements OnInit, AfterViewInit {
                     let parentNode = this.searchTree('nodeId', this.initialTreeDatas[0], this.selectedItem.parentId);
                     this.parentNode = parentNode;
 
-                    if (parentNode.nodeType === this.TYPES.AREA && parentNode.parentId !== 0) {
+                    if (parentNode && parentNode.nodeType === this.TYPES.AREA && parentNode.parentId !== 0) {
                         this.isShowArea = false;
                     }
                 }

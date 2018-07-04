@@ -1,0 +1,11 @@
+/* info */
+pdm-alarm-history [info] { border-bottom:1px solid #eee; padding-bottom:8px; }
+pdm-alarm-history [info]::after { content:''; display:block; clear:both; }
+pdm-alarm-history [info] > dl { float:left; list-style:none; padding:0 0 0 10px; margin:0 0 0 10px; border-left:1px solid #ccc; }
+pdm-alarm-history [info] > dl:first-child { border-left:0; margin-left:0; padding-left:0; }
+pdm-alarm-history [info] > dl::after { content:''; display:block; clear:both; }
+pdm-alarm-history [info] > dl > dt { float:left; margin:0 5px 0 0; color:#969696; font-weight:normal; }
+pdm-alarm-history [info] > dl > dd { float:left; margin:0; color:#333; }
+pdm-alarm-history [info] > dl > dt::after { content:':'; }
+
+pdm-alarm-history table { display:block; position:relative; margin-top:10px; }

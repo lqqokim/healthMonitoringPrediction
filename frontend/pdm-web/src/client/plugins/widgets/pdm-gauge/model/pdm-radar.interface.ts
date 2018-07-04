@@ -87,4 +87,5 @@ export interface DataType{
     avgWithAWs?: any[];
     avgDailys: any[];
     avgSpecs?: any[];
+    paramDatas?: any[];
 }

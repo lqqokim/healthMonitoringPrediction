@@ -25,7 +25,8 @@ import { GaugeChartComponent } from './components/gauge-chart/gauge-chart.compon
         PdmGaugeWidgetComponent,
         AlarmWarningVariationComponent,
         TrendChartComponent,
-        GaugeChartComponent
+        GaugeChartComponent,
+        // D3GaugeChartComponent
     ],
     exports: [
         PdmGaugeWidgetComponent
