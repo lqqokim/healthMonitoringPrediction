@@ -159,7 +159,6 @@ public class SummaryDataService implements ISummaryDataService {
         alarmClassification.setEtc((int) ((Math.random())*100)+0);
 
 
-
         return alarmClassification;
     }
 
@@ -280,7 +279,7 @@ public class SummaryDataService implements ISummaryDataService {
         Date fifthDay = new Date();
         fifthDay = DateUtils.addDays(fifthDay, -2);//yesterday
         fifthDay = DateUtils.truncate(fifthDay, Calendar.DATE);
-        areaFaultCountSummary5.setArea_name("line5");
+        areaFaultCountSummary5.setArea_name("line1");
         areaFaultCountSummary5.setStart_time(fifthDay);
         areaFaultCountSummary5.setNormal_count((int) ((Math.random())*100)+0);
         areaFaultCountSummary5.setAlarm_count((int) ((Math.random())*100)+0);

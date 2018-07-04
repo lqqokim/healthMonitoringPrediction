@@ -29,6 +29,7 @@ public class SummaryDataController {
 
         List<AreaFaultCountSummary> alarmCountSummary=summaryDataService.getAlarmCountSummary(fabId, from, to);
         return summaryDataService.getAlarmCountSummary(fabId, from, to);
+
     }
 
 
