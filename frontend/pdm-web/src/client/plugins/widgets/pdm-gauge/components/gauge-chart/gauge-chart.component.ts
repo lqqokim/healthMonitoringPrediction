@@ -102,9 +102,6 @@ export class GaugeChartComponent implements OnInit, OnChanges {
                 warns.push(d.warn)
             });
 
-            // avgWithAWs.unshift('avgWithAW');
-            // avgDailys.unshift('avgDaily');
-            // const chartData: any[] = [avgWithAWs, avgDailys];
             this.emitData.emit({
                 type: item.type,
                 paramId: paramDatas[0].paramId,
@@ -147,9 +144,6 @@ export class GaugeChartComponent implements OnInit, OnChanges {
                 paramDatas.push(d.paramData);
             });
 
-            // avgWithAWs.unshift('avgWithAW');
-            // avgDailys.unshift('avgDaily');
-            // const chartData: any[] = [avgWithAWs, avgDailys];
             this.emitData.emit({
                 type: item.type,
                 paramId: paramDatas[0].paramId,
@@ -225,7 +219,6 @@ export class GaugeChartComponent implements OnInit, OnChanges {
 
         setTimeout(() => {
             _.sortBy(datas, 'gap').reverse().map((d: any, i: number) => {
-                // console.log(`${i}`, d.avgDaily - d.avgSpec);
                 avgSpecs.push(d.avgSpec);
                 avgDailys.push(d.avgDaily);
                 axisCategoryies.push(d.axis);
@@ -233,10 +226,6 @@ export class GaugeChartComponent implements OnInit, OnChanges {
                 paramDatas.push(d.paramData);
             });
 
-            // avgSpecs.unshift('avgSpec');
-            // avgDailys.unshift('avgDaily');
-            // axisCategoryies.unshift('x');
-            // const chartData: any[] = [avgDailys, avgSpecs];
             this.emitData.emit({
                 type: item.type,
                 paramId: paramDatas[0].paramId,
