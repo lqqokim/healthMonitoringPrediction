@@ -9,8 +9,9 @@ import * as IDataType from './../model/data-type.interface';
     styleUrls: ['./line-status-summary.css'],
 })
 export class LineStatusSummaryComponent implements OnInit, OnChanges {
-    @Output() endChartLoad: EventEmitter<any> = new EventEmitter();
     @Input() condition: IDataType.ContitionType;
+    @Output() endChartLoad: EventEmitter<any> = new EventEmitter();
+    @Output() onSync: EventEmitter<any> = new EventEmitter();
 
     chartId;
 
@@ -86,7 +87,15 @@ export class LineStatusSummaryComponent implements OnInit, OnChanges {
                     offline: 'gray'
                 },
                 groups: [['normal', 'warning', 'alarm', 'failure', 'offline']],
-                order: 'asc'
+                order: 'asc',
+                onclick: (d: any, s) => {
+                    this.onSync.emit({
+                        area: {
+                            areaId: 1,
+                            areaName: axisCategories[d.index + 1]
+                        }
+                    });
+                }
             },
             zoom: {
                 enabled: false

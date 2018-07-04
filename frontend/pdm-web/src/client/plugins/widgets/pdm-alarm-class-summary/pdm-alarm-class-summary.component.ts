@@ -22,36 +22,36 @@ export interface ITimePeriod {
 export class PdmAlarmClassSummaryComponent extends WidgetApi implements OnSetup, OnDestroy, AfterViewInit {
 
     private timePeriod: ITimePeriod = {
-        start : 1532044800000, // new Date(2018, 6, 20, 09, 0, 0, 0).getTime(),
-        end : 1532077200000 // new Date(2018, 6, 20, 18, 0, 0, 0).getTime()
+        start: 1532044800000, // new Date(2018, 6, 20, 09, 0, 0, 0).getTime(),
+        end: 1532077200000 // new Date(2018, 6, 20, 18, 0, 0, 0).getTime()
     };
 
     private chartColor: Array<IColorSet> = [
-        {name:'Unblance', color:'#4472c4' },
-        {name:'Misalignment', color:'#ed7d31' },
-        {name:'Bearing', color:'#a5a5a5' },
-        {name:'Lubrication', color:'#ffc000' },
-        {name:'Etc', color:'#5b9bd5' }
+        { name: 'Unblance', color: '#4472c4' },
+        { name: 'Misalignment', color: '#ed7d31' },
+        { name: 'Bearing', color: '#a5a5a5' },
+        { name: 'Lubrication', color: '#ffc000' },
+        { name: 'Etc', color: '#5b9bd5' }
     ];
 
     private chartData: Array<IDonutChartData> = [
-        {name:"Unblance", count:10},
-        {name:"Misalignment", count:7},
-        {name:"Bearing", count:20},
-        {name:"Lubrication", count:2},
-        {name:"Etc", count:38}
+        { name: "Unblance", count: 10 },
+        { name: "Misalignment", count: 7 },
+        { name: "Bearing", count: 20 },
+        { name: "Lubrication", count: 2 },
+        { name: "Etc", count: 38 }
     ];
 
     private chartData2: Array<IDonutChartData> = [
-        {name:"Unblance", count:100},
-        {name:"Misalignment", count:37},
-        {name:"Bearing", count:40},
-        {name:"Lubrication", count:25},
-        {name:"Etc", count:38}
+        { name: "Unblance", count: 100 },
+        { name: "Misalignment", count: 37 },
+        { name: "Bearing", count: 40 },
+        { name: "Lubrication", count: 25 },
+        { name: "Etc", count: 38 }
     ];
 
     constructor(
-    ){
+    ) {
         super();
     }
 
@@ -61,18 +61,18 @@ export class PdmAlarmClassSummaryComponent extends WidgetApi implements OnSetup,
         // this.hideSpinner();
     }
 
-    private init(){
+    private init() {
         this.hideSpinner();
 
-        setTimeout(()=>{
+        setTimeout(() => {
             this.chartData = this.chartData2;
-            console.log('바꿈', this.chartData );
+            console.log('바꿈', this.chartData);
         }, 10000);
     }
 
     viewTimeperiod(): string {
         return (
-            moment(this.timePeriod.start).add(-1, 'months').format('YYYY-MM-DD HH:mm') +' ~ '+
+            moment(this.timePeriod.start).add(-1, 'months').format('YYYY-MM-DD HH:mm') + ' ~ ' +
             moment(this.timePeriod.end).add(-1, 'months').format('YYYY-MM-DD HH:mm')
         );
     }
@@ -85,6 +85,14 @@ export class PdmAlarmClassSummaryComponent extends WidgetApi implements OnSetup,
     // tslint:disable-next-line:no-unused-variable
     refresh({ type, data }: WidgetRefreshType) {
         this.showSpinner();
+        if (type === A3_WIDGET.APPLY_CONFIG_REFRESH) {
+
+        } else if (type === A3_WIDGET.JUST_REFRESH) {
+        
+        } else if (type === A3_WIDGET.SYNC_INCONDITION_REFRESH) {
+            this.hideSpinner();
+            console.log('ALARM CLASS SYNC', data);
+        }
     }
 
     ngAfterViewInit() {

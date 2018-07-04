@@ -75,6 +75,14 @@ export class PdmAlarmHistoryComponent extends WidgetApi implements OnSetup, OnDe
     // tslint:disable-next-line:no-unused-variable
     refresh({ type, data }: WidgetRefreshType) {
         this.showSpinner();
+        if (type === A3_WIDGET.APPLY_CONFIG_REFRESH) {
+
+        }else if(type === A3_WIDGET.JUST_REFRESH) {
+
+        } else if (type === A3_WIDGET.SYNC_INCONDITION_REFRESH) {
+            this.hideSpinner();
+            console.log('ALARM HISTORY SYNC', data);
+        }
     }
 
     ngAfterViewInit() {

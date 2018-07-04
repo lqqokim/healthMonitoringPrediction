@@ -1,16 +1,12 @@
 <div class="widget widget-pdm-alarm-history">
-    <div info>
-        <dl>
-            <dt>target</dt>
-            <dd>1 Line</dd>
-        </dl>
-        <dl>
-            <dt>Time Period</dt>
-            <dd>{{viewTimeperiod()}}</dd>
-        </dl>
+		<div class="a3-chart-header border-bottom">
+				<div class="condition pull-left">
+						<span class="a3-synced-title">Time Period : </span>
+						<span>{{viewTimeperiod()}}</span>
+				</div>
     </div>
 
-    <div table>
+    <div class="chart-body div01" table>
         <table
             [columns]="columns"
             [data]="data"

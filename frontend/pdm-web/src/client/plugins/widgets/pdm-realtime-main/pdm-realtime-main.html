@@ -11,17 +11,17 @@
             <tr>
                 <td class="healthindex">
                     <h3>Health Index:
-                        <span class="label " [ngClass]="{'label-danger':healthIndex>=100,'label-info':healthIndex<100}">{{healthIndex}}</span>
+                        <span class="label " [ngClass]="{'label-danger':type=='alarm','label-warning':type=='warning','label-info':type=='normal'}">{{healthIndex}}</span>
                     </h3>
                 </td>
                 <td class="alarm">
                     <h3># of Today's Alarm:
-                        <span class="label label-danger">0</span>
+                        <span class="label " [ngClass]="{'label-danger':alarmCount>0,'label-info':alarmCount==0}">{{alarmCount}}</span>
                     </h3>
                 </td>
                 <td class="classification">
-                    <h3>Fault Classification of the last alarm:
-                        <span class="label label-danger">Unbalance</span>
+                    <h3>Fault Classification of the alarm:
+                        <span class="label " [ngClass]="{'label-danger':rootcause!='none' && healthIndex>=100,'label-info':rootcause=='none'||healthIndex<100}">{{healthIndex>=100?rootcause:'none'}}</span>
                     </h3>
                 </td>
                 <td class="rul">
@@ -76,11 +76,8 @@
             <div class="fault-prediction">
                 Fault Prediction
                 <div class="chart">
-                    <a3c-bistel-chart #trendChartPlot [data]="trendData" [config]="trendConfig" [eventLines]="trendEventLines" [chartEvents]="trendEventConfig"
-                        style="width: 100%;" class="chart-body">
-                    </a3c-bistel-chart>
+                    <prediction-chart [plantId]="fabId" [areaId]="1" [eqpId]="1" [paramId]="paramId" [fromDate]="fromDate" [toDate]="toDate"  ></prediction-chart>
                 </div>
-
             </div>
         </div>
 

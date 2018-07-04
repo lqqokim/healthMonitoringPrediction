@@ -3,26 +3,10 @@ import { WidgetRefreshType, WidgetApi, OnSetup } from '../../../common';
 import { Translater } from '../../../sdk';
 import { PdmWostEqpListService } from './pdm-worst-eqp-list.service';
 import { PdmCommonService } from '../../../common/service/pdm-common.service';
+import { ITimePeriod, IWorstEeqList } from '../../common/status-chart-canvas/status-change.component';
 
 //* ng2-tree Interface
 // import { TreeModel } from 'ng2-tree';
-
-//* 목업 데이터 interface
-export interface IWorstEeqList {
-    order: number;
-    equipment: string;
-    score: number;
-    status: Array<{
-        type: string;
-        start: number;
-        end: number;
-    }>
-};
-
-export interface ITimePeriod {
-    start: number;
-    end: number;
-};
 
 @Component({
     moduleId: module.id,
@@ -172,6 +156,14 @@ export class PdmWostEqpListComponent extends WidgetApi implements OnSetup, OnDes
     // tslint:disable-next-line:no-unused-variable
     refresh({ type, data }: WidgetRefreshType) {
         this.showSpinner();
+        if (type === A3_WIDGET.APPLY_CONFIG_REFRESH) {
+
+        } else if (type === A3_WIDGET.JUST_REFRESH) {
+        
+        } else if (type === A3_WIDGET.SYNC_INCONDITION_REFRESH) {
+            this.hideSpinner();
+            console.log('WORST EQP SYNC', data);
+        }
     }
 
     ngAfterViewInit() {

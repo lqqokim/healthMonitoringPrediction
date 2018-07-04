@@ -10,7 +10,7 @@
         </split-area>
 
         <split-area size="80">
-            <div class="trend-chart" *ngFor="let awData of paramDatas; let i = index;" #AWChart>
+            <div  [ngClass]="{'trend-chart-heightfull':paramDatas.length==1,'trend-chart':paramDatas.length>1}"  *ngFor="let awData of paramDatas; let i = index;" #AWChart>
                 <div class="chart-title">
                     <label>EQP Name:{{awData.eqpName}} Parameter Name:{{awData.paramName}}</label>
                 </div>
