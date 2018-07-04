@@ -1,5 +1,7 @@
 /* info */
 
+.widget-pdm-worst-eqp-list { position:relative; }
+
 .widget-pdm-worst-eqp-list .a3-chart-header .condition>dl {
     float: left;
     list-style: none;
