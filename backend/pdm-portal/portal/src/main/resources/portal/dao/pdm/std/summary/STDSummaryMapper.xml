@@ -1,0 +1,403 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bistel.a3.portal.dao.pdm.std.summary.STDSummaryMapper">
+
+
+
+    <select id="selectStatusCountSummary" resultType="com.bistel.a3.portal.domain.pdm.AreaFaultCountSummary">
+
+
+        select area_name, total_count, eqp_offline, alarm_count, warning_count, total_count-(eqp_offline+alarm_count+warning_count) as normal_count
+        from
+        (
+
+        select total.areagroupname as area_name, total.eqp_total_count as total_count,(total.eqp_total_count-eqponline.eqp_online) as eqp_offline , aw.alarm_count as alarm_count, aw.warning_count as warning_count
+        from
+        (
+        select areagroupname, count(eqp_mst_rawid) as eqp_total_count
+        from
+        (
+        select areagroupname,area_id as area_mst_rawid ,eqp.name as eqp_name, eqp.rawid as eqp_mst_rawid, eqp.offline_yn
+        from eqp_mst_pdm eqp,
+        (
+        select * from
+        (SELECT
+        name as areagroupname,
+        rawid AS area_id,
+        level,
+        name,
+        parent_rawid AS parent_id,
+        CONNECT_BY_ISLEAF AS leaf
+        FROM
+        area_mst_pdm
+        where level=2
+        START WITH
+        parent_rawid = 0
+        CONNECT BY
+        PRIOR rawid = parent_rawid
+        ORDER BY
+        leaf,
+        parent_id
+        )
+        where leaf =1
+        union all
+        SELECT
+        areagroup.name as  areagroupname,
+        area.rawid AS area_id,
+        level,
+        area.name,
+        area.parent_rawid AS parent_id,
+        CONNECT_BY_ISLEAF AS leaf
+        FROM
+        area_mst_pdm area,
+        (
+        SELECT
+        rawid AS area_id,
+        name,
+        parent_rawid AS parent_id,
+        CONNECT_BY_ISLEAF AS leaf
+        FROM
+        area_mst_pdm
+        where level=2
+        START WITH
+        parent_rawid = 0
+        CONNECT BY
+        PRIOR rawid = parent_rawid
+        ORDER BY
+        leaf,
+        parent_id
+        ) areagroup
+
+        START WITH
+        area.parent_rawid = areagroup.area_id
+        CONNECT BY
+        PRIOR area.rawid = area.parent_rawid
+        ) area_info
+        where eqp.area_mst_rawid = area_info.area_id
+        order by areagroupname desc
+        )
+        group by areagroupname
+
+        ) total,
+
+        (
+        select  areagroupname, count(eqp_offline_yn) as eqp_online
+        from
+        (
+        select areagroupname,area_id as area_mst_rawid ,eqp.name as eqp_name, eqp.rawid as eqp_mst_rawid, eqp.offline_yn as eqp_offline_yn
+        from eqp_mst_pdm eqp,
+        (
+        select * from
+        (SELECT
+        name as areagroupname,
+        rawid AS area_id,
+        level,
+        name,
+        parent_rawid AS parent_id,
+        CONNECT_BY_ISLEAF AS leaf
+        FROM
+        area_mst_pdm
+        where level=2
+        START WITH
+        parent_rawid = 0
+        CONNECT BY
+        PRIOR rawid = parent_rawid
+        ORDER BY
+        leaf,
+        parent_id
+        )
+        where leaf =1
+        union all
+        SELECT
+        areagroup.name as  areagroupname,
+        area.rawid AS area_id,
+        level,
+        area.name,
+        area.parent_rawid AS parent_id,
+        CONNECT_BY_ISLEAF AS leaf
+        FROM
+        area_mst_pdm area,
+        (
+        SELECT
+        rawid AS area_id,
+        name,
+        parent_rawid AS parent_id,
+        CONNECT_BY_ISLEAF AS leaf
+        FROM
+        area_mst_pdm
+        where level=2
+        START WITH
+        parent_rawid = 0
+        CONNECT BY
+        PRIOR rawid = parent_rawid
+        ORDER BY
+        leaf,
+        parent_id
+        ) areagroup
+
+        START WITH
+        area.parent_rawid = areagroup.area_id
+        CONNECT BY
+        PRIOR area.rawid = area.parent_rawid
+        ) area_info
+        where eqp.area_mst_rawid = area_info.area_id
+        order by areagroupname desc
+
+        )
+        where 1=1
+        and eqp_offline_yn='N'
+        group by areagroupname
+
+        ) eqponline,
+
+
+
+        (
+
+        select areagroupname, alarm_count, warning_count
+        from
+        (
+
+        select area_alarm_count.areagroupname as areagroupname, area_alarm_count.alarm_count as alarm_count, area_warning_count.warning_count as warning_count
+        from
+        (
+
+        select areagroupname, count(alarm_count) alarm_count
+        from
+        (
+
+        select Area_eqp_list.area_mst_rawid, Area_eqp_list.areagroupname, Area_eqp_list.eqp_mst_rawid, Area_eqp_list.eqp_name, specout_eqp.alarm_count alarm_count
+        from
+        (
+        select eqp_mst_rawid, alarm_count
+        from
+        (
+        select specout.eqp_mst_rawid as eqp_mst_rawid , nvl(alarm.alarm_count,0) as alarm_count
+        from
+        (
+        select eqp_mst_rawid,count(status_cd) as total_count
+        from eqp_alarm_daily_sum_pdm
+        where 1=1
+        and sum_dtts <![CDATA[>=]]> #{fromdate}
+        and sum_dtts <![CDATA[<]]> #{todate}
+        group by eqp_mst_rawid
+        ) specout,
+        (
+        select eqp_mst_rawid,count(status_cd) as alarm_count
+        from eqp_alarm_daily_sum_pdm
+        where 1=1
+        and sum_dtts <![CDATA[>=]]> #{fromdate}
+        and sum_dtts <![CDATA[<]]> #{todate}
+        and status_cd=256
+        group by eqp_mst_rawid
+        ) alarm
+        where 1=1
+        and alarm.eqp_mst_rawid(+)=specout.eqp_mst_rawid
+        )
+        )specout_eqp,
+
+
+
+        (select areagroupname, area_mst_rawid, eqp_name, eqp_mst_rawid
+        from
+        (
+        select areagroupname,area_id as area_mst_rawid,eqp.name as eqp_name ,eqp.rawid as eqp_mst_rawid
+        from eqp_mst_pdm eqp,
+        (
+        select * from
+        (SELECT
+        name as areagroupname,
+        rawid AS area_id,
+        level,
+        name,
+        parent_rawid AS parent_id,
+        CONNECT_BY_ISLEAF AS leaf
+        FROM
+        area_mst_pdm
+        where level=2
+        START WITH
+        parent_rawid = 0
+        CONNECT BY
+        PRIOR rawid = parent_rawid
+        ORDER BY
+        leaf,
+        parent_id
+        )
+        where leaf =1
+        union all
+        SELECT
+        areagroup.name as  areagroupname,
+        area.rawid AS area_id,
+        level,
+        area.name,
+        area.parent_rawid AS parent_id,
+        CONNECT_BY_ISLEAF AS leaf
+        FROM
+        area_mst_pdm area,
+        (
+        SELECT
+        rawid AS area_id,
+        name,
+        parent_rawid AS parent_id,
+        CONNECT_BY_ISLEAF AS leaf
+        FROM
+        area_mst_pdm
+        where level=2
+        START WITH
+        parent_rawid = 0
+        CONNECT BY
+        PRIOR rawid = parent_rawid
+        ORDER BY
+        leaf,
+        parent_id
+        ) areagroup
+        START WITH
+        area.parent_rawid = areagroup.area_id
+        CONNECT BY
+        PRIOR area.rawid = area.parent_rawid
+        ) area_info
+        where eqp.area_mst_rawid = area_info.area_id
+        order by areagroupname desc
+        )
+        )Area_eqp_list
+        where 1=1
+        and specout_eqp.eqp_mst_rawid=Area_eqp_list.eqp_mst_rawid
+
+
+        )
+        where 1=1
+        and alarm_count>0
+        group by areagroupname
+
+        ) area_alarm_count,
+
+
+        (
+        select areagroupname, count(alarm_count) as warning_count
+        from
+        (
+
+        select Area_eqp_list.area_mst_rawid, Area_eqp_list.areagroupname, Area_eqp_list.eqp_mst_rawid, Area_eqp_list.eqp_name, specout_eqp.alarm_count alarm_count
+        from
+        (
+        select eqp_mst_rawid, alarm_count
+        from
+        (
+        select specout.eqp_mst_rawid as eqp_mst_rawid , nvl(alarm.alarm_count,0) as alarm_count
+        from
+        (
+        select eqp_mst_rawid,count(status_cd) as total_count
+        from eqp_alarm_daily_sum_pdm
+        where 1=1
+        and sum_dtts <![CDATA[>=]]> #{fromdate}
+        and sum_dtts <![CDATA[<]]> #{todate}
+        group by eqp_mst_rawid
+        ) specout,
+        (
+        select eqp_mst_rawid,count(status_cd) as alarm_count
+        from eqp_alarm_daily_sum_pdm
+        where 1=1
+        and sum_dtts <![CDATA[>=]]> #{fromdate}
+        and sum_dtts <![CDATA[<]]> #{todate}
+        and status_cd=256
+        group by eqp_mst_rawid
+        ) alarm
+        where 1=1
+        and alarm.eqp_mst_rawid(+)=specout.eqp_mst_rawid
+        )
+        )specout_eqp,
+
+
+
+        (select areagroupname, area_mst_rawid, eqp_name, eqp_mst_rawid
+        from
+        (
+        select areagroupname,area_id as area_mst_rawid,eqp.name as eqp_name ,eqp.rawid as eqp_mst_rawid
+        from eqp_mst_pdm eqp,
+        (
+        select * from
+        (SELECT
+        name as areagroupname,
+        rawid AS area_id,
+        level,
+        name,
+        parent_rawid AS parent_id,
+        CONNECT_BY_ISLEAF AS leaf
+        FROM
+        area_mst_pdm
+        where level=2
+        START WITH
+        parent_rawid = 0
+        CONNECT BY
+        PRIOR rawid = parent_rawid
+        ORDER BY
+        leaf,
+        parent_id
+        )
+        where leaf =1
+        union all
+        SELECT
+        areagroup.name as  areagroupname,
+        area.rawid AS area_id,
+        level,
+        area.name,
+        area.parent_rawid AS parent_id,
+        CONNECT_BY_ISLEAF AS leaf
+        FROM
+        area_mst_pdm area,
+        (
+        SELECT
+        rawid AS area_id,
+        name,
+        parent_rawid AS parent_id,
+        CONNECT_BY_ISLEAF AS leaf
+        FROM
+        area_mst_pdm
+        where level=2
+        START WITH
+        parent_rawid = 0
+        CONNECT BY
+        PRIOR rawid = parent_rawid
+        ORDER BY
+        leaf,
+        parent_id
+        ) areagroup
+        START WITH
+        area.parent_rawid = areagroup.area_id
+        CONNECT BY
+        PRIOR area.rawid = area.parent_rawid
+        ) area_info
+        where eqp.area_mst_rawid = area_info.area_id
+        order by areagroupname desc
+        )
+        )Area_eqp_list
+        where 1=1
+        and specout_eqp.eqp_mst_rawid=Area_eqp_list.eqp_mst_rawid
+
+
+        )
+        where 1=1
+        and alarm_count=0
+        group by areagroupname
+
+
+        ) area_warning_count
+
+        where 1=1
+        and area_alarm_count.areagroupname(+)=area_warning_count.areagroupname
+
+        )
+
+        ) aw
+
+        where 1=1
+        and total.areagroupname=eqponline.areagroupname
+        and eqponline.areagroupname=aw.areagroupname
+        )
+
+
+
+    </select>
+
+
+</mapper>

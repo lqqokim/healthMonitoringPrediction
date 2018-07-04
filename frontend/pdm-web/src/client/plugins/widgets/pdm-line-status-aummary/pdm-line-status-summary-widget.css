@@ -1,0 +1,130 @@
+
+/* ehmp tooltip */
+
+.a3-ehmp-tooltip {
+	position: relative;
+	display: inline-block;
+	width: 200px;
+	padding: 13px;
+	background-color: #fff;
+	border: 1px solid #ccc;
+	border-radius: 3px;
+	box-shadow: 1px 2px 5px rgba(0, 0, 0, 0.12);
+	opacity: 0.95;
+}
+
+.a3-ehmp-tooltip .header {
+	float: left;
+	color: #9d9d9d;
+	font-size: 11px;
+}
+
+.a3-ehmp-tooltip ul {
+	float: left;
+	width: 100%;
+	margin-bottom: 10px;
+}
+
+.a3-ehmp-tooltip ul:last-child,
+.a3-ehmp-tooltip .bottom {
+	margin-bottom: 0px;
+}
+
+.a3-ehmp-tooltip ul li {
+	float: left;
+}
+
+.a3-ehmp-tooltip ul li.value,
+.a3-ehmp-tooltip .total-value {
+	float: right;
+	text-align: end;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
+}
+
+.a3-ehmp-tooltip ul li.value {
+	width: 56px;
+}
+
+.a3-ehmp-tooltip .total-value {
+	width: 71px;
+}
+
+.a3-ehmp-tooltip .header .title {
+	color: #666;
+	font-size: 13px;
+}
+
+.a3-ehmp-tooltip .header .normal {
+	background-color: #21b100;
+	border: 1px solid #21b100;
+	display: inline-block;
+	width: 9px;
+	height: 9px;
+	padding: 0;
+	margin-top: 3px;
+	margin-right: 4px;
+	border-radius: 50%;
+}
+
+.a3-ehmp-tooltip .header .warning {
+	background-color: #ffba00;
+	border: 1px solid #ffba00;
+	display: inline-block;
+	width: 9px;
+	height: 9px;
+	padding: 0;
+	margin-top: 3px;
+	margin-right: 4px;
+	border-radius: 50%;
+}
+
+.a3-ehmp-tooltip .header .alarm {
+	background-color: #ff3d3d;
+	border: 1px solid #ff3d3d;
+	display: inline-block;
+	width: 9px;
+	height: 9px;
+	padding: 0;
+	margin-top: 3px;
+	margin-right: 4px;
+	border-radius: 50%;
+}
+
+.a3-ehmp-tooltip .header .offline {
+	background-color: #bdbdbd;
+	border: 1px solid #bdbdbd;
+	display: inline-block;
+	width: 9px;
+	height: 9px;
+	padding: 0;
+	margin-top: 3px;
+	margin-right: 4px;
+	border-radius: 50%;
+}
+
+.a3-ehmp-tooltip .header .failure {
+	background-color: #666;
+	border: 1px solid #666;
+	display: inline-block;
+	width: 9px;
+	height: 9px;
+	padding: 0;
+	margin-top: 3px;
+	margin-right: 4px;
+	border-radius: 50%;
+}
+
+.a3-ehmp-tooltip .border {
+	float: left;
+	width: 100%;
+	margin-top: 10px;
+	margin-bottom: 10px;
+	border-top: 1px solid #ddd;
+}
+
+.a3-ehmp-tooltip .bottom {
+	color: #666;
+	font-size: 13px;
+}
