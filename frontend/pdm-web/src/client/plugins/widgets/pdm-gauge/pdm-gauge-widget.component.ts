@@ -168,7 +168,7 @@ export class PdmGaugeWidgetComponent extends WidgetApi implements OnSetup, OnDes
         if (item) {
             // console.log('showParamContext item', item);
             let dsCd: any = this.getViewData('paramDisplayContext');
-            dsCd[LB.PARAM_NAME] = item.paramData.data.paramName; //view config에서 설정필요
+            dsCd[LB.PARAM_NAME] = item.paramName; //view config에서 설정필요
             this._areaId = item.selectedItem.areaId;
             let outCd = this.getOutCondition('config');
 
@@ -176,7 +176,8 @@ export class PdmGaugeWidgetComponent extends WidgetApi implements OnSetup, OnDes
             outCd[CD.AREA_ID] = this._areaId;
             outCd[CD.EQP_ID] = item.eqpId;
             outCd[CD.EQP_NAME] = item.eqpName;
-            outCd[CD.PARAM_ID] = item.paramData.data.paramId;
+            // outCd[CD.PARAM_ID] = item.paramData.data.paramId;
+            outCd[CD.PARAM_ID] = item.paramId;
 
             let context: ContextMenuType = {
                 tooltip: {
@@ -217,7 +218,7 @@ export class PdmGaugeWidgetComponent extends WidgetApi implements OnSetup, OnDes
                 context.template.action = [
                     {
                         labelI18n: this.analysisLabel,
-                        data: { eqpId: item.eqpId, paramId: item.paramData.data.paramId, event: item.event },
+                        data: { eqpId: item.eqpId, paramId: item.paramId, event: item.event },
                         callback: (data: any) => {
                             this._syncMultiVariant(data.eqpId, data.paramId);
                         }

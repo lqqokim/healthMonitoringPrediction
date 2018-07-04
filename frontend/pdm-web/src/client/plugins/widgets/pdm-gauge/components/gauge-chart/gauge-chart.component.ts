@@ -10,11 +10,12 @@ import * as pdmRadarI from './../../model/pdm-radar.interface';
 })
 export class GaugeChartComponent implements OnInit, OnChanges {
     @Input() item: pdmRadarI.ChartDataType;
+    @Output() emitData: EventEmitter<any> = new EventEmitter();
 
     chartId: any;
-
-    chartConfig;
-    chartData;
+    chartConfig: any;
+    chartData: any[];
+    private readonly ALARM_RATIO: number = 75;
 
     constructor() {
 
@@ -37,8 +38,8 @@ export class GaugeChartComponent implements OnInit, OnChanges {
             }
 
             setTimeout(() => {
-                // this.drawBarChart(item);
                 this.drawPlotGaugeChart(item);
+                // this.drawC3GaugeChart(item);
             }, 300);
         }
     }
@@ -59,85 +60,117 @@ export class GaugeChartComponent implements OnInit, OnChanges {
         }, 500);
     }
 
-    setAWChartData(item: any) {
+    setAWChartData(item: pdmRadarI.ChartDataType) {
         let avgWithAWs: any[] = item.chartData.avgWithAWs.map((d: any) => d.value);
         let avgDailys: any[] = item.chartData.avgDailys.map((d: any) => d.value);
+        let paramDatas: any[] = item.chartData.paramDatas;
         let axisCategoryies: any[] = item.chartData.alarms.map((d: any) => d.axis);
         let warns: any[] = item.chartData.warns.map((d: any) => d.value);
-
+        
         if (item.type === 'alarm') {
-            this.setAlarmData(avgWithAWs, avgDailys, axisCategoryies, item);
+            this.setAlarmData(avgWithAWs, avgDailys, axisCategoryies, item, warns, paramDatas);
         } else if (item.type === 'warning') {
-            this.setWarningData(avgWithAWs, avgDailys, axisCategoryies, warns, item);
+            this.setWarningData(avgWithAWs, avgDailys, axisCategoryies, warns, item, paramDatas);
         }
     }
 
-    setAlarmData(avgWithAWs, avgDailys, axisCategoryies, item): void {
+    setAlarmData(avgWithAWs, avgDailys, axisCategoryies, item: pdmRadarI.ChartDataType, warns, paramDatas): void {
         let datas: any[] = [];
         const dataLength: number = avgWithAWs.length;
         for (let i = 0; i < dataLength; i++) {
             datas.push({
                 axis: axisCategoryies[i],
                 avgWithAW: avgWithAWs[i],
-                avgDaily: avgDailys[i]
+                avgDaily: avgDailys[i],
+                paramData: paramDatas[i],
+                warn: warns[i]
             });
         }
 
         avgWithAWs = [];
         avgDailys = [];
         axisCategoryies = [];
+        paramDatas = [];
+        warns = [];
 
         setTimeout(() => {
             _.sortBy(datas, 'avgWithAW').reverse().map((d: any, i: number) => {
                 avgWithAWs.push(d.avgWithAW);
                 avgDailys.push(d.avgDaily);
                 axisCategoryies.push(d.axis);
+                paramDatas.push(d.paramData);
+                warns.push(d.warn)
             });
 
             // avgWithAWs.unshift('avgWithAW');
             // avgDailys.unshift('avgDaily');
             // const chartData: any[] = [avgWithAWs, avgDailys];
-            this.AWChartGenerator(item, avgWithAWs, axisCategoryies);
+            this.emitData.emit({
+                type: item.type,
+                paramId: paramDatas[0].paramId,
+                paramName: paramDatas[0].paramName,
+                eqpId: paramDatas[0].eqpId,
+                eqpName: paramDatas[0].eqpName,
+                avgWithAW: avgWithAWs[0],
+                warn: warns[0]
+            });
+
+            this.AWChartGenerator(item, avgWithAWs, axisCategoryies, warns);
         }, 500);
     }
 
-    setWarningData(avgWithAWs, avgDailys, axisCategoryies, warns, item): void {
+    setWarningData(avgWithAWs, avgDailys, axisCategoryies, warns, item: pdmRadarI.ChartDataType, paramDatas): void {
         let datas: any[] = [];
         const dataLength: number = avgWithAWs.length;
         for (let i = 0; i < dataLength; i++) {
             datas.push({
                 axis: axisCategoryies[i],
                 avgWithAW: avgWithAWs[i],
-                avgDaily: avgDailys[i]
+                avgDaily: avgDailys[i],
+                paramData: paramDatas[i],
+                warn: warns[i]
             });
         }
 
         avgWithAWs = [];
         avgDailys = [];
         axisCategoryies = [];
+        warns = [];
+        paramDatas = [];
 
         setTimeout(() => {
             _.sortBy(datas, 'avgWithAW').reverse().map((d: any, i: number) => {
                 avgWithAWs.push(d.avgWithAW);
                 avgDailys.push(d.avgDaily);
                 axisCategoryies.push(d.axis);
+                warns.push(d.warn);
+                paramDatas.push(d.paramData);
             });
 
             // avgWithAWs.unshift('avgWithAW');
             // avgDailys.unshift('avgDaily');
             // const chartData: any[] = [avgWithAWs, avgDailys];
-            this.AWChartGenerator(item, avgWithAWs, axisCategoryies);
+            this.emitData.emit({
+                type: item.type,
+                paramId: paramDatas[0].paramId,
+                paramName: paramDatas[0].paramName,
+                eqpId: paramDatas[0].eqpId,
+                eqpName: paramDatas[0].eqpName,
+                avgWithAW: avgWithAWs[0],
+                warn: warns[0]
+            });
+
+            this.AWChartGenerator(item, avgWithAWs, axisCategoryies, warns);
         }, 500);
     }
 
-    AWChartGenerator(item: pdmRadarI.ChartDataType, avgWithAWs: number[], axisCategoryies: string[]) {
-        const color: string = item.type === 'alarm' ? 'red' : 'orange';
+    AWChartGenerator(item: pdmRadarI.ChartDataType, avgWithAWs: number[], axisCategoryies: string[], warns: number[]) {
         const ranVal: number = Number((Math.floor(Math.random() * (95 - 30)) + 30).toFixed(2));
-        const data = ['data', ranVal];
         const label: string = `Max ${item.type}: ${avgWithAWs[0].toFixed(4)} / Paramter: ${axisCategoryies[0]}`;
-
+        const warnInterval: number = warns[0] * this.ALARM_RATIO;
+        
         setTimeout(() => {
-            this.chartData = [[avgWithAWs[0]]];
+            this.chartData = [[avgWithAWs[0] * 75]];
             this.chartConfig = {
                 legend: {
                     show: true
@@ -150,11 +183,9 @@ export class GaugeChartComponent implements OnInit, OnChanges {
                         labelHeightAdjust: 10,
                         intervalOuterRadius: 70,
                         min: 0,
-                        max: 1.5,
-                        ticks: [0, 0.5, 1, 1.5],
-                        // intervals: [200, 300, 400, 500],
-                        // intervalColors: ['#66cc66', '#93b75f', '#E7E658', '#cc6666']
-                        intervals: [0.5, 1, 1.5],
+                        max: 100,
+                        // ticks: [0, warnInterval, this.ALARM_RATIO, 100],
+                        intervals: [warnInterval, this.ALARM_RATIO, 100],
                         intervalColors: ['#66cc66', '#ff0', '#cc6666', '#cc6666']
                     }
                 }
@@ -170,43 +201,65 @@ export class GaugeChartComponent implements OnInit, OnChanges {
         let avgSpecs: any[] = item.chartData.avgSpecs.map((d: any) => d.value);
         let avgDailys: any[] = item.chartData.avgDailys.map((d: any) => d.value);
         let axisCategoryies: any[] = item.chartData.alarms.map((d: any) => d.axis);
+        let paramDatas: any[] = item.chartData.paramDatas;
+        let warns: any[] = item.chartData.warns.map((d: any) => d.value);
         let datas: any[] = [];
+        let gap: any[] = [];
 
         for (let i = 0; i < avgSpecs.length; i++) {
             datas.push({
                 axis: axisCategoryies[i],
                 avgSpec: avgSpecs[i],
                 avgDaily: avgDailys[i],
+                warn: warns[i],
+                paramData: paramDatas[i],
+                gap: avgDailys[i] - avgSpecs[i],
             });
         }
 
         avgSpecs = [];
         avgDailys = [];
         axisCategoryies = [];
+        paramDatas = [];
+        warns = [];
 
         setTimeout(() => {
-            _.sortBy(datas, 'avgDaily').reverse().map((d: any, i: number) => {
+            _.sortBy(datas, 'gap').reverse().map((d: any, i: number) => {
+                // console.log(`${i}`, d.avgDaily - d.avgSpec);
                 avgSpecs.push(d.avgSpec);
                 avgDailys.push(d.avgDaily);
                 axisCategoryies.push(d.axis);
+                warns.push(d.warn);
+                paramDatas.push(d.paramData);
             });
 
             // avgSpecs.unshift('avgSpec');
             // avgDailys.unshift('avgDaily');
             // axisCategoryies.unshift('x');
             // const chartData: any[] = [avgDailys, avgSpecs];
-            this.BGChartGenerator(item, avgDailys, avgSpecs, axisCategoryies);
+            this.emitData.emit({
+                type: item.type,
+                paramId: paramDatas[0].paramId,
+                paramName: paramDatas[0].paramName,
+                eqpId: paramDatas[0].eqpId,
+                eqpName: paramDatas[0].eqpName,
+                warn: warns[0]
+            });
+
+            this.BGChartGenerator(item, avgDailys, avgSpecs, axisCategoryies, warns);
         }, 500);
     }
 
-    BGChartGenerator(item: pdmRadarI.ChartDataType, avgDailys: number[], avgSpecs: number[], axisCategoryies: string[]) {
-        const color: string = item.type === 'G5' ? '#22b8cf' : '#ff009d';
-        const ranVal: number = Number((Math.floor(Math.random() * (95 - 30)) + 30).toFixed(2));
-        const data = ['data', ranVal];
+    BGChartGenerator(item: pdmRadarI.ChartDataType, avgDailys: number[], avgSpecs: number[], axisCategoryies: string[], warns: number[]) {
+        // const color: string = item.type === 'G5' ? '#22b8cf' : '#ff009d';
+        // const ranVal: number = Number((Math.floor(Math.random() * (95 - 30)) + 30).toFixed(2));
+        // const data = ['data', ranVal];
         const label: string = `Target days avg: ${avgSpecs[0].toFixed(4)} / Paramter: ${axisCategoryies[0]}`;
+        const warnInterval: number = warns[0] * this.ALARM_RATIO;
+        const pointVal: number = avgSpecs[0] * this.ALARM_RATIO
 
         setTimeout(() => {
-            this.chartData = [[avgSpecs[0]]];
+            this.chartData = [[pointVal]];
             this.chartConfig = {
                 legend: {
                     show: true
@@ -219,11 +272,11 @@ export class GaugeChartComponent implements OnInit, OnChanges {
                         labelHeightAdjust: 10,
                         intervalOuterRadius: 70,
                         min: 0,
-                        max: 1.5,
-                        ticks: [0, 0.5, 1, 1.5],
+                        max: 100,
+                        // ticks: [0, 0.5, 1, 1.5],
                         // intervals: [200, 300, 400, 500],
                         // intervalColors: ['#66cc66', '#93b75f', '#E7E658', '#cc6666']
-                        intervals: [0.5, 1, 1.5],
+                        intervals: [warnInterval, this.ALARM_RATIO, 100],
                         intervalColors: ['#66cc66', '#ff0', '#cc6666', '#cc6666']
                     }
                 }
@@ -235,7 +288,7 @@ export class GaugeChartComponent implements OnInit, OnChanges {
         }, 200);
     }
 
-    // drawBarChart(item): void {
+    // drawC3GaugeChart(item): void {
     //     if (item.type === 'alarm' || item.type === 'warning') {
     //         this.setAWChartData(item);
     //     } else {

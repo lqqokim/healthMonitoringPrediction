@@ -78,6 +78,8 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
 
     expandLoad = false;
 
+    paramDatas: any[] = [];
+
     constructor(
         private _pdmModelService: PdmModelService,
         private _pdmRadarService: PdmRadarService,
@@ -247,34 +249,47 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
                 let AWwithAvgs: any[] = [];
                 let variations: any[] = [];
                 let classifications: any[] = [];
+                let paramDatas = [];
 
                 for (let i = 0; i < params.length; i++) {
                     let param: any = params[i];
 
                     alarms.push({ //경고
+                        id: param.paramId,
                         axis: param.paramName,
                         value: param.alarm
                     });
 
                     warns.push({ //주의
+                        id: param.paramId,
                         axis: param.paramName,
                         value: param.warn
                     });
 
                     avgSpecs.push({ //90일평균
+                        id: param.paramId,
                         axis: param.paramName,
                         value: param.avgSpec
                     });
 
                     avgDailys.push({ //하루평균
+                        id: param.paramId,
                         axis: param.paramName,
                         value: param.avgDaily
                     });
 
                     avgWithAWs.push({ //평균값(Warning, Alarm)
+                        id: param.paramId,
                         axis: param.paramName,
                         value: param.avgWithAW,
                         data: param
+                    });
+
+                    paramDatas.push({
+                        paramId: param.paramId,
+                        paramName: param.paramName,
+                        eqpId: eqp.eqpId,
+                        eqpName: eqp.eqpName
                     });
 
                     AWwithAvgs.push(param.avgWithAW);//for max alarm or waring
@@ -288,7 +303,8 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
                     alarms: alarms,
                     warns: warns,
                     avgWithAWs: avgWithAWs,
-                    avgDailys: avgDailys
+                    avgDailys: avgDailys,
+                    paramDatas: paramDatas
                 };
 
                 options.series = [{ fill: false, circle: false }, { fill: false, circle: false }, { fill: true, circle: false }];
@@ -433,29 +449,41 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
                 let avgDailys = [];
                 let variations = [];
                 let ratioVariations = [];
+                let paramDatas = [];
 
                 for (let i = 0; i < params.length; i++) {
                     let param: any = params[i];
 
                     alarms.push({ // 경고
+                        id: param.paramId,
                         axis: param.paramName,
                         value: param.alarm
                     });
 
                     warns.push({ // 주의
+                        id: param.paramId,
                         axis: param.paramName,
                         value: param.warn
                     });
 
                     avgSpecs.push({ // 90일평균
+                        id: param.paramId,
                         axis: param.paramName,
                         value: param.avgSpec
                     });
 
                     avgDailys.push({ // 하루평균
+                        id: param.paramId,
                         axis: param.paramName,
                         value: param.avgDaily,
                         data: param
+                    });
+
+                    paramDatas.push({
+                        paramId: param.paramId,
+                        paramName: param.paramName,
+                        eqpId: eqp.eqpId,
+                        eqpName: eqp.eqpName
                     });
 
                     if (param.avgDaily != null && param.avgSpec != null) {
@@ -472,7 +500,8 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
                     alarms: alarms,
                     warns: warns,
                     avgSpecs: avgSpecs,
-                    avgDailys: avgDailys
+                    avgDailys: avgDailys,
+                    paramDatas: paramDatas
                 };
 
                 options.series = [{ fill: false, circle: false }, { fill: false, circle: false }, { fill: true, circle: false }];
@@ -592,29 +621,41 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
                 let avgDailys = [];
                 let variations = [];
                 let ratioVariations = [];
+                let paramDatas = [];
 
                 for (let i = 0; i < params.length; i++) {
                     let param: any = params[i];
 
                     alarms.push({ // 경고
+                        id: param.paramId,
                         axis: param.paramName,
                         value: param.alarm
                     });
 
                     warns.push({ // 주의
+                        id: param.paramId,
                         axis: param.paramName,
                         value: param.warn
                     });
 
                     avgSpecs.push({ // 90일평균
+                        id: param.paramId,
                         axis: param.paramName,
                         value: param.avgSpec
                     });
 
                     avgDailys.push({ // 하루평균
+                        id: param.paramId,
                         axis: param.paramName,
                         value: param.avgDaily,
                         data: param
+                    });
+
+                    paramDatas.push({
+                        paramId: param.paramId,
+                        paramName: param.paramName,
+                        eqpId: eqp.eqpId,
+                        eqpName: eqp.eqpName
                     });
 
                     if (param.avgDaily != null && param.avgSpec != null) {
@@ -629,7 +670,8 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
                     alarms: alarms,
                     warns: warns,
                     avgSpecs: avgSpecs,
-                    avgDailys: avgDailys
+                    avgDailys: avgDailys,
+                    paramDatas: paramDatas
                 };
 
                 options.series = [{ fill: false, circle: false }, { fill: false, circle: false }, { fill: true, circle: false }];
@@ -766,48 +808,119 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
         this.appendTrendChartEl(type, index);
     }
 
-    onParamClick(type: string, eqpName: string, eqpId: any, paramData: any, index: number, isInfo?: string): void {
-        this.isParamContext = true;
-        this.trendShow = true;
-        this.colIndex = parseInt((index % 5).toString()); //Trend chart position
-        this.chartType = type;
+    emitData(ev: any): void {
+        this.paramDatas.push(ev);
+    }
 
-        if (isInfo == null) {
+    onParamClick(item: pdmRadarI.ChartDataType, index: number): void {
+        // console.log('emitItem', this.emitItem);
+        if (!item.chartData && this.paramSelected) { // Open Context
+            this.paramSelected = false;
+            return;
+        }
+
+        if (item.chartData && this.paramDatas) {
+            let params: any[] = this.paramDatas;
+            let param: any = {
+                paramId: '',
+                paramName: ''
+            };
+
+            const dataLength: number = params.length;
+            for (let i: number = 0; i < dataLength; i++) {
+                if (item.type === params[i].type && item.id === params[i].eqpId) {
+                    param = {
+                        paramId: params[i].paramId,
+                        paramName: params[i].paramName,
+                        avgWithAW: params[i].avgWithAW,
+                        warn: params[i].warn,
+                        eqpId: params[i].eqpId
+                    };
+
+                    break;
+                }
+            }
+
+            // this.isParamContext = true;
             this.paramSelected = true;
-        }
+            this.trendShow = true;
+            this.colIndex = parseInt((index % 5).toString()); //Trend chart position
+            this.chartType = item.type;
 
-        if (this.selectedItem) {
             this.showParamContext.emit({
-                selectedItem: this.selectedItem,
+                selectedItem: item,
                 timePeriod: this.timePeriod,
-                type: type,
-                eqpName: eqpName,
-                eqpId: eqpId,
-                paramData: paramData,
-                event: event,
+                type: item.type,
+                eqpName: item.name,
+                eqpId: item.id,
+                paramId: param.paramId,
                 index: index,
-                flag: isInfo
+                event: event,
+                paramName: param.paramName
+                // flag: isInfo
             });
-        }
 
-        if (isInfo !== 'isInfo') {
             setTimeout(() => {
-                this.trendParamId = paramData.data.paramId;
-                this.trendEqpName = eqpName;
-                this.trendParamName = paramData.data.paramName;
-                this.trendEqpId = eqpId;
+                this.trendParamId = param.paramId;
+                this.trendEqpName = item.name;
+                this.trendParamName = param.paramName;
+                this.trendEqpId = param.eqpId;
                 this.trendPlantId = this.fabId;
                 this.trendFromDate = this.condition.timePeriod.from;
                 this.trendToDate = this.condition.timePeriod.to;
                 this.trendAreaId = null;
-                this.trendValue = paramData.data.avgWithAW;
-                this.trendSpecWarning = paramData.data.warn;
+                this.trendValue = param.avgWithAW;
+                this.trendSpecWarning = param.warn;
             });
 
-            this.appendTrendChartEl(type, index);
-
+            this.appendTrendChartEl(item.type, index);
+        } else {
+            return;
         }
     }
+
+    // onParamClick(type: string, eqpName: string, eqpId: any, paramData: any, index: number, isInfo?: string): void {
+    //     this.isParamContext = true;
+    //     this.trendShow = true;
+    //     this.colIndex = parseInt((index % 5).toString()); //Trend chart position
+    //     this.chartType = type;
+
+    //     if (isInfo == null) {
+    //         this.paramSelected = true;
+    //     }
+
+    //     if (this.selectedItem) {
+    //         this.showParamContext.emit({
+    //             selectedItem: this.selectedItem,
+    //             timePeriod: this.timePeriod,
+    //             type: type,
+    //             eqpName: eqpName,
+    //             eqpId: eqpId,
+    //             paramData: paramData,
+    //             event: event,
+    //             index: index,
+    //             flag: isInfo
+    //         });
+    //     }
+
+    //     if (isInfo !== 'isInfo') {
+    //         setTimeout(() => {
+    //             this.trendParamId = paramData.data.paramId;
+    //             this.trendEqpName = eqpName;
+    //             this.trendParamName = paramData.data.paramName;
+    //             this.trendEqpId = eqpId;
+    //             this.trendPlantId = this.fabId;
+    //             this.trendFromDate = this.condition.timePeriod.from;
+    //             this.trendToDate = this.condition.timePeriod.to;
+    //             this.trendAreaId = null;
+    //             this.trendValue = paramData.data.avgWithAW;
+    //             this.trendSpecWarning = paramData.data.warn;
+    //         });
+
+    //         this.appendTrendChartEl(type, index);
+
+    //     }
+    // }
 
     appendTrendChartEl(type: string, index: number): void {
         let dataLength: number;
@@ -900,7 +1013,7 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
     }
 
     endExpandLoad(ev) {
-        if(ev) {
+        if (ev) {
             this.expandLoad = true;
         }
     }
