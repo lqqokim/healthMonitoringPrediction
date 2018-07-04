@@ -22,7 +22,14 @@ ul {
   padding: 0px;
 }
 
-.h1, .h2, .h3, .h4, h1, h2, h3, h4 {
+.h1,
+.h2,
+.h3,
+.h4,
+h1,
+h2,
+h3,
+h4 {
   margin-top: 0px;
   margin-bottom: 0px;
 }
@@ -216,7 +223,8 @@ pre {
   border: 1px solid #b61212;
 }
 
-.a3-default .btn-primary.active, .btn-primary:active,
+.a3-default .btn-primary.active,
+.btn-primary:active,
 .a3-default .open > .dropdown-toggle.btn-primary {
   color: #fff;
   background-color: #2f83f3;
@@ -297,7 +305,18 @@ select {
   vertical-align: middle;
 }
 
-.table > thead > tr > td.active, .table > tbody > tr > td.active, .table > tfoot > tr > td.active, .table > thead > tr > th.active, .table > tbody > tr > th.active, .table > tfoot > tr > th.active, .table > thead > tr.active > td, .table > tbody > tr.active > td, .table > tfoot > tr.active > td, .table > thead > tr.active > th, .table > tbody > tr.active > th, .table > tfoot > tr.active > th,
+.table > thead > tr > td.active,
+.table > tbody > tr > td.active,
+.table > tfoot > tr > td.active,
+.table > thead > tr > th.active,
+.table > tbody > tr > th.active,
+.table > tfoot > tr > th.active,
+.table > thead > tr.active > td,
+.table > tbody > tr.active > td,
+.table > tfoot > tr.active > td,
+.table > thead > tr.active > th,
+.table > tbody > tr.active > th,
+.table > tfoot > tr.active > th,
 .a3 .ui-grid-row.ui-grid-row-selected > [ui-grid-row] > .ui-grid-cell {
   background-color: #DAECF5;
 }
@@ -473,7 +492,24 @@ select {
   cursor: pointer;
 }
 
-.btn-default.disabled, .btn-default.disabled.active, .btn-default.disabled.focus, .btn-default.disabled:active, .btn-default.disabled:focus, .btn-default.disabled:hover, .btn-default[disabled], .btn-default[disabled].active, .btn-default[disabled].focus, .btn-default[disabled]:active, .btn-default[disabled]:focus, .btn-default[disabled]:hover, fieldset[disabled] .btn-default, fieldset[disabled] .btn-default.active, fieldset[disabled] .btn-default.focus, fieldset[disabled] .btn-default:active, fieldset[disabled] .btn-default:focus, fieldset[disabled] .btn-default:hover {
+.btn-default.disabled,
+.btn-default.disabled.active,
+.btn-default.disabled.focus,
+.btn-default.disabled:active,
+.btn-default.disabled:focus,
+.btn-default.disabled:hover,
+.btn-default[disabled],
+.btn-default[disabled].active,
+.btn-default[disabled].focus,
+.btn-default[disabled]:active,
+.btn-default[disabled]:focus,
+.btn-default[disabled]:hover,
+fieldset[disabled] .btn-default,
+fieldset[disabled] .btn-default.active,
+fieldset[disabled] .btn-default.focus,
+fieldset[disabled] .btn-default:active,
+fieldset[disabled] .btn-default:focus,
+fieldset[disabled] .btn-default:hover {
   opacity: 0.3;
 }
 
@@ -592,7 +628,8 @@ select {
   background-color: #E51616;
 }
 
-.table-bordered > thead > tr > td, .table-bordered > thead > tr > th {
+.table-bordered > thead > tr > td,
+.table-bordered > thead > tr > th {
   border-bottom-width: 1px;
 }
 
@@ -1018,7 +1055,7 @@ select {
 }
 
 .a3-snb-title-group {
-  width: calc(100% - 80px);
+  width: calc(100% - 46px);
   height: 28px;
 }
 
@@ -1224,20 +1261,11 @@ i.input-text {
   margin-top: 6px;
   padding-right: 0px;
   padding-left: 13px;
-  
 }
 
 .a3-navbar-header span {
   display: inline-block;
   float: left;
-  
-}
-
-.menu-span{
-  font-size: 20px !important;
-  color: white !important;
-  margin-left: 5px !important;
-  margin-top: 2px !important;
 }
 
 .a3-navbar-header .a3-navbar-simbol {
@@ -1391,7 +1419,10 @@ i.input-text {
   color: #fff;
 }
 
-.a3 .a3-navbar-header div, .a3 .a3-navbar-header span, .a3 .a3-navbar-header ul, .a3 .a3-navbar-header dl {
+.a3 .a3-navbar-header div,
+.a3 .a3-navbar-header span,
+.a3 .a3-navbar-header ul,
+.a3 .a3-navbar-header dl {
   float: left;
 }
 
@@ -1401,7 +1432,10 @@ i.input-text {
   padding-right: 6px;
 }
 
-.a3-navbar-header div, .a3-navbar-header span, .a3-navbar-header ul, .a3-navbar-header dl,
+.a3-navbar-header div,
+.a3-navbar-header span,
+.a3-navbar-header ul,
+.a3-navbar-header dl,
 .a3-navbar-function div,
 .a3-navbar-function span,
 .a3-navbar-function ul,
@@ -1629,7 +1663,9 @@ i.input-text {
   color: #000;
 }
 
-.a3-navbar-pagenation.pager a:link, .a3-navbar-pagenation.pager a:visited, .a3-navbar-pagenation.pager a:active {
+.a3-navbar-pagenation.pager a:link,
+.a3-navbar-pagenation.pager a:visited,
+.a3-navbar-pagenation.pager a:active {
   background-color: #fff;
 }
 
@@ -2910,33 +2946,28 @@ a3p-widget-container-title {
   display: flex;
 }
 
-.a3-widget-body .wqp-view-top .widget-chart-area .widget-chart-group
-.widget-faultdetail-chart {
+.a3-widget-body .wqp-view-top .widget-chart-area .widget-chart-group .widget-faultdetail-chart {
   width: calc(100% - 152px);
   height: 100%;
   margin-right: 10px;
 }
 
-.a3-widget-body .widget-chart-area .widget-chart-group
-.a3-parameter-group {
+.a3-widget-body .widget-chart-area .widget-chart-group .a3-parameter-group {
   padding-top: 10px;
 }
 
-.a3-widget-body .widget-chart-area .widget-chart-group
-.a3-parameter-group li {
+.a3-widget-body .widget-chart-area .widget-chart-group .a3-parameter-group li {
   float: left;
   width: 100%;
   line-height: 12px;
 }
 
-.a3-widget-body .widget-chart-area .widget-chart-group
-.a3-parameter-group.a3-parameter-group li label {
+.a3-widget-body .widget-chart-area .widget-chart-group .a3-parameter-group.a3-parameter-group li label {
   margin-right: 5px;
   width: 90px;
 }
 
-.a3-widget-body .widget-chart-area .widget-chart-group
-.a3-parameter-group .a3-x-axis-value {
+.a3-widget-body .widget-chart-area .widget-chart-group .a3-parameter-group .a3-x-axis-value {
   display: inline-block;
   width: 32px;
   font-weight: bold;
@@ -2956,21 +2987,18 @@ a3p-widget-container-title {
   height: 100%;
 }
 
-.a3-widget-body .widget-chart-area .a3-option-group
-.xaxis-wrapper {
+.a3-widget-body .widget-chart-area .a3-option-group .xaxis-wrapper {
   float: right;
   display: inline-block;
 }
 
-.a3-widget-body .widget-chart-area .a3-option-group
-.xaxis-wrapper .form-control {
+.a3-widget-body .widget-chart-area .a3-option-group .xaxis-wrapper .form-control {
   float: right;
   width: 80px;
   height: 24px;
 }
 
-.a3-widget-body .widget-chart-area .a3-option-group
-.xaxis-wrapper .xaxis-text {
+.a3-widget-body .widget-chart-area .a3-option-group .xaxis-wrapper .xaxis-text {
   float: right;
   margin-right: 5px;
   line-height: 24px;
@@ -2993,8 +3021,7 @@ a3p-widget-container-title {
   height: 29px;
 }
 
-.a3-widget .widget-toolbox
-.widget-icon-box:hover {
+.a3-widget .widget-toolbox .widget-icon-box:hover {
   border: 1px solid #ddd;
   background-color: #f7f6f6;
   border-radius: 2px;
@@ -3937,7 +3964,9 @@ calendar > div.week > span.day.today {
 }
 
 .a3-default .timepicker-picker .btn,
-.a3-default .bootstrap-datetimepicker-widget .timepicker-hour, .a3-default .bootstrap-datetimepicker-widget .timepicker-minute, .a3-default .bootstrap-datetimepicker-widget .timepicker-second {
+.a3-default .bootstrap-datetimepicker-widget .timepicker-hour,
+.a3-default .bootstrap-datetimepicker-widget .timepicker-minute,
+.a3-default .bootstrap-datetimepicker-widget .timepicker-second {
   border: 0px;
 }
 
@@ -4739,7 +4768,8 @@ body {
 }
 
 /* Toggle */
-.a3-pull-left, .a3-pull-right {
+.a3-pull-left,
+.a3-pull-right {
   height: 28px;
 }
 
@@ -4748,7 +4778,9 @@ body {
   display: inline-block;
 }
 
-.can-toggle *, .can-toggle *:before, .can-toggle *:after {
+.can-toggle *,
+.can-toggle *:before,
+.can-toggle *:after {
   box-sizing: border-box;
 }
 
@@ -4856,11 +4888,13 @@ body {
   color: rgba(119, 119, 119, 0.5);
 }
 
-.can-toggle input[type="checkbox"]:focus ~ label .can-toggle__switch, .can-toggle input[type="checkbox"]:hover ~ label .can-toggle__switch {
+.can-toggle input[type="checkbox"]:focus ~ label .can-toggle__switch,
+.can-toggle input[type="checkbox"]:hover ~ label .can-toggle__switch {
   background-color: #777;
 }
 
-.can-toggle input[type="checkbox"]:focus ~ label .can-toggle__switch:after, .can-toggle input[type="checkbox"]:hover ~ label .can-toggle__switch:after {
+.can-toggle input[type="checkbox"]:focus ~ label .can-toggle__switch:after,
+.can-toggle input[type="checkbox"]:hover ~ label .can-toggle__switch:after {
   color: #5e5e5e;
 }
 
@@ -4910,7 +4944,8 @@ body {
   color: #777;
 }
 
-.can-toggle input[type="checkbox"]:focus ~ label .can-toggle__switch:after, .can-toggle input[type="checkbox"]:hover ~ label .can-toggle__switch:after {
+.can-toggle input[type="checkbox"]:focus ~ label .can-toggle__switch:after,
+.can-toggle input[type="checkbox"]:hover ~ label .can-toggle__switch:after {
   box-shadow: 0 3px 3px rgba(0, 0, 0, 0.4);
 }
 
@@ -4956,7 +4991,8 @@ body {
   box-shadow: 0 3px 3px rgba(0, 0, 0, 0.4);
 }
 
-.can-toggle.can-toggle--size-small input[type="checkbox"]:focus ~ label .can-toggle__switch:after, .can-toggle.can-toggle--size-small input[type="checkbox"]:hover ~ label .can-toggle__switch:after {
+.can-toggle.can-toggle--size-small input[type="checkbox"]:focus ~ label .can-toggle__switch:after,
+.can-toggle.can-toggle--size-small input[type="checkbox"]:hover ~ label .can-toggle__switch:after {
   box-shadow: 0 2px 2px rgba(0, 0, 0, 0.4);
 }
 
@@ -5002,7 +5038,8 @@ body {
   box-shadow: 0 2px 2px rgba(0, 0, 0, 0.4);
 }
 
-.can-toggle.can-toggle--size-large input[type="checkbox"]:focus ~ label .can-toggle__switch:after, .can-toggle.can-toggle--size-large input[type="checkbox"]:hover ~ label .can-toggle__switch:after {
+.can-toggle.can-toggle--size-large input[type="checkbox"]:focus ~ label .can-toggle__switch:after,
+.can-toggle.can-toggle--size-large input[type="checkbox"]:hover ~ label .can-toggle__switch:after {
   box-shadow: 0 4px 4px rgba(0, 0, 0, 0.4);
 }
 
@@ -5052,11 +5089,13 @@ body {
   color: rgba(181, 62, 116, 0.5);
 }
 
-.can-toggle.demo-rebrand-1 input[type="checkbox"]:focus ~ label .can-toggle__switch, .can-toggle.demo-rebrand-1 input[type="checkbox"]:hover ~ label .can-toggle__switch {
+.can-toggle.demo-rebrand-1 input[type="checkbox"]:focus ~ label .can-toggle__switch,
+.can-toggle.demo-rebrand-1 input[type="checkbox"]:hover ~ label .can-toggle__switch {
   background-color: #b53e74;
 }
 
-.can-toggle.demo-rebrand-1 input[type="checkbox"]:focus ~ label .can-toggle__switch:after, .can-toggle.demo-rebrand-1 input[type="checkbox"]:hover ~ label .can-toggle__switch:after {
+.can-toggle.demo-rebrand-1 input[type="checkbox"]:focus ~ label .can-toggle__switch:after,
+.can-toggle.demo-rebrand-1 input[type="checkbox"]:hover ~ label .can-toggle__switch:after {
   color: #8f315c;
 }
 
@@ -5110,11 +5149,13 @@ body {
   color: rgba(68, 68, 68, 0.5);
 }
 
-.can-toggle.demo-rebrand-2 input[type="checkbox"]:focus ~ label .can-toggle__switch, .can-toggle.demo-rebrand-2 input[type="checkbox"]:hover ~ label .can-toggle__switch {
+.can-toggle.demo-rebrand-2 input[type="checkbox"]:focus ~ label .can-toggle__switch,
+.can-toggle.demo-rebrand-2 input[type="checkbox"]:hover ~ label .can-toggle__switch {
   background-color: #444;
 }
 
-.can-toggle.demo-rebrand-2 input[type="checkbox"]:focus ~ label .can-toggle__switch:after, .can-toggle.demo-rebrand-2 input[type="checkbox"]:hover ~ label .can-toggle__switch:after {
+.can-toggle.demo-rebrand-2 input[type="checkbox"]:focus ~ label .can-toggle__switch:after,
+.can-toggle.demo-rebrand-2 input[type="checkbox"]:hover ~ label .can-toggle__switch:after {
   color: #2b2b2b;
 }
 
@@ -5164,7 +5205,8 @@ body {
   color: #444;
 }
 
-.can-toggle.demo-rebrand-2 input[type="checkbox"]:focus ~ label .can-toggle__switch:after, .can-toggle.demo-rebrand-2 input[type="checkbox"]:hover ~ label .can-toggle__switch:after {
+.can-toggle.demo-rebrand-2 input[type="checkbox"]:focus ~ label .can-toggle__switch:after,
+.can-toggle.demo-rebrand-2 input[type="checkbox"]:hover ~ label .can-toggle__switch:after {
   box-shadow: 0 4px 4px rgba(0, 0, 0, 0.4);
 }
 
