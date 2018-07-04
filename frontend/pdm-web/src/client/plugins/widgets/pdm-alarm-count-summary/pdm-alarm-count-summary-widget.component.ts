@@ -4,6 +4,7 @@ import { WidgetApi, WidgetRefreshType, OnSetup } from '../../../common';
 import * as IDataType from './model/data-type.interface';
 
 import { AlarmCountSummaryComponent } from './components/alarm-count-summary.component';
+import { ITimePeriod } from '../../common/widget-chart-condition/widget-chart-condition.component';
 
 @Component({
     moduleId: module.id,
@@ -15,10 +16,12 @@ export class PdmAlarmCountSummaryWidgetComponent extends WidgetApi implements On
     @ViewChild('container') container: ElementRef;
     @ViewChild('alarmCountSummaryComp') alarmCountSummaryComp: AlarmCountSummaryComponent;
 
-    viewTimePriod: any = {
+    viewTimePriod: ITimePeriod = {
         fromDate: 0,
         toDate: 0
     };
+    
+    private targetName: string = 'All Lines';
 
     condition: IDataType.ContitionType;
 
@@ -70,8 +73,10 @@ export class PdmAlarmCountSummaryWidgetComponent extends WidgetApi implements On
             }
         };
 
-        this.viewTimePriod.fromDate = this.covertDateFormatter(props[CD.TIME_PERIOD]['from']);
-        this.viewTimePriod.toDate = this.covertDateFormatter(to);
+        // this.viewTimePriod.fromDate = this.covertDateFormatter(props[CD.TIME_PERIOD]['from']);
+        // this.viewTimePriod.toDate = this.covertDateFormatter(to);
+        this.viewTimePriod.fromDate = props[CD.TIME_PERIOD]['from'];
+        this.viewTimePriod.toDate = to.getTime();
     }
 
     covertDateFormatter(timestamp: Date): string {

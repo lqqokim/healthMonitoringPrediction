@@ -1,5 +1,5 @@
 // Angular Imports
-import { NgModule } from '@angular/core';
+import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
 import { A3_CommonModule } from '../../../common';
 import { BISTEL_SDKModule } from '../../../sdk/sdk.module';
@@ -13,19 +13,22 @@ import { ViewConfig } from './config/view.config';
 
 import { PdmAlarmCountSummaryWidgetComponent } from './pdm-alarm-count-summary-widget.component';
 import { AlarmCountSummaryComponent } from './components/alarm-count-summary.component';
+import { PluginCommonModule } from '../../common/plugins.common.module';
 
 @NgModule({
     imports: [
         A3_CommonModule,
-        BISTEL_SDKModule
+        BISTEL_SDKModule,
+        PluginCommonModule
     ],
     declarations: [
         PdmAlarmCountSummaryWidgetComponent,
-        AlarmCountSummaryComponent
+        AlarmCountSummaryComponent,
     ],
     exports: [
         PdmAlarmCountSummaryWidgetComponent
-    ]
+    ],
+    // schemas: [ CUSTOM_ELEMENTS_SCHEMA ]
 })
 export class PdmAlarmCountSummaryWidgetModule {
     static config(): any {

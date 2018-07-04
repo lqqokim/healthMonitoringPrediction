@@ -4,6 +4,7 @@ import { WidgetApi, WidgetRefreshType, OnSetup } from '../../../common';
 import * as IDataType from './model/data-type.interface';
 
 import { LineStatusTrendComponent } from './components/line-status-trend.component';
+import { ITimePeriod } from '../../common/widget-chart-condition/widget-chart-condition.component';
 
 @Component({
     moduleId: module.id,
@@ -15,10 +16,12 @@ export class PdmLineStatusTrendWidgetComponent extends WidgetApi implements OnIn
     @ViewChild('container') container: ElementRef;
     @ViewChild('lineStatusTrendComp') lineStatusTrendComp: LineStatusTrendComponent;
     
-    viewTimePriod: any = {
-        fromDate: 0,
-        toDate: 0
+    private viewTimePriod: ITimePeriod = {
+        fromDate : 0,
+        toDate : 0
     };
+
+    private targetName: string = 'All Lines';
 
     condition: IDataType.ContitionType;
 
@@ -70,8 +73,10 @@ export class PdmLineStatusTrendWidgetComponent extends WidgetApi implements OnIn
             }
         };
 
-        this.viewTimePriod.fromDate = this.covertDateFormatter(props[CD.TIME_PERIOD]['from']);
-        this.viewTimePriod.toDate = this.covertDateFormatter(to);
+        // this.viewTimePriod.fromDate = this.covertDateFormatter(props[CD.TIME_PERIOD]['from']);
+        // this.viewTimePriod.toDate = this.covertDateFormatter(to);
+        this.viewTimePriod.fromDate = props[CD.TIME_PERIOD]['from'];
+        this.viewTimePriod.toDate = to;
     }
 
     covertDateFormatter(timestamp: number): string {

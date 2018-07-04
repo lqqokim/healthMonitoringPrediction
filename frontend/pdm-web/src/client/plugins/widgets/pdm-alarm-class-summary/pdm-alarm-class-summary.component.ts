@@ -4,11 +4,7 @@ import { Translater } from '../../../sdk';
 import { PdmWostEqpListService } from './pdm-alarm-class-summary.service';
 import { PdmCommonService } from '../../../common/service/pdm-common.service';
 import { IDonutChartData, IColorSet } from '../../common/donut-chart/donutChart.component';
-
-export interface ITimePeriod {
-    start: number;
-    end: number;
-};
+import { ITimePeriod } from '../../common/widget-chart-condition/widget-chart-condition.component';
 
 @Component({
     moduleId: module.id,
@@ -22,9 +18,11 @@ export interface ITimePeriod {
 export class PdmAlarmClassSummaryComponent extends WidgetApi implements OnSetup, OnDestroy, AfterViewInit {
 
     private timePeriod: ITimePeriod = {
-        start : 1532044800000, // new Date(2018, 6, 20, 09, 0, 0, 0).getTime(),
-        end : 1532077200000 // new Date(2018, 6, 20, 18, 0, 0, 0).getTime()
+        fromDate : 1532044800000, // new Date(2018, 6, 20, 09, 0, 0, 0).getTime(),
+        toDate : 1532077200000 // new Date(2018, 6, 20, 18, 0, 0, 0).getTime()
     };
+
+    private targetName: string = 'All Lines';
 
     private chartColor: Array<IColorSet> = [
         {name:'Unblance', color:'#4472c4' },
@@ -68,13 +66,6 @@ export class PdmAlarmClassSummaryComponent extends WidgetApi implements OnSetup,
             this.chartData = this.chartData2;
             console.log('바꿈', this.chartData );
         }, 10000);
-    }
-
-    viewTimeperiod(): string {
-        return (
-            moment(this.timePeriod.start).add(-1, 'months').format('YYYY-MM-DD HH:mm') +' ~ '+
-            moment(this.timePeriod.end).add(-1, 'months').format('YYYY-MM-DD HH:mm')
-        );
     }
 
     /**
