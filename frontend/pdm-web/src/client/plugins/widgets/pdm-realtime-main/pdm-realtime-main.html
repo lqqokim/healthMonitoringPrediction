@@ -1,0 +1,88 @@
+<div class="pdm-realtime-main">
+    <!-- <h3 class="panel-title">EQP Trend chart</h3> -->
+    <!-- <div class="fab-label">
+        <label for="normalizeType">Nomalize Type</label>
+        <select class="form-control" [(ngModel)]="selectedNormalizeType" (ngModelChange)="onNormalizeTypeChange($event)">
+            <option *ngFor="let type of normalizeType" [ngValue]="type" [selected]="type.value === selectedNormalizeType.value">{{type.label}}</option>
+        </select>
+    </div> -->
+    <div class="text-info">
+        <table>
+            <tr>
+                <td class="healthindex">
+                    <h3>Health Index:
+                        <span class="label " [ngClass]="{'label-danger':healthIndex>=100,'label-info':healthIndex<100}">{{healthIndex}}</span>
+                    </h3>
+                </td>
+                <td class="alarm">
+                    <h3># of Today's Alarm:
+                        <span class="label label-danger">0</span>
+                    </h3>
+                </td>
+                <td class="classification">
+                    <h3>Fault Classification of the last alarm:
+                        <span class="label label-danger">Unbalance</span>
+                    </h3>
+                </td>
+                <td class="rul">
+                    <h3>RUL:
+                        <span class="label label-info">30+ days</span>
+                    </h3>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="realtime-info">
+        <realtime-main-param-trend [condition]="condition" (showContext)="showContext($event)" (showParamContext)="showParamContext($event)"
+            (changeRefresh)="changeRefresh($event)" (progress)="progress($event);" (selectParam)="onSelectParam($event)" (receiveData)="onReceiveData($event)">
+        </realtime-main-param-trend>
+
+    </div>
+    <div class="alarm-fault-info">
+        <div class="col-sm-6 height-100">
+            Alarm History
+            <table>
+                <thead>
+                    <th>#</th>
+                    <th>Time</th>
+                    <th>Eqp</th>
+                    <th>Param</th>
+                    <th>Category</th>
+                    <th>Fault Classification</th>
+                </thead>
+
+                <tbody>
+                    <tr *ngFor="let item of alarmHistories;let i=index">
+                        <td>{{i}}</td>
+                        <td>{{dateFormat(item.date)}}</td>
+                        <td>{{item.eqpName}}</td>
+                        <td>{{item.paramName}}</td>
+                        <td>{{item.category}}</td>
+                        <td>{{item.faultClassification}}</td>
+
+                    </tr>
+                </tbody>
+            </table>
+
+        </div>
+        <div class="col-sm-6  height-100">
+            <div class="fault-classification">
+                Fault Classification
+                <div class="chart">
+                    <a3c-bistel-chart [data]="spectrumData" [config]="spectrumConfig" style="width: 100%;" class="chart-body">
+                    </a3c-bistel-chart>
+                </div>
+            </div>
+            <div class="fault-prediction">
+                Fault Prediction
+                <div class="chart">
+                    <a3c-bistel-chart #trendChartPlot [data]="trendData" [config]="trendConfig" [eventLines]="trendEventLines" [chartEvents]="trendEventConfig"
+                        style="width: 100%;" class="chart-body">
+                    </a3c-bistel-chart>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>

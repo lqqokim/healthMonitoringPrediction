@@ -65,11 +65,13 @@ export class donutChartComponent implements OnInit, OnChanges, OnDestroy {
     private svgTextGroup: any;
     private svgArcPaths: Array<any> = [];
     private svgLabels: Array<any> = [];
-    private donutWidth: number = 0.25;       // 도넛 두께 (0 ~ 1)
+    private donutWidth: number = 0.25;          // 도넛 두께 (0 ~ 1) 단위:%
+    private donutMinWidth: number = 50;         // 최소 도넛 두께 (단위:px)
     private drawChartData: Array<IDonutDrawData> = [];
 
     private widgetSize: Size = {w: 0, h: 0};
     private centerPosition: Position = {x: 0, y: 0};
+
 
     // 차트 데이터 기준으로 다시그리기 (true: 다시그림 / false:기존데이터 기준으로 그림)
     private reDraw: boolean = true;
@@ -77,7 +79,7 @@ export class donutChartComponent implements OnInit, OnChanges, OnDestroy {
     // 라벨 위치 설정 (bottom:아래 / right:오른쪽) - 설정된 위치의 숫자값은 (bottom기준: 위 1/4, 아래 3/4 비율로 설정)
     private labelsPosition: string = 'bottom';
     private labelModes: any = {
-        right: 150,
+        right: 70,
         bottom: 70
     };
     private labelModeMargin:number;
@@ -183,11 +185,8 @@ export class donutChartComponent implements OnInit, OnChanges, OnDestroy {
             .attr('height', this.widgetSize.h)
         ;
 
-        this.centerPosition.x = (w*0.5) - (this.labelsPosition == 'right' ? (this.labelModeMargin*0.25) : 0);
+        this.centerPosition.x = (w*0.5) - (this.labelsPosition == 'right' ? (this.labelModeMargin) : 0);
         this.centerPosition.y = (h*0.5) - (this.labelsPosition == 'bottom' ? (this.labelModeMargin*0.25) : 0);
-
-        // 원형 그릴 중심 축 설정
-        this.svgBaseGroup.attr('transform', `translate(${this.centerPosition.x}, ${this.centerPosition.y})`);
 
         this.onDraw();
     }
@@ -247,13 +246,19 @@ export class donutChartComponent implements OnInit, OnChanges, OnDestroy {
         const fontSizeMin: number = 12;
         const fontSizeMax: number = 16;
 
-        // 안쪽, 바깥쪽 반지름 설정
-        const innerRadius: number = radius - (radius * this.donutWidth);
+        // 바깥쪽, 안쪽 반지름 설정
         const outerRadius: number = radius;
-        const middleRadius: number = innerRadius + (outerRadius - innerRadius) * 0.5;
+        let innerRadius: number = radius - (radius * this.donutWidth);
+        let middleRadius: number = innerRadius + (outerRadius - innerRadius) * 0.5;
 
         // 도형 여백 각도
         const pathMarginAngle: number = 0.35;
+
+        // 최소 도넛 두께 조절
+        if( outerRadius-innerRadius < this.donutMinWidth ){
+            innerRadius = radius - this.donutMinWidth;
+            middleRadius = innerRadius + (outerRadius - innerRadius) * 0.5;
+        }
 
         // 폰트 최소 크기 보다 작으면 최소 지정된 크기로 돌림
         if( fontSize < fontSizeMin ){
@@ -261,6 +266,19 @@ export class donutChartComponent implements OnInit, OnChanges, OnDestroy {
         } else if ( fontSize > fontSizeMax ){
             fontSize = fontSizeMax;
         }
+
+        // 도넛이 왼쪽으로 나갈 경우
+        if( this.centerPosition.x - radius < 0 ){
+            this.centerPosition.x = radius;
+        }
+
+        // 도넛이 위로으로 나갈 경우
+        if( this.centerPosition.y - radius < 0 ){
+            this.centerPosition.y = radius;
+        }
+
+        // 원형 그릴 중심 축 설정
+        this.svgBaseGroup.attr('transform', `translate(${this.centerPosition.x}, ${this.centerPosition.y})`);
 
         let
             i: number,
