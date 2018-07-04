@@ -1,0 +1,15 @@
+/* PDM Radar Widget info */
+.prediction-chart{
+	width:100%;
+	height:100%;
+}
+.prediction-chart.radar-layer .info dt,
+.prediction-chart.radar-layer .info dd{
+	display: inline-block;
+}
+.prediction-chart.radar-layer .info:first-child dt{
+	margin-left: 10px;
+}
+.prediction-chart.radar-layer .info dd{
+	margin-right: 5px;
+}

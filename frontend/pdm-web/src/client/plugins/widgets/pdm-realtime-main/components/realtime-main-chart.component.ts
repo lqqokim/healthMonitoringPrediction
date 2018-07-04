@@ -202,11 +202,11 @@ export class RealtimeMainChartComponent implements OnInit, OnChanges, OnDestroy,
             .enter()
             .append("svg:circle")
             .attr("class", 'point')
-            .attr("r", (d) => { if (d[1] > this.alarmSpec) { return 6 } else { return 2 } })
+            .attr("r", (d) => { if (d[1] >= this.alarmSpec) { return 6 } else if(d[1]>=this.warningSpec){ return 4 } else { return 2 } })
             .attr("cx", (d) => { return this.xScale(d[0]) })
             .attr("cy", (d) => { return this.yScale(d[1]) })
             .attr('fill', (d) => {
-                if (d[1] > this.alarmSpec) { return 'red' } else { return 'blue' }
+                if (d[1] >= this.alarmSpec) { return 'red' } else if(d[1]>=this.warningSpec){ return 'orange'} else { return 'blue' }
             })
             // .attr("cx", function(d, i) {return xScale(d.date)} )
             // .attr("cy", function(d,i) {return xScaye(d.value)})

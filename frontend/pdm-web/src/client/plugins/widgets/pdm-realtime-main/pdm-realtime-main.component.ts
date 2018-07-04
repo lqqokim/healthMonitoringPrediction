@@ -39,9 +39,15 @@ export class PdmRealTimeMainComponent extends WidgetApi implements OnSetup, OnDe
     selectParam;
 
     period = 10*60*1000;
-    rootcause="";
+    rootcause="none";
+    alarmCount=0;
+    type="normal";
 
     healthIndex=0;
+    fabId;
+    paramId;
+    fromDate;
+    toDate;
     
     constructor(
         private notify: NotifyService,
@@ -338,7 +344,7 @@ export class PdmRealTimeMainComponent extends WidgetApi implements OnSetup, OnDe
         // this.showSpinner();
         let calls = [];
 
-        this.spectrumData = [];
+        // this.spectrumData = [];
 
         this.spectrumConfig['series'] = [];
 
@@ -352,7 +358,7 @@ export class PdmRealTimeMainComponent extends WidgetApi implements OnSetup, OnDe
        
         calls.push(this._pdmCommonService.getAnalysis(this.selectParam.fabId,1,1,  measurementId).then(data => {
             //this.spectrumData = [data];
-            this.rootcause = '';
+            this.rootcause = 'none';
             if (data.causes.length > 0) {
                 for (let i = 0; i < data.causes.length; i++) {
                     this.rootcause += ', [ ' + data.causes[i] + ' ]';
@@ -362,6 +368,11 @@ export class PdmRealTimeMainComponent extends WidgetApi implements OnSetup, OnDe
                     this.rootcause = this.rootcause.substring(2);
                 }
                 // this.multiComboCheckedItemsChanged(null);
+                if(this.rootcause.indexOf('Misalignment')>=0){
+                    this.rootcause = "Misalignment";
+                }else if(this.rootcause.indexOf('Unbalance')>=0){
+                    this.rootcause = "Unbalance";
+                }
             }
         }));
 
@@ -378,14 +389,26 @@ export class PdmRealTimeMainComponent extends WidgetApi implements OnSetup, OnDe
         console.log(event);
         this.healthIndex =0;
         let value =0;
+        this.type="normal";
         for(let i =0;i<event.datas.length;i++){
             value = event.datas[i][1]/event.alarm_spec*100;
             if(value>this.healthIndex){
                 this.healthIndex = value;
                 this.healthIndex = Math.round(this.healthIndex);
+                if(value>=event.alarm_spec){
+                    this.type="alarm";
+                }else if(value>=event.warning_spec){
+                    this.type="warning";
+                }
             }
         }
         this.getMeasurement();
+
+
+        this.fabId = this.selectParam.fabId;
+        this.paramId = this.selectParam.parameters[0];
+        this.toDate = new Date().getTime();
+        this.fromDate = new Date(moment( new Date().getTime()).format('YYYY/MM/DD 00:00:00')).getTime();
     }
 }
 

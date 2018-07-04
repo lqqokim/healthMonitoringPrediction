@@ -81,3 +81,14 @@
 .pdm-realtime-main .alarm-fault-info table th{ background: #D5E0CC; }
 .pdm-realtime-main .alarm-fault-info table td{ background: #fff; }
 
+
+
+.pdm-realtime-main .label-danger,.pdm-realtime-main .label-warning {
+    animation: blinker 1s linear infinite;
+  }
+  
+  @keyframes blinker {
+    50% {
+      opacity: 0;
+    }
+  }

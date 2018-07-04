@@ -15,10 +15,10 @@ import { ViewConfig } from './config/view.config';
 
 import { PdmRealTimeMainComponent } from './pdm-realtime-main.component';
 import { RealtimeMainParamTrendComponent } from './components/realtime-main-param-trend.component';
-
 import { RealtimeMainChartComponent } from './components/realtime-main-chart.component';
-
+import { PredictionChartComponent } from './components/prediction-chart/prediction-chart.component';
 import { AngularSplitModule } from 'angular-split';
+
 
 @NgModule({
     imports: [
@@ -30,10 +30,12 @@ import { AngularSplitModule } from 'angular-split';
     declarations: [
         PdmRealTimeMainComponent,
         RealtimeMainParamTrendComponent,
-        RealtimeMainChartComponent
+        RealtimeMainChartComponent,
+        PredictionChartComponent
     ],
     exports: [
-        PdmRealTimeMainComponent
+        PdmRealTimeMainComponent,
+        PredictionChartComponent
     ]
 })
 export class PdmRealTimeMainModule {
