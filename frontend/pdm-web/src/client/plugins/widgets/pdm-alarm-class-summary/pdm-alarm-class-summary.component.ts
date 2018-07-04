@@ -3,7 +3,7 @@ import { WidgetRefreshType, WidgetApi, OnSetup } from '../../../common';
 import { Translater } from '../../../sdk';
 import { PdmWostEqpListService } from './pdm-alarm-class-summary.service';
 import { PdmCommonService } from '../../../common/service/pdm-common.service';
-import { IDonutChartData, IColorSet } from './components/donutChart.component';
+import { IDonutChartData, IColorSet } from '../../common/donut-chart/donutChart.component';
 
 export interface ITimePeriod {
     start: number;

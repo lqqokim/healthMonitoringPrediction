@@ -6,7 +6,7 @@ import { BISTEL_SDKModule } from '../../../sdk/sdk.module';
 
 // This Module's Components
 import { PdmAlarmClassSummaryComponent } from './pdm-alarm-class-summary.component';
-import { donutChartComponent } from './components/donutChart.component';
+import { donutChartComponent } from '../../common/donut-chart/donutChart.component';
 
 @NgModule({
     imports: [
