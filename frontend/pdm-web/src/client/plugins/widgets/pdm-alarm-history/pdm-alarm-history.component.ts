@@ -3,7 +3,7 @@ import { WidgetRefreshType, WidgetApi, OnSetup } from '../../../common';
 import { Translater } from '../../../sdk';
 import { PdmAlarmHistoryService } from './pdm-alarm-history.service';
 import { PdmCommonService } from '../../../common/service/pdm-common.service';
-import { TableData } from './components/table.component';
+import { TableData } from '../../common/ng2-table/table.component';
 
 export interface ITimePeriod {
     start: number;

@@ -7,8 +7,10 @@ import { BISTEL_SDKModule } from '../../../sdk/sdk.module';
 
 // This Module's Components
 import { PdmAlarmHistoryComponent } from './pdm-alarm-history.component';
+
+//* ng2-table 사용을 위한 모듈 로드
 import { Ng2TableModule } from 'ng2-table/ng2-table';
-import { TableComponent } from './components/table.component';
+import { TableComponent } from '../../common/ng2-table/table.component';
 
 @NgModule({
     imports: [

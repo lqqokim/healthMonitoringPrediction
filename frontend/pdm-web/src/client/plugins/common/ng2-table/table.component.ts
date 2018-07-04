@@ -75,6 +75,7 @@ export class TableComponent implements OnInit, OnChanges, OnDestroy {
         this.onChangeTable( this.config );
     }
 
+    //* 초기 설정
     ngOnInit() {
         this.length = this.data.length;
         this.pager = new PaginationHelper( this.length, this.page, this.itemsPerPage, this.pageChange.bind(this) );
@@ -186,6 +187,6 @@ export class TableComponent implements OnInit, OnChanges, OnDestroy {
     
     //* 테이블 셀 클릭 이벤트
     public onCellClick(data: any): any {
-        console.log(data);
+        // console.log(data);
     }
 }
