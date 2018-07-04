@@ -372,6 +372,8 @@ export class PdmRealTimeMainComponent extends WidgetApi implements OnSetup, OnDe
                     this.rootcause = "Misalignment";
                 }else if(this.rootcause.indexOf('Unbalance')>=0){
                     this.rootcause = "Unbalance";
+                }else if(this.rootcause.indexOf('Lubrication')>=0){
+                    this.rootcause ="Lubrication";
                 }
             }
         }));

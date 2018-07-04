@@ -1,6 +1,6 @@
 <div class='realtimeparamtrend'>
     <split direction="horizontal" [gutterSize]="5">
-        <split-area size="20">
+        <split-area size="15" class="tree-condition">
 
             <div class="tree-div">
                 <fab-area-eqp-param-tree #tree></fab-area-eqp-param-tree>
@@ -9,7 +9,7 @@
 
         </split-area>
 
-        <split-area size="80">
+        <split-area size="85">
             <div  [ngClass]="{'trend-chart-heightfull':paramDatas.length==1,'trend-chart':paramDatas.length>1}"  *ngFor="let awData of paramDatas; let i = index;" #AWChart>
                 <div class="chart-title">
                     <label>EQP Name:{{awData.eqpName}} Parameter Name:{{awData.paramName}}</label>

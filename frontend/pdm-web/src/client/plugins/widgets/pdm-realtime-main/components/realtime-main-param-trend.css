@@ -22,6 +22,9 @@
     border: solid 1px lightgray;
     margin-bottom: 10px;
 }
+.realtimeparamtrend .tree-condition{
+    padding:5px;
+}
 
 .realtimeparamtrend .chart-container{
     height: 100%;
