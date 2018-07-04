@@ -30,6 +30,8 @@ public class RealTimeParamSocketController {
 	public static HashMap<Long,List<List<String>>> monitoringParamAndReplySubjects = new HashMap<>();
 	public static HashMap<Long,List<Object>> monitoringParamLastUpdateDate = new HashMap<>(); //key:paramId value;[Date,FabId]
 
+	public static HashMap<Long,Float> paramIdLastValue = new HashMap<>();
+
 	@Autowired
 	private SimpMessagingTemplate messagingTemplate;
 
@@ -96,23 +98,16 @@ public class RealTimeParamSocketController {
 			Date toDate = new Date();
 
 			//real
-			List<List<Object>> datas = getParamData(fabId,paramId,fromDate,toDate);
-
-			List<Object>  info = monitoringParamLastUpdateDate.get(paramId);
-			info.set(0,toDate);
-
-
-
-//			//demo
-//			Long datetime = new Date().getTime();
-//			List<List<Object>> datas = new ArrayList<>();
-//			for (int i = 0; i < 3; i++) {
-//				List<Object> data = new ArrayList<>();
-//				data.add(datetime + i * 100);
-//				data.add(rand.nextFloat());
+//			List<List<Object>> datas = getParamData(fabId,paramId,fromDate,toDate);
 //
-//				datas.add(data);
-//			}
+//			List<Object>  info = monitoringParamLastUpdateDate.get(paramId);
+//			info.set(0,toDate);
+
+
+
+			//demo
+			List<List<Object>> datas = getDemoData(paramId);
+
 
 
 
@@ -120,6 +115,38 @@ public class RealTimeParamSocketController {
 		}
 	}
 
+	private List<List<Object>> getDemoData(Long paramId) {
+		Float lastValue = 0f;
+		if(paramIdLastValue.containsKey(paramId)){
+			lastValue = paramIdLastValue.get(paramId);
+		}
+		Long datetime = new Date().getTime();
+		List<List<Object>> datas = new ArrayList<>();
+		for (int i = 0; i < 3; i++) {
+			List<Object> data = new ArrayList<>();
+			data.add(datetime + i * 100);
+			float  value = 0;
+			value = (float) (lastValue + randomRange(-10,10)/10.0);
+			value = Math.max(value,0);
+			value = Math.min(value,12);
+			lastValue = value;
+
+			data.add(value);
+
+			datas.add(data);
+		}
+
+		if(paramIdLastValue.containsKey(paramId)){
+			paramIdLastValue.replace(paramId,Float.valueOf( datas.get(datas.size()-1).get(1).toString()));
+		}else{
+			paramIdLastValue.put(paramId,Float.valueOf( datas.get(datas.size()-1).get(1).toString()));
+		}
+		return datas;
+	}
+
+	private int randomRange(int min,int max){
+		return (int)((Math.random()*(max-min+1))+min);
+	}
 	private List<List<Object>> getParamData(String fabId,Long paramId, Date fromDate, Date toDate) {
 		return traceDataService.getTraceData(fabId,paramId,fromDate.getTime(),toDate.getTime());
 	}

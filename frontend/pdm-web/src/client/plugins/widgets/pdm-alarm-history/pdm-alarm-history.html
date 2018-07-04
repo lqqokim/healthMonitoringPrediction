@@ -1,0 +1,20 @@
+<div class="widget widget-pdm-alarm-history">
+    <div info>
+        <dl>
+            <dt>target</dt>
+            <dd>1 Line</dd>
+        </dl>
+        <dl>
+            <dt>Time Period</dt>
+            <dd>{{viewTimeperiod()}}</dd>
+        </dl>
+    </div>
+
+    <div table>
+        <table
+            [columns]="columns"
+            [data]="data"
+            [paging]="paging"
+        ></table>
+    </div>
+</div>
