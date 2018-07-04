@@ -1,0 +1,3 @@
+status-change { display:block; width:100%; user-select:none; }
+status-change > canvas { display:block; }
+status-change > .sc-infoBox { position:absolute; top:20px; bottom:0; min-width:150px; display:flex; flex-direction:row; justify-content:center; align-items:center; color:#fff; font-size:12px; text-align:center; user-select:none; pointer-events:none; box-shadow:0 1px 2px rgba(0,0,0,0.2); opacity:0.8; border:1px solid #000; }

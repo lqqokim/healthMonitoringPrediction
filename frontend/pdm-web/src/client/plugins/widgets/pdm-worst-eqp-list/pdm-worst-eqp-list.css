@@ -13,12 +13,13 @@ pdm-worst-eqp-list [info] > ol > li { float:left; position:relative; padding:0 1
 pdm-worst-eqp-list [info] > ol > li > i { display:block; position:absolute; left:0; top:0; bottom:0; width:13px; height:13px; margin:auto 0; border-radius:100%; }
 
 /* list */
-pdm-worst-eqp-list [list] { margin-top:10px; }
+pdm-worst-eqp-list .widget-pdm-worst-eqp-list { position:relative; }
+pdm-worst-eqp-list [list] { position:absolute; left:0; right:0; top:35px; bottom:0; overflow-y:auto; overflow-x:hidden; }
 pdm-worst-eqp-list [list] > div > ul { display:table; width:100%; border-spacing:0; }
 pdm-worst-eqp-list [list] > div > ul > li { display:table-cell; vertical-align:middle; text-align:center; height:30px; line-height:1; }
 pdm-worst-eqp-list [list] > div > ul > li[num] { width:60px; }
 pdm-worst-eqp-list [list] > div > ul > li[equi] { width:100px; }
-pdm-worst-eqp-list [list] > div > ul > li[score] { width:100px; }
+pdm-worst-eqp-list [list] > div > ul > li[score] { width:80px; }
 pdm-worst-eqp-list [list] > div > ul > li[status] { width:auto; }
 
 pdm-worst-eqp-list [list] > div[head] > ul { background:#eee; border-bottom:1px solid #ccc; }
@@ -28,4 +29,3 @@ pdm-worst-eqp-list [list] > div[cont] > ul { border-bottom:1px solid #eee; }
 pdm-worst-eqp-list [list] > div[cont] > ul:hover { background:#fafafa; }
 pdm-worst-eqp-list [list] > div[cont] > ul > li { height:60px; color:#333; }
 pdm-worst-eqp-list [list] > div[cont] > ul > li[status] { position:relative; }
-pdm-worst-eqp-list [list] > div[cont] > ul > li[status] > status-change { display:block; position:absolute; left:0; top:0; right:0; bottom:0; user-select:none; }
