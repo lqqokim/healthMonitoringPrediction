@@ -10,9 +10,6 @@ import java.util.Date;
 
 import static java.util.Objects.requireNonNull;
 
-/**
- * Created by daniel on 03.07.17.
- */
 public class EqualityListener extends RuleBaseListener {
 
     private final PrimaryExpressions primaryExpressions;

@@ -5,9 +5,6 @@ import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
 
-/**
- * Created by daniel on 04.07.17.
- */
 public class RuleErrorListener extends BaseErrorListener {
 
     private String rule;

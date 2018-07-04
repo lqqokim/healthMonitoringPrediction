@@ -44,43 +44,49 @@ public class StatusContextProcessor extends AbstractProcessor<String, byte[]> {
             return;
         }
 
-        double paramValue = Double.parseDouble(recordColumns[event.getParamParseIndex()]);
-        log.debug("[{}] - define status using {} parameter. ({}, {})", partitionKey,
-                event.getParameterName(), paramValue, event.getCondition());
+        try {
+            double paramValue = Double.parseDouble(recordColumns[event.getParamParseIndex()]);
+            paramValue = paramValue * 1000000;
 
-        RuleVariables ruleVariables = new RuleVariables();
-        ruleVariables.putValue("value", paramValue);
-        RuleEvaluator ruleEvaluator = new RuleEvaluator(ruleVariables);
-        boolean isRun = ruleEvaluator.evaluate(event.getCondition());
+            log.debug("[{}] - define status using {} parameter. ({}, {})", partitionKey,
+                    event.getParameterName(), paramValue, event.getCondition());
 
-        String statusCode;
-        if (isRun) {
-            statusCode = "R";
-        } else {
-            statusCode = "I";
-        }
+            RuleVariables ruleVariables = new RuleVariables();
+            ruleVariables.putValue("value", paramValue);
+            RuleEvaluator ruleEvaluator = new RuleEvaluator(ruleVariables);
+            boolean isRun = ruleEvaluator.evaluate(event.getCondition());
 
-        //------
-        Long actualParamTime = parseStringToTimestamp(recordColumns[0]);
-        String nowStatusInfo = statusCode + ":" + actualParamTime;
-        String prevStatusInfo;
+            String statusCode;
+            if (isRun) {
+                statusCode = "R";
+            } else {
+                statusCode = "I";
+            }
 
-        if (kvStore.get(partitionKey) == null) {
+            //------
+            Long actualParamTime = parseStringToTimestamp(recordColumns[0]);
+            String nowStatusInfo = statusCode + ":" + actualParamTime;
+            String prevStatusInfo;
+
+            if (kvStore.get(partitionKey) == null) {
+                kvStore.put(partitionKey, nowStatusInfo);
+                prevStatusInfo = nowStatusInfo;
+            } else {
+                prevStatusInfo = kvStore.get(partitionKey);
+            }
+
+            log.debug("[{}] - ({}, {}) ", partitionKey, nowStatusInfo, prevStatusInfo);
+
+            // add trace with status code
+            // time, p1, p2, p3, p4, ... pn,now,prev
+            recordValue = recordValue + "," + nowStatusInfo + "," + prevStatusInfo;
+            context().forward(partitionKey, recordValue.getBytes());
+            context().commit();
+
             kvStore.put(partitionKey, nowStatusInfo);
-            prevStatusInfo = nowStatusInfo;
-        } else {
-            prevStatusInfo = kvStore.get(partitionKey);
+        } catch (Exception e){
+            log.error(e.getMessage(), e);
         }
-
-        log.debug("[{}] - ({}, {}) ", partitionKey, nowStatusInfo, prevStatusInfo);
-
-        // add trace with status code
-        // time, area, eqp, p1, p2, p3, p4, ... pn,now,prev
-        recordValue = recordValue + "," + nowStatusInfo + "," + prevStatusInfo;
-        context().forward(partitionKey, recordValue.getBytes());
-        context().commit();
-
-        kvStore.put(partitionKey, nowStatusInfo);
     }
 
     private static Long parseStringToTimestamp(String item) {

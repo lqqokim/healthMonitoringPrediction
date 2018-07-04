@@ -71,9 +71,10 @@ public class SpeedTaskDef extends AbstractPipeline {
                 .addProcessor("speed03", ExtractEventProcessor::new, "speed02")
                 .addStateStore(statusContextSupplier, "speed02")
                 .addProcessor("fd01", DetectByRealTimeProcessor::new, "speed02")
-                .addSink("output-trace", this.getOutputTraceTopic(), "speed02")
+                //.addSink("output-trace", this.getOutputTraceTopic(), "speed02")
                 .addSink("output-event", this.getOutputEventTopic(), "speed03")
-                .addSink("output-fault", this.getOutputFaultTopic(), "fd01");
+                .addSink("output-fault", this.getOutputFaultTopic(), "fd01")
+                .addSink("output-raw", this.getInputTimewaveTopic(), "fd01");
 
 //        topology.addSource("input-trace", this.getInputTraceTopic())
 //                .addProcessor("speed01", FilterByMasterProcessor::new, "input-trace")
@@ -106,7 +107,8 @@ public class SpeedTaskDef extends AbstractPipeline {
         streamsConfiguration.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
         streamsConfiguration.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.ByteArray().getClass().getName());
 
-        streamsConfiguration.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+        streamsConfiguration.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, AUTO_OFFSET_RESET_CONFIG);
+
         streamsConfiguration.put(StreamsConfig.PROCESSING_GUARANTEE_CONFIG, StreamsConfig.EXACTLY_ONCE);
         streamsConfiguration.put(StreamsConfig.STATE_DIR_CONFIG, stateDir);
 

@@ -25,7 +25,7 @@ public class ExtractEventProcessor extends AbstractProcessor<String, byte[]> {
         String recordValue = new String(streamByteRecord);
         String[] recordColumns = recordValue.split(SEPARATOR);
 
-        // time, area, eqp, p1, p2, p3, p4, ... pn, status:time, prev:time
+        // time, p1, p2, p3, p4, ... pn, status:time, prev:time
         String statusCodeAndTime = recordColumns[recordColumns.length - 2];
         String[] nowStatusCodeAndTime = statusCodeAndTime.split(":");
 

@@ -49,7 +49,7 @@ public class BatchTimewaveTaskDef extends AbstractPipeline {
         topology.addSource("input-raw", this.getInputTimewaveTopic())
                 .addProcessor("filtering", FilterByMasterProcessor::new, "input-raw")
                 .addProcessor("transform", TransformTimewaveProcessor::new, "filtering")
-                .addSink("output-raw", this.getOutputTimewaveTopic());
+                .addSink("output-raw", this.getOutputTimewaveTopic(), "transform");
 
         return new KafkaStreams(topology, getStreamProperties());
     }
@@ -69,7 +69,8 @@ public class BatchTimewaveTaskDef extends AbstractPipeline {
         streamsConfiguration.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
         streamsConfiguration.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.ByteArray().getClass().getName());
 
-        streamsConfiguration.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+        streamsConfiguration.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, AUTO_OFFSET_RESET_CONFIG);
+
         streamsConfiguration.put(StreamsConfig.PROCESSING_GUARANTEE_CONFIG, StreamsConfig.EXACTLY_ONCE);
         streamsConfiguration.put(StreamsConfig.STATE_DIR_CONFIG, stateDir);
 

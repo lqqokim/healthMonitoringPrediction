@@ -4,9 +4,11 @@ public class SensorTraceData {
     public long rawid;
     public long param_mst_rawid;
     public float value;
-    public Float rpm;
-    public Float alarm_spec;
-    public Float warning_spec;
+    public Float upperAlarmSpec;
+    public Float upperWarningSpec;
+    public Float target;
+    public Float lowerAlarmSpec;
+    public Float lowerWarningSpec;
     public long event_dtts;
     public String reserved_col1;
     public String reserved_col2;
@@ -38,28 +40,44 @@ public class SensorTraceData {
         this.value = value;
     }
 
-    public Float getRpm() {
-        return rpm;
+    public Float getUpperAlarmSpec() {
+        return upperAlarmSpec;
     }
 
-    public void setRpm(Float rpm) {
-        this.rpm = rpm;
+    public void setUpperAlarmSpec(Float upperAlarmSpec) {
+        this.upperAlarmSpec = upperAlarmSpec;
     }
 
-    public Float getAlarmSpec() {
-        return alarm_spec;
+    public Float getUpperWarningSpec() {
+        return upperWarningSpec;
     }
 
-    public void setAlarmSpec(Float alarm_spec) {
-        this.alarm_spec = alarm_spec;
+    public void setUpperWarningSpec(Float upperWarningSpec) {
+        this.upperWarningSpec = upperWarningSpec;
     }
 
-    public Float getWarningSpec() {
-        return warning_spec;
+    public Float getTarget() {
+        return target;
     }
 
-    public void setWarningSpec(Float warning_spec) {
-        this.warning_spec = warning_spec;
+    public void setTarget(Float target) {
+        this.target = target;
+    }
+
+    public Float getLowerAlarmSpec() {
+        return lowerAlarmSpec;
+    }
+
+    public void setLowerAlarmSpec(Float lowerAlarmSpec) {
+        this.lowerAlarmSpec = lowerAlarmSpec;
+    }
+
+    public Float getLowerWarningSpec() {
+        return lowerWarningSpec;
+    }
+
+    public void setLowerWarningSpec(Float lowerWarningSpec) {
+        this.lowerWarningSpec = lowerWarningSpec;
     }
 
     public long getEventDtts() {

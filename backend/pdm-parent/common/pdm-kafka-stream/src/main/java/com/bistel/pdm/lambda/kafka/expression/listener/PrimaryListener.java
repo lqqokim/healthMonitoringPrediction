@@ -11,9 +11,6 @@ import java.util.function.Function;
 
 import static java.util.Objects.requireNonNull;
 
-/**
- * Created by daniel on 03.07.17.
- */
 public class PrimaryListener extends RuleBaseListener {
 
     private final PrimaryExpressions primaryExpressions;

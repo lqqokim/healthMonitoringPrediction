@@ -31,6 +31,15 @@ public abstract class AbstractPipeline implements Closeable {
     private final String routeTraceRunTopic = "pdm-route-run";
     private final String routeFeatureTopic = "pdm-route-feature";
 
+    /**
+     * What to do when there is no initial offset in Kafka or if the current offset does not exist any more on the server (e.g. because that data has been deleted):
+     * earliest: automatically reset the offset to the earliest offset
+     * latest: automatically reset the offset to the latest offset
+     * none: throw exception to the consumer if no previous offset is found for the consumer's group
+     * anything else: throw exception to the consumer.
+     */
+    protected final String AUTO_OFFSET_RESET_CONFIG = "latest";
+
     protected AbstractPipeline(String brokers, String schemaUrl, String servingAddr) {
 //        Objects.requireNonNull(config);
 //        log.info("Configuration:\n{}", ConfigUtils.prettyPrint(config));

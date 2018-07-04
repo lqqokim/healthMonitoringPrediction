@@ -26,7 +26,7 @@ public class DetectByRealTimeProcessor extends AbstractProcessor<String, byte[]>
     @Override
     public void process(String partitionKey, byte[] streamByteRecord) {
         String recordValue = new String(streamByteRecord);
-        // time, area, eqp, p1, p2, p3, p4, ... pn, status:time, prev:time
+        // time, p1, p2, p3, p4, ... pn, status:time, prev:time
         String[] recordColumns = recordValue.split(SEPARATOR);
 
         List<ParameterMasterDataSet> paramData =
@@ -37,54 +37,66 @@ public class DetectByRealTimeProcessor extends AbstractProcessor<String, byte[]>
             return;
         }
 
-        //------
+        try {
+            //------
 
-        String paramKey;
-        for (ParameterMasterDataSet param : paramData) {
-            paramKey = partitionKey + ":" + param.getParameterRawId();
+            String paramKey;
+            for (ParameterMasterDataSet param : paramData) {
 
-            ParameterHealthDataSet healthData =
-                    MasterDataCache.getInstance().getParamHealthFD01(param.getParameterRawId());
+                if(param.getParamParseIndex() == -1) continue;;
 
-            if (healthData == null) {
-                log.debug("[{}] - No health info. for parameter : {}.", partitionKey, param.getParameterName());
-                continue;
+                paramKey = partitionKey + ":" + param.getParameterRawId();
+
+                ParameterHealthDataSet healthData =
+                        MasterDataCache.getInstance().getParamHealthFD01(param.getParameterRawId());
+
+                if (healthData == null) {
+                    log.debug("[{}] - No health info. for parameter : {}.", partitionKey, param.getParameterName());
+                    continue;
+                }
+
+                float paramValue = Float.parseFloat(recordColumns[param.getParamParseIndex()]);
+
+                if ((param.getUpperAlarmSpec() != null && paramValue >= param.getUpperAlarmSpec())
+                        || (param.getLowerAlarmSpec() != null && paramValue <= param.getLowerAlarmSpec())) {
+                    // Alarm
+                    //time, param_rawid, health_rawid, vlaue, A/W
+                    String sb = String.valueOf(context().timestamp()) + "," +
+                            param.getParameterRawId() + "," +
+                            healthData.getParamHealthRawId() + ',' +
+                            paramValue + "," +
+                            "A";
+
+                    context().forward(partitionKey, sb.getBytes(), "output-fault");
+
+                    log.debug("collect the raw data because of OOC.");
+                    context().forward(partitionKey, streamByteRecord, "output-raw");
+
+                    context().commit();
+                    log.debug("[{}] - ALARM (U:{}, L:{}) - {}", paramKey,
+                            param.getUpperAlarmSpec(), param.getLowerAlarmSpec(), paramValue);
+
+                } else if ((param.getUpperWarningSpec() != null && paramValue >= param.getUpperWarningSpec())
+                        || (param.getLowerWarningSpec() != null && paramValue <= param.getLowerWarningSpec())) {
+
+                    // Warning
+                    //time, param_rawid, health_rawid, vlaue, A/W
+                    String sb = String.valueOf(context().timestamp()) + "," +
+                            param.getParameterRawId() + "," +
+                            healthData.getParamHealthRawId() + ',' +
+                            paramValue + "," +
+                            "W";
+
+                    context().forward(partitionKey, sb.getBytes(), "output-fault");
+
+                    context().commit();
+                    log.debug("[{}] - WARNING (U:{}, L:{}) - {}", paramKey,
+                            param.getUpperWarningSpec(), param.getLowerWarningSpec(), paramValue);
+
+                }
             }
-
-            float paramValue = Float.parseFloat(recordColumns[param.getParamParseIndex()]);
-
-            if ((param.getUpperAlarmSpec() != null && paramValue >= param.getUpperAlarmSpec())
-                    || (param.getLowerAlarmSpec() != null && paramValue <= param.getLowerAlarmSpec())) {
-                // Alarm
-                //time, param_rawid, health_rawid, vlaue, A/W, condition
-                String sb = String.valueOf(context().timestamp()) + "," +
-                        param.getParameterRawId() + "," +
-                        healthData.getParamHealthRawId() + ',' +
-                        paramValue + "," +
-                        "A";
-
-                context().forward(partitionKey, sb.getBytes());
-                context().commit();
-                log.debug("[{}] - ALARM (U:{}, L:{}) - {}", paramKey,
-                        param.getUpperAlarmSpec(), param.getLowerAlarmSpec(), paramValue);
-
-            } else if ((param.getUpperWarningSpec() != null && paramValue >= param.getUpperWarningSpec())
-                    || (param.getLowerWarningSpec() != null && paramValue <= param.getLowerWarningSpec())) {
-
-                // Warning
-                //time, param_rawid, health_rawid, vlaue, A/W, condition
-                String sb = String.valueOf(context().timestamp()) + "," +
-                        param.getParameterRawId() + "," +
-                        healthData.getParamHealthRawId() + ',' +
-                        paramValue + "," +
-                        "W";
-
-                context().forward(partitionKey, sb.getBytes());
-                context().commit();
-                log.debug("[{}] - WARNING (U:{}, L:{}) - {}", paramKey,
-                        param.getUpperWarningSpec(), param.getLowerWarningSpec(), paramValue);
-
-            }
+        } catch (Exception e){
+            log.error(e.getMessage(), e);
         }
     }
 }

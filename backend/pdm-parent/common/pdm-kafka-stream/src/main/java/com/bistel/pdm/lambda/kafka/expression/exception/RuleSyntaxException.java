@@ -1,8 +1,5 @@
 package com.bistel.pdm.lambda.kafka.expression.exception;
 
-/**
- * Created by daniel on 04.07.17.
- */
 public class RuleSyntaxException extends RuntimeException {
 
     private int line;

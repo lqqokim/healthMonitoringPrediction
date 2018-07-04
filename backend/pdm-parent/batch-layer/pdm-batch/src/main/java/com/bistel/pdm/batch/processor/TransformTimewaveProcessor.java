@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 /**
  *
@@ -30,76 +31,92 @@ public class TransformTimewaveProcessor extends AbstractProcessor<String, byte[]
         String[] columns = value.split(SEPARATOR);
 
         // input message :
-        // 0  : 2018-04-27 08:50:00,
-        // 1  : fab1,
-        // 2  : Demo_Area,
-        // 3  : Demo1,
-        // 4  : Fan DE1 Acceleration,
-        // 5  : 1.342991,
-        // 6  : 1.6,
-        // 7  : 0.0^0.0^0.0^0.007003599392926243^0.004083909132515738 ...,
-        // 8  : 0.07099906503812435^-0.007314464117938635^-0.043057812107598764...,
-        // 9 : 1600,
-        // 10 : 500,
-        // 11 : 0.0
+        // partition key : area,eqp
 
-        // param_mst_rawid, value, alarm_spec, warning_spec, event_dtts,
-        // frequency, timewave, freq count, max freq, rpm, rsd01~05
+        // 0      : 2018-04-27 08:50:00,
+        // 1(rms) : 1.342991,
+        // 2      : 0.0^0.0^0.0^0.007003599392926243^0.004083909132515738 ...,
+        // 3(f.c) : 1600,
+        // 4(m.f) : 500,
+        // 5(rpm) : 0.0
+        // 6(s.c) : 1.6
+        // 7      : current status
+        // 8      : prev. status
 
-        ParameterMasterDataSet param = MasterDataCache.getInstance().getParameter(partitionKey, columns[4]);
+        try {
+            List<ParameterMasterDataSet> parameterMasterDataSets =
+                    MasterDataCache.getInstance().getParamMasterDataSet().get(partitionKey);
 
-        StringBuilder sbValue = new StringBuilder();
+            for (ParameterMasterDataSet param : parameterMasterDataSets) {
 
-        if (param.getUpperAlarmSpec() == null) {
-            sbValue.append(param.getParameterRawId()).append(",")
-                    .append(columns[5]).append(",") //value
-                    .append(",") //alarm
-                    .append(",") //warning
-                    .append(parseStringToTimestamp(columns[0])).append(",")
-                    .append(columns[9]).append(",") // freq count
-                    .append(columns[10]).append(",") // max frequency
-                    .append(columns[11]).append(",") // rpm
-                    .append(columns[6]).append(",") //sampling time
-                    .append(columns[7]).append(",") //frequency blob
-                    .append(columns[8]); // timewave blob
-        } else {
-            sbValue.append(param.getParameterRawId()).append(",")
-                    .append(columns[5]).append(",") //value
-                    .append(param.getUpperAlarmSpec()).append(",") //alarm
-                    .append(param.getUpperWarningSpec()).append(",") //warning
-                    .append(parseStringToTimestamp(columns[0])).append(",")
-                    .append(columns[9]).append(",") // freq count
-                    .append(columns[10]).append(",") // max frequency
-                    .append(columns[11]).append(",") // rpm
-                    .append(columns[6]).append(",") //sampling time
-                    .append(columns[7]).append(",") //frequency blob
-                    .append(columns[8]); // timewave blob
-        }
+                if (param.getParamParseIndex() == -1) continue;
 
-        //rsd 01~05
-        if (columns.length > 12) {
-            sbValue.append(columns[12]).append(","); // e.g location
+                // param_mst_rawid, value, upper_alarm_spec, upper_warning_spec,
+                // target, lower_alarm_spec, lower_warning_spec,
+                // event_dtts,
+                // frequency, timewave, freq count, max freq, rpm,
+                // rsd01~05
+                StringBuilder sbValue = new StringBuilder();
+                if (param.getUpperAlarmSpec() == null) {
+                    sbValue.append(param.getParameterRawId()).append(",")
+                            .append(columns[param.getParamParseIndex()]).append(",") //value
+                            .append(",") //upper_alarm
+                            .append(",") //upper_warning
+                            .append(",") //target
+                            .append(",") //lower_alarm
+                            .append(",") //lower_warning
+                            .append(parseStringToTimestamp(columns[0])).append(",")
+                            .append(columns[3]).append(",") // freq count
+                            .append(columns[4]).append(",") // max frequency
+                            .append(columns[5]).append(",") // rpm
+                            .append(columns[6]).append(",") // sampling time
+                            .append(columns[2]).append(",") // frequency blob
+                            .append(""); // timewave blob
+                } else {
+                    sbValue.append(param.getParameterRawId()).append(",")
+                            .append(columns[param.getParamParseIndex()]).append(",") //value
+                            .append(param.getUpperAlarmSpec()).append(",")   //upper_alarm
+                            .append(param.getUpperWarningSpec()).append(",") //upper_warning
+                            .append(param.getTarget()).append(",")           //target
+                            .append(param.getLowerAlarmSpec()).append(",")   //lower_alarm
+                            .append(param.getLowerWarningSpec()).append(",") //lower_warning
+                            .append(parseStringToTimestamp(columns[0])).append(",")
+                            .append(columns[3]).append(",") // freq count
+                            .append(columns[4]).append(",") // max frequency
+                            .append(columns[5]).append(",") // rpm
+                            .append(columns[6]).append(",") // sampling time
+                            .append(columns[2]).append(",") // frequency blob
+                            .append(""); // timewave blob
+                }
 
-            if (columns.length > 13) {
-                sbValue.append(columns[13]).append(",");
+                //rsd 01~05
+                if (columns.length > 9) {
+                    sbValue.append(columns[9]).append(","); // e.g location
 
-                if (columns.length > 14) {
-                    sbValue.append(columns[14]).append(",");
+                    if (columns.length > 10) {
+                        sbValue.append(columns[10]).append(",");
 
-                    if (columns.length > 15) {
-                        sbValue.append(columns[15]).append(",");
+                        if (columns.length > 11) {
+                            sbValue.append(columns[11]).append(",");
 
-                        if (columns.length > 16) {
-                            sbValue.append(columns[16]).append(",");
+                            if (columns.length > 12) {
+                                sbValue.append(columns[12]).append(",");
+
+                                if (columns.length > 13) {
+                                    sbValue.append(columns[13]).append(",");
+                                }
+                            }
                         }
                     }
                 }
-            }
-        }
 
-        log.debug("[{}] - param rawid : {}", partitionKey, param.getParameterRawId());
-        context().forward(partitionKey, streamByteRecord);
-        context().commit();
+                log.debug("[{}] - parameter : {}", partitionKey, param.getParameterName());
+                context().forward(partitionKey, sbValue.toString().getBytes());
+                context().commit();
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
     }
 
     private static Long parseStringToTimestamp(String item) {
