@@ -1,3 +1,23 @@
 status-change { display:block; width:100%; user-select:none; }
 status-change > canvas { display:block; }
-status-change > .sc-infoBox { position:absolute; top:20px; bottom:0; min-width:150px; display:flex; flex-direction:row; justify-content:center; align-items:center; color:#fff; font-size:12px; text-align:center; user-select:none; pointer-events:none; box-shadow:0 1px 2px rgba(0,0,0,0.2); opacity:0.8; border:1px solid #000; }
+status-change > .sc-infoBox {
+    position: absolute;
+    top: 0;
+    left: 0;
+    padding: 5px;
+    min-width: 150px;
+    display: block;
+    color: #666;
+    font-size: 12px;
+    text-align: left;
+    user-select: none;
+    pointer-events: none;
+    box-shadow: 0 0 3px rgba(0,0,0,0.3);
+    border: 1px solid #ccc;
+    background: rgba(255,255,255,1);
+    z-index: 999;
+}
+
+status-change > .sc-infoBox i { display: inline-block; width:10px; height:10px; border-radius:100%; vertical-align:top; margin-right:5px;  }
+status-change > .sc-infoBox .currTime { font-size:13px; color:#666; letter-spacing:-0.025em; padding-bottom:5px; }
+status-change > .sc-infoBox .currName { color:#333; }

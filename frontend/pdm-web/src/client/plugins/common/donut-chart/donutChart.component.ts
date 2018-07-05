@@ -65,7 +65,7 @@ export class DonutChartComponent implements OnInit, OnChanges, OnDestroy {
     private svgTextGroup: any;
     private svgArcPaths: Array<any> = [];
     private svgLabels: Array<any> = [];
-    private donutWidth: number = 0.25;          // 도넛 두께 (0 ~ 1) 단위:%
+    private donutWidth: number = 0.45;          // 도넛 두께 (0 ~ 1) 단위:%
     private donutMinWidth: number = 50;         // 최소 도넛 두께 (단위:px)
     private drawChartData: Array<IDonutDrawData> = [];
 
