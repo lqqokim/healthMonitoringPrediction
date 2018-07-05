@@ -44,6 +44,9 @@ export class TableComponent implements OnInit, OnChanges, OnDestroy {
     //* 페이징 표기 여부 (ture:보임 / false: 숨김)
     @Input() paging: boolean;
 
+    //* 전체 필터 표기 여부 (ture:보임 / false: 숨김)
+    @Input() totalFilter: boolean;
+
     //* input() data 값에 의한 테이블 row 값
     public rows: Array<any> = [];
 
@@ -77,7 +80,11 @@ export class TableComponent implements OnInit, OnChanges, OnDestroy {
 
     //* 초기 설정
     ngOnInit() {
-        if( this.data === undefined || this.data === null ){ return; }
+       this.firstSet();
+    }
+
+    firstSet(): void {
+        // if( this.data === undefined || this.data === null ){ return; }
         
         this.length = this.data.length;
         this.pager = new PaginationHelper( this.length, this.page, this.itemsPerPage, this.pageChange.bind(this) );
@@ -93,6 +100,10 @@ export class TableComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     ngOnChanges(c: any){
+        setTimeout(()=>{
+            this.pager = null;
+            this.onChangeTable(this.config);
+        }, 100);
     }
 
     //* 테이블 페이지 변경
