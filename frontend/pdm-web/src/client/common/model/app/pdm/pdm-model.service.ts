@@ -639,21 +639,44 @@ export class PdmModelService extends ModelCommonService {
 		});
 	}
 
-	getAlaramHistory(fabId: string, areaId: string, param:{fromDate:number, toDate:number}): Promise<any> {
+	// AlaramHistory
+	getAlaramHistoryByEqpId(fabId: string, areaId: number, eqpId: string, fromDate:number, toDate:number): Promise<any> {
 		return this.GET({
-			uriPath: `pdm/fabs/${fabId}/areas/${areaId}/alarmHistory/?fromdate=${param.fromDate}&todate=${param.toDate}`
+			uriPath: `pdm/fabs/${fabId}/areas/${areaId}/eqps/${eqpId}/alarmHistoryByEqpId/?fromdate=${fromDate}&todate=${toDate}`
+		});
+	}
+	getAlaramHistoryByAreaId(fabId: string, areaId: number, fromDate:number, toDate:number): Promise<any> {
+		return this.GET({
+			uriPath: `pdm/fabs/${fabId}/areas/${areaId}/alarmHistoryByAreaId/?fromdate=${fromDate}&todate=${toDate}`
+		})
+	}
+	getAlaramHistory(fabId: string, fromDate:number, toDate:number): Promise<any> {
+		return this.GET({
+			uriPath: `pdm/fabs/${fabId}/alarmHistory/?fromdate=${fromDate}&todate=${toDate}`
 		})
 	}
 
-	getWorstEqpList(fabId: string, areaId: string, param:{fromDate:number, toDate:number}): Promise<any> {
+	// WorstEqpList
+	getWorstEqpListByAreaId(fabId: string, areaId: number, fromDate:number, toDate:number): Promise<any> {
 		return this.GET({
-			uriPath: `pdm/fabs/${fabId}/areas/${areaId}/worstEquipmentList/?fromdate=${param.fromDate}&todate=${param.toDate}`
+			uriPath: `pdm/fabs/${fabId}/areas/${areaId}/worstEquipmentListByAreaId/?fromdate=${fromDate}&todate=${toDate}`
+		})
+	}
+	getWorstEqpList(fabId: string, fromDate:number, toDate:number): Promise<any> {
+		return this.GET({
+			uriPath: `pdm/fabs/${fabId}/worstEquipmentList/?fromdate=${fromDate}&todate=${toDate}`
 		})
 	}
 
-	getAlarmClassificationSummary(fabId: string, areaId: string, param:{fromDate:number, toDate:number}): Promise<any> {
+	// AlarmClassificationSummary
+	getAlarmClassificationSummaryByAreaId(fabId: string, areaId: number, fromDate:number, toDate:number): Promise<any> {
 		return this.GET({
-			uriPath: `pdm/fabs/${fabId}/areas/${areaId}/alarmClassificationSummary/?fromdate=${param.fromDate}&todate=${param.toDate}`
+			uriPath: `pdm/fabs/${fabId}/areas/${areaId}/alarmClassificationSummaryByAreaId/?fromdate=${fromDate}&todate=${toDate}`
+		})
+	}
+	getAlarmClassificationSummary(fabId: string, fromDate:number, toDate:number): Promise<any> {
+		return this.GET({
+			uriPath: `pdm/fabs/${fabId}/alarmClassificationSummary/?fromdate=${fromDate}&todate=${toDate}`
 		})
 	}
 }
