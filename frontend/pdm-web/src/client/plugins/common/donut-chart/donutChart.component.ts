@@ -120,12 +120,15 @@ export class DonutChartComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     ngOnChanges(c: any){
+        console.log('ngOnChanges', c);
         // 차트 데이터가 바뀌면 다시 그리기
-        if( c.chartData.currentValue !== c.chartData.previousValue && !c.chartData.firstChange ){
-            this.reDraw = true;
-            this.drawDataCreate();
-            this.arcPathClear();
-            this.onResize();
+        if( c.chartData.currentValue !== c.chartData.previousValue ){
+            setTimeout(()=>{
+                this.reDraw = true;
+                this.drawDataCreate();
+                this.arcPathClear();
+                this.onResize();
+            }, 100);
         }
     }
 
