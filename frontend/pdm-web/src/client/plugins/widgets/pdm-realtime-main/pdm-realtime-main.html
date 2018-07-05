@@ -76,7 +76,13 @@
             <div class="fault-prediction">
                 Fault Prediction
                 <div class="chart">
-                    <prediction-chart [plantId]="fabId" [areaId]="1" [eqpId]="1" [paramId]="paramId" [fromDate]="fromDate" [toDate]="toDate"  ></prediction-chart>
+                    <div class="col-sm-6 height-100">
+                            <prediction-chart [plantId]="fabId" [areaId]="1" [eqpId]="1" [paramId]="paramId" [fromDate]="fromDate" [toDate]="toDate" [type]="'trend'" ></prediction-chart>
+                    </div>
+                    <div class="col-sm-6 height-100">
+                            <prediction-chart [plantId]="fabId" [areaId]="1" [eqpId]="1" [paramId]="paramId" [fromDate]="fromDate" [toDate]="toDate"  [type]="'predic'"></prediction-chart>
+                    </div>
+                    
                 </div>
             </div>
         </div>

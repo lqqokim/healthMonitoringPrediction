@@ -33,7 +33,7 @@ export class PdmRealTimeMainComponent extends WidgetApi implements OnSetup, OnDe
     private preMessageId = null;
 
     alarmHistories = [    ];
-    spectrumData: any=[[[1,1],[2,2],[3,1],[4,5]]];
+    spectrumData: any=[];
     spectrumConfig: any = {};
 
     selectParam;
@@ -397,9 +397,10 @@ export class PdmRealTimeMainComponent extends WidgetApi implements OnSetup, OnDe
             if(value>this.healthIndex){
                 this.healthIndex = value;
                 this.healthIndex = Math.round(this.healthIndex);
-                if(value>=event.alarm_spec){
+                if(event.datas[i][1]>=event.alarm_spec){
                     this.type="alarm";
-                }else if(value>=event.warning_spec){
+                    break;
+                }else if(event.datas[i][1]>=event.warning_spec){
                     this.type="warning";
                 }
             }
@@ -410,7 +411,8 @@ export class PdmRealTimeMainComponent extends WidgetApi implements OnSetup, OnDe
         this.fabId = this.selectParam.fabId;
         this.paramId = this.selectParam.parameters[0];
         this.toDate = new Date().getTime();
-        this.fromDate = new Date(moment( new Date().getTime()).format('YYYY/MM/DD 00:00:00')).getTime();
+        // this.fromDate = new Date(moment( new Date().getTime()).format('YYYY/MM/DD 00:00:00')).getTime();
+        this.fromDate = this.toDate - 7*24*60*60*1000;
     }
 }
 

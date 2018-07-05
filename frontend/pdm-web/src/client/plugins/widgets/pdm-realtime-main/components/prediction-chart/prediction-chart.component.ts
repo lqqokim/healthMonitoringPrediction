@@ -1,5 +1,5 @@
 //Angular
-import { Component, OnInit, OnChanges, Input, ViewEncapsulation ,ViewChild} from '@angular/core';
+import { Component, OnInit, OnChanges, Input, ViewEncapsulation, ViewChild } from '@angular/core';
 
 //MI
 import { PdmModelService } from './../../../../../common';
@@ -12,39 +12,40 @@ import { Translater } from '../../../../../sdk';
     selector: 'prediction-chart',
     templateUrl: 'prediction-chart.html',
     styleUrls: ['./prediction-chart.css'],
-    providers: [PdmModelService,PdmCommonService],
-    encapsulation: ViewEncapsulation.None                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+    providers: [PdmModelService, PdmCommonService],
+    encapsulation: ViewEncapsulation.None
 })
-export class PredictionChartComponent implements OnInit, OnChanges,AfterViewInit {
+export class PredictionChartComponent implements OnInit, OnChanges, AfterViewInit {
     @Input() plantId;
     @Input() areaId;
     @Input() eqpId;
     @Input() paramId;
     @Input() fromDate;
     @Input() toDate;
-    @Input() type; 
+    @Input() type;
     @Input() paramName;
     @Input() eqpName;
     @Input() value;
     @Input() warning;
-    @ViewChild("trendChartPlot") trendChartPlot:any;
+    @ViewChild("trendChartPlot") trendChartPlot: any;
 
     //ruls=[{priod:30,day:5},{priod:7,day:10},{priod:3,day:20}];
-    ruls =[];
+    ruls = [];
 
     trendConfig = {};
     trendData = [];
-    trendEventLines =[];
+    trendEventLines = [];
     isTrendChartLegend = false;
     xMin;
     xMax;
+    oldParamId;
 
     alarmSpecLabel: string;
     warningSpecLabel: string;
 
     constructor(
         private _pdmModelService: PdmModelService,
-        private _pdmCommonService:PdmCommonService,
+        private _pdmCommonService: PdmCommonService,
         private translater: Translater
     ) {
 
@@ -56,21 +57,44 @@ export class PredictionChartComponent implements OnInit, OnChanges,AfterViewInit
     }
 
     ngOnChanges(changes: any) {
+        if(this.oldParamId!=null && this.oldParamId != this.paramId){
+            this.trendConfig = this.getTrendDataConfig({});
+        }
+        this.oldParamId = this.paramId;
         this.getData();
-        
+
     }
-    ngAfterViewInit(){
+    ngAfterViewInit() {
         this.getData();
     }
-    getData(){
-        if(this.paramId!=undefined && this.paramId!=""){
+    getData() {
+        if (this.paramId != undefined && this.paramId != "") {
             // if(this.type=="warning" && this.value>=this.warning){
             // if(this.type=="alarm"){ //temp
-                this._pdmModelService.getTrendMultipleWithRUL(this.plantId,this.areaId,this.eqpId,this.paramId,this.fromDate,this.toDate).then(result=>{
-                    this.ruls= [{priod:3,day:result.day3},{priod:7,day:result.day7},{priod:14,day:result.day14}]
-                    this.trendData = [result.data];     
+            if (this.type == "trend") {
+                this._pdmModelService.getTrendMultiple(this.plantId, this.areaId, this.eqpId, this.paramId, this.fromDate, this.toDate).then(result => {
+                    this.trendData = [result];
+                    // this.trendConfig = this.getTrendDataConfig({});
                     this.getTrendSpec();
-                 })
+
+                })
+            } else {
+                this._pdmModelService.getTrendMultipleWithRUL(this.plantId, this.areaId, this.eqpId, this.paramId, this.fromDate, this.toDate).then(result => {
+                    this.ruls = [{ priod: 3, day: result.day3 }, { priod: 7, day: result.day7 }, { priod: 14, day: result.day14 }]
+
+                    this.trendData = [result.data];
+
+                    if (result.day3 == null && result.day7 == null && result.day14 == null) {
+                        this.trendConfig = this.getTrendDataConfig({});
+
+                    } else {
+                        this.trendConfig['axes']['xaxis'].min = this.toDate;
+                    }
+
+                    this.getTrendSpec();
+
+                })
+            }
             // }else{
             //     this._pdmModelService.getTrendMultiple(this.plantId,this.areaId,this.eqpId,this.paramId,this.fromDate,this.toDate).then(result=>{
             //         this.trendData = [result];     
@@ -94,7 +118,7 @@ export class PredictionChartComponent implements OnInit, OnChanges,AfterViewInit
                     fill: true,
                     fillStyle: 'rgba(255, 0, 0, .5)',
                     line: {
-                        name: `${this.alarmSpecLabel} (${spec_alarm.toFixed(2)})`,
+                        // name: `${this.alarmSpecLabel} (${spec_alarm.toFixed(2)})`,
                         show: true, // default : false
                         value: spec_alarm,
                         color: '#ff0000',
@@ -140,7 +164,7 @@ export class PredictionChartComponent implements OnInit, OnChanges,AfterViewInit
                     fill: true,
                     fillStyle: 'rgba(255, 255, 0, .5)',
                     line: {
-                        name: `${this.warningSpecLabel} (${spec_warning.toFixed(2)})`,
+                        // name: `${this.warningSpecLabel} (${spec_warning.toFixed(2)})`,
                         show: true, // default : false
                         value: spec_warning,
                         color: '#ffff00',
@@ -177,8 +201,10 @@ export class PredictionChartComponent implements OnInit, OnChanges,AfterViewInit
                 });
             }
             // if(this.type=="warning"){ 
-                let lastDate = this.trendData[0][this.trendData[0].length-1][0];
-                let lastValue = this.trendData[0][this.trendData[0].length-1][1];
+            if (  !(this.ruls.length>0 && this.ruls[0].day == null && this.ruls[1].day == null && this.ruls[0].day == null)) {
+
+                let lastDate = this.trendData[0][this.trendData[0].length - 1][0];
+                let lastValue = this.trendData[0][this.trendData[0].length - 1][1];
                 this.trendEventLines.push({
                     show: true,
                     type: 'line',
@@ -189,7 +215,7 @@ export class PredictionChartComponent implements OnInit, OnChanges,AfterViewInit
                     line: {
                         name: `Last data`,
                         show: true, // default : false
-                        value:  lastDate,
+                        value: lastDate,
                         color: '#00ff00',
                         width: 1,       // default : 1
                         adjust: 0,      // default : 0
@@ -222,13 +248,13 @@ export class PredictionChartComponent implements OnInit, OnChanges,AfterViewInit
                         }
                     }
                 });
-                this.trendData.splice(1,3);
-                for(let i=0;i<this.ruls.length;i++){
-                    if(this.ruls[i].day==null ||this.ruls[i].day<=0 ) continue;
+                this.trendData.splice(1, 3);
+                for (let i = 0; i < this.ruls.length; i++) {
+                    if (this.ruls[i].day == null || this.ruls[i].day <= 0) continue;
 
-                    let data =[[lastDate,lastValue]];
-                    let xValue = this.addDays(lastDate,this.ruls[i].day).getTime();
-                    data.push([xValue,spec_alarm]);
+                    let data = [[lastDate, lastValue]];
+                    let xValue = this.addDays(lastDate, this.ruls[i].day).getTime();
+                    data.push([xValue, spec_alarm]);
                     this.trendData.push(data);
 
                     this.trendEventLines.push({
@@ -239,9 +265,9 @@ export class PredictionChartComponent implements OnInit, OnChanges,AfterViewInit
                         fill: true,
                         fillStyle: 'rgba(0, 255, 0, 1)',
                         line: {
-                            name:  this.ruls[i].priod+' Trend' + ' ('+this.ruls[i].day+'d)',
+                            name: this.ruls[i].priod + ' Trend' + ' (' + this.ruls[i].day + 'd)',
                             show: true, // default : false
-                            value:  xValue,
+                            value: xValue,
                             color: '#00ff00',
                             width: 1,       // default : 1
                             adjust: 0,      // default : 0
@@ -274,19 +300,28 @@ export class PredictionChartComponent implements OnInit, OnChanges,AfterViewInit
                             }
                         }
                     });
-                }    
-                this.trendData = this.trendData.concat([]);
+                }
+            }
+            this.trendData = this.trendData.concat([]);
             // }
-            
+
 
         });
     }
 
     getTrendDataConfig(config) {
+        let yAxisVisible = true;
+        if (this.type == "trend") {
+            // this.xMin = this.fromDate;
+            // this.xMax = this.toDate;
+        } else {
+            // this.xMin = this.toDate;
+            yAxisVisible = false;
+        }
         let curConfig = {
             legend: {
                 show: this.isTrendChartLegend,
-                labels: ['Trend', 'RUL1','RUL2','RUL3']
+                labels: ['Trend', 'RUL1', 'RUL2', 'RUL3']
             },
             eventLine: {
                 show: true,
@@ -317,10 +352,12 @@ export class PredictionChartComponent implements OnInit, OnChanges,AfterViewInit
                     }
                 },
                 yaxis: {
+
                     drawMajorGridlines: true,
                     labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
                     tickOptions: {
-                        formatString: '%.2f'
+                        formatString: '%.2f',
+                        show: yAxisVisible
                     }
                 }
             },
