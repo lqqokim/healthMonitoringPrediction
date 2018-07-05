@@ -6,6 +6,7 @@ import { ModalAction, ModalApplier, ModalRequester, WidgetApi, WidgetRefreshType
 import { NotifyService, Util, ContextMenuType } from '../../../sdk';
 
 import { PdmCommonService } from '../../../common/service/pdm-common.service';
+import { PdmModelService } from '../../../common/model/app/pdm/pdm-model.service';
 
 import { Observable } from 'rxjs/Observable';
 
@@ -17,7 +18,7 @@ import * as EqpTraceI from './../pdm-realtime-trend/model/realtime-trend.interfa
     templateUrl: './pdm-realtime-main.html',
     styleUrls: ['./pdm-realtime-main.css'],
     encapsulation: ViewEncapsulation.None,
-    providers: [ PdmCommonService]
+    providers: [ PdmCommonService,PdmModelService]
 })
 export class PdmRealTimeMainComponent extends WidgetApi implements OnSetup, OnDestroy {
 
@@ -55,7 +56,8 @@ export class PdmRealTimeMainComponent extends WidgetApi implements OnSetup, OnDe
         private modalRequester: ModalRequester,
         private applier: ModalApplier,
         private translater: Translater,
-        private _pdmCommonService: PdmCommonService
+        private _pdmCommonService: PdmCommonService,
+        private _pdmModelService:PdmModelService
        
     ) {
         super();
@@ -383,7 +385,10 @@ export class PdmRealTimeMainComponent extends WidgetApi implements OnSetup, OnDe
             // this.hideSpinner();
         });
     }
-
+    getAlarmHistory(){
+        // alarmHistories
+        // this._pdmModelService.getAlaramHistory()
+    }
     onSelectParam(event){
         this.selectParam = event;
     }

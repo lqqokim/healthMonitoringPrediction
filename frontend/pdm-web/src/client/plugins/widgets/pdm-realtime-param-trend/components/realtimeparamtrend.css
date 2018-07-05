@@ -19,7 +19,7 @@
 .realtimeparamtrend .tree-div{
     width: 100%;
     height: calc(100% - 40px);
-    border: solid 1px lightgray;
+    /*border: solid 1px lightgray;*/
     margin-bottom: 10px;
 }
 
