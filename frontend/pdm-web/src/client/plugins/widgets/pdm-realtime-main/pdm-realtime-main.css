@@ -8,7 +8,8 @@
     padding: 10px;
     margin-bottom: 5px;
     text-align: center;
-    border-bottom: solid 1px #ddd;
+		border-bottom: solid 1px #ddd;
+		color: #666;
 }
 
 .pdm-realtime-main .text-info td {

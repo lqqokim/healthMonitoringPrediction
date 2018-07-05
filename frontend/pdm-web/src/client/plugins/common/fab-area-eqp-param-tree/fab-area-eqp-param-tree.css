@@ -31,6 +31,10 @@
     margin: 15px 0 10px 0;
 } */
 
+.pdm-configuration-builder .fab-label {
+    padding-bottom: 10px;
+}
+
 .master-info .pdm-master-wrapper {
     height: 100%;
     width: 100%;
@@ -57,7 +61,7 @@
 
 .master-info .pdm-config-header {
     width: 100%;
-    padding: 3px 0px 8px;
+    /*padding: 3px 0px 8px;*/
     font-size: 13px;
     float: none;
 }
