@@ -56,7 +56,8 @@ margin-right: 10px;
 
 .package-management .pdm-timeline-group .a3-form-period {
   display: inline-block;
-  margin-bottom: 0;
+	margin-bottom: 0;
+	margin-right: 20px;
 }
 
 .package-management .pdm-timeline-group .checkbox {
