@@ -80,7 +80,7 @@ export class PredictionChartComponent implements OnInit, OnChanges, AfterViewIni
                 })
             } else {
                 this._pdmModelService.getTrendMultipleWithRUL(this.plantId, this.areaId, this.eqpId, this.paramId, this.fromDate, this.toDate).then(result => {
-                    this.ruls = [{ priod: 3, day: result.day3 }, { priod: 7, day: result.day7 }, { priod: 14, day: result.day14 }]
+                    this.ruls = [{ period: 3, day: result.day3 }, { period: 7, day: result.day7 }, { period: 14, day: result.day14 }]
 
                     this.trendData = [result.data];
 
@@ -252,6 +252,8 @@ export class PredictionChartComponent implements OnInit, OnChanges, AfterViewIni
                 for (let i = 0; i < this.ruls.length; i++) {
                     if (this.ruls[i].day == null || this.ruls[i].day <= 0) continue;
 
+                    if(this.ruls[i].period!=7) continue;
+
                     let data = [[lastDate, lastValue]];
                     let xValue = this.addDays(lastDate, this.ruls[i].day).getTime();
                     data.push([xValue, spec_alarm]);
@@ -265,7 +267,7 @@ export class PredictionChartComponent implements OnInit, OnChanges, AfterViewIni
                         fill: true,
                         fillStyle: 'rgba(0, 255, 0, 1)',
                         line: {
-                            name: this.ruls[i].priod + ' Trend' + ' (' + this.ruls[i].day + 'd)',
+                            name: this.ruls[i].period + ' Trend' + ' (' + this.ruls[i].day + 'd)',
                             show: true, // default : false
                             value: xValue,
                             color: '#00ff00',

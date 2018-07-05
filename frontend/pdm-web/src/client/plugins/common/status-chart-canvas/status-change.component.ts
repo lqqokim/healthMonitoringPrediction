@@ -68,6 +68,7 @@ export class StatusChangeComponent implements OnInit, OnDestroy {
     private m_upCallback: Function = this.onMouseUp.bind(this);
     private is_mouse_down: boolean = false;
     private is_mouse_over: boolean = false;
+    private targetColor: string = '';
 
     // canvas
     private cSize: Size = {w: 0, h: 0};
@@ -91,7 +92,17 @@ export class StatusChangeComponent implements OnInit, OnDestroy {
 
     // infoBox style
     private infoBoxStyle: IInfoBoxStyle = {};
-    private infoBoxcont: string = '';
+    private infoBoxcont:{
+        name: string;
+        currTimeStart: string;
+        currTimeEnd: string;
+        currTime: string;
+    } = {
+        name: '',
+        currTimeStart: '',
+        currTimeEnd: '',
+        currTime: ''
+    };
 
     constructor(renderer: Renderer) {
         this.resizeListenerFunc = renderer.listen('window', 'resize', this.resizeCallback);
@@ -277,46 +288,26 @@ export class StatusChangeComponent implements OnInit, OnDestroy {
             txt2: string = '',
             lean: string = ( percentX < 0.20 ) ? 'l' : ( percentX < 0.80 ) ? 'c' : 'r',   // left, center, right
             currIdx: number = this.getCurrentIdx(percentX),
-            currType: string = this.statusData[currIdx].type
+            currType: string = this.statusData[currIdx].type,
+            currTimestamp: number = this.timePeriod.fromDate + Math.round(this.drawData.period.max * percentX)
         ;
 
         this.is_mouse_over = true;
 
-        // 마우스 클릭상태 여부에 따른 내용 출력 변경
-        // (클릭 중) 현 status 시작~끝 위치 날짜표기
-        if( this.is_mouse_down ){
-            let
-                currTimeStart: string = moment(this.statusData[currIdx].start).add(-1, 'months').format('YY.MM.DD HH:mm:ss'),
-                currTimeEnd: string = moment(this.statusData[currIdx].end).add(-1, 'months').format('YY.MM.DD HH:mm:ss')
-            ;
-
-            txt1 = currTimeStart;
-            txt2 = currTimeEnd;
-        }
-        // (오버) 해당좌표 날짜, status명 표기
-        else {
-            let
-                currTimestamp: number = this.timePeriod.fromDate + Math.round(this.drawData.period.max * percentX),
-                currTime: string = moment(currTimestamp).add(-1, 'months').format('YY.MM.DD HH:mm:ss')
-            ;
-
-            txt1 = currType;
-            txt2 = currTime;
-        }
 
         // 원래 보여질 내용 그리기
         this.onDraw();
         
         // 영역 투명설정
         // let grd: CanvasGradient = this.ctx.createLinearGradient( x, 0, x+150, 0 );
-        let mainColor = this.drawData.colors.hasOwnProperty(currType) ?
+        this.targetColor = this.drawData.colors.hasOwnProperty(currType) ?
             this.drawData.colors[currType] : '#ffffff'
         ;
 
         // 구분 선 T
         this.ctx.fillStyle = '#333333';
         // this.ctx.fillRect( mouseX-2, this.graphTop-5, 5, 1 );
-        this.ctx.fillRect( mouseX, this.graphTop-5, 1, 5 );
+        this.ctx.fillRect( (lean == 'r'? mouseX-1: mouseX), this.graphTop-5, 1, 5 );
 
         // 구분 선 
         this.ctx.fillStyle = '#ffffff';
@@ -328,11 +319,15 @@ export class StatusChangeComponent implements OnInit, OnDestroy {
         if( this.is_mouse_over ){
             this.infoBoxStyle = {
                 left: `${mouseX}px`,
-                top: `${this.graphTop}px`,
-                backgroundColor: mainColor,
+                top: `${mouseY}px`,
                 transform: `translateX(${((lean == 'l') ? '0%' : (lean == 'r') ? '-100%' : '-50%')})`
             };
-            this.infoBoxcont = `${txt1}<br>${txt2}`;
+
+            // 해당 좌표 status 날짜, 시작~끝 위치
+            this.infoBoxcont.name = currType;
+            this.infoBoxcont.currTimeStart = moment(this.statusData[currIdx].start).add(-1, 'months').format('YY-MM-DD HH:mm');
+            this.infoBoxcont.currTimeEnd = moment(this.statusData[currIdx].end).add(-1, 'months').format('YY-MM-DD HH:mm');
+            this.infoBoxcont.currTime = moment(currTimestamp).add(-1, 'months').format('YY-MM-DD HH:mm');
         }
     }
 

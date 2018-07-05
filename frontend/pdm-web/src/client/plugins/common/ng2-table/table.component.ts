@@ -29,7 +29,7 @@ export interface TableConfig {
 
 @Component({
     moduleId: module.id,
-    selector: 'table',
+    selector: 'ng2-Table',
     templateUrl: 'table.html',
     styleUrls: ['table.css'],
     encapsulation: ViewEncapsulation.None
@@ -77,6 +77,8 @@ export class TableComponent implements OnInit, OnChanges, OnDestroy {
 
     //* 초기 설정
     ngOnInit() {
+        if( this.data === undefined || this.data === null ){ return; }
+        
         this.length = this.data.length;
         this.pager = new PaginationHelper( this.length, this.page, this.itemsPerPage, this.pageChange.bind(this) );
 

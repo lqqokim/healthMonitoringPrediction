@@ -1,2 +1,9 @@
 <canvas #status height='0'></canvas>
-<div class='sc-infoBox' #infoBox [ngStyle]="infoBoxStyle" *ngIf='is_mouse_over' [innerHtml]='infoBoxcont'></div>
+<div class='sc-infoBox' #infoBox [ngStyle]="infoBoxStyle" *ngIf='is_mouse_over'>
+    <ul>
+        <li class='currTime'>{{infoBoxcont.currTime}}</li>
+        <li class='currName'><i [ngStyle]="{'backgroundColor':targetColor}"></i>{{infoBoxcont.name}}</li>
+        <li>{{infoBoxcont.currTimeStart}}</li>
+        <li>{{infoBoxcont.currTimeEnd}}</li>
+    </ul>
+</div>

@@ -22,8 +22,8 @@ export class WidgetChartConditionComponent {
 
     viewTimeperiod(): string {
         return (
-            moment(this.timePeriod.fromDate).add(-1, 'months').format('YYYY-MM-DD HH:mm') +' ~ '+
-            moment(this.timePeriod.toDate).add(-1, 'months').format('YYYY-MM-DD HH:mm')
+            moment(this.timePeriod.fromDate).format('YYYY-MM-DD HH:mm') +' ~ '+
+            moment(this.timePeriod.toDate).format('YYYY-MM-DD HH:mm')
         );
     }
 }

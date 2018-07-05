@@ -40,41 +40,42 @@
     </div>
     <div class="alarm-fault-info">
         <div class="col-sm-6 height-100">
-            Alarm History
-            <table>
-                <thead>
-                    <th>#</th>
-                    <th>Time</th>
-                    <th>Eqp</th>
-                    <th>Param</th>
-                    <th>Category</th>
-                    <th>Fault Classification</th>
-                </thead>
+            <div class="group-title">Alarm History</div>
+						<div class="group-body">
+							<table>
+									<thead>
+											<th>#</th>
+											<th>Time</th>
+											<th>Eqp</th>
+											<th>Param</th>
+											<th>Category</th>
+											<th>Fault Classification</th>
+									</thead>
 
-                <tbody>
-                    <tr *ngFor="let item of alarmHistories;let i=index">
-                        <td>{{i}}</td>
-                        <td>{{dateFormat(item.date)}}</td>
-                        <td>{{item.eqpName}}</td>
-                        <td>{{item.paramName}}</td>
-                        <td>{{item.category}}</td>
-                        <td>{{item.faultClassification}}</td>
+									<tbody>
+											<tr *ngFor="let item of alarmHistories;let i=index">
+													<td>{{i}}</td>
+													<td>{{dateFormat(item.date)}}</td>
+													<td>{{item.eqpName}}</td>
+													<td>{{item.paramName}}</td>
+													<td>{{item.category}}</td>
+													<td>{{item.faultClassification}}</td>
 
-                    </tr>
-                </tbody>
-            </table>
-
+											</tr>
+									</tbody>
+							</table>
+						</div>
         </div>
         <div class="col-sm-6  height-100">
             <div class="fault-classification">
-                Fault Classification
+                <div class="group-title">Fault Classification</div>
                 <div class="chart">
                     <a3c-bistel-chart [data]="spectrumData" [config]="spectrumConfig" style="width: 100%;" class="chart-body">
                     </a3c-bistel-chart>
                 </div>
             </div>
             <div class="fault-prediction">
-                Fault Prediction
+								<div class="group-title">Fault Prediction</div>
                 <div class="chart">
                     <div class="col-sm-6 height-100">
                             <prediction-chart [plantId]="fabId" [areaId]="1" [eqpId]="1" [paramId]="paramId" [fromDate]="fromDate" [toDate]="toDate" [type]="'trend'" ></prediction-chart>
