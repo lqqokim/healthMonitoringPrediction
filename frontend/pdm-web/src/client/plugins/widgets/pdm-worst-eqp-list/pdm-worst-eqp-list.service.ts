@@ -8,13 +8,14 @@ export class PdmWostEqpListService {
     // get worst equipment list
     getListData(params:{
         fabId: string;
-        areaId: string;
+        areaId?: number;
         fromDate: number;
         toDate: number;
     }): Promise<any> {
-        return this._pdmModel.getAlarmClassificationSummary(params.fabId, params.areaId, {
-            fromDate: params.fromDate,
-            toDate: params.toDate
-        });
+        if( params.areaId === undefined ){
+            return this._pdmModel.getWorstEqpList(params.fabId, params.fromDate, params.toDate);
+        } else {
+            return this._pdmModel.getWorstEqpListByAreaId(params.fabId, params.areaId, params.fromDate, params.toDate);
+        }
     }
 }
