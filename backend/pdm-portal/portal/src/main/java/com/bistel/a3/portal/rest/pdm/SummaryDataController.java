@@ -58,18 +58,53 @@ public class SummaryDataController {
         return summaryDataService.getAlarmClassificationSummary(fabId, areaId, from, to);
     }
 
-    @RequestMapping("/areas/{areaId}/alarmHistory")
-    public Object alarmHistory(@PathVariable("fabId") String fabId,
-                               @PathVariable("areaId") Long areaId,
+    @RequestMapping("/alarmHistory")
+    public Object alarmHistoryAll(@PathVariable("fabId") String fabId,
                                                      @RequestParam("fromdate") Long fromdate,
                                                      @RequestParam("todate") Long todate) {
-        areaId=200L;
-        Date from = new Date(fromdate);
-        Date to = new Date(todate);
 
-        return summaryDataService.getAlarmHistory(fabId,areaId, from, to);
+            Long areaId=null;
+            Long eqpId=null;
+
+            Date from = new Date(fromdate);
+            Date to = new Date(todate);
+
+            return summaryDataService.getAlarmHistory(fabId, areaId,eqpId, from, to);
+
+
     }
 
+    @RequestMapping("/areas/{areaId}/alarmHistoryByAreaId")
+    public Object alarmHistory(@PathVariable("fabId") String fabId,
+                               @PathVariable("areaId") Long areaId,
+                               @RequestParam("fromdate") Long fromdate,
+                               @RequestParam("todate") Long todate) {
+
+
+            Long eqpId=null;
+
+            Date from = new Date(fromdate);
+            Date to = new Date(todate);
+
+            return summaryDataService.getAlarmHistory(fabId, areaId,eqpId, from, to);
+
+
+    }
+
+    @RequestMapping("/areas/{areaId}/eqps/{eqpId}/alarmHistoryByEqpId")
+    public Object alarmHistoryByEqpId(@PathVariable("fabId") String fabId,
+                                      @PathVariable("areaId") Long areaId,
+                                      @PathVariable("eqpId") Long eqpId,
+                                      @RequestParam("fromdate") Long fromdate,
+                                      @RequestParam("todate") Long todate) {
+
+            Date from = new Date(fromdate);
+            Date to = new Date(todate);
+
+            return summaryDataService.getAlarmHistory(fabId, areaId, eqpId,from, to);
+
+
+    }
     //Done
     @RequestMapping("lineStatusSummary")
     public Object lineStatusSummary(@PathVariable("fabId") String fabId,

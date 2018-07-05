@@ -16,7 +16,7 @@ public interface ISummaryDataService {
 
     AlarmClassification getAlarmClassificationSummary(String fabId,Long areaId, Date fromdate, Date todate);
 
-    List<AlarmHistory> getAlarmHistory(String fabId,Long areaId, Date fromdate, Date todate);
+    List<AlarmHistory> getAlarmHistory(String fabId,Long areaId, Long eqpId, Date fromdate, Date todate);
 
     List<AreaFaultCountSummary> lineStatusSummary(String fabId, Date fromdate, Date todate);
 

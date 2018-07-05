@@ -4,17 +4,32 @@ import java.util.Date;
 
 public class AlarmHistory {
 
-    private Date time;
+    private Date alarm_dtts;
+    private Long area_id;
+    private String area_name;
+    private Long eqp_id;
     private String eqp_name;
-    private String eqp_rawid;
-    private String param;
-    private String param_id;
+    private Long param_id;
+    private String param_name;
     private String category;
     private String fault_class;
-    private String description;
-    private String area_name;
-    private Long area_rawid;
 
+
+    public Date getAlarm_dtts() {
+        return alarm_dtts;
+    }
+
+    public void setAlarm_dtts(Date alarm_dtts) {
+        this.alarm_dtts = alarm_dtts;
+    }
+
+    public Long getArea_id() {
+        return area_id;
+    }
+
+    public void setArea_id(Long area_id) {
+        this.area_id = area_id;
+    }
 
     public String getArea_name() {
         return area_name;
@@ -24,22 +39,12 @@ public class AlarmHistory {
         this.area_name = area_name;
     }
 
-    public Long getArea_rawid() {
-        return area_rawid;
+    public Long getEqp_id() {
+        return eqp_id;
     }
 
-    public void setArea_rawid(Long area_rawid) {
-        this.area_rawid = area_rawid;
-    }
-
-
-
-    public Date getTime() {
-        return time;
-    }
-
-    public void setTime(Date time) {
-        this.time = time;
+    public void setEqp_id(Long eqp_id) {
+        this.eqp_id = eqp_id;
     }
 
     public String getEqp_name() {
@@ -50,28 +55,20 @@ public class AlarmHistory {
         this.eqp_name = eqp_name;
     }
 
-    public String getEqp_rawid() {
-        return eqp_rawid;
-    }
-
-    public void setEqp_rawid(String eqp_rawid) {
-        this.eqp_rawid = eqp_rawid;
-    }
-
-    public String getParam() {
-        return param;
-    }
-
-    public void setParam(String param) {
-        this.param = param;
-    }
-
-    public String getParam_id() {
+    public Long getParam_id() {
         return param_id;
     }
 
-    public void setParam_id(String param_id) {
+    public void setParam_id(Long param_id) {
         this.param_id = param_id;
+    }
+
+    public String getParam_name() {
+        return param_name;
+    }
+
+    public void setParam_name(String param_name) {
+        this.param_name = param_name;
     }
 
     public String getCategory() {
@@ -90,11 +87,8 @@ public class AlarmHistory {
         this.fault_class = fault_class;
     }
 
-    public String getDescription() {
-        return description;
-    }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+
+
+
 }

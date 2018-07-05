@@ -163,55 +163,26 @@ public class SummaryDataService implements ISummaryDataService {
     }
 
     @Override
-    public List<AlarmHistory> getAlarmHistory(String fabId,Long areaId, Date fromdate, Date todate) {
-        //HardCoding
-
-        List<AlarmHistory> alarmHistoryList=new ArrayList<>();
-
-        AlarmHistory alarmHistory1= new AlarmHistory();
-        alarmHistory1.setTime(new Date());
-        alarmHistory1.setEqp_name("EQP34");
-        alarmHistory1.setParam("Vibration1");
-        alarmHistory1.setCategory("Alarm");
-        alarmHistory1.setFault_class("Unbalance");
-
-        AlarmHistory alarmHistory2= new AlarmHistory();
-        alarmHistory2.setTime(new Date());
-        alarmHistory2.setEqp_name("EQP36");
-        alarmHistory2.setParam("Temp");
-        alarmHistory2.setCategory("Alarm");
-        alarmHistory2.setFault_class("N/A");
-
-        AlarmHistory alarmHistory3= new AlarmHistory();
-        alarmHistory3.setTime(new Date());
-        alarmHistory3.setEqp_name("EQP34");
-        alarmHistory3.setParam("Vibration1");
-        alarmHistory3.setCategory("Alarm");
-        alarmHistory3.setFault_class("N/A");
-
-        AlarmHistory alarmHistory4= new AlarmHistory();
-        alarmHistory4.setTime(new Date());
-        alarmHistory4.setEqp_name("EQP34");
-        alarmHistory4.setParam("Pressure");
-        alarmHistory4.setCategory("Warning");
-        alarmHistory4.setFault_class("N/A");
-
-        AlarmHistory alarmHistory5= new AlarmHistory();
-        alarmHistory5.setTime(new Date());
-        alarmHistory5.setEqp_name("EQP34");
-        alarmHistory5.setParam("Vibration1");
-        alarmHistory5.setCategory("alarm");
-        alarmHistory5.setFault_class("N/A");
-
-        alarmHistoryList.add(alarmHistory1);
-        alarmHistoryList.add(alarmHistory2);
-        alarmHistoryList.add(alarmHistory3);
-        alarmHistoryList.add(alarmHistory4);
-        alarmHistoryList.add(alarmHistory5);
+    public List<AlarmHistory> getAlarmHistory(String fabId,Long areaId, Long eqpId, Date fromdate, Date todate) {
 
 
 
-        return alarmHistoryList;
+        STDSummaryMapper stdSummaryMapper= SqlSessionUtil.getMapper(sessions, fabId, STDSummaryMapper.class);
+
+        if(areaId==null && eqpId == null)//전체
+        {
+            return stdSummaryMapper.selectAlarmHistoryAll(fromdate, todate);
+        }
+        else if(areaId!=null && eqpId==null)//Area기준
+        {
+            return stdSummaryMapper.selectAlarmHistoryByAreaId(fromdate, todate, areaId);
+        }
+        else if(areaId!=null && eqpId!=null)//eqp기준
+        {
+            return stdSummaryMapper.selectAlarmHistoryByEqpId(fromdate, todate, areaId, eqpId);
+        }
+
+        return null;
     }
 
 
