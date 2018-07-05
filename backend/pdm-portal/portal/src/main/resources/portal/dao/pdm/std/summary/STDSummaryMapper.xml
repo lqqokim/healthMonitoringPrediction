@@ -5,7 +5,7 @@
 
 
     <select id="selectStatusCountSummary" resultType="com.bistel.a3.portal.domain.pdm.AreaFaultCountSummary">
-        select area_mst_pdm.rawid as area_id, areaeqp.area_name, areaeqp.total_count, areaeqp.eqp_offline, areaeqp.alarm_count, areaeqp.warning_count, areaeqp.normal_count
+        select area_mst_pdm.rawid as area_id, areaeqp.area_name, areaeqp.total_count, areaeqp.eqp_offline as offline_count, areaeqp.alarm_count, areaeqp.warning_count, areaeqp.normal_count
         from
 
         (
@@ -401,7 +401,7 @@
 
         ) areaeqp,
         area_mst_pdm
-        where areaeqp.area_name=AREA_MST_PDM.NAME;
+        where areaeqp.area_name=AREA_MST_PDM.NAME
 
     </select>
 
@@ -680,6 +680,8 @@
         and eqp_id= #{eqp_id}
 
     </select>
+
+
 
 </mapper>
 

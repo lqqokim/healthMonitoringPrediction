@@ -27,7 +27,6 @@ public class SummaryDataController {
         Date from = new Date(fromdate);
         Date to = new Date(todate);
 
-        List<AreaFaultCountSummary> alarmCountSummary=summaryDataService.getAlarmCountSummary(fabId, from, to);
         return summaryDataService.getAlarmCountSummary(fabId, from, to);
 
     }
