@@ -177,9 +177,9 @@ public class SummaryDataService implements ISummaryDataService {
         {
             return stdSummaryMapper.selectAlarmHistoryByAreaId(fromdate, todate, areaId);
         }
-        else if(areaId!=null && eqpId!=null)//eqp기준
+        else if(eqpId!=null)//eqp기준
         {
-            return stdSummaryMapper.selectAlarmHistoryByEqpId(fromdate, todate, areaId, eqpId);
+            return stdSummaryMapper.selectAlarmHistoryByEqpId(fromdate, todate, null, eqpId);
         }
 
         return null;

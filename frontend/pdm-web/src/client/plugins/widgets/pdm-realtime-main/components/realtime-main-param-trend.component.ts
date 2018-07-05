@@ -208,10 +208,12 @@ export class RealtimeMainParamTrendComponent implements OnInit, OnChanges,OnDest
     requestMonitoring(){
         let node = this.tree.getSelectedNodes();
         let parameters = [];
+        let eqpIds =[];
         for (let index = 0; index < node.length; index++) {
             const element = node[index];
             if(element.nodeType=='parameter'){
                 parameters.push(element.paramId);
+                eqpIds.push(element.eqpId);
             }
             
         }
@@ -220,7 +222,7 @@ export class RealtimeMainParamTrendComponent implements OnInit, OnChanges,OnDest
         message['parameters']['parameterIds']=parameters;
         message['parameters']['fabId'] = this.tree.selectedFab.fabId;
 
-        this.selectParam.emit({fabId:this.tree.selectedFab.fabId,parameters:parameters});
+        this.selectParam.emit({fabId:this.tree.selectedFab.fabId,parameters:parameters,eqpIds:eqpIds});
 
         this.paramDatas=[];
 

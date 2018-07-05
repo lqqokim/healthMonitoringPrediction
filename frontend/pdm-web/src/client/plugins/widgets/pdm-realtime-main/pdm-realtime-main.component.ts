@@ -387,7 +387,11 @@ export class PdmRealTimeMainComponent extends WidgetApi implements OnSetup, OnDe
     }
     getAlarmHistory(){
         // alarmHistories
-        // this._pdmModelService.getAlaramHistory()
+        let fromDate = new Date(moment( new Date().getTime()).format('YYYY/MM/DD 00:00:00')).getTime();
+        let toDate = new Date().getTime();
+        this._pdmModelService.getAlaramHistoryByEqpId(this.selectParam.fabId,1,this.selectParam.eqpIds[0],fromDate,toDate).then((data)=>{
+            this.alarmHistories = data;
+        })
     }
     onSelectParam(event){
         this.selectParam = event;
@@ -418,6 +422,7 @@ export class PdmRealTimeMainComponent extends WidgetApi implements OnSetup, OnDe
         this.toDate = new Date().getTime();
         // this.fromDate = new Date(moment( new Date().getTime()).format('YYYY/MM/DD 00:00:00')).getTime();
         this.fromDate = this.toDate - 7*24*60*60*1000;
+        this.getAlarmHistory();
     }
 }
 
