@@ -98,15 +98,15 @@ public class RealTimeParamSocketController {
 			Date toDate = new Date();
 
 			//real
-//			List<List<Object>> datas = getParamData(fabId,paramId,fromDate,toDate);
-//
-//			List<Object>  info = monitoringParamLastUpdateDate.get(paramId);
-//			info.set(0,toDate);
+			List<List<Object>> datas = getParamData(fabId,paramId,fromDate,toDate);
+
+			List<Object>  info = monitoringParamLastUpdateDate.get(paramId);
+			info.set(0,toDate);
 
 
 
 			//demo
-			List<List<Object>> datas = getDemoData(paramId);
+//			List<List<Object>> datas1 = getDemoData(paramId);
 
 
 
