@@ -1,96 +1,121 @@
-.pdm-realtime-main{
+.pdm-realtime-main {
     height: 100%;
     width: 100%;
 }
 
-.pdm-realtime-main .text-info{
+.pdm-realtime-main .text-info {
     height: 50px;
-    border: solid 2px lightgray;
+    /*border: solid 2px lightgray;*/
     padding: 10px;
     margin-bottom: 5px;
     text-align: center;
 }
 
-.pdm-realtime-main .text-info td{
+.pdm-realtime-main .text-info td {
     height: 8%;
     /* padding-left: 25px; */
     margin-bottom: 5px;
     /* padding-right: 65px; */
 }
-.pdm-realtime-main .text-info span{
-    font-size:25px !important;
+
+.pdm-realtime-main .text-info span {
+    font-size: 25px !important;
 }
-.pdm-realtime-main .realtime-info{
+
+.pdm-realtime-main .realtime-info {
     height: calc(50% - 25px);
     border: solid 1px lightgray;
     margin-bottom: 5px;
 }
-.pdm-realtime-main .alarm-fault-info{
+
+.pdm-realtime-main .alarm-fault-info {
     height: calc(50% - 30px);
-    border: solid 1px lightgray;
-    margin-bottom: 5px;
+    border: solid 1px #ddd;
+    /*margin-bottom: 5px;*/
 }
 
-.pdm-realtime-main .height-100{
-    height:100%;
+.pdm-realtime-main .height-100 {
+    height: 100%;
     overflow: auto;
     padding: 5px;
 }
 
-.pdm-realtime-main .fault-classification{
-    height: 50%;
-}
-.pdm-realtime-main .fault-prediction{
+.pdm-realtime-main .fault-classification {
     height: 50%;
 }
 
-.pdm-realtime-main .chart{
-    height:calc(100% - 20px);
+.pdm-realtime-main .fault-prediction {
+    height: 50%;
 }
 
-.pdm-realtime-main .healthindex{
-    width:20%;
+.pdm-realtime-main .chart {
+    height: calc(100% - 30px);
 }
 
-.pdm-realtime-main .alarm{
-    width:20%;
-}
-.pdm-realtime-main .classification{
-    width:40%;
-}
-.pdm-realtime-main .rul{
-    width:20%;
+.pdm-realtime-main .healthindex {
+    width: 20%;
 }
 
-.pdm-realtime-main table{
-    width:100%;
+.pdm-realtime-main .alarm {
+    width: 20%;
 }
+
+.pdm-realtime-main .classification {
+    width: 40%;
+}
+
+.pdm-realtime-main .rul {
+    width: 20%;
+}
+
+.pdm-realtime-main table {
+    width: 100%;
+}
+
 .pdm-realtime-main .alarm-fault-info table th,
-.pdm-realtime-main .alarm-fault-info table td{
-  text-align: left;
+.pdm-realtime-main .alarm-fault-info table td {
+    text-align: left;
 }
-.pdm-realtime-main .alarm-fault-info table{
-  width: 100%;
-  border-collapse: collapse;
-  margin: 1em 0;
+
+.pdm-realtime-main .alarm-fault-info table {
+    width: 100%;
+    border-collapse: collapse;
 }
+
 .pdm-realtime-main .alarm-fault-info table th,
-.pdm-realtime-main .alarm-fault-info table td{
-  border: 1px solid #B3BFAA;
-  padding: .5em 1em;
+.pdm-realtime-main .alarm-fault-info table td {
+    padding: .5em 1em;
+    border-bottom: 1px solid #ddd;
 }
 
-.pdm-realtime-main .alarm-fault-info table th{ background: #D5E0CC; }
-.pdm-realtime-main .alarm-fault-info table td{ background: #fff; }
+.pdm-realtime-main .alarm-fault-info table th {
+    background: #eee;
+    border-bottom: 1px solid #ccc;
+}
 
+.pdm-realtime-main .alarm-fault-info table td {
+    background: #fff;
+}
 
+.pdm-realtime-main .group-title {
+    font-size: 13px;
+    font-weight: bold;
+    height: 30px;
+    padding: 4px;
+}
 
-.pdm-realtime-main .label-danger,.pdm-realtime-main .label-warning {
+.pdm-realtime-main .group-body {
+    overflow: auto;
+    height: calc(100% - 30px);
+}
+
+.pdm-realtime-main .label-danger,
+.pdm-realtime-main .label-warning {
     animation: blinker 1s linear infinite;
-  }
-  
-  @keyframes blinker {
+}
+
+@keyframes blinker {
     50% {
-      opacity: 0;
+        opacity: 0;
     }
-  }
+}
