@@ -639,20 +639,20 @@ export class PdmModelService extends ModelCommonService {
 		});
 	}
 
-	getAlaramHistory(fabId, areaId, param): Observable<any> {
-		return this.rxGET({
+	getAlaramHistory(fabId: string, areaId: string, param:{fromDate:number, toDate:number}): Promise<any> {
+		return this.GET({
 			uriPath: `pdm/fabs/${fabId}/areas/${areaId}/alarmHistory/?fromdate=${param.fromDate}&todate=${param.toDate}`
 		})
 	}
 
-	getWorstEqpList(fabId, areaId, param): Observable<any> {
-		return this.rxGET({
+	getWorstEqpList(fabId: string, areaId: string, param:{fromDate:number, toDate:number}): Promise<any> {
+		return this.GET({
 			uriPath: `pdm/fabs/${fabId}/areas/${areaId}/worstEquipmentList/?fromdate=${param.fromDate}&todate=${param.toDate}`
 		})
 	}
 
-	getAlarmClassificationSummary(fabId, areaId, param): Observable<any> {
-		return this.rxGET({
+	getAlarmClassificationSummary(fabId: string, areaId: string, param:{fromDate:number, toDate:number}): Promise<any> {
+		return this.GET({
 			uriPath: `pdm/fabs/${fabId}/areas/${areaId}/alarmClassificationSummary/?fromdate=${param.fromDate}&todate=${param.toDate}`
 		})
 	}
