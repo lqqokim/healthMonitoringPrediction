@@ -4,6 +4,7 @@ import { WidgetApi, WidgetRefreshType, OnSetup } from '../../../common';
 import * as IDataType from './model/data-type.interface';
 
 import { AlarmCountSummaryComponent } from './components/alarm-count-summary.component';
+import { ITimePeriod } from '../../common/widget-chart-condition/widget-chart-condition.component';
 
 @Component({
     moduleId: module.id,
@@ -15,10 +16,12 @@ export class PdmAlarmCountSummaryWidgetComponent extends WidgetApi implements On
     @ViewChild('container') container: ElementRef;
     @ViewChild('alarmCountSummaryComp') alarmCountSummaryComp: AlarmCountSummaryComponent;
 
-    viewTimePriod: any = {
+    viewTimePriod: ITimePeriod = {
         fromDate: 0,
         toDate: 0
     };
+    
+    private targetName: string = 'All Lines';
 
     condition: IDataType.ContitionType;
 
@@ -60,21 +63,23 @@ export class PdmAlarmCountSummaryWidgetComponent extends WidgetApi implements On
     _setConfigInfo(props: any) {
         let now: Date = new Date();
         const startOfDay: Date = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        const to: Date = startOfDay; // today 00:00:00
+        const to: number = startOfDay.getTime(); // today 00:00:00
 
         this.condition = {
-            fabId: props[CD.PLANT_ID],
+            fabId: props['plant']['fabId'],
             timePeriod: {
-                from: props[CD.TIME_PERIOD]['from'],
+                from: props['timePeriod']['from'],
                 to: to
             }
         };
 
-        this.viewTimePriod.fromDate = this.covertDateFormatter(props[CD.TIME_PERIOD]['from']);
-        this.viewTimePriod.toDate = this.covertDateFormatter(to);
+        // this.viewTimePriod.fromDate = this.covertDateFormatter(props[CD.TIME_PERIOD]['from']);
+        // this.viewTimePriod.toDate = this.covertDateFormatter(to);
+        this.viewTimePriod.fromDate = props[CD.TIME_PERIOD]['from'];
+        this.viewTimePriod.toDate = to;
     }
 
-    covertDateFormatter(timestamp: Date): string {
+    covertDateFormatter(timestamp: number): string {
         const date = new Date(timestamp);
         return `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()} 00:00`;
     }
@@ -83,6 +88,20 @@ export class PdmAlarmCountSummaryWidgetComponent extends WidgetApi implements On
         if (ev) {
             this.hideSpinner();
         }
+    }
+
+    onSync(item: any): void {
+        let outCd = this.getOutCondition('config');
+        const plant: any = this._props[CD.PLANT];
+        const area: any = item.area;
+        const timePeriod: any = this._props[CD.TIME_PERIOD];
+
+        outCd[CD.PLANT] = plant;
+        outCd[CD.AREA] = area;
+        outCd[CD.TIME_PERIOD] = timePeriod;
+        // console.log('outCd => ', outCd);
+
+        this.syncOutCondition(outCd);
     }
 
     private _init(): void {

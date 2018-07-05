@@ -8,6 +8,24 @@ public class WorstEquipmentList {
     private String eqp_name;
     private String eqp_rawid;
     private Double score;
+    private Long area_rawid;
+    private String area_name;
+
+    public Long getArea_rawid() {
+        return area_rawid;
+    }
+
+    public void setArea_rawid(Long area_rawid) {
+        this.area_rawid = area_rawid;
+    }
+
+    public String getArea_name() {
+        return area_name;
+    }
+
+    public void setArea_name(String area_name) {
+        this.area_name = area_name;
+    }
 
     private ArrayList<WorstEqupmentListChartData> datas = new ArrayList<>();
 

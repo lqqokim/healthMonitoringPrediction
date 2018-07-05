@@ -1,5 +1,5 @@
 import { Component, OnInit, OnChanges, SimpleChanges, EventEmitter, Output, Input } from '@angular/core';
-
+import { PdmModelService } from './../../../../common';
 import * as IDataType from './../model/data-type.interface';
 
 @Component({
@@ -9,19 +9,26 @@ import * as IDataType from './../model/data-type.interface';
     styleUrls: ['./alarm-count-summary.css']
 })
 export class AlarmCountSummaryComponent implements OnInit, OnChanges {
-    @Output() endChartLoad: EventEmitter<any> = new EventEmitter();
     @Input() condition: IDataType.ContitionType;
+    @Output() endChartLoad: EventEmitter<any> = new EventEmitter();
+    @Output() onSync: EventEmitter<any> = new EventEmitter();
     
     chartId: any;
     chart: any;
     private _props: any;
 
-    constructor() {
+    constructor(private _pdmModel: PdmModelService) {
     }
 
     ngOnChanges(changes: SimpleChanges) {
-        this.chartId = this.guid();        
-        this.setChartData();
+        for (let propName in changes) {
+            let condition = changes[propName].currentValue;
+
+            if (condition && propName === 'condition') {
+                this.chartId = this.guid();
+                this.getAlarmCountSummaryData(condition);
+            }
+        }
     }
 
     ngOnInit() {
@@ -30,6 +37,22 @@ export class AlarmCountSummaryComponent implements OnInit, OnChanges {
 
     onChartResize(): void {
         this.chart.resize();
+    }
+
+    getAlarmCountSummaryData(condition): void {
+        const fabId = condition.fabId;
+        const params = {
+            fromdate: condition.timePeriod.from,
+            todate: condition.timePeriod.to
+        };
+
+        this._pdmModel.getAlarmCountSummary(fabId, params)
+            .then((res) => {
+                console.log('getAlarmCountSummary', res);
+                this.setChartData();
+            }).catch((err) => {
+                console.log('err', err);
+            });
     }
 
     setChartData(): void {
@@ -68,6 +91,14 @@ export class AlarmCountSummaryComponent implements OnInit, OnChanges {
                 colors: {
                     alarm: 'red',
                     warning: 'orange'
+                },
+                onclick: (d: any, s) => {
+                    this.onSync.emit({
+                        area: {
+                            areaId: 1,
+                            areaName: axisCategories[d.index + 1]
+                        }
+                    });
                 }
             },
             zoom: {

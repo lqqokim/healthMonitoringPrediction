@@ -3,26 +3,10 @@ import { WidgetRefreshType, WidgetApi, OnSetup } from '../../../common';
 import { Translater } from '../../../sdk';
 import { PdmWostEqpListService } from './pdm-worst-eqp-list.service';
 import { PdmCommonService } from '../../../common/service/pdm-common.service';
+import { IWorstEeqList, ITimePeriod } from '../../common/status-chart-canvas/status-change.component';
 
 //* ng2-tree Interface
 // import { TreeModel } from 'ng2-tree';
-
-//* 목업 데이터 interface
-export interface IWorstEeqList {
-    order: number;
-    equipment: string;
-    score: number;
-    status: Array<{
-        type: string;
-        start: number;
-        end: number;
-    }>
-};
-
-export interface ITimePeriod {
-    start: number;
-    end: number;
-};
 
 @Component({
     moduleId: module.id,
@@ -44,10 +28,13 @@ export class PdmWostEqpListComponent extends WidgetApi implements OnSetup, OnDes
         {name:'offline', color:'#a6a6a6'}
     ];
 
-    timePeriod: ITimePeriod = {
-        start : 1532044800000, // new Date(2018, 6, 20, 09, 0, 0, 0).getTime(),
-        end : 1532077200000 // new Date(2018, 6, 20, 18, 0, 0, 0).getTime()
+    private timePeriod: ITimePeriod = {
+        fromDate : 1532044800000, // new Date(2018, 6, 20, 09, 0, 0, 0).getTime(),
+        toDate : 1532077200000 // new Date(2018, 6, 20, 18, 0, 0, 0).getTime()
     };
+
+    private targetName: string = 'All Lines';
+
     /*
         new Date(2018, 6, 20, 09, 0, 0, 0).getTime() - 1532044800000
         new Date(2018, 6, 20, 10, 59, 0, 0).getTime() - 1532051940000
@@ -157,13 +144,6 @@ export class PdmWostEqpListComponent extends WidgetApi implements OnSetup, OnDes
         this.hideSpinner();
     }
 
-    viewTimeperiod(): string {
-        return (
-            moment(this.timePeriod.start).add(-1, 'months').format('YYYY-MM-DD HH:mm') +' ~ '+
-            moment(this.timePeriod.end).add(-1, 'months').format('YYYY-MM-DD HH:mm')
-        );
-    }
-
     /**
      * TODO
      * refresh 3가지 타입에 따라서 data를 통해 적용한다.
@@ -172,6 +152,14 @@ export class PdmWostEqpListComponent extends WidgetApi implements OnSetup, OnDes
     // tslint:disable-next-line:no-unused-variable
     refresh({ type, data }: WidgetRefreshType) {
         this.showSpinner();
+        if (type === A3_WIDGET.APPLY_CONFIG_REFRESH) {
+
+        } else if (type === A3_WIDGET.JUST_REFRESH) {
+        
+        } else if (type === A3_WIDGET.SYNC_INCONDITION_REFRESH) {
+            this.hideSpinner();
+            console.log('WORST EQP SYNC', data);
+        }
     }
 
     ngAfterViewInit() {

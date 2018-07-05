@@ -1,15 +1,43 @@
 package com.bistel.a3.portal.domain.pdm;
 
+import java.util.Date;
+
 public class AreaFaultCountSummary {
 
     private String area_name;
+    private Long area_id;
     private int alarm_count;
     private int warning_count;
     private int normal_count;
     private int failure_count;
     private int offline_count;
     private int total_count;
+    private Date start_time;
+    private Date end_time;
 
+    public Date getStart_time() {
+        return start_time;
+    }
+
+    public void setStart_time(Date start_time) {
+        this.start_time = start_time;
+    }
+
+    public Date getEnd_time() {
+        return end_time;
+    }
+
+    public void setEnd_time(Date end_time) {
+        this.end_time = end_time;
+    }
+
+    public Long getArea_id() {
+        return area_id;
+    }
+
+    public void setArea_id(Long area_id) {
+        this.area_id = area_id;
+    }
     public int getTotal_count() {
         return total_count;
     }

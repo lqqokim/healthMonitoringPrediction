@@ -13,11 +13,13 @@ import { ViewConfig } from './config/view.config';
 
 import { PdmLineStatusSummaryWidgetComponent } from './pdm-line-status-summary-widget.component';
 import { LineStatusSummaryComponent } from './components/line-status-summary.component';
+import { PluginCommonModule } from '../../common/plugins.common.module';
 
 @NgModule({
     imports: [
         A3_CommonModule,
-        BISTEL_SDKModule
+        BISTEL_SDKModule,
+        PluginCommonModule
     ],
     declarations: [
         PdmLineStatusSummaryWidgetComponent,

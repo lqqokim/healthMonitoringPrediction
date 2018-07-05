@@ -43,7 +43,7 @@ export interface IColorSet {
     encapsulation: ViewEncapsulation.None
 })
 
-export class donutChartComponent implements OnInit, OnChanges, OnDestroy {
+export class DonutChartComponent implements OnInit, OnChanges, OnDestroy {
 
     @ViewChild('list') listElem: ElementRef;
 
@@ -101,7 +101,9 @@ export class donutChartComponent implements OnInit, OnChanges, OnDestroy {
 
         //* 위젯 컴포넌트가 transition으로 효과로 인해 캔버스 리사이즈 크기가 제대로 반영 시키기 위함
         this.widgetElem = $(this.currElem).parents('li.a3-widget-container')[0];
-        this.widgetElem.addEventListener('transitionend', this.resizeCallback, false);
+        if( this.widgetElem !== undefined ){
+            this.widgetElem.addEventListener('transitionend', this.resizeCallback, false);
+        }
 
         //* 위젯 본문, 상단 높이 알기위한 엘리먼트 셀렉트
         this.widgetBodyElem = $(this.currElem).parents('div.a3-widget-body').eq(0);
@@ -112,7 +114,9 @@ export class donutChartComponent implements OnInit, OnChanges, OnDestroy {
 
     ngOnDestroy(){
         // 등록된 이벤트 제거
-        this.widgetElem.removeEventListener('transitionend', this.resizeCallback);
+        if( this.widgetElem !== undefined ){
+            this.widgetElem.removeEventListener('transitionend', this.resizeCallback);
+        }
     }
 
     ngOnChanges(c: any){

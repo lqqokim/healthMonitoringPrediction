@@ -4,6 +4,7 @@ import { WidgetApi, WidgetRefreshType, OnSetup } from '../../../common';
 import * as IDataType from './model/data-type.interface';
 
 import { LineStatusTrendComponent } from './components/line-status-trend.component';
+import { ITimePeriod } from '../../common/widget-chart-condition/widget-chart-condition.component';
 
 @Component({
     moduleId: module.id,
@@ -15,10 +16,12 @@ export class PdmLineStatusTrendWidgetComponent extends WidgetApi implements OnIn
     @ViewChild('container') container: ElementRef;
     @ViewChild('lineStatusTrendComp') lineStatusTrendComp: LineStatusTrendComponent;
     
-    viewTimePriod: any = {
-        fromDate: 0,
-        toDate: 0
+    private viewTimePriod: ITimePeriod = {
+        fromDate : 0,
+        toDate : 0
     };
+
+    private targetName: string = 'All Lines';
 
     condition: IDataType.ContitionType;
 
@@ -53,7 +56,10 @@ export class PdmLineStatusTrendWidgetComponent extends WidgetApi implements OnIn
             this._props = data;
             this._setConfigInfo(this._props);
         } else if (type === A3_WIDGET.SYNC_INCONDITION_REFRESH) {
-
+            this.showSpinner();
+            this._props = data;
+            this._setConfigInfo(this._props);
+            console.log('LINE STATUS SYNC', data);
         }
     }
 
@@ -63,15 +69,17 @@ export class PdmLineStatusTrendWidgetComponent extends WidgetApi implements OnIn
         const to: number = startOfDay.getTime(); // today 00:00:00
 
         this.condition = {
-            fabId: props[CD.PLANT],
+            fabId: props['plant']['fabId'],
             timePeriod: {
-                from: props[CD.TIME_PERIOD]['from'],
+                from: props['timePeriod']['from'],
                 to: to
             }
         };
 
-        this.viewTimePriod.fromDate = this.covertDateFormatter(props[CD.TIME_PERIOD]['from']);
-        this.viewTimePriod.toDate = this.covertDateFormatter(to);
+        // this.viewTimePriod.fromDate = this.covertDateFormatter(props[CD.TIME_PERIOD]['from']);
+        // this.viewTimePriod.toDate = this.covertDateFormatter(to);
+        this.viewTimePriod.fromDate = props[CD.TIME_PERIOD]['from'];
+        this.viewTimePriod.toDate = to;
     }
 
     covertDateFormatter(timestamp: number): string {

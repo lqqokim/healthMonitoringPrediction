@@ -1,14 +1,10 @@
 import { Component, ViewEncapsulation, ViewChild, OnDestroy, AfterViewInit, ElementRef, ChangeDetectorRef } from '@angular/core';
-import { WidgetRefreshType, WidgetApi, OnSetup } from '../../../common';
+import { WidgetRefreshType, WidgetApi, OnSetup, PdmModelService } from '../../../common';
 import { Translater } from '../../../sdk';
 import { PdmAlarmHistoryService } from './pdm-alarm-history.service';
 import { PdmCommonService } from '../../../common/service/pdm-common.service';
 import { TableData } from '../../common/ng2-table/table.component';
-
-export interface ITimePeriod {
-    start: number;
-    end: number;
-};
+import { ITimePeriod } from '../../common/widget-chart-condition/widget-chart-condition.component';
 
 @Component({
     moduleId: module.id,
@@ -22,9 +18,11 @@ export interface ITimePeriod {
 export class PdmAlarmHistoryComponent extends WidgetApi implements OnSetup, OnDestroy, AfterViewInit {
 
     private timePeriod: ITimePeriod = {
-        start : 1532044800000, // new Date(2018, 6, 20, 09, 0, 0, 0).getTime(),
-        end : 1532077200000 // new Date(2018, 6, 20, 18, 0, 0, 0).getTime()
+        fromDate : 1532044800000, // new Date(2018, 6, 20, 09, 0, 0, 0).getTime(),
+        toDate : 1532077200000 // new Date(2018, 6, 20, 18, 0, 0, 0).getTime()
     };
+
+    private targetName: string = 'All Lines';
 
     public columns: Array<TableData> = [
         {title: 'Time', name: 'Time' },
@@ -46,6 +44,7 @@ export class PdmAlarmHistoryComponent extends WidgetApi implements OnSetup, OnDe
     public paging:boolean = true;
 
     constructor(
+        private _pdmModel: PdmModelService
     ){
         super();
     }
@@ -54,17 +53,19 @@ export class PdmAlarmHistoryComponent extends WidgetApi implements OnSetup, OnDe
         this.showSpinner();
         this.init();
         // this.hideSpinner();
+
+        this._pdmModel.getAlarmClassificationSummary('fab1', 200, {
+            fromDate: 1530284400000,
+            toDate: 1530370800000
+        }).subscribe((res: any)=>{
+            console.log('res', res);
+        }, (err:any)=>{
+            console.log('err', err);
+        });
     }
 
     private init(){
         this.hideSpinner();
-    }
-
-    viewTimeperiod(): string {
-        return (
-            moment(this.timePeriod.start).add(-1, 'months').format('YYYY-MM-DD HH:mm') +' ~ '+
-            moment(this.timePeriod.end).add(-1, 'months').format('YYYY-MM-DD HH:mm')
-        );
     }
 
     /**
@@ -75,6 +76,14 @@ export class PdmAlarmHistoryComponent extends WidgetApi implements OnSetup, OnDe
     // tslint:disable-next-line:no-unused-variable
     refresh({ type, data }: WidgetRefreshType) {
         this.showSpinner();
+        if (type === A3_WIDGET.APPLY_CONFIG_REFRESH) {
+
+        }else if(type === A3_WIDGET.JUST_REFRESH) {
+
+        } else if (type === A3_WIDGET.SYNC_INCONDITION_REFRESH) {
+            this.hideSpinner();
+            console.log('ALARM HISTORY SYNC', data);
+        }
     }
 
     ngAfterViewInit() {

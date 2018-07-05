@@ -2,20 +2,16 @@ package com.bistel.a3.portal.domain.pdm;
 
 public class AlarmClassification {
 
-    private int total;
+
+
     private int unbalance;
     private int misalignment;
     private int bearing;
     private int lublication;
     private int etc;
 
-    public int getTotal() {
-        return total;
-    }
 
-    public void setTotal(int total) {
-        this.total = total;
-    }
+
 
     public int getUnbalance() {
         return unbalance;

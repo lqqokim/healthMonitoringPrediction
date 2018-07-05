@@ -1,5 +1,5 @@
 import { Component, OnInit, OnChanges, SimpleChanges, EventEmitter, Output, Input } from '@angular/core';
-
+import { PdmModelService } from './../../../../common';
 import * as IDataType from './../model/data-type.interface';
 
 @Component({
@@ -16,23 +16,19 @@ export class LineStatusTrendComponent implements OnInit, OnChanges {
     chart: any;
     private _props: any;
 
-    constructor() {
+    constructor(private _pdmModel: PdmModelService) {
     }
 
     ngOnChanges(changes: SimpleChanges) {
         for (let propName in changes) {
-            let change = changes[propName];
-            const curVal = change.currentValue;
-            let item: any;
+            let currentValue = changes[propName].currentValue;
 
-            if (propName === 'condition') {
-                item = curVal;
+            if (currentValue && propName === 'condition') {
+                const condition = currentValue;
+                this.chartId = this.guid();
+                this.getTrendData(condition);
             }
-
-            this.chartId = this.guid();
-            this.setChartData(item);
         }
-
     }
 
     ngOnInit() {
@@ -43,7 +39,26 @@ export class LineStatusTrendComponent implements OnInit, OnChanges {
         this.chart.resize();
     }
 
-    setChartData(item): void {
+    getTrendData(condition): void {
+        const fabId = condition.fabId;
+        const areaId = 200;
+        const params = {
+            fromdate: condition.timePeriod.from,
+            todate: condition.timePeriod.to
+        };
+
+        this._pdmModel.getLineStatusTrend(fabId, areaId, params)
+        .then((res) => {
+            console.log('getLineStatusTrend', res);
+            this.setChartData();
+        }).catch((err) => {
+            console.log('err', err);
+        });
+
+        this.setChartData();
+    }
+
+    setChartData(item?): void {
         const normals: any[] = ['normal', 25, 23, 26, 22, 27, 29, 31];
         const warnings: any[] = ['warning', 4, 9, 3, 12, 3, 7];
         const alarms: any[] = ['alarm', 6, 1, 2, 1, 3, 2, 4];

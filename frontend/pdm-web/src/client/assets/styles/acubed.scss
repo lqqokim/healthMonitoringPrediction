@@ -1094,7 +1094,7 @@ fieldset[disabled] .btn-default:hover {
 }
 
 .a3-snb-title-group {
-    width: calc(100% - 46px);
+    width: calc(100% - 60px);
     height: 28px;
 }
 
@@ -1302,7 +1302,14 @@ i.input-text {
         width: 22px;
         background-image: url(../images/a3-bi-simbol.png);
         background-position: 0 1px;
-    }
+		}
+
+		.menu-span{
+				color: #fff;
+				font-size: 16px;
+				margin-top: 5px;
+		}
+
     .a3-navbar-bi {
         float: left;
         display: inline-block;

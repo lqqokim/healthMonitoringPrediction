@@ -1,5 +1,4 @@
 import { Component, ViewEncapsulation, OnInit, ViewChild, Input, OnDestroy, ElementRef, Renderer } from '@angular/core';
-import { IWorstEeqList, ITimePeriod } from '../pdm-worst-eqp-list.component';
 
 export interface Size {
     w: number,
@@ -19,15 +18,38 @@ export interface DrawData {
     colors: any
 }
 
+//* 목업 데이터 interface
+export interface IWorstEeqList {
+    order: number;
+    equipment: string;
+    score: number;
+    status: Array<{
+        type: string;
+        start: number;
+        end: number;
+    }>
+};
+
+export interface ITimePeriod {
+    fromDate: number;
+    toDate: number;
+};
+
+export interface IInfoBoxStyle {
+    [key: string]: string;
+}
+
 @Component({
     moduleId: module.id,
     selector: 'status-change',
     templateUrl: './status-change.html',
+    styleUrls: ['./status-change.css'],
     encapsulation: ViewEncapsulation.None
 })
 
 export class StatusChangeComponent implements OnInit, OnDestroy {
     @ViewChild('status') canvasElem: ElementRef;
+    @ViewChild('infoBox') infoElem: ElementRef;
 
     @Input() statusData: IWorstEeqList["status"];
     @Input() timePeriod: ITimePeriod;
@@ -45,6 +67,7 @@ export class StatusChangeComponent implements OnInit, OnDestroy {
     private m_downCallback: Function = this.onMouseDown.bind(this);
     private m_upCallback: Function = this.onMouseUp.bind(this);
     private is_mouse_down: boolean = false;
+    private is_mouse_over: boolean = false;
 
     // canvas
     private cSize: Size = {w: 0, h: 0};
@@ -59,12 +82,16 @@ export class StatusChangeComponent implements OnInit, OnDestroy {
     };
 
     // 마커 개수 표기용
-    private marketCount:number = 15;
-    private markerPosition:Array<number> = [];
-    private markerInfo:Array<string> = [];
-    private markerSize:Size = {w:1, h: 5};
-    private markerTopPosition:number = 15;
-    private markerColor:string = '#333';
+    private markerCount: number = 10;
+    private markerPosition: Array<number> = [];
+    private markerInfo: Array<string> = [];
+    private markerSize: Size = {w:1, h: 5};
+    private markerTopPosition: number = 15;
+    private markerColor: string = '#333';
+
+    // infoBox style
+    private infoBoxStyle: IInfoBoxStyle = {};
+    private infoBoxcont: string = '';
 
     constructor(renderer: Renderer) {
         this.resizeListenerFunc = renderer.listen('window', 'resize', this.resizeCallback);
@@ -74,11 +101,13 @@ export class StatusChangeComponent implements OnInit, OnDestroy {
         this.drawDataCreate();
 
         this.ctx = this.canvasElem.nativeElement.getContext('2d');
-        this.parentElem = this.canvasElem.nativeElement.parentElement;
+        this.parentElem = this.canvasElem.nativeElement.parentElement.parentElement;
 
         //* 위젯 컴포넌트가 transition으로 효과로 인해 캔버스 리사이즈 크기가 제대로 반영 시키기 위함
         this.widgetElem = $(this.parentElem).parents('li.a3-widget-container')[0];
-        this.widgetElem.addEventListener('transitionend', this.resizeCallback, false);
+        if( this.widgetElem !== undefined ){
+            this.widgetElem.addEventListener('transitionend', this.resizeCallback, false);
+        }
 
         //* 캔버스 마우스 이벤트 등록
         this.canvasElem.nativeElement.addEventListener('mousemove', this.m_moveCallback, false);
@@ -92,7 +121,9 @@ export class StatusChangeComponent implements OnInit, OnDestroy {
     ngOnDestroy(){
         // 등록된 이벤트 제거
         this.resizeListenerFunc();
-        this.widgetElem.removeEventListener('transitionend', this.resizeCallback);
+        if( this.widgetElem !== undefined ){
+            this.widgetElem.removeEventListener('transitionend', this.resizeCallback);
+        }
         this.canvasElem.nativeElement.removeEventListener('mousemove', this.m_moveCallback);
         this.canvasElem.nativeElement.removeEventListener('mouseout', this.m_outCallback);
         this.canvasElem.nativeElement.removeEventListener('mousedown', this.m_downCallback);
@@ -106,7 +137,7 @@ export class StatusChangeComponent implements OnInit, OnDestroy {
         // 그려질 폭 설정
         this.drawData.period = {
             min: 0,
-            max: this.timePeriod.end - this.timePeriod.start
+            max: this.timePeriod.toDate - this.timePeriod.fromDate
         };
 
         // status 시간 기준 그려질 폭 퍼센트(%) 계산
@@ -114,8 +145,8 @@ export class StatusChangeComponent implements OnInit, OnDestroy {
         for( i=0; i<len; i++ ){
             this.drawData.data.push({
                 type: this.statusData[i].type,
-                min: (this.statusData[i].start - this.timePeriod.start) / this.drawData.period.max,
-                max: (this.statusData[i].end - this.timePeriod.start) / this.drawData.period.max
+                min: (this.statusData[i].start - this.timePeriod.fromDate) / this.drawData.period.max,
+                max: (this.statusData[i].end - this.timePeriod.fromDate) / this.drawData.period.max
             });
         }
 
@@ -126,24 +157,57 @@ export class StatusChangeComponent implements OnInit, OnDestroy {
                 this.drawColors[i].name
             ] = this.drawColors[i].color;
         }
+    }
 
-        // 마커 위치 설정
-        let markerMargin = this.drawData.period.max / this.marketCount;
-        let margin = 0, time;
-        for( i=0; i<=this.marketCount; i++ ){
+    //* 마커 위치 설정
+    marketset( customMakerCount: number = this.markerCount ): void {
+        let
+            i: number,
+            max: number = customMakerCount,
+            markerMargin: number = this.drawData.period.max / max,
+            margin: number = 0
+        ;
+
+        // 마커 수가 변경되었으면 설정
+        if( this.markerCount !== customMakerCount ){
+            this.markerCount = customMakerCount;
+        }        
+
+        // 이미 등록된 마커관련 배열 제거
+        if( this.markerPosition.length > 0 ){
+            this.markerPosition.splice( 0, this.markerPosition.length );
+            this.markerInfo.splice( 0, this.markerInfo.length );
+        }
+
+        for( i=0; i<=max; i++ ){
             margin = markerMargin*i;
+
+            // 마커 위치 설정
             this.markerPosition.push( margin / this.drawData.period.max );
+
+            // 마커 위치 표기될 내용 설정
             this.markerInfo.push(
-                moment(this.timePeriod.start + Math.round(margin)).format('HH:mm')
+                moment(this.timePeriod.fromDate + Math.round(margin)).format('HH:mm')
             );
         }
     }
 
     //* 캔버스 리사이즈 (canvas는 style로 늘릴경우 내용물이 scale형태로 커지기 때문에 해당 엘리먼트 크기 만큼 키워 줌)
     onResize(e?:Event): void {
-        if( (e != undefined && !e.isTrusted) || this.parentElem == undefined ){ return; }      
+        if( (e != undefined && !e.isTrusted) || this.parentElem == undefined ){ return; }
+        this.canvasElem.nativeElement.width = 1;
+        this.canvasElem.nativeElement.height = 0;
+
         this.canvasElem.nativeElement.width = this.cSize.w = this.parentElem.offsetWidth;
         this.canvasElem.nativeElement.height = this.cSize.h = this.parentElem.offsetHeight;
+
+        const markerCount = Math.floor(this.cSize.w/100);
+
+        // 넓이에 따라 마커 개수 재설정
+        this.marketset(
+            (markerCount < 1 ? 1 : markerCount)
+        );
+
         this.onDraw();
     }
 
@@ -168,7 +232,7 @@ export class StatusChangeComponent implements OnInit, OnDestroy {
         }
 
         // marker 그리기
-        len = this.marketCount;
+        len = this.markerCount;
         for( i=0; i<=len; i++ ){
             x = (this.cSize.w * this.markerPosition[i]) - (i==len ? this.markerSize.w : 0);
             y = this.markerTopPosition;
@@ -206,6 +270,7 @@ export class StatusChangeComponent implements OnInit, OnDestroy {
     onMouseMove(e:MouseEvent): void {
         let
             mouseX: number = e.offsetX,
+            mouseY: number = e.offsetY,
             percentX: number = mouseX / this.cSize.w,
             x: number = 0,
             txt1: string = '',
@@ -214,6 +279,8 @@ export class StatusChangeComponent implements OnInit, OnDestroy {
             currIdx: number = this.getCurrentIdx(percentX),
             currType: string = this.statusData[currIdx].type
         ;
+
+        this.is_mouse_over = true;
 
         // 마우스 클릭상태 여부에 따른 내용 출력 변경
         // (클릭 중) 현 status 시작~끝 위치 날짜표기
@@ -229,7 +296,7 @@ export class StatusChangeComponent implements OnInit, OnDestroy {
         // (오버) 해당좌표 날짜, status명 표기
         else {
             let
-                currTimestamp: number = this.timePeriod.start + Math.round(this.drawData.period.max * percentX),
+                currTimestamp: number = this.timePeriod.fromDate + Math.round(this.drawData.period.max * percentX),
                 currTime: string = moment(currTimestamp).add(-1, 'months').format('YY.MM.DD HH:mm:ss')
             ;
 
@@ -240,32 +307,11 @@ export class StatusChangeComponent implements OnInit, OnDestroy {
         // 원래 보여질 내용 그리기
         this.onDraw();
         
-        // 투명 x 좌표
-        x = (lean == 'l') ? mouseX-10 : (lean == 'r') ? mouseX-150+10 : mouseX-75;
-
         // 영역 투명설정
-        let grd: CanvasGradient = this.ctx.createLinearGradient( x, 0, x+150, 0 );
+        // let grd: CanvasGradient = this.ctx.createLinearGradient( x, 0, x+150, 0 );
         let mainColor = this.drawData.colors.hasOwnProperty(currType) ?
             this.drawData.colors[currType] : '#ffffff'
         ;
-        if( lean == 'l' ){
-            grd.addColorStop(0, (mainColor+'4d'));
-            grd.addColorStop(0.9, (mainColor+'4d'));
-            grd.addColorStop(1, (mainColor+'00'));
-        } else if( lean == 'r' ){
-            grd.addColorStop(0, (mainColor+'00'));
-            grd.addColorStop(0.1, (mainColor+'4d'));
-            grd.addColorStop(1, (mainColor+'4d'));
-        } else {
-            grd.addColorStop(0, (mainColor+'00'));
-            grd.addColorStop(0.1, (mainColor+'4d'));
-            grd.addColorStop(0.5, (mainColor+'4d'));
-            grd.addColorStop(0.9, (mainColor+'4d'));
-            grd.addColorStop(1, (mainColor+'00'));
-        }
-
-        this.ctx.fillStyle = grd;
-        this.ctx.fillRect( x, this.graphTop, 150, this.cSize.h );
 
         // 구분 선 T
         this.ctx.fillStyle = '#333333';
@@ -277,16 +323,17 @@ export class StatusChangeComponent implements OnInit, OnDestroy {
         this.ctx.fillRect( mouseX, this.graphTop, 1, 5 );
         this.ctx.fillRect( mouseX, this.cSize.h-5, 1, 5 );
 
-        // 해당 위치 정보 표기
-        this.ctx.font = "12px sans-serif";
-        this.ctx.fillStyle = "#ffffff";
-        this.ctx.textAlign = (lean == 'l') ? 'left' : (lean == 'r') ? 'right' : 'center';
-
-        x = (lean == 'l') ? mouseX+10 : (lean == 'r') ? mouseX-10 : mouseX;
 
         // 마우스 위치 내용 표기
-        this.ctx.fillText(txt1, x, this.graphTop+18);
-        this.ctx.fillText(txt2, x, this.graphTop+32);
+        if( this.is_mouse_over ){
+            this.infoBoxStyle = {
+                left: `${mouseX}px`,
+                top: `${this.graphTop}px`,
+                backgroundColor: mainColor,
+                transform: `translateX(${((lean == 'l') ? '0%' : (lean == 'r') ? '-100%' : '-50%')})`
+            };
+            this.infoBoxcont = `${txt1}<br>${txt2}`;
+        }
     }
 
     //* 마우스 down Event
@@ -304,6 +351,7 @@ export class StatusChangeComponent implements OnInit, OnDestroy {
     //* 마우스 out Event
     onMouseOut(e:MouseEvent): void {
         this.is_mouse_down = false;
+        this.is_mouse_over = false;
         this.onDraw();
     }
 }
