@@ -71,81 +71,18 @@ public class SummaryDataService implements ISummaryDataService {
     @Override
     public List<AreaFaultCountSummary> getAlarmCountTrend(String fabId, Long areaId, Date fromdate, Date todate) {
 
-        List<AreaFaultCountSummary> areaFaultCountSummaryList = new ArrayList<>();
+        STDSummaryMapper stdSummaryMapper= SqlSessionUtil.getMapper(sessions, fabId, STDSummaryMapper.class);
 
-        AreaFaultCountSummary areaFaultCountSummary1=new AreaFaultCountSummary();
-        Date firstDay = new Date();
-        firstDay = DateUtils.addDays(firstDay, -6);//yesterday
-        firstDay = DateUtils.truncate(firstDay, Calendar.DATE);
-        areaFaultCountSummary1.setArea_name("line1");
-        areaFaultCountSummary1.setStart_time(firstDay);
-        areaFaultCountSummary1.setAlarm_count((int) ((Math.random())*100)+0);
-        areaFaultCountSummary1.setWarning_count((int) ((Math.random())*100)+0);
-
-        AreaFaultCountSummary areaFaultCountSummary2=new AreaFaultCountSummary();
-        Date secondDay = new Date();
-        secondDay = DateUtils.addDays(secondDay, -5);//yesterday
-        secondDay = DateUtils.truncate(secondDay, Calendar.DATE);
-        areaFaultCountSummary2.setArea_name("line1");
-        areaFaultCountSummary2.setStart_time(secondDay);
-        areaFaultCountSummary2.setAlarm_count((int) ((Math.random())*100)+0);
-        areaFaultCountSummary2.setWarning_count((int) ((Math.random())*100)+0);
-
-        AreaFaultCountSummary areaFaultCountSummary3=new AreaFaultCountSummary();
-        Date thirdDay = new Date();
-        thirdDay = DateUtils.addDays(thirdDay, -4);//yesterday
-        thirdDay = DateUtils.truncate(thirdDay, Calendar.DATE);
-        areaFaultCountSummary3.setArea_name("line1");
-        areaFaultCountSummary3.setStart_time(thirdDay);
-        areaFaultCountSummary3.setAlarm_count((int) ((Math.random())*100)+0);
-        areaFaultCountSummary3.setWarning_count((int) ((Math.random())*100)+0);
-
-        AreaFaultCountSummary areaFaultCountSummary4=new AreaFaultCountSummary();
-        Date fourthDay = new Date();
-        fourthDay = DateUtils.addDays(fourthDay, -3);//yesterday
-        fourthDay = DateUtils.truncate(fourthDay, Calendar.DATE);
-        areaFaultCountSummary4.setArea_name("line1");
-        areaFaultCountSummary4.setStart_time(fourthDay);
-        areaFaultCountSummary4.setAlarm_count((int) ((Math.random())*100)+0);
-        areaFaultCountSummary4.setWarning_count((int) ((Math.random())*100)+0);
-
-        AreaFaultCountSummary areaFaultCountSummary5=new AreaFaultCountSummary();
-        Date fifthDay = new Date();
-        fifthDay = DateUtils.addDays(fifthDay, -2);//yesterday
-        fifthDay = DateUtils.truncate(fifthDay, Calendar.DATE);
-        areaFaultCountSummary5.setArea_name("line1");
-        areaFaultCountSummary5.setStart_time(fifthDay);
-        areaFaultCountSummary5.setAlarm_count((int) ((Math.random())*100)+0);
-        areaFaultCountSummary5.setWarning_count((int) ((Math.random())*100)+0);
-
-        AreaFaultCountSummary areaFaultCountSummary6=new AreaFaultCountSummary();
-        Date sixthDay = new Date();
-        sixthDay = DateUtils.addDays(sixthDay, -1);//yesterday
-        sixthDay = DateUtils.truncate(sixthDay, Calendar.DATE);
-        areaFaultCountSummary6.setArea_name("line1");
-        areaFaultCountSummary6.setStart_time(sixthDay);
-        areaFaultCountSummary6.setAlarm_count((int) ((Math.random())*100)+0);
-        areaFaultCountSummary6.setWarning_count((int) ((Math.random())*100)+0);
-
-        AreaFaultCountSummary areaFaultCountSummary7=new AreaFaultCountSummary();
-        Date seventhDay = new Date();
-        seventhDay = DateUtils.addDays(seventhDay, 0);//yesterday
-        seventhDay = DateUtils.truncate(seventhDay, Calendar.DATE);
-        areaFaultCountSummary7.setArea_name("line1");
-        areaFaultCountSummary7.setStart_time(seventhDay);
-        areaFaultCountSummary7.setAlarm_count((int) ((Math.random())*100)+0);
-        areaFaultCountSummary7.setWarning_count((int) ((Math.random())*100)+0);
+        if(areaId==null)
+        {
+            return stdSummaryMapper.selectLineStatusTrend(fromdate, todate);
+        }
+        else
+        {
+            return stdSummaryMapper.selectLineStatusTrendByAreaId(fromdate, todate, areaId);
+        }
 
 
-        areaFaultCountSummaryList.add(areaFaultCountSummary1);
-        areaFaultCountSummaryList.add(areaFaultCountSummary2);
-        areaFaultCountSummaryList.add(areaFaultCountSummary3);
-        areaFaultCountSummaryList.add(areaFaultCountSummary4);
-        areaFaultCountSummaryList.add(areaFaultCountSummary5);
-        areaFaultCountSummaryList.add(areaFaultCountSummary6);
-        areaFaultCountSummaryList.add(areaFaultCountSummary7);
-
-        return areaFaultCountSummaryList;
     }
 
     @Override
@@ -156,6 +93,7 @@ public class SummaryDataService implements ISummaryDataService {
 
         if(areaId == null)
         {
+            List<AlarmClassification> alarmClassifications = stdSummaryMapper.selectAlarmClassificationSummary(fromdate, todate);
             return stdSummaryMapper.selectAlarmClassificationSummary(fromdate, todate);
         }
         else
@@ -164,13 +102,6 @@ public class SummaryDataService implements ISummaryDataService {
             return null;
         }
 
-
-//        AlarmClassification alarmClassification = new AlarmClassification();
-//        alarmClassification.setUnbalance((int) ((Math.random())*100)+0);
-//        alarmClassification.setMisalignment((int) ((Math.random())*100)+0);
-//        alarmClassification.setBearing((int) ((Math.random())*100)+0);
-//        alarmClassification.setLublication((int) ((Math.random())*100)+0);
-//        alarmClassification.setEtc((int) ((Math.random())*100)+0);
 
 
 
@@ -213,97 +144,18 @@ public class SummaryDataService implements ISummaryDataService {
     @Override
     public List<AreaFaultCountSummary> lineStatusTrend(String fabId, Long areaId, Date fromdate, Date todate) {
 
-        List<AreaFaultCountSummary> areaFaultCountSummaryList = new ArrayList<>();
+        STDSummaryMapper stdSummaryMapper= SqlSessionUtil.getMapper(sessions, fabId, STDSummaryMapper.class);
 
-        AreaFaultCountSummary areaFaultCountSummary1= new AreaFaultCountSummary();
-        Date firstDay = new Date();
-        firstDay = DateUtils.addDays(firstDay, -6);//yesterday
-        firstDay = DateUtils.truncate(firstDay, Calendar.DATE);
-        areaFaultCountSummary1.setArea_name("line1");
-        areaFaultCountSummary1.setStart_time(firstDay);
-        areaFaultCountSummary1.setNormal_count((int) ((Math.random())*100)+0);
-        areaFaultCountSummary1.setAlarm_count((int) ((Math.random())*100)+0);
-        areaFaultCountSummary1.setWarning_count((int) ((Math.random())*100)+0);
-        areaFaultCountSummary1.setOffline_count((int) ((Math.random())*100)+0);
+        if(areaId==null)
+        {
+            return stdSummaryMapper.selectLineStatusTrend(fromdate, todate);
+        }
+        else
+        {
+            return stdSummaryMapper.selectLineStatusTrendByAreaId(fromdate, todate, areaId);
+        }
 
 
-        AreaFaultCountSummary areaFaultCountSummary2= new AreaFaultCountSummary();
-        Date secondDay = new Date();
-        secondDay = DateUtils.addDays(secondDay, -5);//yesterday
-        secondDay = DateUtils.truncate(secondDay, Calendar.DATE);
-        areaFaultCountSummary2.setArea_name("line1");
-        areaFaultCountSummary2.setStart_time(secondDay);
-        areaFaultCountSummary2.setNormal_count((int) ((Math.random())*100)+0);
-        areaFaultCountSummary2.setAlarm_count((int) ((Math.random())*100)+0);
-        areaFaultCountSummary2.setWarning_count((int) ((Math.random())*100)+0);
-        areaFaultCountSummary2.setOffline_count((int) ((Math.random())*100)+0);
-
-        AreaFaultCountSummary areaFaultCountSummary3= new AreaFaultCountSummary();
-        Date thirdday = new Date();
-        thirdday = DateUtils.addDays(thirdday, -4);//yesterday
-        thirdday = DateUtils.truncate(thirdday, Calendar.DATE);
-        areaFaultCountSummary3.setArea_name("line1");
-        areaFaultCountSummary3.setStart_time(thirdday);
-        areaFaultCountSummary3.setNormal_count((int) ((Math.random())*100)+0);
-        areaFaultCountSummary3.setAlarm_count((int) ((Math.random())*100)+0);
-        areaFaultCountSummary3.setWarning_count((int) ((Math.random())*100)+0);
-        areaFaultCountSummary3.setOffline_count((int) ((Math.random())*100)+0);
-
-        AreaFaultCountSummary areaFaultCountSummary4= new AreaFaultCountSummary();
-        Date fourthday = new Date();
-        fourthday = DateUtils.addDays(fourthday, -3);//yesterday
-        fourthday = DateUtils.truncate(fourthday, Calendar.DATE);
-        areaFaultCountSummary4.setArea_name("line1");
-        areaFaultCountSummary4.setStart_time(fourthday);
-        areaFaultCountSummary4.setNormal_count((int) ((Math.random())*100)+0);
-        areaFaultCountSummary4.setAlarm_count((int) ((Math.random())*100)+0);
-        areaFaultCountSummary4.setWarning_count((int) ((Math.random())*100)+0);
-        areaFaultCountSummary4.setOffline_count((int) ((Math.random())*100)+0);
-
-        AreaFaultCountSummary areaFaultCountSummary5= new AreaFaultCountSummary();
-        Date fifthDay = new Date();
-        fifthDay = DateUtils.addDays(fifthDay, -2);//yesterday
-        fifthDay = DateUtils.truncate(fifthDay, Calendar.DATE);
-        areaFaultCountSummary5.setArea_name("line1");
-        areaFaultCountSummary5.setStart_time(fifthDay);
-        areaFaultCountSummary5.setNormal_count((int) ((Math.random())*100)+0);
-        areaFaultCountSummary5.setAlarm_count((int) ((Math.random())*100)+0);
-        areaFaultCountSummary5.setWarning_count((int) ((Math.random())*100)+0);
-        areaFaultCountSummary5.setOffline_count((int) ((Math.random())*100)+0);
-
-
-        AreaFaultCountSummary areaFaultCountSummary6= new AreaFaultCountSummary();
-        Date sixthDay = new Date();
-        sixthDay = DateUtils.addDays(sixthDay, -1);//yesterday
-        sixthDay = DateUtils.truncate(sixthDay, Calendar.DATE);
-        areaFaultCountSummary6.setArea_name("line1");
-        areaFaultCountSummary6.setStart_time(sixthDay);
-        areaFaultCountSummary6.setNormal_count((int) ((Math.random())*100)+0);
-        areaFaultCountSummary6.setAlarm_count((int) ((Math.random())*100)+0);
-        areaFaultCountSummary6.setWarning_count((int) ((Math.random())*100)+0);
-        areaFaultCountSummary6.setOffline_count((int) ((Math.random())*100)+0);
-
-        AreaFaultCountSummary areaFaultCountSummary7= new AreaFaultCountSummary();
-        Date seventhDay = new Date();
-        seventhDay = DateUtils.addDays(seventhDay, 0);//yesterday
-        seventhDay = DateUtils.truncate(seventhDay, Calendar.DATE);
-        areaFaultCountSummary7.setArea_name("line1");
-        areaFaultCountSummary7.setStart_time(seventhDay);
-        areaFaultCountSummary7.setNormal_count((int) ((Math.random())*100)+0);
-        areaFaultCountSummary7.setAlarm_count((int) ((Math.random())*100)+0);
-        areaFaultCountSummary7.setWarning_count((int) ((Math.random())*100)+0);
-        areaFaultCountSummary7.setOffline_count((int) ((Math.random())*100)+0);
-
-        areaFaultCountSummaryList.add(areaFaultCountSummary1);
-        areaFaultCountSummaryList.add(areaFaultCountSummary2);
-        areaFaultCountSummaryList.add(areaFaultCountSummary3);
-        areaFaultCountSummaryList.add(areaFaultCountSummary4);
-        areaFaultCountSummaryList.add(areaFaultCountSummary5);
-        areaFaultCountSummaryList.add(areaFaultCountSummary6);
-        areaFaultCountSummaryList.add(areaFaultCountSummary7);
-
-
-        return areaFaultCountSummaryList;
     }
 
     @Override

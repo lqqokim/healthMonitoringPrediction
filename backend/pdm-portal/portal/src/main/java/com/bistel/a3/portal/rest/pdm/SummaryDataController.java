@@ -32,18 +32,31 @@ public class SummaryDataController {
     }
 
 
-    @RequestMapping("/areas/{areaId}/alarmCountTrend")
+    @RequestMapping("/alarmCountTrend")
     public Object getAlarmCountTrend(@PathVariable("fabId") String fabId,
-                                     @PathVariable("areaId") Long areaId,
-                                       @RequestParam("fromdate") Long fromdate,
-                                       @RequestParam("todate") Long todate) {
+                                     @RequestParam("fromdate") Long fromdate,
+                                     @RequestParam("todate") Long todate) {
 
-        areaId=200L;
+        Long areaId=null;
         Date from = new Date(fromdate);
         Date to = new Date(todate);
 
         return summaryDataService.getAlarmCountTrend(fabId, areaId, from, to);
     }
+
+    @RequestMapping("areas/{areaId}/alarmCountTrendByAreaId")
+    public Object getAlarmCountTrendByAreaId(@PathVariable("fabId") String fabId,
+                                             @PathVariable("areaId") Long areaId,
+                                     @RequestParam("fromdate") Long fromdate,
+                                     @RequestParam("todate") Long todate) {
+
+
+        Date from = new Date(fromdate);
+        Date to = new Date(todate);
+
+        return summaryDataService.getAlarmCountTrend(fabId, areaId, from, to);
+    }
+
 
     @RequestMapping("/areas/{areaId}/alarmClassificationSummaryByArea")
     public Object getAlarmClassificationSummaryByArea(@PathVariable("fabId") String fabId,
@@ -127,18 +140,31 @@ public class SummaryDataController {
         return summaryDataService.lineStatusSummary(fabId, from, to);
     }
 
-    @RequestMapping("/areas/{areaId}/lineStatusTrend")
+    @RequestMapping("/lineStatusTrend")
     public Object lineStatusTrend(@PathVariable("fabId") String fabId,
-                                  @PathVariable("areaId") Long areaId,
                                     @RequestParam("fromdate") Long fromdate,
                                     @RequestParam("todate") Long todate) {
 
-        areaId=200L;
+        Long areaId=null;
         Date from = new Date(fromdate);
         Date to = new Date(todate);
 
         return summaryDataService.lineStatusTrend(fabId,areaId, from, to);
     }
+
+    @RequestMapping("/areas/{areaId}/lineStatusTrendByAreaId")
+    public Object lineStatusTrendByAreaId(@PathVariable("fabId") String fabId,
+                                          @PathVariable("areaId") Long areaId,
+                                  @RequestParam("fromdate") Long fromdate,
+                                  @RequestParam("todate") Long todate) {
+
+
+        Date from = new Date(fromdate);
+        Date to = new Date(todate);
+
+        return summaryDataService.lineStatusTrend(fabId,areaId, from, to);
+    }
+
 
     @RequestMapping("/areas/{areaId}/worstEquipmentList")
     public Object worstEquipmentList(@PathVariable("fabId") String fabId,

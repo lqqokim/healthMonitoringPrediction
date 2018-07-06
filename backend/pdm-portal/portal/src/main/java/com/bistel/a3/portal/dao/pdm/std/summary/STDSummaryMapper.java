@@ -21,4 +21,8 @@ public interface STDSummaryMapper {
 
     List<AlarmClassification> selectAlarmClassificationSummary(@Param("fromdate") Date fromdate, @Param("todate") Date todate);
 
+    List<AreaFaultCountSummary> selectLineStatusTrend(@Param("fromdate") Date fromdate, @Param("todate") Date todate);
+
+    List<AreaFaultCountSummary> selectLineStatusTrendByAreaId(@Param("fromdate") Date fromdate, @Param("todate") Date todate, @Param("area_id") Long area_id);
+
 }
