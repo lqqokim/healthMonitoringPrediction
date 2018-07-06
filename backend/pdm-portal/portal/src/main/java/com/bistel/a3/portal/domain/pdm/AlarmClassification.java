@@ -3,55 +3,22 @@ package com.bistel.a3.portal.domain.pdm;
 public class AlarmClassification {
 
 
+    private String fault_class;
+    private int count;
 
-    private int unbalance;
-    private int misalignment;
-    private int bearing;
-    private int lublication;
-    private int etc;
-
-
-
-
-    public int getUnbalance() {
-        return unbalance;
+    public String getFault_class() {
+        return fault_class;
     }
 
-    public void setUnbalance(int unbalance) {
-        this.unbalance = unbalance;
+    public void setFault_class(String fault_class) {
+        this.fault_class = fault_class;
     }
 
-    public int getMisalignment() {
-        return misalignment;
+    public int getCount() {
+        return count;
     }
 
-    public void setMisalignment(int misalignment) {
-        this.misalignment = misalignment;
+    public void setCount(int count) {
+        this.count = count;
     }
-
-    public int getBearing() {
-        return bearing;
-    }
-
-    public void setBearing(int bearing) {
-        this.bearing = bearing;
-    }
-
-    public int getLublication() {
-        return lublication;
-    }
-
-    public void setLublication(int lublication) {
-        this.lublication = lublication;
-    }
-
-    public int getEtc() {
-        return etc;
-    }
-
-    public void setEtc(int etc) {
-        this.etc = etc;
-    }
-
-
 }

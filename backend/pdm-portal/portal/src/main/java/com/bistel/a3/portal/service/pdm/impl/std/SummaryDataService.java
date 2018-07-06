@@ -149,17 +149,31 @@ public class SummaryDataService implements ISummaryDataService {
     }
 
     @Override
-    public AlarmClassification getAlarmClassificationSummary(String fabId, Long areaId, Date fromdate, Date todate) {
-
-        AlarmClassification alarmClassification = new AlarmClassification();
-        alarmClassification.setUnbalance((int) ((Math.random())*100)+0);
-        alarmClassification.setMisalignment((int) ((Math.random())*100)+0);
-        alarmClassification.setBearing((int) ((Math.random())*100)+0);
-        alarmClassification.setLublication((int) ((Math.random())*100)+0);
-        alarmClassification.setEtc((int) ((Math.random())*100)+0);
+    public List<AlarmClassification> getAlarmClassificationSummary(String fabId, Long areaId, Date fromdate, Date todate) {
 
 
-        return alarmClassification;
+        STDSummaryMapper stdSummaryMapper= SqlSessionUtil.getMapper(sessions, fabId, STDSummaryMapper.class);
+
+        if(areaId == null)
+        {
+            return stdSummaryMapper.selectAlarmClassificationSummary(fromdate, todate);
+        }
+        else
+        {
+            //To do : Area선택 됐을때
+            return null;
+        }
+
+
+//        AlarmClassification alarmClassification = new AlarmClassification();
+//        alarmClassification.setUnbalance((int) ((Math.random())*100)+0);
+//        alarmClassification.setMisalignment((int) ((Math.random())*100)+0);
+//        alarmClassification.setBearing((int) ((Math.random())*100)+0);
+//        alarmClassification.setLublication((int) ((Math.random())*100)+0);
+//        alarmClassification.setEtc((int) ((Math.random())*100)+0);
+
+
+
     }
 
     @Override

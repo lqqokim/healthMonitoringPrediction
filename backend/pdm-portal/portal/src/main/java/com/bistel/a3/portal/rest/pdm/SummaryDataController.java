@@ -45,12 +45,23 @@ public class SummaryDataController {
         return summaryDataService.getAlarmCountTrend(fabId, areaId, from, to);
     }
 
-    @RequestMapping("/areas/{areaId}/alarmClassificationSummary")
-    public Object getAlarmClassificationSummary(@PathVariable("fabId") String fabId,
+    @RequestMapping("/areas/{areaId}/alarmClassificationSummaryByArea")
+    public Object getAlarmClassificationSummaryByArea(@PathVariable("fabId") String fabId,
                                                      @PathVariable("areaId") Long areaId,
                                                      @RequestParam("fromdate") Long fromdate,
                                                       @RequestParam("todate") Long todate) {
-        areaId=200L;
+        Date from = new Date(fromdate);
+        Date to = new Date(todate);
+
+        return summaryDataService.getAlarmClassificationSummary(fabId, areaId, from, to);
+    }
+
+    @RequestMapping("/alarmClassificationSummary")
+    public Object getAlarmClassificationSummary(@PathVariable("fabId") String fabId,
+                                                @RequestParam("fromdate") Long fromdate,
+                                                @RequestParam("todate") Long todate) {
+
+        Long areaId=null;
         Date from = new Date(fromdate);
         Date to = new Date(todate);
 

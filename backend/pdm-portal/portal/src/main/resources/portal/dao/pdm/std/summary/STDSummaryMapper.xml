@@ -681,7 +681,69 @@
 
     </select>
 
+    <select id="selectAlarmClassificationSummary" resultType="com.bistel.a3.portal.domain.pdm.AlarmClassification">
 
+        select fault_class, count(1) as count
+        from
+        (
+        select alarmeqp.eqp_id as eqp_id, fc.fault_class as fault_class, count(fc.fault_class) as fault_count
+        from
+        (
+        select distinct fault_class
+        from alarm_trx_pdm
+        ) fc,
+        (
+        select pmp.EQP_MST_RAWID as eqp_id, atp.fault_class
+        from param_mst_pdm pmp,
+        (
+        select param_mst_rawid,fault_class
+        from ALARM_TRX_PDM
+        where 1=1
+        and alarm_type_cd=256
+        and alarm_dtts <![CDATA[>=]]> #{fromdate}
+        and alarm_dtts <![CDATA[<]]> #{todate}
+        ) atp
+
+        where 1=1
+        and pmp.rawid=atp.param_mst_rawid
+        and pmp.EQP_MST_RAWID in(
+
+        select distinct eqp.rawid
+        from
+        (
+        select *
+        from
+        (
+        SELECT
+        rawid AS area_id,
+        name,
+        parent_rawid AS parent_id,
+        CONNECT_BY_ISLEAF AS leaf
+        FROM
+        area_mst_pdm
+        START WITH
+        parent_rawid = 0
+        CONNECT BY
+        PRIOR rawid = parent_rawid
+        ORDER BY
+        leaf,
+        parent_id
+        )
+        where 1=1
+        and leaf=1
+        )areas, eqp_mst_pdm eqp
+        where 1=1
+        and areas.area_id=eqp.area_mst_rawid
+
+        )
+
+        ) alarmeqp
+        where fc.fault_class=alarmeqp.fault_class
+        group by fc.fault_class , alarmeqp.eqp_id
+        )
+        group by fault_class
+
+    </select>
 
 </mapper>
 
