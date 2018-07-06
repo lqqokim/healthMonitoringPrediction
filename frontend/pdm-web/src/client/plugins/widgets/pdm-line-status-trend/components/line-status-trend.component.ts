@@ -2,6 +2,19 @@ import { Component, OnInit, OnChanges, SimpleChanges, EventEmitter, Output, Inpu
 import { PdmModelService } from './../../../../common';
 import * as IDataType from './../model/data-type.interface';
 
+export interface LineStatusTrendType {
+    alarm_count: number;
+    area_id: number;
+    area_name: string;
+    day: string;
+    failure_count: number;
+    normal_count: number;
+    offline_count: number;
+    start_time: number
+    total_count: number;
+    warning_count: number;
+}
+
 @Component({
     moduleId: module.id,
     selector: 'line-status-trend',
@@ -14,7 +27,6 @@ export class LineStatusTrendComponent implements OnInit, OnChanges {
 
     chartId: string;
     chart: any;
-    private _props: any;
 
     constructor(private _pdmModel: PdmModelService) {
     }
@@ -39,47 +51,71 @@ export class LineStatusTrendComponent implements OnInit, OnChanges {
         this.chart.resize();
     }
 
-    getTrendData(condition): void {
-        const fabId = condition.fabId;
-        const areaId = 200;
-        const params = {
-            fromdate: condition.timePeriod.from,
-            todate: condition.timePeriod.to
+    getTrendData(condition: IDataType.ContitionType): void {
+        const fabId: string | number = condition.fab.fabId;
+        const areaId: string | number = condition.area ? condition.area.areaId : undefined;
+        const params: any = {
+            from: condition.timePeriod.from,
+            to: condition.timePeriod.to
         };
 
-        this._pdmModel.getLineStatusTrend(fabId, areaId, params)
-        .then((res) => {
-            console.log('getLineStatusTrend', res);
-            this.setChartData();
-        }).catch((err) => {
-            console.log('err', err);
-        });
-
-        this.setChartData();
+        if (areaId === undefined) {
+            this._pdmModel.getLineStatusTrendAll(fabId, params)
+                .then((datas: LineStatusTrendType[]) => {
+                    console.log('getLineStatusTrendAll', datas);
+                    this.setChartData(datas);
+                }).catch((err) => {
+                    console.log('err', err);
+                    this.endChartLoad.emit(false);
+                });
+        } else {
+            this._pdmModel.getLineStatusTrendById(fabId, areaId, params)
+            .then((datas: LineStatusTrendType[]) => {
+                console.log('getLineStatusTrendById', datas);
+                this.setChartData(datas);
+            }).catch((err) => {
+                console.log('err', err);
+                this.endChartLoad.emit(false);
+            });
+        }
     }
 
-    setChartData(item?): void {
-        const normals: any[] = ['normal', 25, 23, 26, 22, 27, 29, 31];
-        const warnings: any[] = ['warning', 4, 9, 3, 12, 3, 7];
-        const alarms: any[] = ['alarm', 6, 1, 2, 1, 3, 2, 4];
-        const failures: any[] = ['failure', 3, 1, 2, 1, 5, 3, 5];
-        const offlines: any[] = ['offline', 2, 3, 3, 1, 2, 4, 1];
-        const axisCategories: string[] = ['x', '2018-06-23', '2018-06-24', '2018-06-25', '2018-06-26', '2018-06-27', '2018-06-28'];
+
+    setChartData(datas: LineStatusTrendType[]): void {
+        let normals: any[] = ['normal'];
+        let warnings: any[] = ['warning'];
+        let alarms: any[] = ['alarm'];
+        let failures: any[] = ['failure'];
+        let offlines: any[] = ['offline'];
+        let axisCategories: any[] = ['x'];
+        const dataLangth: number = datas.length;
+
+        for (let i = 0; i < dataLangth; i++) {
+            const data: LineStatusTrendType = datas[i];
+
+            normals.push(data.normal_count);
+            warnings.push(data.warning_count);
+            alarms.push(data.alarm_count);
+            failures.push(data.failure_count);
+            offlines.push(data.offline_count);
+            axisCategories.push(data.day);
+        }
+
         const chartData: any[] = [axisCategories, normals, warnings, alarms, failures, offlines];
 
         setTimeout(() => {
-            // this.generateBarChart(chartData, axisCategories);
-            this.generateLineChart(chartData, axisCategories);
+            this.generateLineChart(chartData);
             this.endChartLoad.emit(true);
         }, 500);
     }
 
-    generateLineChart(chartData: any[], axisCategories: string[]): void {
+    generateLineChart(chartData: any[]): void {
         const colors: string[] = ['green', 'orange', 'red', 'black', 'gray'];
         this.chart = c3Chart.generate({
             bindto: `#${this.chartId}`,
             data: {
                 x: 'x',
+                // xFormat: '%Y-%m-%d', // how the date is parsed
                 // xFormat: '%Y%m%d', // 'xFormat' can be used as custom format of 'x'
                 columns: chartData,
                 type: 'line',

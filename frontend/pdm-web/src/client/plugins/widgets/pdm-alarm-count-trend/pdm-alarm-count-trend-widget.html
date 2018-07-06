@@ -9,5 +9,14 @@
             [condition]="condition"
             (endChartLoad)="endChartLoad($event)">
         </alarm-count-trend>
+
+        <div class="float-wrapper" *ngIf="isShowNoData" style="position:relative;">
+            <dl>
+                <dt>
+                    <i class="icon icon-nodata"></i>
+                </dt>
+                <dd class="message-title">No Data</dd>
+            </dl>
+        </div>
     </div>	
 </div>
