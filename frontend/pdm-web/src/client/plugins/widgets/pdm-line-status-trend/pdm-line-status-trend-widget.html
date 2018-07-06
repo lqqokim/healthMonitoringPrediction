@@ -10,4 +10,13 @@
             (endChartLoad)="endChartLoad($event)">
         </line-status-trend>
     </div>
+
+    <div class="float-wrapper" *ngIf="isShowNoData" style="position:relative;">
+        <dl>
+            <dt>
+                <i class="icon icon-nodata"></i>
+            </dt>
+            <dd class="message-title">No Data</dd>
+        </dl>
+    </div>
 </div>

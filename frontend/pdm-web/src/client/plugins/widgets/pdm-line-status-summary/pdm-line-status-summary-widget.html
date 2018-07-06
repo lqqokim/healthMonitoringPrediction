@@ -1,18 +1,23 @@
 <div class="widget line-status-summary-container" #container>
-        <div class="a3-chart-header border-bottom">
-            <div class="condition pull-left">
-                <span class="a3-synced-title">Target : </span> 
-                <span>fab1</span>
-                <span class="a3-synced-title">Time Period : </span> 
-                <span>{{viewTimePriod.fromDate}} ~ {{viewTimePriod.toDate}}</span>
-            </div>
-        </div>
-    
-        <div class="chart-body div01">
-            <line-status-summary #statusSummary
-                [condition]="condition"
-                (onSync)="onSync($event)"
-                (endChartLoad)="endChartLoad($event)">
-            </line-status-summary>
+    <widget-chart-condition
+        [target]='targetName'
+        [timePeriod]='viewTimePriod'
+    ></widget-chart-condition>
+
+    <div class="chart-body div01">
+        <line-status-summary #statusSummary
+            [condition]="condition"
+            (onSync)="onSync($event)"
+            (endChartLoad)="endChartLoad($event)">
+        </line-status-summary>
+
+        <div class="float-wrapper" *ngIf="isShowNoData" style="position:relative;">
+            <dl>
+                <dt>
+                    <i class="icon icon-nodata"></i>
+                </dt>
+                <dd class="message-title">No Data</dd>
+            </dl>
         </div>
     </div>
+</div>

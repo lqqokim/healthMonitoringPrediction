@@ -598,43 +598,66 @@ export class PdmModelService extends ModelCommonService {
 		});
 	}
 
+	//Line Status Summary
 	getLineStatusSummary(fabId, params): Promise<any> {
 		return this.GET({
 			uriPath: `pdm/fabs/${fabId}/lineStatusSummary`,
 			params: {
-				fromdate: 1530284400000,
-				todate: 1530370800000
+				fromdate: params.from,
+				todate: params.to
 			}
 		});
 	}
 
-	getLineStatusTrend(fabId, areaId, params): Promise<any> {
+	//Line Status Trend
+	getLineStatusTrendAll(fabId, params): Promise<any> {
 		return this.GET({
-			uriPath: `pdm/fabs/${fabId}/areas/${200}/lineStatusTrend`,
+			uriPath: `pdm/fabs/${fabId}/lineStatusTrend`,
 			params: {
-				fromdate: 1530284400000,
-				todate: 1530370800000
+				fromdate: params.from,
+				todate: params.to
 			}
 		});
 	}
 
+	getLineStatusTrendById(fabId, areaId, params): Promise<any> {
+		return this.GET({
+			uriPath: `pdm/fabs/${fabId}/areas/${areaId}/lineStatusTrendByAreaId`,
+			params: {
+				fromdate: params.from,
+				todate: params.to
+			}
+		});
+	}
 
+	//Alarm Count Summary
 	getAlarmCountSummary(fabId, params): Promise<any> {
 		return this.GET({
 			uriPath: `pdm/fabs/${fabId}/alarmCountSummary`,
 			params: {
-				fromdate: 1530284400000,
-				todate: 1530370800000
+				fromdate: params.from,
+				todate: params.to
 			}
 		});
 	}
 
-	getAlarmCountTrend(fabId, areaId, params): Promise<any> {
+	//Alarm Count Trend
+	getAlarmCountTrendAll(fabId, params): Promise<any> {
 		return this.GET({
-			uriPath: `pdm/fabs/${fabId}/areas/${areaId}/alarmCountTrend`,
+			uriPath: `pdm/fabs/${fabId}/alarmCountTrend`,
 			params: {
-				fromdate: 1530284400000,
-				todate: 1530370800000
+				fromdate: params.from,
+				todate: params.to
+			}
+		});
+	}
+
+	getAlarmCountTrendById(fabId, areaId, params): Promise<any> {
+		return this.GET({
+			uriPath: `pdm/fabs/${fabId}/areas/${areaId}/alarmCountTrendByAreaId`,
+			params: {
+				fromdate: params.from,
+				todate: params.to
 			}
 		});
 	}
