@@ -9,6 +9,8 @@ export interface IPrevData {
     fabId: string;
     targetName: string;
     timePeriod: ITimePeriod;
+    dayPeriod: number;
+    cutoffType: string;
 }
 
 // 서버 요청 데이터 포맷
@@ -71,7 +73,9 @@ export class PdmAlarmClassSummaryComponent extends WidgetApi implements OnSetup,
         timePeriod: {
             fromDate: 0,
             toDate: 0
-        }
+        },
+        dayPeriod: 0,
+        cutoffType: ''
     };
 
     constructor(
@@ -83,9 +87,44 @@ export class PdmAlarmClassSummaryComponent extends WidgetApi implements OnSetup,
     //* 초기 설정 (로딩, config값 로드)
     ngOnSetup() {
         this.showSpinner();
-        this.setConfigInfo('init', this.getProperties());
 
-        console.log( this.donutChart );
+        this.setConfigData('DAY', undefined, 7);
+        this.setConfigInfo('init', this.getProperties());
+    }
+
+    //* 자동 prev day 계산
+    getTodayPrevDayCalc( day: number ): ITimePeriod {
+        const now = new Date();
+        const calcDay = 1000 * 60 * 60 * 24 * day;
+        const to = new Date( now.getFullYear(), now.getMonth()+1, now.getDate() ).getTime();
+        const from = new Date( to - calcDay ).getTime();
+
+        return {
+            fromDate: from,
+            toDate: to
+        };
+    }
+
+    //* 위젯 컨피그 속성 값 설정
+    setConfigData( type: string, timePeriod: ITimePeriod, dayPeriod: number ){
+
+        const cutoffType: string = type === 'DATE' ? 'DATE' : 'DAY';
+        const time: ITimePeriod = (type === 'DAY' ? this.getTodayPrevDayCalc( dayPeriod ) : timePeriod);
+
+        // 컨피스 radio 값 설정 (DAY-Previous day, DATE-Date Range)
+        this.setProp('cutoffType', cutoffType);
+
+        // 일별 자동 계산
+        if( cutoffType === 'DAY' ){
+            this.setProp('dayPeriod', dayPeriod);
+        } else {
+            this.setProp('dayPeriod', '');
+        }
+
+        // 날짜 설정
+        // this.setProp('timePeriod', time);
+        this.setProp('from', moment(time.fromDate).format('YYYY/MM/DD HH:mm:ss'));
+        this.setProp('to', moment(time.toDate).format('YYYY/MM/DD HH:mm:ss'));
     }
 
     //* 컨피그 설정
@@ -98,13 +137,11 @@ export class PdmAlarmClassSummaryComponent extends WidgetApi implements OnSetup,
             this.targetName = this.prevData.targetName;
             this.areaId = undefined;
 
-            // this.timePeriod = {
-            //     fromDate: 1532044800000,
-            //     toDate: 1532077200000
-            // };
-
-            // this.setProp('cutoffType', 'DATE' );
-            this.setProp('timePeriod', this.timePeriod );
+            if( this.prevData.cutoffType === 'DAY' ){
+                this.setConfigData('DAY', undefined, this.prevData.dayPeriod );
+            } else {
+                this.setConfigData('DATE', this.timePeriod, undefined );
+            }
         }
         // 컨피그 설정 적용
         else if( type === A3_WIDGET.APPLY_CONFIG_REFRESH || type === 'init' ){
@@ -117,7 +154,9 @@ export class PdmAlarmClassSummaryComponent extends WidgetApi implements OnSetup,
             this.prevData = {
                 fabId: this.fabId,
                 timePeriod: this.timePeriod,
-                targetName: this.targetName
+                targetName: this.targetName,
+                dayPeriod: this.getProp('dayPeriod'),
+                cutoffType: this.getProp('cutoffType')
             };
         }
         // 다른 위젯 데이터 싱크
@@ -127,7 +166,8 @@ export class PdmAlarmClassSummaryComponent extends WidgetApi implements OnSetup,
             this.timePeriod.fromDate = syncData[CD.TIME_PERIOD].from;
             this.timePeriod.toDate = syncData[CD.TIME_PERIOD].to;
 
-            // this.setProp('fromDate', this.timePeriod.fromDate);
+            // 실크 될 실제 컨피그 값 설정 (DATE 기준)
+            // this.setConfigData('DATE', this.timePeriod, undefined );
         }
 
         // 데이터 요청
@@ -136,6 +176,14 @@ export class PdmAlarmClassSummaryComponent extends WidgetApi implements OnSetup,
 
     //* APPLY_CONFIG_REFRESH-config 설정 값, JUST_REFRESH-현 위젯 새로고침, SYNC_INCONDITION_REFRESH-위젯 Sync
     refresh({ type, data }: WidgetRefreshType) {
+
+        // 처리할 타입만 필터링
+        if( type === A3_WIDGET.JUST_REFRESH ||
+            type === A3_WIDGET.APPLY_CONFIG_REFRESH ||
+            type === A3_WIDGET.SYNC_INCONDITION_REFRESH ){
+            return;
+        }
+
         this.showSpinner();
         this.setConfigInfo( type, data );
     }
@@ -191,6 +239,8 @@ export class PdmAlarmClassSummaryComponent extends WidgetApi implements OnSetup,
             this.resetLegend();
             this.donutChart.reDrawChart();
 
+            console.log('realData', this.chartData);
+
             this.hideSpinner();
         },(err: any)=>{
 
@@ -199,17 +249,14 @@ export class PdmAlarmClassSummaryComponent extends WidgetApi implements OnSetup,
                 this.chartData.splice(0, this.chartData.length);
             }
 
-            this.chartData = [
-                { name: "Unblance", count: 10 },
-                // { name: "Misalignment", count: 7 },
-                // { name: "Bearing", count: 20 },
-                { name: "Lubrication", count: 2 },
-                { name: "N/A", count: 38 }
-            ];
+            this.chartData.push({ name: "Unblance", count: 10 });
+            this.chartData.push({ name: "Lubrication", count: 2 });
+            this.chartData.push({ name: "N/A", count: 30 });
 
             this.resetLegend();
             this.donutChart.reDrawChart();
 
+            console.log('tmpData', this.chartData);
             console.log('err', err);
             this.hideSpinner();
         });
