@@ -129,19 +129,17 @@ export class DonutChartComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     ngOnChanges(c: any){
-        // 차트 데이터가 바뀌면 다시 그리기
-        if( c.chartData.currentValue !== c.chartData.previousValue ){
-            setTimeout(()=>{
-                this.reDraw = true;
-                this.drawDataCreate();
-                this.arcPathClear();
-                this.onResize();
-            }, 100);
-        }
+    }
+
+    //* 차트 다시 그리기 (외부 용)
+    public reDrawChart(): void {
+        this.reDraw = true;
+        this.drawDataCreate();
+        this.onResize();
     }
 
     //* 그려질 정보로 변환
-    drawDataCreate(): void {
+    private drawDataCreate(): void {
         let
             i: number,
             max: number = this.chartData.length,
@@ -181,7 +179,7 @@ export class DonutChartComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     //* 차트 리사이즈
-    onResize(): void {
+    private onResize(): void {
         const w = this.widgetBodyElem.width();
         const h = this.widgetBodyElem.height() - this.infoElem.outerHeight();
         const minSize: number = Math.min( w, h );
@@ -207,12 +205,12 @@ export class DonutChartComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     //* 각도 → radian 변환
-    degree2radian(n: number): number {
+    private degree2radian(n: number): number {
         return Math.PI / 180 * n;
     }
 
     //* svg arc 도형 제거
-    arcPathClear(): void {
+    private arcPathClear(): void {
         if( this.svgArcPaths.length == 0 ){ return; }
 
         const max = this.svgArcPaths.length; 
@@ -227,7 +225,7 @@ export class DonutChartComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     //* 타이머 제거
-    timerClear(): void {
+    private timerClear(): void {
         if( this.timer.length == 0 ){ return; }
 
         let i;
@@ -241,7 +239,7 @@ export class DonutChartComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     //* arc도형 트윈
-    arcTween( arc: any, idx: number, startAngle: number, endAngle: number ): void {
+    private arcTween( arc: any, idx: number, startAngle: number, endAngle: number ): void {
         let _curr: number = startAngle;
         const _target: number = endAngle;
         const _speed: number = 2.5;
@@ -259,14 +257,14 @@ export class DonutChartComponent implements OnInit, OnChanges, OnDestroy {
                 t.stop();
                 t.destory();
             }
-        }, 1000/30);
+        }, 1000/60);
         t.play();
 
         this.timer[idx] = t;
     }
 
     //* 그리기
-    onDraw(): void {
+    private onDraw(): void {
         const minSize: number = Math.min( this.widgetSize.w, this.widgetSize.h );
 
         // 도넛 반지름
@@ -311,6 +309,12 @@ export class DonutChartComponent implements OnInit, OnChanges, OnDestroy {
         // 원형 그릴 중심 축 설정
         this.svgBaseGroup.attr('transform', `translate(${this.centerPosition.x}, ${this.centerPosition.y})`);
 
+        // 다시 그려야 되면 arcPath, timer 지우기
+        if( this.reDraw ){
+            this.timerClear();
+            this.arcPathClear();
+        }
+
         let
             i: number,
             max: number = this.drawChartData.length,
@@ -323,19 +327,18 @@ export class DonutChartComponent implements OnInit, OnChanges, OnDestroy {
             labelY: number
         ;
 
-        // 다시 그려야 되면 arcPath, timer 지우기
-        if( this.reDraw ){
-            this.arcPathClear();
-            this.timerClear();
-        }
-
         // 도넛 차트 그리기
         for( i=0; i<max; i++ ){
             row = this.drawChartData[i];
 
-            // 각 앵글별 시작~종료 시점 설정
-            startAngle = this.degree2radian( (360*row.start)+pathMarginAngle );
-            endAngle = this.degree2radian( (360*row.end)-pathMarginAngle );
+            // 각 앵글별 시작~종료 시점 설정 1개일 경우 arc 여백 제외
+            if( max == 1 ){
+                startAngle = this.degree2radian( 360*row.start );
+                endAngle = this.degree2radian( 360*row.end );
+            } else {
+                startAngle = this.degree2radian( (360*row.start)+pathMarginAngle );
+                endAngle = this.degree2radian( (360*row.end)-pathMarginAngle );
+            }
             centerAngle = startAngle + ((endAngle - startAngle)*0.5);
 
             labelX = middleRadius * Math.sin(centerAngle);
