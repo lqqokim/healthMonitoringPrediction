@@ -166,7 +166,7 @@ public class RealTimeParamSocketController {
 				reply.put("type", "info");
 				reply.put("paramId",paramId);
 				reply.put("datas",timeValues);
-				reply.put("eqpName",paramInfo.getEqp_Name());
+				reply.put("eqpName",paramInfo.getEqp_name());
 				reply.put("paramName",paramInfo.getName());
 				reply.put("alarm_spec",paramInfo.getAlarm());
 				reply.put("warning_spec",paramInfo.getWarn());
