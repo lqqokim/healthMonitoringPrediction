@@ -6,13 +6,15 @@ import { PluginCommonModule } from '../../../../common/plugins.common.module';
 
 import { EquipmentParameterTrendComponent } from './equipment-parameter-trend.component';
 import { EquipmentParameterTrendChartComponent} from './component/equipment-parameter-trend-chart/equipment-parameter-trend-chart.component';
+import { AngularSplitModule } from 'angular-split';
 
 
 @NgModule({
     imports: [
         BISTEL_SDKModule,
         A3_CommonModule,
-        PluginCommonModule
+        PluginCommonModule,
+        AngularSplitModule
     ],
     declarations: [
         EquipmentParameterTrendChartComponent,
