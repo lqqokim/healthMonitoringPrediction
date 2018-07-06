@@ -54,7 +54,7 @@
 
 									<tbody>
 											<tr *ngFor="let item of alarmHistories;let i=index">
-													<td>{{i}}</td>
+													<td>{{i+1}}</td>
 													<td>{{dateFormat(item.alarm_dtts)}}</td>
 													<td>{{item.eqp_name}}</td>
 													<td>{{item.param_name}}</td>
@@ -63,7 +63,8 @@
 
 											</tr>
 									</tbody>
-							</table>
+                            </table>
+                          
 						</div>
         </div>
         <div class="col-sm-6  height-100">

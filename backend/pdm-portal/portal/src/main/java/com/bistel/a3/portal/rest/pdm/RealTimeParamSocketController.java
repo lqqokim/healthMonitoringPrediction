@@ -83,7 +83,7 @@ public class RealTimeParamSocketController {
     }
 
 	boolean realTimeStart = false;
-	@Scheduled(cron = "0/3 * * * * *")
+	@Scheduled(cron = "0/5 * * * * *")
 	public void realtimeDataCreate(){
 		if(realTimeStart == false) return;
 

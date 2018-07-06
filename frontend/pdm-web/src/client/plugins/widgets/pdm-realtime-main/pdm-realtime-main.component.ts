@@ -12,6 +12,8 @@ import { Observable } from 'rxjs/Observable';
 
 import * as EqpTraceI from './../pdm-realtime-trend/model/realtime-trend.interface';
 
+import { TableData } from '../../common/ng2-table/table.component';
+
 @Component({
     moduleId: module.id,
     selector: 'pdm-realtime-main',
@@ -49,6 +51,15 @@ export class PdmRealTimeMainComponent extends WidgetApi implements OnSetup, OnDe
     paramId;
     fromDate;
     toDate;
+
+    columns: Array<TableData> = [
+        // {title: '#', name: 'num' },
+        {title: 'Time', name: 'alarm_dtts' },
+        {title: 'EQP Name', name: 'eqp_name'},
+        {title: 'Parameter Name', name: 'param_name'},
+        {title: 'Category', name: 'category'},
+        {title: 'Fault Classification', name: 'fault_class'}
+    ];
     
     constructor(
         private notify: NotifyService,
@@ -397,7 +408,12 @@ export class PdmRealTimeMainComponent extends WidgetApi implements OnSetup, OnDe
             let alarmList = this.alarmHistories.filter((d)=>{
                 return d.category=='Alarm'? true:false
             })
+            // this.alarmHistories.map((d,i)=>{d.num = i});
             this.alarmCount = alarmList.length;
+            if(this.alarmHistories.length>50){
+                this.alarmHistories = this.alarmHistories.slice(0,49);
+            }
+            
 
         })
     }
