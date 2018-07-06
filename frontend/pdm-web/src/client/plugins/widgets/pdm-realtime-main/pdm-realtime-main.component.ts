@@ -70,9 +70,9 @@ export class PdmRealTimeMainComponent extends WidgetApi implements OnSetup, OnDe
 
         let date = new Date().getTime();
 
-        for(let i=0;i<20;i++){
-            this.alarmHistories.push({time:date-i*1000,eqpName:'eqp'+i,paramName:'param'+i,category:i%2==0?'Alarm':'Warning',faultClassification:i%3==0?'Unbalance':'N/A'});
-        }
+        // for(let i=0;i<20;i++){
+        //     this.alarmHistories.push({time:date-i*1000,eqpName:'eqp'+i,paramName:'param'+i,category:i%2==0?'Alarm':'Warning',faultClassification:i%3==0?'Unbalance':'N/A'});
+        // }
 
 
 
@@ -391,6 +391,9 @@ export class PdmRealTimeMainComponent extends WidgetApi implements OnSetup, OnDe
         let toDate = new Date().getTime();
         this._pdmModelService.getAlaramHistoryByEqpId(this.selectParam.fabId,1,this.selectParam.eqpIds[0],fromDate,toDate).then((data)=>{
             this.alarmHistories = data;
+
+            this.alarmHistories.sort(function(a,b) {return (a.event_dtts > b.event_dtts) ? -1 : ((b.event_dtts > a.event_dtts) ? 1 : 0);} ); 
+
         })
     }
     onSelectParam(event){

@@ -46,8 +46,8 @@
 									<thead>
 											<th>#</th>
 											<th>Time</th>
-											<th>Eqp</th>
-											<th>Param</th>
+											<th>Eqp Name</th>
+											<th>Parameter Name</th>
 											<th>Category</th>
 											<th>Fault Classification</th>
 									</thead>
@@ -55,11 +55,11 @@
 									<tbody>
 											<tr *ngFor="let item of alarmHistories;let i=index">
 													<td>{{i}}</td>
-													<td>{{dateFormat(item.date)}}</td>
-													<td>{{item.eqpName}}</td>
-													<td>{{item.paramName}}</td>
+													<td>{{dateFormat(item.alarm_dtts)}}</td>
+													<td>{{item.eqp_name}}</td>
+													<td>{{item.param_name}}</td>
 													<td>{{item.category}}</td>
-													<td>{{item.faultClassification}}</td>
+													<td>{{item.fault_class}}</td>
 
 											</tr>
 									</tbody>
