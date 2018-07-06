@@ -33,7 +33,7 @@ export class RealtimeMainChartComponent implements OnInit, OnChanges, OnDestroy,
         .interpolate('linear');
 
     // datas = [];
-    endX = new Date();
+    endX = new Date( new Date().getTime()+5*1000 );
     startX = new Date(this.endX.getTime() - this.timeWindow);
 
     $data;

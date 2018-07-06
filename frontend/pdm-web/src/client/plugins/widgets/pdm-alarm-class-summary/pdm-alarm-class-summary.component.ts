@@ -1,97 +1,203 @@
-import { Component, ViewEncapsulation, ViewChild, OnDestroy, AfterViewInit, ElementRef, ChangeDetectorRef } from '@angular/core';
+import { Component, ViewEncapsulation, OnDestroy } from '@angular/core';
 import { WidgetRefreshType, WidgetApi, OnSetup } from '../../../common';
-import { Translater } from '../../../sdk';
-import { PdmWostEqpListService } from './pdm-alarm-class-summary.service';
-import { PdmCommonService } from '../../../common/service/pdm-common.service';
 import { IDonutChartData, IColorSet } from '../../common/donut-chart/donutChart.component';
 import { ITimePeriod } from '../../common/widget-chart-condition/widget-chart-condition.component';
+import { PdmAlarmClassSummaryService } from './pdm-alarm-class-summary.service';
+
+// 새로 고침 시 사용될 interface
+export interface IPrevData {
+    fabId: string;
+    targetName: string;
+    timePeriod: ITimePeriod;
+}
+
+// 서버 요청 데이터 포맷
+export interface IReqDataFormat {
+    fault_class: string;
+    count: number;
+}
 
 @Component({
     moduleId: module.id,
     selector: 'pdm-alarm-class-summary',
     templateUrl: 'pdm-alarm-class-summary.html',
     styleUrls: ['pdm-alarm-class-summary.css'],
-    providers: [PdmWostEqpListService, PdmCommonService],
+    providers: [PdmAlarmClassSummaryService],
     encapsulation: ViewEncapsulation.None
 })
 
-export class PdmAlarmClassSummaryComponent extends WidgetApi implements OnSetup, OnDestroy, AfterViewInit {
+export class PdmAlarmClassSummaryComponent extends WidgetApi implements OnSetup, OnDestroy {  
 
-    private timePeriod: ITimePeriod = {
-        fromDate : 1532044800000, // new Date(2018, 6, 20, 09, 0, 0, 0).getTime(),
-        toDate : 1532077200000 // new Date(2018, 6, 20, 18, 0, 0, 0).getTime()
-    };
-
-    private targetName: string = 'All Lines';
-
-    private chartColor: Array<IColorSet> = [
+    private chartColorBase: Array<IColorSet> = [
         { name: 'Unblance', color: '#4472c4' },
         { name: 'Misalignment', color: '#ed7d31' },
         { name: 'Bearing', color: '#a5a5a5' },
         { name: 'Lubrication', color: '#ffc000' },
-        { name: 'Etc', color: '#5b9bd5' }
+        { name: 'N/A', color: '#5b9bd5' }
     ];
 
-    private chartData: Array<IDonutChartData> = [
-        { name: "Unblance", count: 10 },
-        { name: "Misalignment", count: 7 },
-        { name: "Bearing", count: 20 },
-        { name: "Lubrication", count: 2 },
-        { name: "Etc", count: 38 }
-    ];
+    private chartColor: Array<IColorSet> = [];
 
-    private chartData2: Array<IDonutChartData> = [
-        { name: "Unblance", count: 100 },
-        { name: "Misalignment", count: 37 },
-        { name: "Bearing", count: 40 },
-        { name: "Lubrication", count: 25 },
-        { name: "Etc", count: 38 }
-    ];
+    // private chartData: Array<IDonutChartData> = [
+    //     { name: "Unblance", count: 10 },
+    //     { name: "Misalignment", count: 7 },
+    //     { name: "Bearing", count: 20 },
+    //     { name: "Lubrication", count: 2 },
+    //     { name: "Etc", count: 38 }
+    // ];
+
+    // 날짜 범위 (config 값 사용)
+    private timePeriod: ITimePeriod = {
+        fromDate: 0,
+        toDate: 0
+    };
+
+    // 타겟 이름 (초기 기본명 세팅)
+    private targetName: string = 'All Lines';
+
+    // 차트 데이터
+    private chartData: Array<IDonutChartData> = [];
+
+    // fab, area IDs
+    private fabId: string = '';
+    private areaId: number = undefined;
+
+    // 위젯 새로고침 시 되돌릴 데이터 값
+    private prevData: IPrevData = {
+        fabId: '',
+        targetName: '',
+        timePeriod: {
+            fromDate: 0,
+            toDate: 0
+        }
+    };
 
     constructor(
-    ) {
+        private _service: PdmAlarmClassSummaryService
+    ){
         super();
     }
 
+    //* 초기 설정 (로딩, config값 로드)
     ngOnSetup() {
         this.showSpinner();
-        this.init();
-        // this.hideSpinner();
+        this.setConfigInfo('init', this.getProperties());
     }
 
-    private init() {
-        this.hideSpinner();
+    //* 컨피그 설정
+    setConfigInfo( type: string, syncData?: any ): void {
 
-        setTimeout(() => {
-            this.chartData = this.chartData2;
-            console.log('바꿈', this.chartData);
-        }, 10000);
+        // 새로고침 (이전 컨피그 상태로 되돌림)
+        if( type === A3_WIDGET.JUST_REFRESH ){
+            this.fabId = this.prevData.fabId;
+            this.timePeriod = this.prevData.timePeriod;
+            this.targetName = this.prevData.targetName;
+            this.areaId = undefined;
+        }
+        // 컨피그 설정 적용
+        else if( type === A3_WIDGET.APPLY_CONFIG_REFRESH || type === 'init' ){
+            this.fabId = syncData.plant.fabId;
+            this.timePeriod.fromDate = syncData[CD.TIME_PERIOD].from;
+            this.timePeriod.toDate = syncData[CD.TIME_PERIOD].to;
+            this.areaId = undefined;
+
+            // 컨피그로 설정된 값 저장 용
+            this.prevData = {
+                fabId: this.fabId,
+                timePeriod: this.timePeriod,
+                targetName: this.targetName
+            };
+        }
+        // 다른 위젯 데이터 싱크
+        else if( type === A3_WIDGET.SYNC_INCONDITION_REFRESH ){
+            this.targetName = syncData[CD.AREA][CD.AREA_NAME];
+            this.areaId = syncData[CD.AREA][CD.AREA_ID];
+            this.timePeriod.fromDate = syncData[CD.TIME_PERIOD].from;
+            this.timePeriod.toDate = syncData[CD.TIME_PERIOD].to;
+        }
+
+        // 데이터 요청
+        this.getData();
     }
 
-    /**
-     * TODO
-     * refresh 3가지 타입에 따라서 data를 통해 적용한다.
-     *  justRefresh, applyConfig, syncInCondition
-     */
-    // tslint:disable-next-line:no-unused-variable
+    //* APPLY_CONFIG_REFRESH-config 설정 값, JUST_REFRESH-현 위젯 새로고침, SYNC_INCONDITION_REFRESH-위젯 Sync
     refresh({ type, data }: WidgetRefreshType) {
         this.showSpinner();
-        if (type === A3_WIDGET.APPLY_CONFIG_REFRESH) {
-
-        } else if (type === A3_WIDGET.JUST_REFRESH) {
-        
-        } else if (type === A3_WIDGET.SYNC_INCONDITION_REFRESH) {
-            this.hideSpinner();
-            console.log('ALARM CLASS SYNC', data);
-        }
-    }
-
-    ngAfterViewInit() {
-        // this.shopGrid.selectedItems.splice(0);
-        // this.hideSpinner()
+        this.setConfigInfo( type, data );
     }
 
     ngOnDestroy() {
         this.destroy();
+    }
+
+    //* 레전드 재설정
+    resetLegend(){
+        let row, color;
+
+        if( this.chartColor.length ){
+            this.chartColor.splice(0, this.chartColor.length);
+        }
+
+        for( row of this.chartData ){
+            for( color of this.chartColorBase ){
+                if( color.name === row.name ){
+                    this.chartColor.push(color);
+                    break;
+                }
+            }
+        }
+    }
+
+    //* 데이터 가져오기
+    getData(){
+        this._service.getListData({
+            fabId: this.fabId,
+            areaId: this.areaId,
+            fromDate: this.timePeriod.fromDate,
+            toDate: this.timePeriod.toDate
+        }).then((res: Array<IReqDataFormat>)=>{
+            console.log(res);
+            if( this.chartData.length ){
+                this.chartData.splice(0, this.chartData.length);
+            }
+
+            let i: number,
+                max: number = res.length,
+                row: IReqDataFormat
+            ; 
+
+            for( i=0; i<max; i++ ){
+                row = res[i];
+                this.chartData.push({
+                    name: row.fault_class,
+                    count: row.count
+                });
+            }
+
+            this.resetLegend();
+
+            console.log('this.chartData', this.chartData );
+
+            this.hideSpinner();
+        },(err: any)=>{
+
+            // 에러 상황에도 임시로 출력 할수 있게 세팅 (서버 데이터가 정상적으로 온다면 제거할 것)
+            if( this.chartData.length ){
+                this.chartData.splice(0, this.chartData.length);
+            }
+
+            this.chartData = [
+                { name: "Unblance", count: 10 },
+                // { name: "Misalignment", count: 7 },
+                // { name: "Bearing", count: 20 },
+                { name: "Lubrication", count: 2 },
+                { name: "N/A", count: 38 }
+            ];
+
+            this.resetLegend();
+
+            console.log('err', err);
+            this.hideSpinner();
+        });
     }
 }

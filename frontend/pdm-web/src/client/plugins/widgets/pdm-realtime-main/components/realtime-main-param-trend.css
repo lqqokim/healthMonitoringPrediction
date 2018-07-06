@@ -1,32 +1,35 @@
-
-.realtimeparamtrend{
-    height:100%;
-    width:100%;
+.realtimeparamtrend {
+    height: 100%;
+    width: 100%;
     /* padding-left: 10px; */
 }
-.realtimeparamtrend .tree-container{
+
+.realtimeparamtrend .tree-container {
     height: 100%;
     border: solid 1px gray;
     /* margin-left: 10px; */
     padding: 5px;
 }
-.realtimeparamtrend .tree-container button{
-    width:100%;
+
+.realtimeparamtrend .tree-container button {
+    width: 100%;
     color: #fff !important;
-    background-color: #5bc0de  !important;
-    border-color: #46b8da  !important;
+    background-color: #5bc0de !important;
+    border-color: #46b8da !important;
 }
-.realtimeparamtrend .tree-div{
+
+.realtimeparamtrend .tree-div {
     width: 100%;
     height: calc(100% - 40px);
     /*border: solid 1px lightgray;*/
     margin-bottom: 10px;
 }
-.realtimeparamtrend .tree-condition{
-    padding:5px;
+
+.realtimeparamtrend .tree-condition {
+    padding: 5px;
 }
 
-.realtimeparamtrend .chart-container{
+.realtimeparamtrend .chart-container {
     height: 100%;
     border-top: solid 1px gray;
     border-bottom: solid 1px gray;
@@ -35,26 +38,29 @@
     /* padding: 5px; */
     overflow: auto;
 }
-.realtimeparamtrend .trend-chart{
+
+.realtimeparamtrend .trend-chart {
     height: 290px;
     width: 100%;
     padding-top: 15px;
     padding-bottom: 10px;
-    border-bottom:solid 1px gray;
+    border-bottom: solid 1px gray;
 }
-.realtimeparamtrend .trend-chart-heightfull{
+
+.realtimeparamtrend .trend-chart-heightfull {
     height: 100%;
     width: 100%;
     padding-top: 15px;
     padding-bottom: 10px;
-    border-bottom:solid 1px gray;
+    border-bottom: solid 1px gray;
 }
-.realtimeparamtrend .chart-area{
+
+.realtimeparamtrend .chart-area {
     height: calc(100% - 18px);
     width: 100%;
 }
-.realtimeparamtrend .chart-title{
+
+.realtimeparamtrend .chart-title {
     text-align: center;
     height: 30px;
 }
-

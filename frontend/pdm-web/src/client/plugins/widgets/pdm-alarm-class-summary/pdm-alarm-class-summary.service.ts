@@ -1,15 +1,21 @@
 import { Injectable } from '@angular/core';
-import { PdmCommonService } from '../../../common/service/pdm-common.service';
+import { PdmModelService } from '../../../common';
 
 @Injectable()
-export class PdmWostEqpListService {
-    constructor( private _pdmService: PdmCommonService ) {}
-
-    getPlants() {
-        return this._pdmService.getPlants();
-    }
-
-    getAreaStatus(plantId, from, to) {
-        return this._pdmService.getAreaStatus(plantId, from, to);
+export class PdmAlarmClassSummaryService {
+    constructor( private _pdmModel: PdmModelService ) {}
+ 
+    // get alarm class summary
+    getListData(params:{
+        fabId: string;
+        areaId?: number;
+        fromDate: number;
+        toDate: number;
+    }): Promise<any> {
+        if( params.areaId === undefined ){
+            return this._pdmModel.getAlarmClassificationSummary(params.fabId, params.fromDate, params.toDate);
+        } else {
+            return this._pdmModel.getAlarmClassificationSummaryByAreaId(params.fabId, params.areaId, params.fromDate, params.toDate);
+        }
     }
 }

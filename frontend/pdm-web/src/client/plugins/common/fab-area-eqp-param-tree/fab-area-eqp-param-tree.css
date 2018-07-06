@@ -1,4 +1,5 @@
 /** EQP Registration **/
+
 .pdm-configuration-builder {
     height: 100%;
     width: 100%;
@@ -10,13 +11,15 @@
     height: 100%;
     padding: 10px;
     float: left;
-    border-right: 1px solid #eee;
+    /*border-right: 1px solid #eee;*/
 }
-.pdm-configuration-builder .inputFab{
-    width:calc(100% - 20px);
-    margin-left:5px;
-    display:inline-block;
+
+.pdm-configuration-builder .inputFab {
+    width: calc(100% - 20px);
+    margin-left: 5px;
+    display: inline-block;
 }
+
 .pdm-configuration-builder .pdm-master-body {
     width: calc(100% - 300px);
     height: 100%;
@@ -28,32 +31,41 @@
     margin: 15px 0 10px 0;
 } */
 
-.master-info .pdm-master-wrapper{
+.pdm-configuration-builder .fab-label {
+    padding-bottom: 10px;
+}
+
+.master-info .pdm-master-wrapper {
     height: 100%;
     width: 100%;
 }
+
 .master-info .header-btn {
     margin: 50px 10px 0 0;
 }
-.master-info .pdm-master-body .master-list{
+
+.master-info .pdm-master-body .master-list {
     height: 100%;
     width: 100%;
 }
-.master-info .pdm-master-body .top-list{
+
+.master-info .pdm-master-body .top-list {
     height: 51%;
     width: 100%;
 }
 
-.master-info .pdm-master-body .bottom-list{
+.master-info .pdm-master-body .bottom-list {
     height: 51%;
     width: 100%;
 }
-.master-info .pdm-config-header{
+
+.master-info .pdm-config-header {
     width: 100%;
-    padding: 3px 0px 8px;
+    /*padding: 3px 0px 8px;*/
     font-size: 13px;
     float: none;
 }
-.master-info .pdm-master-body .wj-content{
+
+.master-info .pdm-master-body .wj-content {
     height: calc(100% - 72px);
 }

@@ -1,136 +1,149 @@
-import { Component, ViewEncapsulation, ViewChild, OnDestroy, AfterViewInit, ElementRef, ChangeDetectorRef } from '@angular/core';
+import { Component, ViewEncapsulation, OnDestroy, } from '@angular/core';
 import { WidgetRefreshType, WidgetApi, OnSetup } from '../../../common';
-import { Translater } from '../../../sdk';
 import { PdmWostEqpListService } from './pdm-worst-eqp-list.service';
-import { PdmCommonService } from '../../../common/service/pdm-common.service';
 import { IWorstEeqList, ITimePeriod } from '../../common/status-chart-canvas/status-change.component';
 
-//* ng2-tree Interface
-// import { TreeModel } from 'ng2-tree';
+// 새로 고침 시 사용될 interface
+export interface IPrevData {
+    fabId: string;
+    targetName: string;
+    timePeriod: ITimePeriod;
+}
+
+// 서버 요청 데이터 포맷
+export interface IReqDataFormat {
+    eqp_name: string;
+    eqp_rawid: number,
+    score: number,
+    area_rawid: number,
+    area_name: string,
+    datas: Array<{
+        type: string;
+        start: number;
+        end: number;
+    }>
+}
 
 @Component({
     moduleId: module.id,
     selector: 'pdm-worst-eqp-list',
     templateUrl: 'pdm-worst-eqp-list.html',
     styleUrls: ['pdm-worst-eqp-list.css'],
-    providers: [PdmWostEqpListService, PdmCommonService],
+    providers: [PdmWostEqpListService],
     encapsulation: ViewEncapsulation.None
 })
 
-export class PdmWostEqpListComponent extends WidgetApi implements OnSetup, OnDestroy, AfterViewInit {
+export class PdmWostEqpListComponent extends WidgetApi implements OnSetup, OnDestroy {
 
-    drawColors:Array<any> = [
-        {name:'run', color:'#1b6bce'},
-        {name:'normal', color:'#00b050'},
-        {name:'warning', color:'#ffc000'},
-        {name:'alarm', color:'#ff0000'},
-        {name:'failure', color:'#000000'},
-        {name:'offline', color:'#a6a6a6'}
+    // status 별 색상설정
+    drawColors:Array<{name: string; color: string;}> = [
+        {name:'Run', color:'#1b6bce'},
+        {name:'Normal', color:'#00b050'},
+        {name:'Warning', color:'#ffc000'},
+        {name:'Alarm', color:'#ff0000'},
+        {name:'Failure', color:'#000000'},
+        {name:'Offline', color:'#a6a6a6'}
     ];
 
+    // 날짜 범위 (config 값 사용)
     private timePeriod: ITimePeriod = {
-        fromDate : 1532044800000, // new Date(2018, 6, 20, 09, 0, 0, 0).getTime(),
-        toDate : 1532077200000 // new Date(2018, 6, 20, 18, 0, 0, 0).getTime()
+        fromDate: 0,
+        toDate: 0
     };
 
+    // 타겟 이름 (초기 기본명 세팅)
     private targetName: string = 'All Lines';
 
+    // worst eqp list 데이터
     private listData: Array<IWorstEeqList> = [];
 
-    private condition: {
-        fabId: string;
-        timePeriod: ITimePeriod
+    // fab, area IDs
+    private fabId: string = '';
+    private areaId: number = undefined;
+
+    // 위젯 새로고침 시 되돌릴 데이터 값
+    private prevData: IPrevData = {
+        fabId: '',
+        targetName: '',
+        timePeriod: {
+            fromDate: 0,
+            toDate: 0
+        }
     };
     
-    // TODO: Contour chart disable
     constructor(
-        private dataSvc: PdmWostEqpListService,
-        private translater: Translater,
         private _service: PdmWostEqpListService
     ){
         super();
     }
 
+    //* 초기 설정 (로딩, config값 로드)
     ngOnSetup() {
         this.showSpinner();
-        this.init();
-        // this.hideSpinner();
+        this.setConfigInfo('init', this.getProperties());
     }
 
-    private init(){
-        this._setConfigInfo( this.getProperties() );
-    }
+    //* 컨피그 설정
+    setConfigInfo( type: string, syncData?: any ): void {
 
-    _setConfigInfo(props: any): void {
-        console.log( props );
-        // const now: Date = new Date();
-        // const currDate: Date = new Date(now.getFullYear(), now.getMonth()+1, now.getDate());
-        // const startOfDay: Date = new Date( currDate.getTime() - 86400000); // 1000 * 60 * 60 * 24 * 1 (1일)
-        // const to: number = startOfDay.getTime(); // today 00:00:00
+        // 새로고침 (이전 컨피그 상태로 되돌림)
+        if( type === A3_WIDGET.JUST_REFRESH ){
+            this.fabId = this.prevData.fabId;
+            this.timePeriod = this.prevData.timePeriod;
+            this.targetName = this.prevData.targetName;
+            this.areaId = undefined;
+        }
+        // 컨피그 설정 적용
+        else if( type === A3_WIDGET.APPLY_CONFIG_REFRESH || type === 'init' ){
+            this.fabId = syncData.plant.fabId;
+            this.timePeriod.fromDate = syncData[CD.TIME_PERIOD].from;
+            this.timePeriod.toDate = syncData[CD.TIME_PERIOD].to;
+            this.areaId = undefined;
 
-        this.condition = {
-            fabId: props.plant.fabId,
-            timePeriod: this.timePeriod
-        };
+            // 컨피그로 설정된 값 저장 용
+            this.prevData = {
+                fabId: this.fabId,
+                timePeriod: this.timePeriod,
+                targetName: this.targetName
+            };
+        }
+        // 다른 위젯 데이터 싱크
+        else if( type === A3_WIDGET.SYNC_INCONDITION_REFRESH ){
+            this.targetName = syncData[CD.AREA][CD.AREA_NAME];
+            this.areaId = syncData[CD.AREA][CD.AREA_ID];
+            this.timePeriod.fromDate = syncData[CD.TIME_PERIOD].from;
+            this.timePeriod.toDate = syncData[CD.TIME_PERIOD].to;
+        }
 
-        this.timePeriod.fromDate = props[CD.TIME_PERIOD].from;
-        this.timePeriod.toDate = props[CD.TIME_PERIOD].to;
-
+        // 데이터 요청
         this.getData();
     }
 
-    /**
-     * TODO
-     * refresh 3가지 타입에 따라서 data를 통해 적용한다.
-     *  justRefresh, applyConfig, syncInCondition
-     */
-    // tslint:disable-next-line:no-unused-variable
+    //* APPLY_CONFIG_REFRESH-config 설정 값, JUST_REFRESH-현 위젯 새로고침, SYNC_INCONDITION_REFRESH-위젯 Sync
     refresh({ type, data }: WidgetRefreshType) {
         this.showSpinner();
-        if (type === A3_WIDGET.APPLY_CONFIG_REFRESH) {
-            this._setConfigInfo(data);
-        } else if (type === A3_WIDGET.JUST_REFRESH) {
-        
-        } else if (type === A3_WIDGET.SYNC_INCONDITION_REFRESH) {
-            this.hideSpinner();
-            console.log('WORST EQP SYNC', data);
-        }
-    }
-
-    ngAfterViewInit() {
-        // this.shopGrid.selectedItems.splice(0);
-        // this.hideSpinner()
+        this.setConfigInfo( type, data );
     }
 
     ngOnDestroy() {
         this.destroy();
     }
 
+    //* 데이터 가져오기
     getData(){
         this._service.getListData({
-            fabId: this.condition.fabId,
-            areaId: '200',
+            fabId: this.fabId,
+            areaId: this.areaId,
             fromDate: this.timePeriod.fromDate,
             toDate: this.timePeriod.toDate
-        }).then((res: any)=>{
+        }).then((res: Array<IReqDataFormat>)=>{
             if( this.listData.length ){
                 this.listData.splice(0, this.listData.length);
             }
 
             let i: number,
                 max: number = res.length,
-                row: {
-                    eqp_name: string;
-                    eqp_rawid: number,
-                    score: number,
-                    area_rawid: number,
-                    area_name: string,
-                    datas: Array<{
-                        type: string;
-                        start: number;
-                        end: number;
-                    }>
-                }
+                row: IReqDataFormat
             ; 
 
             for( i=0; i<max; i++ ){
@@ -171,58 +184,58 @@ export class PdmWostEqpListComponent extends WidgetApi implements OnSetup, OnDes
                     equipment: 'EQP34',
                     score: 0.83,
                     status: [
-                        {type: 'run', start:1532044800000, end:1532051940000 },
-                        {type: 'normal', start:1532051940000, end:1532052000000 },
-                        {type: 'warning', start:1532052000000, end:1532061011000 },
-                        {type: 'alarm', start:1532061011000, end:1532066400000 },
-                        {type: 'failure', start:1532066400000, end:1532073600000 },
-                        {type: 'offline', start:1532073600000, end:1532077200000 }
+                        {type: 'Run', start:1532044800000, end:1532051940000 },
+                        {type: 'Normal', start:1532051940000, end:1532052000000 },
+                        {type: 'Warning', start:1532052000000, end:1532061011000 },
+                        {type: 'Alarm', start:1532061011000, end:1532066400000 },
+                        {type: 'Failure', start:1532066400000, end:1532073600000 },
+                        {type: 'Offline', start:1532073600000, end:1532077200000 }
                     ]
                 }, {
                     order: 2,
                     equipment: 'EQP51',
                     score: 0.75,
                     status: [
-                        {type: 'normal', start:1532044800000, end:1532046600000 },
-                        {type: 'warning', start:1532046600000, end:1532057820000 },
-                        {type: 'alarm', start:1532057820000, end:1532059200000 },
-                        {type: 'offline', start:1532059200000, end:1532062500000 },
-                        {type: 'failure', start:1532062500000, end:1532062800000 },
-                        {type: 'run', start:1532062800000, end:1532077200000 }
+                        {type: 'Normal', start:1532044800000, end:1532046600000 },
+                        {type: 'Warning', start:1532046600000, end:1532057820000 },
+                        {type: 'Alarm', start:1532057820000, end:1532059200000 },
+                        {type: 'Offline', start:1532059200000, end:1532062500000 },
+                        {type: 'Failure', start:1532062500000, end:1532062800000 },
+                        {type: 'Run', start:1532062800000, end:1532077200000 }
                     ]
                 }, {
                     order: 3,
                     equipment: 'EQP34',
                     score: 0.72,
                     status: [
-                        {type: 'run', start:1532044800000, end:1532051940000 },
-                        {type: 'normal', start:1532051940000, end:1532052000000 },
-                        {type: 'warning', start:1532052000000, end:1532061011000 },
-                        {type: 'alarm', start:1532061011000, end:1532066400000 },
-                        {type: 'failure', start:1532066400000, end:1532073600000 },
-                        {type: 'offline', start:1532073600000, end:1532077200000 }
+                        {type: 'Run', start:1532044800000, end:1532051940000 },
+                        {type: 'Normal', start:1532051940000, end:1532052000000 },
+                        {type: 'Warning', start:1532052000000, end:1532061011000 },
+                        {type: 'Alarm', start:1532061011000, end:1532066400000 },
+                        {type: 'Failure', start:1532066400000, end:1532073600000 },
+                        {type: 'Offline', start:1532073600000, end:1532077200000 }
                     ]
                 }, {
                     order: 4,
                     equipment: 'EQP34',
                     score: 0.69,
                     status: [
-                        {type: 'alarm', start:1532044800000, end:1532045530500 },
-                        {type: 'run', start:1532045530500, end:1532056200000 },
-                        {type: 'warning', start:1532056200000, end:1532061011000 },
-                        {type: 'offline', start:1532061011000, end:1532077200000 }
+                        {type: 'Alarm', start:1532044800000, end:1532045530500 },
+                        {type: 'Run', start:1532045530500, end:1532056200000 },
+                        {type: 'Warning', start:1532056200000, end:1532061011000 },
+                        {type: 'Offline', start:1532061011000, end:1532077200000 }
                     ]
                 }, {
                     order: 5,
                     equipment: 'EQP34',
                     score: 0.66,
                     status: [
-                        {type: 'run', start:1532044800000, end:1532051940000 },
-                        {type: 'normal', start:1532051940000, end:1532052000000 },
-                        {type: 'warning', start:1532052000000, end:1532061011000 },
-                        {type: 'alarm', start:1532061011000, end:1532066400000 },
-                        {type: 'failure', start:1532066400000, end:1532073600000 },
-                        {type: 'offline', start:1532073600000, end:1532077200000 }
+                        {type: 'Run', start:1532044800000, end:1532051940000 },
+                        {type: 'Normal', start:1532051940000, end:1532052000000 },
+                        {type: 'Warning', start:1532052000000, end:1532061011000 },
+                        {type: 'Alarm', start:1532061011000, end:1532066400000 },
+                        {type: 'Failure', start:1532066400000, end:1532073600000 },
+                        {type: 'Offline', start:1532073600000, end:1532077200000 }
                     ]
                 }
             ];

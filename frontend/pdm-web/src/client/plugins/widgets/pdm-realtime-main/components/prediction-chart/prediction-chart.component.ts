@@ -337,7 +337,8 @@ export class PredictionChartComponent implements OnInit, OnChanges, AfterViewIni
                 events: []
             },
             seriesDefaults: {
-                showMarker: false
+                showMarker: false,
+                color:'blue'
             },
             axes: {
                 xaxis: {

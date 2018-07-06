@@ -5,10 +5,11 @@
 
 .pdm-realtime-main .text-info {
     height: 50px;
-    /*border: solid 2px lightgray;*/
     padding: 10px;
     margin-bottom: 5px;
     text-align: center;
+		border-bottom: solid 1px #ddd;
+		color: #666;
 }
 
 .pdm-realtime-main .text-info td {
@@ -24,13 +25,13 @@
 
 .pdm-realtime-main .realtime-info {
     height: calc(50% - 25px);
-    border: solid 1px lightgray;
-    margin-bottom: 5px;
+    border-bottom: solid 1px #ddd;
+    /* margin-bottom: 5px;*/
 }
 
 .pdm-realtime-main .alarm-fault-info {
     height: calc(50% - 30px);
-    border: solid 1px #ddd;
+    /*border: solid 1px #ddd;*/
     /*margin-bottom: 5px;*/
 }
 
