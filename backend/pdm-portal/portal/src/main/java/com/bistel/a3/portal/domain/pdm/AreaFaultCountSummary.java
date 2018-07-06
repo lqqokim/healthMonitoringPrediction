@@ -12,23 +12,14 @@ public class AreaFaultCountSummary {
     private int failure_count;
     private int offline_count;
     private int total_count;
-    private Date start_time;
-    private Date end_time;
+    private String day;
 
-    public Date getStart_time() {
-        return start_time;
+    public String getDay() {
+        return day;
     }
 
-    public void setStart_time(Date start_time) {
-        this.start_time = start_time;
-    }
-
-    public Date getEnd_time() {
-        return end_time;
-    }
-
-    public void setEnd_time(Date end_time) {
-        this.end_time = end_time;
+    public void setDay(String day) {
+        this.day = day;
     }
 
     public Long getArea_id() {

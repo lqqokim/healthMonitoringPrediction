@@ -9,6 +9,8 @@ export interface IPrevData {
     fabId: string;
     targetName: string;
     timePeriod: ITimePeriod;
+    dayPeriod: number;
+    cutoffType: string;
 }
 
 // 서버 요청 데이터 포맷
@@ -78,7 +80,9 @@ export class PdmAlarmHistoryComponent extends WidgetApi implements OnSetup, OnDe
         timePeriod: {
             fromDate: 0,
             toDate: 0
-        }
+        },
+        dayPeriod: 0,
+        cutoffType: ''
     };
     
     constructor(
@@ -90,7 +94,44 @@ export class PdmAlarmHistoryComponent extends WidgetApi implements OnSetup, OnDe
     //* 초기 설정 (로딩, config값 로드)
     ngOnSetup() {
         this.showSpinner();
+
+        this.setConfigData('DAY', undefined, 1);
         this.setConfigInfo('init', this.getProperties());
+    }
+
+    //* 자동 prev day 계산
+    getTodayPrevDayCalc( day: number ): ITimePeriod {
+        const now = new Date();
+        const calcDay = 1000 * 60 * 60 * 24 * day;
+        const to = new Date( now.getFullYear(), now.getMonth()+1, now.getDate() ).getTime();
+        const from = new Date( to - calcDay ).getTime();
+
+        return {
+            fromDate: from,
+            toDate: to
+        };
+    }
+
+    //* 위젯 컨피그 속성 값 설정
+    setConfigData( type: string, timePeriod: ITimePeriod, dayPeriod: number ){
+
+        const cutoffType: string = type === 'DATE' ? 'DATE' : 'DAY';
+        const time: ITimePeriod = (type === 'DAY' ? this.getTodayPrevDayCalc( dayPeriod ) : timePeriod);
+
+        // 컨피스 radio 값 설정 (DAY-Previous day, DATE-Date Range)
+        this.setProp('cutoffType', cutoffType);
+
+        // 일별 자동 계산
+        if( cutoffType === 'DAY' ){
+            this.setProp('dayPeriod', dayPeriod);
+        } else {
+            this.setProp('dayPeriod', '');
+        }
+
+        // 날짜 설정
+        // this.setProp('timePeriod', time);
+        this.setProp('from', moment(time.fromDate).format('YYYY/MM/DD HH:mm:ss'));
+        this.setProp('to', moment(time.toDate).format('YYYY/MM/DD HH:mm:ss'));
     }
 
     //* 컨피그 설정
@@ -102,6 +143,12 @@ export class PdmAlarmHistoryComponent extends WidgetApi implements OnSetup, OnDe
             this.timePeriod = this.prevData.timePeriod;
             this.targetName = this.prevData.targetName;
             this.areaId = undefined;
+
+            if( this.prevData.cutoffType === 'DAY' ){
+                this.setConfigData('DAY', undefined, this.prevData.dayPeriod );
+            } else {
+                this.setConfigData('DATE', this.timePeriod, undefined );
+            }
         }
         // 컨피그 설정 적용
         else if( type === A3_WIDGET.APPLY_CONFIG_REFRESH || type === 'init' ){
@@ -114,7 +161,9 @@ export class PdmAlarmHistoryComponent extends WidgetApi implements OnSetup, OnDe
             this.prevData = {
                 fabId: this.fabId,
                 timePeriod: this.timePeriod,
-                targetName: this.targetName
+                targetName: this.targetName,
+                dayPeriod: this.getProp('dayPeriod'),
+                cutoffType: this.getProp('cutoffType')
             };
         }
         // 다른 위젯 데이터 싱크
@@ -123,6 +172,9 @@ export class PdmAlarmHistoryComponent extends WidgetApi implements OnSetup, OnDe
             this.areaId = syncData[CD.AREA][CD.AREA_ID];
             this.timePeriod.fromDate = syncData[CD.TIME_PERIOD].from;
             this.timePeriod.toDate = syncData[CD.TIME_PERIOD].to;
+
+            // 실크 될 실제 컨피그 값 설정 (DATE 기준)
+            // this.setConfigData('DATE', this.timePeriod, undefined );
         }
 
         // 데이터 요청
@@ -131,6 +183,14 @@ export class PdmAlarmHistoryComponent extends WidgetApi implements OnSetup, OnDe
 
     //* APPLY_CONFIG_REFRESH-config 설정 값, JUST_REFRESH-현 위젯 새로고침, SYNC_INCONDITION_REFRESH-위젯 Sync
     refresh({ type, data }: WidgetRefreshType) {
+
+        // 처리할 타입만 필터링
+        if( type === A3_WIDGET.JUST_REFRESH ||
+            type === A3_WIDGET.APPLY_CONFIG_REFRESH ||
+            type === A3_WIDGET.SYNC_INCONDITION_REFRESH ){
+            return;
+        }
+
         this.showSpinner();
         this.setConfigInfo( type, data );
     }
@@ -179,11 +239,11 @@ export class PdmAlarmHistoryComponent extends WidgetApi implements OnSetup, OnDe
             }
 
             this.listData = [
-                {Time: '', EQP:'EQP34', Param:'Vibration1', Category:'Alarm', FaultClass: 'Unbalance', Description: ''},
-                {Time: '', EQP:'EQP36', Param:'Temp', Category:'Alarm', FaultClass: 'N/A', Description: ''},
-                {Time: '', EQP:'EQP34', Param:'Vibration1', Category:'Alarm', FaultClass: 'N/A', Description: ''},
-                {Time: '', EQP:'EQP34', Param:'Pressure', Category:'Warning', FaultClass: 'N/A', Description: ''},
-                {Time: '', EQP:'EQP34', Param:'Vibration1', Category:'Alarm', FaultClass: 'N/A', Description: ''},
+                {Time: '', EQP:'EQP34', Param:'Vibration1', Category:'Alarm', FaultClass: 'Unbalance'},
+                {Time: '', EQP:'EQP36', Param:'Temp', Category:'Alarm', FaultClass: 'N/A'},
+                {Time: '', EQP:'EQP34', Param:'Vibration1', Category:'Alarm', FaultClass: 'N/A'},
+                {Time: '', EQP:'EQP34', Param:'Pressure', Category:'Warning', FaultClass: 'N/A'},
+                {Time: '', EQP:'EQP34', Param:'Vibration1', Category:'Alarm', FaultClass: 'N/A'},
             ];
 
             console.log('err', err);
