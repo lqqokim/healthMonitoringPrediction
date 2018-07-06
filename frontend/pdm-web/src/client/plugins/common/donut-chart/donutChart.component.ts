@@ -1,5 +1,6 @@
 import { Component, ViewEncapsulation, OnInit, ViewChild, Input, OnDestroy, ElementRef, Renderer, OnChanges } from '@angular/core';
 import { Timer } from './Timer';
+import { start } from 'repl';
 
 //* 크기
 export interface Size {
@@ -72,6 +73,8 @@ export class DonutChartComponent implements OnInit, OnChanges, OnDestroy {
     private widgetSize: Size = {w: 0, h: 0};
     private centerPosition: Position = {x: 0, y: 0};
 
+    // 타이머 용
+    private timer: Array<Timer> = [];
 
     // 차트 데이터 기준으로 다시그리기 (true: 다시그림 / false:기존데이터 기준으로 그림)
     private reDraw: boolean = true;
@@ -117,10 +120,15 @@ export class DonutChartComponent implements OnInit, OnChanges, OnDestroy {
         if( this.widgetElem !== undefined ){
             this.widgetElem.removeEventListener('transitionend', this.resizeCallback);
         }
+
+        // 도형 제거
+        this.arcPathClear();
+
+        // 타이머 제거
+        this.timerClear();
     }
 
     ngOnChanges(c: any){
-        console.log('ngOnChanges', c);
         // 차트 데이터가 바뀌면 다시 그리기
         if( c.chartData.currentValue !== c.chartData.previousValue ){
             setTimeout(()=>{
@@ -218,15 +226,29 @@ export class DonutChartComponent implements OnInit, OnChanges, OnDestroy {
         this.drawChartData.splice(0, max);
     }
 
+    //* 타이머 제거
+    timerClear(): void {
+        if( this.timer.length == 0 ){ return; }
+
+        let i;
+        const max = this.timer.length;
+
+        for( i=0; i<max; i++ ){
+            this.timer[i].stop();
+        }
+
+        this.timer.splice(0, max);
+    }
+
     //* arc도형 트윈
     arcTween( arc: any, idx: number, startAngle: number, endAngle: number ): void {
         let _curr: number = startAngle;
         const _target: number = endAngle;
-        const _speed: number = 0.125;
+        const _speed: number = 2.5;
         const _max: number = _target - ((_target - _curr) * 0.001);
 
-        let t = new Timer(()=>{
-            _curr += _speed * (_target - _curr);
+        let t = new Timer((delta)=>{
+            _curr += (_speed*delta) * (_target - _curr);
 
             arc.endAngle( _curr );
             this.svgArcPaths[idx].attr('d', arc);
@@ -237,8 +259,10 @@ export class DonutChartComponent implements OnInit, OnChanges, OnDestroy {
                 t.stop();
                 t.destory();
             }
-        });
+        }, 1000/30);
         t.play();
+
+        this.timer[idx] = t;
     }
 
     //* 그리기
@@ -299,9 +323,10 @@ export class DonutChartComponent implements OnInit, OnChanges, OnDestroy {
             labelY: number
         ;
 
-        // 다시 그려야 되면 arcPath 지우기
+        // 다시 그려야 되면 arcPath, timer 지우기
         if( this.reDraw ){
             this.arcPathClear();
+            this.timerClear();
         }
 
         // 도넛 차트 그리기
