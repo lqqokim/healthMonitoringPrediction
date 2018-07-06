@@ -392,7 +392,12 @@ export class PdmRealTimeMainComponent extends WidgetApi implements OnSetup, OnDe
         this._pdmModelService.getAlaramHistoryByEqpId(this.selectParam.fabId,1,this.selectParam.eqpIds[0],fromDate,toDate).then((data)=>{
             this.alarmHistories = data;
 
-            this.alarmHistories.sort(function(a,b) {return (a.event_dtts > b.event_dtts) ? -1 : ((b.event_dtts > a.event_dtts) ? 1 : 0);} ); 
+            this.alarmHistories.sort(function(a,b) {return (a.alarm_dtts > b.alarm_dtts) ? -1 : ((b.alarm_dtts > a.alarm_dtts) ? 1 : 0);} ); 
+
+            let alarmList = this.alarmHistories.filter((d)=>{
+                return d.category=='Alarm'? true:false
+            })
+            this.alarmCount = alarmList.length;
 
         })
     }

@@ -250,6 +250,8 @@ export class RealtimeMainParamTrendComponent implements OnInit, OnChanges,OnDest
                         //         break;
                         //     }
                         // }
+                    }else{
+                        seriesData = payload.reply.datas;
                     }
                    
                     this.paramDatas[i].datas[0] = seriesData;
