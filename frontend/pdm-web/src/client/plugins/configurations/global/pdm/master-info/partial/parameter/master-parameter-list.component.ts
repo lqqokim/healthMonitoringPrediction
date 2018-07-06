@@ -166,7 +166,7 @@ export class MasterParameterListComponent extends WijmoApi implements OnInit, On
             return;
         }
 
-        if (this.status === 'create' || (this.status === 'modify' && this.selectedRowData.paramName !== paramData.eqpName)) {
+        if (this.status === 'create' || (this.status === 'modify' && this.selectedRowData.paramName !== paramData.paramName)) {
             if (!this.checkUniqueData(paramData)) {
                 this.notify.warn("PDM.NOTIFY.DUPLICATE_PARAMETER");
                 return;
