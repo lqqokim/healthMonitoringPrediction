@@ -1,6 +1,6 @@
-import { Component, ViewEncapsulation, OnDestroy } from '@angular/core';
+import { Component, ViewEncapsulation, OnDestroy, ViewChild } from '@angular/core';
 import { WidgetRefreshType, WidgetApi, OnSetup } from '../../../common';
-import { IDonutChartData, IColorSet } from '../../common/donut-chart/donutChart.component';
+import { IDonutChartData, IColorSet, DonutChartComponent } from '../../common/donut-chart/donutChart.component';
 import { ITimePeriod } from '../../common/widget-chart-condition/widget-chart-condition.component';
 import { PdmAlarmClassSummaryService } from './pdm-alarm-class-summary.service';
 
@@ -26,8 +26,10 @@ export interface IReqDataFormat {
     encapsulation: ViewEncapsulation.None
 })
 
-export class PdmAlarmClassSummaryComponent extends WidgetApi implements OnSetup, OnDestroy {  
+export class PdmAlarmClassSummaryComponent extends WidgetApi implements OnSetup, OnDestroy {
 
+    @ViewChild('donutChart') donutChart: DonutChartComponent;
+    
     private chartColorBase: Array<IColorSet> = [
         { name: 'Unblance', color: '#4472c4' },
         { name: 'Misalignment', color: '#ed7d31' },
@@ -82,6 +84,8 @@ export class PdmAlarmClassSummaryComponent extends WidgetApi implements OnSetup,
     ngOnSetup() {
         this.showSpinner();
         this.setConfigInfo('init', this.getProperties());
+
+        console.log( this.donutChart );
     }
 
     //* 컨피그 설정
@@ -93,6 +97,14 @@ export class PdmAlarmClassSummaryComponent extends WidgetApi implements OnSetup,
             this.timePeriod = this.prevData.timePeriod;
             this.targetName = this.prevData.targetName;
             this.areaId = undefined;
+
+            // this.timePeriod = {
+            //     fromDate: 1532044800000,
+            //     toDate: 1532077200000
+            // };
+
+            // this.setProp('cutoffType', 'DATE' );
+            this.setProp('timePeriod', this.timePeriod );
         }
         // 컨피그 설정 적용
         else if( type === A3_WIDGET.APPLY_CONFIG_REFRESH || type === 'init' ){
@@ -114,6 +126,8 @@ export class PdmAlarmClassSummaryComponent extends WidgetApi implements OnSetup,
             this.areaId = syncData[CD.AREA][CD.AREA_ID];
             this.timePeriod.fromDate = syncData[CD.TIME_PERIOD].from;
             this.timePeriod.toDate = syncData[CD.TIME_PERIOD].to;
+
+            // this.setProp('fromDate', this.timePeriod.fromDate);
         }
 
         // 데이터 요청
@@ -156,7 +170,7 @@ export class PdmAlarmClassSummaryComponent extends WidgetApi implements OnSetup,
             fromDate: this.timePeriod.fromDate,
             toDate: this.timePeriod.toDate
         }).then((res: Array<IReqDataFormat>)=>{
-            console.log(res);
+            console.log('pdm-alarm-class-summary', res);
             if( this.chartData.length ){
                 this.chartData.splice(0, this.chartData.length);
             }
@@ -175,8 +189,7 @@ export class PdmAlarmClassSummaryComponent extends WidgetApi implements OnSetup,
             }
 
             this.resetLegend();
-
-            console.log('this.chartData', this.chartData );
+            this.donutChart.reDrawChart();
 
             this.hideSpinner();
         },(err: any)=>{
@@ -195,6 +208,7 @@ export class PdmAlarmClassSummaryComponent extends WidgetApi implements OnSetup,
             ];
 
             this.resetLegend();
+            this.donutChart.reDrawChart();
 
             console.log('err', err);
             this.hideSpinner();
