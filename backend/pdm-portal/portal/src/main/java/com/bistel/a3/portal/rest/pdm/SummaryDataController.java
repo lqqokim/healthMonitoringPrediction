@@ -166,17 +166,30 @@ public class SummaryDataController {
     }
 
 
-    @RequestMapping("/areas/{areaId}/worstEquipmentList")
+    @RequestMapping("/worstEquipmentList")
     public Object worstEquipmentList(@PathVariable("fabId") String fabId,
-                                     @PathVariable("areaId") Long areaId,
+
                                   @RequestParam("fromdate") Long fromdate,
                                   @RequestParam("todate") Long todate) {
 
-        areaId=200L;
+        Long areaId=null;
         Date from = new Date(fromdate);
         Date to = new Date(todate);
 
         return summaryDataService.worstEquipmentList(fabId,areaId, from, to);
     }
+
+    @RequestMapping("/areas/{areaId}/worstEquipmentListByAreaId")
+    public Object worstEquipmentList(@PathVariable("fabId") String fabId,
+                                     @PathVariable("areaId") Long areaId,
+                                     @RequestParam("fromdate") Long fromdate,
+                                     @RequestParam("todate") Long todate) {
+
+        Date from = new Date(fromdate);
+        Date to = new Date(todate);
+
+        return summaryDataService.worstEquipmentList(fabId,areaId, from, to);
+    }
+
 
 }

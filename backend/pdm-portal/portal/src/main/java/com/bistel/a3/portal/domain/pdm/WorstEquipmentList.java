@@ -6,28 +6,17 @@ import java.util.ArrayList;
 public class WorstEquipmentList {
 
     private String eqp_name;
-    private String eqp_rawid;
+    private Long eqp_id;
+
+
+
     private Double score;
-    private Long area_rawid;
+    private Long area_id;
     private String area_name;
+    private ArrayList<WorstEqupmentListChartData> datas;
 
-    public Long getArea_rawid() {
-        return area_rawid;
-    }
 
-    public void setArea_rawid(Long area_rawid) {
-        this.area_rawid = area_rawid;
-    }
 
-    public String getArea_name() {
-        return area_name;
-    }
-
-    public void setArea_name(String area_name) {
-        this.area_name = area_name;
-    }
-
-    private ArrayList<WorstEqupmentListChartData> datas = new ArrayList<>();
 
     public String getEqp_name() {
         return eqp_name;
@@ -37,12 +26,12 @@ public class WorstEquipmentList {
         this.eqp_name = eqp_name;
     }
 
-    public String getEqp_rawid() {
-        return eqp_rawid;
+    public Long getEqp_id() {
+        return eqp_id;
     }
 
-    public void setEqp_rawid(String eqp_rawid) {
-        this.eqp_rawid = eqp_rawid;
+    public void setEqp_id(Long eqp_id) {
+        this.eqp_id = eqp_id;
     }
 
     public Double getScore() {
@@ -51,6 +40,22 @@ public class WorstEquipmentList {
 
     public void setScore(Double score) {
         this.score = score;
+    }
+
+    public Long getArea_id() {
+        return area_id;
+    }
+
+    public void setArea_id(Long area_id) {
+        this.area_id = area_id;
+    }
+
+    public String getArea_name() {
+        return area_name;
+    }
+
+    public void setArea_name(String area_name) {
+        this.area_name = area_name;
     }
 
     public ArrayList<WorstEqupmentListChartData> getDatas() {

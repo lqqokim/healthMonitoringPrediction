@@ -161,138 +161,72 @@ public class SummaryDataService implements ISummaryDataService {
     @Override
     public List<WorstEquipmentList> worstEquipmentList(String fabId, Long areaId, Date fromdate, Date todate) {
 
+        STDSummaryMapper stdSummaryMapper= SqlSessionUtil.getMapper(sessions, fabId, STDSummaryMapper.class);
+
         SimpleDateFormat dtDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-        List<WorstEquipmentList> worstEquipmentLists = new ArrayList<>();
+        String start_dtts=dtDate.format(fromdate);
+        String end_dtts=dtDate.format(todate);
 
-            //
-            WorstEquipmentList worstEquipmentList1=new WorstEquipmentList();
-
-
-                ArrayList<WorstEqupmentListChartData> worstEqupmentListChartDataList1= new ArrayList<>();
-
-                        WorstEqupmentListChartData worstEqupmentListChartData1=new WorstEqupmentListChartData();
-                        worstEqupmentListChartData1.setType("Alarm");
-                        Date start=null;
-                        Date end=null;
-                        String sStart="2018-05-25 00:00:00";
-                        String sEnd="2018-05-25 12:00:00";
-                        try {
-                        start=dtDate.parse(sStart);
-                        end=dtDate.parse(sEnd);
-                        } catch (ParseException e) {
-                        e.printStackTrace();
-                        }
-                        worstEqupmentListChartData1.setStart(start);
-                        worstEqupmentListChartData1.setEnd(end);
+        if (areaId==null)
+        {
+            List<WorstEquipmentList> worstEquipmentLists = stdSummaryMapper.selectWorstEquipmentList(start_dtts,end_dtts);
+            ArrayList<WorstEqupmentListChartData> worstEqupmentListChartData=stdSummaryMapper.selectWorstEqupmentListChartData(start_dtts,end_dtts);
 
 
-                        WorstEqupmentListChartData worstEqupmentListChartData2=new WorstEqupmentListChartData();
-                        worstEqupmentListChartData2.setType("Warning");
-                        start=null;
-                        end=null;
-                        sStart="2018-05-25 12:00:00";
-                        sEnd="2018-05-26 00:00:00";
-                        try {
-                        start=dtDate.parse(sStart);
-                        end=dtDate.parse(sEnd);
-                        } catch (ParseException e) {
-                        e.printStackTrace();
-                        }
-                        worstEqupmentListChartData2.setStart(start);
-                        worstEqupmentListChartData2.setEnd(end);
+            WorstEqupmentListChartData worstEqupmentListChartData1=null;
+            ArrayList<WorstEqupmentListChartData> worstEqupmentListChartDataArray=null;
 
+            for (int i = 0; i < worstEquipmentLists.size(); i++)
+            {
 
+                Long eqpId1=worstEquipmentLists.get(i).getEqp_id();
+                worstEqupmentListChartDataArray=new ArrayList<>();
+                for (int j = 0; j < worstEqupmentListChartData.size(); j++)
+                {
+                    Long eqpId2=worstEqupmentListChartData.get(j).getEqp_id();
 
-                worstEqupmentListChartDataList1.add(worstEqupmentListChartData1);
-                worstEqupmentListChartDataList1.add(worstEqupmentListChartData2);
-
-            worstEquipmentList1.setDatas(worstEqupmentListChartDataList1);
-            worstEquipmentList1.setEqp_name("EQP34");
-            worstEquipmentList1.setScore(Double.parseDouble(String.format("%.2f",Math.random())));
-            worstEquipmentList1.setArea_rawid(200L);
-
-            //
-
-
-        WorstEquipmentList worstEquipmentList2=new WorstEquipmentList();
-
-
-                ArrayList<WorstEqupmentListChartData> worstEqupmentListChartDataList2= new ArrayList<>();
-
-                WorstEqupmentListChartData worstEqupmentListChartData3=new WorstEqupmentListChartData();
-                worstEqupmentListChartData3.setType("Warning");
-                start=null;
-                end=null;
-                sStart="2018-05-25 00:00:00";
-                sEnd="2018-05-25 06:00:00";
-                try {
-                    start=dtDate.parse(sStart);
-                    end=dtDate.parse(sEnd);
-                } catch (ParseException e) {
-                    e.printStackTrace();
+                    if (eqpId1.equals(eqpId2))
+                    {
+                        worstEqupmentListChartData1=worstEqupmentListChartData.get(j);
+                        worstEqupmentListChartDataArray.add(worstEqupmentListChartData1);
+                    }
                 }
-                worstEqupmentListChartData3.setStart(start);
-                worstEqupmentListChartData3.setEnd(end);
+                worstEquipmentLists.get(i).setDatas(worstEqupmentListChartDataArray);
+            }
 
+            return worstEquipmentLists;
+        }
+        else
+        {
 
-                WorstEqupmentListChartData worstEqupmentListChartData4=new WorstEqupmentListChartData();
-                worstEqupmentListChartData4.setType("Normal");
-                start=null;
-                end=null;
-                sStart="2018-05-25 06:00:00";
-                sEnd="2018-05-25 12:00:00";
-                try {
-                    start=dtDate.parse(sStart);
-                    end=dtDate.parse(sEnd);
-                } catch (ParseException e) {
-                    e.printStackTrace();
+            List<WorstEquipmentList> worstEquipmentLists = stdSummaryMapper.selectWorstEquipmentListByAreaId(start_dtts,end_dtts,areaId);
+            ArrayList<WorstEqupmentListChartData> worstEqupmentListChartData=stdSummaryMapper.selectWorstEqupmentListChartDataByAreaId(start_dtts,end_dtts,areaId);
+
+            WorstEqupmentListChartData worstEqupmentListChartData1=null;
+            ArrayList<WorstEqupmentListChartData> worstEqupmentListChartDataArray=null;
+
+            for (int i = 0; i < worstEquipmentLists.size(); i++)
+            {
+
+                Long eqpId1=worstEquipmentLists.get(i).getEqp_id();
+                worstEqupmentListChartDataArray=new ArrayList<>();
+                for (int j = 0; j < worstEqupmentListChartData.size(); j++)
+                {
+                    Long eqpId2=worstEqupmentListChartData.get(j).getEqp_id();
+
+                    if (eqpId1.equals(eqpId2))
+                    {
+                        worstEqupmentListChartData1=worstEqupmentListChartData.get(j);
+                        worstEqupmentListChartDataArray.add(worstEqupmentListChartData1);
+                    }
                 }
-                worstEqupmentListChartData4.setStart(start);
-                worstEqupmentListChartData4.setEnd(end);
+                worstEquipmentLists.get(i).setDatas(worstEqupmentListChartDataArray);
+            }
+
+            return worstEquipmentLists;
+        }
 
 
-                WorstEqupmentListChartData worstEqupmentListChartData5=new WorstEqupmentListChartData();
-                worstEqupmentListChartData5.setType("Offline");
-                start=null;
-                end=null;
-                sStart="2018-05-25 12:00:00";
-                sEnd="2018-05-26 00:00:00";
-                try {
-                    start=dtDate.parse(sStart);
-                    end=dtDate.parse(sEnd);
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-                worstEqupmentListChartData5.setStart(start);
-                worstEqupmentListChartData5.setEnd(end);
-
-
-
-        worstEqupmentListChartDataList2.add(worstEqupmentListChartData3);
-        worstEqupmentListChartDataList2.add(worstEqupmentListChartData4);
-        worstEqupmentListChartDataList2.add(worstEqupmentListChartData5);
-
-        worstEquipmentList2.setDatas(worstEqupmentListChartDataList2);
-        worstEquipmentList2.setEqp_name("EQP51");
-        worstEquipmentList2.setScore(Double.parseDouble(String.format("%.2f",Math.random())));
-        worstEquipmentList2.setArea_rawid(200L);
-
-
-
-
-
-
-
-
-
-
-
-
-
-        worstEquipmentLists.add(worstEquipmentList1);
-        worstEquipmentLists.add(worstEquipmentList2);
-
-        return worstEquipmentLists;
     }
 }
