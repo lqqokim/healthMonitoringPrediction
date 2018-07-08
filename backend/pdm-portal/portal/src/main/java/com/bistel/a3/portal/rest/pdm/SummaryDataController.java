@@ -58,7 +58,7 @@ public class SummaryDataController {
     }
 
 
-    @RequestMapping("/areas/{areaId}/alarmClassificationSummaryByArea")
+    @RequestMapping("/areas/{areaId}/alarmClassificationSummaryByAreaId")
     public Object getAlarmClassificationSummaryByArea(@PathVariable("fabId") String fabId,
                                                      @PathVariable("areaId") Long areaId,
                                                      @RequestParam("fromdate") Long fromdate,

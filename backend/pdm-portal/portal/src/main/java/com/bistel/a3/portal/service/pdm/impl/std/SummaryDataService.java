@@ -98,8 +98,7 @@ public class SummaryDataService implements ISummaryDataService {
         }
         else
         {
-            //To do : Area선택 됐을때
-            return null;
+            return stdSummaryMapper.selectAlarmClassificationSummaryByAreaId(fromdate, todate, areaId);
         }
 
 
