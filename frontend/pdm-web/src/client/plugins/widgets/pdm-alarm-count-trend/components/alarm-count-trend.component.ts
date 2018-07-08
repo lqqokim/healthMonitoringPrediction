@@ -2,6 +2,19 @@ import { Component, OnInit, OnChanges, SimpleChanges, EventEmitter, Output, Inpu
 import { PdmModelService } from './../../../../common';
 import * as IDataType from './../model/data-type.interface';
 
+export interface AlarmCountTrendType {
+    alarm_count: number;
+    area_id: number;
+    area_name: string;
+    failure_count: number;
+    normal_count: number;
+    offline_count: number;
+    start_time: number
+    total_count: number;
+    warning_count: number;
+    day: string;
+}
+
 @Component({
     moduleId: module.id,
     selector: 'alarm-count-trend',
@@ -38,36 +51,65 @@ export class AlarmCountTrendComponent implements OnInit, OnChanges {
         this.chart.resize();
     }
 
-    getAlarmCountTrendData(condition): void {
-        const fabId = condition.fabId;
-        const areaId = 200;
-        const params = {
-            fromdate: condition.timePeriod.from,
-            todate: condition.timePeriod.to
+    getAlarmCountTrendData(condition: IDataType.ContitionType): void {
+        const fabId: number | string = condition.fab.fabId;
+        const areaId: string | number = condition.area ? condition.area.areaId : undefined;
+        const params: any = {
+            from: condition.timePeriod.from,
+            to: condition.timePeriod.to
         };
 
-        this._pdmModel.getAlarmCountTrend(fabId, areaId, params)
-            .then((res) => {
-                console.log('getAlarmCountTrend', res);
-                this.setChartData();
+        if (areaId === undefined) {
+            this._pdmModel.getAlarmCountTrendAll(fabId, params)
+                .then((datas: AlarmCountTrendType[]) => {
+                    console.log('getAlarmCountTrendAll', datas);
+                    this.setChartData(datas);
+                }).catch((err) => {
+                    console.log('err', err);
+                    this.endChartLoad.emit(false);
+                });
+        } else {
+            this._pdmModel.getAlarmCountTrendById(fabId, areaId, params)
+            .then((datas: AlarmCountTrendType[]) => {
+                console.log('getAlarmCountTrendById', datas);
+                this.setChartData(datas);
             }).catch((err) => {
                 console.log('err', err);
+                this.endChartLoad.emit(false);
             });
+        }
+
     }
 
-    setChartData(): void {
-        const alarms: any[] = ['alarm', 23, 15, 23, 21, 24, 22, 21];
-        const warnings: any[] = ['warning', 34, 32, 29, 35, 36, 40, 46];
-        const axisCategories: string[] = ['x', '2018-06-23', '2018-06-24', '2018-06-25', '2018-06-26', '2018-06-27', '2018-06-28', '2018-06-29'];
+    setChartData(datas: AlarmCountTrendType[]): void {
+        let normals: any[] = ['normal'];
+        let warnings: any[] = ['warning'];
+        let alarms: any[] = ['alarm'];
+        let failures: any[] = ['failure'];
+        let offlines: any[] = ['offline'];
+        let axisCategories: any[] = ['x'];
+        const dataLangth: number = datas.length;
+
+        for (let i = 0; i < dataLangth; i++) {
+            const data: AlarmCountTrendType = datas[i];
+
+            normals.push(data.normal_count);
+            warnings.push(data.warning_count);
+            alarms.push(data.alarm_count);
+            failures.push(data.failure_count);
+            offlines.push(data.offline_count);
+            axisCategories.push(data.day);
+        }
+
         const chartData: any[] = [axisCategories, alarms, warnings];
 
         setTimeout(() => {
-            this.generateChart(chartData, axisCategories, warnings);
+            this.generateChart(chartData);
             this.endChartLoad.emit(true);
         }, 500);
     }
 
-    generateChart(chartData: any[], axisCategories: string[], warnings): void {
+    generateChart(chartData: any[]): void {
         const colors: string[] = ['green', 'orange', 'red', 'black', 'gray'];
         this.chart = c3Chart.generate({
             bindto: `#${this.chartId}`,
@@ -160,5 +202,10 @@ export class AlarmCountTrendComponent implements OnInit, OnChanges {
             var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
             return "C" + v.toString(16);
         });
+    }
+
+    ngOnDestroy(): void {
+        $(`#${this.chartId}`).empty();
+        this.chart = null;
     }
 }

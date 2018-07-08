@@ -411,7 +411,7 @@ export class PdmRealTimeMainComponent extends WidgetApi implements OnSetup, OnDe
             // this.alarmHistories.map((d,i)=>{d.num = i});
             this.alarmCount = alarmList.length;
             if(this.alarmHistories.length>50){
-                this.alarmHistories = this.alarmHistories.slice(0,49);
+                this.alarmHistories = this.alarmHistories.slice(0,50);
             }
             
 

@@ -18,6 +18,7 @@ import { WidgetChartConditionComponent } from './widget-chart-condition/widget-c
 import { DonutChartComponent } from './donut-chart/donutChart.component';
 import { TableComponent } from './ng2-table/table.component';
 import { StatusChangeComponent } from '../common/status-chart-canvas/status-change.component';
+import { WidgetViewTimeperiod } from './widget-chart-condition/widget-timeperiod.pipe';
 
 
 
@@ -38,7 +39,8 @@ import { StatusChangeComponent } from '../common/status-chart-canvas/status-chan
         DonutChartComponent,
         TableComponent,
         WidgetChartConditionComponent,
-        StatusChangeComponent
+        StatusChangeComponent,
+        WidgetViewTimeperiod
     ],
     exports: [
         ModelingTreeComponent,
@@ -49,7 +51,8 @@ import { StatusChangeComponent } from '../common/status-chart-canvas/status-chan
         DonutChartComponent,
         TableComponent,
         WidgetChartConditionComponent,
-        StatusChangeComponent
+        StatusChangeComponent,
+        WidgetViewTimeperiod
     ]
     // ,
     // entryComponents: [

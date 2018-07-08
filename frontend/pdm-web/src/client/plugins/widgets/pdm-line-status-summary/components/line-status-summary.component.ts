@@ -2,6 +2,19 @@ import { Component, OnInit, OnChanges, SimpleChanges, EventEmitter, Output, Inpu
 import { PdmModelService } from './../../../../common';
 import * as IDataType from './../model/data-type.interface';
 
+export interface LineStatusSummaryType {
+    alarm_count: number;
+    area_id: number;
+    area_name: string;
+    end_time: number;
+    failure_count: number;
+    normal_count: number;
+    offline_count: number;
+    start_time: number
+    total_count: number;
+    warning_count: number;
+}
+
 @Component({
     moduleId: module.id,
     selector: 'line-status-summary',
@@ -22,15 +35,6 @@ export class LineStatusSummaryComponent implements OnInit, OnChanges {
     }
 
     ngOnChanges(changes: SimpleChanges) {
-        // for (let propName in changes) {
-        //     let currentValue = changes[propName].currentValue;
-
-        //     if (currentValue && propName === 'condition') {
-        //         const condition = currentValue;
-        //         this.chartId = this.guid();
-        //         this.getSummaryData(condition);
-        //     }
-        // }
         if (changes['condition'] !== null && changes['condition']['currentValue']) {
             let condition = changes['condition']['currentValue'];
             this.chartId = this.guid();
@@ -43,34 +47,45 @@ export class LineStatusSummaryComponent implements OnInit, OnChanges {
     }
 
     onChartResize(): void {
-        // let chartEl = $(`#${this.chartId}`)[0];
-        // console.log('chartEl', chartEl);
         this.chart.resize();
     }
 
-    getSummaryData(condition) {
-        const fabId = condition.fabId;
-        const params = {
-            fromdate: condition.timePeriod.from,
-            todate: condition.timePeriod.to
+    getSummaryData(condition: IDataType.ContitionType): void {
+        const fabId: string | number = condition.fab.fabId;
+        const params: any = {
+            from: condition.timePeriod.from,
+            to: condition.timePeriod.to
         };
 
         this._pdmModel.getLineStatusSummary(fabId, params)
-            .then((res) => {
-                console.log('getLineStatusSummary', res);
-                this.setChartData();
+            .then((datas: LineStatusSummaryType[]) => {
+                console.log('getLineStatusSummary', datas);
+                this.setChartData(datas);
             }).catch((err) => {
                 console.log('err', err);
+                this.endChartLoad.emit(false);
             });
     }
 
-    setChartData(): void {
-        const normals: any[] = ['normal', 25, 23, 26, 22, 27];
-        const warnings: any[] = ['warning', 4, 5, 3, 1, 3];
-        const alarms: any[] = ['alarm', 6, 1, 2, 1, 3];
-        const failures: any[] = ['failure', 1, 1, 2, 1, 1];
-        const offlines: any[] = ['offline', 2, 1, 3, 1, 2];
-        const axisCategories: string[] = ['x', '1Line', '2Line', '3Line', '4Line', '5Line'];
+    setChartData(datas: LineStatusSummaryType[]): void {
+        let normals: any[] = ['normal'];
+        let warnings: any[] = ['warning'];
+        let alarms: any[] = ['alarm'];
+        let failures: any[] = ['failure'];
+        let offlines: any[] = ['offline'];
+        let axisCategories: string[] = ['x'];
+        const dataLangth: number = datas.length;
+
+        for (let i = 0; i < dataLangth; i++) {
+            const data: LineStatusSummaryType = datas[i];
+            normals.push(data.normal_count);
+            warnings.push(data.warning_count);
+            alarms.push(data.alarm_count);
+            failures.push(data.failure_count);
+            offlines.push(data.offline_count);
+            axisCategories.push(data.area_name);
+        }
+
         const chartData: any[] = [axisCategories, normals, warnings, alarms, failures, offlines];
 
         setTimeout(() => {
@@ -112,7 +127,7 @@ export class LineStatusSummaryComponent implements OnInit, OnChanges {
                 onclick: (d: any, s) => {
                     this.onSync.emit({
                         area: {
-                            areaId: 1,
+                            areaId: 200,
                             areaName: axisCategories[d.index + 1]
                         }
                     });
@@ -146,14 +161,6 @@ export class LineStatusSummaryComponent implements OnInit, OnChanges {
             //     },
             // }
         });
-
-        // setTimeout(() => {
-        //     this.chart.groups([['normal', 'warning', 'alarm']]);
-        // }, 500);
-
-        // setTimeout(() => {
-        //     this.chart.groups([['normal', 'warning', 'alarm', 'failure', 'offline']]);
-        // }, 1000);
     }
 
     private guid() {

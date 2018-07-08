@@ -2,6 +2,19 @@ import { Component, OnInit, OnChanges, SimpleChanges, EventEmitter, Output, Inpu
 import { PdmModelService } from './../../../../common';
 import * as IDataType from './../model/data-type.interface';
 
+export interface AlarmCountSummaryType {
+    alarm_count: number;
+    area_id: number;
+    area_name: string;
+    end_time: number;
+    failure_count: number;
+    normal_count: number;
+    offline_count: number;
+    start_time: number
+    total_count: number;
+    warning_count: number;
+}
+
 @Component({
     moduleId: module.id,
     selector: 'alarm-count-summary',
@@ -39,35 +52,52 @@ export class AlarmCountSummaryComponent implements OnInit, OnChanges {
         this.chart.resize();
     }
 
-    getAlarmCountSummaryData(condition): void {
-        const fabId = condition.fabId;
-        const params = {
-            fromdate: condition.timePeriod.from,
-            todate: condition.timePeriod.to
+    getAlarmCountSummaryData(condition: IDataType.ContitionType): void {
+        const fabId: number | string = condition.fab.fabId;
+        const params: any = {
+            from: condition.timePeriod.from,
+            to: condition.timePeriod.to
         };
 
         this._pdmModel.getAlarmCountSummary(fabId, params)
-            .then((res) => {
-                console.log('getAlarmCountSummary', res);
-                this.setChartData();
+            .then((datas: AlarmCountSummaryType[]) => {
+                console.log('getAlarmCountSummary', datas);
+                this.setChartData(datas);
             }).catch((err) => {
                 console.log('err', err);
+                this.endChartLoad.emit(false);
             });
     }
 
-    setChartData(): void {
-        const alarms: any[] = ['alarm', 5, 4, 6, 5, 4];
-        const warnings: any[] = ['warning', 7, 8, 9, 12, 11];
-        const axisCategories: string[] = ['x', '1Line', '2Line', '3Line', '4Line', '5Line'];
-        const chartData: any[] = [axisCategories, alarms, warnings];
+    setChartData(datas: AlarmCountSummaryType[]): void {
+        let normals: any[] = ['normal'];
+        let warnings: any[] = ['warning'];
+        let alarms: any[] = ['alarm'];
+        let failures: any[] = ['failure'];
+        let offlines: any[] = ['offline'];
+        let axisCategories: string[] = ['x'];
+        const dataLangth: number = datas.length;
+
+        for (let i = 0; i < dataLangth; i++) {
+            const data: AlarmCountSummaryType = datas[i];
+            
+            normals.push(data.normal_count);
+            warnings.push(data.warning_count);
+            alarms.push(data.alarm_count);
+            failures.push(data.failure_count);
+            offlines.push(data.offline_count);
+            axisCategories.push(data.area_name);
+        }
+
+        const chartData: any[] = [axisCategories, warnings, alarms];
 
         setTimeout(() => {
-            this.generateChart(chartData, axisCategories, warnings);
+            this.generateChart(chartData, axisCategories);
             this.endChartLoad.emit(true);
         }, 500);
     }
 
-    generateChart(chartData: any[], axisCategories: string[], warnings): void {
+    generateChart(chartData: any[], axisCategories: string[]): void {
         this.chart = c3Chart.generate({
             bindto: `#${this.chartId}`,
             legend: {
@@ -95,7 +125,7 @@ export class AlarmCountSummaryComponent implements OnInit, OnChanges {
                 onclick: (d: any, s) => {
                     this.onSync.emit({
                         area: {
-                            areaId: 1,
+                            areaId: 200,
                             areaName: axisCategories[d.index + 1]
                         }
                     });

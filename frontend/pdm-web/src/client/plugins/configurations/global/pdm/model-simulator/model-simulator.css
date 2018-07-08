@@ -20,7 +20,7 @@
 }
 .model-simulator .eqp-tree{
 	height:300px;
-	overflow: auto;
+	/* overflow: auto; */
 	border: solid 1px lightgray;
 }
 
@@ -53,6 +53,8 @@
 
 .model-simulator button{
 	width:100%;
+	margin-bottom: 10px;
+
 }
 .modeling-container .condition button{
 	margin-bottom: 10px;

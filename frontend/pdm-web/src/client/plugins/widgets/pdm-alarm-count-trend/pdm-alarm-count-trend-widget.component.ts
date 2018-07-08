@@ -1,5 +1,6 @@
-import { Component, OnInit, OnChanges, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { WidgetApi, WidgetRefreshType, OnSetup } from '../../../common';
+import { Util } from '../../../sdk';
 
 import * as IDataType from './model/data-type.interface';
 
@@ -11,16 +12,22 @@ import { AlarmCountTrendComponent } from './components/alarm-count-trend.compone
     templateUrl: './pdm-alarm-count-trend-widget.html',
     styleUrls: ['./pdm-alarm-count-trend-widget.css']
 })
-export class PdmAlarmCountTrendWidgetComponent extends WidgetApi implements OnInit {
+export class PdmAlarmCountTrendWidgetComponent extends WidgetApi implements OnInit, OnSetup {
     @ViewChild('container') container: ElementRef;
     @ViewChild('alarmCountTrendComp') alarmCountTrendComp: AlarmCountTrendComponent;
 
+    condition: IDataType.ContitionType;
     viewTimePriod: any = {
         fromDate: 0,
         toDate: 0
     };
 
-    condition: IDataType.ContitionType;
+    targetName: string;
+    toDate: number;
+    isShowNoData: boolean = false;
+
+    private readonly DEFAULT_PERIOD: number = 7;
+    private readonly DEFAULT_TARGET_NAME: string = 'All Lines';
 
     private _props: any;
     private _currentEl: ElementRef['nativeElement'] = undefined;
@@ -31,67 +38,103 @@ export class PdmAlarmCountTrendWidgetComponent extends WidgetApi implements OnIn
     }
 
     ngOnSetup() {
-        this._init();
+        if (this.isConfigurationWidget) {
+            return;
+        } else {
+            this._init();
+        }
     }
 
     ngOnInit() {
         this._currentEl = $(this.container.nativeElement).parents('li.a3-widget-container')[0];
-        this._currentEl.addEventListener('transitionend', this.resizeCallback, false);
-        this.onResize();
+
+        if (this._currentEl !== undefined) {
+            this._currentEl.addEventListener('transitionend', this.resizeCallback, false);
+            this.onResize();
+        }
     }
 
     onResize(e?: TransitionEvent): void {
         if ((e !== undefined && !e.isTrusted) || this._currentEl === undefined) { return; }
         if (e && !e.initEvent) {
-            this.alarmCountTrendComp.onChartResize();                
+            this.alarmCountTrendComp.onChartResize();
         }
     }
 
     refresh({ type, data }: WidgetRefreshType) {
-        if (type === A3_WIDGET.APPLY_CONFIG_REFRESH || type === A3_WIDGET.JUST_REFRESH) {
-            this.showSpinner();
-            this._props = data;
-            this._setConfigInfo(this._props);
+        this.showSpinner();
+        this._props = data;
+
+        if (type === A3_WIDGET.APPLY_CONFIG_REFRESH) {
+        } else if (type === A3_WIDGET.JUST_REFRESH) {
+
         } else if (type === A3_WIDGET.SYNC_INCONDITION_REFRESH) {
-            this.showSpinner();
-            this._props = data;
-            this._setConfigInfo(this._props);
             console.log('ALARM COUNT SYNC', data);
         }
+        
+        this.setCondition(data, type);
     }
 
-    _setConfigInfo(props: any) {
-        let now: Date = new Date();
-        const startOfDay: Date = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        const to: number = startOfDay.getTime(); // today 00:00:00
-
+    setCondition(props: any, refreshType?: string) {
+        console.log('setCondition props', props);
         this.condition = {
-            fabId: props['plant']['fabId'],
+            fab: props[CD.PLANT],
+            area: props[CD.AREA],
             timePeriod: {
-                from: props['timePeriod']['from'],
-                to: to
+                from: props[CD.TIME_PERIOD][CD.FROM],
+                to: props[CD.TIME_PERIOD][CD.TO]
             }
         };
 
-        this.viewTimePriod.fromDate = this.covertDateFormatter(props[CD.TIME_PERIOD]['from']);
-        this.viewTimePriod.toDate = this.covertDateFormatter(to);
+        this.setViewCondition(refreshType, this.condition);
     }
 
-    covertDateFormatter(timestamp: number): string {
-        const date = new Date(timestamp);
-        return `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()} 00:00`;
-    }
-
-    endChartLoad(ev: any) {
-        if (ev) {
-            this.hideSpinner();
+    setViewCondition(refreshType: string, condition: IDataType.ContitionType): void {
+        if (refreshType === A3_WIDGET.SYNC_INCONDITION_REFRESH) {
+            this.targetName = condition.area.areaName;
+        } else {
+            this.targetName = this.DEFAULT_TARGET_NAME;
         }
+
+        this.viewTimePriod.fromDate = condition.timePeriod.from;
+        this.viewTimePriod.toDate = condition.timePeriod.to;
+    }
+
+    endChartLoad(ev: any): void {
+        if (ev) {
+            if (this.isShowNoData) {
+                this.isShowNoData = false;
+            }
+            this.hideSpinner();
+        } else if (!ev) {
+            this.isShowNoData = true;
+        }
+    }
+
+    getStartOfDay(): number {
+        let now: Date = new Date();
+        const startOfDay: Date = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        return startOfDay.getTime(); // today 00:00:00
     }
 
     private _init(): void {
         this.showSpinner();
-        // this.setGlobalLabel();
-        this._props = this.getProperties();
-        this._setConfigInfo(this._props);
+        this.setProps();
+        this.setCondition(this.getProperties());
+    }
+
+    private setProps(): void {
+        // const to: number = this.getStartOfDay();
+        this.setProp(CD.DAY_PERIOD, this.DEFAULT_PERIOD); //set default previous day
+        // this.setProp(CD.TIME_PERIOD, { //set previous default timePeriod
+        //     [CD.FROM]: Util.Date.getFrom(this.DEFAULT_PERIOD, to),
+        //     [CD.TO]: to
+        // });
+    }
+
+    ngOnDestroy(): void {
+        if (this._currentEl !== undefined) {
+            this._currentEl.removeEventListener('transitionend', this.resizeCallback);
+        }
     }
 }
