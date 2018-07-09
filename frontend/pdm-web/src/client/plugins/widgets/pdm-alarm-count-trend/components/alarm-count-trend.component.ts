@@ -34,9 +34,10 @@ export class AlarmCountTrendComponent implements OnInit, OnChanges {
 
     ngOnChanges(changes: SimpleChanges) {
         for (let propName in changes) {
-            let condition = changes[propName].currentValue;
+            let currentValue = changes[propName].currentValue;
 
-            if (condition && propName === 'condition') {
+            if (currentValue && propName === 'condition') {
+                const condition = currentValue;
                 this.chartId = this.guid();
                 this.getAlarmCountTrendData(condition);
             }
@@ -48,15 +49,17 @@ export class AlarmCountTrendComponent implements OnInit, OnChanges {
     }
 
     onChartResize(): void {
-        this.chart.resize();
+        if (this.chart) {
+            this.chart.resize();
+        }
     }
 
     getAlarmCountTrendData(condition: IDataType.ContitionType): void {
         const fabId: number | string = condition.fab.fabId;
         const areaId: string | number = condition.area ? condition.area.areaId : undefined;
         const params: any = {
-            from: condition.timePeriod.from,
-            to: condition.timePeriod.to
+            from: condition.timePeriod.fromDate,
+            to: condition.timePeriod.toDate
         };
 
         if (areaId === undefined) {
@@ -66,17 +69,23 @@ export class AlarmCountTrendComponent implements OnInit, OnChanges {
                     this.setChartData(datas);
                 }).catch((err) => {
                     console.log('err', err);
-                    this.endChartLoad.emit(false);
+                    this.endChartLoad.emit({
+                        isLoad: false,
+                        msg: err.message
+                    });
                 });
         } else {
             this._pdmModel.getAlarmCountTrendById(fabId, areaId, params)
-            .then((datas: AlarmCountTrendType[]) => {
-                console.log('getAlarmCountTrendById', datas);
-                this.setChartData(datas);
-            }).catch((err) => {
-                console.log('err', err);
-                this.endChartLoad.emit(false);
-            });
+                .then((datas: AlarmCountTrendType[]) => {
+                    console.log('getAlarmCountTrendById', datas);
+                    this.setChartData(datas);
+                }).catch((err) => {
+                    console.log('err', err);
+                    this.endChartLoad.emit({
+                        isLoad: false,
+                        msg: err.message
+                    });
+                });
         }
 
     }
@@ -105,7 +114,9 @@ export class AlarmCountTrendComponent implements OnInit, OnChanges {
 
         setTimeout(() => {
             this.generateChart(chartData);
-            this.endChartLoad.emit(true);
+            this.endChartLoad.emit({
+                isLoad: true
+            });
         }, 500);
     }
 

@@ -1,11 +1,8 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { WidgetApi, WidgetRefreshType, OnSetup } from '../../../common';
-import { Util } from '../../../sdk';
 
 import * as IDataType from './model/data-type.interface';
-
 import { AlarmCountSummaryComponent } from './components/alarm-count-summary.component';
-import { ITimePeriod } from '../../common/widget-chart-condition/widget-chart-condition.component';
 
 @Component({
     moduleId: module.id,
@@ -17,17 +14,22 @@ export class PdmAlarmCountSummaryWidgetComponent extends WidgetApi implements On
     @ViewChild('container') container: ElementRef;
     @ViewChild('alarmCountSummaryComp') alarmCountSummaryComp: AlarmCountSummaryComponent;
 
-    condition: IDataType.ContitionType;
-    viewTimePriod: ITimePeriod = {
-        fromDate: 0,
-        toDate: 0
+    condition: IDataType.ContitionType = {
+        fab: {
+            fabId: undefined,
+            fabName: undefined
+        },
+        timePeriod: {
+            fromDate: undefined,
+            toDate: undefined
+        }
     };
     
-    targetName: string;
-    startOfDay: number;
-    isShowNoData: boolean = false;
-
     private readonly DEFAULT_PERIOD: number = 1;
+    private readonly DEFAULT_TARGET_NAME: string = 'All Lines';
+
+    targetName: string = this.DEFAULT_TARGET_NAME;
+    isShowNoData: boolean = false;
 
     private _props: any;
     private _currentEl: ElementRef['nativeElement'] = undefined;
@@ -38,7 +40,11 @@ export class PdmAlarmCountSummaryWidgetComponent extends WidgetApi implements On
     }
 
     ngOnSetup() {
-        this._init();
+        if (this.isConfigurationWidget) {
+            this.setCondition(this.getProperties());
+        } else {
+            this._init();
+        }
     }
 
     ngOnInit() {
@@ -49,11 +55,11 @@ export class PdmAlarmCountSummaryWidgetComponent extends WidgetApi implements On
             this.onResize();
         }
     }
-    
+
     onResize(e?: TransitionEvent): void {
         if ((e !== undefined && !e.isTrusted) || this._currentEl === undefined) { return; }
         if (e) {
-            this.alarmCountSummaryComp.onChartResize();                
+            this.alarmCountSummaryComp.onChartResize();
         }
     }
 
@@ -72,71 +78,61 @@ export class PdmAlarmCountSummaryWidgetComponent extends WidgetApi implements On
         this.setCondition(data);
     }
 
-    private setCondition(props: any): void {
+    setCondition(props: any): void {
         this.condition = {
             fab: props[CD.PLANT],
-            timePeriod: {
-                from: props[CD.TIME_PERIOD][CD.FROM],
-                to: this.startOfDay
-            }
+            timePeriod: this.getTimePeriod(props[CD.TIME_PERIOD][CD.FROM], props[CD.TIME_PERIOD][CD.TO])
         };
-
-        this.setViewCondition(this.condition);
     }
 
-    private setViewCondition(condition: IDataType.ContitionType): void {
-        this.targetName = condition.fab.fabName;
-        this.viewTimePriod.fromDate = condition.timePeriod.from;
-        this.viewTimePriod.toDate = this.startOfDay;
-    }
+    getTimePeriod(fromDate: number, toDate: number): { fromDate: number, toDate: number } {
+        if (this.getProp(CD.CUTOFF_TYPE) === 'DAY') {
+            const startOfTo: number = new Date(toDate).setHours(0, 0, 0, 0);
+            const startOfFrom: number = startOfTo - 1000 * 60 * 60 * 24 * this.getProp(CD.DAY_PERIOD);
 
-    endChartLoad(ev: any): void {
-        if (ev) {
-            if(this.isShowNoData) {
-                this.isShowNoData = false;
-            }
-            
-            this.hideSpinner();
-        } else if(!ev) {
-            this.isShowNoData = true;
-            this.hideSpinner();
+            return { fromDate: startOfFrom, toDate: startOfTo };
+        } else if (this.getProp(CD.CUTOFF_TYPE) === 'DATE') {
+            return { fromDate: fromDate, toDate: toDate };
         }
+
+        return null;
     }
 
     onSync(item: any): void {
         let outCd = this.getOutCondition('config');
-        const plant: any = this._props[CD.PLANT];
+        const plant: any = this.condition.fab;
         const area: any = item.area;
-        const timePeriod: any = this._props[CD.TIME_PERIOD];
+        const timePeriod: any = this.condition.timePeriod;
 
         outCd[CD.PLANT] = plant;
         outCd[CD.AREA] = area;
-        outCd[CD.TIME_PERIOD] = timePeriod;
-        // console.log('outCd => ', outCd);
+        outCd[CD.TIME_PERIOD] = {from: timePeriod.fromDate, to: timePeriod.toDate};
+
+        // console.log('out => ', JSON.stringify(outCd));
 
         this.syncOutCondition(outCd);
     }
 
-    private setStartOfDay(): void {
-        let now: Date = new Date();
-        const startOfDay: Date = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        this.startOfDay = startOfDay.getTime(); // today 00:00:00
+    endChartLoad(ev: any): void {
+        if (ev.isLoad) {
+            if (this.isShowNoData) {
+                this.isShowNoData = false;
+            }
+            this.hideSpinner();
+        } else if (!ev.isLoad) {
+            this.isShowNoData = true;
+        }
     }
 
     private _init(): void {
         this.showSpinner();
-        this.setStartOfDay();
         this.setProps();
-        this._props = this.getProperties();
         this.setCondition(this._props);
     }
 
     private setProps(): void {
         this.setProp(CD.DAY_PERIOD, this.DEFAULT_PERIOD); //set default previous day
-        this.setProp(CD.TIME_PERIOD, { //set previous default timePeriod
-            [CD.FROM]: Util.Date.getFrom(this.DEFAULT_PERIOD, this.startOfDay),
-            [CD.TO]: this.startOfDay
-        });
+        this._props = this.getProperties();
     }
 
     ngOnDestroy(): void {

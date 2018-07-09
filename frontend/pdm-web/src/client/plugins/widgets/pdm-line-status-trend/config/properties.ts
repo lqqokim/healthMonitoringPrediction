@@ -14,7 +14,7 @@ export class Properties extends ConditionApi {
 
 	// properties 초기값 설정
 	init() {
-		// this.init_time_period();
+		this.init_time_period();
 	}
 
 	// In Condition 조건

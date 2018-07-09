@@ -48,15 +48,17 @@ export class LineStatusTrendComponent implements OnInit, OnChanges {
     }
 
     onChartResize(): void {
-        this.chart.resize();
+        if (this.chart) {
+            this.chart.resize();
+        }
     }
 
     getTrendData(condition: IDataType.ContitionType): void {
         const fabId: string | number = condition.fab.fabId;
         const areaId: string | number = condition.area ? condition.area.areaId : undefined;
         const params: any = {
-            from: condition.timePeriod.from,
-            to: condition.timePeriod.to
+            from: condition.timePeriod.fromDate,
+            to: condition.timePeriod.toDate
         };
 
         if (areaId === undefined) {
@@ -64,19 +66,25 @@ export class LineStatusTrendComponent implements OnInit, OnChanges {
                 .then((datas: LineStatusTrendType[]) => {
                     console.log('getLineStatusTrendAll', datas);
                     this.setChartData(datas);
-                }).catch((err) => {
+                }).catch((err: Error) => {
                     console.log('err', err);
-                    this.endChartLoad.emit(false);
+                    this.endChartLoad.emit({
+                        isLoad: false,
+                        msg: err.message
+                    });
                 });
         } else {
             this._pdmModel.getLineStatusTrendById(fabId, areaId, params)
-            .then((datas: LineStatusTrendType[]) => {
-                console.log('getLineStatusTrendById', datas);
-                this.setChartData(datas);
-            }).catch((err) => {
-                console.log('err', err);
-                this.endChartLoad.emit(false);
-            });
+                .then((datas: LineStatusTrendType[]) => {
+                    console.log('getLineStatusTrendById', datas);
+                    this.setChartData(datas);
+                }).catch((err) => {
+                    console.log('err', err);
+                    this.endChartLoad.emit({
+                        isLoad: false,
+                        msg: err.message
+                    });
+                });
         }
     }
 
@@ -105,7 +113,9 @@ export class LineStatusTrendComponent implements OnInit, OnChanges {
 
         setTimeout(() => {
             this.generateLineChart(chartData);
-            this.endChartLoad.emit(true);
+            this.endChartLoad.emit({
+                isLoad: true
+            });
         }, 500);
     }
 

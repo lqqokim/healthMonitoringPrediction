@@ -49,14 +49,16 @@ export class AlarmCountSummaryComponent implements OnInit, OnChanges {
     }
 
     onChartResize(): void {
-        this.chart.resize();
+        if(this.chart) {
+            this.chart.resize();
+        }
     }
 
     getAlarmCountSummaryData(condition: IDataType.ContitionType): void {
         const fabId: number | string = condition.fab.fabId;
         const params: any = {
-            from: condition.timePeriod.from,
-            to: condition.timePeriod.to
+            from: condition.timePeriod.fromDate,
+            to: condition.timePeriod.toDate
         };
 
         this._pdmModel.getAlarmCountSummary(fabId, params)
@@ -65,7 +67,10 @@ export class AlarmCountSummaryComponent implements OnInit, OnChanges {
                 this.setChartData(datas);
             }).catch((err) => {
                 console.log('err', err);
-                this.endChartLoad.emit(false);
+                this.endChartLoad.emit({
+                    isLoad: false,
+                    msg: err.message
+                });
             });
     }
 
@@ -93,7 +98,9 @@ export class AlarmCountSummaryComponent implements OnInit, OnChanges {
 
         setTimeout(() => {
             this.generateChart(chartData, axisCategories);
-            this.endChartLoad.emit(true);
+            this.endChartLoad.emit({
+                isLoad: true
+            });
         }, 500);
     }
 

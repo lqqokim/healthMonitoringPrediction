@@ -27,7 +27,6 @@ export class LineStatusSummaryComponent implements OnInit, OnChanges {
     @Output() onSync: EventEmitter<any> = new EventEmitter();
 
     chartId;
-
     private chart: any;
     private _props: any;
 
@@ -38,7 +37,10 @@ export class LineStatusSummaryComponent implements OnInit, OnChanges {
         if (changes['condition'] !== null && changes['condition']['currentValue']) {
             let condition = changes['condition']['currentValue'];
             this.chartId = this.guid();
-            this.getSummaryData(condition);
+
+            if (condition.fab.fabId && condition.timePeriod.fromDate && condition.timePeriod.toDate) { 
+                this.getSummaryData(condition);
+            }
         }
     }
 
@@ -47,15 +49,17 @@ export class LineStatusSummaryComponent implements OnInit, OnChanges {
     }
 
     onChartResize(): void {
-        this.chart.resize();
+        if (this.chart) {
+            this.chart.resize();
+        }
     }
 
-    getSummaryData(condition: IDataType.ContitionType): void {
-        const fabId: string | number = condition.fab.fabId;
-        const params: any = {
-            from: condition.timePeriod.from,
-            to: condition.timePeriod.to
-        };
+    getSummaryData(condition: IDataType.ContitionType): void {        
+        let fabId: string | number = condition.fab.fabId;
+        let params: any = {
+            from: condition.timePeriod.fromDate,
+            to: condition.timePeriod.toDate
+        }
 
         this._pdmModel.getLineStatusSummary(fabId, params)
             .then((datas: LineStatusSummaryType[]) => {
@@ -63,7 +67,10 @@ export class LineStatusSummaryComponent implements OnInit, OnChanges {
                 this.setChartData(datas);
             }).catch((err) => {
                 console.log('err', err);
-                this.endChartLoad.emit(false);
+                this.endChartLoad.emit({
+                    isLoad: false,
+                    msg: err.message
+                });
             });
     }
 
@@ -90,7 +97,9 @@ export class LineStatusSummaryComponent implements OnInit, OnChanges {
 
         setTimeout(() => {
             this.generateChart(chartData, axisCategories);
-            this.endChartLoad.emit(true);
+            this.endChartLoad.emit({
+                isLoad: true
+            });
         }, 500);
     }
 
@@ -101,6 +110,9 @@ export class LineStatusSummaryComponent implements OnInit, OnChanges {
             //     height: 300,
             //     width: 680
             // },
+            legend: {
+                position: 'right'
+            },
             padding: {
                 top: 20
             },

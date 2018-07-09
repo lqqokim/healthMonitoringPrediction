@@ -1,11 +1,8 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { WidgetApi, WidgetRefreshType, OnSetup } from '../../../common';
-import { Util } from './../../../sdk/utils/utils.module';
 
 import * as IDataType from './model/data-type.interface';
-
 import { LineStatusTrendComponent } from './components/line-status-trend.component';
-import { ITimePeriod } from '../../common/widget-chart-condition/widget-chart-condition.component';
 
 @Component({
     moduleId: module.id,
@@ -17,19 +14,27 @@ export class PdmLineStatusTrendWidgetComponent extends WidgetApi implements OnIn
     @ViewChild('container') container: ElementRef;
     @ViewChild('lineStatusTrendComp') lineStatusTrendComp: LineStatusTrendComponent;
 
-    condition: IDataType.ContitionType;
-    viewTimePriod: ITimePeriod = {
-        fromDate: 0,
-        toDate: 0
+    condition: IDataType.ContitionType = {
+        fab: {
+            fabId: undefined,
+            fabName: undefined
+        },
+        area: {
+            areaId: undefined,
+            areaName: undefined
+        },
+        timePeriod: {
+            fromDate: undefined,
+            toDate: undefined
+        }
     };
 
-    targetName: string;
-    startOfDay: number;
-    isShowNoData: boolean = false;
-
+    readonly DEFAULT_TARGET_NAME: string = 'All Lines';
     private readonly DEFAULT_PERIOD: number = 7;
-    private readonly DEFAULT_TARGET_NAME: string = 'All Lines';
 
+    targetName: string = this.DEFAULT_TARGET_NAME;
+    isShowNoData: boolean = false;
+    
     private _props: any;
     private _currentEl: ElementRef['nativeElement'] = undefined;
     private resizeCallback: Function = this.onResize.bind(this);
@@ -40,7 +45,7 @@ export class PdmLineStatusTrendWidgetComponent extends WidgetApi implements OnIn
 
     ngOnSetup() {
         if(this.isConfigurationWidget) {
-            return;
+            this.setCondition(this.getProperties());
         } else {
             this._init();
         }
@@ -62,75 +67,70 @@ export class PdmLineStatusTrendWidgetComponent extends WidgetApi implements OnIn
         }
     }
 
-    refresh({ type, data }: WidgetRefreshType) {
+    refresh({ type, data }: WidgetRefreshType): void {
         this.showSpinner();
         this._props = data;
 
-        if (type === A3_WIDGET.APPLY_CONFIG_REFRESH) {
-
-        } else if (type === A3_WIDGET.JUST_REFRESH) {
-
+        if (type === A3_WIDGET.APPLY_CONFIG_REFRESH || type === A3_WIDGET.JUST_REFRESH) {
+            if (this.targetName !== this.DEFAULT_TARGET_NAME) {
+                this.targetName = this.DEFAULT_TARGET_NAME
+            }
         } else if (type === A3_WIDGET.SYNC_INCONDITION_REFRESH) {
             console.log('LINE STATUS SYNC', data);
+            if (data[CD.AREA]) {
+                this.targetName = data.area.areaName;
+            }
         }
 
         this.setCondition(data, type);
     }
 
-    setCondition(props: any, refreshType?: string) {
+    setCondition(props: any, refreshType?: string): void {
         this.condition = {
             fab: props[CD.PLANT],
             area: props[CD.AREA],
-            timePeriod: {
-                from: props[CD.TIME_PERIOD][CD.FROM],
-                to: this.startOfDay
-            }
+            timePeriod: this.getTimePeriod(props[CD.TIME_PERIOD][CD.FROM], props[CD.TIME_PERIOD][CD.TO], refreshType)
         };
-
-        this.setViewCondition(refreshType, this.condition);
     }
 
-    setViewCondition(refreshType: string, condition: IDataType.ContitionType): void {
+    getTimePeriod(fromDate: number, toDate: number, refreshType?: string): { fromDate: number, toDate: number } {
         if (refreshType === A3_WIDGET.SYNC_INCONDITION_REFRESH) {
-            this.targetName = condition.area.areaName;
+            return { fromDate: fromDate, toDate: toDate };
         } else {
-            this.targetName = this.DEFAULT_TARGET_NAME;
-        }
+            if (this.getProp(CD.CUTOFF_TYPE) === 'DAY') {
+                const startOfTo: number = new Date(toDate).setHours(0, 0, 0, 0);
+                const startOfFrom: number = startOfTo - 1000 * 60 * 60 * 24 * this.getProp(CD.DAY_PERIOD);
 
-        this.viewTimePriod.fromDate = condition.timePeriod.from;
-        this.viewTimePriod.toDate = this.startOfDay;
+                return { fromDate: startOfFrom, toDate: startOfTo };
+            } else if (this.getProp(CD.CUTOFF_TYPE) === 'DATE') {
+                return { fromDate: fromDate, toDate: toDate };
+            }
+
+            return null;
+        }
     }
 
-    endChartLoad(ev: any) {
-        if (ev) {
+    endChartLoad(ev: any): void {
+        if (ev.isLoad) {
             if (this.isShowNoData) {
                 this.isShowNoData = false;
             }
             this.hideSpinner();
-        } else if (!ev) {
+        } else if (!ev.isLoad) {
             this.isShowNoData = true;
+            this.hideSpinner();
         }
-    }
-
-    setStartOfDay(): void {
-        let now: Date = new Date();
-        const startOfDay: Date = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        this.startOfDay = startOfDay.getTime(); // today 00:00:00
     }
 
     private _init(): void {
         this.showSpinner();
-        this.setStartOfDay();
         this.setProps();
-        this.setCondition(this.getProperties());
+        this.setCondition(this._props);
     }
 
     private setProps(): void {
         this.setProp(CD.DAY_PERIOD, this.DEFAULT_PERIOD); //set default previous day
-        this.setProp(CD.TIME_PERIOD, { //set previous default timePeriod
-            [CD.FROM]: Util.Date.getFrom(this.DEFAULT_PERIOD, this.startOfDay),
-            [CD.TO]: this.startOfDay
-        });
+        this._props = this.getProperties();
     }
 
     ngOnDestroy(): void {
