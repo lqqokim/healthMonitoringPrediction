@@ -35,6 +35,8 @@ public class SimulatorLogTailerListener extends TailerListenerAdapter {
 
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
+    private static String maxFreq = "";
+
     public void handle(final String line) {
 //        log.debug(line);
 
@@ -47,7 +49,10 @@ public class SimulatorLogTailerListener extends TailerListenerAdapter {
         String time = dateFormat.format(timestamp); //columns[0];
         String rms = columns[1];
 
-        if (columns[0].equalsIgnoreCase("time")) return;
+        if (columns[0].equalsIgnoreCase("time")) {
+            maxFreq = columns[columns.length - 1];
+            return;
+        }
 
         StringBuilder sbFrequency = new StringBuilder();
         for (int i = 2; i < columns.length; i++) {
@@ -59,7 +64,7 @@ public class SimulatorLogTailerListener extends TailerListenerAdapter {
                 .append(rms).append(",") // param 1
                 .append(sbFrequency.toString()).append(",") // frequency
                 .append(columns.length - 2).append(",") // frequency count
-                .append(columns[columns.length - 1]).append(",") // max frequency
+                .append(maxFreq).append(",") // max frequency
                 .append("10").append(",") // rpm
                 .append("1.6"); // sampling time
 
@@ -69,7 +74,7 @@ public class SimulatorLogTailerListener extends TailerListenerAdapter {
         log.info("send record to {}, value : {}", topicName, rms);
 
         try {
-            Thread.sleep(5000);
+            Thread.sleep(4820);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

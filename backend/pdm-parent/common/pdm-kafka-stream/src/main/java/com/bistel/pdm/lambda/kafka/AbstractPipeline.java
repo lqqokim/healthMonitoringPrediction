@@ -74,7 +74,11 @@ public abstract class AbstractPipeline implements Closeable {
         log.info("call to {}", targetUrl);
         MasterDataUpdater.updateParamHealthDataSet(targetUrl);
 
-        log.info("all master data(equipment, param, event, spec, health) is reloaded.");
+        targetUrl = servingAddr + "/pdm/api/master/latest/smtp";
+        log.info("call to {}", targetUrl);
+        MasterDataUpdater.updateSmtpConfigDataSet(targetUrl);
+
+        log.info("all master data(equipment, param, event, spec, health, smtp) is reloaded.");
     }
 
     protected abstract String getApplicationId();

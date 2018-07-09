@@ -66,12 +66,14 @@ public class SpeedTaskDef extends AbstractPipeline {
                         Serdes.String());
 
         topology.addSource("input-trace", this.getInputTraceTopic())
+                .addSource("input-reload", "pdm-input-reload")
+                .addProcessor("reload", ReloadMetadataProcessor::new, "input-reload")
                 .addProcessor("speed01", FilterByMasterProcessor::new, "input-trace")
                 .addProcessor("speed02", MarkStatusProcessor::new, "speed01")
                 .addProcessor("speed03", ExtractEventProcessor::new, "speed02")
                 .addStateStore(statusContextSupplier, "speed02")
                 .addProcessor("fd01", DetectByRealTimeProcessor::new, "speed02")
-                //.addSink("output-trace", this.getOutputTraceTopic(), "speed02")
+                .addSink("output-trace", this.getOutputTraceTopic(), "speed02")
                 .addSink("output-event", this.getOutputEventTopic(), "speed03")
                 .addSink("output-fault", this.getOutputFaultTopic(), "fd01")
                 .addSink("output-raw", this.getInputTimewaveTopic(), "fd01");

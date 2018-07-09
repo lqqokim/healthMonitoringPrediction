@@ -1,11 +1,7 @@
 package com.bistel.pdm.lambda.kafka.master;
 
-import com.bistel.pdm.common.json.EventMasterDataSet;
-import com.bistel.pdm.common.json.ParameterHealthDataSet;
-import com.bistel.pdm.common.json.ParameterMasterDataSet;
-import com.bistel.pdm.common.json.ParameterSpecDataSet;
+import com.bistel.pdm.common.json.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -27,8 +23,11 @@ public class MasterDataCache {
     // health logic
     private final Map<Long, List<ParameterHealthDataSet>> paramHealthDataSet = new ConcurrentHashMap<>();
 
+    private MailConfigDataSet mailConfigDataSet = new MailConfigDataSet();
+
     // Private constructor prevents instantiation from other classes
-    private MasterDataCache() { }
+    private MasterDataCache() {
+    }
 
     /**
      * SingletonHolder is loaded on the first execution of Singleton.getInstance()
@@ -50,11 +49,11 @@ public class MasterDataCache {
         return paramMasterDataSet;
     }
 
-    public ParameterMasterDataSet getParameter(String partitionKey, String paramName){
+    public ParameterMasterDataSet getParameter(String partitionKey, String paramName) {
         ParameterMasterDataSet param = new ParameterMasterDataSet();
         List<ParameterMasterDataSet> params = paramMasterDataSet.get(partitionKey);
-        for(ParameterMasterDataSet p : params){
-            if(p.getParameterName().equalsIgnoreCase(paramName)){
+        for (ParameterMasterDataSet p : params) {
+            if (p.getParameterName().equalsIgnoreCase(paramName)) {
                 param = p;
             }
         }
@@ -70,12 +69,12 @@ public class MasterDataCache {
         return paramHealthDataSet;
     }
 
-    public ParameterHealthDataSet getParamHealthFD01(Long key){
+    public ParameterHealthDataSet getParamHealthFD01(Long key) {
         ParameterHealthDataSet healthData = null;
 
-        if(this.paramHealthDataSet.get(key) != null){
-            for(ParameterHealthDataSet health : this.paramHealthDataSet.get(key)){
-                if(health.getHealthCode().equalsIgnoreCase("FD_OOS")){
+        if (this.paramHealthDataSet.get(key) != null) {
+            for (ParameterHealthDataSet health : this.paramHealthDataSet.get(key)) {
+                if (health.getHealthCode().equalsIgnoreCase("FD_OOS")) {
                     healthData = health;
                     break;
                 }
@@ -85,12 +84,12 @@ public class MasterDataCache {
         return healthData;
     }
 
-    public ParameterHealthDataSet getParamHealthFD02(Long key){
+    public ParameterHealthDataSet getParamHealthFD02(Long key) {
         ParameterHealthDataSet healthData = null;
 
-        if(this.paramHealthDataSet.get(key) != null){
-            for(ParameterHealthDataSet health : this.paramHealthDataSet.get(key)){
-                if(health.getHealthCode().equalsIgnoreCase("FD_RULE_1")){
+        if (this.paramHealthDataSet.get(key) != null) {
+            for (ParameterHealthDataSet health : this.paramHealthDataSet.get(key)) {
+                if (health.getHealthCode().equalsIgnoreCase("FD_RULE_1")) {
                     healthData = health;
                     break;
                 }
@@ -103,10 +102,10 @@ public class MasterDataCache {
     public EventMasterDataSet getEventForProcess(String key) {
         EventMasterDataSet result = null;
 
-        if(eventMasterDataSet.get(key) != null){
-            for(EventMasterDataSet data : eventMasterDataSet.get(key)){
-                if(data.getProcessYN().equalsIgnoreCase("Y")
-                        && data.getEventTypeCD().equalsIgnoreCase("S")){
+        if (eventMasterDataSet.get(key) != null) {
+            for (EventMasterDataSet data : eventMasterDataSet.get(key)) {
+                if (data.getProcessYN().equalsIgnoreCase("Y")
+                        && data.getEventTypeCD().equalsIgnoreCase("S")) {
                     result = data;
                     break;
                 }
@@ -118,10 +117,10 @@ public class MasterDataCache {
 
     public EventMasterDataSet getEventByType(String key, String type) {
         EventMasterDataSet result = null;
-        if(eventMasterDataSet.get(key) != null){
-            for(EventMasterDataSet data : eventMasterDataSet.get(key)){
-                if(data.getProcessYN().equalsIgnoreCase("Y")
-                        && data.getEventTypeCD().equalsIgnoreCase(type)){
+        if (eventMasterDataSet.get(key) != null) {
+            for (EventMasterDataSet data : eventMasterDataSet.get(key)) {
+                if (data.getProcessYN().equalsIgnoreCase("Y")
+                        && data.getEventTypeCD().equalsIgnoreCase(type)) {
                     result = data;
                     break;
                 }
@@ -135,4 +134,11 @@ public class MasterDataCache {
         return paramSpecDataSet;
     }
 
+    public MailConfigDataSet getMailConfigDataSet() {
+        return mailConfigDataSet;
+    }
+
+    public void putMailConfigDataSet(MailConfigDataSet conf) {
+        mailConfigDataSet = conf;
+    }
 }

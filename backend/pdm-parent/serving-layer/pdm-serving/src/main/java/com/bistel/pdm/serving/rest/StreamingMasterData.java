@@ -2,7 +2,7 @@ package com.bistel.pdm.serving.rest;
 
 import com.bistel.pdm.common.json.*;
 import com.bistel.pdm.serving.Exception.Message;
-import com.bistel.pdm.serving.jdbc.dao.ParamFeatureDataDao;
+import com.bistel.pdm.serving.jdbc.dao.AlarmMailConfigDataDao;
 import com.bistel.pdm.serving.jdbc.dao.ParamHealthDataDao;
 import com.bistel.pdm.serving.jdbc.dao.ParameterSpecDataDao;
 import com.bistel.pdm.serving.jdbc.dao.StreamingMasterDataDao;
@@ -110,6 +110,24 @@ public class StreamingMasterData {
             healthDataSet = repository.getParamHealthDataSet();
             log.info("Provides the latest feature info. count={}", healthDataSet.size());
             return Response.status(Response.Status.OK).entity(healthDataSet).build();
+
+        } catch (SQLException e) {
+            log.error(e.getMessage(), e);
+            return Response.status(Response.Status.NOT_FOUND).entity(new Message(e.getMessage())).build();
+        }
+    }
+
+    @GET
+    @Path("/latest/smtp")
+    public Response reloadMailConfig() {
+
+        AlarmMailConfigDataDao repository = new AlarmMailConfigDataDao();
+        MailConfigDataSet ds = null;
+
+        try {
+            ds = repository.getMailConfigDataSet();
+            log.info("Provides the latest feature info.");
+            return Response.status(Response.Status.OK).entity(ds).build();
 
         } catch (SQLException e) {
             log.error(e.getMessage(), e);

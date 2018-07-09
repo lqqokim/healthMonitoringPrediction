@@ -25,7 +25,8 @@ public class SensorTraceTrxDao implements SensorTraceDataDao {
 
     private static final String INSERT_SQL =
             "insert into trace_trx_pdm (RAWID, PARAM_MST_RAWID, VALUE, " +
-                    "UPPER_ALARM_SPEC, UPPER_WARNING_SPEC, " +
+                    "ALARM_SPEC, WARNING_SPEC, " +
+                    //"UPPER_ALARM_SPEC, UPPER_WARNING_SPEC, " +
                     "TARGET, " +
                     "LOWER_ALARM_SPEC, LOWER_WARNING_SPEC, " +
                     "STATUS_CD, " +
@@ -36,7 +37,8 @@ public class SensorTraceTrxDao implements SensorTraceDataDao {
     private static final String INSERT_SQL_WITH_RAW =
             "insert into trace_trx_pdm " +
                     "(RAWID, PARAM_MST_RAWID, VALUE, " +
-                    "UPPER_ALARM_SPEC, UPPER_WARNING_SPEC, " +
+                    "ALARM_SPEC, WARNING_SPEC, " +
+                    //"UPPER_ALARM_SPEC, UPPER_WARNING_SPEC, " +
                     "TARGET, " +
                     "LOWER_ALARM_SPEC, LOWER_WARNING_SPEC, " +
                     "STATUS_CD, " +

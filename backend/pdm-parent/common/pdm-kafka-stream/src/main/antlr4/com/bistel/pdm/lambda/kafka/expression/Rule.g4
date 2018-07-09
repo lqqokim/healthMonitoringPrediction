@@ -2,6 +2,7 @@ grammar Rule;
 
 primaryExpression
     :   DECIMAL_CONSTANT
+    |   DOUBLE_CONSTANT
     |   BOOLEAN_CONSTANT
     |   DATE_CONSTANT
     |   IDENTIFIER
@@ -65,6 +66,15 @@ NON_DIGIT
 
 DECIMAL_CONSTANT
     :   DIGIT+
+    ;
+
+PT  :   '.'
+    ;
+
+DOUBLE_CONSTANT
+    :   DIGIT+ PT DIGIT+
+    |   PT DIGIT+
+    |   DIGIT+
     ;
 
 fragment
