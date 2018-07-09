@@ -3,15 +3,7 @@ import { WidgetRefreshType, WidgetApi, OnSetup } from '../../../common';
 import { PdmAlarmHistoryService } from './pdm-alarm-history.service';
 import { TableData } from '../../common/ng2-table/table.component';
 import { ITimePeriod } from '../../common/widget-chart-condition/widget-chart-condition.component';
-
-// 새로 고침 시 사용될 interface
-export interface IPrevData {
-    fabId: string;
-    targetName: string;
-    timePeriod: ITimePeriod;
-    dayPeriod: number;
-    cutoffType: string;
-}
+import { WidgetConfigHelper, IConfigData } from '../../common/widget-config-helper/widget-config-helper';
 
 // 서버 요청 데이터 포맷
 export interface IReqDataFormat {
@@ -73,141 +65,58 @@ export class PdmAlarmHistoryComponent extends WidgetApi implements OnSetup, OnDe
     private fabId: string = '';
     private areaId: number = undefined;
 
-    // 위젯 새로고침 시 되돌릴 데이터 값
-    private prevData: IPrevData = {
-        fabId: '',
-        targetName: '',
-        timePeriod: {
-            fromDate: 0,
-            toDate: 0
-        },
-        dayPeriod: 0,
-        cutoffType: ''
-    };
+    // 위젯 컨피그 헬퍼
+    private confgHelper: WidgetConfigHelper;
     
     constructor(
         private _service: PdmAlarmHistoryService
     ){
         super();
+        this.confgHelper = new WidgetConfigHelper( this, this.getData.bind(this) );
     }
 
     //* 초기 설정 (로딩, config값 로드)
     ngOnSetup() {
         this.showSpinner();
 
-        this.setConfigData('DAY', undefined, 1);
-        this.setConfigInfo('init', this.getProperties());
-    }
-
-    //* 자동 prev day 계산
-    getTodayPrevDayCalc( day: number ): ITimePeriod {
-        const now = new Date();
-        const calcDay = 1000 * 60 * 60 * 24 * day;
-        const to = new Date( now.getFullYear(), now.getMonth()+1, now.getDate() ).getTime();
-        const from = new Date( to - calcDay ).getTime();
-
-        return {
-            fromDate: from,
-            toDate: to
-        };
-    }
-
-    //* 위젯 컨피그 속성 값 설정
-    setConfigData( type: string, timePeriod: ITimePeriod, dayPeriod: number ){
-
-        const cutoffType: string = type === 'DATE' ? 'DATE' : 'DAY';
-        const time: ITimePeriod = (type === 'DAY' ? this.getTodayPrevDayCalc( dayPeriod ) : timePeriod);
-
-        // 컨피스 radio 값 설정 (DAY-Previous day, DATE-Date Range)
-        this.setProp('cutoffType', cutoffType);
-
-        // 일별 자동 계산
-        if( cutoffType === 'DAY' ){
-            this.setProp('dayPeriod', dayPeriod);
-        } else {
-            this.setProp('dayPeriod', '');
+        if( !this.isConfigurationWidget ){
+            this.confgHelper.setConfigData('DAY', undefined, 1);
         }
-
-        // 날짜 설정
-        // this.setProp('timePeriod', time);
-        this.setProp('from', moment(time.fromDate).format('YYYY/MM/DD HH:mm:ss'));
-        this.setProp('to', moment(time.toDate).format('YYYY/MM/DD HH:mm:ss'));
-    }
-
-    //* 컨피그 설정
-    setConfigInfo( type: string, syncData?: any ): void {
-
-        // 새로고침 (이전 컨피그 상태로 되돌림)
-        if( type === A3_WIDGET.JUST_REFRESH ){
-            this.fabId = this.prevData.fabId;
-            this.timePeriod = this.prevData.timePeriod;
-            this.targetName = this.prevData.targetName;
-            this.areaId = undefined;
-
-            if( this.prevData.cutoffType === 'DAY' ){
-                this.setConfigData('DAY', undefined, this.prevData.dayPeriod );
-            } else {
-                this.setConfigData('DATE', this.timePeriod, undefined );
-            }
-        }
-        // 컨피그 설정 적용
-        else if( type === A3_WIDGET.APPLY_CONFIG_REFRESH || type === 'init' ){
-            this.fabId = syncData.plant.fabId;
-            this.timePeriod.fromDate = syncData[CD.TIME_PERIOD].from;
-            this.timePeriod.toDate = syncData[CD.TIME_PERIOD].to;
-            this.areaId = undefined;
-
-            // 컨피그로 설정된 값 저장 용
-            this.prevData = {
-                fabId: this.fabId,
-                timePeriod: this.timePeriod,
-                targetName: this.targetName,
-                dayPeriod: this.getProp('dayPeriod'),
-                cutoffType: this.getProp('cutoffType')
-            };
-        }
-        // 다른 위젯 데이터 싱크
-        else if( type === A3_WIDGET.SYNC_INCONDITION_REFRESH ){
-            this.targetName = syncData[CD.AREA][CD.AREA_NAME];
-            this.areaId = syncData[CD.AREA][CD.AREA_ID];
-            this.timePeriod.fromDate = syncData[CD.TIME_PERIOD].from;
-            this.timePeriod.toDate = syncData[CD.TIME_PERIOD].to;
-
-            // 실크 될 실제 컨피그 값 설정 (DATE 기준)
-            // this.setConfigData('DATE', this.timePeriod, undefined );
-        }
-
-        // 데이터 요청
-        this.getData();
+        this.confgHelper.setConfigInfo('init', this.getProperties());
     }
 
     //* APPLY_CONFIG_REFRESH-config 설정 값, JUST_REFRESH-현 위젯 새로고침, SYNC_INCONDITION_REFRESH-위젯 Sync
     refresh({ type, data }: WidgetRefreshType) {
 
         // 처리할 타입만 필터링
-        if( type === A3_WIDGET.JUST_REFRESH ||
+        if( !(type === A3_WIDGET.JUST_REFRESH ||
             type === A3_WIDGET.APPLY_CONFIG_REFRESH ||
-            type === A3_WIDGET.SYNC_INCONDITION_REFRESH ){
+            type === A3_WIDGET.SYNC_INCONDITION_REFRESH) ){
             return;
         }
 
         this.showSpinner();
-        this.setConfigInfo( type, data );
+        this.confgHelper.setConfigInfo( type, data );
     }
 
     ngOnDestroy() {
+        delete this.confgHelper;
         this.destroy();
     }
 
     //* 데이터 가져오기
-    getData(){
+    getData( configData: IConfigData ){
+        // 헬퍼를 통해 넘어온 값 설정
+        this.fabId = configData.fabId;
+        this.targetName = configData.targetName;
+        this.timePeriod = configData.timePeriod;
+
         this._service.getListData({
             fabId: this.fabId,
             areaId: this.areaId,
-            fromDate: this.timePeriod.fromDate,
-            toDate: this.timePeriod.toDate
+            fromDate: 1530284400000, //this.timePeriod.fromDate,
+            toDate: 1530370800000 //this.timePeriod.toDate
         }).then((res: Array<IReqDataFormat>)=>{
-            console.log(res);
             if( this.listData.length ){
                 this.listData.splice(0, this.listData.length);
             }
@@ -227,8 +136,6 @@ export class PdmAlarmHistoryComponent extends WidgetApi implements OnSetup, OnDe
                     FaultClass: row.fault_class
                 });
             }
-
-            console.log( 'this.listData', this.listData );
 
             this.hideSpinner();
         },(err: any)=>{
