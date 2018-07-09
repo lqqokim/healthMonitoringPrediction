@@ -6,9 +6,6 @@ import com.bistel.pdm.lambda.kafka.expression.RuleParser;
 
 import static java.util.Objects.requireNonNull;
 
-/**
- * Created by daniel on 03.07.17.
- */
 public class LogicalAndListener extends RuleBaseListener {
 
     private final PrimaryExpressions primaryExpressions;

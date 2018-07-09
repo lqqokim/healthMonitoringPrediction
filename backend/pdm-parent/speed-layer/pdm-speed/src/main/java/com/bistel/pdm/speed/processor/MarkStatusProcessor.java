@@ -44,43 +44,50 @@ public class MarkStatusProcessor extends AbstractProcessor<String, byte[]> {
             return;
         }
 
-        double paramValue = Double.parseDouble(recordColumns[event.getParamParseIndex()]);
-        log.debug("[{}] - event param:{}, value : {}, condition:{}", partitionKey,
-                event.getParameterName(), paramValue, event.getCondition());
+        try {
+            //log.debug("parsing index:{}, value:{}", event.getParamParseIndex(), recordColumns[event.getParamParseIndex()]);
+            double paramValue = Double.parseDouble(recordColumns[event.getParamParseIndex()]);
+            //paramValue = paramValue * 1000000;
 
-        RuleVariables ruleVariables = new RuleVariables();
-        ruleVariables.putValue("value", paramValue);
-        RuleEvaluator ruleEvaluator = new RuleEvaluator(ruleVariables);
-        boolean isRun = ruleEvaluator.evaluate(event.getCondition());
+            log.debug("[{}] - define status using {} parameter. ({}, {})", partitionKey,
+                    event.getParameterName(), paramValue, event.getCondition());
 
-        String statusCode;
-        if (isRun) {
-            statusCode = "R";
-        } else {
-            statusCode = "I";
-        }
+            RuleVariables ruleVariables = new RuleVariables();
+            ruleVariables.putValue("value", paramValue);
+            RuleEvaluator ruleEvaluator = new RuleEvaluator(ruleVariables);
+            boolean isRun = ruleEvaluator.evaluate(event.getCondition());
 
-        //------
-        Long msgTimeStamp = parseStringToTimestamp(recordColumns[0]);
-        String statusCodeAndTime = statusCode + ":" + msgTimeStamp;
-        String prevStatusAndTime;
+            String statusCode;
+            if (isRun) {
+                statusCode = "R";
+            } else {
+                statusCode = "I";
+            }
 
-        if (kvStore.get(partitionKey) == null) {
+            //------
+            Long msgTimeStamp = parseStringToTimestamp(recordColumns[0]);
+            String statusCodeAndTime = statusCode + ":" + msgTimeStamp;
+            String prevStatusAndTime;
+
+            if (kvStore.get(partitionKey) == null) {
+                kvStore.put(partitionKey, statusCodeAndTime);
+                prevStatusAndTime = statusCodeAndTime;
+            } else {
+                prevStatusAndTime = kvStore.get(partitionKey);
+            }
+
+            log.debug("[{}] - ({}, {}) ", partitionKey, statusCodeAndTime, prevStatusAndTime);
+
+            // add trace with status code
+            // time, p1, p2, p3, p4, ... pn, status:time, prev:time
+            recordValue = recordValue + "," + statusCodeAndTime + "," + prevStatusAndTime;
+            context().forward(partitionKey, recordValue.getBytes());
+            context().commit();
+
             kvStore.put(partitionKey, statusCodeAndTime);
-            prevStatusAndTime = statusCodeAndTime;
-        } else {
-            prevStatusAndTime = kvStore.get(partitionKey);
+        } catch (Exception e){
+            log.error(e.getMessage(), e);
         }
-
-        log.debug("[{}] - ({}, {}) ", partitionKey, statusCodeAndTime, prevStatusAndTime);
-
-        // add trace with status code
-        // time, area, eqp, p1, p2, p3, p4, ... pn, status:time, prev:time
-        recordValue = recordValue + "," + statusCodeAndTime + "," + prevStatusAndTime;
-        context().forward(partitionKey, recordValue.getBytes());
-        context().commit();
-
-        kvStore.put(partitionKey, statusCodeAndTime);
     }
 
     private static Long parseStringToTimestamp(String item) {

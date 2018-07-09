@@ -4,7 +4,7 @@ import {
 	Condic,
 	Formcfg
 } from '../../../../common';
-import { FormConfigType } from '../../../../sdk';
+import { FormConfigType, Util } from '../../../../sdk';
 
 export class Properties extends ConditionApi {
 
@@ -14,7 +14,7 @@ export class Properties extends ConditionApi {
 
 	// properties 초기값 설정
 	init() {
-		this.init_time_period();
+		// this.init_time_period();
 	}
 
 	// In Condition 조건
@@ -32,7 +32,8 @@ export class Properties extends ConditionApi {
 		const newConfig: FormConfigType = {
 			config: {
 				// isTimePeriod: false,
-				format: 'yyyy/MM/dd hh:mm:ss'
+				format: 'yyyy/MM/dd hh:mm:ss',
+				day: 7
 			}
 		};
 

@@ -63,7 +63,7 @@ public class PfeifferLogTailerListener extends TailerListenerAdapter {
         Timestamp ts = new Timestamp(System.currentTimeMillis());
         String timeStamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(ts);
 
-        String msg = timeStamp + "," + partitionKey + "," + columns[1] + "," + columns[2] + ","
+        String msg = timeStamp + "," + columns[1] + "," + columns[2] + ","
                 + columns[3] + "," + columns[4] + ","
                 + columns[5] + "," + columns[6] + "," + columns[7] + "," + columns[8] + ","
                 + columns[9] + "," + columns[10] + "," + columns[11] + "," + columns[12] + ","

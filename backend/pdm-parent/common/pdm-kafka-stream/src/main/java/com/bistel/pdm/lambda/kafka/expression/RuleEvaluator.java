@@ -8,9 +8,6 @@ import java.util.Map;
 
 import static java.util.Objects.requireNonNull;
 
-/**
- * Created by daniel on 03.07.17.
- */
 public class RuleEvaluator {
 
     public final RuleVariables ruleVariables;
@@ -45,11 +42,11 @@ public class RuleEvaluator {
         RuleParser parser = new RuleParser(tokens);
 
         parser.addParseListener(new PrimaryListener(primaryExpressions, ruleVariables));
-        parser.addParseListener(new NotListener(primaryExpressions));
+        //parser.addParseListener(new NotListener(primaryExpressions));
         parser.addParseListener(new RelationalListener(primaryExpressions));
-        parser.addParseListener(new EqualityListener(primaryExpressions));
-        parser.addParseListener(new LogicalAndListener(primaryExpressions));
-        parser.addParseListener(new LogicalOrListener(primaryExpressions));
+       // parser.addParseListener(new EqualityListener(primaryExpressions));
+        //parser.addParseListener(new LogicalAndListener(primaryExpressions));
+        //parser.addParseListener(new LogicalOrListener(primaryExpressions));
 
         parser.removeErrorListeners();
         parser.addErrorListener(ruleErrorListener);

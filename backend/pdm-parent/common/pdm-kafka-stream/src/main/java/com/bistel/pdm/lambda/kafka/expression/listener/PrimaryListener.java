@@ -11,9 +11,6 @@ import java.util.function.Function;
 
 import static java.util.Objects.requireNonNull;
 
-/**
- * Created by daniel on 03.07.17.
- */
 public class PrimaryListener extends RuleBaseListener {
 
     private final PrimaryExpressions primaryExpressions;
@@ -31,6 +28,10 @@ public class PrimaryListener extends RuleBaseListener {
     public void exitPrimaryExpression(RuleParser.PrimaryExpressionContext ctx) {
 
         if (pushPrimaryExpression(ctx.DECIMAL_CONSTANT(),
+                Integer::valueOf))
+            return;
+
+        if (pushPrimaryExpression(ctx.DOUBLE_CONSTANT(),
                 Double::valueOf))
             return;
 

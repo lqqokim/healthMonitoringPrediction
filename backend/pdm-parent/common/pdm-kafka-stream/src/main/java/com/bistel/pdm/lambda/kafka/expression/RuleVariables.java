@@ -5,9 +5,6 @@ import com.bistel.pdm.lambda.kafka.expression.exception.MissingRuleVariableExcep
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Created by daniel on 01.07.17.
- */
 public class RuleVariables {
 
     private Map<String, Object> variables;

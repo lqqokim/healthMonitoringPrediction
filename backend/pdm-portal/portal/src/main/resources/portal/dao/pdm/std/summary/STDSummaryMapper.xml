@@ -955,6 +955,321 @@
 
     </select>
 
+
+    <select id="selectWorstEquipmentList" resultType="com.bistel.a3.portal.domain.pdm.WorstEquipmentList">
+
+        select distinct eqpstatus.eqp_id, eqpstatus.eqp_name,score.score
+        from
+        (
+
+        select eqp_id,eqp_name,
+        case when event_type_cd is null
+        then decode(type_cd, 'E', 'RUN', 'IDLE')
+        else decode(event_type_cd, 'S', 'RUN', 'IDLE')
+        end status,
+        start_dtts, end_dtts
+        from
+        (
+        select eqp_id,eqp_name, event_type_cd, lead(event_type_cd) over (partition by eqp_name order by event_dtts) type_cd,
+        event_dtts as start_dtts,
+        nvl(lead(event_dtts) over (partition by eqp_name order by event_dtts), TO_TIMESTAMP('2018-07-07 00:00:00', 'YYYY-MM-DD HH24:MI:SS')) end_dtts
+        from
+        (
+        select e.rawid as eqp_id, e.name as eqp_name, v.event_name, v.event_type_cd, t.event_dtts
+        from eqp_mst_pdm e, eqp_event_mst_pdm v, eqp_event_trx_pdm t
+        where e.rawid=v.eqp_mst_rawid
+        and v.rawid=t.eqp_event_mst_rawid
+        and v.process_yn='Y'
+        and t.event_dtts between TO_TIMESTAMP( #{start_dtts} , 'YYYY-MM-DD HH24:MI:SS')
+        and TO_TIMESTAMP( #{end_dtts} , 'YYYY-MM-DD HH24:MI:SS')
+        union all
+        select rawid as eqp_id, name as eqp_name, 'start', '' as typ, event_dtts from eqp_mst_pdm a,
+        (select TO_TIMESTAMP( #{start_dtts} , 'YYYY-MM-DD HH24:MI:SS') as event_dtts from dual) b
+        order by eqp_name, event_dtts
+        )
+        )
+
+
+        ) eqpstatus,
+
+        (
+        select e.rawid as eqp_id,name as eqp_name, max(h.score) as score
+        from eqp_mst_pdm e, eqp_health_trx_pdm h
+        where e.rawid=h.eqp_mst_rawid
+        and e.offline_yn='N'
+        and h.ALARM_DTTS between TO_TIMESTAMP( #{start_dtts} , 'YYYY-MM-DD HH24:MI:SS')
+        and TO_TIMESTAMP( #{end_dtts} , 'YYYY-MM-DD HH24:MI:SS')
+        group by e.RAWID,name
+        order by score desc
+        ) score
+
+        where 1=1
+        and eqpstatus.eqp_id=score.eqp_id
+
+
+
+
+    </select>
+
+
+    <select id="selectWorstEqupmentListChartData" resultType="com.bistel.a3.portal.domain.pdm.WorstEqupmentListChartData">
+
+        select eqpstatus.eqp_id, eqpstatus.status, eqpstatus.start_dtts, eqpstatus.end_dtts
+        from
+        (
+
+        select eqp_id,eqp_name,
+        case when event_type_cd is null
+        then decode(type_cd, 'E', 'RUN', 'IDLE')
+        else decode(event_type_cd, 'S', 'RUN', 'IDLE')
+        end status,
+        start_dtts, end_dtts
+        from
+        (
+        select eqp_id,eqp_name, event_type_cd, lead(event_type_cd) over (partition by eqp_name order by event_dtts) type_cd,
+        event_dtts as start_dtts,
+        nvl(lead(event_dtts) over (partition by eqp_name order by event_dtts), TO_TIMESTAMP('2018-07-07 00:00:00', 'YYYY-MM-DD HH24:MI:SS')) end_dtts
+        from
+        (
+        select e.rawid as eqp_id, e.name as eqp_name, v.event_name, v.event_type_cd, t.event_dtts
+        from eqp_mst_pdm e, eqp_event_mst_pdm v, eqp_event_trx_pdm t
+        where e.rawid=v.eqp_mst_rawid
+        and v.rawid=t.eqp_event_mst_rawid
+        and v.process_yn='Y'
+        and t.event_dtts between TO_TIMESTAMP( #{start_dtts} , 'YYYY-MM-DD HH24:MI:SS')
+        and TO_TIMESTAMP( #{end_dtts} , 'YYYY-MM-DD HH24:MI:SS')
+        union all
+        select rawid as eqp_id, name as eqp_name, 'start', '' as typ, event_dtts from eqp_mst_pdm a,
+        (select TO_TIMESTAMP( #{start_dtts} , 'YYYY-MM-DD HH24:MI:SS') as event_dtts from dual) b
+        order by eqp_name, event_dtts
+        )
+        )
+
+
+        ) eqpstatus,
+
+        (
+        select e.rawid as eqp_id,name as eqp_name, max(h.score) as score
+        from eqp_mst_pdm e, eqp_health_trx_pdm h
+        where e.rawid=h.eqp_mst_rawid
+        and e.offline_yn='N'
+        and h.ALARM_DTTS between TO_TIMESTAMP( #{start_dtts} , 'YYYY-MM-DD HH24:MI:SS')
+        and TO_TIMESTAMP( #{end_dtts} , 'YYYY-MM-DD HH24:MI:SS')
+        group by e.RAWID,name
+        order by score desc
+        ) score
+
+        where 1=1
+        and eqpstatus.eqp_id=score.eqp_id
+
+
+
+    </select>
+
+
+    <select id="selectWorstEquipmentListByAreaId"  resultType="com.bistel.a3.portal.domain.pdm.WorstEquipmentList">
+        select distinct worsteqp.eqp_id, worsteqp.eqp_name, worsteqp.score
+        from
+
+        (
+
+
+        select eqpstatus.eqp_id, eqpstatus.eqp_name,score.score, eqpstatus.status, eqpstatus.start_dtts, eqpstatus.end_dtts
+        from
+
+        (
+
+        select eqp_id,eqp_name,
+        case when event_type_cd is null
+        then decode(type_cd, 'E', 'RUN', 'IDLE')
+        else decode(event_type_cd, 'S', 'RUN', 'IDLE')
+        end status,
+        start_dtts, end_dtts
+        from
+        (
+        select eqp_id,eqp_name, event_type_cd, lead(event_type_cd) over (partition by eqp_name order by event_dtts) type_cd,
+        event_dtts as start_dtts,
+        nvl(lead(event_dtts) over (partition by eqp_name order by event_dtts), TO_TIMESTAMP('2018-07-07 00:00:00', 'YYYY-MM-DD HH24:MI:SS')) end_dtts
+        from
+        (
+        select e.rawid as eqp_id, e.name as eqp_name, v.event_name, v.event_type_cd, t.event_dtts
+        from eqp_mst_pdm e, eqp_event_mst_pdm v, eqp_event_trx_pdm t
+        where e.rawid=v.eqp_mst_rawid
+        and v.rawid=t.eqp_event_mst_rawid
+        and v.process_yn='Y'
+        and t.event_dtts between TO_TIMESTAMP(#{start_dtts}, 'YYYY-MM-DD HH24:MI:SS')
+        and TO_TIMESTAMP(#{end_dtts}, 'YYYY-MM-DD HH24:MI:SS')
+        union all
+        select rawid as eqp_id, name as eqp_name, 'start', '' as typ, event_dtts from eqp_mst_pdm a,
+        (select TO_TIMESTAMP(#{start_dtts}, 'YYYY-MM-DD HH24:MI:SS') as event_dtts from dual) b
+        order by eqp_name, event_dtts
+        )
+        )
+
+
+        ) eqpstatus,
+
+        (
+        select e.rawid as eqp_id,name as eqp_name, max(h.score) as score
+        from eqp_mst_pdm e, eqp_health_trx_pdm h
+        where e.rawid=h.eqp_mst_rawid
+        and e.offline_yn='N'
+        and h.ALARM_DTTS between TO_TIMESTAMP(#{start_dtts}, 'YYYY-MM-DD HH24:MI:SS')
+        and TO_TIMESTAMP(#{end_dtts}, 'YYYY-MM-DD HH24:MI:SS')
+        group by e.RAWID,name
+        order by score desc
+        ) score
+
+
+        where 1=1
+        and eqpstatus.eqp_id=score.eqp_id
+
+        ) worsteqp,
+
+        eqp_mst_pdm eqp
+        where 1=1
+        and worsteqp.eqp_id=eqp.rawid
+        and eqp.area_mst_rawid= #{area_id}
+
+    </select>
+
+
+    <select id="selectWorstEqupmentListChartDataByAreaId" resultType="com.bistel.a3.portal.domain.pdm.WorstEqupmentListChartData">
+
+
+
+        select worsteqp.eqp_id, worsteqp.status, worsteqp.start_dtts, worsteqp.end_dtts
+        from
+
+        (
+
+
+        select eqpstatus.eqp_id, eqpstatus.eqp_name,score.score, eqpstatus.status, eqpstatus.start_dtts, eqpstatus.end_dtts
+        from
+
+        (
+
+        select eqp_id,eqp_name,
+        case when event_type_cd is null
+        then decode(type_cd, 'E', 'RUN', 'IDLE')
+        else decode(event_type_cd, 'S', 'RUN', 'IDLE')
+        end status,
+        start_dtts, end_dtts
+        from
+        (
+        select eqp_id,eqp_name, event_type_cd, lead(event_type_cd) over (partition by eqp_name order by event_dtts) type_cd,
+        event_dtts as start_dtts,
+        nvl(lead(event_dtts) over (partition by eqp_name order by event_dtts), TO_TIMESTAMP('2018-07-07 00:00:00', 'YYYY-MM-DD HH24:MI:SS')) end_dtts
+        from
+        (
+        select e.rawid as eqp_id, e.name as eqp_name, v.event_name, v.event_type_cd, t.event_dtts
+        from eqp_mst_pdm e, eqp_event_mst_pdm v, eqp_event_trx_pdm t
+        where e.rawid=v.eqp_mst_rawid
+        and v.rawid=t.eqp_event_mst_rawid
+        and v.process_yn='Y'
+        and t.event_dtts between TO_TIMESTAMP(#{start_dtts}, 'YYYY-MM-DD HH24:MI:SS')
+        and TO_TIMESTAMP(#{end_dtts}, 'YYYY-MM-DD HH24:MI:SS')
+        union all
+        select rawid as eqp_id, name as eqp_name, 'start', '' as typ, event_dtts from eqp_mst_pdm a,
+        (select TO_TIMESTAMP(#{start_dtts}, 'YYYY-MM-DD HH24:MI:SS') as event_dtts from dual) b
+        order by eqp_name, event_dtts
+        )
+        )
+
+
+        ) eqpstatus,
+
+        (
+        select e.rawid as eqp_id,name as eqp_name, max(h.score) as score
+        from eqp_mst_pdm e, eqp_health_trx_pdm h
+        where e.rawid=h.eqp_mst_rawid
+        and e.offline_yn='N'
+        and h.ALARM_DTTS between TO_TIMESTAMP(#{start_dtts}, 'YYYY-MM-DD HH24:MI:SS')
+        and TO_TIMESTAMP(#{end_dtts}, 'YYYY-MM-DD HH24:MI:SS')
+        group by e.RAWID,name
+        order by score desc
+        ) score
+
+
+        where 1=1
+        and eqpstatus.eqp_id=score.eqp_id
+
+        ) worsteqp,
+
+        eqp_mst_pdm eqp
+        where 1=1
+        and worsteqp.eqp_id=eqp.rawid
+        and eqp.area_mst_rawid= #{area_id}
+
+    </select>
+
+
+    <select id="selectAlarmClassificationSummaryByAreaId" resultType="com.bistel.a3.portal.domain.pdm.AlarmClassification">
+
+        select fault_class, count(1) as count
+        from
+        (
+
+        select alarmeqp.eqp_id as eqp_id, fc.fault_class as fault_class, count(fc.fault_class) as fault_count
+        from
+        (
+        select distinct fault_class
+        from alarm_trx_pdm
+        ) fc,
+
+
+        (
+        select pmp.EQP_MST_RAWID as eqp_id, atp.fault_class
+        from param_mst_pdm pmp,
+        (
+        select param_mst_rawid,fault_class
+        from ALARM_TRX_PDM
+        where 1=1
+        and alarm_type_cd=256
+        and alarm_dtts <![CDATA[>=]]> #{fromdate}
+        and alarm_dtts <![CDATA[<]]> #{todate}
+        ) atp
+
+        where 1=1
+        and pmp.rawid=atp.param_mst_rawid
+        and pmp.EQP_MST_RAWID in(
+
+        select distinct eqp.rawid
+        from
+        (
+        select *
+        from
+        (
+        SELECT
+        rawid AS area_id,
+        name,
+        parent_rawid AS parent_id,
+        CONNECT_BY_ISLEAF AS leaf
+        FROM
+        area_mst_pdm
+        START WITH
+        parent_rawid = 0
+        CONNECT BY
+        PRIOR rawid = parent_rawid
+        ORDER BY
+        leaf,
+        parent_id
+        )
+        where 1=1
+        and leaf=1
+        )areas, eqp_mst_pdm eqp
+        where 1=1
+        and areas.area_id=eqp.area_mst_rawid
+        and eqp.area_mst_rawid= #{area_id}
+        )
+
+        ) alarmeqp
+        where fc.fault_class=alarmeqp.fault_class
+        group by fc.fault_class , alarmeqp.eqp_id
+        )
+        group by fault_class
+
+    </select>
 </mapper>
 
 
