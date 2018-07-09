@@ -1,0 +1,9 @@
+.linechart{
+    height:100%;
+    width:100%;
+}
+
+
+.linechart .c3-ygrid-line.red-line line {
+    stroke: red;
+}
