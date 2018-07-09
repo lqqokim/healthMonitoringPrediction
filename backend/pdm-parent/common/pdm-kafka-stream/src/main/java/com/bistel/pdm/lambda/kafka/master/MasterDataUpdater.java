@@ -198,4 +198,31 @@ public class MasterDataUpdater {
             client.close();
         }
     }
+
+    public static void updateSmtpConfigDataSet(String targetUrl) {
+        ResteasyClient client = new ResteasyClientBuilder().build();
+        Response response = client.target(targetUrl).request().get();
+        String body = response.readEntity(String.class);
+
+        ObjectMapper mapper = new ObjectMapper();
+        MailConfigDataSet config = null;
+
+        try {
+            if (body.length() <= 0) {
+                log.info("parameter health data does not exists. message: " + body);
+            } else {
+                config = mapper.readValue(body, new TypeReference<MailConfigDataSet>() {
+                });
+
+                MasterDataCache.getInstance().putMailConfigDataSet(config);
+
+                log.info("1 reference has been updated.");
+            }
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+        } finally {
+            response.close();
+            client.close();
+        }
+    }
 }

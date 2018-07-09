@@ -6,9 +6,6 @@ import com.bistel.pdm.lambda.kafka.expression.RuleParser;
 
 import static java.util.Objects.requireNonNull;
 
-/**
- * Created by daniel on 03.07.17.
- */
 public class RelationalListener extends RuleBaseListener {
 
     private final PrimaryExpressions primaryExpressions;
@@ -22,9 +19,11 @@ public class RelationalListener extends RuleBaseListener {
     public void exitRelationalExpression(RuleParser.RelationalExpressionContext ctx) {
         RuleParser.RelationalExpressionContext relationalExpression =
                 ctx.relationalExpression();
+
         if (relationalExpression != null) {
             Double secondOperand = (Double) primaryExpressions.pop();
             Double firstOperand = (Double) primaryExpressions.pop();
+
             String operator = ctx.getChild(1).getText();
             Boolean primaryExpression = null;
             switch (operator) {

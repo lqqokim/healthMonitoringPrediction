@@ -7,8 +7,6 @@ import com.bistel.pdm.datastore.jdbc.dao.SensorRawDataDao;
 import com.bistel.pdm.datastore.jdbc.dao.SensorTraceDataDao;
 import com.bistel.pdm.datastore.jdbc.dao.ora.SensorTraceRawTrxDao;
 import com.bistel.pdm.datastore.jdbc.dao.ora.SensorTraceTrxDao;
-import com.bistel.pdm.datastore.jdbc.dao.pg.SensorTraceRawTrxPostgreDao;
-import com.bistel.pdm.datastore.jdbc.dao.pg.SensorTraceTrxPostgreDao;
 import com.bistel.pdm.datastore.model.SensorRawData;
 import com.bistel.pdm.datastore.model.SensorTraceData;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -40,8 +38,8 @@ public class TimewaveConsumerRunnable implements Runnable {
             trxDao = new SensorTraceTrxDao();
             log.info("loaded data object of oracle.");
         } else if (DataSource.getDBType() == DBType.postgresql) {
-            trxRawDao = new SensorTraceRawTrxPostgreDao();
-            trxDao = new SensorTraceTrxPostgreDao();
+//            trxRawDao = new SensorTraceRawTrxPostgreDao();
+//            trxDao = new SensorTraceTrxPostgreDao();
             log.info("loaded data object of postgresql.");
         } else {
             trxRawDao = new SensorTraceRawTrxDao();
@@ -58,7 +56,7 @@ public class TimewaveConsumerRunnable implements Runnable {
         log.info("Reading topic: {}, db type: {} ", topicName, DataSource.getDBType());
 
         while (true) {
-            ConsumerRecords<String, byte[]> records = consumer.poll(TimeUnit.SECONDS.toMillis(30));
+            ConsumerRecords<String, byte[]> records = consumer.poll(TimeUnit.SECONDS.toMillis(5));
             if (records.count() <= 0) continue;
 
             log.debug(" polling {} records", records.count());
@@ -75,24 +73,32 @@ public class TimewaveConsumerRunnable implements Runnable {
                     /*
                     0 : paramRawid
                     1 : value
-                    2 : alarm spec
-                    3 : warning spec
-                    4 : time
-                    5 : max frequency
-                    6 : frequency count
-                    7 : rpm
-                    8 : sampling time
-                    9 : frequency binary
-                    10 : timewave binary
+                    2 : upper alarm spec
+                    3 : upper warning spec
+                    4 : target
+                    5 : lower alarm spec
+                    6 : lower warning spec
+                    7 : time
+                    8 : frequency count
+                    9 : max frequency
+                    10 : rpm
+                    11 : sampling time
+                    12 : frequency binary
+                    13 : timewave binary
                     */
 
                     Long rawId = trxDao.getTraceRawId();
 
+                    log.debug("parsing trace...");
                     parseTrace(traceRow, values, rawId);
 
-                    parseTimewave(rawRow, values, rawId);
-
+                    log.debug("parsing frequency...");
                     parseFrequency(rawRow, values, rawId);
+
+                    if(values[13].length() > 0){
+                        log.debug("parsing timewave...");
+                        parseTimewave(rawRow, values, rawId);
+                    }
                 }
 
                 if (traceRow.size() > 0) {
@@ -109,17 +115,20 @@ public class TimewaveConsumerRunnable implements Runnable {
 
     private void parseFrequency(Map<String, Pair<Long, SensorRawData>> rawRow, String[] values, Long rawId) {
         /*
-            0 : paramRawid
-            1 : value
-            2 : alarm spec
-            3 : warning spec
-            4 : time
-            5 : frequency count
-            6 : max frequency
-            7 : rpm
-            8 : sampling time
-            9 : frequency binary
-            10 : timewave binary
+        0 : paramRawid
+        1 : value
+        2 : upper alarm spec
+        3 : upper warning spec
+        4 : target
+        5 : lower alarm spec
+        6 : lower warning spec
+        7 : time
+        8 : frequency count
+        9 : max frequency
+        10 : rpm
+        11 : sampling time
+        12 : frequency binary
+        13 : timewave binary
         */
 
         SensorRawData rawDataFrequency = new SensorRawData();
@@ -127,39 +136,59 @@ public class TimewaveConsumerRunnable implements Runnable {
         rawDataFrequency.setParamMstRawid(Long.parseLong(values[0]));
 
         if (values[2].length() <= 0) {
-            rawDataFrequency.setAlarmSpec(null);
+            rawDataFrequency.setUpperAlarmSpec(null);
         } else {
-            rawDataFrequency.setAlarmSpec(Float.parseFloat(values[2]));
+            rawDataFrequency.setUpperAlarmSpec(Float.parseFloat(values[2]));
         }
 
         if (values[3].length() <= 0) {
-            rawDataFrequency.setWarningSpec(null);
+            rawDataFrequency.setUpperWarningSpec(null);
         } else {
-            rawDataFrequency.setWarningSpec(Float.parseFloat(values[3]));
+            rawDataFrequency.setUpperWarningSpec(Float.parseFloat(values[3]));
         }
-        rawDataFrequency.setEventDtts(Long.parseLong(values[4]));
 
-        rawDataFrequency.setFreqCount(Integer.parseInt(values[5]));
-        rawDataFrequency.setMaxFreq(Integer.parseInt(values[6]));
-        rawDataFrequency.setRpm(Float.parseFloat(values[7]));
-        rawDataFrequency.setSamplingTime(Float.parseFloat(values[8]));
-        rawDataFrequency.setFrequencyData(values[9]);
+        if (values[4].length() <= 0) {
+            rawDataFrequency.setTarget(null);
+        } else {
+            rawDataFrequency.setTarget(Float.parseFloat(values[4]));
+        }
+
+        if (values[5].length() <= 0) {
+            rawDataFrequency.setLowerAlarmSpec(null);
+        } else {
+            rawDataFrequency.setLowerAlarmSpec(Float.parseFloat(values[5]));
+        }
+
+        if (values[6].length() <= 0) {
+            rawDataFrequency.setLowerWarningSpec(null);
+        } else {
+            rawDataFrequency.setLowerWarningSpec(Float.parseFloat(values[6]));
+        }
+
+        rawDataFrequency.setEventDtts(Long.parseLong(values[7]));
+
+        rawDataFrequency.setFreqCount(Integer.parseInt(values[8]));
+        rawDataFrequency.setMaxFreq(Double.parseDouble(values[9]));
+
+        rawDataFrequency.setRpm(Float.parseFloat(values[10]));
+        rawDataFrequency.setSamplingTime(Float.parseFloat(values[11]));
+        rawDataFrequency.setFrequencyData(values[12]);
 
         //rsd 01~05
-        if (values.length > 11) {
-            rawDataFrequency.setReservedCol1(values[11]); //location
+        if (values.length > 14) {
+            rawDataFrequency.setReservedCol1(values[14]); //location
 
-            if (values.length > 12) {
-                rawDataFrequency.setReservedCol2(values[12]);
+            if (values.length > 15) {
+                rawDataFrequency.setReservedCol2(values[15]);
 
-                if (values.length > 13) {
-                    rawDataFrequency.setReservedCol3(values[13]);
+                if (values.length > 16) {
+                    rawDataFrequency.setReservedCol3(values[16]);
 
-                    if (values.length > 14) {
-                        rawDataFrequency.setReservedCol4(values[14]);
+                    if (values.length > 17) {
+                        rawDataFrequency.setReservedCol4(values[17]);
 
-                        if (values.length > 15) {
-                            rawDataFrequency.setReservedCol5(values[15]);
+                        if (values.length > 18) {
+                            rawDataFrequency.setReservedCol5(values[18]);
                         }
                     }
                 }
@@ -171,17 +200,20 @@ public class TimewaveConsumerRunnable implements Runnable {
 
     private void parseTimewave(Map<String, Pair<Long, SensorRawData>> rawRow, String[] values, Long rawId) {
         /*
-            0 : paramRawid
-            1 : value
-            2 : alarm spec
-            3 : warning spec
-            4 : time
-            5 : frequency count
-            6 : max frequency
-            7 : rpm
-            8 : sampling time
-            9 : frequency binary
-            10 : timewave binary
+        0 : paramRawid
+        1 : value
+        2 : upper alarm spec
+        3 : upper warning spec
+        4 : target
+        5 : lower alarm spec
+        6 : lower warning spec
+        7 : time
+        8 : frequency count
+        9 : max frequency
+        10 : rpm
+        11 : sampling time
+        12 : frequency binary
+        13 : timewave binary
         */
 
         SensorRawData rawDataTimeWave = new SensorRawData();
@@ -189,39 +221,58 @@ public class TimewaveConsumerRunnable implements Runnable {
         rawDataTimeWave.setParamMstRawid(Long.parseLong(values[0]));
 
         if (values[2].length() <= 0) {
-            rawDataTimeWave.setAlarmSpec(null);
+            rawDataTimeWave.setUpperAlarmSpec(null);
         } else {
-            rawDataTimeWave.setAlarmSpec(Float.parseFloat(values[2]));
+            rawDataTimeWave.setUpperAlarmSpec(Float.parseFloat(values[2]));
         }
 
         if (values[3].length() <= 0) {
-            rawDataTimeWave.setWarningSpec(null);
+            rawDataTimeWave.setUpperWarningSpec(null);
         } else {
-            rawDataTimeWave.setWarningSpec(Float.parseFloat(values[3]));
+            rawDataTimeWave.setUpperWarningSpec(Float.parseFloat(values[3]));
         }
-        rawDataTimeWave.setEventDtts(Long.parseLong(values[4]));
 
-        rawDataTimeWave.setFreqCount(Integer.parseInt(values[5]));
-        rawDataTimeWave.setMaxFreq(Integer.parseInt(values[6]));
-        rawDataTimeWave.setRpm(Float.parseFloat(values[7]));
-        rawDataTimeWave.setSamplingTime(Float.parseFloat(values[8]));
-        rawDataTimeWave.setTimewaveData(values[10]);
+        if (values[4].length() <= 0) {
+            rawDataTimeWave.setTarget(null);
+        } else {
+            rawDataTimeWave.setTarget(Float.parseFloat(values[4]));
+        }
+
+        if (values[5].length() <= 0) {
+            rawDataTimeWave.setLowerAlarmSpec(null);
+        } else {
+            rawDataTimeWave.setLowerAlarmSpec(Float.parseFloat(values[5]));
+        }
+
+        if (values[6].length() <= 0) {
+            rawDataTimeWave.setLowerWarningSpec(null);
+        } else {
+            rawDataTimeWave.setLowerWarningSpec(Float.parseFloat(values[6]));
+        }
+
+        rawDataTimeWave.setEventDtts(Long.parseLong(values[7]));
+
+        rawDataTimeWave.setFreqCount(Integer.parseInt(values[8]));
+        rawDataTimeWave.setMaxFreq(Double.parseDouble(values[9]));
+        rawDataTimeWave.setRpm(Float.parseFloat(values[10]));
+        rawDataTimeWave.setSamplingTime(Float.parseFloat(values[11]));
+        rawDataTimeWave.setTimewaveData(values[13]);
 
         //rsd 01~05
-        if (values.length > 11) {
-            rawDataTimeWave.setReservedCol1(values[11]); //location
+        if (values.length > 14) {
+            rawDataTimeWave.setReservedCol1(values[14]); //location
 
-            if (values.length > 12) {
-                rawDataTimeWave.setReservedCol2(values[12]);
+            if (values.length > 15) {
+                rawDataTimeWave.setReservedCol2(values[15]);
 
-                if (values.length > 13) {
-                    rawDataTimeWave.setReservedCol3(values[13]);
+                if (values.length > 16) {
+                    rawDataTimeWave.setReservedCol3(values[16]);
 
-                    if (values.length > 14) {
-                        rawDataTimeWave.setReservedCol4(values[14]);
+                    if (values.length > 17) {
+                        rawDataTimeWave.setReservedCol4(values[17]);
 
-                        if (values.length > 15) {
-                            rawDataTimeWave.setReservedCol5(values[15]);
+                        if (values.length > 18) {
+                            rawDataTimeWave.setReservedCol5(values[18]);
                         }
                     }
                 }
@@ -233,52 +284,74 @@ public class TimewaveConsumerRunnable implements Runnable {
 
     private void parseTrace(List<Pair<Long, SensorTraceData>> traceRow, String[] values, Long rawId) {
        /*
-            0 : paramRawid
-            1 : value
-            2 : alarm spec
-            3 : warning spec
-            4 : time
-            5 : frequency count
-            6 : max frequency
-            7 : rpm
-            8 : sampling time
-            9 : frequency binary
-            10 : timewave binary
+        0 : paramRawid
+        1 : value
+        2 : upper alarm spec
+        3 : upper warning spec
+        4 : target
+        5 : lower alarm spec
+        6 : lower warning spec
+        7 : time
+        8 : frequency count
+        9 : max frequency
+        10 : rpm
+        11 : sampling time
+        12 : frequency binary
+        13 : timewave binary
         */
+
         SensorTraceData std = new SensorTraceData();
         std.setRawid(rawId);
-        std.setEventDtts(Long.parseLong(values[4]));
+        std.setEventDtts(Long.parseLong(values[7]));
         std.setParamMstRawid(Long.parseLong(values[0]));
         std.setValue(Float.parseFloat(values[1]));
-        std.setRpm(Float.parseFloat(values[7]));
+        //std.setRpm(Float.parseFloat(values[10]));
 
         if (values[2].length() <= 0) {
-            std.setAlarmSpec(null);
+            std.setUpperAlarmSpec(null);
         } else {
-            std.setAlarmSpec(Float.parseFloat(values[2]));
+            std.setUpperAlarmSpec(Float.parseFloat(values[2]));
         }
 
         if (values[3].length() <= 0) {
-            std.setWarningSpec(null);
+            std.setUpperWarningSpec(null);
         } else {
-            std.setWarningSpec(Float.parseFloat(values[3]));
+            std.setUpperWarningSpec(Float.parseFloat(values[3]));
+        }
+
+        if (values[4].length() <= 0) {
+            std.setTarget(null);
+        } else {
+            std.setTarget(Float.parseFloat(values[4]));
+        }
+
+        if (values[5].length() <= 0) {
+            std.setLowerAlarmSpec(null);
+        } else {
+            std.setLowerAlarmSpec(Float.parseFloat(values[5]));
+        }
+
+        if (values[6].length() <= 0) {
+            std.setLowerWarningSpec(null);
+        } else {
+            std.setLowerWarningSpec(Float.parseFloat(values[6]));
         }
 
         //rsd 01~05
-        if (values.length > 11) {
-            std.setReservedCol1(values[11]); //location
+        if (values.length > 14) {
+            std.setReservedCol1(values[14]); //location
 
-            if (values.length > 12) {
-                std.setReservedCol2(values[12]);
+            if (values.length > 15) {
+                std.setReservedCol2(values[15]);
 
-                if (values.length > 13) {
-                    std.setReservedCol3(values[13]);
+                if (values.length > 16) {
+                    std.setReservedCol3(values[16]);
 
-                    if (values.length > 14) {
-                        std.setReservedCol4(values[14]);
+                    if (values.length > 17) {
+                        std.setReservedCol4(values[17]);
 
-                        if (values.length > 15) {
-                            std.setReservedCol5(values[15]);
+                        if (values.length > 18) {
+                            std.setReservedCol5(values[18]);
                         }
                     }
                 }

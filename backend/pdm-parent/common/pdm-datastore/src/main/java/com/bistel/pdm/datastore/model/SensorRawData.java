@@ -5,7 +5,7 @@ public class SensorRawData {
     public long param_mst_rawid;
     public long trace_trx_rawid;
     public String data_type_cd;
-    public Integer max_freq;
+    public Double max_freq;
     public Integer freq_count;
     public Float rpm;
     public Float sampling_time;
@@ -13,8 +13,11 @@ public class SensorRawData {
     public String timewave_data;
     public Float rms;
     public long event_dtts;
-    public Float alarm_spec;
-    public Float warning_spec;
+    public Float upperAlarmSpec;
+    public Float upperWarningSpec;
+    public Float target;
+    public Float lowerAlarmSpec;
+    public Float lowerWarningSpec;
     public String reserved_col1;
     public String reserved_col2;
     public String reserved_col3;
@@ -53,11 +56,11 @@ public class SensorRawData {
         this.data_type_cd = data_type_cd;
     }
 
-    public Integer getMaxFreq() {
+    public Double getMaxFreq() {
         return max_freq;
     }
 
-    public void setMaxFreq(Integer max_freq) {
+    public void setMaxFreq(Double max_freq) {
         this.max_freq = max_freq;
     }
 
@@ -109,28 +112,52 @@ public class SensorRawData {
         this.rms = rms;
     }
 
+    public Float getUpperAlarmSpec() {
+        return upperAlarmSpec;
+    }
+
+    public void setUpperAlarmSpec(Float upperAlarmSpec) {
+        this.upperAlarmSpec = upperAlarmSpec;
+    }
+
+    public Float getUpperWarningSpec() {
+        return upperWarningSpec;
+    }
+
+    public void setUpperWarningSpec(Float upperWarningSpec) {
+        this.upperWarningSpec = upperWarningSpec;
+    }
+
+    public Float getTarget() {
+        return target;
+    }
+
+    public void setTarget(Float target) {
+        this.target = target;
+    }
+
+    public Float getLowerAlarmSpec() {
+        return lowerAlarmSpec;
+    }
+
+    public void setLowerAlarmSpec(Float lowerAlarmSpec) {
+        this.lowerAlarmSpec = lowerAlarmSpec;
+    }
+
+    public Float getLowerWarningSpec() {
+        return lowerWarningSpec;
+    }
+
+    public void setLowerWarningSpec(Float lowerWarningSpec) {
+        this.lowerWarningSpec = lowerWarningSpec;
+    }
+
     public long getEventDtts() {
         return event_dtts;
     }
 
     public void setEventDtts(long event_dtts) {
         this.event_dtts = event_dtts;
-    }
-
-    public Float getAlarmSpec() {
-        return alarm_spec;
-    }
-
-    public void setAlarmSpec(Float alarm_spec) {
-        this.alarm_spec = alarm_spec;
-    }
-
-    public Float getWarningSpec() {
-        return warning_spec;
-    }
-
-    public void setWarningSpec(Float warning_spec) {
-        this.warning_spec = warning_spec;
     }
 
     public String getReservedCol1() {

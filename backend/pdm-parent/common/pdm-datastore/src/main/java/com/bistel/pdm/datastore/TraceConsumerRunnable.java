@@ -2,12 +2,8 @@ package com.bistel.pdm.datastore;
 
 import com.bistel.pdm.datastore.jdbc.DBType;
 import com.bistel.pdm.datastore.jdbc.DataSource;
-import com.bistel.pdm.datastore.jdbc.dao.SensorRawDataDao;
 import com.bistel.pdm.datastore.jdbc.dao.SensorTraceDataDao;
-import com.bistel.pdm.datastore.jdbc.dao.ora.SensorTraceRawTrxDao;
 import com.bistel.pdm.datastore.jdbc.dao.ora.SensorTraceTrxDao;
-import com.bistel.pdm.datastore.jdbc.dao.pg.SensorTraceRawTrxPostgreDao;
-import com.bistel.pdm.datastore.jdbc.dao.pg.SensorTraceTrxPostgreDao;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.slf4j.Logger;
@@ -31,11 +27,11 @@ public class TraceConsumerRunnable implements Runnable {
         this.consumer = new KafkaConsumer<>(createConsumerConfig(groupId, property));
         this.topicName = topicName;
 
-        if(DataSource.getDBType() == DBType.oracle){
+        if (DataSource.getDBType() == DBType.oracle) {
             trxDao = new SensorTraceTrxDao();
             log.info("loaded data object of oracle.");
-        } else if(DataSource.getDBType() == DBType.postgresql){
-            trxDao = new SensorTraceTrxPostgreDao();
+        } else if (DataSource.getDBType() == DBType.postgresql) {
+            //trxDao = new SensorTraceTrxPostgreDao();
             log.info("loaded data object of postgresql.");
         } else {
             trxDao = new SensorTraceTrxDao();
