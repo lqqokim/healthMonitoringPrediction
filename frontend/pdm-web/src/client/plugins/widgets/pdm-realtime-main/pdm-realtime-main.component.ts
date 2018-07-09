@@ -371,7 +371,8 @@ export class PdmRealTimeMainComponent extends WidgetApi implements OnSetup, OnDe
        
         calls.push(this._pdmCommonService.getAnalysis(this.selectParam.fabId,1,1,  measurementId).then(data => {
             //this.spectrumData = [data];
-            this.rootcause = 'none';
+            // this.rootcause = 'none';
+            this.rootcause ="Unbalance";
             if (data.causes.length > 0) {
                 for (let i = 0; i < data.causes.length; i++) {
                     this.rootcause += ', [ ' + data.causes[i] + ' ]';
@@ -389,6 +390,7 @@ export class PdmRealTimeMainComponent extends WidgetApi implements OnSetup, OnDe
                     this.rootcause ="Lubrication";
                 }
             }
+            this.rootcause ="Unbalance";
         }));
 
         Promise.all(calls).then((values) => {
