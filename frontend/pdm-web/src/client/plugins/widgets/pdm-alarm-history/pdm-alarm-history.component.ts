@@ -111,6 +111,14 @@ export class PdmAlarmHistoryComponent extends WidgetApi implements OnSetup, OnDe
         this.targetName = configData.targetName;
         this.timePeriod = configData.timePeriod;
 
+        console.log('configData', configData);
+        console.log('this.timePeriod', this.timePeriod);
+
+        console.log(
+            moment(this.timePeriod.fromDate).format('YYYY-MM-DD HH:mm') +' ~ '+
+            moment(this.timePeriod.toDate).format('YYYY-MM-DD HH:mm')
+        )
+
         this._service.getListData({
             fabId: this.fabId,
             areaId: this.areaId,
