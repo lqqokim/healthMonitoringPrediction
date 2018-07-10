@@ -1,0 +1,3 @@
+/* info */
+.widget-pdm-eqp-health-index { position:relative; }
+.widget-pdm-eqp-health-index .chart-body { display:block; position:absolute; left:0; top:35px; bottom:0; right:0; overflow-y:auto; overflow-x:hidden; }

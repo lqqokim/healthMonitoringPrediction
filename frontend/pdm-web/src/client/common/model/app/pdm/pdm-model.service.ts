@@ -702,4 +702,16 @@ export class PdmModelService extends ModelCommonService {
 			uriPath: `pdm/fabs/${fabId}/alarmClassificationSummary/?fromdate=${fromDate}&todate=${toDate}`
 		})
 	}
+
+	// PdmEqpHealthIndex
+	getPdmEqpHealthIndexByAreaId(fabId: string, areaId: number, fromDate:number, toDate:number): Promise<any> {
+		return this.GET({
+			uriPath: `pdm/fabs/${fabId}/areas/${areaId}/PdmEqpHealthIndexByAreaId/?fromdate=${fromDate}&todate=${toDate}`
+		})
+	}
+	getPdmEqpHealthIndex(fabId: string, fromDate:number, toDate:number): Promise<any> {
+		return this.GET({
+			uriPath: `pdm/fabs/${fabId}/PdmEqpHealthIndex/?fromdate=${fromDate}&todate=${toDate}`
+		})
+	}
 }
