@@ -71,5 +71,5 @@ public interface STDReportMapper {
     Set<Long> selectExpectedAlarmWarningEqps( @Param("start") Date start, @Param("end") Date end,@Param("rmsOverCount") int rmsOverCount);
 
 
-
+    List<FeatureTrx> selectFeatureData(@Param("paramId") Long paramId,@Param("fromDate") Date fromDate,@Param("toDate") Date toDate);
 }

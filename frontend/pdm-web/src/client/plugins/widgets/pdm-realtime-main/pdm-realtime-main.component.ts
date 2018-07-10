@@ -51,6 +51,7 @@ export class PdmRealTimeMainComponent extends WidgetApi implements OnSetup, OnDe
     paramId;
     fromDate;
     toDate;
+    remain;
 
     columns: Array<TableData> = [
         // {title: '#', name: 'num' },
@@ -418,6 +419,9 @@ export class PdmRealTimeMainComponent extends WidgetApi implements OnSetup, OnDe
             
 
         })
+    }
+    onRemain(event){
+        this.remain = event.remain;
     }
     onSelectParam(event){
         this.selectParam = event;

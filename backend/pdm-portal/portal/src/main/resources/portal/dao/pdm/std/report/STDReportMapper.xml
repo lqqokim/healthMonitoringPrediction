@@ -332,7 +332,17 @@
         and event_dtts <![CDATA[<]]> #{end}
         order by event_dtts
     </select>
-
+    <select id="selectFeatureData" resultType="com.bistel.a3.portal.domain.pdm.db.FeatureTrx">
+        select
+            *
+        from param_feature_trx_pdm
+        where
+        param_mst_rawid = #{paramId}
+        and end_dtts <![CDATA[>=]]> #{fromDate}
+        and end_dtts <![CDATA[<]]> #{toDate}
+        order by end_dtts
+    </select>
+    
 
     <select id="selectPrevPeriodAVG" resultType="double">
         SELECT

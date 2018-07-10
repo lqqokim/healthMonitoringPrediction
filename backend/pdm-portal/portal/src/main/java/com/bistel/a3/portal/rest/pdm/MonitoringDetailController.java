@@ -46,6 +46,17 @@ public class MonitoringDetailController {
     public Object overallminute(@PathVariable("fabId") String fabId, @PathVariable("paramId") Long paramId, @RequestParam("fromdate") Long fromdate, @RequestParam("todate") Long todate) {
         return traceDataService.getTraceData(fabId, paramId, fromdate, todate);
     }
+    @RequestMapping("params/{paramId}/paramfeature")
+    public Object paramFeature(@PathVariable("fabId") String fabId, @PathVariable("paramId") Long paramId, @RequestParam("fromdate") Long fromdate, @RequestParam("todate") Long todate) {
+        return traceDataService.getFeatureData(fabId, paramId, fromdate, todate);
+    }
+
+    @RequestMapping("params/{paramId}/paramfeaturewithrul")
+    public Object paramFeatureWithRUL(@PathVariable("fabId") String fabId, @PathVariable("eqpId") Long eqpId, @PathVariable("paramId") Long paramId,
+                                      @RequestParam("fromdate") Long fromdate, @RequestParam("todate") Long todate) {
+        return reportService.getFeatureDataWithRUL(fabId, eqpId, paramId, fromdate, todate);
+    }
+
 
     @RequestMapping("params/{paramId}/overallminutespec")
     public Object overallminutespec(@PathVariable("fabId") String fabId, @PathVariable("paramId") Long paramId, @RequestParam("fromdate") Long fromdate, @RequestParam("todate") Long todate) {

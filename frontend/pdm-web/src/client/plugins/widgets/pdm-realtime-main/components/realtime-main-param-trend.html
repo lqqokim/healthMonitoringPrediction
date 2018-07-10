@@ -16,19 +16,11 @@
                 </div>
 
                 <div class="chart-area" *ngIf="awData.datas.length > 0" (mouseover)="mouseover($event, awData, i, AWChart);">
-                    <realtime-main-chart [timeWindow]="600000" [shiftTime]="1000" [alarmSpec]="awData.alarm_spec" [warningSpec]="awData.warning_spec"
+                    <realtime-main-chart [timeWindow]="180000" [shiftTime]="1000" [alarmSpec]="awData.alarm_spec" [warningSpec]="awData.warning_spec"
                         [datas]="awData.datas"></realtime-main-chart>
                 </div>
             </div>
         </split-area>
     </split>
-    <wj-popup owner="#wjPopup" #chartPopup class="a3-global-modal-dialog pdm-eqp-param-analysis-popup">
-        <div class="a3-global-modal-content">
-            <div class="modal-body" #popupBody></div>
-            <div class="modal-footer">
-                <button class="btn btn-default" (click)="closePopup();">Close</button>
-            </div>
-        </div>
-    </wj-popup>
 
 </div>

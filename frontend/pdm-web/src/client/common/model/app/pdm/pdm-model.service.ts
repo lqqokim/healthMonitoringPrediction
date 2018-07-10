@@ -285,7 +285,6 @@ export class PdmModelService extends ModelCommonService {
 		});
 	}
 
-
 	getTrendMultipleWithRUL(plantId, areaId, eqpId, paramId, from, to) {
 		return this.GET({
 			uriPath: `pdm/fabs/${plantId}/eqps/${eqpId}/params/${paramId}/overall`,
@@ -295,6 +294,27 @@ export class PdmModelService extends ModelCommonService {
 			}
 		});
 	}
+
+
+	getTrendParamFeature(plantId, areaId, eqpId, paramId, from, to) {
+		return this.GET({
+			uriPath: `pdm/fabs/${plantId}/areas/${areaId}/eqps/${eqpId}/params/${paramId}/paramfeature`,
+			querystring: {
+				fromdate: from,
+				todate: to
+			}
+		});
+	}
+	getTrendParamFeatureWithRUL(plantId, areaId, eqpId, paramId, from, to) {
+		return this.GET({
+			uriPath: `pdm/fabs/${plantId}/areas/${areaId}/eqps/${eqpId}/params/${paramId}/paramfeaturewithrul`,
+			querystring: {
+				fromdate: from,
+				todate: to
+			}
+		});
+	}
+
 
 	getTrendMultipleSpec(plantId, areaId, eqpId, paramId, from, to) {
 		return this.GET({

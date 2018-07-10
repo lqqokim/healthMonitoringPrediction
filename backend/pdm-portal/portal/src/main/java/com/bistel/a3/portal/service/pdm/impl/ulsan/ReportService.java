@@ -728,6 +728,11 @@ public class ReportService implements com.bistel.a3.portal.service.pdm.IReportSe
         return null;
     }
 
+    @Override
+    public Object getFeatureDataWithRUL(String fabId, Long eqpId, Long paramId, Long fromdate, Long todate) {
+        return null;
+    }
+
 
     private void saveEqpAlarmTrx(String fabId, Long eqpId, Date from, Date to) {
         AlarmTrxMapper mapper = SqlSessionUtil.getMapper(sessions, fabId, AlarmTrxMapper.class);
