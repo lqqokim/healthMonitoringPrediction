@@ -1,8 +1,8 @@
 export interface ContitionType {
     fab: Fab;
     timePeriod: {
-        from: number,
-        to: number
+        fromDate: number,
+        toDate: number
     }
 }
 

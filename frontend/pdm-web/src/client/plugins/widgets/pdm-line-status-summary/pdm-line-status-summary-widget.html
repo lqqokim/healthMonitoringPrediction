@@ -1,7 +1,7 @@
 <div class="widget line-status-summary-container" #container>
     <widget-chart-condition
         [target]='targetName'
-        [timePeriod]='viewTimePriod'
+        [timePeriod]='condition.timePeriod'
     ></widget-chart-condition>
 
     <div class="chart-body div01">
@@ -16,7 +16,7 @@
                 <dt>
                     <i class="icon icon-nodata"></i>
                 </dt>
-                <dd class="message-title">No Data</dd>
+                <dd class="message-title">Error</dd>
             </dl>
         </div>
     </div>

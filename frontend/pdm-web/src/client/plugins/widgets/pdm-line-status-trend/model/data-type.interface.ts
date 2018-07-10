@@ -2,8 +2,8 @@ export interface ContitionType {
     fab: Fab;
     area?: Area;
     timePeriod: {
-        from: number,
-        to: number
+        fromDate: number,
+        toDate: number
     }
 }
 
