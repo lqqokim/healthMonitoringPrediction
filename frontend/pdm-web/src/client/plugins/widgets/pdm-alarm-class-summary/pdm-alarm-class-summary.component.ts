@@ -24,13 +24,8 @@ export class PdmAlarmClassSummaryComponent extends WidgetApi implements OnSetup,
 
     @ViewChild('donutChart') donutChart: DonutChartComponent;
     
-    private chartColorBase: Array<string> = [
-        '#4472c4',
-        '#ed7d31',
-        '#a5a5a5',
-        '#ffc000',
-        '#5b9bd5'
-    ];
+    //* 표 색상 배열 ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"]
+    private chartColorBase: Array<string> = d3.scale.category10().range();
 
     private chartColor: Array<IColorSet> = [];
 
