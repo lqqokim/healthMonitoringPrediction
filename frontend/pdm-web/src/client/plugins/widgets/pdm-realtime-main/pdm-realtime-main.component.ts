@@ -434,6 +434,7 @@ export class PdmRealTimeMainComponent extends WidgetApi implements OnSetup, OnDe
                 this.healthIndex = Math.round(this.healthIndex);
                 if(event.datas[i][1]>=event.alarm_spec){
                     this.type="alarm";
+                    this.rootcause="Unbalance";
                     break;
                 }else if(event.datas[i][1]>=event.warning_spec){
                     this.type="warning";
