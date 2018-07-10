@@ -18,7 +18,6 @@ import { WidgetChartConditionComponent } from './widget-chart-condition/widget-c
 import { DonutChartComponent } from './donut-chart/donutChart.component';
 import { TableComponent } from './ng2-table/table.component';
 import { StatusChangeComponent } from '../common/status-chart-canvas/status-change.component';
-import { WidgetViewTimeperiod } from './widget-chart-condition/widget-timeperiod.pipe';
 
 import { LineChartComponent }  from './line-chart/line-chart.component';
 
@@ -42,7 +41,6 @@ import { Ng2C3Component } from './ng2-c3/ng2-c3.component';
         TableComponent,
         WidgetChartConditionComponent,
         StatusChangeComponent,
-        WidgetViewTimeperiod,
         LineChartComponent,
         Ng2C3Component
     ],
@@ -56,7 +54,6 @@ import { Ng2C3Component } from './ng2-c3/ng2-c3.component';
         TableComponent,
         WidgetChartConditionComponent,
         StatusChangeComponent,
-        WidgetViewTimeperiod,
         LineChartComponent,
         Ng2C3Component
     ]

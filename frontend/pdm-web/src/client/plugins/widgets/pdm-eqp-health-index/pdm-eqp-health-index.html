@@ -1,0 +1,16 @@
+<div class="widget widget-pdm-eqp-health-index">
+    <widget-chart-condition
+		[target]='targetName'
+		[timePeriod]='timePeriod'
+	></widget-chart-condition>
+
+    <div class="chart-body div01" table>
+        <ng2-Table
+            [columns]="columns"
+            [data]="listData"
+            [paging]="paging"
+            [totalFilter]="totalFilter"
+            (cellClick)="cellClick($event)"
+        ></ng2-Table>
+    </div>
+</div>

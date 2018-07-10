@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, OnChanges, ViewEncapsulation, Input } from '@angular/core';
+import { Component, OnInit, OnDestroy, OnChanges, ViewEncapsulation, Input, Output, EventEmitter } from '@angular/core';
 import { PaginationHelper } from './pagination';
 
 //* 테이블 데이터 규격 (헤더)
@@ -27,6 +27,12 @@ export interface TableConfig {
     className?: Array<string>;      // 클래스 명
 }
 
+//* 테이블 셀 클릭 데이터 정보
+export interface TableCellInfo {
+    column: string;
+    row: {[key: string]: string | number };
+}
+
 @Component({
     moduleId: module.id,
     selector: 'ng2-Table',
@@ -40,6 +46,8 @@ export class TableComponent implements OnInit, OnChanges, OnDestroy {
     //* 테이블 내용 출력용 헤더, 본문 내용 값
     @Input() columns: Array<TableData>;
     @Input() data: Array<any>;
+
+    @Output() cellClick: EventEmitter<TableCellInfo> = new EventEmitter<TableCellInfo>();
     
     //* 페이징 표기 여부 (ture:보임 / false: 숨김)
     @Input() paging: boolean;
@@ -199,7 +207,9 @@ export class TableComponent implements OnInit, OnChanges, OnDestroy {
     }
     
     //* 테이블 셀 클릭 이벤트
-    public onCellClick(data: any): any {
-        // console.log(data);
+    public onCellClick(data: TableCellInfo): void {
+        if( this.cellClick ){
+            this.cellClick.emit(data);
+        }
     }
 }

@@ -24,13 +24,8 @@ export class PdmAlarmClassSummaryComponent extends WidgetApi implements OnSetup,
 
     @ViewChild('donutChart') donutChart: DonutChartComponent;
     
-    private chartColorBase: Array<IColorSet> = [
-        { name: 'Unblance', color: '#4472c4' },
-        { name: 'Misalignment', color: '#ed7d31' },
-        { name: 'Bearing', color: '#a5a5a5' },
-        { name: 'Lubrication', color: '#ffc000' },
-        { name: 'N/A', color: '#5b9bd5' }
-    ];
+    //* 표 색상 배열 ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"]
+    private chartColorBase: Array<string> = d3.scale.category10().range();
 
     private chartColor: Array<IColorSet> = [];
 
@@ -99,19 +94,30 @@ export class PdmAlarmClassSummaryComponent extends WidgetApi implements OnSetup,
 
     //* 레전드 재설정
     resetLegend(){
-        let row, color;
+        let
+            row: IDonutChartData,
+            color: IColorSet,
+            tmpColorData: {[key:string]: boolean} = {},
+            baseColorIdx: number = 0
+        ;
 
+        // 설정된 레전드 컬러값 삭제
         if( this.chartColor.length ){
             this.chartColor.splice(0, this.chartColor.length);
         }
 
+        // 설정 값 컬러 매핑
         for( row of this.chartData ){
-            for( color of this.chartColorBase ){
-                if( color.name === row.name ){
-                    this.chartColor.push(color);
-                    break;
-                }
-            }
+
+            // 중복된 컬러값은 건너 뜀
+            if( tmpColorData.hasOwnProperty(row.name) ){ continue; }
+            tmpColorData[row.name] = true;
+
+            // 중복되지 않은 컬러값으로 이름과 색상 매칭
+            this.chartColor.push({
+                name: row.name,
+                color: this.chartColorBase[baseColorIdx++]
+            });
         }
     }
 

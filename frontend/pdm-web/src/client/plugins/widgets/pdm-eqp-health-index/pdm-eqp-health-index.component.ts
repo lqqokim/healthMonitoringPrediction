@@ -1,7 +1,7 @@
 import { Component, ViewEncapsulation, OnDestroy } from '@angular/core';
 import { WidgetRefreshType, WidgetApi, OnSetup } from '../../../common';
-import { PdmAlarmHistoryService } from './pdm-alarm-history.service';
-import { TableData } from '../../common/ng2-table/table.component';
+import { PdmEqpHealthIndexService } from './pdm-eqp-health-index.service';
+import { TableData, TableCellInfo } from '../../common/ng2-table/table.component';
 import { ITimePeriod } from '../../common/widget-chart-condition/widget-chart-condition.component';
 import { WidgetConfigHelper, IConfigData } from '../../common/widget-config-helper/widget-config-helper';
 
@@ -20,21 +20,25 @@ export interface IReqDataFormat {
 
 @Component({
     moduleId: module.id,
-    selector: 'pdm-alarm-history',
-    templateUrl: 'pdm-alarm-history.html',
-    styleUrls: ['pdm-alarm-history.css'],
-    providers: [PdmAlarmHistoryService],
+    selector: 'pdm-eqp-health-index',
+    templateUrl: 'pdm-eqp-health-index.html',
+    styleUrls: ['pdm-eqp-health-index.css'],
+    providers: [PdmEqpHealthIndexService],
     encapsulation: ViewEncapsulation.None
 })
 
-export class PdmAlarmHistoryComponent extends WidgetApi implements OnSetup, OnDestroy {
+export class PdmEqpHealthIndex extends WidgetApi implements OnSetup, OnDestroy {
 
     public columns: Array<TableData> = [
-        {title: 'Time', name: 'Time' },
-        {title: 'EQP', name: 'EQP'},
-        {title: 'Param', name: 'Param'},
-        {title: 'Category', name: 'Category'},
-        {title: 'Fault Class', name: 'FaultClass'}
+        {title: 'Line', name: 'Line' },
+        {title: 'Equipment', name: 'Equipment' },
+        {title: 'Health Index', name: 'HealthIndex' },
+        {title: 'Logic 1', name: 'Logic1' },
+        {title: 'Logic 2', name: 'Logic2' },
+        {title: 'Logic 3', name: 'Logic3' },
+        {title: 'Logic 4', name: 'Logic4' },
+        {title: 'Alarm Count', name: 'AlarmCount'},
+        {title: 'Description', name: 'Description'}
     ];
 
     // public data:Array<any> = [
@@ -69,7 +73,7 @@ export class PdmAlarmHistoryComponent extends WidgetApi implements OnSetup, OnDe
     private confgHelper: WidgetConfigHelper;
     
     constructor(
-        private _service: PdmAlarmHistoryService
+        private _service: PdmEqpHealthIndexService
     ){
         super();
         this.confgHelper = new WidgetConfigHelper( this, this.getData.bind(this) );
@@ -83,6 +87,11 @@ export class PdmAlarmHistoryComponent extends WidgetApi implements OnSetup, OnDe
             this.confgHelper.setConfigData('DAY', undefined, 1);
         }
         this.confgHelper.setConfigInfo('init', this.getProperties());
+    }
+
+    //* 셀 클릭 정보
+    cellClick(data: TableCellInfo){
+        console.log( 'cellClick-data', data );
     }
 
     //* APPLY_CONFIG_REFRESH-config 설정 값, JUST_REFRESH-현 위젯 새로고침, SYNC_INCONDITION_REFRESH-위젯 Sync
@@ -111,19 +120,11 @@ export class PdmAlarmHistoryComponent extends WidgetApi implements OnSetup, OnDe
         this.targetName = configData.targetName;
         this.timePeriod = configData.timePeriod;
 
-        console.log('configData', configData);
-        console.log('this.timePeriod', this.timePeriod);
-
-        console.log(
-            moment(this.timePeriod.fromDate).format('YYYY-MM-DD HH:mm') +' ~ '+
-            moment(this.timePeriod.toDate).format('YYYY-MM-DD HH:mm')
-        )
-
         this._service.getListData({
             fabId: this.fabId,
             areaId: this.areaId,
-            fromDate: 1530284400000, //this.timePeriod.fromDate,
-            toDate: 1530370800000 //this.timePeriod.toDate
+            fromDate: this.timePeriod.fromDate,
+            toDate: this.timePeriod.toDate
         }).then((res: Array<IReqDataFormat>)=>{
             if( this.listData.length ){
                 this.listData.splice(0, this.listData.length);
@@ -154,11 +155,11 @@ export class PdmAlarmHistoryComponent extends WidgetApi implements OnSetup, OnDe
             }
 
             this.listData = [
-                {Time: '', EQP:'EQP34', Param:'Vibration1', Category:'Alarm', FaultClass: 'Unbalance'},
-                {Time: '', EQP:'EQP36', Param:'Temp', Category:'Alarm', FaultClass: 'N/A'},
-                {Time: '', EQP:'EQP34', Param:'Vibration1', Category:'Alarm', FaultClass: 'N/A'},
-                {Time: '', EQP:'EQP34', Param:'Pressure', Category:'Warning', FaultClass: 'N/A'},
-                {Time: '', EQP:'EQP34', Param:'Vibration1', Category:'Alarm', FaultClass: 'N/A'},
+                {Line: '', Equipment:'EQP34', HealthIndex:0.93, Logic1:0.11, Logic2:0.93, Logic3:0.15, Logic4:0.11, AlarmCount:3, Description:''},
+                {Line: '', Equipment:'EQP36', HealthIndex:0.91, Logic1:0.11, Logic2:0.91, Logic3:0.31, Logic4:0.21, AlarmCount:2, Description:''},
+                {Line: '', Equipment:'EQP34', HealthIndex:0.88, Logic1:0.88, Logic2:0.44, Logic3:0.22, Logic4:0.11, AlarmCount:4, Description:''},
+                {Line: '', Equipment:'EQP34', HealthIndex:0.83, Logic1:0.11, Logic2:0.83, Logic3:0.11, Logic4:0.22, AlarmCount:3, Description:''},
+                {Line: '', Equipment:'EQP34', HealthIndex:0.81, Logic1:0.22, Logic2:0.51, Logic3:0.22, Logic4:0.81, AlarmCount:1, Description:''},
             ];
 
             console.log('err', err);

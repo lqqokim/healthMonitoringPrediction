@@ -110,7 +110,7 @@ export class DonutChartComponent implements OnInit, OnChanges, OnDestroy {
 
         //* 위젯 본문, 상단 높이 알기위한 엘리먼트 셀렉트
         this.widgetBodyElem = $(this.currElem).parents('div.a3-widget-body').eq(0);
-        this.infoElem = $(this.currElem).parents('div[list]').siblings('div[info]').eq(0);
+        this.infoElem = $(this.currElem).parent().siblings('widget-chart-condition').children('.a3-chart-header').eq(0);
 
         this.onResize();
     }
@@ -180,10 +180,10 @@ export class DonutChartComponent implements OnInit, OnChanges, OnDestroy {
 
     //* 차트 리사이즈
     private onResize(): void {
-        const w = this.widgetBodyElem.width();
-        const h = this.widgetBodyElem.height() - this.infoElem.outerHeight();
+        const w: number = this.widgetBodyElem.width();
+        const h: number = this.widgetBodyElem.height() - this.infoElem.outerHeight();
         const minSize: number = Math.min( w, h );
-        const smallSizeClass = minSize < 600 ? 'small' : '';
+        const smallSizeClass: string = minSize < 600 ? 'small' : '';
 
         this.labelsPosition = ( w > h ?  'right' : 'bottom' );
         this.listElem.nativeElement.className = `list ${this.labelsPosition} ${smallSizeClass}`;
@@ -193,14 +193,17 @@ export class DonutChartComponent implements OnInit, OnChanges, OnDestroy {
         this.widgetSize.w = w;
         this.widgetSize.h = h;
 
+        // svg 엘리먼트 크기 조절
         this.svgElem
             .attr('width', this.widgetSize.w)
             .attr('height', this.widgetSize.h)
         ;
 
+        // svg 중심 좌표 설정
         this.centerPosition.x = (w*0.5) - (this.labelsPosition == 'right' ? (this.labelModeMargin) : 0);
         this.centerPosition.y = (h*0.5) - (this.labelsPosition == 'bottom' ? (this.labelModeMargin*0.25) : 0);
 
+        // 차트 그리기
         this.onDraw();
     }
 
@@ -383,7 +386,7 @@ export class DonutChartComponent implements OnInit, OnChanges, OnDestroy {
                     .attr('name', 'line2')
                     .attr('x', `0`)
                     .attr('dy', `${fontSize}`)
-                    .text('('+ parseFloat( (row.percent*100).toFixed(2) )+'%)') 
+                    .text(`(${row.count} / ${parseFloat( (row.percent*100).toFixed(2) )}%)`) 
                 ;
             }
             // 다시 그려야할 경우
