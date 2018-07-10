@@ -7,9 +7,7 @@ import com.bistel.a3.portal.dao.pdm.std.master.STDPartMapper;
 import com.bistel.a3.portal.dao.pdm.std.report.STDReportMapper;
 import com.bistel.a3.portal.dao.pdm.std.trace.STDTraceDataMapper;
 import com.bistel.a3.portal.dao.pdm.std.trace.STDTraceRawDataMapper;
-import com.bistel.a3.portal.domain.common.FilterCriteriaData;
-import com.bistel.a3.portal.domain.common.FilterTraceRequest;
-import com.bistel.a3.portal.domain.common.HeadDatas;
+import com.bistel.a3.portal.domain.common.*;
 import com.bistel.a3.portal.domain.pdm.*;
 import com.bistel.a3.portal.domain.pdm.db.*;
 import com.bistel.a3.portal.domain.pdm.enums.EuType;
@@ -746,6 +744,21 @@ public class TraceDataService implements ITraceDataService {
         STDReportMapper mapper = SqlSessionUtil.getMapper(sessions, fabId, STDReportMapper.class);
         List<BasicData> data = mapper.selectData(paramId, new Date(fromdate), new Date(todate));
         return changeList(data);
+    }
+    public List<List<Object>> getFeatureData(String fabId, Long paramId, Long fromdate, Long todate) {
+        STDReportMapper mapper = SqlSessionUtil.getMapper(sessions, fabId, STDReportMapper.class);
+        List<FeatureTrx> datas = mapper.selectFeatureData(paramId, new Date(fromdate), new Date(todate));
+
+        List<List<Object>> retValue=new ArrayList<>();
+        for(FeatureTrx d:datas){
+            retValue.add(Arrays.asList(d.getEnd_dtts(),d.getMedian()));
+        }
+
+        return retValue;
+//        HeadDataFormat headDataFormat =HashToHeadData.getReault(datas);
+//        ReplyFormat replyFormat = new ReplyFormat();
+//        replyFormat.setDatas(headDataFormat);
+//        return replyFormat;
     }
 
     private List<List<Object>> changeList(List<BasicData> data) {

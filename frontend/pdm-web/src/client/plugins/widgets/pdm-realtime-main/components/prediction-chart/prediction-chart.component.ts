@@ -1,11 +1,12 @@
 //Angular
-import { Component, OnInit, OnChanges, Input, ViewEncapsulation, ViewChild } from '@angular/core';
+import { Component, OnInit, OnChanges, Input, ViewEncapsulation, ViewChild, Output,EventEmitter } from '@angular/core';
 
 //MI
 import { PdmModelService } from './../../../../../common';
 import { AfterViewInit } from '@angular/core/src/metadata/lifecycle_hooks';
 import { PdmCommonService } from './../../../../../common/service/pdm-common.service';
 import { Translater } from '../../../../../sdk';
+// import { EventEmitter } from 'events';
 
 @Component({
     moduleId: module.id,
@@ -27,6 +28,7 @@ export class PredictionChartComponent implements OnInit, OnChanges, AfterViewIni
     @Input() eqpName;
     @Input() value;
     @Input() warning;
+    @Output() remain: EventEmitter<any> = new EventEmitter();
     @ViewChild("trendChartPlot") trendChartPlot: any;
 
     //ruls=[{priod:30,day:5},{priod:7,day:10},{priod:3,day:20}];
@@ -72,16 +74,16 @@ export class PredictionChartComponent implements OnInit, OnChanges, AfterViewIni
             // if(this.type=="warning" && this.value>=this.warning){
             // if(this.type=="alarm"){ //temp
             if (this.type == "trend") {
-                this._pdmModelService.getTrendMultiple(this.plantId, this.areaId, this.eqpId, this.paramId, this.fromDate, this.toDate).then(result => {
+                this._pdmModelService.getTrendParamFeature(this.plantId, this.areaId, this.eqpId, this.paramId, this.fromDate, this.toDate).then(result => {
                     this.trendData = [result];
                     // this.trendConfig = this.getTrendDataConfig({});
                     this.getTrendSpec();
 
                 })
             } else {
-                this._pdmModelService.getTrendMultipleWithRUL(this.plantId, this.areaId, this.eqpId, this.paramId, this.fromDate, this.toDate).then(result => {
+                this._pdmModelService.getTrendParamFeatureWithRUL(this.plantId, this.areaId, this.eqpId, this.paramId, this.fromDate, this.toDate).then(result => {
                     this.ruls = [{ period: 3, day: result.day3 }, { period: 7, day: result.day7 }, { period: 14, day: result.day14 }]
-
+                    this.remain.emit({remain:result.day7});
                     this.trendData = [result.data];
 
                     if (result.day3 == null && result.day7 == null && result.day14 == null) {

@@ -679,6 +679,12 @@ public class TraceDataService implements com.bistel.a3.portal.service.pdm.ITrace
     public Object getEventSimulationByConditionValue(String fabId,Long paramId,Long fromdate,Long todate,Long conditionParamId,Float conditonValue,String eventType,List<String> adHocFunctions,Integer adHocTime){
         return null;
     }
+
+    @Override
+    public Object getFeatureData(String fabId, Long paramId, Long fromdate, Long todate) {
+        return null;
+    }
+
     private List<List<Object>> changeList(List<BasicData> data) {
         List<List<Object>> result = new ArrayList<>();
         for(BasicData d : data) {

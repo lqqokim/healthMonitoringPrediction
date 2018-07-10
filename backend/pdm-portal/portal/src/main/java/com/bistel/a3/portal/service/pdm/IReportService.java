@@ -79,4 +79,6 @@ public interface IReportService {
     List<STDTraceData> getTraceData(String fabId, Long eqpId, Date fromdate, Date todate, String normalizeType);
 
     Set<Long> selectExpectedAlarmWarningEqps(String fab, Date from, Date to);
+
+    Object getFeatureDataWithRUL(String fabId, Long eqpId, Long paramId, Long fromdate, Long todate);
 }

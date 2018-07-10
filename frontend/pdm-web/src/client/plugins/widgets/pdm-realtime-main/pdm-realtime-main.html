@@ -15,7 +15,7 @@
                     </h3>
                 </td>
                 <td class="alarm">
-                    <h3># of Today's Alarm:
+                    <h3># of Alarm:
                         <span class="label " [ngClass]="{'label-danger':alarmCount>0,'label-info':alarmCount==0}">{{alarmCount}}</span>
                     </h3>
                 </td>
@@ -76,13 +76,13 @@
                 </div>
             </div>
             <div class="fault-prediction">
-								<div class="group-title">Fault Prediction</div>
+								<div class="group-title">Fault Prediction [RUL:{{remain}}d]</div>
                 <div class="chart">
                     <div class="col-sm-6 height-100">
                             <prediction-chart [plantId]="fabId" [areaId]="1" [eqpId]="1" [paramId]="paramId" [fromDate]="fromDate" [toDate]="toDate" [type]="'trend'" ></prediction-chart>
                     </div>
                     <div class="col-sm-6 height-100">
-                            <prediction-chart [plantId]="fabId" [areaId]="1" [eqpId]="1" [paramId]="paramId" [fromDate]="fromDate" [toDate]="toDate"  [type]="'predic'"></prediction-chart>
+                            <prediction-chart [plantId]="fabId" [areaId]="1" [eqpId]="1" [paramId]="paramId" [fromDate]="fromDate" [toDate]="toDate"  [type]="'predic'" (remain)="onRemain($event)"></prediction-chart>
                     </div>
                     
                 </div>

@@ -52,4 +52,5 @@ public interface ITraceDataService {
 
     Object getEventSimulationByConditionValue(String fabId,Long paramId,Long fromdate,Long todate,Long conditionParamId,Float conditonValue,String eventType,List<String> adHocFunctions,Integer adHocTime);
 
+    Object getFeatureData(String fabId, Long paramId, Long fromdate, Long todate);
 }

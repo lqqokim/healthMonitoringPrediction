@@ -69,6 +69,7 @@ public class ReportService implements IReportService {
     @Autowired
     private ResourceLoader resourceLoader;
 
+
     @Value("${fab.list}")
     private String fabList;
 
@@ -664,6 +665,20 @@ public class ReportService implements IReportService {
         result.setDay14(calculateRegression(fabId, paramId, todate, result.getAlarm(), 14));
         return result;
     }
+    public Overall getFeatureDataWithRUL(String fabId, Long eqpId, Long paramId, Long fromdate, Long todate) {
+        Overall result = new Overall();
+
+        OverallSpec spec = getOverallSpec(fabId, paramId);
+        List<List<Object>> data = overallService.getFeatureData(fabId, paramId, fromdate, todate);
+        result.setAlarm(spec.getAlarm());
+        result.setWarn(spec.getWarn());
+        result.setData(data);
+
+//        result.setDay3(calculateRegression(fabId, paramId, todate, result.getAlarm(), 3));
+        result.setDay7(calculateRegressionByFeature(fabId, paramId, todate, result.getAlarm(), 7));
+//        result.setDay14(calculateRegression(fabId, paramId, todate, result.getAlarm(), 14));
+        return result;
+    }
 
     private Long calculateRegression(String fabId, Long paramId, Long todate, Double alarm, Integer regressionDays) {
         Date to = new Date(todate);
@@ -683,7 +698,26 @@ public class ReportService implements IReportService {
         double x = (alarm - intercept)/slope;
         return TimeUnit.DAYS.convert((long) x - to.getTime(), TimeUnit.MILLISECONDS);
     }
+    private Long calculateRegressionByFeature(String fabId, Long paramId, Long todate, Double alarm, Integer regressionDays) {
+        Date to = new Date(todate);
+        Date from = DateUtils.addDays(to, regressionDays * -1);
 
+        List<List<Object>>  datas  =   overallService.getFeatureData(fabId, paramId, from.getTime(), to.getTime());
+
+        SimpleRegression regression = new SimpleRegression();
+        for(List<Object> record : datas) {
+            regression.addData(((Date) record.get(0)).getTime(),Double.valueOf( record.get(1).toString()));
+        }
+
+
+
+        double intercept = regression.getIntercept();
+        double slope = regression.getSlope();
+        if(Double.isNaN(intercept) || Double.isNaN(slope) || slope <=0) return null;
+
+        double x = (alarm - intercept)/slope;
+        return TimeUnit.DAYS.convert((long) x - to.getTime(), TimeUnit.MILLISECONDS);
+    }
 
 
     public List<ReportAlarm> getAlarms(String fabId, Long fromdate, Long todate) {

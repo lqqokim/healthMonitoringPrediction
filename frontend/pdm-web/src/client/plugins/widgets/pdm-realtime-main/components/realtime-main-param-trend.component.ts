@@ -1,4 +1,4 @@
-import { Component, ViewEncapsulation, OnInit, OnChanges, Input, EventEmitter, Output, ViewChild, ElementRef ,OnDestroy} from '@angular/core';
+import { Component, ViewEncapsulation, OnInit, OnChanges, Input, EventEmitter, Output, ViewChild, ElementRef, OnDestroy } from '@angular/core';
 import { PdmModelService } from '../../../../common';
 
 import * as wjcInput from 'wijmo/wijmo.input';
@@ -18,7 +18,7 @@ import { FabAreaEqpParamTreeComponent } from '../../../common/fab-area-eqp-param
     styleUrls: ['./realtime-main-param-trend.css'],
     encapsulation: ViewEncapsulation.None
 })
-export class RealtimeMainParamTrendComponent implements OnInit, OnChanges,OnDestroy {
+export class RealtimeMainParamTrendComponent implements OnInit, OnChanges, OnDestroy {
     @ViewChild('chartPopup') chartPopup: wjcInput.Popup;
     @ViewChild('popupBody') popupBody: ElementRef;
     @ViewChild('AWChart') AWChart: any;
@@ -30,8 +30,8 @@ export class RealtimeMainParamTrendComponent implements OnInit, OnChanges,OnDest
     @Output() showContext: EventEmitter<any> = new EventEmitter();
     @Output() showParamContext: EventEmitter<any> = new EventEmitter();
     @Output() changeRefresh: EventEmitter<any> = new EventEmitter();
-    @Output() selectParam:EventEmitter<any> = new EventEmitter();
-    @Output() receiveData:EventEmitter<any> = new EventEmitter();
+    @Output() selectParam: EventEmitter<any> = new EventEmitter();
+    @Output() receiveData: EventEmitter<any> = new EventEmitter();
 
     normalizeType: string;
 
@@ -67,9 +67,9 @@ export class RealtimeMainParamTrendComponent implements OnInit, OnChanges,OnDest
     private _prevPanel: any;
     private _nextPanel: any;
 
-    preMessageId=null;
+    preMessageId = null;
 
-    paramDatas:{eqpName:string,paramName:string,paramId:number,config:{},eventLines:any[],alarm_spec:number,warning_spec:number,chartEvent:{},datas:any[]}[]=[];
+    paramDatas: { eqpName: string, paramName: string, paramId: number, config: {}, eventLines: any[], alarm_spec: number, warning_spec: number, chartEvent: {}, datas: any[] }[] = [];
     windowSize = 60;//sec
 
     constructor(
@@ -98,7 +98,7 @@ export class RealtimeMainParamTrendComponent implements OnInit, OnChanges,OnDest
             this._getDatas();
         }
     }
-    ngOnDestroy(){
+    ngOnDestroy() {
         this.resetMonitoring();
     }
 
@@ -137,11 +137,11 @@ export class RealtimeMainParamTrendComponent implements OnInit, OnChanges,OnDest
                     animation: {
                         speed: 2000
                     }
-                    
+
                 }
-                
+
             },
-            series: [],            
+            series: [],
             axes: {
                 xaxis: {
                     // min: this.timePeriod.from,
@@ -193,92 +193,104 @@ export class RealtimeMainParamTrendComponent implements OnInit, OnChanges,OnDest
     }
 
 
-    resetMonitoring(){
-        let message={};
-        message['parameters']={};
-        message['parameters']['parameterIds']=[];
+    resetMonitoring() {
+        let message = {};
+        message['parameters'] = {};
+        message['parameters']['parameterIds'] = [];
         message['parameters']['fabId'] = this.tree.selectedFab.fabId;
 
-        this.paramDatas=[];
+        this.paramDatas = [];
 
-        this.preMessageId = this._stompService.send(this.preMessageId,'realtime_param',message,payload => {
+        this.preMessageId = this._stompService.send(this.preMessageId, 'realtime_param', message, payload => {
         });
     }
 
-    requestMonitoring(){
+    requestMonitoring() {
         let node = this.tree.getSelectedNodes();
         let parameters = [];
-        let eqpIds =[];
+        let eqpIds = [];
         for (let index = 0; index < node.length; index++) {
             const element = node[index];
-            if(element.nodeType=='parameter'){
+            if (element.nodeType == 'parameter') {
                 parameters.push(element.paramId);
                 eqpIds.push(element.eqpId);
             }
-            
+
         }
-        let message={};
-        message['parameters']={};
-        message['parameters']['parameterIds']=parameters;
+        let message = {};
+        message['parameters'] = {};
+        message['parameters']['parameterIds'] = parameters;
         message['parameters']['fabId'] = this.tree.selectedFab.fabId;
 
-        this.selectParam.emit({fabId:this.tree.selectedFab.fabId,parameters:parameters,eqpIds:eqpIds});
+        this.selectParam.emit({ fabId: this.tree.selectedFab.fabId, parameters: parameters, eqpIds: eqpIds });
 
-        this.paramDatas=[];
+        this.paramDatas = [];
 
-        this.preMessageId = this._stompService.send(this.preMessageId,'realtime_param',message,payload => {
+        this.preMessageId = this._stompService.send(this.preMessageId, 'realtime_param', message, payload => {
             //this.serverResponse = payload.outputField;
             console.log(payload);
-            let isFind = false; //기존 Chart에 있나 Find
-            for(let i=0;i<this.paramDatas.length;i++){
-                if(this.paramDatas[i].paramId==payload.reply.paramId){
-                    isFind = true;
-                    let seriesData = this.paramDatas[i].datas[0];
-                    if(seriesData.length>0){
-                        seriesData=seriesData.concat(payload.reply.datas);
-                        
-    
-                        // let endTime = seriesData[seriesData.length-1][0];
-                        // let startTime = endTime - this.windowSize*1000;
-                        // for(let j=0;j<seriesData.length;j++){
-                        //     let dataTime = seriesData[j][0];
-                        //     if(dataTime>startTime){
-                        //         if(j>0){
-                        //             seriesData.splice(0,j);
-                        //         }
-    
-                        //         break;
-                        //     }
-                        // }
-                    }else{
-                        seriesData = payload.reply.datas;
+            try {
+
+                let isFind = false; //기존 Chart에 있나 Find
+                for (let i = 0; i < this.paramDatas.length; i++) {
+                    if (this.paramDatas[i].paramId == payload.reply.paramId) {
+                        isFind = true;
+                        let seriesData = this.paramDatas[i].datas[0];
+                        if (seriesData.length > 0) {
+                            seriesData = seriesData.concat(payload.reply.datas);
+
+
+                            // let endTime = seriesData[seriesData.length-1][0];
+                            // let startTime = endTime - this.windowSize*1000;
+                            // for(let j=0;j<seriesData.length;j++){
+                            //     let dataTime = seriesData[j][0];
+                            //     if(dataTime>startTime){
+                            //         if(j>0){
+                            //             seriesData.splice(0,j);
+                            //         }
+
+                            //         break;
+                            //     }
+                            // }
+                        } else {
+                            seriesData = payload.reply.datas;
+                        }
+
+                        this.paramDatas[i].datas[0] = seriesData;
+
+
+                        this.paramDatas[i].datas = this.paramDatas[i].datas.concat();
+                        this.paramDatas[i].alarm_spec = payload.reply.alarm_spec;
+                        this.paramDatas[i].warning_spec = payload.reply.warning_spec;
+                        break;
                     }
-                   
-                    this.paramDatas[i].datas[0] = seriesData;
-
-
-                    this.paramDatas[i].datas=this.paramDatas[i].datas.concat();
-                    this.paramDatas[i].alarm_spec = payload.reply.alarm_spec;
-                    this.paramDatas[i].warning_spec = payload.reply.warning_spec;
-                    break;
                 }
+                if (!isFind) {
+                    let paramData = {
+                        eqpName: payload.reply.eqpName, paramName: payload.reply.paramName,
+                        paramId: payload.reply.paramId, config: this.getTrendChartConfig('AW'), eventLines: [],
+                        alarm_spec: payload.reply.alarm_spec, warning_spec: payload.reply.warning_spce, chartEvent: {},
+                        datas: [payload.reply.datas]
+                    };
+                    this.paramDatas.push(paramData);
+                }
+                console.log(this.paramDatas);
+                this.receiveData.emit(payload.reply);
+            } catch (err) {
+                console.log(err);
             }
-            if(!isFind){
-                let paramData = {eqpName:payload.reply.eqpName,paramName:payload.reply.paramName,paramId:payload.reply.paramId,config:this.getTrendChartConfig('AW'),eventLines:[],alarm_spec:payload.reply.alarm_spec,warning_spec:payload.reply.warning_spce,chartEvent:{},datas:[payload.reply.datas]};
-                this.paramDatas.push(paramData);
-            }
-            this.receiveData.emit(payload.reply);
 
-        // datas = [];
-        // for(let i=0;i<100;i++){
-        //     datas.push([startDate+i*1000,Math.random()]);
-        // }
-            
+
+            // datas = [];
+            // for(let i=0;i<100;i++){
+            //     datas.push([startDate+i*1000,Math.random()]);
+            // }
+
         });
     }
 
     _getDatas(): void {
-       
+
 
         // this.paramDatas =[];
         // let datas = [];
@@ -472,11 +484,11 @@ export class RealtimeMainParamTrendComponent implements OnInit, OnChanges,OnDest
         //                         let paramData = {eqpName:eqps[i],paramName:string,paramId:number,config:{},eventLines:any[],chartEvent:{},datas:any[]};
         //                         this.paramDatas.push(paramData);
         //                     }
-                            
+
         //                 }).catch(err=>{
         //                     console.log(err);
         //                 });
-                        
+
         //             }
 
         //             // Promise.all(promises)
@@ -502,7 +514,7 @@ export class RealtimeMainParamTrendComponent implements OnInit, OnChanges,OnDest
         //             //         // }
 
         //             //         // this.alarmWarningDatas = alarmWarningDatas;
-                            
+
         //             //         console.log('[Realtime] alarmWarningDatas', this.alarmWarningDatas);
 
         //             //         setTimeout(() => {
@@ -879,7 +891,7 @@ export class RealtimeMainParamTrendComponent implements OnInit, OnChanges,OnDest
             });
     }
 
- 
+
     onChartClick(event: any, item: EqpTraceI.AWTraceDataType | EqpTraceI.NWTraceDataType, index: number, chart: BistelChartComponent): void {
         if (this.isParamContext) { // Open Context
             this.isParamContext = false;
