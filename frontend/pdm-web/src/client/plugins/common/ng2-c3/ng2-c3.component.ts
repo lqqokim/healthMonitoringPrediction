@@ -18,7 +18,7 @@ declare var c3:any;
   selector: 'ng2-c3',
   template: ``,
   encapsulation: ViewEncapsulation.None,
-  inputs:['data', 'chartOptions', 'configs'],
+  inputs:['data', 'chartOptions'],
   styles:[`.ng2-c3{ display:block;}`] // This is required for proper positioning of tooltip
 })
 export class Ng2C3Component implements OnChanges {
@@ -27,7 +27,6 @@ export class Ng2C3Component implements OnChanges {
   private data : any; // Configuration for series to be used for generating C3 has to be here
   private chartOptions:any // Includes all the configurations for the chart and also individual chart configurations
   private element : HTMLElement; // Element to which the chart has to be attached to
-  private configs:any;
 
   // Below configs have been captured from C3 Reference Doc's Need to be updated if in case c3 includes new options
   private c3Configs : Array<string> = ['axis', 'tooltip', 'grid', 'legend', 'zoom', 'regions', 'subchart','point'];
@@ -48,7 +47,7 @@ export class Ng2C3Component implements OnChanges {
     this.element.className += " ng2-c3";
   }
 
-  private __render( inputData:any,  chartOptionsData:any, chartConfigsData:any) : void {
+  private __render( inputData:any,  chartOptionsData:any) : void {
     let _this : Ng2C3Component = this;
     if(this.isValid(inputData)) {
 
@@ -65,9 +64,9 @@ export class Ng2C3Component implements OnChanges {
        * Individual options are parsed and set in c3InputData Json
        * to be provided to c3
        */
-      if(this.isValid(chartConfigsData)) {
-        this.updateIfValidInput(chartConfigsData, c3InputData,  this.c3Configs )
-      }
+      // if(this.isValid(chartConfigsData)) {
+      //   this.updateIfValidInput(chartConfigsData, c3InputData,  this.c3Configs )
+      // }
 
       /**
        * Chart Configuration could have multiple Options
@@ -75,9 +74,9 @@ export class Ng2C3Component implements OnChanges {
        * Some callback initializers like OnInit, Onrendered, OnMouseOver, OnMouseOut
        *  
        **/
-      if(this.isValid(chartOptionsData)) {
-        this.updateIfValidInput(chartOptionsData, c3InputData, this.c3Options);
-      }
+      // if(this.isValid(chartOptionsData)) {
+      this.updateIfValidInput(chartOptionsData, c3InputData);
+      // }
 
       /**
        * Should find a way to check for proper inputs
@@ -92,7 +91,6 @@ export class Ng2C3Component implements OnChanges {
        */
       c3Chart.generate(c3InputData); // Generates the C3 chart for the given configuration and places it inside the directive's element.
     }
-
   }
 
   //A utility method to check if a provided value is valid
@@ -122,19 +120,16 @@ export class Ng2C3Component implements OnChanges {
    *  Updates the  output map if input is present in config
    *  skips the field if the given input is not present in config map
    *  */ 
-  private updateIfValidInput(inputMap: any, outputMap: any,  config: Array<string>) {
-     for(let key in inputMap) {
-          let isValidOption = config.indexOf(key);
-          if(isValidOption >= 0) {          
-            outputMap[key] = inputMap[key];
-          }
-        }
+  private updateIfValidInput(inputMap: any, outputMap: any) {
+    for(let key in inputMap) {
+      outputMap[key] = inputMap[key];
+    }
   }
 
   //Checks for the changes made in the data and re-renders the charts accordingly
   ngOnChanges( changes: { [propertyName: string]: SimpleChange } ): void {
     try {
-      this.__render(this.data, this.chartOptions, this.configs);
+      this.__render(this.data, this.chartOptions);
     } catch(err) {
       console.log(err);
     }
