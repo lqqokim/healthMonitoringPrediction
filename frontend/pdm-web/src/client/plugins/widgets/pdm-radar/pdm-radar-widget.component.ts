@@ -95,20 +95,6 @@ export class PdmRadarWidgetComponent extends WidgetApi implements OnSetup, OnDes
         });
     }
 
-    bindOnScroll(): void {
-        document.getElementById('onscroll').addEventListener('scroll', (ev: any) => {
-            console.log('scroll');
-            let drilldownMenu: any = $('.a3p-popover-drilldown-menu');
-
-            if (drilldownMenu.length === 1) {
-                let contextId: any = drilldownMenu[0].id;
-                $(`#${contextId}`).remove();
-            }
-        });
-
-        window.addEventListener('scroll', function (evt) { console.log('window scroll', evt) });
-    }
-
     covertDateFormatter(timestamp): string {
         const date = new Date(timestamp);
         return `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`;

@@ -34,12 +34,11 @@
 				</div>-->
     </div>
     <div class="pdm-radar-column">
-        <div class="alarm-warning-variation clearfix">
+        <div class="alarm-warning-variation clearfix" (scroll)="onScroll($event);">
             <alarm-warning-variation #AWVComponent
                 id="onscroll"
                 [condition]="condition" 
                 [fullScreen]="isFull"
-                (onScroll)="onScroll($event)"
                 (showContext)="showContext($event)" 
                 (showParamContext)="showParamContext($event)"
                 (countAlarmWarning)="countAlarmWarning($event);"

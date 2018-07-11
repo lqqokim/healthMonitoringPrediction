@@ -109,7 +109,7 @@
 .widget-pdm-radar alarm-warning-variation {
     display: block;
     height: 100%;
-    overflow-y: auto;
+    /* overflow-y: auto; */
 }
 
 .pdm-radar-column {
@@ -217,6 +217,7 @@
 .widget-pdm-radar .alarm-warning-variation {
     /* height: 33.333333333%; */
     height: 100%;
+    overflow: scroll;
 }
 
 /* Charts Stasus Class */

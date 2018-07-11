@@ -27,7 +27,6 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
     @Output() showParamContext: EventEmitter<any> = new EventEmitter();
     @Output() endLoading: EventEmitter<any> = new EventEmitter();
     @Output() countAlarmWarning: EventEmitter<any> = new EventEmitter();
-    @Output() onScroll: EventEmitter<any> = new EventEmitter();
 
     trendParamId: any = "";
     selectedItem: any;
@@ -75,11 +74,10 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
     temp: number = 0;
 
     paramSelected = false;
+    paramClickEvent;
 
     constructor(
-        private _pdmModelService: PdmModelService,
-        private _pdmRadarService: PdmRadarService,
-        private _chRef: ChangeDetectorRef,
+        private _pdmRadarService: PdmRadarService
     ) {
 
     }
@@ -88,10 +86,6 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
         // this.alarmWarningDatas = this.getSampleData("AW");
         // this.B5Datas = this.getSampleData("B5");
         // this.G5Datas = this.getSampleData("G5");
-    }
-
-    onscroll(ev: any) {
-        this.onScroll.emit(ev);
     }
 
     ngOnChanges(changes: SimpleChanges) {
@@ -449,7 +443,7 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
                     });
 
                     let avgDaily: number;
-                    if(param.avgDaily > 1) {
+                    if (param.avgDaily > 1) {
                         avgDaily = 1;
                     } else {
                         avgDaily = param.avgDaily;
@@ -461,7 +455,7 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
                     });
 
                     let avgWithAW: number;
-                    if(param.avgWithAW > 1) {
+                    if (param.avgWithAW > 1) {
                         avgWithAW = 1;
                     } else {
                         avgWithAW = param.avgWithAW;
@@ -490,7 +484,7 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
                 let maxParam;
 
                 for (let i = 0; i < params.length; i++) {
-                    try{
+                    try {
                         if (maxAWwithAvg === params[i].avgWithAW) {
                             maxParam = params[i];
                             details = {
@@ -505,7 +499,7 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
 
                             break;
                         }
-                    }catch(err){
+                    } catch (err) {
                         console.log(err);
                     }
                 }
@@ -635,7 +629,7 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
                     });
 
                     let avgSpec: number;
-                    if(param.avgSpec > 1) {
+                    if (param.avgSpec > 1) {
                         avgSpec = 1
                     } else {
                         avgSpec = param.avgSpec;
@@ -647,7 +641,7 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
                     });
 
                     let avgDaily: number;
-                    if(param.avgDaily > 1) {
+                    if (param.avgDaily > 1) {
                         avgDaily = 1
                     } else {
                         avgDaily = param.avgDaily;
@@ -679,7 +673,7 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
                 let details: any = {};
 
                 for (let i = 0; i < params.length; i++) {
-                    try{
+                    try {
                         if (maxRatioVariation === params[i].avgDaily - params[i].avgSpec) {
                             let minMaxRatioVariation = maxRatioVariation;
                             if (maxRatioVariation != 0) {
@@ -697,7 +691,7 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
 
                             break;
                         }
-                    }catch(err){
+                    } catch (err) {
                         console.log(err);
                     }
                 }
@@ -800,7 +794,7 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
                     });
 
                     let avgSpec: number;
-                    if(param.avgSpec > 1) {
+                    if (param.avgSpec > 1) {
                         avgSpec = 1
                     } else {
                         avgSpec = param.avgSpec;
@@ -812,7 +806,7 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
                     });
 
                     let avgDaily: number;
-                    if(param.avgDaily > 1) {
+                    if (param.avgDaily > 1) {
                         avgDaily = 1
                     } else {
                         avgDaily = param.avgDaily;
@@ -842,7 +836,7 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
                 let details: any = {};
 
                 for (let i = 0; i < params.length; i++) {
-                    try{
+                    try {
                         if (params[i].avgDaily != null && params[i].avgSpec != null && minRatioVariation === params[i].avgDaily - params[i].avgSpec) {
                             let minMaxRatioVariation = minRatioVariation;
                             if (minMaxRatioVariation != 0) {
@@ -859,7 +853,7 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
 
                             break;
                         }
-                    }catch(err){
+                    } catch (err) {
                         console.log(err);
                     }
                 }
@@ -913,9 +907,9 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
         if (val) {
             let split = val.toString().split('.');
             let slice;
-            if(split.length==2){
-                slice= split[1].slice(0, num);
-            }else{
+            if (split.length == 2) {
+                slice = split[1].slice(0, num);
+            } else {
                 return val;
             }
 
@@ -1003,6 +997,10 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
         this.appendTrendChartEl(type, index);
     }
 
+    clickRadarChart(event: MouseEvent): void {
+        this.paramClickEvent = event;
+    }
+
     onParamClick(type: string, eqpName: string, eqpId: any, paramData: any, index: number, isInfo?: string): void {
         this.isParamContext = true;
         this.trendShow = true;
@@ -1042,38 +1040,40 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
         // }
 
         // this.trendParamId = null;
+        console.log('radar event', this.paramClickEvent);
 
-        if (this.selectedItem) {
-            this.showParamContext.emit({
-                selectedItem: this.selectedItem,
-                timePeriod: this.timePeriod,
-                type: type,
-                eqpName: eqpName,
-                eqpId: eqpId,
-                paramData: paramData,
-                event: event,
-                index: index,
-                flag: isInfo
-            });
-        }
+        setTimeout(() => {
+            if (this.selectedItem) {
+                this.showParamContext.emit({
+                    selectedItem: this.selectedItem,
+                    timePeriod: this.timePeriod,
+                    type: type,
+                    eqpName: eqpName,
+                    eqpId: eqpId,
+                    paramData: paramData,
+                    event: this.paramClickEvent,
+                    index: index,
+                    flag: isInfo
+                });
+            }
 
-        if (isInfo !== 'isInfo') {
-            setTimeout(() => {
-                this.trendParamId = paramData.data.paramId;
-                this.trendEqpName = eqpName;
-                this.trendParamName = paramData.data.paramName;
-                this.trendEqpId = eqpId;
-                this.trendPlantId = this.fabId;
-                this.trendFromDate = this.condition.timePeriod.from;
-                this.trendToDate = this.condition.timePeriod.to;
-                this.trendAreaId = null;
-                this.trendValue = paramData.data.avgWithAW;
-                this.trendSpecWarning = paramData.data.warn;
-            });
+            if (isInfo !== 'isInfo') {
+                setTimeout(() => {
+                    this.trendParamId = paramData.data.paramId;
+                    this.trendEqpName = eqpName;
+                    this.trendParamName = paramData.data.paramName;
+                    this.trendEqpId = eqpId;
+                    this.trendPlantId = this.fabId;
+                    this.trendFromDate = this.condition.timePeriod.from;
+                    this.trendToDate = this.condition.timePeriod.to;
+                    this.trendAreaId = null;
+                    this.trendValue = paramData.data.avgWithAW;
+                    this.trendSpecWarning = paramData.data.warn;
+                });
 
-            this.appendTrendChartEl(type, index);
-
-        }
+                this.appendTrendChartEl(type, index);
+            }
+        }, 300);
     }
 
     appendTrendChartEl(type: string, index: number): void {
@@ -1218,7 +1218,7 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
             }
 
             this.initActive();
-        } 
+        }
     }
 
     closeTrendChart(): void {

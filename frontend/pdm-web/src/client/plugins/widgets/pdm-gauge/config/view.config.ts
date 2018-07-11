@@ -2,7 +2,8 @@ import {
     ViewApi,
     ConditionType,
     Condic,
-    ConditionValueType
+    ConditionValueType,
+    Formcfg
 } from '../../../../common';
 
 export class ViewConfig extends ViewApi {

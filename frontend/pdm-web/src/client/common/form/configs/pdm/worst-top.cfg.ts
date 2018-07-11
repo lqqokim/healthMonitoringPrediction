@@ -32,7 +32,7 @@ export const worst_top = (newConfig: FormConfigType = {}): FormConfigType => {
         },
         component: TextboxForm,
         config: {
-            title: "Jeopardy Worst Top",
+            title: "Worst Top",
             // unit: '%',
             style: 'threshold',
             placeholder: '',

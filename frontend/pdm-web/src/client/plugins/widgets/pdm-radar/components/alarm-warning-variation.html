@@ -1,4 +1,4 @@
-<div class="container alarm" id="scroll2" (scroll)="onscroll($event);">
+<div class="container alarm">
     <div class="alarm-warning-type clearfix" id="radar-alarm">
         <!-- 알람타입에 따라 아래 div class 변경해줘야 함. alram-type-danger, alram-type-warning, alram-type-bad, alram-type-good -->
         <div class="alarm-title alarm-warning">
@@ -19,7 +19,11 @@
                         </div>
                     </div>
                     <div class="pdm-radar-chart" *ngIf="item.chartData && item.options">
-                        <radar-chart [data]="item.chartData" [options]="item.options" (paramClick)="onParamClick(item.type, item.name ,item.id, $event, i)">
+                        <radar-chart 
+                            [data]="item.chartData" 
+                            [options]="item.options" 
+                            (click)="clickRadarChart($event);" 
+                            (paramClick)="onParamClick(item.type, item.name ,item.id, $event, i)">
                         </radar-chart>
                     </div>
                 </div>
@@ -54,7 +58,11 @@
                         </div>
                     </div>
                     <div class="pdm-radar-chart" *ngIf="item.chartData && item.options">
-                        <radar-chart [data]="item.chartData" [options]="item.options" (paramClick)="onParamClick(item.type, item.name, item.id, $event, i)">
+                        <radar-chart 
+                            [data]="item.chartData" 
+                            [options]="item.options" 
+                            (click)="clickRadarChart($event);"
+                            (paramClick)="onParamClick(item.type, item.name, item.id, $event, i)">
                         </radar-chart>
                     </div>
                 </div>
@@ -90,7 +98,8 @@
                     <div class="pdm-radar-chart" *ngIf="item.chartData && item.options">
                         <radar-chart 
                             [data]="item.chartData" 
-                            [options]="item.options" 
+                            [options]="item.options"
+                            (click)="clickRadarChart($event);" 
                             (paramClick)="onParamClick(item.type, item.name, item.id, $event, i);">
                         </radar-chart>
                     </div>
@@ -159,7 +168,8 @@
             [ngClass]="{'alarm-info-hover':selectedItem.type === 'alarm', 'warning-info-hover': selectedItem.type === 'warning', 'bad-info-hover': selectedItem.type === 'B5', 'good-info-hover': selectedItem.type === 'G5'}">
             <radar-chart
                 [data]="selectedItem.chartData" 
-                [options]="selectedItem.options" 
+                [options]="selectedItem.options"
+                (click)="clickRadarChart($event);"
                 (paramClick)="onParamClick(selectedItem.type, selectedItem.name, selectedItem.id, $event, selectedItem.index, 'isInfo');">
             </radar-chart>
         </div>
