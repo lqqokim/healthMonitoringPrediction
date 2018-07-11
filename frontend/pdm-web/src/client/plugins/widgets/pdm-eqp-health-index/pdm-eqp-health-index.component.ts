@@ -4,6 +4,7 @@ import { PdmEqpHealthIndexService } from './pdm-eqp-health-index.service';
 import { TableData, TableCellInfo } from '../../common/ng2-table/table.component';
 import { ITimePeriod } from '../../common/widget-chart-condition/widget-chart-condition.component';
 import { WidgetConfigHelper, IConfigData } from '../../common/widget-config-helper/widget-config-helper';
+import { IGuageChartData, IColorSet } from '../../common/guage-chart/guageChart.component';
 
 // 서버 요청 데이터 포맷
 export interface IReqDataFormat {
@@ -71,7 +72,37 @@ export class PdmEqpHealthIndex extends WidgetApi implements OnSetup, OnDestroy {
 
     // 위젯 컨피그 헬퍼
     private confgHelper: WidgetConfigHelper;
+
+    // 라인차트 데이터
+    private lineData: any = {
+        columns: [
+            ['x', '2013-01-01', '2013-01-02', '2013-01-03', '2013-01-04', '2013-01-05', '2013-01-06'],
+            ['data1', 30, 200, 100, 400, 150, 250],
+            ['data2', 130, 340, 200, 500, 250, 350]
+        ]
+    };
     
+    // 게이지 차트
+    private chartData: Array<IGuageChartData> = [
+        { name: "Good", start:0.8, end:1 },
+        { name: "Waning", start:0.35, end:0.8 },
+        { name: "Alarm", start: 0, end:0.35 }
+    ];
+
+    //* 표 색상 배열
+    private chartColor: Array<IColorSet> = [
+        { name:'Good', color: '#fb641e'},
+        { name:'Waning', color: '#fdd35b'},
+        { name:'Alarm', color: '#8bad6a'},
+    ];
+
+    private dataRangeStart: number = 0;
+    private dataRangeEnd: number = 100;
+    private markerCount: number = 5;
+    private guagePoinerPercent: number = 0.7;
+
+    private loopArr: Array<number> = [0,0,0,0,0];
+
     constructor(
         private _service: PdmEqpHealthIndexService
     ){

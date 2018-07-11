@@ -12,6 +12,7 @@ import { ViewConfig } from './config/view.config';
 
 // This Module's Components
 import { PdmEqpHealthIndex } from './pdm-eqp-health-index.component';
+import { ModalPopComponent } from './components/modal-pop.component';
 import { PluginCommonModule } from '../../common/plugins.common.module';
 
 @NgModule({
@@ -21,10 +22,12 @@ import { PluginCommonModule } from '../../common/plugins.common.module';
         PluginCommonModule
     ],
     declarations: [
-        PdmEqpHealthIndex
+        PdmEqpHealthIndex,
+        ModalPopComponent
     ],
     exports: [
-        PdmEqpHealthIndex
+        PdmEqpHealthIndex,
+        ModalPopComponent
     ],
     schemas: [ CUSTOM_ELEMENTS_SCHEMA ]
 })

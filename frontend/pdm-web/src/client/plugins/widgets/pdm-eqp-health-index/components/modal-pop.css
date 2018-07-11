@@ -1,0 +1,15 @@
+/* 모달 팝업 */
+.modal-pop { position:absolute; left:-10px; top:-10px; bottom:-10px; right:-10px; background:rgba(0,0,0,0.3); }
+
+/* 모달 팝업 - 영역 */
+.modal-pop .modal-pop-cont { position:absolute; left:10%; top:20%; bottom:20%; right:10%; margin:auto; padding:5px; background:#fff; border:1px solid #ddd; box-shadow:0 3px 6px rgba(0,0,0,.175); }
+
+/* 모달 팝업 - 타이틀 */
+.modal-pop .modal-pop-cont-title { position:relative; height:30px; line-height:1; display:flex; justify-content:flex-start; align-items:center;background:#eee; color:#333; font-size:16px; font-weight:bold; padding:0 10px; }
+
+/* 모달 팝업 - 닫기버튼 */
+.modal-pop .modal-pop-btn-close { position:absolute; right:10px; top:0; bottom:0; height:26px; margin:auto; font-size:26px; font-weight:100; color:#000; line-height:1; opacity:0.6; cursor:pointer; transition:opacity 0.25s ease-in-out; }
+.modal-pop .modal-pop-btn-close:hover { opacity:1; }
+
+/* 모달 팝업 - 본문 */
+.modal-pop .modal-pop-cont-view { position:absolute; left:5px; top:35px; bottom:5px; right:5px; overflow:hidden; }
