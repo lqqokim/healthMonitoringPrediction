@@ -1,3 +1,7 @@
 /* info */
 .widget-pdm-eqp-health-index { position:relative; }
 .widget-pdm-eqp-health-index .chart-body { display:block; position:absolute; left:0; top:35px; bottom:0; right:0; overflow-y:auto; overflow-x:hidden; }
+
+/* 게이지 차트 리스트 */
+.widget-pdm-eqp-health-index .guageChartList { display:flex; justify-content:space-around; align-items:center; }
+.widget-pdm-eqp-health-index .guageChartList > li { width:calc(100% /5); height:256px; margin:0 3px; border:1px solid #eee; border-radius:3px; overflow:hidden; }

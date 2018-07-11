@@ -13,4 +13,26 @@
             (cellClick)="cellClick($event)"
         ></ng2-Table>
     </div>
+
+    <modal-pop
+        [title]="'Logic1'"
+    >
+        <line-chart
+            [data]="lineData"
+        ></line-chart>
+    </modal-pop>
+
+    <!-- <ul class='guageChartList'>
+        <li *ngFor="let i of loopArr">
+            <guage-chart-d3
+                [chartColor]="chartColor"
+                [chartData]="chartData"
+                [dataRangeStart]="dataRangeStart"
+                [dataRangeEnd]="dataRangeEnd"
+                [markerCount]="markerCount"
+                [guagePoinerPercent]="guagePoinerPercent"
+            >
+            </guage-chart-d3>
+        </li>
+    </ul> -->
 </div>

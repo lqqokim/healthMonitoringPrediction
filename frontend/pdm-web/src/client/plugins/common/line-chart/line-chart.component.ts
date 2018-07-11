@@ -13,28 +13,20 @@ import { Ng2C3Component } from '../ng2-c3/ng2-c3.component';
 
 export class LineChartComponent implements OnInit, OnChanges, OnDestroy, AfterViewInit {
 
-    // @ViewChild('list') listElem: ElementRef;
-
-    // // 차트 데이터 (columns)
-    // @Input() chartData: Array<IDonutChartData>;
-    // @Input() chartColor: Array<IColorSet>;
-
+    // 차트 데이터 (columns)
     @Input() data;
     @Input() config;
     @Input() eventLines;
     @Input() chartEvents;
 
+    // x,y line / x,y Region /
 
     private _data: any;
     private _chartOptions:any ;
-    private _configs: any;
 
-    id = "r" + UUIDUtil.new().replace(/-/g, '');
+    // id = "r" + UUIDUtil.new().replace(/-/g, '');
 
-
-
-    constructor() {
-
+    constructor(){
     }
 
     ngOnInit() {
@@ -59,7 +51,25 @@ export class LineChartComponent implements OnInit, OnChanges, OnDestroy, AfterVi
         //    };
 
         //Options provided for chart like axis, tooltip, legend, zoom etc.
-        this._configs = {
+
+        //Specific Chart Configuration
+        this._chartOptions = {
+            // size: {
+            //     height: '100%',
+            //     width: '100%'
+            // },
+            padding: {
+                top: 40,
+                right: 100,
+                bottom: 40,
+                left: 100,
+            },
+            color: {
+                pattern: ['#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78', '#2ca02c', '#98df8a', '#d62728', '#ff9896', '#9467bd', '#c5b0d5', '#8c564b', '#c49c94', '#e377c2', '#f7b6d2', '#7f7f7f', '#c7c7c7', '#bcbd22', '#dbdb8d', '#17becf', '#9edae5']
+            },
+            transition: {
+                duration: 100
+            },
             axis: {
                 x: {
                     type: 'timeseries',
@@ -83,30 +93,7 @@ export class LineChartComponent implements OnInit, OnChanges, OnDestroy, AfterVi
                     ]
                 }
             }
-            
-            
         };
-
-        //Specific Chart Configuration
-        this._chartOptions = {
-            // size: {
-            //     height: '100%',
-            //     width: '100%'
-            // },
-            padding: {
-                top: 40,
-                right: 100,
-                bottom: 40,
-                left: 100,
-            },
-            color: {
-                pattern: ['#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78', '#2ca02c', '#98df8a', '#d62728', '#ff9896', '#9467bd', '#c5b0d5', '#8c564b', '#c49c94', '#e377c2', '#f7b6d2', '#7f7f7f', '#c7c7c7', '#bcbd22', '#dbdb8d', '#17becf', '#9edae5']
-            },
-            transition: {
-                duration: 100
-            }
-        };
-
     }
 
     ngOnDestroy() {
@@ -119,12 +106,13 @@ export class LineChartComponent implements OnInit, OnChanges, OnDestroy, AfterVi
                 columns: this.makeData()
             }
         }
-
     }
+
     makeData() {
         let datas = []
         let x = [];
         datas.push(x);
+        
         for (let index = 0; index < this.data.length; index++) {
             const element: any = this.data[index];
             let newSeriesDatas = [];
@@ -134,7 +122,6 @@ export class LineChartComponent implements OnInit, OnChanges, OnDestroy, AfterVi
                     const seriesData = element[index1];
                     newSeriesDatas.push(seriesData[1]);
                 }
-
             } else {
                 x.push("x");
                 for (let index1 = 0; index1 < element.length; index1++) {
@@ -142,20 +129,16 @@ export class LineChartComponent implements OnInit, OnChanges, OnDestroy, AfterVi
                     x.push(seriesData[0]);
                     newSeriesDatas.push(seriesData[1]);
                 }
-
             }
             datas.push(newSeriesDatas);
         }
         return datas;
-
-
     }
+
     ngAfterViewInit() {
         let datas = [];
         if (this.data != null) {
             datas = this.makeData();
         }
-
-
     }
 }

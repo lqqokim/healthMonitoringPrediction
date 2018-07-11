@@ -1,0 +1,11 @@
+<div class='modal-pop' *ngIf='popOpen'>
+    <div class='modal-pop-cont'>
+        <div class='modal-pop-cont-title'>
+            <span>{{title}}</span>
+            <div class='modal-pop-btn-close' (click)="popClose($event)">×</div>
+        </div>
+        <div class='modal-pop-cont-view'>
+            <ng-content></ng-content>
+        </div>
+    </div>
+</div>
