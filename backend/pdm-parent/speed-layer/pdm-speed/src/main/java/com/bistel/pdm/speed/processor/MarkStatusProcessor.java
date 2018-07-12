@@ -47,7 +47,6 @@ public class MarkStatusProcessor extends AbstractProcessor<String, byte[]> {
         try {
             //log.debug("parsing index:{}, value:{}", event.getParamParseIndex(), recordColumns[event.getParamParseIndex()]);
             double paramValue = Double.parseDouble(recordColumns[event.getParamParseIndex()]);
-            //paramValue = paramValue * 1000000;
 
             log.debug("[{}] - define status using {} parameter. ({}, {})", partitionKey,
                     event.getParameterName(), paramValue, event.getCondition());

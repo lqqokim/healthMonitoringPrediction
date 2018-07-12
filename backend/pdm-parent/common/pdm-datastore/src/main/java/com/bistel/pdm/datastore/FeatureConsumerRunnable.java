@@ -22,6 +22,8 @@ public class FeatureConsumerRunnable implements Runnable {
     private final KafkaConsumer<String, byte[]> consumer;
     private final String topicName;
 
+    private final static int PollingDurations = 1;
+
     private FeatureDataDao trxDao;
 
     public FeatureConsumerRunnable(Properties property, String groupId, String topicName) {
@@ -48,7 +50,7 @@ public class FeatureConsumerRunnable implements Runnable {
         log.info("Reading topic: {}, db type: {}", topicName, DataSource.getDBType());
 
         while (true) {
-            ConsumerRecords<String, byte[]> records = consumer.poll(TimeUnit.SECONDS.toMillis(10));
+            ConsumerRecords<String, byte[]> records = consumer.poll(TimeUnit.SECONDS.toMillis(PollingDurations));
             if (records.count() > 0) {
                 log.debug(" polling {} records", records.count());
                 trxDao.storeRecord(records);

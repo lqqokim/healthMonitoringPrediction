@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
@@ -36,6 +37,7 @@ public class SimulatorLogTailerListener extends TailerListenerAdapter {
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
     private static String maxFreq = "";
+    private static Long prevTimeStamp = null;
 
     public void handle(final String line) {
 //        log.debug(line);
@@ -45,8 +47,12 @@ public class SimulatorLogTailerListener extends TailerListenerAdapter {
         String[] columns = line.split("\t");
 
         String partitionKey = "MOTOR,MT10A";
-        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-        String time = dateFormat.format(timestamp); //columns[0];
+
+        Date from = new Date();
+        SimpleDateFormat transFormat = new SimpleDateFormat("yyyy-MM-dd");
+        String to = transFormat.format(from);
+
+        String strTimeStamp = to + " " + columns[0]; //17:02:46.007
         String rms = columns[1];
 
         if (columns[0].equalsIgnoreCase("time")) {
@@ -60,7 +66,7 @@ public class SimulatorLogTailerListener extends TailerListenerAdapter {
         }
 
         final StringBuilder sbRecord = new StringBuilder();
-        sbRecord.append(time).append(",")
+        sbRecord.append(strTimeStamp).append(",")
                 .append(rms).append(",") // param 1
                 .append(sbFrequency.toString()).append(",") // frequency
                 .append(columns.length - 2).append(",") // frequency count
@@ -68,21 +74,50 @@ public class SimulatorLogTailerListener extends TailerListenerAdapter {
                 .append("10").append(",") // rpm
                 .append("1.6"); // sampling time
 
-        //String topicName = this.topicPrefix + "-raw";
         String topicName = this.topicPrefix + "-trace";
         rmsProducer.send(new ProducerRecord<>(topicName, partitionKey, sbRecord.toString().getBytes()));
-        log.info("send record to {}, value : {}", topicName, rms);
-
-        try {
-            Thread.sleep(4820);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        log.info("send record to {}, value : {} - {}", topicName, strTimeStamp, rms);
 
 //        try {
-//            Thread.sleep(60000);
+//            Thread.sleep(1000);
 //        } catch (InterruptedException e) {
 //            e.printStackTrace();
+//        }
+//
+//
+//        long diffSeconds = 3;
+//
+//        if(prevTimeStamp == null) {
+//            prevTimeStamp = System.currentTimeMillis();
+//        } else {
+//            long diff = System.currentTimeMillis() - prevTimeStamp;
+//            diffSeconds = diff / 1000;
+//
+//            if(diffSeconds >= 3) {
+//                topicName = "pdm-input-reload";
+//                rmsProducer.send(new ProducerRecord<>(topicName, partitionKey, "http://192.168.7.230:28000".getBytes()));
+//                log.info("send record to {}, reload...", topicName);
+//            }
+//        }
+
+
+
+//        long diffSeconds = 600;
+//
+//        if(prevTimeStamp == null) {
+//            prevTimeStamp = System.currentTimeMillis();
+//        } else {
+//            long diff = System.currentTimeMillis() - prevTimeStamp;
+//            diffSeconds = diff / 1000;
+//        }
+//
+//        if(diffSeconds >= 600) {
+//            prevTimeStamp = System.currentTimeMillis();
+//
+//            String topicName = this.topicPrefix + "-raw";
+//            //String topicName = this.topicPrefix + "-trace";
+//            rmsProducer.send(new ProducerRecord<>(topicName, partitionKey, sbRecord.toString().getBytes()));
+//            log.info("send record to {}, value : {} - {}", topicName, strTimeStamp, rms);
 //        }
     }
 }
