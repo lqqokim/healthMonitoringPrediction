@@ -1,4 +1,4 @@
-import { Component, ViewEncapsulation, OnInit, Input, OnDestroy, ElementRef, OnChanges } from '@angular/core';
+import { Component, ViewEncapsulation, OnInit, OnDestroy, ElementRef, OnChanges } from '@angular/core';
 
 //* 크기
 export interface Size {
@@ -13,14 +13,14 @@ export interface Position {
 }
 
 //* 게이지 차트 데이터
-export interface IGuageChartData {
+export interface IGaugeChartData {
     name: string;
     start: number;
     end: number;
 }
 
 //* 게이지 차트 그리기용 데이터 (svg로 그릴 시 가공될 데이터)
-export interface IGuageDrawData {
+export interface IGaugeDrawData {
     name: string;
     percent: number;
     start: number;
@@ -35,32 +35,32 @@ export interface IColorSet {
 }
 
 //* 외부에서 전달될 데이터
-export interface IGuageChartConfig {
-    chartData: Array<IGuageChartData>;
+export interface IGaugeChartConfig {
+    chartData: Array<IGaugeChartData>;
     chartColor: Array<IColorSet>;
     dataRangeStart: number;            // 숫자 표기 시작
     dataRangeEnd: number;              // 숫자 표기 마지막
     markerCount: number;               // 숫자 마커 표기 개수
-    guagePoinerPercent: number;        // 게이지 포인터 위치 (단위:% 0~1)
+    gaugePoinerPercent: number;        // 게이지 포인터 위치 (단위:% 0~1)
 }
 
 @Component({
     moduleId: module.id,
-    selector: 'guage-chart-d3',
-    templateUrl: 'guageChart.html',
-    styleUrls: ['guageChart.css'],
+    selector: 'gauge-chart-d3',
+    templateUrl: 'gaugeChart.html',
+    styleUrls: ['gaugeChart.css'],
     encapsulation: ViewEncapsulation.None
 })
 
-export class GuageChartComponent implements OnInit, OnChanges, OnDestroy {
+export class GaugeChartComponent implements OnInit, OnChanges, OnDestroy {
 
     // 차트 데이터 (columns)
-    private chartData: Array<IGuageChartData>;
+    private chartData: Array<IGaugeChartData>;
     private chartColor: Array<IColorSet>;
     private dataRangeStart: number;            // 숫자 표기 시작
     private dataRangeEnd: number;              // 숫자 표기 마지막
     private markerCount: number;               // 숫자 마커 표기 개수
-    private guagePoinerPercent: number;        // 게이지 포인터 위치 (단위:% 0~1)
+    private gaugePoinerPercent: number;        // 게이지 포인터 위치 (단위:% 0~1)
 
     // 리사이즈 용    
     private currElem: ElementRef['nativeElement'] = undefined;
@@ -79,7 +79,7 @@ export class GuageChartComponent implements OnInit, OnChanges, OnDestroy {
 
     private donutWidth: number = 0.40;          // 도넛 두께 (0 ~ 1) 단위:%
     private donutMinWidth: number = 100;         // 최소 도넛 두께 (단위:px)
-    private drawChartData: Array<IGuageDrawData> = [];
+    private drawChartData: Array<IGaugeDrawData> = [];
 
     // 마커
     private markerMargin: Array<number> = [];
@@ -135,14 +135,14 @@ export class GuageChartComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     //* 차트 다시 그리기 (외부 용)
-    public drawChart(data: IGuageChartConfig): void {
+    public drawChart(data: IGaugeChartConfig): void {
 
         this.chartData = data.chartData;
         this.chartColor = data.chartColor;
         this.dataRangeStart = data.dataRangeStart;                // 숫자 표기 시작
         this.dataRangeEnd = data.dataRangeEnd;                    // 숫자 표기 마지막
         this.markerCount = data.markerCount;                      // 숫자 마커 표기 개수
-        this.guagePoinerPercent = data.guagePoinerPercent;        // 게이지 포인터 위치 (단위:% 0~1)
+        this.gaugePoinerPercent = data.gaugePoinerPercent;        // 게이지 포인터 위치 (단위:% 0~1)
 
         this.reDraw = true;
         this.drawDataCreate();
@@ -154,7 +154,7 @@ export class GuageChartComponent implements OnInit, OnChanges, OnDestroy {
         let
             i: number,
             max: number = this.chartData.length,
-            row: IGuageChartData
+            row: IGaugeChartData
         ;
 
         // 각각 위치의 퍼센트값 세팅
@@ -213,7 +213,7 @@ export class GuageChartComponent implements OnInit, OnChanges, OnDestroy {
         }
 
         // 게이지 포인터 % 값 구하기
-        // this.guagePoinerPercent = this.guagePoinerNumber / (this.dataRangeEnd-this.dataRangeStart)
+        // this.gaugePoinerPercent = this.gaugePoinerNumber / (this.dataRangeEnd-this.dataRangeStart)
     }
 
     //* 차트 리사이즈
@@ -320,7 +320,7 @@ export class GuageChartComponent implements OnInit, OnChanges, OnDestroy {
         let
             i: number,
             max: number = this.drawChartData.length,
-            row: IGuageDrawData,
+            row: IGaugeDrawData,
             startAngle: number, 
             endAngle: number,
             arc: any = null,
@@ -413,7 +413,7 @@ export class GuageChartComponent implements OnInit, OnChanges, OnDestroy {
 
     //* 게이지 포인터 그리기
     private gPoinerDraw( radius: number ): void {
-        const rotateNum: number = this.pointAngle * this.guagePoinerPercent;
+        const rotateNum: number = this.pointAngle * this.gaugePoinerPercent;
         const baseLine: number = radius-this.markerDonutMargin;    // 게이지 포인터 그릴 기준 길이
         const baseY: number = -baseLine*0.025;                // 중심 y축 이동 범위
 

@@ -1,4 +1,0 @@
-guageChart { display:block; position:relative; }
-
-/* 라벨 이벤트x 기본 세팅 */
-guageChart > svg text { pointer-events:none; text-anchor:middle; fill:#333; font:bold 12px sans-serif; }
