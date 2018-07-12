@@ -34,6 +34,16 @@ export interface IColorSet {
     color: string;
 }
 
+//* 외부에서 전달될 데이터
+export interface IGuageChartConfig {
+    chartData: Array<IGuageChartData>;
+    chartColor: Array<IColorSet>;
+    dataRangeStart: number;            // 숫자 표기 시작
+    dataRangeEnd: number;              // 숫자 표기 마지막
+    markerCount: number;               // 숫자 마커 표기 개수
+    guagePoinerPercent: number;        // 게이지 포인터 위치 (단위:% 0~1)
+}
+
 @Component({
     moduleId: module.id,
     selector: 'guage-chart-d3',
@@ -45,13 +55,12 @@ export interface IColorSet {
 export class GuageChartComponent implements OnInit, OnChanges, OnDestroy {
 
     // 차트 데이터 (columns)
-    @Input() chartData: Array<IGuageChartData>;
-    @Input() chartColor: Array<IColorSet>;
-    @Input() dataRangeStart: number;            // 숫자 표기 시작
-    @Input() dataRangeEnd: number;              // 숫자 표기 마지막
-    @Input() markerCount: number;               // 숫자 마커 표기 개수
-    @Input() guagePoinerPercent: number;        // 게이지 포인터 위치 (단위:% 0~1)
-    @Input() firstDraw: boolean;                // 위 Input 데이터 기준으로 컴포넌트 호출 시 바로 그려줄 지 여부 (true:바로/false:안함)
+    private chartData: Array<IGuageChartData>;
+    private chartColor: Array<IColorSet>;
+    private dataRangeStart: number;            // 숫자 표기 시작
+    private dataRangeEnd: number;              // 숫자 표기 마지막
+    private markerCount: number;               // 숫자 마커 표기 개수
+    private guagePoinerPercent: number;        // 게이지 포인터 위치 (단위:% 0~1)
 
     // 리사이즈 용    
     private currElem: ElementRef['nativeElement'] = undefined;
@@ -110,12 +119,6 @@ export class GuageChartComponent implements OnInit, OnChanges, OnDestroy {
         if( this.widgetElem !== undefined ){
             this.widgetElem.addEventListener('transitionend', this.resizeCallback, false);
         }
-
-        //* 초기 설정과 동시에 차트 그리기
-        if( this.firstDraw ){
-            this.drawDataCreate();
-            this.onResize();
-        }
     }
 
     ngOnDestroy(){
@@ -132,7 +135,15 @@ export class GuageChartComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     //* 차트 다시 그리기 (외부 용)
-    public reDrawChart(): void {
+    public drawChart(data: IGuageChartConfig): void {
+
+        this.chartData = data.chartData;
+        this.chartColor = data.chartColor;
+        this.dataRangeStart = data.dataRangeStart;                // 숫자 표기 시작
+        this.dataRangeEnd = data.dataRangeEnd;                    // 숫자 표기 마지막
+        this.markerCount = data.markerCount;                      // 숫자 마커 표기 개수
+        this.guagePoinerPercent = data.guagePoinerPercent;        // 게이지 포인터 위치 (단위:% 0~1)
+
         this.reDraw = true;
         this.drawDataCreate();
         this.onResize();
