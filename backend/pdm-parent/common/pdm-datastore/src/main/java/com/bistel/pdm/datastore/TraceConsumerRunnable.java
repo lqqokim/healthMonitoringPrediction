@@ -21,6 +21,8 @@ public class TraceConsumerRunnable implements Runnable {
     private final KafkaConsumer<String, byte[]> consumer;
     private final String topicName;
 
+    private final static int PollingDurations = 1; // sec.
+
     private SensorTraceDataDao trxDao;
 
     public TraceConsumerRunnable(Properties property, String groupId, String topicName) {
@@ -47,7 +49,7 @@ public class TraceConsumerRunnable implements Runnable {
         log.info("Reading topic: {}, db type: {}", topicName, DataSource.getDBType());
 
         while (true) {
-            ConsumerRecords<String, byte[]> records = consumer.poll(TimeUnit.SECONDS.toMillis(1)); //1 sec.
+            ConsumerRecords<String, byte[]> records = consumer.poll(TimeUnit.SECONDS.toMillis(PollingDurations));
             if (records.count() > 0) {
                 log.debug(" polling {} records", records.count());
                 trxDao.storeRecord(records);

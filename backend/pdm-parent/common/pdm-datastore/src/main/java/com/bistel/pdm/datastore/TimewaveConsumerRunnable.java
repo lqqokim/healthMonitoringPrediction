@@ -26,6 +26,8 @@ public class TimewaveConsumerRunnable implements Runnable {
     private final KafkaConsumer<String, byte[]> consumer;
     private final String topicName;
 
+    private final static int PollingDurations = 1;
+
     private SensorTraceDataDao trxDao;
     private SensorRawDataDao trxRawDao;
 
@@ -56,7 +58,7 @@ public class TimewaveConsumerRunnable implements Runnable {
         log.info("Reading topic: {}, db type: {} ", topicName, DataSource.getDBType());
 
         while (true) {
-            ConsumerRecords<String, byte[]> records = consumer.poll(TimeUnit.SECONDS.toMillis(5));
+            ConsumerRecords<String, byte[]> records = consumer.poll(TimeUnit.SECONDS.toMillis(PollingDurations));
             if (records.count() <= 0) continue;
 
             log.debug(" polling {} records", records.count());
@@ -95,10 +97,10 @@ public class TimewaveConsumerRunnable implements Runnable {
                     log.debug("parsing frequency...");
                     parseFrequency(rawRow, values, rawId);
 
-                    if(values[13].length() > 0){
-                        log.debug("parsing timewave...");
-                        parseTimewave(rawRow, values, rawId);
-                    }
+//                    if(values[13].length() > 0){
+//                        log.debug("parsing timewave...");
+//                        parseTimewave(rawRow, values, rawId);
+//                    }
                 }
 
                 if (traceRow.size() > 0) {

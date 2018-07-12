@@ -260,7 +260,7 @@ public class SensorTraceTrxDao implements SensorTraceDataDao {
         Timestamp timestamp = null;
 
         try {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS");
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
             java.util.Date parsedDate = dateFormat.parse(timeFormatString);
             timestamp = new java.sql.Timestamp(parsedDate.getTime());
         } catch (Exception e) {

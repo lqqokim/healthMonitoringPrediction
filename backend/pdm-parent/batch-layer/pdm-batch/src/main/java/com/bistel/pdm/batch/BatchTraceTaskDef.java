@@ -10,11 +10,13 @@ import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.state.StoreBuilder;
 import org.apache.kafka.streams.state.Stores;
+import org.apache.kafka.streams.state.WindowStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 /**
  *
@@ -47,37 +49,53 @@ public class BatchTraceTaskDef extends AbstractPipeline {
     private KafkaStreams processStreams() {
         final Topology topology = new Topology();
 
-        StoreBuilder<KeyValueStore<String, String>> statusContextSupplier =
+//        StoreBuilder<WindowStore<String, Double>> fd02StoreSupplier =
+//                Stores.windowStoreBuilder(
+//                        Stores.persistentWindowStore("fd02-value-store",
+//                                TimeUnit.HOURS.toMillis(24),
+//                                1,
+//                                TimeUnit.MINUTES.toMillis(10),
+//                                true),
+//                        Serdes.String(),
+//                        Serdes.Double());
+
+        StoreBuilder<KeyValueStore<String, byte[]>> fd02RuleDataStoreSupplier =
+                Stores.keyValueStoreBuilder(
+                        Stores.persistentKeyValueStore("fd02-rule-window"),
+                        Serdes.String(),
+                        Serdes.ByteArray());
+
+        StoreBuilder<KeyValueStore<String, String>> statusContextStoreSupplier =
                 Stores.keyValueStoreBuilder(
                         Stores.persistentKeyValueStore("status-context"),
                         Serdes.String(),
                         Serdes.String());
 
-        StoreBuilder<KeyValueStore<String, byte[]>> processingWindowSupplier =
+        StoreBuilder<KeyValueStore<String, byte[]>> aggregationWindowSupplier =
                 Stores.keyValueStoreBuilder(
-                        Stores.persistentKeyValueStore("process-window"),
+                        Stores.persistentKeyValueStore("aggregation-window"),
                         Serdes.String(),
                         Serdes.ByteArray());
 
-        StoreBuilder<KeyValueStore<String, Long>> summaryTimeSupplier =
+        StoreBuilder<KeyValueStore<String, Long>> summaryIntervalStoreSupplier =
                 Stores.keyValueStoreBuilder(
-                        Stores.persistentKeyValueStore("summary-time"),
+                        Stores.persistentKeyValueStore("summary-interval"),
                         Serdes.String(),
                         Serdes.Long());
 
         topology.addSource("input-trace", this.getInputTraceTopic())
                 .addProcessor("batch01", FilterByMasterProcessor::new, "input-trace")
                 .addProcessor("batch02", StatusContextProcessor::new, "batch01")
+                .addStateStore(statusContextStoreSupplier, "batch02")
                 .addProcessor("batch03", AggregateFeatureProcessor::new, "batch02")
-                .addStateStore(statusContextSupplier, "batch02")
-                .addStateStore(processingWindowSupplier, "batch03")
-                .addStateStore(summaryTimeSupplier, "batch03")
+                .addStateStore(aggregationWindowSupplier, "batch03")
+                .addStateStore(summaryIntervalStoreSupplier, "batch03")
                 .addSink("output-feature", this.getOutputFeatureTopic(), "batch03");
-//                .addSink("route-feature", this.getRouteFeatureTopic(), "batch03");
+                //.addSink("route-feature", this.getRouteFeatureTopic(), "batch03");
 
 //        topology.addSource("input-feature", this.getRouteFeatureTopic())
-//                .addProcessor("fd03", TrendChangeProcessor::new, "input-feature")
-//                .addSink("output-fault", this.getOutputFaultTopic(), "fd03");
+//                .addProcessor("fd02", DetectByRuleProcessor::new, "input-feature")
+//                .addSink("output-fault", this.getOutputFaultTopic());
 
         return new KafkaStreams(topology, getStreamProperties());
     }
