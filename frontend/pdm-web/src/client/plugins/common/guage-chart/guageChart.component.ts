@@ -51,6 +51,7 @@ export class GuageChartComponent implements OnInit, OnChanges, OnDestroy {
     @Input() dataRangeEnd: number;              // 숫자 표기 마지막
     @Input() markerCount: number;               // 숫자 마커 표기 개수
     @Input() guagePoinerPercent: number;        // 게이지 포인터 위치 (단위:% 0~1)
+    @Input() firstDraw: boolean;                // 위 Input 데이터 기준으로 컴포넌트 호출 시 바로 그려줄 지 여부 (true:바로/false:안함)
 
     // 리사이즈 용    
     private currElem: ElementRef['nativeElement'] = undefined;
@@ -96,7 +97,6 @@ export class GuageChartComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     ngOnInit() {
-        this.drawDataCreate();
 
         //* 현 위치 svg 추가
         this.svgElem = d3.select(this.currElem).append('svg');
@@ -111,7 +111,11 @@ export class GuageChartComponent implements OnInit, OnChanges, OnDestroy {
             this.widgetElem.addEventListener('transitionend', this.resizeCallback, false);
         }
 
-        this.onResize();
+        //* 초기 설정과 동시에 차트 그리기
+        if( this.firstDraw ){
+            this.drawDataCreate();
+            this.onResize();
+        }
     }
 
     ngOnDestroy(){
