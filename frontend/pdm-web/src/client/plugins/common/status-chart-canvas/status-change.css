@@ -17,7 +17,25 @@ status-change > .sc-infoBox {
     background: rgba(255,255,255,1);
     z-index: 999;
 }
-
+.sc-infoBox li:nth-child(1){
+    font-weight: 700; 
+    color: #333;
+}
+.sc-infoBox li:nth-child(2){
+    border-bottom: 1px solid #ddd;
+    padding: 10px 8px 3px 8px;
+}
+.sc-infoBox li:nth-child(3){
+    display: block;
+    padding: 8px 0;
+    margin: 0 5px;
+    color: rgb(139, 139, 139);
+}
+.sc-infoBox li:nth-child(4){
+    margin: 0 5px;
+    padding-bottom: 10px; 
+    color: rgb(139, 139, 139);
+}
 status-change > .sc-infoBox i { display: inline-block; width:10px; height:10px; border-radius:100%; vertical-align:top; margin-right:5px;  }
 status-change > .sc-infoBox .currTime { font-size:13px; color:#666; letter-spacing:-0.025em; padding-bottom:5px; }
 status-change > .sc-infoBox .currName { color:#333; }
