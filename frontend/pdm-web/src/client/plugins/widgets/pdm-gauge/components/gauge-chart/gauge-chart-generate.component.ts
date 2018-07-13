@@ -70,16 +70,18 @@ export class GaugeChartGenerateComponent implements OnInit, OnChanges {
     }
 
     setAWChartData(item: pdmRadarI.ChartDataType) {
-        let avgWithAWs: any[] = item.chartData.avgWithAWs.map((d: any) => d.value);
-        let avgDailys: any[] = item.chartData.avgDailys.map((d: any) => d.value);
-        let paramDatas: any[] = item.chartData.paramDatas;
-        let axisCategoryies: any[] = item.chartData.alarms.map((d: any) => d.axis);
-        let warns: any[] = item.chartData.warns.map((d: any) => d.value);
+        if (item.chartData) {
+            let avgWithAWs: any[] = item.chartData.avgWithAWs.map((d: any) => d.value);
+            let avgDailys: any[] = item.chartData.avgDailys.map((d: any) => d.value);
+            let paramDatas: any[] = item.chartData.paramDatas;
+            let axisCategoryies: any[] = item.chartData.alarms.map((d: any) => d.axis);
+            let warns: any[] = item.chartData.warns.map((d: any) => d.value);
 
-        if (item.type === 'alarm') {
-            this.setAlarmData(avgWithAWs, avgDailys, axisCategoryies, item, warns, paramDatas);
-        } else if (item.type === 'warning') {
-            this.setWarningData(avgWithAWs, avgDailys, axisCategoryies, warns, item, paramDatas);
+            if (item.type === 'alarm') {
+                this.setAlarmData(avgWithAWs, avgDailys, axisCategoryies, item, warns, paramDatas);
+            } else if (item.type === 'warning') {
+                this.setWarningData(avgWithAWs, avgDailys, axisCategoryies, warns, item, paramDatas);
+            }
         }
     }
 
@@ -168,7 +170,7 @@ export class GaugeChartGenerateComponent implements OnInit, OnChanges {
     }
 
     AWChartGenerator(item: pdmRadarI.ChartDataType, avgWithAWs: number[], axisCategoryies: string[], warns: number[]) {
-        const alarmRatio: number = this.ALARM_RATIO * 0.01;        
+        const alarmRatio: number = this.ALARM_RATIO * 0.01;
         const warnInterval: number = warns[0] * alarmRatio;
         let gaugePoinerPercent: number = avgWithAWs[0] * alarmRatio > 1 ? 1 : avgWithAWs[0] * alarmRatio;
 
@@ -287,7 +289,7 @@ export class GaugeChartGenerateComponent implements OnInit, OnChanges {
         // const warnInterval: number = warns[0] * this.ALARM_RATIO;
         // const pointVal: number = avgSpecs[0] * this.ALARM_RATIO
 
-        const alarmRatio: number = this.ALARM_RATIO * 0.01;        
+        const alarmRatio: number = this.ALARM_RATIO * 0.01;
         const warnInterval: number = warns[0] * alarmRatio;
         let gaugePoinerPercent: number = avgSpecs[0] * alarmRatio > 1 ? 1 : avgSpecs[0] * alarmRatio;
 
