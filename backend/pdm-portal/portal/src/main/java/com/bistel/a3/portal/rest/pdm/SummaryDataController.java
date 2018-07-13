@@ -183,7 +183,19 @@ public class SummaryDataController {
         Date from = new Date(fromdate);
         Date to = new Date(todate);
 
-        return summaryDataService.worstEquipmentList(fabId,areaId, from, to);
+        return summaryDataService.worstEquipmentList(fabId,areaId,null, from, to);
+    }
+    @RequestMapping("/eqps/{eqpId}/worstEquipmentInfo")
+    public Object worstEquipmentInfo(@PathVariable("fabId") String fabId,
+                                     @PathVariable("eqpId") Long eqpId,
+                                     @RequestParam("fromdate") Long fromdate,
+                                     @RequestParam("todate") Long todate) {
+
+        Long areaId=null;
+        Date from = new Date(fromdate);
+        Date to = new Date(todate);
+
+        return summaryDataService.worstEquipmentList(fabId,areaId,eqpId, from, to);
     }
 
     @RequestMapping("/areas/{areaId}/worstEquipmentListByAreaId")
@@ -195,7 +207,7 @@ public class SummaryDataController {
         Date from = new Date(fromdate);
         Date to = new Date(todate);
 
-        return summaryDataService.worstEquipmentList(fabId,areaId, from, to);
+        return summaryDataService.worstEquipmentList(fabId,areaId,null, from, to);
     }
 
     @RequestMapping("/eqpHealthIndex")

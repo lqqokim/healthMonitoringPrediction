@@ -43,6 +43,8 @@
 	height:100%;
 	width:100%;
 	overflow: auto;
+	padding-left: 35px;
+	padding-right: 10px;
 }
 
 .equipment-parameter-trend .candoit{
@@ -54,6 +56,11 @@
 .equipment-parameter-trend button{
 	width:100%;
 }
-.modeling-container .condition button{
+.equipment-parameter-trend  .condition button{
 	margin-bottom: 10px;
 }
+
+.equipment-parameter-trend .jqplot-yaxis{
+    margin-left:-100px !important;
+    width:100px !important;
+  }

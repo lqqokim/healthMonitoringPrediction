@@ -120,8 +120,18 @@ export class ModelSimulatorComponent implements OnInit {
                 this.pdmModelService.getTraceDataByParamId(fabId, parameters[i].paramId, this.searchTimePeriod.from, this.searchTimePeriod.to).then((datas) => {
                     console.log(datas);
                     if (datas.length > 0) {
-                        let paramInfo = { name: parameters[i].paramName, paramId: parameters[i].paramId, datas: [datas],from:this.searchTimePeriod.from, to:this.searchTimePeriod.to };
+
+                        // C3
+                        // for(let i=0;i<datas.length;i++){
+                        //     datas[i] = datas[i].slice(0,2);
+                        // }
+                        // datas.unshift(['time',parameters[i].paramName]);
+                        // let paramInfo = { name: parameters[i].paramName, paramId: parameters[i].paramId, datas:{x:'time',rows: datas},from:this.searchTimePeriod.from, to:this.searchTimePeriod.to };
+
+                        //bistelchart
+                        let paramInfo = { name: parameters[i].paramName, paramId: parameters[i].paramId, datas:[ datas],from:this.searchTimePeriod.from, to:this.searchTimePeriod.to };
                         this.paramDatas.push(paramInfo);
+                        // this.paramDatas = this.paramDatas.concat();
                     }
 
                     this.current++;
@@ -131,6 +141,7 @@ export class ModelSimulatorComponent implements OnInit {
                         this.showProgress = false;
                         if(this.paramDatas.length>0){
                             this.canDrawEvent = true;
+                            this.paramDatas = this.paramDatas.concat();
                         }
                     }
 
@@ -142,6 +153,7 @@ export class ModelSimulatorComponent implements OnInit {
                         this.showProgress = false;
                         if(this.paramDatas.length>0){
                             this.canDrawEvent = true;
+                            this.paramDatas = this.paramDatas.concat();
                         }
                     }
                     console.error(err);

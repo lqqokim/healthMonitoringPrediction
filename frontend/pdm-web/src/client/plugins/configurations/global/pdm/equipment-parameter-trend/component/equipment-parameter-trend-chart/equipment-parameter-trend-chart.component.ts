@@ -12,6 +12,10 @@ import { BistelChartComponent } from '../../../../../../../sdk/charts/charts/bis
 export class EquipmentParameterTrendChartComponent implements OnInit, OnChanges, DoCheck {
 
     @Input() params;
+    @Input() statusData;
+    @Input() statusColor;
+    @Input() startDtts;
+    @Input() endDtts;
     // params = [
     //     { name: 'param1', isEventParam: false, conditionValue: null, datas: [],eventConfig:[] },
     //     { name: 'param2', isEventParam: false, conditionValue: null, datas: [],eventConfig:[] },

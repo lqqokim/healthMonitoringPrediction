@@ -1,4 +1,4 @@
-import { Component, ViewEncapsulation, OnInit, OnChanges, Input, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component,SimpleChange, ViewEncapsulation, OnInit, OnChanges, Input, AfterViewInit, OnDestroy } from '@angular/core';
 import { Translater } from './../../../sdk';
 import { UUIDUtil } from './../../../sdk/utils/uuid.util';
 import { connectableObservableDescriptor } from 'rxjs/observable/ConnectableObservable';
@@ -11,13 +11,15 @@ import { connectableObservableDescriptor } from 'rxjs/observable/ConnectableObse
 })
 export class StatusChartComponent implements OnInit, OnChanges, OnDestroy, AfterViewInit {
 
-    // @Input() colors: any;
-    // @Input() datas: any[];
+    @Input() colors: any;
+    @Input() datas: any[];
+    @Input() startDtts;
+    @Input() endDtts;
 
     id = "r" + UUIDUtil.new().replace(/-/g, '');
 
-    colors={'run':'green','idle':'yellow','off-line':'gray'}
-    datas=[];
+    // colors={'run':'green','idle':'yellow','off-line':'gray'}
+    // datas=[];
 
     svg;
 
@@ -41,8 +43,9 @@ export class StatusChartComponent implements OnInit, OnChanges, OnDestroy, After
     height;
     margin = { top: 10, left: 10, bottom: 10, right: 10,xAxis:20 }
 
-    startX;
-    endX;
+    isAfterViewInit = false;
+    // startX;
+    // endX;
 
     constructor(
         private translater: Translater,
@@ -54,19 +57,25 @@ export class StatusChartComponent implements OnInit, OnChanges, OnDestroy, After
 
     }
 
-    ngOnChanges(changes: any) {
-
+    ngOnChanges( changes: { [propertyName: string]: SimpleChange } ): void {
+        if(this.isAfterViewInit){
+            this.drawChart();
+        }
+        
     }
     ngOnDestroy() {
+        
     }
     public drawChart() {
+        if(this.datas==null) return;
+
                 this.setScale()
                 this.updateAxis()
                 this.updateBar();
     }
   
     setScale() {
-        this.xScale.domain([this.startX, this.endX]).rangeRound([0, this.width - (this.margin.left + this.margin.right)])
+        this.xScale.domain([this.startDtts, this.endDtts]).rangeRound([0, this.width - (this.margin.left + this.margin.right)])
     }
 
 
@@ -120,11 +129,11 @@ export class StatusChartComponent implements OnInit, OnChanges, OnDestroy, After
 							.enter()
 							.append('rect')
                             .attr('height',this.height-this.margin.bottom*2 -this.margin.top -this.margin.xAxis)
-                            .attr("x",(d)=>{return this.xScale(d.start)})
+                            .attr("x",(d)=>{return this.xScale(d.start_dtts)})
                             .attr("y",0)
 							// .attr({'x':function(d){return xscale(d.start)},'y':height})
-							.style('fill',(d,i)=>{ return this.colors[ d.status]; })
-							.attr('width',(d)=>{ return this.xScale(d.end)-this.xScale(d.start); });
+							.style('fill',(d,i)=>{  return this.colors[ d.status]; })
+							.attr('width',(d)=>{ return this.xScale(d.end_dtts)-this.xScale(d.start_dtts); });
 
     }
     
@@ -136,19 +145,19 @@ export class StatusChartComponent implements OnInit, OnChanges, OnDestroy, After
         this.height = document.querySelector(chartSelect).parentElement.clientHeight
 
 
-        var startDate = new Date().getTime()-2460*60*1000;
-        var last = startDate;
+        // var startDate = new Date().getTime()-2460*60*1000;
+        // var last = startDate;
 
-        for(var i=0;i<5;i++){
-            var index = this.randomRange(0,2);
-            var start = last ;
-            var end = start + this.randomRange(1,10)*60*60*1000;
-            last = end;
-            this.datas.push({status:Object.keys(this.colors)[i%3],start:start,end:end});
-        }
+        // for(var i=0;i<5;i++){
+        //     var index = this.randomRange(0,2);
+        //     var start = last ;
+        //     var end = start + this.randomRange(1,10)*60*60*1000;
+        //     last = end;
+        //     this.datas.push({status:Object.keys(this.colors)[i%3],start:start,end:end});
+        // }
  
-        this.startX = this.datas[0].start;
-        this.endX = this.datas[this.datas.length-1].end;
+        // this.startX = this.datas[0].start;
+        // this.endX = this.datas[this.datas.length-1].end;
 
 
         this.initAxis();
@@ -156,6 +165,7 @@ export class StatusChartComponent implements OnInit, OnChanges, OnDestroy, After
         this.drawChart();
 
 
+        this.isAfterViewInit = true;
 
         // this.updateData = function (date, value) {
         //     datas.push({ date: date, value: value });
