@@ -2,7 +2,7 @@ import { Component, ViewEncapsulation, OnDestroy, ViewChild } from '@angular/cor
 import { WidgetRefreshType, WidgetApi, OnSetup } from '../../../common';
 import { PdmEqpHealthIndexService } from './pdm-eqp-health-index.service';
 import { TableData, TableCellInfo, TableComponent } from '../../common/ng2-table/table.component';
-import { ITimePeriod } from '../../common/widget-chart-condition/widget-chart-condition.component';
+import { ITimePeriod, WidgetChartConditionComponent } from '../../common/widget-chart-condition/widget-chart-condition.component';
 import { WidgetConfigHelper, IConfigData } from '../../common/widget-config-helper/widget-config-helper';
 import { ModalPopComponent } from './components/modal-pop.component';
 
@@ -45,6 +45,7 @@ export interface IReqDataFormat_chart {
 
 export class PdmEqpHealthIndex extends WidgetApi implements OnSetup, OnDestroy {
 
+    @ViewChild('condition') condition: WidgetChartConditionComponent;
     @ViewChild('table') table: TableComponent;
     @ViewChild('modalPop') modalPop: ModalPopComponent;
 
@@ -174,6 +175,9 @@ export class PdmEqpHealthIndex extends WidgetApi implements OnSetup, OnDestroy {
         this.fabId = configData.fabId;
         this.targetName = configData.targetName;
         this.timePeriod = configData.timePeriod;
+
+        // 타임 출력
+        this.condition.timeConvert( this.timePeriod );
 
         this._service.getListData({
             fabId: this.fabId,

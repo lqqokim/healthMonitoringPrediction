@@ -1,8 +1,5 @@
 <div class="widget widget-pdm-eqp-health-index">
-    <widget-chart-condition
-		[target]='targetName'
-		[timePeriod]='timePeriod'
-	></widget-chart-condition>
+    <widget-chart-condition #condition [target]='targetName'></widget-chart-condition>
 
     <div class="chart-body div01" table>
         <ng2-Table #table
