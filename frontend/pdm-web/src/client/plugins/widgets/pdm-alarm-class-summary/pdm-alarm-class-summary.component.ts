@@ -128,6 +128,7 @@ export class PdmAlarmClassSummaryComponent extends WidgetApi implements OnSetup,
         this.fabId = configData.fabId;
         this.timePeriod = configData.timePeriod;
         this.targetName = configData.targetName;
+        this.areaId = configData.areaId;
 
         // 타임 출력
         this.condition.timeConvert( this.timePeriod );

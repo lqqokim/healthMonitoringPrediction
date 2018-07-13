@@ -15,6 +15,7 @@ export interface IConfigData {
     fabId: string;
     targetName: string;
     timePeriod: ITimePeriod;
+    areaId:number;
 }
 
 export class WidgetConfigHelper {
@@ -155,7 +156,8 @@ export class WidgetConfigHelper {
         this.dataCallback({
             fabId: this.fabId,
             targetName: this.targetName,
-            timePeriod: this.timePeriod
+            timePeriod: this.timePeriod,
+            areaId:this.areaId
         });
     }
 };
