@@ -4,7 +4,7 @@ import { WidgetApi, WidgetRefreshType, OnSetup } from '../../../common';
 import { LineStatusSummaryComponent } from './components/line-status-summary.component';
 
 import * as IDataType from './model/data-type.interface';
-import { ITimePeriod } from '../../common/widget-chart-condition/widget-chart-condition.component';
+import { ITimePeriod, WidgetChartConditionComponent } from '../../common/widget-chart-condition/widget-chart-condition.component';
 
 @Component({
     moduleId: module.id,
@@ -15,6 +15,7 @@ import { ITimePeriod } from '../../common/widget-chart-condition/widget-chart-co
 export class PdmLineStatusSummaryWidgetComponent extends WidgetApi implements OnInit, OnSetup {
     @ViewChild('container') container: ElementRef;
     @ViewChild('statusSummary') statusSummary: LineStatusSummaryComponent;
+    @ViewChild('WidgetCondition') WidgetCondition: WidgetChartConditionComponent;
 
     condition: IDataType.ContitionType = {
         fab: {
@@ -85,6 +86,8 @@ export class PdmLineStatusSummaryWidgetComponent extends WidgetApi implements On
             fab: props[CD.PLANT],
             timePeriod: this.getTimePeriod(props[CD.TIME_PERIOD][CD.FROM], props[CD.TIME_PERIOD][CD.TO])
         };
+
+        this.WidgetCondition.timeConvert(this.condition.timePeriod);
     }
 
     getTimePeriod(fromDate: number, toDate: number): { fromDate: number, toDate: number } {
