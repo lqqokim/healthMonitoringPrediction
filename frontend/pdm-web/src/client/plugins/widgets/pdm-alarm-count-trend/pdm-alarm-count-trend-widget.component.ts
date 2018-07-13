@@ -3,6 +3,7 @@ import { WidgetApi, WidgetRefreshType, OnSetup } from '../../../common';
 
 import * as IDataType from './model/data-type.interface';
 import { AlarmCountTrendComponent } from './components/alarm-count-trend.component';
+import { ITimePeriod, WidgetChartConditionComponent } from '../../common/widget-chart-condition/widget-chart-condition.component';
 
 @Component({
     moduleId: module.id,
@@ -13,6 +14,7 @@ import { AlarmCountTrendComponent } from './components/alarm-count-trend.compone
 export class PdmAlarmCountTrendWidgetComponent extends WidgetApi implements OnInit, OnSetup {
     @ViewChild('container') container: ElementRef;
     @ViewChild('alarmCountTrendComp') alarmCountTrendComp: AlarmCountTrendComponent;
+    @ViewChild('widgetCondition') widgetCondition: WidgetChartConditionComponent;
 
     condition: IDataType.ContitionType = {
         fab: {
@@ -91,6 +93,8 @@ export class PdmAlarmCountTrendWidgetComponent extends WidgetApi implements OnIn
             area: props[CD.AREA],
             timePeriod: this.getTimePeriod(props[CD.TIME_PERIOD][CD.FROM], props[CD.TIME_PERIOD][CD.TO], refreshType)
         };
+
+        this.widgetCondition.timeConvert(this.condition.timePeriod);
     }
 
     getTimePeriod(fromDate: number, toDate: number, refreshType?: string): { fromDate: number, toDate: number } {
