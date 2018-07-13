@@ -7,15 +7,23 @@
             <div id="gauge_alarmWarning{{i}}" class="pdm-gauge-wrapper" (click)="onParamClick(item, i, $event)" (mouseenter)="mouseEnter(item, i)"
                 *ngFor="let item of alarmWarningDatas; let i = index;" [ngClass]="{'alram-type-danger':item.type === 'alarm', 'alram-type-warning':item.type ==='warning', 'type-none': item.type === ''}">
                 <div class="pdm-gauge-section clearfix" [ngClass]="{'alarm-section-active': selectedAWSection === i, 'warning-section-active': selectedAWSection === i && 1 >= alarmDatas.length}">
-                    <div class="pdm-gauge-title" *ngIf="item.chartData && item.options">
+                    <div class="pdm-gauge-title" *ngIf="item && item.name">
                         <div class="pdm-gauge-name">{{item.name}}</div>
                         <div class="pdm-gauge-time"></div>
                     </div>
-                    <div class="pdm-gauge-chart" *ngIf="item.chartData && item.options">
-                        <gauge-chart-generate 
+                    <div class="pdm-gauge-chart">
+                        <gauge-chart-generate *ngIf="item.chartData && item.options"
                             (emitData)="emitData($event)"
                             [item]="item">
                         </gauge-chart-generate>
+                        <!-- <div class="float-wrapper" *ngIf="item.chartData === null" style="position:relative;">
+                            <dl>
+                                <dt>
+                                    <i class="icon icon-nodata"></i>
+                                </dt>
+                                <dd class="message-title">No Data</dd>
+                            </dl>
+                        </div> -->
                     </div>
                 </div>
             </div>
@@ -37,17 +45,24 @@
         <div class="alarm-width-calc">
             <div id="gauge_bad{{i}}" class="pdm-gauge-wrapper" (click)="onParamClick(item, i, $event)" (mouseenter)="mouseEnter(item, $event, i)" 
                 *ngFor="let item of B5Datas; let i = index;" [ngClass]="{'alram-type-bad':item.type === 'B5', 'type-none': item.type === ''}">
-                <div class="pdm-gauge-section clearfix"
-                [ngClass]="{'bad-section-active': selectedBadSection === i}">
-                    <div class="pdm-gauge-title" *ngIf="item.chartData && item.options">
+                <div class="pdm-gauge-section clearfix" [ngClass]="{'bad-section-active': selectedBadSection === i}">
+                    <div class="pdm-gauge-title" *ngIf="item && item.name">
                         <div class="pdm-gauge-name">{{item.name}}</div>
                         <div class="pdm-gauge-time"></div>
                     </div>
-                    <div class="pdm-gauge-chart" *ngIf="item.chartData && item.options">
-                        <gauge-chart-generate 
+                    <div class="pdm-gauge-chart">
+                        <gauge-chart-generate *ngIf="item.chartData && item.options"
                             (emitData)="emitData($event)"
                             [item]="item">
                         </gauge-chart-generate>
+                        <!-- <div class="float-wrapper" *ngIf="item.chartData === null" style="position:relative;">
+                            <dl>
+                                <dt>
+                                    <i class="icon icon-nodata"></i>
+                                </dt>
+                                <dd class="message-title">No Data</dd>
+                            </dl>
+                        </div> -->
                     </div>
                 </div>
             </div>
