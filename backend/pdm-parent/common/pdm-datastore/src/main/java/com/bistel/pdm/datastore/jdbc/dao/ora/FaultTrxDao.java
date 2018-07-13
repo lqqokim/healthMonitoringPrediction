@@ -24,7 +24,7 @@ public class FaultTrxDao implements FaultDataDao {
                     " FAULT_CLASS, " +
                     " ALARM_SPEC, WARNING_SPEC, " +
                     " ALARM_DTTS) " +
-                    "values (seq_param_alarm_trx_pdm.nextval, ?, ?, ?, ?, ?, ?, ?, ?)";
+                    "values (seq_alarm_trx_pdm.nextval, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     @Override
     public void storeRecord(ConsumerRecords<String, byte[]> records) {
@@ -72,7 +72,7 @@ public class FaultTrxDao implements FaultDataDao {
                 }
 
                 conn.commit();
-                log.debug("{} records are inserted into PARAM_ALARM_TRX_PDM.", totalCount);
+                log.debug("{} records are inserted into ALARM_TRX_PDM.", totalCount);
 
             } catch (Exception e) {
                 conn.rollback();

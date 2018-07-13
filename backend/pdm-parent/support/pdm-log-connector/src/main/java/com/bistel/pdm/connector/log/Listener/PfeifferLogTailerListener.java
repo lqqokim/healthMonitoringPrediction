@@ -36,6 +36,7 @@ public class PfeifferLogTailerListener extends TailerListenerAdapter {
 
         String[] columns = line.split("/");
         final String partitionKey = "A1804H,TP8016901"; //area,eqp
+
         final String[] paramName = new String[]{"F1 CH1 V",
                 "F1 CH2 V",
                 "F2 CH1 V",
