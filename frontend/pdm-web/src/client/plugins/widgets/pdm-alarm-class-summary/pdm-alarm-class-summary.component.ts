@@ -1,7 +1,7 @@
 import { Component, ViewEncapsulation, OnDestroy, ViewChild } from '@angular/core';
 import { WidgetRefreshType, WidgetApi, OnSetup } from '../../../common';
 import { IDonutChartData, IColorSet, DonutChartComponent } from '../../common/donut-chart/donutChart.component';
-import { ITimePeriod } from '../../common/widget-chart-condition/widget-chart-condition.component';
+import { ITimePeriod, WidgetChartConditionComponent } from '../../common/widget-chart-condition/widget-chart-condition.component';
 import { PdmAlarmClassSummaryService } from './pdm-alarm-class-summary.service';
 import { WidgetConfigHelper, IConfigData } from '../../common/widget-config-helper/widget-config-helper';
 
@@ -22,6 +22,7 @@ export interface IReqDataFormat {
 
 export class PdmAlarmClassSummaryComponent extends WidgetApi implements OnSetup, OnDestroy {
 
+    @ViewChild('condition') condition: WidgetChartConditionComponent;
     @ViewChild('donutChart') donutChart: DonutChartComponent;
     
     //* 표 색상 배열 ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"]
@@ -125,15 +126,18 @@ export class PdmAlarmClassSummaryComponent extends WidgetApi implements OnSetup,
     getData( configData: IConfigData ){
         // 헬퍼를 통해 넘어온 값 설정
         this.fabId = configData.fabId;
-        this.targetName = configData.targetName;
         this.timePeriod = configData.timePeriod;
+        this.targetName = configData.targetName;
+
+        // 타임 출력
+        this.condition.timeConvert( this.timePeriod );
 
         // 서버 데이터 요청
         this._service.getListData({
             fabId: this.fabId,
             areaId: this.areaId,
-            fromDate: 1527951600000, //this.timePeriod.fromDate,
-            toDate: 1530630000000 //this.timePeriod.toDate
+            fromDate: this.timePeriod.fromDate,
+            toDate: this.timePeriod.toDate
         }).then((res: Array<IReqDataFormat>)=>{
             if( this.chartData.length ){
                 this.chartData.splice(0, this.chartData.length);
@@ -158,21 +162,7 @@ export class PdmAlarmClassSummaryComponent extends WidgetApi implements OnSetup,
 
             this.hideSpinner();
         },(err: any)=>{
-
-            // 에러 상황에도 임시로 출력 할수 있게 세팅 (서버 데이터가 정상적으로 온다면 제거할 것)
-            if( this.chartData.length ){
-                this.chartData.splice(0, this.chartData.length);
-            }
-
-            this.chartData.push({ name: "Unblance", count: 10 });
-            this.chartData.push({ name: "Lubrication", count: 2 });
-            this.chartData.push({ name: "N/A", count: 30 });
-
-            this.resetLegend();
-            this.donutChart.reDrawChart();
-
-            // console.log('tmpData', this.chartData);
-            // console.log('err', err);
+            console.log('err', err);
             this.hideSpinner();
         });
     }

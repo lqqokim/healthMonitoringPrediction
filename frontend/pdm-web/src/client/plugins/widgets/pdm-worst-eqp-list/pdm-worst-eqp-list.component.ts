@@ -1,8 +1,9 @@
-import { Component, ViewEncapsulation, OnDestroy, } from '@angular/core';
+import { Component, ViewEncapsulation, OnDestroy, ViewChild, } from '@angular/core';
 import { WidgetRefreshType, WidgetApi, OnSetup } from '../../../common';
 import { PdmWostEqpListService } from './pdm-worst-eqp-list.service';
 import { IWorstEeqList, ITimePeriod } from '../../common/status-chart-canvas/status-change.component';
 import { WidgetConfigHelper, IConfigData } from '../../common/widget-config-helper/widget-config-helper';
+import { WidgetChartConditionComponent } from '../../common/widget-chart-condition/widget-chart-condition.component';
 
 // 서버 요청 데이터 포맷
 export interface IReqDataFormat {
@@ -28,6 +29,8 @@ export interface IReqDataFormat {
 })
 
 export class PdmWostEqpListComponent extends WidgetApi implements OnSetup, OnDestroy {
+
+    @ViewChild('condition') condition: WidgetChartConditionComponent;
 
     // status 별 색상설정
     drawColors:Array<{name: string; color: string;}> = [
@@ -101,13 +104,15 @@ export class PdmWostEqpListComponent extends WidgetApi implements OnSetup, OnDes
         this.targetName = configData.targetName;
         this.timePeriod = configData.timePeriod;
 
-        console.log( this.timePeriod );
-        
+        // 타임 출력
+        this.condition.timeConvert( this.timePeriod );
+
+        // 임시 목업 데이터 (18.7.6 00:00:00 ~ 18.7.7 00:00:00 테스트 시간)
         this._service.getListData({
             fabId: this.fabId,
             areaId: this.areaId,
-            fromDate: 1530802800000, //this.timePeriod.fromDate,
-            toDate: 1530889200000 //this.timePeriod.toDate
+            fromDate: this.timePeriod.fromDate,
+            toDate: this.timePeriod.toDate
         }).then((res: Array<IReqDataFormat>)=>{
             if( this.listData.length ){
                 this.listData.splice(0, this.listData.length);
@@ -134,89 +139,10 @@ export class PdmWostEqpListComponent extends WidgetApi implements OnSetup, OnDes
                     });
                 }
             }
-            
-            // 임시 세팅용 (차트 그려주기 위한 데이터 이기 때문에 임시 설정) (서버 요청이 정상 데이터가 전달 된다면 아래 timeperiod 제거)
-            this.timePeriod = {
-                fromDate: 1530802800000,
-                toDate: 1530889200000
-            };
 
             this.hideSpinner();
         },(err: any)=>{
-
-            // 에러 상황에도 임시로 출력 할수 있게 세팅 (서버 데이터가 정상적으로 온다면 제거할 것)
-            if( this.listData.length ){
-                this.listData.splice(0, this.listData.length);
-            }
-
-            this.timePeriod = {
-                fromDate: 1532044800000,
-                toDate: 1532077200000
-            };
-
-            this.listData = [
-                {
-                    order: 1,
-                    equipment: 'EQP34',
-                    score: 0.83,
-                    status: [
-                        {type: 'RUN', start:1532044800000, end:1532051940000 },
-                        {type: 'IDLE', start:1532051940000, end:1532052000000 },
-                        {type: 'RUN', start:1532052000000, end:1532061011000 },
-                        {type: 'RUN', start:1532061011000, end:1532066400000 },
-                        {type: 'IDLE', start:1532066400000, end:1532073600000 },
-                        {type: 'RUN', start:1532073600000, end:1532077200000 }
-                    ]
-                }, {
-                    order: 2,
-                    equipment: 'EQP51',
-                    score: 0.75,
-                    status: [
-                        {type: 'IDLE', start:1532044800000, end:1532046600000 },
-                        {type: 'RUN', start:1532046600000, end:1532057820000 },
-                        {type: 'RUN', start:1532057820000, end:1532059200000 },
-                        {type: 'RUN', start:1532059200000, end:1532062500000 },
-                        {type: 'RUN', start:1532062500000, end:1532062800000 },
-                        {type: 'IDLE', start:1532062800000, end:1532077200000 }
-                    ]
-                }, {
-                    order: 3,
-                    equipment: 'EQP34',
-                    score: 0.72,
-                    status: [
-                        {type: 'RUN', start:1532044800000, end:1532051940000 },
-                        {type: 'RUN', start:1532051940000, end:1532052000000 },
-                        {type: 'RUN', start:1532052000000, end:1532061011000 },
-                        {type: 'RUN', start:1532061011000, end:1532066400000 },
-                        {type: 'RUN', start:1532066400000, end:1532073600000 },
-                        {type: 'RUN', start:1532073600000, end:1532077200000 }
-                    ]
-                }, {
-                    order: 4,
-                    equipment: 'EQP34',
-                    score: 0.69,
-                    status: [
-                        {type: 'RUN', start:1532044800000, end:1532045530500 },
-                        {type: 'IDLE', start:1532045530500, end:1532056200000 },
-                        {type: 'RUN', start:1532056200000, end:1532061011000 },
-                        {type: 'RUN', start:1532061011000, end:1532077200000 }
-                    ]
-                }, {
-                    order: 5,
-                    equipment: 'EQP34',
-                    score: 0.66,
-                    status: [
-                        {type: 'IDLE', start:1532044800000, end:1532051940000 },
-                        {type: 'RUN', start:1532051940000, end:1532052000000 },
-                        {type: 'RUN', start:1532052000000, end:1532061011000 },
-                        {type: 'IDLE', start:1532061011000, end:1532066400000 },
-                        {type: 'RUN', start:1532066400000, end:1532073600000 },
-                        {type: 'RUN', start:1532073600000, end:1532077200000 }
-                    ]
-                }
-            ];
             console.log('err', err);
-            console.log('this.listData', this.listData);
             this.hideSpinner();
         });
     }

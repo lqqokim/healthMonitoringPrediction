@@ -1,8 +1,8 @@
-import { Component, ViewEncapsulation, OnDestroy } from '@angular/core';
+import { Component, ViewEncapsulation, OnDestroy, ViewChild } from '@angular/core';
 import { WidgetRefreshType, WidgetApi, OnSetup } from '../../../common';
 import { PdmAlarmHistoryService } from './pdm-alarm-history.service';
 import { TableData } from '../../common/ng2-table/table.component';
-import { ITimePeriod } from '../../common/widget-chart-condition/widget-chart-condition.component';
+import { ITimePeriod, WidgetChartConditionComponent } from '../../common/widget-chart-condition/widget-chart-condition.component';
 import { WidgetConfigHelper, IConfigData } from '../../common/widget-config-helper/widget-config-helper';
 
 // 서버 요청 데이터 포맷
@@ -28,6 +28,8 @@ export interface IReqDataFormat {
 })
 
 export class PdmAlarmHistoryComponent extends WidgetApi implements OnSetup, OnDestroy {
+
+    @ViewChild('condition') condition: WidgetChartConditionComponent;
 
     public columns: Array<TableData> = [
         {title: 'Time', name: 'Time' },
@@ -111,19 +113,14 @@ export class PdmAlarmHistoryComponent extends WidgetApi implements OnSetup, OnDe
         this.targetName = configData.targetName;
         this.timePeriod = configData.timePeriod;
 
-        console.log('configData', configData);
-        console.log('this.timePeriod', this.timePeriod);
-
-        console.log(
-            moment(this.timePeriod.fromDate).format('YYYY-MM-DD HH:mm') +' ~ '+
-            moment(this.timePeriod.toDate).format('YYYY-MM-DD HH:mm')
-        )
+        // 타임 출력
+        this.condition.timeConvert( this.timePeriod );
 
         this._service.getListData({
             fabId: this.fabId,
             areaId: this.areaId,
-            fromDate: 1530284400000, //this.timePeriod.fromDate,
-            toDate: 1530370800000 //this.timePeriod.toDate
+            fromDate: this.timePeriod.fromDate,
+            toDate: this.timePeriod.toDate
         }).then((res: Array<IReqDataFormat>)=>{
             if( this.listData.length ){
                 this.listData.splice(0, this.listData.length);
@@ -147,22 +144,7 @@ export class PdmAlarmHistoryComponent extends WidgetApi implements OnSetup, OnDe
 
             this.hideSpinner();
         },(err: any)=>{
-
-            // 에러 상황에도 임시로 출력 할수 있게 세팅 (서버 데이터가 정상적으로 온다면 제거할 것)
-            if( this.listData.length ){
-                this.listData.splice(0, this.listData.length);
-            }
-
-            this.listData = [
-                {Time: '', EQP:'EQP34', Param:'Vibration1', Category:'Alarm', FaultClass: 'Unbalance'},
-                {Time: '', EQP:'EQP36', Param:'Temp', Category:'Alarm', FaultClass: 'N/A'},
-                {Time: '', EQP:'EQP34', Param:'Vibration1', Category:'Alarm', FaultClass: 'N/A'},
-                {Time: '', EQP:'EQP34', Param:'Pressure', Category:'Warning', FaultClass: 'N/A'},
-                {Time: '', EQP:'EQP34', Param:'Vibration1', Category:'Alarm', FaultClass: 'N/A'},
-            ];
-
             console.log('err', err);
-            console.log('this.listData', this.listData);
             this.hideSpinner();
         });
     }

@@ -14,24 +14,18 @@ export interface ITimePeriod {
 export class WidgetChartConditionComponent {
 
     @Input() target: string;
-    @Input() timePeriod: ITimePeriod;
-
+    
     time: string = undefined;
 
     constructor(){
     }
 
     // timePeriod 시간 출력용으로 변환
-    timeConvert(): void {
-        if( this.timePeriod === undefined ){ return; }
-
+    public timeConvert(timePeriod: ITimePeriod): void {
+        if( timePeriod === undefined ){ return; }
         this.time =
-            moment(this.timePeriod.fromDate).format('YYYY-MM-DD HH:mm') +' ~ '+
-            moment(this.timePeriod.toDate).format('YYYY-MM-DD HH:mm')
+            moment(timePeriod.fromDate).format('YYYY-MM-DD HH:mm') +' ~ '+
+            moment(timePeriod.toDate).format('YYYY-MM-DD HH:mm')
         ;
-    }
-
-    ngOnChanges(c: any){
-        this.timeConvert();
     }
 }

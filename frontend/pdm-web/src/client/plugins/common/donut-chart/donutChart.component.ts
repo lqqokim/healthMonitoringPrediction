@@ -386,7 +386,8 @@ export class DonutChartComponent implements OnInit, OnChanges, OnDestroy {
                     .attr('name', 'line2')
                     .attr('x', `0`)
                     .attr('dy', `${fontSize}`)
-                    .text(`${row.count} (${parseFloat( (row.percent*100).toFixed(2) )}%)`) 
+                    // .text(`${row.count} (${parseFloat( (row.percent*100).toFixed(2) )}%)`) 
+                    .text(`${Math.floor( row.percent*100 ) }% (${row.count})`) 
                 ;
             }
             // 다시 그려야할 경우
