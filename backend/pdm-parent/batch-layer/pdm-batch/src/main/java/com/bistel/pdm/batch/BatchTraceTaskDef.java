@@ -59,11 +59,11 @@ public class BatchTraceTaskDef extends AbstractPipeline {
 //                        Serdes.String(),
 //                        Serdes.Double());
 
-        StoreBuilder<KeyValueStore<String, byte[]>> fd02RuleDataStoreSupplier =
-                Stores.keyValueStoreBuilder(
-                        Stores.persistentKeyValueStore("fd02-rule-window"),
-                        Serdes.String(),
-                        Serdes.ByteArray());
+//        StoreBuilder<KeyValueStore<String, byte[]>> fd02RuleDataStoreSupplier =
+//                Stores.keyValueStoreBuilder(
+//                        Stores.persistentKeyValueStore("fd02-rule-window"),
+//                        Serdes.String(),
+//                        Serdes.ByteArray());
 
         StoreBuilder<KeyValueStore<String, String>> statusContextStoreSupplier =
                 Stores.keyValueStoreBuilder(
