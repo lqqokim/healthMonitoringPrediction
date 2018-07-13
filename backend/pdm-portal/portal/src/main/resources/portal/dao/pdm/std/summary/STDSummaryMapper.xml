@@ -4,7 +4,7 @@
 
 
 
-    <select id="selectStatusCountSummary" resultType="com.bistel.a3.portal.domain.pdm.AreaFaultCountSummary">
+    <select id="selectStatusCountSummary" resultType="com.bistel.a3.portal.domain.pdm.AreaFaultCountSummary"  databaseId="oracle">
         select area_mst_pdm.rawid as area_id, areaeqp.area_name, areaeqp.total_count, areaeqp.eqp_offline as offline_count, areaeqp.alarm_count, areaeqp.warning_count, areaeqp.normal_count
         from
 
@@ -404,10 +404,511 @@
         where areaeqp.area_name=AREA_MST_PDM.NAME
 
     </select>
+    <select id="selectStatusCountSummary" resultType="com.bistel.a3.portal.domain.pdm.AreaFaultCountSummary"  databaseId="postgresql">
+		SELECT area_mst_pdm.rawid  AS area_id,
+		       areaeqp.area_name,
+		       areaeqp.total_count,
+		       areaeqp.eqp_offline AS offline_count,
+		       areaeqp.alarm_count,
+		       areaeqp.warning_count,
+		       areaeqp.normal_count
+		FROM   (SELECT area_name,
+		               total_count,
+		               eqp_offline,
+		               alarm_count,
+		               warning_count,
+		               total_count - ( eqp_offline + alarm_count + warning_count ) AS 
+					   normal_count
+		        FROM   (SELECT total.areagroupname                              AS
+		                       area_name,
+		                       total.eqp_total_count                            AS
+		                       total_count,
+		                       ( total.eqp_total_count - eqponline.eqp_online ) AS
+		                       eqp_offline,
+		                       aw.alarm_count                                   AS
+		                       alarm_count,
+		                       aw.warning_count                                 AS
+		                       warning_count
+		                FROM   (SELECT areagroupname,
+		                               Count(eqp_mst_rawid) AS eqp_total_count
+		                        FROM   (SELECT areagroupname,
+		                                       area_id   AS area_mst_rawid,
+		                                       eqp.name  AS eqp_name,
+		                                       eqp.rawid AS eqp_mst_rawid,
+		                                       eqp.offline_yn
+		                                FROM   eqp_mst_pdm eqp,
+										
+										
+		                                       (SELECT *
+												FROM (
+													WITH RECURSIVE q AS (
+														SELECT area.*, 1 AS LEVEL
+														FROM area_mst_pdm area
+														WHERE area.parent_rawid = 0
+														UNION ALL
+														SELECT area.*, LEVEL + 1
+														FROM area_mst_pdm area
+														JOIN q ON q.rawid=area.parent_rawid
+													)
+													SELECT name              AS
+														   areagroupname,
+														   rawid             AS
+														   area_id,
+														   LEVEL,
+														   name,
+														   parent_rawid      AS
+														   parent_id,
+														   CASE WHEN (SELECT COUNT(*) FROM area_mst_pdm WHERE parent_rawid = qq.rawid) > 0 THEN 0
+														   ELSE 1 END AS leaf
+													FROM q qq
+													WHERE LEVEL = 2
+													ORDER  BY leaf, parent_id
+												) area_list
+												WHERE  leaf = 1
+		
+												UNION ALL
+		
+												(
+												with recursive area_list (area_id, LEVEL, name, areagroupname, parent_id) as (
+													select area.rawid, 1 as level, area.name, areagroup.name, area.parent_rawid
+													from area_mst_pdm area, (
+																			WITH RECURSIVE q AS (
+																				SELECT area.*, 1 AS LEVEL
+																				FROM area_mst_pdm area
+																				WHERE area.parent_rawid = 0
+																				UNION ALL
+																				SELECT area.*, LEVEL + 1
+																				FROM area_mst_pdm area
+																				JOIN q ON q.rawid=area.parent_rawid
+																			)
+																			SELECT rawid             AS
+																				   area_id,
+																				   name,
+																				   parent_rawid      AS
+																				   parent_id, 
+																				   CASE WHEN (SELECT COUNT(*) FROM area_mst_pdm WHERE parent_rawid = qq.rawid) > 0 THEN 0
+																				   ELSE 1 END AS leaf
+																			FROM q qq
+																			WHERE LEVEL = 2
+																			ORDER  BY leaf, parent_id
+																			) areagroup
+													where area.parent_rawid = areagroup.area_id
+													union all
+													select areagroup.area_id, areagroup.level+1, area.name, areagroup.name, areagroup.parent_id
+													from area_mst_pdm area, (
+																			WITH RECURSIVE q AS (
+																				SELECT area.*, 1 AS LEVEL
+																				FROM area_mst_pdm area
+																				WHERE area.parent_rawid = 0
+																				UNION ALL
+																				SELECT area.*, LEVEL + 1
+																				FROM area_mst_pdm area
+																				JOIN q ON q.rawid=area.parent_rawid
+																			)
+																			SELECT rawid             AS
+																				   area_id,
+																				   level,
+																				   name,
+																				   parent_rawid      AS
+																				   parent_id, 
+																				   CASE WHEN (SELECT COUNT(*) FROM area_mst_pdm WHERE parent_rawid = qq.rawid) > 0 THEN 0
+																				   ELSE 1 END AS leaf
+																			FROM q qq
+																			WHERE LEVEL = 2
+																			ORDER  BY leaf, parent_id
+																			) areagroup
+													JOIN area_list ON area_list.area_id=areagroup.parent_id
+												)
+												select areagroupname, area_id, level, name, parent_id,
+													   CASE WHEN (SELECT COUNT(*) FROM area_mst_pdm WHERE parent_rawid = qq.area_id) > 0 THEN 0
+													   ELSE 1 END AS leaf
+												from area_list qq
+												)
+											) area_info
+		                                WHERE  eqp.area_mst_rawid = area_info.area_id
+		                                ORDER  BY areagroupname DESC) area_eqp_list1
+		                        GROUP  BY areagroupname) total,
+		                       (SELECT areagroupname,
+		                               Count(eqp_offline_yn) AS eqp_online
+		                        FROM   (
+									    
+										SELECT areagroupname,
+											   area_id        AS area_mst_rawid,
+											   eqp.name       AS eqp_name,
+											   eqp.rawid      AS eqp_mst_rawid,
+											   eqp.offline_yn AS eqp_offline_yn
+										FROM   eqp_mst_pdm eqp, 
+																(SELECT *
+																	FROM (
+																		WITH RECURSIVE q AS (
+																			SELECT area.*, 1 AS LEVEL
+																			FROM area_mst_pdm area
+																			WHERE area.parent_rawid = 0
+																			UNION ALL
+																			SELECT area.*, LEVEL + 1
+																			FROM area_mst_pdm area
+																			JOIN q ON q.rawid=area.parent_rawid
+																		)
+																		SELECT name              AS
+																			   areagroupname,
+																			   rawid             AS
+																			   area_id,
+																			   LEVEL,
+																			   name,
+																			   parent_rawid      AS
+																			   parent_id,
+																			   CASE WHEN (SELECT COUNT(*) FROM area_mst_pdm WHERE parent_rawid = qq.rawid) > 0 THEN 0
+																			   ELSE 1 END AS leaf
+																		FROM q qq
+																		WHERE LEVEL = 2
+																		ORDER  BY leaf, parent_id
+																	) area_list
+																	WHERE  leaf = 1
+		
+																	UNION ALL
+		
+																	(
+																	with recursive area_list (area_id, LEVEL, name, areagroupname, parent_id) as (
+																		select area.rawid, 1 as level, area.name, areagroup.name, area.parent_rawid
+																		from area_mst_pdm area, (
+																								WITH RECURSIVE q AS (
+																									SELECT area.*, 1 AS LEVEL
+																									FROM area_mst_pdm area
+																									WHERE area.parent_rawid = 0
+																									UNION ALL
+																									SELECT area.*, LEVEL + 1
+																									FROM area_mst_pdm area
+																									JOIN q ON q.rawid=area.parent_rawid
+																								)
+																								SELECT rawid             AS
+																									   area_id,
+																									   name,
+																									   parent_rawid      AS
+																									   parent_id, 
+																									   CASE WHEN (SELECT COUNT(*) FROM area_mst_pdm WHERE parent_rawid = qq.rawid) > 0 THEN 0
+																									   ELSE 1 END AS leaf
+																								FROM q qq
+																								WHERE LEVEL = 2
+																								ORDER  BY leaf, parent_id
+																								) areagroup
+																		where area.parent_rawid = areagroup.area_id
+																		union all
+																		select areagroup.area_id, areagroup.level+1, area.name, areagroup.name, areagroup.parent_id
+																		from area_mst_pdm area, (
+																								WITH RECURSIVE q AS (
+																									SELECT area.*, 1 AS LEVEL
+																									FROM area_mst_pdm area
+																									WHERE area.parent_rawid = 0
+																									UNION ALL
+																									SELECT area.*, LEVEL + 1
+																									FROM area_mst_pdm area
+																									JOIN q ON q.rawid=area.parent_rawid
+																								)
+																								SELECT rawid             AS
+																									   area_id,
+																									   level,
+																									   name,
+																									   parent_rawid      AS
+																									   parent_id, 
+																									   CASE WHEN (SELECT COUNT(*) FROM area_mst_pdm WHERE parent_rawid = qq.rawid) > 0 THEN 0
+																									   ELSE 1 END AS leaf
+																								FROM q qq
+																								WHERE LEVEL = 2
+																								ORDER  BY leaf, parent_id
+																								) areagroup
+																		JOIN area_list ON area_list.area_id=areagroup.parent_id
+																	)
+																	select areagroupname, area_id, level, name, parent_id,
+																		   CASE WHEN (SELECT COUNT(*) FROM area_mst_pdm WHERE parent_rawid = qq.area_id) > 0 THEN 0
+																		   ELSE 1 END AS leaf
+																	from area_list qq
+																	)
+																)  area_info
+										WHERE  eqp.area_mst_rawid = area_info.area_id
+										ORDER  BY areagroupname DESC
+										) eqp_area_list
+		                        WHERE  1 = 1
+		                        AND eqp_offline_yn = 'N'
+		                        GROUP  BY areagroupname) eqponline,
+		                       (SELECT areagroupname,
+		                               alarm_count,
+		                               warning_count
+		                        FROM   (SELECT area_alarm_count.areagroupname   AS areagroupname,
+		                                       area_alarm_count.alarm_count     AS alarm_count,
+		                                       area_warning_count.warning_count AS warning_count
+		                                FROM   (SELECT areagroupname, Count(alarm_count) alarm_count
+		                                        FROM   (SELECT
+															   Area_eqp_list.area_mst_rawid,
+															   Area_eqp_list.areagroupname,
+															   Area_eqp_list.eqp_mst_rawid,
+															   Area_eqp_list.eqp_name,
+															   specout_eqp.alarm_count
+															   alarm_count
+		                                                FROM  (SELECT eqp_mst_rawid, alarm_count
+		                                                       FROM (SELECT specout.eqp_mst_rawid AS eqp_mst_rawid,
+																	 COALESCE(alarm.alarm_count, 0) AS alarm_count
+																	 FROM (SELECT eqp_mst_rawid, Count(status_cd) AS total_count
+																	       FROM eqp_alarm_daily_sum_pdm
+																		   WHERE  1 = 1
+																	       and sum_dtts <![CDATA[>=]]> #{fromdate}
+																	       and sum_dtts <![CDATA[<]]> #{todate}
+																	  GROUP  BY eqp_mst_rawid) specout
+																	  left outer join
+																	  (SELECT eqp_mst_rawid, Count(status_cd) AS alarm_count
+																	  FROM   eqp_alarm_daily_sum_pdm
+																	  WHERE  1 = 1
+															          and sum_dtts <![CDATA[>=]]> #{fromdate}
+															          and sum_dtts <![CDATA[<]]> #{todate}
+																	  AND status_cd = 256
+																	  GROUP  BY eqp_mst_rawid) alarm
+																	  on alarm.eqp_mst_rawid = specout.eqp_mst_rawid) eqp_alarm_count
+															    WHERE  1 = 1
+															    ) specout_eqp,
+															    (SELECT areagroupname,
+																	   area_mst_rawid,
+																	   eqp_name,
+																	   eqp_mst_rawid
+															     FROM (
+																   
+																     SELECT areagroupname,
+																	   		area_id   AS area_mst_rawid,
+																	   		eqp.name  AS eqp_name,
+																	   		eqp.rawid AS eqp_mst_rawid
+																	 FROM eqp_mst_pdm eqp,
+																						   (SELECT *
+																							FROM (
+																								WITH RECURSIVE q AS (
+																									SELECT area.*, 1 AS LEVEL
+																									FROM area_mst_pdm area
+																									WHERE area.parent_rawid = 0
+																									UNION ALL
+																									SELECT area.*, LEVEL + 1
+																									FROM area_mst_pdm area
+																									JOIN q ON q.rawid=area.parent_rawid
+																								)
+																								SELECT name              AS
+																									   areagroupname,
+																									   rawid             AS
+																									   area_id,
+																									   LEVEL,
+																									   name,
+																									   parent_rawid      AS
+																									   parent_id,
+																									   CASE WHEN (SELECT COUNT(*) FROM area_mst_pdm WHERE parent_rawid = qq.rawid) > 0 THEN 0
+																									   ELSE 1 END AS leaf
+																								FROM q qq
+																								WHERE LEVEL = 2
+																								ORDER  BY leaf, parent_id
+																							) area_list
+																							WHERE  leaf = 1
+		
+																							UNION ALL
+		
+																							(
+																							with recursive area_list (area_id, LEVEL, name, areagroupname, parent_id) as (
+																								select area.rawid, 1 as level, area.name, areagroup.name, area.parent_rawid
+																								from area_mst_pdm area, (
+																														WITH RECURSIVE q AS (
+																															SELECT area.*, 1 AS LEVEL
+																															FROM area_mst_pdm area
+																															WHERE area.parent_rawid = 0
+																															UNION ALL
+																															SELECT area.*, LEVEL + 1
+																															FROM area_mst_pdm area
+																															JOIN q ON q.rawid=area.parent_rawid
+																														)
+																														SELECT rawid             AS
+																															   area_id,
+																															   name,
+																															   parent_rawid      AS
+																															   parent_id, 
+																															   CASE WHEN (SELECT COUNT(*) FROM area_mst_pdm WHERE parent_rawid = qq.rawid) > 0 THEN 0
+																															   ELSE 1 END AS leaf
+																														FROM q qq
+																														WHERE LEVEL = 2
+																														ORDER  BY leaf, parent_id
+																														) areagroup
+																								where area.parent_rawid = areagroup.area_id
+																								union all
+																								select areagroup.area_id, areagroup.level+1, area.name, areagroup.name, areagroup.parent_id
+																								from area_mst_pdm area, (
+																														WITH RECURSIVE q AS (
+																															SELECT area.*, 1 AS LEVEL
+																															FROM area_mst_pdm area
+																															WHERE area.parent_rawid = 0
+																															UNION ALL
+																															SELECT area.*, LEVEL + 1
+																															FROM area_mst_pdm area
+																															JOIN q ON q.rawid=area.parent_rawid
+																														)
+																														SELECT rawid             AS
+																															   area_id,
+																															   level,
+																															   name,
+																															   parent_rawid      AS
+																															   parent_id, 
+																															   CASE WHEN (SELECT COUNT(*) FROM area_mst_pdm WHERE parent_rawid = qq.rawid) > 0 THEN 0
+																															   ELSE 1 END AS leaf
+																														FROM q qq
+																														WHERE LEVEL = 2
+																														ORDER  BY leaf, parent_id
+																														) areagroup
+																								JOIN area_list ON area_list.area_id=areagroup.parent_id
+																							)
+																							select areagroupname, area_id, level, name, parent_id,
+																								   CASE WHEN (SELECT COUNT(*) FROM area_mst_pdm WHERE parent_rawid = qq.area_id) > 0 THEN 0
+																								   ELSE 1 END AS leaf
+																							from area_list qq
+																							)
+																						) area_info
+															   		  WHERE  eqp.area_mst_rawid = area_info.area_id
+															   		  ORDER  BY areagroupname DESC) area_eqp_list2
+															    ) Area_eqp_list
+													     WHERE  1 = 1
+													     AND specout_eqp.eqp_mst_rawid = Area_eqp_list.eqp_mst_rawid) area_areagroup_eqp_alarm
+											   WHERE  1 = 1
+											   AND alarm_count > 0
+											   GROUP  BY areagroupname) area_alarm_count
+											   right outer join
+											   (SELECT areagroupname,
+											   Count(alarm_count) AS warning_count
+											   FROM (SELECT Area_eqp_list.area_mst_rawid,
+														    Area_eqp_list.areagroupname,
+														    Area_eqp_list.eqp_mst_rawid,
+														    Area_eqp_list.eqp_name,
+														    specout_eqp.alarm_count alarm_count
+													 FROM (SELECT eqp_mst_rawid, alarm_count
+											   			   FROM (SELECT specout.eqp_mst_rawid AS eqp_mst_rawid, COALESCE(alarm.alarm_count, 0) AS alarm_count
+											                     FROM (SELECT eqp_mst_rawid, Count(status_cd) AS total_count
+		 									   						   FROM   eqp_alarm_daily_sum_pdm
+																	   WHERE  1 = 1
+															           and sum_dtts <![CDATA[>=]]> #{fromdate}
+															           and sum_dtts <![CDATA[<]]> #{todate}
+																	   GROUP  BY eqp_mst_rawid) specout
+																 	   left outer join
+																	   (SELECT eqp_mst_rawid, Count(status_cd) AS alarm_count
+																	    FROM   eqp_alarm_daily_sum_pdm
+																	    WHERE  1 = 1
+														                and sum_dtts <![CDATA[>=]]> #{fromdate}
+															            and sum_dtts <![CDATA[<]]> #{todate}
+																	    AND status_cd = '256'
+																	    GROUP  BY eqp_mst_rawid) alarm
+											                      on alarm.eqp_mst_rawid = specout.eqp_mst_rawid) eqp_alarm_count
+														    ) specout_eqp,
+											                (SELECT areagroupname,
+																    area_mst_rawid,
+																    eqp_name,
+																    eqp_mst_rawid
+															 FROM   (SELECT areagroupname,
+															   				area_id   AS area_mst_rawid,
+																		    eqp.name  AS eqp_name,
+																		    eqp.rawid AS eqp_mst_rawid
+															   		 FROM eqp_mst_pdm eqp, 
+																						   (SELECT *
+																							FROM (
+																								WITH RECURSIVE q AS (
+																									SELECT area.*, 1 AS LEVEL
+																									FROM area_mst_pdm area
+																									WHERE area.parent_rawid = 0
+																									UNION ALL
+																									SELECT area.*, LEVEL + 1
+																									FROM area_mst_pdm area
+																									JOIN q ON q.rawid=area.parent_rawid
+																								)
+																								SELECT name              AS
+																									   areagroupname,
+																									   rawid             AS
+																									   area_id,
+																									   LEVEL,
+																									   name,
+																									   parent_rawid      AS
+																									   parent_id,
+																									   CASE WHEN (SELECT COUNT(*) FROM area_mst_pdm WHERE parent_rawid = qq.rawid) > 0 THEN 0
+																									   ELSE 1 END AS leaf
+																								FROM q qq
+																								WHERE LEVEL = 2
+																								ORDER  BY leaf, parent_id
+																							) area_list
+																							WHERE  leaf = 1
+		
+																							UNION ALL
+		
+																							(
+																							with recursive area_list (area_id, LEVEL, name, areagroupname, parent_id) as (
+																								select area.rawid, 1 as level, area.name, areagroup.name, area.parent_rawid
+																								from area_mst_pdm area, (
+																														WITH RECURSIVE q AS (
+																															SELECT area.*, 1 AS LEVEL
+																															FROM area_mst_pdm area
+																															WHERE area.parent_rawid = 0
+																															UNION ALL
+																															SELECT area.*, LEVEL + 1
+																															FROM area_mst_pdm area
+																															JOIN q ON q.rawid=area.parent_rawid
+																														)
+																														SELECT rawid             AS
+																															   area_id,
+																															   name,
+																															   parent_rawid      AS
+																															   parent_id, 
+																															   CASE WHEN (SELECT COUNT(*) FROM area_mst_pdm WHERE parent_rawid = qq.rawid) > 0 THEN 0
+																															   ELSE 1 END AS leaf
+																														FROM q qq
+																														WHERE LEVEL = 2
+																														ORDER  BY leaf, parent_id
+																														) areagroup
+																								where area.parent_rawid = areagroup.area_id
+																								union all
+																								select areagroup.area_id, areagroup.level+1, area.name, areagroup.name, areagroup.parent_id
+																								from area_mst_pdm area, (
+																														WITH RECURSIVE q AS (
+																															SELECT area.*, 1 AS LEVEL
+																															FROM area_mst_pdm area
+																															WHERE area.parent_rawid = 0
+																															UNION ALL
+																															SELECT area.*, LEVEL + 1
+																															FROM area_mst_pdm area
+																															JOIN q ON q.rawid=area.parent_rawid
+																														)
+																														SELECT rawid             AS
+																															   area_id,
+																															   level,
+																															   name,
+																															   parent_rawid      AS
+																															   parent_id, 
+																															   CASE WHEN (SELECT COUNT(*) FROM area_mst_pdm WHERE parent_rawid = qq.rawid) > 0 THEN 0
+																															   ELSE 1 END AS leaf
+																														FROM q qq
+																														WHERE LEVEL = 2
+																														ORDER  BY leaf, parent_id
+																														) areagroup
+																								JOIN area_list ON area_list.area_id=areagroup.parent_id
+																							)
+																							select areagroupname, area_id, level, name, parent_id,
+																								   CASE WHEN (SELECT COUNT(*) FROM area_mst_pdm WHERE parent_rawid = qq.area_id) > 0 THEN 0
+																								   ELSE 1 END AS leaf
+																							from area_list qq
+																							)
+																						) area_info
+															   		 WHERE  eqp.area_mst_rawid = area_info.area_id
+															   		 ORDER  BY areagroupname DESC) areagroup_area_eqp
+															) Area_eqp_list
+												   	 WHERE  1 = 1
+												     AND specout_eqp.eqp_mst_rawid = Area_eqp_list.eqp_mst_rawid) area_areagroup_eqp_alram_count
+											    WHERE  1 = 1
+											    AND alarm_count = 0
+											    GROUP  BY areagroupname) area_warning_count
+		               					on area_alarm_count.areagroupname = area_warning_count.areagroupname) areagroup_alarm_countd_warning_count
+				 				) aw
+		         				WHERE  1 = 1
+		         		AND total.areagroupname = eqponline.areagroupname
+		        		AND eqponline.areagroupname = aw.areagroupname) area_total_eqp_alarm_warning
+			   ) areaeqp, area_mst_pdm
+		WHERE  areaeqp.area_name = area_mst_pdm.name 
+    </select>
 
 
-
-    <select id="selectAlarmHistoryAll" resultType="com.bistel.a3.portal.domain.pdm.AlarmHistory">
+    <select id="selectAlarmHistoryAll" resultType="com.bistel.a3.portal.domain.pdm.AlarmHistory" databaseId="oracle">
         select areaeqp.areagroupname as area_name, areaeqp.area_id as area_id,  areaeqp.eqp_mst_rawid as eqp_id  ,areaeqp.eqp_name ,alarmhistory.alarm_dtts, alarmhistory.param_mst_rawid as param_id, alarmhistory.param_name, alarmhistory.category, alarmhistory.fault_class
         from
         (
@@ -492,10 +993,143 @@
         order by alarmhistory.alarm_dtts
 
     </select>
+    <select id="selectAlarmHistoryAll" resultType="com.bistel.a3.portal.domain.pdm.AlarmHistory" databaseId="postgresql">
+		SELECT   areaeqp.areagroupname AS area_name,
+		         areaeqp.area_id       AS area_id,
+		         areaeqp.eqp_mst_rawid AS eqp_id ,
+		         areaeqp.eqp_name ,
+		         alarmhistory.alarm_dtts,
+		         alarmhistory.param_mst_rawid AS param_id,
+		         alarmhistory.param_name,
+		         alarmhistory.category,
+		         alarmhistory.fault_class
+		FROM     (
+		                  SELECT   areagroupname,
+		                           area_id,
+		                           eqp.name  AS eqp_name,
+		                           eqp.rawid AS eqp_mst_rawid
+		                  FROM     eqp_mst_pdm eqp,
+		                           (SELECT *
+									FROM (
+										WITH RECURSIVE q AS (
+											SELECT area.*, 1 AS LEVEL
+											FROM area_mst_pdm area
+											WHERE area.parent_rawid = 0
+											UNION ALL
+											SELECT area.*, LEVEL + 1
+											FROM area_mst_pdm area
+											JOIN q ON q.rawid=area.parent_rawid
+										)
+										SELECT name              AS
+											   areagroupname,
+											   rawid             AS
+											   area_id,
+											   LEVEL,
+											   name,
+											   parent_rawid      AS
+											   parent_id,
+											   CASE WHEN (SELECT COUNT(*) FROM area_mst_pdm WHERE parent_rawid = qq.rawid) > 0 THEN 0
+											   ELSE 1 END AS leaf
+										FROM q qq
+										WHERE LEVEL = 2
+										ORDER  BY leaf, parent_id
+									) area_list
+									WHERE  leaf = 1
+		
+									UNION ALL
+		
+									(
+									with recursive area_list (area_id, LEVEL, name, areagroupname, parent_id) as (
+										select area.rawid, 1 as level, area.name, areagroup.name, area.parent_rawid
+										from area_mst_pdm area, (
+																WITH RECURSIVE q AS (
+																	SELECT area.*, 1 AS LEVEL
+																	FROM area_mst_pdm area
+																	WHERE area.parent_rawid = 0
+																	UNION ALL
+																	SELECT area.*, LEVEL + 1
+																	FROM area_mst_pdm area
+																	JOIN q ON q.rawid=area.parent_rawid
+																)
+																SELECT rawid             AS
+																	   area_id,
+																	   name,
+																	   parent_rawid      AS
+																	   parent_id, 
+																	   CASE WHEN (SELECT COUNT(*) FROM area_mst_pdm WHERE parent_rawid = qq.rawid) > 0 THEN 0
+																	   ELSE 1 END AS leaf
+																FROM q qq
+																WHERE LEVEL = 2
+																ORDER  BY leaf, parent_id
+																) areagroup
+										where area.parent_rawid = areagroup.area_id
+										union all
+										select areagroup.area_id, areagroup.level+1, area.name, areagroup.name, areagroup.parent_id
+										from area_mst_pdm area, (
+																WITH RECURSIVE q AS (
+																	SELECT area.*, 1 AS LEVEL
+																	FROM area_mst_pdm area
+																	WHERE area.parent_rawid = 0
+																	UNION ALL
+																	SELECT area.*, LEVEL + 1
+																	FROM area_mst_pdm area
+																	JOIN q ON q.rawid=area.parent_rawid
+																)
+																SELECT rawid             AS
+																	   area_id,
+																	   level,
+																	   name,
+																	   parent_rawid      AS
+																	   parent_id, 
+																	   CASE WHEN (SELECT COUNT(*) FROM area_mst_pdm WHERE parent_rawid = qq.rawid) > 0 THEN 0
+																	   ELSE 1 END AS leaf
+																FROM q qq
+																WHERE LEVEL = 2
+																ORDER  BY leaf, parent_id
+																) areagroup
+										JOIN area_list ON area_list.area_id=areagroup.parent_id
+									)
+									select areagroupname, area_id, level, name, parent_id,
+										   CASE WHEN (SELECT COUNT(*) FROM area_mst_pdm WHERE parent_rawid = qq.area_id) > 0 THEN 0
+										   ELSE 1 END AS leaf
+									from area_list qq
+									)
+								) area_info
+		                  WHERE    eqp.area_mst_rawid = area_info.area_id
+		                  ORDER BY areagroupname DESC ) areaeqp,
+		                  (
+		                  SELECT alarm_dtts,
+		                       eqp_mst_rawid,
+		                       eqp_name,
+		                       param_mst_rawid,
+		                       param_name,
+							   CASE WHEN category = '256' THEN 'Alarm' 
+							        WHEN category = '128' THEN 'Warning'
+							   END AS category,
+		                       fault_class
+		                  FROM (
+								  SELECT emp.rawid         AS eqp_mst_rawid,
+										 emp.name          AS eqp_name,
+										 pmp.rawid         AS param_mst_rawid,
+										 pmp.name          AS param_name,
+										 atp.alarm_type_cd AS category,
+										 atp.fault_class,
+										 atp.alarm_dtts AS alarm_dtts
+								  FROM   alarm_trx_pdm atp,
+										 eqp_mst_pdm emp,
+										 param_mst_pdm pmp
+								  WHERE  1=1
+							      and atp.alarm_dtts <![CDATA[>=]]> #{fromdate}
+							      and atp.alarm_dtts <![CDATA[<]]> #{todate}
+								  and atp.param_mst_rawid=pmp.rawid
+								  and pmp.eqp_mst_rawid=emp.rawid ) zzzz ) alarmhistory
+		WHERE    1=1
+		AND alarmhistory.eqp_mst_rawid=areaeqp.eqp_mst_rawid
+		ORDER BY alarmhistory.alarm_dtts
+    </select>
 
 
-
-    <select id="selectAlarmHistoryByAreaId" resultType="com.bistel.a3.portal.domain.pdm.AlarmHistory">
+    <select id="selectAlarmHistoryByAreaId" resultType="com.bistel.a3.portal.domain.pdm.AlarmHistory" databaseId="oracle">
         select area_name, area_id, eqp_id, eqp_name, alarm_dtts, param_id, param_name, category, fault_class
         from
         (
@@ -586,6 +1220,153 @@
         and area_id= #{area_id}
 
     </select>
+    <select id="selectAlarmHistoryByAreaId" resultType="com.bistel.a3.portal.domain.pdm.AlarmHistory" databaseId="postgresql">
+		SELECT area_name,
+		       area_id,
+		       eqp_id,
+		       eqp_name,
+		       alarm_dtts,
+		       param_id,
+		       param_name,
+		       category,
+		       fault_class
+		FROM   (
+		                SELECT   areaeqp.areagroupname AS area_name,
+		                         areaeqp.area_id       AS area_id,
+		                         areaeqp.eqp_mst_rawid AS eqp_id ,
+		                         areaeqp.eqp_name ,
+		                         alarmhistory.alarm_dtts,
+		                         alarmhistory.param_mst_rawid AS param_id,
+		                         alarmhistory.param_name,
+		                         alarmhistory.category,
+		                         alarmhistory.fault_class
+		                FROM     (
+		                                  SELECT   areagroupname,
+		                                           area_id,
+		                                           eqp.name  AS eqp_name,
+		                                           eqp.rawid AS eqp_mst_rawid
+		                                  FROM     eqp_mst_pdm eqp,
+		                                           (SELECT *
+													FROM (
+														WITH RECURSIVE q AS (
+															SELECT area.*, 1 AS LEVEL
+															FROM area_mst_pdm area
+															WHERE area.parent_rawid = 0
+															UNION ALL
+															SELECT area.*, LEVEL + 1
+															FROM area_mst_pdm area
+															JOIN q ON q.rawid=area.parent_rawid
+														)
+														SELECT name              AS
+															   areagroupname,
+															   rawid             AS
+															   area_id,
+															   LEVEL,
+															   name,
+															   parent_rawid      AS
+															   parent_id,
+															   CASE WHEN (SELECT COUNT(*) FROM area_mst_pdm WHERE parent_rawid = qq.rawid) > 0 THEN 0
+															   ELSE 1 END AS leaf
+														FROM q qq
+														WHERE LEVEL = 2
+														ORDER  BY leaf, parent_id
+													) area_list
+													WHERE  leaf = 1
+		
+													UNION ALL
+		
+													(
+													with recursive area_list (area_id, LEVEL, name, areagroupname, parent_id) as (
+														select area.rawid, 1 as level, area.name, areagroup.name, area.parent_rawid
+														from area_mst_pdm area, (
+																				WITH RECURSIVE q AS (
+																					SELECT area.*, 1 AS LEVEL
+																					FROM area_mst_pdm area
+																					WHERE area.parent_rawid = 0
+																					UNION ALL
+																					SELECT area.*, LEVEL + 1
+																					FROM area_mst_pdm area
+																					JOIN q ON q.rawid=area.parent_rawid
+																				)
+																				SELECT rawid             AS
+																					   area_id,
+																					   name,
+																					   parent_rawid      AS
+																					   parent_id, 
+																					   CASE WHEN (SELECT COUNT(*) FROM area_mst_pdm WHERE parent_rawid = qq.rawid) > 0 THEN 0
+																					   ELSE 1 END AS leaf
+																				FROM q qq
+																				WHERE LEVEL = 2
+																				ORDER  BY leaf, parent_id
+																				) areagroup
+														where area.parent_rawid = areagroup.area_id
+														union all
+														select areagroup.area_id, areagroup.level+1, area.name, areagroup.name, areagroup.parent_id
+														from area_mst_pdm area, (
+																				WITH RECURSIVE q AS (
+																					SELECT area.*, 1 AS LEVEL
+																					FROM area_mst_pdm area
+																					WHERE area.parent_rawid = 0
+																					UNION ALL
+																					SELECT area.*, LEVEL + 1
+																					FROM area_mst_pdm area
+																					JOIN q ON q.rawid=area.parent_rawid
+																				)
+																				SELECT rawid             AS
+																					   area_id,
+																					   level,
+																					   name,
+																					   parent_rawid      AS
+																					   parent_id, 
+																					   CASE WHEN (SELECT COUNT(*) FROM area_mst_pdm WHERE parent_rawid = qq.rawid) > 0 THEN 0
+																					   ELSE 1 END AS leaf
+																				FROM q qq
+																				WHERE LEVEL = 2
+																				ORDER  BY leaf, parent_id
+																				) areagroup
+														JOIN area_list ON area_list.area_id=areagroup.parent_id
+													)
+													select areagroupname, area_id, level, name, parent_id,
+														   CASE WHEN (SELECT COUNT(*) FROM area_mst_pdm WHERE parent_rawid = qq.area_id) > 0 THEN 0
+														   ELSE 1 END AS leaf
+													from area_list qq
+													)
+												) area_info
+		                                  WHERE    eqp.area_mst_rawid = area_info.area_id
+		                                  ORDER BY areagroupname DESC ) areaeqp,
+		                         (
+		                                SELECT alarm_dtts,
+		                                       eqp_mst_rawid,
+		                                       eqp_name,
+		                                       param_mst_rawid,
+		                                       param_name,
+		                                       CASE WHEN category = '256' THEN 'Alarm' 
+							        		   WHEN category = '128' THEN 'Warning'
+							   				   END AS category,
+		                                       fault_class
+		                                FROM   (
+		                                              SELECT emp.rawid         AS eqp_mst_rawid,
+		                                                     emp.name          AS eqp_name,
+		                                                     pmp.rawid         AS param_mst_rawid,
+		                                                     pmp.name          AS param_name,
+		                                                     atp.alarm_type_cd AS category,
+		                                                     atp.fault_class,
+		                                                     atp.alarm_dtts AS alarm_dtts
+		                                              FROM   alarm_trx_pdm atp,
+		                                                     eqp_mst_pdm emp,
+		                                                     param_mst_pdm pmp
+		                                              WHERE  1=1
+		                                              and atp.alarm_dtts <![CDATA[>=]]> #{fromdate}
+        											  and atp.alarm_dtts <![CDATA[<]]> #{todate}
+		                                              and atp.param_mst_rawid=pmp.rawid
+		                                              and pmp.eqp_mst_rawid=emp.rawid ) zzzz
+								 				) alarmhistory
+		                WHERE    1=1
+		                AND      alarmhistory.eqp_mst_rawid=areaeqp.eqp_mst_rawid
+		                ORDER BY alarmhistory.alarm_dtts ) zzz
+		WHERE  1=1
+		AND    area_id= #{area_id}
+    </select>
 
 
     <select id="selectAlarmHistoryByEqpId" resultType="com.bistel.a3.portal.domain.pdm.AlarmHistory">
@@ -601,11 +1382,9 @@
         )
         and param.rawid = alarm.param_mst_rawid
         and param.eqp_mst_rawid = eqp.rawid
-
-
     </select>
 
-    <select id="selectAlarmClassificationSummary" resultType="com.bistel.a3.portal.domain.pdm.AlarmClassification">
+    <select id="selectAlarmClassificationSummary" resultType="com.bistel.a3.portal.domain.pdm.AlarmClassification" databaseId="oracle">
 
         select fault_class, count(1) as count
         from
@@ -668,9 +1447,56 @@
         group by fault_class
 
     </select>
+    <select id="selectAlarmClassificationSummary" resultType="com.bistel.a3.portal.domain.pdm.AlarmClassification" databaseId="postgresql">
+		select fault_class, count(1) as count
+		from (
+			select alarmeqp.eqp_id as eqp_id, fc.fault_class as fault_class, count(fc.fault_class) as fault_count
+			from (
+				select distinct fault_class
+				from alarm_trx_pdm ) fc,
+				(
+				select pmp.EQP_MST_RAWID as eqp_id, atp.fault_class
+				from param_mst_pdm pmp,
+				(
+					select param_mst_rawid,fault_class
+					from ALARM_TRX_PDM
+					where 1=1
+					and alarm_type_cd = '256'
+			        and alarm_dtts <![CDATA[>=]]> #{fromdate}
+					and alarm_dtts <![CDATA[<]]> #{todate}
+				) atp
+				where 1=1
+				and pmp.rawid=atp.param_mst_rawid
+				and pmp.EQP_MST_RAWID in (
+					select distinct eqp.rawid
+					from
+					(
+						WITH RECURSIVE q AS (
+							SELECT area.*
+							FROM area_mst_pdm area
+							WHERE area.parent_rawid = 0
+							UNION ALL
+							SELECT area.*
+							FROM area_mst_pdm area
+							JOIN q ON q.rawid=area.parent_rawid
+						)
+						SELECT qq.rawid AS area_id, qq.name AS name, qq.parent_rawid as parent_id, 
+					    CASE WHEN (SELECT COUNT(*) FROM area_mst_pdm WHERE parent_rawid = qq.rawid) > 0 THEN 0
+						ELSE 1 END AS leaf
+						FROM q qq
+						ORDER BY leaf, parent_id, area_id
+					) areas, eqp_mst_pdm eqp
+					where leaf=1
+					and areas.area_id=eqp.area_mst_rawid
+				)
+			) alarmeqp
+			where fc.fault_class=alarmeqp.fault_class
+			group by fc.fault_class , alarmeqp.eqp_id
+		) fault
+		group by fault_class
+	</select>
 
-
-    <select id="selectLineStatusTrend" resultType="com.bistel.a3.portal.domain.pdm.AreaFaultCountSummary">
+    <select id="selectLineStatusTrend" resultType="com.bistel.a3.portal.domain.pdm.AreaFaultCountSummary" databaseId="oracle">
         select total.groupdate as day, total.total_count, alarm.alarm_count, warning.warning_count, offlines.offline_count, total.total_count-(alarm.alarm_count+warning.warning_count+offlines.offline_count) as normal_count
         from
         (
@@ -805,12 +1631,114 @@
         and offlines.groupdate=total.groupdate
         and total.groupdate=warning.groupdate
         and warning.groupdate=alarm.groupdate
-
-
     </select>
+	<select id="selectLineStatusTrend" resultType="com.bistel.a3.portal.domain.pdm.AreaFaultCountSummary" databaseId="postgresql">
+		SELECT total.groupdate AS day,
+		       total.total_count,
+		       alarm.alarm_count,
+		       warning.warning_count,
+		       offlines.offline_count,
+		       total.total_count - ( alarm.alarm_count + warning.warning_count + offlines.offline_count ) AS normal_count
+		FROM   (SELECT groupdate,
+		               Count(eqp_mst_rawid) AS alarm_count
+		        FROM   (SELECT eqpalarm.groupdate,
+		                       eqpalarm.eqp_mst_rawid,
+		                       emp.offline_yn
+		                FROM   (SELECT groupdate,
+		                               eqp_mst_rawid
+		                        FROM   (SELECT To_char(alarm_dtts, 'yyyy-MM-dd') AS
+		                                       groupdate,
+		                                       param.eqp_mst_rawid
+		                                FROM   alarm_trx_pdm alarm,
+		                                       param_mst_pdm param
+		                                WHERE  alarm_dtts <![CDATA[>=]]> #{fromdate}
+									   	       and alarm_dtts <![CDATA[<]]> #{todate}
+		                                       AND alarm_type_cd = '256'
+		                                       AND alarm.param_mst_rawid = param.rawid
+		                                GROUP  BY To_char(alarm_dtts, 'yyyy-MM-dd'),
+		                                          param.eqp_mst_rawid
+		                                ORDER  BY groupdate) z) eqpalarm,
+		                       eqp_mst_pdm emp
+		                WHERE  1 = 1
+		                       AND eqpalarm.eqp_mst_rawid = emp.rawid
+		                       AND emp.offline_yn = 'N'
+		                ORDER  BY groupdate) zz
+		        GROUP  BY groupdate
+		        ORDER  BY groupdate) alarm,
+		       (SELECT groupdate,
+		               Count (eqp_mst_rawid) AS warning_count
+		        FROM   (SELECT eqpwarn.groupdate,
+		                       eqpwarn.eqp_mst_rawid
+		                FROM   (SELECT *
+		                        FROM   ((SELECT To_char(alarm_dtts, 'yyyy-MM-dd') AS
+		                                        groupdate,
+		                                        param.eqp_mst_rawid
+		                                 FROM   alarm_trx_pdm alarm,
+		                                        param_mst_pdm param
+		                                 WHERE  alarm_dtts <![CDATA[>=]]> #{fromdate}
+										        and alarm_dtts <![CDATA[<]]> #{todate}
+		                                        AND alarm_type_cd = '128'
+		                                        AND alarm.param_mst_rawid = param.rawid
+		                                 GROUP  BY To_char(alarm_dtts, 'yyyy-MM-dd'),
+		                                           param.eqp_mst_rawid)
+		                                EXCEPT
+		                                (SELECT To_char(alarm_dtts, 'yyyy-MM-dd') AS
+		                                        groupdate,
+		                                        param.eqp_mst_rawid
+		                                 FROM   alarm_trx_pdm alarm,
+		                                        param_mst_pdm param
+		                                 WHERE  alarm_dtts <![CDATA[>=]]> #{fromdate}
+										        and alarm_dtts <![CDATA[<]]> #{todate}
+		                                        AND alarm_type_cd = '256'
+		                                        AND alarm.param_mst_rawid = param.rawid
+		                                 GROUP  BY To_char(alarm_dtts, 'yyyy-MM-dd'),
+		                                           param.eqp_mst_rawid)) zzz) eqpwarn,
+		                       eqp_mst_pdm emp
+		                WHERE  1 = 1
+		                       AND eqpwarn.eqp_mst_rawid = emp.rawid
+		                       AND emp.offline_yn = 'N'
+		                ORDER  BY groupdate) zzzz
+		        GROUP  BY groupdate
+		        ORDER  BY groupdate) warning,
+		       (SELECT groupdate,
+		               Count(eqp_mst_rawid) AS total_count
+		        FROM   (SELECT To_char(event_dtts, 'yyyy-MM-dd') AS groupdate,
+		                       param.eqp_mst_rawid
+		                FROM   trace_trx_pdm trx,
+		                       param_mst_pdm param
+		                WHERE  event_dtts <![CDATA[>=]]> #{fromdate}
+		        			   and event_dtts <![CDATA[<]]> #{todate}
+		                       AND trx.param_mst_rawid = param.rawid
+		                GROUP  BY To_char(event_dtts, 'yyyy-MM-dd'),
+		                          param.eqp_mst_rawid
+		                ORDER  BY groupdate) zzzzz
+		        GROUP  BY groupdate
+		        ORDER  BY groupdate) total,
+		       (SELECT groupdate, Count(eqp_mst_rawid) AS offline_count
+		        FROM   (SELECT *
+		                FROM   (SELECT To_char(event_dtts, 'yyyy-MM-dd') AS groupdate,
+		                               param.eqp_mst_rawid
+		                        FROM   trace_trx_pdm trx,
+		                               param_mst_pdm param,
+		                               eqp_mst_pdm eqp
+		                        WHERE  event_dtts <![CDATA[>=]]> #{fromdate}
+		        					   and event_dtts <![CDATA[<]]> #{todate}
+		                               AND trx.param_mst_rawid = param.rawid
+		                               AND param.eqp_mst_rawid = eqp.rawid
+		                               AND eqp.offline_yn = 'Y'
+		                        GROUP  BY To_char(event_dtts, 'yyyy-MM-dd'),
+		                                  param.eqp_mst_rawid
+		                        ORDER  BY groupdate) zzz) zzzz
+		        GROUP  BY groupdate
+		        ORDER  BY groupdate) offlines
+		WHERE  1 = 1
+		AND offlines.groupdate = total.groupdate
+		AND total.groupdate = warning.groupdate
+		AND warning.groupdate = alarm.groupdate 
+	</select>
 
 
-    <select id="selectLineStatusTrendByAreaId" resultType="com.bistel.a3.portal.domain.pdm.AreaFaultCountSummary">
+    <select id="selectLineStatusTrendByAreaId" resultType="com.bistel.a3.portal.domain.pdm.AreaFaultCountSummary" databaseId="oracle">
         select total.groupdate as day, total.total_count, alarm.alarm_count, warning.warning_count, offlines.offline_count , total.total_count-(alarm.alarm_count+warning.warning_count+offlines.offline_count) as normal_count
         from
 
@@ -954,9 +1882,152 @@
 
 
     </select>
+    <select id="selectLineStatusTrendByAreaId" resultType="com.bistel.a3.portal.domain.pdm.AreaFaultCountSummary" databaseId="postgresql">
+		select total.groupdate as day, total.total_count, alarm.alarm_count, warning.warning_count, offlines.offline_count , total.total_count-(alarm.alarm_count+warning.warning_count+offlines.offline_count) as normal_count
+        from
+	        (
+	        select groupdate, count(eqp_mst_rawid) as alarm_count
+	        from
+	        (
+	        select eqpalarm.groupdate, eqpalarm.eqp_mst_rawid, emp.offline_yn
+	        from
+	        (
+	        select groupdate, eqp_mst_rawid
+	        from
+	        (
+	        select to_char(alarm_dtts,'yyyy-MM-dd')  as groupdate , param.eqp_mst_rawid
+	        from alarm_trx_pdm alarm,param_mst_pdm param
+	        where 1=1 
+			alarm_dtts <![CDATA[>=]]> #{fromdate}
+	        and alarm_dtts <![CDATA[<]]> #{todate}
+	        and alarm_type_cd = '256'
+	        and alarm.param_mst_rawid = param.rawid
+	        group by to_char(alarm_dtts,'yyyy-MM-dd'), param.eqp_mst_rawid
+	        order by groupdate
+	        ) z
+	        ) eqpalarm,
+	        eqp_mst_pdm emp
+	        where 1=1
+	        and eqpalarm.eqp_mst_rawid=emp.rawid
+	        and emp.offline_yn='N'
+	        and emp.area_mst_rawid= #{area_id}
+	        order by groupdate
+	        ) zz
+	        group by groupdate
+	        order by groupdate
+	
+	        ) alarm,
+	
+	
+	
+	        (
+	        select groupdate,count (eqp_mst_rawid) as warning_count
+	        from
+	        (
+	        select eqpwarn.groupdate, eqpwarn.eqp_mst_rawid
+	        from
+	        (
+	
+	
+	
+	        select *
+	        from
+	        (
+	
+	        (
+	        select to_char(alarm_dtts,'yyyy-MM-dd')  as groupdate ,  param.eqp_mst_rawid
+	        from alarm_trx_pdm alarm,param_mst_pdm param
+	        where 1=1
+			and alarm_dtts <![CDATA[>=]]> #{fromdate}
+	        and alarm_dtts <![CDATA[<]]> #{todate}
+	        and alarm_type_cd = '128'
+	        and alarm.param_mst_rawid = param.rawid
+	        group by to_char(alarm_dtts,'yyyy-MM-dd'), param.eqp_mst_rawid
+	
+	        )
+	        EXCEPT
+	        (
+	        select to_char(alarm_dtts,'yyyy-MM-dd')  as groupdate ,  param.eqp_mst_rawid
+	        from alarm_trx_pdm alarm,param_mst_pdm param
+	        where 1=1
+			and alarm_dtts <![CDATA[>=]]> #{fromdate}
+	        and alarm_dtts <![CDATA[<]]> #{todate}
+	        and alarm_type_cd = '256'
+	        and alarm.param_mst_rawid = param.rawid
+	        group by to_char(alarm_dtts,'yyyy-MM-dd'), param.eqp_mst_rawid
+	
+	        )
+	        ) zzz
+	
+	
+	        ) eqpwarn,
+	        eqp_mst_pdm emp
+	        where 1=1
+	        and eqpwarn.eqp_mst_rawid=emp.rawid
+	        and emp.offline_yn='N'
+	        and emp.area_mst_rawid= #{area_id}
+	        order by groupdate
+	        ) zzzz
+	        group by groupdate
+	        order by groupdate
+	
+	        ) warning,
+	
+	
+	        (
+	        select groupdate, count(eqp_mst_rawid) as total_count
+	        from
+	        (
+	        select to_char(event_dtts,'yyyy-MM-dd')  as groupdate ,  param.eqp_mst_rawid
+	        from trace_trx_pdm trx,param_mst_pdm param, eqp_mst_pdm emp
+	        where 1=1
+	        and event_dtts <![CDATA[>=]]> #{fromdate}
+			and event_dtts <![CDATA[<]]> #{todate}
+	        and trx.param_mst_rawid = param.rawid
+	        and param.eqp_mst_rawid=emp.rawid
+	        and emp.area_mst_rawid= #{area_id}
+	        group by to_char(event_dtts,'yyyy-MM-dd'), param.eqp_mst_rawid
+	        order by groupdate
+	        ) z
+	        group by groupdate
+	        order by groupdate
+	        ) total,
+	
+	
+	
+	        (
+	
+	        select groupdate, count(eqp_mst_rawid) as offline_count
+	        from
+	        (
+	        select *
+	        from
+	        (
+	        select to_char(event_dtts,'yyyy-MM-dd')  as groupdate ,  param.eqp_mst_rawid
+	        from trace_trx_pdm trx,param_mst_pdm param, eqp_mst_pdm eqp
+	        where 1=1
+	        and event_dtts <![CDATA[>=]]> #{fromdate}
+			and event_dtts <![CDATA[<]]> #{todate}
+	        and trx.param_mst_rawid = param.rawid
+	        and param.eqp_mst_rawid= eqp.rawid
+	        and eqp.offline_yn='Y'
+	        and eqp.area_mst_rawid= #{area_id}
+	        group by to_char(event_dtts,'yyyy-MM-dd'), param.eqp_mst_rawid
+	        order by groupdate
+	        ) zz
+	        ) zzz
+	        group by groupdate
+	        order by groupdate
+	
+	        ) offlines
+        where 1=1
+        and offlines.groupdate=total.groupdate
+        and total.groupdate=warning.groupdate
+        and warning.groupdate=alarm.groupdate
+    </select>
 
 
-    <select id="selectWorstEquipmentList" resultType="com.bistel.a3.portal.domain.pdm.WorstEquipmentList">
+    <select id="selectWorstEquipmentList" resultType="com.bistel.a3.portal.domain.pdm.WorstEquipmentList" databaseId="oracle">
 
         select distinct eqpstatus.eqp_id, eqpstatus.eqp_name,score.score
         from
@@ -972,7 +2043,7 @@
         (
         select eqp_id,eqp_name, event_type_cd, lead(event_type_cd) over (partition by eqp_name order by event_dtts) type_cd,
         event_dtts as start_dtts,
-        nvl(lead(event_dtts) over (partition by eqp_name order by event_dtts), TO_TIMESTAMP('2018-07-07 00:00:00', 'YYYY-MM-DD HH24:MI:SS')) end_dtts
+        nvl(lead(event_dtts) over (partition by eqp_name order by event_dtts), TO_TIMESTAMP(#{end_dtts}, 'YYYY-MM-DD HH24:MI:SS')) end_dtts
         from
         (
         select e.rawid as eqp_id, e.name as eqp_name, v.event_name, v.event_type_cd, t.event_dtts
@@ -1005,14 +2076,56 @@
 
         where 1=1
         and eqpstatus.eqp_id=score.eqp_id
-
-
-
-
     </select>
+	<select id="selectWorstEquipmentList" resultType="com.bistel.a3.portal.domain.pdm.WorstEquipmentList" databaseId="postgresql">
+		select distinct eqpstatus.eqp_id, eqpstatus.eqp_name,score.score
+		from
+		    (
+			select eqp_id,eqp_name,
+			case when event_type_cd is null then 
+				case when type_cd = 'E' then 'RUN' else 'IDLE' end
+			else
+				case when event_type_cd = 'S' then 'RUN' else 'IDLE' end
+			end status,
+			start_dtts, end_dtts
+			from
+			(
+			select eqp_id,eqp_name, event_type_cd, lead(event_type_cd) over (partition by eqp_name order by event_dtts) type_cd, event_dtts as start_dtts,
+			COALESCE(lead(event_dtts) over (partition by eqp_name order by event_dtts), TO_TIMESTAMP('2018-06-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS')) end_dtts
+		
+			from
+			(
+			select e.rawid as eqp_id, e.name as eqp_name, v.event_name, v.event_type_cd, t.event_dtts
+			from eqp_mst_pdm e, eqp_event_mst_pdm v, eqp_event_trx_pdm t
+			where e.rawid=v.eqp_mst_rawid
+			and v.rawid=t.eqp_event_mst_rawid
+			and v.process_yn='Y'
+			and t.event_dtts between TO_TIMESTAMP( #{start_dtts} , 'YYYY-MM-DD HH24:MI:SS')
+			and TO_TIMESTAMP( #{end_dtts} , 'YYYY-MM-DD HH24:MI:SS')
+			union all
+			select rawid as eqp_id, name as eqp_name, 'start', '' as typ, event_dtts from eqp_mst_pdm a,
+			(select TO_TIMESTAMP( #{start_dtts} , 'YYYY-MM-DD HH24:MI:SS') as event_dtts) b
+			order by eqp_name, event_dtts
+			) z
+			) zz
+		
+			) eqpstatus,
+		
+			(
+			select e.rawid as eqp_id,name as eqp_name, max(h.score) as score
+			from eqp_mst_pdm e, eqp_health_trx_pdm h
+			where e.rawid=h.eqp_mst_rawid
+			and e.offline_yn='N'
+			and h.ALARM_DTTS between TO_TIMESTAMP( #{start_dtts} , 'YYYY-MM-DD HH24:MI:SS')
+			and TO_TIMESTAMP( #{end_dtts} , 'YYYY-MM-DD HH24:MI:SS')
+			group by e.RAWID,name
+			order by score desc
+			) score
+		where 1=1
+		and eqpstatus.eqp_id=score.eqp_id
+	</select>
 
-
-    <select id="selectWorstEqupmentListChartData" resultType="com.bistel.a3.portal.domain.pdm.WorstEqupmentListChartData">
+    <select id="selectWorstEqupmentListChartData" resultType="com.bistel.a3.portal.domain.pdm.WorstEqupmentListChartData" databaseId="oracle">
 
         select eqpstatus.eqp_id, eqpstatus.status, eqpstatus.start_dtts, eqpstatus.end_dtts
         from
@@ -1061,13 +2174,60 @@
 
         where 1=1
         and eqpstatus.eqp_id=score.eqp_id
-
-
-
+    </select>
+    <select id="selectWorstEqupmentListChartData" resultType="com.bistel.a3.portal.domain.pdm.WorstEqupmentListChartData" databaseId="postgresql">
+		select eqpstatus.eqp_id, eqpstatus.status, eqpstatus.start_dtts, eqpstatus.end_dtts
+		from
+		(
+			select eqp_id,eqp_name,
+		
+			case when event_type_cd is null then 
+				case when type_cd = 'E' then 'RUN' else 'IDLE' end
+			else
+				case when event_type_cd = 'S' then 'RUN' else 'IDLE' end
+			end status,
+		
+			start_dtts, end_dtts
+			from
+			(
+			select eqp_id,eqp_name, event_type_cd, lead(event_type_cd) over (partition by eqp_name order by event_dtts) type_cd,
+			event_dtts as start_dtts,
+			COALESCE(lead(event_dtts) over (partition by eqp_name order by event_dtts), TO_TIMESTAMP(#{end_dtts}, 'YYYY-MM-DD HH24:MI:SS')) end_dtts
+			from
+			(
+			select e.rawid as eqp_id, e.name as eqp_name, v.event_name, v.event_type_cd, t.event_dtts
+			from eqp_mst_pdm e, eqp_event_mst_pdm v, eqp_event_trx_pdm t
+			where e.rawid=v.eqp_mst_rawid
+			and v.rawid=t.eqp_event_mst_rawid
+			and v.process_yn='Y'
+			and t.event_dtts between TO_TIMESTAMP( #{start_dtts} , 'YYYY-MM-DD HH24:MI:SS')
+			and TO_TIMESTAMP( #{end_dtts} , 'YYYY-MM-DD HH24:MI:SS')
+			union all
+			select rawid as eqp_id, name as eqp_name, 'start', '' as typ, event_dtts from eqp_mst_pdm a,
+			(select TO_TIMESTAMP( #{start_dtts} , 'YYYY-MM-DD HH24:MI:SS') as event_dtts) b
+			order by eqp_name, event_dtts
+			) zz
+			) zzz
+		
+		
+			) eqpstatus,
+		
+			(
+			select e.rawid as eqp_id,name as eqp_name, max(h.score) as score
+			from eqp_mst_pdm e, eqp_health_trx_pdm h
+			where e.rawid=h.eqp_mst_rawid
+			and e.offline_yn='N'
+			and h.ALARM_DTTS between TO_TIMESTAMP( #{start_dtts} , 'YYYY-MM-DD HH24:MI:SS')
+			and TO_TIMESTAMP( #{end_dtts} , 'YYYY-MM-DD HH24:MI:SS')
+			group by e.RAWID,name
+			order by score desc
+			) score
+		where 1=1
+		and eqpstatus.eqp_id=score.eqp_id
     </select>
 
 
-    <select id="selectWorstEquipmentListByAreaId"  resultType="com.bistel.a3.portal.domain.pdm.WorstEquipmentList">
+    <select id="selectWorstEquipmentListByAreaId"  resultType="com.bistel.a3.portal.domain.pdm.WorstEquipmentList" databaseId="oracle">
         select distinct worsteqp.eqp_id, worsteqp.eqp_name, worsteqp.score
         from
 
@@ -1132,12 +2292,67 @@
         and eqp.area_mst_rawid= #{area_id}
 
     </select>
+    <select id="selectWorstEquipmentListByAreaId"  resultType="com.bistel.a3.portal.domain.pdm.WorstEquipmentList" databaseId="postgresql">
+		select distinct worsteqp.eqp_id, worsteqp.eqp_name, worsteqp.score
+		from
+		(
+			select eqpstatus.eqp_id, eqpstatus.eqp_name,score.score, eqpstatus.status, eqpstatus.start_dtts, eqpstatus.end_dtts
+			from
+			(
+			select eqp_id,eqp_name,
+			case when event_type_cd is null then 
+				case when type_cd = 'E' then 'RUN' else 'IDLE' end
+			else
+				case when event_type_cd = 'S' then 'RUN' else 'IDLE' end
+			end status,
+			start_dtts, end_dtts
+			from
+			(
+			select eqp_id,eqp_name, event_type_cd, lead(event_type_cd) over (partition by eqp_name order by event_dtts) type_cd,
+			event_dtts as start_dtts,
+			COALESCE(lead(event_dtts) over (partition by eqp_name order by event_dtts), TO_TIMESTAMP(#{end_dtts}, 'YYYY-MM-DD HH24:MI:SS')) end_dtts
+			from
+			(
+			select e.rawid as eqp_id, e.name as eqp_name, v.event_name, v.event_type_cd, t.event_dtts
+			from eqp_mst_pdm e, eqp_event_mst_pdm v, eqp_event_trx_pdm t
+			where e.rawid=v.eqp_mst_rawid
+			and v.rawid=t.eqp_event_mst_rawid
+			and v.process_yn='Y'
+			and t.event_dtts between TO_TIMESTAMP(#{start_dtts}, 'YYYY-MM-DD HH24:MI:SS')
+			and TO_TIMESTAMP(#{end_dtts}, 'YYYY-MM-DD HH24:MI:SS')
+			union all
+			select rawid as eqp_id, name as eqp_name, 'start', '' as typ, event_dtts from eqp_mst_pdm a,
+			(select TO_TIMESTAMP(#{start_dtts}, 'YYYY-MM-DD HH24:MI:SS') as event_dtts) b
+			order by eqp_name, event_dtts
+			) z
+			) zz
+		
+		
+			) eqpstatus,
+		
+			(
+			select e.rawid as eqp_id,name as eqp_name, max(h.score) as score
+			from eqp_mst_pdm e, eqp_health_trx_pdm h
+			where e.rawid=h.eqp_mst_rawid
+			and e.offline_yn='N'
+			and h.ALARM_DTTS between TO_TIMESTAMP(#{start_dtts}, 'YYYY-MM-DD HH24:MI:SS')
+			and TO_TIMESTAMP(#{end_dtts}, 'YYYY-MM-DD HH24:MI:SS')
+			group by e.RAWID,name
+			order by score desc
+			) score
+		
+			where 1=1
+			and eqpstatus.eqp_id=score.eqp_id
+		
+			) worsteqp,
+		eqp_mst_pdm eqp
+		where 1=1
+		and worsteqp.eqp_id=eqp.rawid
+		and eqp.area_mst_rawid= #{area_id}
+    </select>
 
 
-    <select id="selectWorstEqupmentListChartDataByAreaId" resultType="com.bistel.a3.portal.domain.pdm.WorstEqupmentListChartData">
-
-
-
+    <select id="selectWorstEqupmentListChartDataByAreaId" resultType="com.bistel.a3.portal.domain.pdm.WorstEqupmentListChartData" databaseId="oracle">
         select worsteqp.eqp_id, worsteqp.status, worsteqp.start_dtts, worsteqp.end_dtts
         from
 
@@ -1202,9 +2417,65 @@
         and eqp.area_mst_rawid= #{area_id}
 
     </select>
+    <select id="selectWorstEqupmentListChartDataByAreaId" resultType="com.bistel.a3.portal.domain.pdm.WorstEqupmentListChartData" databaseId="postgresql">
+		select worsteqp.eqp_id, worsteqp.status, worsteqp.start_dtts, worsteqp.end_dtts
+		from
+		(
+			select eqpstatus.eqp_id, eqpstatus.eqp_name,score.score, eqpstatus.status, eqpstatus.start_dtts, eqpstatus.end_dtts
+			from
+			(
+			select eqp_id,eqp_name,
+			case when event_type_cd is null then 
+				case when type_cd = 'E' then 'RUN' else 'IDLE' end
+			else
+				case when event_type_cd = 'S' then 'RUN' else 'IDLE' end
+			end status,
+			start_dtts, end_dtts
+			from
+			(
+			select eqp_id,eqp_name, event_type_cd, lead(event_type_cd) over (partition by eqp_name order by event_dtts) type_cd,
+			event_dtts as start_dtts,
+			COALESCE(lead(event_dtts) over (partition by eqp_name order by event_dtts), TO_TIMESTAMP(#{end_dtts}, 'YYYY-MM-DD HH24:MI:SS')) end_dtts
+			from
+			(
+			select e.rawid as eqp_id, e.name as eqp_name, v.event_name, v.event_type_cd, t.event_dtts
+			from eqp_mst_pdm e, eqp_event_mst_pdm v, eqp_event_trx_pdm t
+			where e.rawid=v.eqp_mst_rawid
+			and v.rawid=t.eqp_event_mst_rawid
+			and v.process_yn='Y'
+			and t.event_dtts between TO_TIMESTAMP(#{start_dtts}, 'YYYY-MM-DD HH24:MI:SS')
+			and TO_TIMESTAMP(#{end_dtts}, 'YYYY-MM-DD HH24:MI:SS')
+			union all
+			select rawid as eqp_id, name as eqp_name, 'start', '' as typ, event_dtts from eqp_mst_pdm a,
+			(select TO_TIMESTAMP(#{start_dtts}, 'YYYY-MM-DD HH24:MI:SS') as event_dtts) b
+			order by eqp_name, event_dtts
+			) zz
+			) zzz
+				
+			) eqpstatus,
+		
+			(
+			select e.rawid as eqp_id,name as eqp_name, max(h.score) as score
+			from eqp_mst_pdm e, eqp_health_trx_pdm h
+			where e.rawid=h.eqp_mst_rawid
+			and e.offline_yn='N'
+			and h.ALARM_DTTS between TO_TIMESTAMP(#{start_dtts}, 'YYYY-MM-DD HH24:MI:SS')
+			and TO_TIMESTAMP(#{end_dtts}, 'YYYY-MM-DD HH24:MI:SS')
+			group by e.RAWID,name
+			order by score desc
+			) score
+		
+			where 1=1
+			and eqpstatus.eqp_id=score.eqp_id
+		
+			) worsteqp, eqp_mst_pdm eqp
+		where 1=1
+		and worsteqp.eqp_id=eqp.rawid
+		and eqp.area_mst_rawid= #{area_id}
+    </select>
 
 
-    <select id="selectAlarmClassificationSummaryByAreaId" resultType="com.bistel.a3.portal.domain.pdm.AlarmClassification">
+    <select id="selectAlarmClassificationSummaryByAreaId" resultType="com.bistel.a3.portal.domain.pdm.AlarmClassification" databaseId="oracle">
 
         select fault_class, count(1) as count
         from
@@ -1270,75 +2541,58 @@
         group by fault_class
 
     </select>
-
-
-    <select id="selectEqpHealthIndexMasterInfo" resultType="com.bistel.a3.portal.domain.pdm.EqpHealthIndex">
-        select eqphealthmasterinfo.area_id, eqphealthmasterinfo.area_name, eqphealthmasterinfo.eqp_id, eqphealthmasterinfo.eqp_name, alarmcount.alarm_count
-        from
-        (
-        select area_id, area_name, eqp_id, eqp_name
-        from
-        (
-        select area.rawid as area_id, area.name as area_name, eqp.rawid as eqp_id, eqp.name as eqp_name , eqphealth.health_logic_mst_rawid, eqphealth.score, eqphealth.alarm_count
-        from eqp_health_daily_sum_pdm eqphealth, eqp_mst_pdm eqp, area_mst_pdm area
-        where 1=1
-        and area.rawid=eqp.area_mst_rawid
-        and eqphealth.EQP_MST_RAWID=eqp.rawid
-        and eqphealth.sum_dtts <![CDATA[>=]]> #{fromdate}
-        and eqphealth.sum_dtts <![CDATA[<]]> #{todate}
-        )
-        group by area_id, area_name, eqp_id, eqp_name
-        ) eqphealthmasterinfo,
-
-        (
-        select eqp_id, sum(alarm_count) as alarm_count
-        from
-        (
-        select area.rawid as area_id, area.name as area_name, eqp.rawid as eqp_id, eqp.name as eqp_name , eqphealth.health_logic_mst_rawid, eqphealth.score, eqphealth.alarm_count
-        from eqp_health_daily_sum_pdm eqphealth, eqp_mst_pdm eqp, area_mst_pdm area
-        where 1=1
-        and area.rawid=eqp.area_mst_rawid
-        and eqphealth.EQP_MST_RAWID=eqp.rawid
-        and eqphealth.sum_dtts  <![CDATA[>=]]> #{fromdate}
-        and eqphealth.sum_dtts  <![CDATA[<]]> #{todate}
-        )
-        group by eqp_id
-        ) alarmcount
-
-        where 1=1
-        and eqphealthmasterinfo.eqp_id=alarmcount.eqp_id
-
+    <select id="selectAlarmClassificationSummaryByAreaId" resultType="com.bistel.a3.portal.domain.pdm.AlarmClassification" databaseId="postgresql">
+		select fault_class, count(1) as count
+		from
+			(
+		     select alarmeqp.eqp_id as eqp_id, fc.fault_class as fault_class, count(fc.fault_class) as fault_count
+			 from
+				(
+				select distinct fault_class
+				from alarm_trx_pdm
+				) fc,
+				(
+				select pmp.EQP_MST_RAWID as eqp_id, atp.fault_class
+				from param_mst_pdm pmp,
+				(
+					select param_mst_rawid,fault_class
+					from ALARM_TRX_PDM
+					where 1=1
+					and alarm_type_cd = '256'
+					and alarm_dtts <![CDATA[>=]]> #{fromdate}
+					and alarm_dtts <![CDATA[<]]> #{todate}
+				) atp
+				where 1=1
+				and pmp.rawid=atp.param_mst_rawid
+				and pmp.EQP_MST_RAWID in(
+					select distinct eqp.rawid
+					from
+					(
+						WITH RECURSIVE q AS (
+							SELECT area.*
+							FROM area_mst_pdm area
+							WHERE area.parent_rawid = 0
+							UNION ALL
+							SELECT area.*
+							FROM area_mst_pdm area
+							JOIN q ON q.rawid=area.parent_rawid
+						)
+						SELECT qq.rawid AS area_id, qq.name AS name, qq.parent_rawid as parent_id, 
+					    CASE WHEN (SELECT COUNT(*) FROM area_mst_pdm WHERE parent_rawid = qq.rawid) > 0 THEN 0
+						ELSE 1 END AS leaf
+						FROM q qq
+						ORDER BY leaf, parent_id, area_id
+					) areas, eqp_mst_pdm eqp
+					where leaf=1
+					and areas.area_id=eqp.area_mst_rawid
+					and eqp.area_mst_rawid= #{area_id}
+				)
+			) alarmeqp
+			where fc.fault_class=alarmeqp.fault_class
+			group by fc.fault_class , alarmeqp.eqp_id
+		) fault
+		group by fault_class
     </select>
-
-    <select id="selectEqpHealthIndexInfo" resultType="com.bistel.a3.portal.domain.pdm.EqpHealthIndex">
-
-        select eqp_id, health_logic_mst_rawid, score, alarm_count
-        from
-        (
-        select area.rawid as area_id, area.name as area_name, eqp.rawid as eqp_id, eqp.name as eqp_name , eqphealth.health_logic_mst_rawid, eqphealth.score, eqphealth.alarm_count
-        from eqp_health_daily_sum_pdm eqphealth, eqp_mst_pdm eqp, area_mst_pdm area
-        where 1=1
-        and area.rawid=eqp.area_mst_rawid
-        and eqphealth.EQP_MST_RAWID=eqp.rawid
-        and eqphealth.sum_dtts <![CDATA[>=]]> #{fromdate}
-        and eqphealth.sum_dtts <![CDATA[<]]> #{todate}
-        )
-
-    </select>
-
-    <select id="selectEqpHealthIndexByAreaId" resultType="com.bistel.a3.portal.domain.pdm.EqpHealthIndex">
-        select area.rawid as area_id, area.name as area_name, eqp.rawid as eqp_id, eqp.name as eqp_name , eqphealth.health_logic_mst_rawid, eqphealth.score, eqphealth.alarm_count
-        from eqp_health_daily_sum_pdm eqphealth, eqp_mst_pdm eqp, area_mst_pdm area
-        where 1=1
-        and area.rawid=eqp.area_mst_rawid
-        and eqphealth.EQP_MST_RAWID=eqp.rawid
-        and eqphealth.sum_dtts <![CDATA[>=]]> #{fromdate}
-        and eqphealth.sum_dtts <![CDATA[<]]> #{todate}
-        and area.rawid= #{area_id}
-    </select>
-
-
-
 </mapper>
 
 
