@@ -17,8 +17,11 @@
             </td>
             <td>
                 <div class="chart-container">
-                    <a3c-bistel-chart [data]="param.datas" [config]="trendConfig" [eventLines]="param.eventLines" [chartEvents]="param.eventConfig">
+                    <a3c-bistel-chart #bistelchart [data]="param.datas" [config]="trendConfig" [eventLines]="param.eventLines" [chartEvents]="eventConfig">
                     </a3c-bistel-chart>
+                    <!-- <ng2-c3  [data]="param.datas" [chartOptions]="chartOptions" >
+                    </ng2-c3> -->
+
                 </div>
             </td>
         </tr>

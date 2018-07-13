@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild ,ViewEncapsulation} from '@angular/core';
 
 import { PdmConfigService } from '../model/pdm-config.service';
 import { PdmModelService } from './../../../../../common/model/app/pdm/pdm-model.service';
@@ -20,6 +20,8 @@ import { EquipmentParameterTrendChartComponent } from './component/equipment-par
     templateUrl: './equipment-parameter-trend.html',
     styleUrls: ['./equipment-parameter-trend.css'],
     providers: [PdmConfigService, PdmModelService],
+    encapsulation: ViewEncapsulation.None
+
 })
 export class EquipmentParameterTrendComponent implements OnInit {
     @ViewChild('componentSpinner') componentSpinner: SpinnerComponent;

@@ -1,5 +1,5 @@
 
-import { Component, ViewChild, ElementRef, OnInit, EventEmitter, Output, Input, OnChanges, DoCheck } from '@angular/core';
+import {ViewEncapsulation, Component, ViewChild, ElementRef, OnInit, EventEmitter, Output, Input, OnChanges, SimpleChange, DoCheck } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import { BistelChartComponent } from '../../../../../../../sdk/charts/charts/bistel-chart.component';
 
@@ -7,16 +7,22 @@ import { BistelChartComponent } from '../../../../../../../sdk/charts/charts/bis
     moduleId: module.id,
     selector: 'modeling-chart',
     templateUrl: `modeling-chart.html`,
-    styleUrls: [`modeling-chart.css`]
+    styleUrls: [`modeling-chart.css`],
+    
 })
 export class ModelingChartComponent implements OnInit, OnChanges, DoCheck {
 
     @Input() params;
     @Input() eventLines;
     @Output() selectParam = new EventEmitter<any>();
+    @ViewChild("bistelchart") bistelchart:BistelChartComponent[];
     selectedParamId;
     conditionValue;
     conditionParamId;
+
+    paramChartData;
+
+    // bistelchart = [];
     // params = [
     //     { name: 'param1', isEventParam: false, conditionValue: null, datas: [],eventConfig:[] },
     //     { name: 'param2', isEventParam: false, conditionValue: null, datas: [],eventConfig:[] },
@@ -91,9 +97,59 @@ export class ModelingChartComponent implements OnInit, OnChanges, DoCheck {
     eventConfig = {
         jqplotDblClick: (ev: any, seriesIndex: number, pointIndex: number, data: any) => {
             console.log(ev);
+        },
+        jqplotZoom: (ev, gridpos, datapos, plot, cursor)=>{
+            var plotData = plot.series[0].data;
+
+            // this.trendConfig.axes.xaxis['min'] = plot.axes.xaxis.min;
+            // this.trendConfig.axes.xaxis['max'] = plot.axes.xaxis.max;
+
+            // this.trendConfig = Object.assign({}, this.trendConfig);
+    
         }
     };
-    sort={parameter:'none',adHoc:'none'};
+    sort = { parameter: 'none', adHoc: 'none' };
+
+
+    chartOptions = {
+
+        padding: {
+            top: 40,
+            right: 40,
+            bottom: 40,
+            left: 100,
+        },
+        color: {
+            pattern: ['#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78', '#2ca02c', '#98df8a', '#d62728', '#ff9896', '#9467bd', '#c5b0d5', '#8c564b', '#c49c94', '#e377c2', '#f7b6d2', '#7f7f7f', '#c7c7c7', '#bcbd22', '#dbdb8d', '#17becf', '#9edae5']
+        },
+        transition: {
+            duration: 100
+        },
+        axis: {
+            x: {
+                type: 'timeseries',
+                tick: {
+                    format: '%Y-%m-%d',
+                    count: 10
+                }
+            }
+        },
+        point: {
+            show: false
+        },
+        zoom: {
+            enabled: false
+        },
+        legend: {
+            show: false
+        },
+        tooltip: {
+            show: false
+        }
+    }
+
+
+
     constructor() { }
 
     ngOnInit() {
@@ -117,74 +173,91 @@ export class ModelingChartComponent implements OnInit, OnChanges, DoCheck {
     randomRange(maximum, minimum) {
         return Math.floor(Math.random() * (maximum - minimum + 1)) + minimum
     }
-    ngOnChanges() {
-        if(this.params!=null && this.params.length>0){
+    ngOnChanges(changes: { [propertyName: string]: SimpleChange }): void {
+        if (this.params != null && this.params.length > 0) {
             this.trendConfig['axes']['xaxis']['min'] = this.params[0].from;
             this.trendConfig['axes']['xaxis']['max'] = this.params[0].max;
+            
+
 
         }
+
+
 
         this.setStatusEventConfig();
     }
+    // getChartData(datas){
+    //     let chartOptions = $.extend(true,{},this.chartOptions);
+    //     if(datas[0][0][0]!='time'){
+    //         datas[0].unshift(['time','value']);
+    //     } 
+
+
+    //     chartOptions.axis.x['min'] = this.params[0].from;
+    //     chartOptions.axis.x['max'] = this.params[0].max;
+
+    //     chartOptions.data.rows= datas[0];
+    //     return chartOptions;
+    // }
     ngDoCheck() {
         //    this.selectecItemAction();
         //        console.log(this.displayName+":"+this.selectedItems.length);
-    
+
     }
-    sortByKey(array, key,sortType) {
-       
-        return array.sort(function(a, b) {
+    sortByKey(array, key, sortType) {
+
+        return array.sort(function (a, b) {
             var x = a[key]; var y = b[key];
-            if(sortType=="asc"){
+            if (sortType == "asc") {
                 return ((x < y) ? -1 : ((x > y) ? 1 : 0));
-            }else{
+            } else {
                 return ((x > y) ? -1 : ((x < y) ? 1 : 0));
             }
-            
+
         });
     }
-    sortClick(type){
+    sortClick(type) {
 
-        if(type=='parameter'){
-            if(this.sort.parameter!='none'){
-                if(this.sort.parameter=="asc"){
-                    this.sort.parameter="desc";
-                    this.sortByKey(this.params,"name",'desc');
-                }else{
-                    this.sort.parameter="asc";
-                    this.sortByKey(this.params,"name",'asc');
+        if (type == 'parameter') {
+            if (this.sort.parameter != 'none') {
+                if (this.sort.parameter == "asc") {
+                    this.sort.parameter = "desc";
+                    this.sortByKey(this.params, "name", 'desc');
+                } else {
+                    this.sort.parameter = "asc";
+                    this.sortByKey(this.params, "name", 'asc');
                 }
-            }else{
-                this.sort.parameter="asc";
-                this.sortByKey(this.params,"name",'asc');
+            } else {
+                this.sort.parameter = "asc";
+                this.sortByKey(this.params, "name", 'asc');
             }
 
-            this.sort.adHoc="none";
+            this.sort.adHoc = "none";
 
-        }else{
-            if(this.sort.adHoc!='none'){
-                if(this.sort.adHoc=="asc"){
-                    this.sort.adHoc="desc";
-                    this.sortByKey(this.params,"adHoc",'desc');
-                }else{
-                    this.sort.adHoc="asc";
-                    this.sortByKey(this.params,"adHoc",'asc');
+        } else {
+            if (this.sort.adHoc != 'none') {
+                if (this.sort.adHoc == "asc") {
+                    this.sort.adHoc = "desc";
+                    this.sortByKey(this.params, "adHoc", 'desc');
+                } else {
+                    this.sort.adHoc = "asc";
+                    this.sortByKey(this.params, "adHoc", 'asc');
                 }
-            }else{
-                this.sort.adHoc="asc";
-                this.sortByKey(this.params,"adHoc",'asc');
+            } else {
+                this.sort.adHoc = "asc";
+                this.sortByKey(this.params, "adHoc", 'asc');
             }
 
-            this.sort.parameter="none";
+            this.sort.parameter = "none";
         }
 
     }
-    public init(){
-        this.selectedParamId=null;
-        this.conditionValue=null;
-        this.conditionParamId=null;
+    public init() {
+        this.selectedParamId = null;
+        this.conditionValue = null;
+        this.conditionParamId = null;
     }
-    public initEvent(){
+    public initEvent() {
 
     }
     setStatusEventConfig() {
@@ -275,9 +348,9 @@ export class ModelingChartComponent implements OnInit, OnChanges, DoCheck {
         }
 
         let param = null;
-        for(let i=0;i<this.params.length;i++){
+        for (let i = 0; i < this.params.length; i++) {
             this.params[i]['eventLines'] = this.statusEventConfig;
-            if(this.selectedParamId!=null && this.selectedParamId==this.params[i].paramId){
+            if (this.selectedParamId != null && this.selectedParamId == this.params[i].paramId) {
                 param = this.params[i];
             }
         }
@@ -291,17 +364,19 @@ export class ModelingChartComponent implements OnInit, OnChanges, DoCheck {
     onClickParam(param) {
         this.selectParam.emit(param);
 
-        this.conditionValue = param.datas[0].map(a=>a[1]).reduce((a,b)=>{
-            return a+b;
-        })/param.datas[0].length;
+        this.conditionValue = param.datas[0].map(a => a[1]).reduce((a, b) => {
+            return a + b;
+        }) / param.datas[0].length;
 
         this.conditionParamId = param.paramId;
 
         this.setStatusEventConfig();
         this.drawConditionLine(param);
-       
+
     }
     drawConditionLine(param) {
+        if(param==null) return;
+
         let selectedParamObj = null;
         for (let i = 0; i < this.params.length; i++) {
             // this.params[i]['eventLines'] = [];
@@ -344,7 +419,7 @@ export class ModelingChartComponent implements OnInit, OnChanges, DoCheck {
                 },
                 draggable: {
                     show: true,
-                    dragStop:(ev, newValue, neighbor, plot)=>{
+                    dragStop: (ev, newValue, neighbor, plot) => {
                         this.conditionValue = newValue;
                     }
                 },
@@ -362,18 +437,18 @@ export class ModelingChartComponent implements OnInit, OnChanges, DoCheck {
             }
         });
         eventLines = eventLines.concat(this.statusEventConfig);
-        if(selectedParamObj!=null){
+        if (selectedParamObj != null) {
             selectedParamObj.eventLines = eventLines;
         }
-        
+
     }
-    public getParamId(){
+    public getParamId() {
         return this.selectedParamId;
     }
-    public getConditionValue(){
+    public getConditionValue() {
         return this.conditionValue;
     }
-    public getConditionParamId(){
+    public getConditionParamId() {
         return this.conditionParamId;
     }
 }
