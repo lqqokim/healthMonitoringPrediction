@@ -27,7 +27,7 @@
         and a.occur_dtts <![CDATA[<]]> #{todate}
     </select>
 
-    <update id="updateReportAlarm">
+    <update id="updateReportAlarm" databaseId="oracle">
         update report_alarm_trx_pdm
         <set>
             <if test="write_dtts != null">write_dtts=#{write_dtts},</if>
@@ -54,8 +54,6 @@
           and occur_dtts = #{occur_dtts}
     </delete>
 
-
-
     <insert id="insertBatchJobHst">
         insert into batch_job_hst_pdm(job_dtts, job_cd, eqp_id, job_status_cd, job_type_cd, update_dtts, update_by)
         values(#{job_dtts}, #{job_cd}, #{eqp_id,jdbcType=NUMERIC}, #{job_status_cd}, #{job_type_cd}, systimestamp, #{update_user_id})
@@ -66,8 +64,7 @@
         and job_cd = #{job_cd}
     </delete>
 
-
-
+    <!-- TODO: Chris eqp_pdm 테이블 없음  -->
     <resultMap id="EqpStatusMap" type="com.bistel.a3.portal.domain.pdm.EqpStatus">
         <id column="eqp_id" property="eqp_id"/>
         <result column="eqp_name" property="name"/>
@@ -134,8 +131,7 @@
         where a.r = 1
     </select>
 
-
-
+	<!-- TODO: Chris eqp_pdm 테이블 없음  -->
     <resultMap id="AreaStatusMap" type="com.bistel.a3.portal.domain.pdm.AreaWithStatus">
         <id column="area_id" property="area_id"/>
         <result column="name" property="name"/>
@@ -148,7 +144,7 @@
             <result column="h2" property="h2"/>
         </association>
     </resultMap>
-    <select id="selectAreaStatusByAreaId" resultMap="AreaStatusMap">
+    <select id="selectAreaStatusByAreaId" resultMap="AreaStatusMap" databaseId="oracle">
         select
         a.area_id,
         a.name,
@@ -181,8 +177,8 @@
         where a.area_id = #{area_id}
     </select>
 
-
-    <select id="selectJobHst" resultType="com.bistel.a3.portal.domain.pdm.BatchJobHst">
+	<!-- TODO: Chris eqp_pdm 테이블 없음  -->
+    <select id="selectJobHst" resultType="com.bistel.a3.portal.domain.pdm.BatchJobHst" databaseId="oracle">
         select a.*,
         case when a.eqp_id is null then ''
         else (select name from eqp_pdm where eqp_id = a.eqp_id) end as eqp_name
@@ -195,9 +191,8 @@
         order by a.job_dtts desc
     </select>
 
-
-
-    <insert id="insertCalculateAvg90">
+	<!-- TODO: Chris param_id 없음 -->
+    <insert id="insertCalculateAvg90" databaseId="oracle">
         insert into overall_minute_avg90_trx_pdm (param_id, read_dtts, value)
         select
         param_id,
@@ -215,7 +210,8 @@
         </if>
         group by param_id
     </insert>
-    <delete id="deleteCalculateAvg90">
+    <!-- TODO: Chris param_id 없음 -->
+    <delete id="deleteCalculateAvg90" databaseId="oracle">
         delete from overall_minute_avg90_trx_pdm
         where read_dtts = #{date}
         <if test="eqpIds.size > 0">
@@ -227,7 +223,7 @@
         </if>
     </delete>
 
-
+	<!-- TODO: Chris 테이블 없음  -->
     <resultMap id="ParamStatusMap" type="com.bistel.a3.portal.domain.pdm.ParamStatus">
         <id column="param_id" property="param_id"/>
         <result column="param_name" property="name"/>
@@ -298,7 +294,7 @@
         order by n.sort_order
     </select>
 
-
+	<!-- TODO: Chris 테이블 없음  -->
     <select id="selectUnivariatevariation" resultType="com.bistel.a3.portal.domain.pdm.UnivariateVariation">
         select
         a.param_id,
@@ -332,9 +328,9 @@
         and event_dtts <![CDATA[<]]> #{end}
         order by event_dtts
     </select>
+    <!-- TODO: Chris param_feature_trx_pdm 테이블 없음 -->
     <select id="selectFeatureData" resultType="com.bistel.a3.portal.domain.pdm.db.FeatureTrx">
-        select
-            *
+        select *
         from param_feature_trx_pdm
         where
         param_mst_rawid = #{paramId}
@@ -342,7 +338,6 @@
         and end_dtts <![CDATA[<]]> #{toDate}
         order by end_dtts
     </select>
-    
 
     <select id="selectPrevPeriodAVG" resultType="double">
         SELECT
@@ -362,7 +357,7 @@
         WHERE param_mst_rawid = #{param_id}
         and event_dtts <![CDATA[>=]]> #{start}
         and event_dtts <![CDATA[<]]> #{end}
-        )
+        ) min_avg
         ) sts
         where
         a.param_mst_rawid =#{param_id}
@@ -392,7 +387,9 @@
         group by a.area_mst_rawid,a.rawid, a.name
         order by status desc, value desc
     </select>
-    <select id="selectGoodFiveEqps" resultType="com.bistel.a3.portal.domain.pdm.EqpStatusData">
+    
+    
+    <select id="selectGoodFiveEqps" resultType="com.bistel.a3.portal.domain.pdm.EqpStatusData" databaseId="oracle">
         SELECT
         *
         FROM
@@ -441,8 +438,56 @@
 
 
     </select>
-    <select id="selectBadFiveEqps" resultType="com.bistel.a3.portal.domain.pdm.EqpStatusData">
-         SELECT
+    <select id="selectGoodFiveEqps" resultType="com.bistel.a3.portal.domain.pdm.EqpStatusData" databaseId="postgresql">
+		SELECT
+		*
+		FROM
+		(
+		   SELECT
+		   eqp.rawid AS eqp_id,
+		   eqp.area_mst_rawid as area_id,
+		   eqp.name,
+		   c.status_cd
+		   FROM
+		   (
+		      SELECT
+		      param.eqp_mst_rawid AS eqp_id,
+		      MIN(a.variation) AS variation
+		      FROM
+		      (
+		         SELECT
+		         param_mst_rawid AS param_id,
+		         AVG(variation / alarm_spec) AS variation
+		         FROM trace_daily_sum_pdm
+		         WHERE sum_dtts <![CDATA[>=]]> #{start}
+		         AND sum_dtts <![CDATA[<]]> #{end}
+		         AND variation IS NOT NULL
+		         GROUP BY param_mst_rawid
+		      )
+		      a
+		      JOIN param_mst_pdm param ON a.param_id = param.rawid
+		      GROUP BY param.eqp_mst_rawid
+		   )
+		   a
+		   JOIN eqp_mst_pdm eqp ON a.eqp_id = eqp.rawid
+		   LEFT JOIN
+		   (
+		      SELECT
+		      eqp_mst_rawid AS eqp_id,
+		      MAX(status_cd) AS status_cd
+		      FROM eqp_alarm_daily_sum_pdm
+		      WHERE sum_dtts <![CDATA[>=]]> #{start}
+		      AND sum_dtts<![CDATA[<]]> #{end}
+		      GROUP BY eqp_mst_rawid
+		   )
+		   c ON eqp.rawid = c.eqp_id
+		   ORDER BY a.variation
+		) zzz
+		limit 5
+    </select>
+    
+    <select id="selectBadFiveEqps" resultType="com.bistel.a3.portal.domain.pdm.EqpStatusData" databaseId="oracle">
+        SELECT
         *
         FROM
         (
@@ -489,7 +534,56 @@
         where rownum <![CDATA[<=]]> 5
 
     </select>
-    <select id="selectNumberOfWorstEqps" resultType="com.bistel.a3.portal.domain.pdm.EqpStatusData">
+    <select id="selectBadFiveEqps" resultType="com.bistel.a3.portal.domain.pdm.EqpStatusData" databaseId="postgresql">
+		SELECT
+		*
+		FROM
+		(
+		   SELECT
+		   eqp.rawid AS eqp_id,
+		   eqp.area_mst_rawid as area_id,
+		   eqp.name,
+		   c.status_cd
+		   FROM
+		   (
+			  SELECT
+			  param.eqp_mst_rawid AS eqp_id,
+			  MAX(a.variation) AS variation
+			  FROM
+			  (
+				 SELECT
+				 param_mst_rawid AS param_id,
+				 AVG(variation / alarm_spec) AS variation
+				 FROM trace_daily_sum_pdm
+				 WHERE sum_dtts <![CDATA[>=]]> #{start}
+				 AND sum_dtts <![CDATA[<]]> #{end}
+				 AND variation IS NOT NULL
+				 GROUP BY param_mst_rawid
+			  )
+			  a
+			  JOIN param_mst_pdm param ON a.param_id = param.rawid
+			  GROUP BY param.eqp_mst_rawid
+		   )
+		   a
+		   JOIN eqp_mst_pdm eqp ON a.eqp_id = eqp.rawid
+		   LEFT JOIN
+		   (
+			  SELECT
+			  eqp_mst_rawid AS eqp_id,
+			  MAX(status_cd) AS status_cd
+			  FROM eqp_alarm_daily_sum_pdm
+			  WHERE sum_dtts <![CDATA[>=]]> #{start}
+			  AND sum_dtts <![CDATA[<]]> #{end}
+			  GROUP BY eqp_mst_rawid
+		   )
+		   c ON eqp.rawid = c.eqp_id
+		   ORDER BY a.variation DESC
+		) zzz
+		limit 5
+    </select>
+    
+    
+    <select id="selectNumberOfWorstEqps" resultType="com.bistel.a3.portal.domain.pdm.EqpStatusData" databaseId="oracle">
         <!--SELECT-->
         <!--*-->
         <!--FROM-->
@@ -577,6 +671,41 @@
         where rownum <![CDATA[<=]]> #{numberOfWorst}
         
     </select>
+    <select id="selectNumberOfWorstEqps" resultType="com.bistel.a3.portal.domain.pdm.EqpStatusData" databaseId="postgresql">
+		select
+		area_id,eqp_id,name,status_cd
+		from
+		(
+		   select
+		   eqp.area_mst_rawid as area_id,
+		   eqp_mst_rawid as eqp_id,
+		   max(value) as value,
+		   eqp.name,
+		   null as status_cd
+		   from ( select param.eqp_mst_rawid,param_mst_rawid,avg(value/alarm_spec) as value
+					from trace_trx_pdm trx,param_mst_pdm param
+					where event_dtts <![CDATA[>=]]> #{start}
+					and event_dtts  <![CDATA[<]]> #{end}
+					and trx.param_mst_rawid = param.rawid group by param.eqp_mst_rawid,param_mst_rawid ) data,
+		   eqp_mst_pdm eqp
+		   where data.eqp_mst_rawid = eqp.rawid
+		   and not exists
+		   (
+			  select
+			  1
+			  from eqp_alarm_daily_sum_pdm b
+			  where b.sum_dtts <![CDATA[>=]]> #{start}
+			  and b.sum_dtts  <![CDATA[<]]> #{end}
+			  and b.status_cd in (128,256)
+			  and eqp.rawid = b.eqp_mst_rawid
+		   )
+		   group by eqp.area_mst_rawid,
+		   eqp_mst_rawid,
+		   eqp.name
+		   order by value desc
+		) zzz
+		limit #{numberOfWorst}
+    </select>
 
 
     <select id="selectRadar" resultType="com.bistel.a3.portal.domain.pdm.ParamClassificationData">
@@ -619,7 +748,7 @@
                 group by param_mst_rawid ) data,
             param_mst_pdm param
         where count <![CDATA[>]]>  #{rmsOverCount}
-            and data.param_mst_rawid = param.rawid
+        and data.param_mst_rawid = param.rawid
         group by param.eqp_mst_rawid
         
     </select>
@@ -643,14 +772,5 @@
             #{avg_spec,jdbcType=FLOAT}, #{avg_daily,jdbcType=FLOAT}, #{avg_with_aw,jdbcType=FLOAT}, #{variation,jdbcType=FLOAT}, #{cause,jdbcType=VARCHAR},
             #{userName},systimestamp)
     </insert>
-
-
-
-
-
-
-
-
-
 
 </mapper>

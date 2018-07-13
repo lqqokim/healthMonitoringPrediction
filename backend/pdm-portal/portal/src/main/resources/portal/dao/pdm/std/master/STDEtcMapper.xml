@@ -7,12 +7,11 @@
         from
             monitoring_mst_pdm
         <if test="name != null">
-            and name = #{name}
+            where name = #{name}
         </if>
-
     </select>
     
-    <insert id="insertMonitoring">
+    <insert id="insertMonitoring" databaseId="oracle">
         <selectKey keyProperty="rawId" resultType="Long" order="BEFORE">
             select seq_monitoring_mst_pdm.nextval FROM DUAL
         </selectKey>
@@ -24,7 +23,19 @@
         ,#{userName}
         ,systimestamp,#{userName},systimestamp)
     </insert>
-
+    <insert id="insertMonitoring" databaseId="postgresql">
+        <selectKey keyProperty="rawId" resultType="Long" order="BEFORE">
+            select nextval('seq_monitoring_mst_pdm')
+        </selectKey>
+        insert into monitoring_mst_pdm (rawid,name,image,datas,width,height,create_by,create_dtts,update_by,update_dtts)
+        values (#{rawId,jdbcType=NUMERIC},#{name,jdbcType=VARCHAR},#{image, jdbcType=VARCHAR}
+        ,#{datas, jdbcType=VARCHAR}
+        ,#{width,jdbcType=NUMERIC}
+        ,#{height,jdbcType=NUMERIC}
+        ,#{userName}
+        ,systimestamp,#{userName},systimestamp)
+    </insert>
+    
     <update id="updateMonitoring">
         update monitoring_mst_pdm
         set name = #{name},
@@ -41,6 +52,4 @@
         delete from monitoring_mst_pdm
         where rawid = #{rawId}
     </delete>
-
-   
 </mapper>

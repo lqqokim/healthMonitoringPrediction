@@ -31,8 +31,8 @@
         b.name as eqp_name,
         a.ratio,
         a.rpm,
-        bear.model_number,
-        bear.manufacture,
+        c.model_number,
+        c.manufacture,
         a.bearing_mst_rawid as bearing_id,
         a.base_ratio_yn,
         a.parts_type_cd,
@@ -45,10 +45,14 @@
            and used_yn='Y'
         )
         as parts_type
-        from parts_mst_pdm a,eqp_mst_pdm b,bearing_mst_pdm bear
+        from parts_mst_pdm a join eqp_mst_pdm b
+		on a.eqp_mst_rawid = b.rawid
+		left outer join bearing_mst_pdm c
+        on a.bearing_mst_rawid = c.rawid
+        <!-- from parts_mst_pdm a, eqp_mst_pdm b, bearing_mst_pdm c -->
         where a.eqp_mst_rawid = #{eqpId}
-        and a.eqp_mst_rawid = b.rawid
-        and a.bearing_mst_rawid = bear.rawid(+)
+        <!-- and a.eqp_mst_rawid = b.rawid -->
+        <!-- and a.bearing_mst_rawid = c.rawid(+) -->
         order by a.name
 
 
@@ -78,14 +82,14 @@
         a.parts_type_cd,
         (select name from code_mst_pdm  where code = a.parts_type_cd and category='part_type' and used_yn='Y') as parts_type
 
-        from parts_mst_pdm a , eqp_mst_pdm b, param_mst_pdm c
-        where
-            a.rawid=#{partId}
-            and a.eqp_mst_rawid = b.rawid
-            and a.rawid = c.parts_mst_rawid(+)
+        from parts_mst_pdm a join eqp_mst_pdm b
+        on a.eqp_mst_rawid = b.rawid
+        left outer join param_mst_pdm c
+        on a.rawid = c.parts_mst_rawid
+        where a.rawid=#{partId}
     </select>
 
-    <insert id="insertOne">
+    <insert id="insertOne" databaseId="oracle">
         <selectKey keyProperty="part_id" resultType="Long" order="BEFORE">
             select seq_parts_mst_pdm.nextval FROM DUAL
         </selectKey>
@@ -97,13 +101,23 @@
         ,#{ratio, jdbcType=NUMERIC},#{base_ratio_yn,jdbcType=VARCHAR},#{rpm, jdbcType=NUMERIC},#{userName},
                 systimestamp,#{userName},systimestamp)
     </insert>
-
+    <insert id="insertOne" databaseId="postgresql">
+        <selectKey keyProperty="part_id" resultType="Long" order="BEFORE">
+            select nextval('seq_parts_mst_pdm')
+        </selectKey>
+        insert into parts_mst_pdm (rawid,name,eqp_mst_rawid,bearing_mst_rawid,parts_type_cd
+        ,ratio,base_ratio_yn,rpm,create_by,create_dtts,update_by,update_dtts)
+        values (#{part_id,jdbcType=NUMERIC},#{name,jdbcType=VARCHAR},#{eqp_id,jdbcType=NUMERIC},
+                #{bearing_id, jdbcType=NUMERIC}
+            ,#{parts_type_cd, jdbcType=VARCHAR}
+        ,#{ratio, jdbcType=NUMERIC},#{base_ratio_yn,jdbcType=VARCHAR},#{rpm, jdbcType=NUMERIC},#{userName},
+                systimestamp,#{userName},systimestamp)
+    </insert>
+    
     <insert id="insertLnk">
         insert into param_part_lnk_pdm (param_id,part_id)
         values (#{param_id,jdbcType=NUMERIC},#{part_id,jdbcType=NUMERIC})
     </insert>
-
-
 
     <update id="updateOne">
         update parts_mst_pdm
@@ -149,9 +163,5 @@
         from parts_mst_pdm parts
         where parts.eqp_mst_rawid = #{eqpId}
         and parts.base_ratio_yn='Y'
-
     </select>
-
-
-
 </mapper>

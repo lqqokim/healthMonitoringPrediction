@@ -19,9 +19,17 @@
         where rawid = #{areaId}
     </select>
 
-    <insert id="insertOne" parameterType="com.bistel.a3.portal.domain.pdm.db.Area"  databaseId="oracle">
+    <insert id="insertOne" parameterType="com.bistel.a3.portal.domain.pdm.db.Area" databaseId="oracle">
         <selectKey keyProperty="area_id" resultType="Long" order="BEFORE">
             select seq_area_mst_pdm.nextval FROM DUAL
+        </selectKey>
+        insert into area_mst_pdm(rawid, name, description, parent_rawid,create_by,create_dtts,update_by,update_dtts)
+        values(#{area_id}, #{name}, #{description,jdbcType=VARCHAR}, #{parent_id},#{userName},systimestamp,#{userName},systimestamp)
+    </insert>
+
+    <insert id="insertOne" parameterType="com.bistel.a3.portal.domain.pdm.db.Area" databaseId="postgresql">
+        <selectKey keyProperty="area_id" resultType="Long" order="BEFORE">
+            select nextval('seq_area_mst_pdm') 
         </selectKey>
         insert into area_mst_pdm(rawid, name, description, parent_rawid,create_by,create_dtts,update_by,update_dtts)
         values(#{area_id}, #{name}, #{description,jdbcType=VARCHAR}, #{parent_id},#{userName},systimestamp,#{userName},systimestamp)
@@ -41,7 +49,7 @@
             update_by = #{userName}
         where rawid = #{area_id}
     </update>
-    <select id="selectNodes" resultType="com.bistel.a3.portal.domain.pdm.Node">
+    <select id="selectNodes" resultType="com.bistel.a3.portal.domain.pdm.Node" databaseId="oracle">
 
         SELECT
         rawid AS node_id,
@@ -97,7 +105,33 @@
 
 
     </select>
-    <select id="selectAreaWithTree" resultType="com.bistel.a3.portal.domain.pdm.AreaWithTree">
+    <select id="selectNodes" resultType="com.bistel.a3.portal.domain.pdm.Node" databaseId="postgresql">
+		WITH RECURSIVE q AS (
+		    SELECT area.*
+		    FROM area_mst_pdm area
+		    WHERE area.parent_rawid = 0
+		    UNION ALL
+		    SELECT area.*
+		    FROM area_mst_pdm area
+		    JOIN q ON q.rawid=area.parent_rawid
+		)
+		SELECT qq.rawid AS node_id, qq.name AS node_name, qq.parent_rawid as parent_id, 
+		       CASE WHEN (SELECT COUNT(*) FROM area_mst_pdm WHERE parent_rawid = qq.rawid) > 0 THEN 0
+		       ELSE 1 END AS node_type
+		FROM q qq
+		
+		UNION ALL
+		
+		SELECT rawid as eqp_id, name, area_mst_rawid, 2 AS node_type
+		FROM eqp_mst_pdm
+		
+		UNION ALL
+				
+		SELECT rawid as param_id, name, eqp_mst_rawid as eqp_id, 100
+		FROM param_mst_pdm
+    </select>
+     
+    <select id="selectAreaWithTree" resultType="com.bistel.a3.portal.domain.pdm.AreaWithTree" databaseId="oracle">
         select
         rawid as area_id,
         name,
@@ -107,5 +141,19 @@
         start with parent_rawid = 0
         connect by prior rawid = parent_rawid
     </select>
-
+    <select id="selectAreaWithTree" resultType="com.bistel.a3.portal.domain.pdm.AreaWithTree" databaseId="postgresql">
+		WITH RECURSIVE q AS (
+		    SELECT area.*
+		    FROM area_mst_pdm area
+		    WHERE area.parent_rawid = 0
+		    UNION ALL
+		    SELECT area.*
+		    FROM area_mst_pdm area
+		    JOIN q ON q.rawid=area.parent_rawid
+		)
+		SELECT qq.rawid AS area_id, qq.name AS name, qq.parent_rawid as parent_id, 
+		       CASE WHEN (SELECT COUNT(*) FROM area_mst_pdm WHERE parent_rawid = qq.rawid) > 0 THEN 0
+		       ELSE 1 END AS leaf
+		FROM q qq
+    </select>
 </mapper>
