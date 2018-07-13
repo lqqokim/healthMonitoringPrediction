@@ -47,19 +47,13 @@ public class SpeedTaskDef extends AbstractPipeline {
     private KafkaStreams processStreams() {
         final Topology topology = new Topology();
 
-//        StoreBuilder<KeyValueStore<String, Integer>> alarmRuleSupplier =
-//                Stores.keyValueStoreBuilder(
-//                        Stores.persistentKeyValueStore("fd02-alarm"),
-//                        Serdes.String(),
-//                        Serdes.Integer());
-//
-//        StoreBuilder<KeyValueStore<String, Integer>> warningRuleSupplier =
-//                Stores.keyValueStoreBuilder(
-//                        Stores.persistentKeyValueStore("fd02-warning"),
-//                        Serdes.String(),
-//                        Serdes.Integer());
+        StoreBuilder<KeyValueStore<String, Long>> alarmTimeStoreSupplier =
+                Stores.keyValueStoreBuilder(
+                        Stores.inMemoryKeyValueStore("alarm-time-context"),
+                        Serdes.String(),
+                        Serdes.Long());
 
-        StoreBuilder<KeyValueStore<String, String>> statusContextSupplier =
+        StoreBuilder<KeyValueStore<String, String>> statusStoreSupplier =
                 Stores.keyValueStoreBuilder(
                         Stores.persistentKeyValueStore("status-context"),
                         Serdes.String(),
@@ -71,25 +65,14 @@ public class SpeedTaskDef extends AbstractPipeline {
                 .addProcessor("speed01", FilterByMasterProcessor::new, "input-trace")
                 .addProcessor("speed02", MarkStatusProcessor::new, "speed01")
                 .addProcessor("speed03", ExtractEventProcessor::new, "speed02")
-                .addStateStore(statusContextSupplier, "speed02")
+                .addStateStore(statusStoreSupplier, "speed02")
                 .addProcessor("fd01", DetectByRealTimeProcessor::new, "speed02")
+                .addStateStore(alarmTimeStoreSupplier, "fd01")
+                .addProcessor("sendmail", SendMailProcessor::new, "fd01")
                 .addSink("output-trace", this.getOutputTraceTopic(), "speed02")
                 .addSink("output-event", this.getOutputEventTopic(), "speed03")
                 .addSink("output-fault", this.getOutputFaultTopic(), "fd01")
                 .addSink("output-raw", this.getInputTimewaveTopic(), "fd01");
-
-//        topology.addSource("input-trace", this.getInputTraceTopic())
-//                .addProcessor("speed01", FilterByMasterProcessor::new, "input-trace")
-//                .addProcessor("speed02", MarkStatusProcessor::new, "speed01")
-//                .addProcessor("speed03", ExtractEventProcessor::new, "speed02")
-//                .addStateStore(statusContextSupplier, "speed03")
-//                .addProcessor("fd01", DetectByRealTimeProcessor::new, "speed02")
-//                //.addProcessor("fd02", DetectByRuleProcessor::new, "speed02")
-//
-//                .addSink("output-trace", this.getOutputTraceTopic(), "speed02")
-//                .addSink("output-event", this.getOutputEventTopic(), "speed03")
-//                .addSink("output-fault", this.getOutputFaultTopic(), "fd01");
-//                //.addSink("output-fault", this.getOutputFaultTopic(), "fd02");
 
         return new KafkaStreams(topology, getStreamProperties());
     }

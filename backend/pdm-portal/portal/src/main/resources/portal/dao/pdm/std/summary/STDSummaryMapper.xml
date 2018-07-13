@@ -1277,6 +1277,75 @@
         group by fault_class
 
     </select>
+
+
+    <select id="selectEqpHealthIndexMasterInfo" resultType="com.bistel.a3.portal.domain.pdm.EqpHealthIndex">
+        select eqphealthmasterinfo.area_id, eqphealthmasterinfo.area_name, eqphealthmasterinfo.eqp_id, eqphealthmasterinfo.eqp_name, alarmcount.alarm_count
+        from
+        (
+        select area_id, area_name, eqp_id, eqp_name
+        from
+        (
+        select area.rawid as area_id, area.name as area_name, eqp.rawid as eqp_id, eqp.name as eqp_name , eqphealth.health_logic_mst_rawid, eqphealth.score, eqphealth.alarm_count
+        from eqp_health_daily_sum_pdm eqphealth, eqp_mst_pdm eqp, area_mst_pdm area
+        where 1=1
+        and area.rawid=eqp.area_mst_rawid
+        and eqphealth.EQP_MST_RAWID=eqp.rawid
+        and eqphealth.sum_dtts <![CDATA[>=]]> #{fromdate}
+        and eqphealth.sum_dtts <![CDATA[<]]> #{todate}
+        )
+        group by area_id, area_name, eqp_id, eqp_name
+        ) eqphealthmasterinfo,
+
+        (
+        select eqp_id, sum(alarm_count) as alarm_count
+        from
+        (
+        select area.rawid as area_id, area.name as area_name, eqp.rawid as eqp_id, eqp.name as eqp_name , eqphealth.health_logic_mst_rawid, eqphealth.score, eqphealth.alarm_count
+        from eqp_health_daily_sum_pdm eqphealth, eqp_mst_pdm eqp, area_mst_pdm area
+        where 1=1
+        and area.rawid=eqp.area_mst_rawid
+        and eqphealth.EQP_MST_RAWID=eqp.rawid
+        and eqphealth.sum_dtts  <![CDATA[>=]]> #{fromdate}
+        and eqphealth.sum_dtts  <![CDATA[<]]> #{todate}
+        )
+        group by eqp_id
+        ) alarmcount
+
+        where 1=1
+        and eqphealthmasterinfo.eqp_id=alarmcount.eqp_id
+
+    </select>
+
+    <select id="selectEqpHealthIndexInfo" resultType="com.bistel.a3.portal.domain.pdm.EqpHealthIndex">
+
+        select eqp_id, health_logic_mst_rawid, score, alarm_count
+        from
+        (
+        select area.rawid as area_id, area.name as area_name, eqp.rawid as eqp_id, eqp.name as eqp_name , eqphealth.health_logic_mst_rawid, eqphealth.score, eqphealth.alarm_count
+        from eqp_health_daily_sum_pdm eqphealth, eqp_mst_pdm eqp, area_mst_pdm area
+        where 1=1
+        and area.rawid=eqp.area_mst_rawid
+        and eqphealth.EQP_MST_RAWID=eqp.rawid
+        and eqphealth.sum_dtts <![CDATA[>=]]> #{fromdate}
+        and eqphealth.sum_dtts <![CDATA[<]]> #{todate}
+        )
+
+    </select>
+
+    <select id="selectEqpHealthIndexByAreaId" resultType="com.bistel.a3.portal.domain.pdm.EqpHealthIndex">
+        select area.rawid as area_id, area.name as area_name, eqp.rawid as eqp_id, eqp.name as eqp_name , eqphealth.health_logic_mst_rawid, eqphealth.score, eqphealth.alarm_count
+        from eqp_health_daily_sum_pdm eqphealth, eqp_mst_pdm eqp, area_mst_pdm area
+        where 1=1
+        and area.rawid=eqp.area_mst_rawid
+        and eqphealth.EQP_MST_RAWID=eqp.rawid
+        and eqphealth.sum_dtts <![CDATA[>=]]> #{fromdate}
+        and eqphealth.sum_dtts <![CDATA[<]]> #{todate}
+        and area.rawid= #{area_id}
+    </select>
+
+
+
 </mapper>
 
 

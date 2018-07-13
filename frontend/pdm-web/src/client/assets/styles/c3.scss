@@ -3,8 +3,8 @@
     font: 10px sans-serif;
 }
 .c3 path, .c3 line {
-    fill: none;
-    stroke: #000;
+	fill: none;
+	stroke: rgba(0,0,0,.2);
 }
 .c3 text {
     -webkit-user-select: none;
@@ -22,7 +22,6 @@
     fill: #fff;
     font-size: 13px;
 }
-
 /*-- Axis --*/
 
 

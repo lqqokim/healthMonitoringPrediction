@@ -116,12 +116,17 @@ export class WidgetConfigHelper {
             const dayPeriod: number = this.widget.getProp('dayPeriod');
 
             this.fabId = syncData.plant.fabId;
-            this.timePeriod = <ITimePeriod>this.widget.getProp('timePeriod');
+            const configTime:{from:number, to:number} = this.widget.getProp('timePeriod');
             this.areaId = undefined;
 
             // DAY로 넘어오면 시간 년월일만 남기고 적용 (2018/07.02 12:30:11 → 2018/07/02 00:00:00 )
             if( cutoffType === 'DAY' ){
-                this.timePeriod = this.getTodayPrevDayCalc( dayPeriod, this.timePeriod.toDate );
+                this.timePeriod = this.getTodayPrevDayCalc( dayPeriod, configTime.to );
+            } else {
+                this.timePeriod = {
+                    fromDate: configTime.from,
+                    toDate: configTime.to
+                };
             }
 
             // 초기 설정 저장용

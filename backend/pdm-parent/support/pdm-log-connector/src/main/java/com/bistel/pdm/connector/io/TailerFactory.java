@@ -16,7 +16,7 @@ public class TailerFactory {
 
     private boolean startTailingFromEnd = true;
     private boolean relinquishLockBetweenChunks = false;
-    private int delayInMillisecondsBetweenChecks = 1000;
+    private int delayInMillisecondsBetweenChecks = 500;
     private TailerListener listener;
 
     public void setStartTailingFromEnd(boolean startTailingFromEnd) {

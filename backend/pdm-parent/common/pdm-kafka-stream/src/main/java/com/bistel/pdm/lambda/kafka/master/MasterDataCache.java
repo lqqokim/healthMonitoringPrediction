@@ -49,6 +49,20 @@ public class MasterDataCache {
         return paramMasterDataSet;
     }
 
+    public ParameterMasterDataSet getParamMasterDataSetWithRawId(String key, String rawId) {
+        ParameterMasterDataSet param = null;
+
+        List<ParameterMasterDataSet> paramList = paramMasterDataSet.get(key);
+        for(ParameterMasterDataSet p : paramList){
+            if(p.getParameterRawId() == Long.parseLong(rawId)){
+                param = p;
+                break;
+            }
+        }
+
+        return param;
+    }
+
     public ParameterMasterDataSet getParameter(String partitionKey, String paramName) {
         ParameterMasterDataSet param = new ParameterMasterDataSet();
         List<ParameterMasterDataSet> params = paramMasterDataSet.get(partitionKey);

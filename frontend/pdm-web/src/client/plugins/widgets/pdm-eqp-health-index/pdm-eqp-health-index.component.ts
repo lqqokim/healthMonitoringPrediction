@@ -1,22 +1,37 @@
-import { Component, ViewEncapsulation, OnDestroy } from '@angular/core';
+import { Component, ViewEncapsulation, OnDestroy, ViewChild } from '@angular/core';
 import { WidgetRefreshType, WidgetApi, OnSetup } from '../../../common';
 import { PdmEqpHealthIndexService } from './pdm-eqp-health-index.service';
-import { TableData, TableCellInfo } from '../../common/ng2-table/table.component';
-import { ITimePeriod } from '../../common/widget-chart-condition/widget-chart-condition.component';
+import { TableData, TableCellInfo, TableComponent } from '../../common/ng2-table/table.component';
+import { ITimePeriod, WidgetChartConditionComponent } from '../../common/widget-chart-condition/widget-chart-condition.component';
 import { WidgetConfigHelper, IConfigData } from '../../common/widget-config-helper/widget-config-helper';
-import { IGuageChartData, IColorSet } from '../../common/guage-chart/guageChart.component';
+import { ModalPopComponent } from './components/modal-pop.component';
 
 // 서버 요청 데이터 포맷
 export interface IReqDataFormat {
-    alarm_dtts: number;
+    alarm_count: number;
     area_id: number;
     area_name: string;
+    description: string;
     eqp_id: number;
-    eqp_name: string;
-    param_id: number;
-    param_name: string;
-    category: string;
-    fault_class: string;
+    eqp_name:string;
+    health_index: number;
+    health_logic_mst_rawid: number;
+    logic1: number;
+    logic2: number;
+    logic3: number;
+    logic4: number;
+    score: number;
+}
+
+enum chartIdx {
+    TIMESTAMP = 0,
+    VALUE,
+    ALARM,
+    WARNING
+};
+
+export interface IReqDataFormat_chart {
+    [key: number]: number
 }
 
 @Component({
@@ -29,6 +44,10 @@ export interface IReqDataFormat {
 })
 
 export class PdmEqpHealthIndex extends WidgetApi implements OnSetup, OnDestroy {
+
+    @ViewChild('condition') condition: WidgetChartConditionComponent;
+    @ViewChild('table') table: TableComponent;
+    @ViewChild('modalPop') modalPop: ModalPopComponent;
 
     public columns: Array<TableData> = [
         {title: 'Line', name: 'Line' },
@@ -73,35 +92,17 @@ export class PdmEqpHealthIndex extends WidgetApi implements OnSetup, OnDestroy {
     // 위젯 컨피그 헬퍼
     private confgHelper: WidgetConfigHelper;
 
+    // 모달 팝업 타이틀
+    private modalPopTitle: string = '';
+
     // 라인차트 데이터
     private lineData: any = {
         columns: [
-            ['x', '2013-01-01', '2013-01-02', '2013-01-03', '2013-01-04', '2013-01-05', '2013-01-06'],
+            // ['x', '2013-01-01', '2013-01-02', '2013-01-03', '2013-01-04', '2013-01-05', '2013-01-06'],
             ['data1', 30, 200, 100, 400, 150, 250],
             ['data2', 130, 340, 200, 500, 250, 350]
         ]
     };
-    
-    // 게이지 차트
-    private chartData: Array<IGuageChartData> = [
-        { name: "Good", start:0.8, end:1 },
-        { name: "Waning", start:0.35, end:0.8 },
-        { name: "Alarm", start: 0, end:0.35 }
-    ];
-
-    //* 표 색상 배열
-    private chartColor: Array<IColorSet> = [
-        { name:'Good', color: '#fb641e'},
-        { name:'Waning', color: '#fdd35b'},
-        { name:'Alarm', color: '#8bad6a'},
-    ];
-
-    private dataRangeStart: number = 0;
-    private dataRangeEnd: number = 100;
-    private markerCount: number = 5;
-    private guagePoinerPercent: number = 0.7;
-
-    private loopArr: Array<number> = [0,0,0,0,0];
 
     constructor(
         private _service: PdmEqpHealthIndexService
@@ -120,9 +121,33 @@ export class PdmEqpHealthIndex extends WidgetApi implements OnSetup, OnDestroy {
         this.confgHelper.setConfigInfo('init', this.getProperties());
     }
 
+    //* 테이블 셀 타이틀 가져오기
+    getCellTile( columnName: string ): string {
+        let i: number;
+        let columns: Array<TableData> = this.columns;
+        const max: number = columns.length;
+
+        for(i=0; i<max; i++){
+            if( columnName === columns[i].name ){
+                return columns[i].title;
+            }
+        }
+
+        return undefined;
+    }
+
     //* 셀 클릭 정보
-    cellClick(data: TableCellInfo){
-        console.log( 'cellClick-data', data );
+    cellClick(data: TableCellInfo): void {
+        // 로직1~4 에 해당하는게 아니면 건너 뜀
+        if( !(data.column === 'Logic1' || data.column === 'Logic2' || data.column === 'Logic3' || data.column === 'Logic4') ){ return; }
+
+        // 타이틀 설정
+        this.modalPopTitle = `${data.row['Equipment']} - ${this.getCellTile(data.column)} (${data.row[data.column]})`;
+
+        console.log( 'cellClick', data );
+
+        //* 차트 데이터 불러오기
+        this.getChartData( <number>data.row['eqp_id'] );
     }
 
     //* APPLY_CONFIG_REFRESH-config 설정 값, JUST_REFRESH-현 위젯 새로고침, SYNC_INCONDITION_REFRESH-위젯 Sync
@@ -151,15 +176,18 @@ export class PdmEqpHealthIndex extends WidgetApi implements OnSetup, OnDestroy {
         this.targetName = configData.targetName;
         this.timePeriod = configData.timePeriod;
 
+        // 타임 출력
+        this.condition.timeConvert( this.timePeriod );
+
         this._service.getListData({
             fabId: this.fabId,
             areaId: this.areaId,
-            fromDate: this.timePeriod.fromDate,
-            toDate: this.timePeriod.toDate
+            fromDate: 1531321200000,    //this.timePeriod.fromDate,
+            toDate: 1531407600000       //this.timePeriod.toDate
         }).then((res: Array<IReqDataFormat>)=>{
-            if( this.listData.length ){
-                this.listData.splice(0, this.listData.length);
-            }
+            // if( this.listData.length ){
+            //     this.listData.splice(0, this.listData.length);
+            // }
 
             let i: number,
                 max: number = res.length,
@@ -169,14 +197,22 @@ export class PdmEqpHealthIndex extends WidgetApi implements OnSetup, OnDestroy {
             for( i=0; i<max; i++ ){
                 row = res[i];
                 this.listData.push({
-                    Time: moment(row.alarm_dtts).format('YYYY-MM-DD HH:mm:ss.ms'),
-                    EQP: row.eqp_name,
-                    Param: row.param_name,
-                    Category: row.category,
-                    FaultClass: row.fault_class
+                    Line: row.area_name,
+                    Equipment: row.eqp_name,
+                    HealthIndex: row.health_index,
+                    Logic1: row.logic1,
+                    Logic2: row.logic2,
+                    Logic3: row.logic3,
+                    Logic4: row.logic4,
+                    AlarmCount: row.alarm_count,
+                    Description: row.description === null ? '' : row.description,
+                    area_id: row.area_id,           // db 쿼리 용
+                    eqp_id: row.eqp_id              // db 쿼리 용
                 });
             }
 
+            // 테이블 내용 보이기
+            this.table.dataBindSwitchOn();
             this.hideSpinner();
         },(err: any)=>{
 
@@ -195,6 +231,52 @@ export class PdmEqpHealthIndex extends WidgetApi implements OnSetup, OnDestroy {
 
             console.log('err', err);
             console.log('this.listData', this.listData);
+            this.hideSpinner();
+        });
+    }
+
+    //* logic chart 데이터 가져오기
+    getChartData( paramId: number ){        
+        this._service.getChartData({
+            fabId: this.fabId,
+            areaId: this.areaId,
+            paramId: 2163,              // paramId
+            fromDate: 1530802800000,    // this.timePeriod.fromDate,
+            toDate: 1530889200000       // this.timePeriod.toDate
+        }).then((res: Array<IReqDataFormat_chart>)=>{
+
+            console.log( res );
+            // if( this.listData.length ){
+            //     this.listData.splice(0, this.listData.length);
+            // }
+
+            // let i: number,
+            //     max: number = res.length,
+            //     row: IReqDataFormat
+            // ; 
+
+            // for( i=0; i<max; i++ ){
+            //     row = res[i];
+            //     this.listData.push({
+            //         Line: row.area_name,
+            //         Equipment: row.eqp_name,
+            //         HealthIndex: row.health_index,
+            //         Logic1: row.logic1,
+            //         Logic2: row.logic2,
+            //         Logic3: row.logic3,
+            //         Logic4: row.logic4,
+            //         AlarmCount: row.alarm_count,
+            //         Description: row.description === null ? '' : row.description,
+            //         area_id: row.area_id,           // db 쿼리 용
+            //         eqp_id: row.eqp_id              // db 쿼리 용
+            //     });
+            // }
+
+            // 팝업창 띄우기
+            this.modalPop.open();
+
+            this.hideSpinner();
+        },(err: any)=>{
             this.hideSpinner();
         });
     }

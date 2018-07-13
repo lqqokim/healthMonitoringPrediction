@@ -24,16 +24,16 @@ public class AggregateFeatureProcessor extends AbstractProcessor<String, byte[]>
 
     private final static String SEPARATOR = ",";
 
-    private KeyValueStore<String, byte[]> kvProcessWindowStore;
-    private KeyValueStore<String, Long> kvSummaryTimeStore;
+    private KeyValueStore<String, byte[]> kvAggregationWindowStore;
+    private KeyValueStore<String, Long> kvSummaryIntervalStore;
 
     @Override
     @SuppressWarnings("unchecked")
     public void init(ProcessorContext context) {
         super.init(context);
 
-        kvProcessWindowStore = (KeyValueStore) context().getStateStore("process-window");
-        kvSummaryTimeStore = (KeyValueStore) context().getStateStore("summary-time");
+        kvAggregationWindowStore = (KeyValueStore) context().getStateStore("aggregation-window");
+        kvSummaryIntervalStore = (KeyValueStore) context().getStateStore("summary-interval");
     }
 
     @Override
@@ -52,12 +52,12 @@ public class AggregateFeatureProcessor extends AbstractProcessor<String, byte[]>
                     && !prevStatusAndTime[0].equalsIgnoreCase(currStatusAndTime[0])) {
                 Long paramTime = Long.parseLong(currStatusAndTime[1]);
                 // start event
-                kvSummaryTimeStore.put(partitionKey, paramTime);
+                kvSummaryIntervalStore.put(partitionKey, paramTime);
             }
 
             if (currStatusAndTime[0].equalsIgnoreCase("R")) {
                 Long paramTime = Long.parseLong(currStatusAndTime[1]);
-                kvProcessWindowStore.put(partitionKey + ":" + paramTime, streamByteRecord);
+                kvAggregationWindowStore.put(partitionKey + ":" + paramTime, streamByteRecord);
 
             } else {
                 //end
@@ -71,7 +71,7 @@ public class AggregateFeatureProcessor extends AbstractProcessor<String, byte[]>
                     List<String> keyList = new ArrayList<>();
                     List<byte[]> paramDataList = new ArrayList<>();
 
-                    KeyValueIterator<String, byte[]> iter = this.kvProcessWindowStore.all();
+                    KeyValueIterator<String, byte[]> iter = this.kvAggregationWindowStore.all();
                     while (iter.hasNext()) {
                         KeyValue<String, byte[]> entry = iter.next();
                         String key = entry.key.split(":")[0];
@@ -84,7 +84,7 @@ public class AggregateFeatureProcessor extends AbstractProcessor<String, byte[]>
                     iter.close();
 
                     for (String k : keyList) {
-                        this.kvSummaryTimeStore.delete(k);
+                        this.kvSummaryIntervalStore.delete(k);
                     }
 
                     List<ParameterMasterDataSet> parameterMasterDataSets =
@@ -123,7 +123,7 @@ public class AggregateFeatureProcessor extends AbstractProcessor<String, byte[]>
                             stats.addValue(i);
                         }
 
-                        Long sumStartDtts = kvSummaryTimeStore.get(partitionKey);
+                        Long sumStartDtts = kvSummaryIntervalStore.get(partitionKey);
                         Long sumEndDtts = Long.parseLong(prevStatusAndTime[1]);
 
                         if (sumStartDtts == null) sumStartDtts = sumEndDtts;

@@ -1,30 +1,21 @@
-<div class="container alarm" (scroll)="onscroll($event);">
+<div class="container alarm">
     <div class="alarm-warning-type clearfix">
         <div class="alarm-title alarm-warning">
             <span>Alarm Warning</span>
         </div>
         <div class="alarm-width-calc">
-            <div id="alarmWarning{{i}}" class="pdm-radar-wrapper" (click)="onParamClick(item, i)" (mouseenter)="mouseEnter(item, $event, i)"
+            <div id="gauge_alarmWarning{{i}}" class="pdm-gauge-wrapper" (click)="onParamClick(item, i, $event)" (mouseenter)="mouseEnter(item, i)"
                 *ngFor="let item of alarmWarningDatas; let i = index;" [ngClass]="{'alram-type-danger':item.type === 'alarm', 'alram-type-warning':item.type ==='warning', 'type-none': item.type === ''}">
-                <div class="pdm-radar-section clearfix" (click)="onClickSection(item.type, i);" [ngClass]="{'alarm-section-active': selectedAWSection === i, 'warning-section-active': selectedAWSection === i && 1 >= alarmDatas.length}">
-                    <div class="pdm-radar-title" *ngIf="item.chartData && item.options">
-                        <div class="pdm-radar-name">{{item.name}}</div>
-                        <div class="pdm-radar-time">
-                            <!-- <span class="fa fa-search-plus" (click)="expandChart($event, item, 0); $event.stopPropagation();" aria-hidden="true"></span> -->
-                            <!-- <button *ngIf="isShowExpandBtn" class="btn btn-default" id="wjPopup" (click)="expandChart($event, barChart, 2)">
-                                <i class="fa fa-search-plus"></i>
-                            </button> -->
-                        </div>
+                <div class="pdm-gauge-section clearfix" [ngClass]="{'alarm-section-active': selectedAWSection === i, 'warning-section-active': selectedAWSection === i && 1 >= alarmDatas.length}">
+                    <div class="pdm-gauge-title" *ngIf="item.chartData && item.options">
+                        <div class="pdm-gauge-name">{{item.name}}</div>
+                        <div class="pdm-gauge-time"></div>
                     </div>
-                    <div class="pdm-radar-chart" *ngIf="item.chartData && item.options">
-                        <!-- <bar-chart 
-                            [item]="item"
-                            (paramClick)="onParamClick(item.type, item.name, item.id, $event, i);"
-                        ></bar-chart> -->
-                        <gauge-chart 
+                    <div class="pdm-gauge-chart" *ngIf="item.chartData && item.options">
+                        <gauge-chart-generate 
                             (emitData)="emitData($event)"
                             [item]="item">
-                        </gauge-chart>
+                        </gauge-chart-generate>
                     </div>
                 </div>
             </div>
@@ -39,29 +30,24 @@
         </div>
     </div>
 
-    <div class="Bad5-type clearfix">
+    <div class="Bad5-type clearfix" id="gauge-jeopardy">
         <div class="alarm-title bad">
-            <span>Jeopardy</span>
+            <span>Shop Of Worst</span>
         </div>
         <div class="alarm-width-calc">
-            <div id="bad{{i}}" class="pdm-radar-wrapper" (click)="onParamClick(item, i)" (mouseenter)="mouseEnter(item, $event, i)"
+            <div id="gauge_bad{{i}}" class="pdm-gauge-wrapper" (click)="onParamClick(item, i, $event)" (mouseenter)="mouseEnter(item, $event, i)" 
                 *ngFor="let item of B5Datas; let i = index;" [ngClass]="{'alram-type-bad':item.type === 'B5', 'type-none': item.type === ''}">
-                <div class="pdm-radar-section clearfix" (click)="onClickSection(item.type, i);" [ngClass]="{'bad-section-active': selectedBadSection === i}">
-                    <div class="pdm-radar-title" *ngIf="item.chartData && item.options">
-                        <div class="pdm-radar-name">{{item.name}}</div>
-                        <div class="pdm-radar-time">
-                            <!-- <span class="fa fa-search-plus" (click)="expandChart($event, item, 1); $event.stopPropagation();" aria-hidden="true"></span> -->
-                        </div>
+                <div class="pdm-gauge-section clearfix"
+                [ngClass]="{'bad-section-active': selectedBadSection === i}">
+                    <div class="pdm-gauge-title" *ngIf="item.chartData && item.options">
+                        <div class="pdm-gauge-name">{{item.name}}</div>
+                        <div class="pdm-gauge-time"></div>
                     </div>
-                    <div class="pdm-radar-chart" *ngIf="item.chartData && item.options">
-                        <!-- <bar-chart 
-                            (paramClick)="onParamClick(item.type, item.name, item.id, $event, i);"
-                            [item]="item">
-                        </bar-chart> -->
-                        <gauge-chart 
+                    <div class="pdm-gauge-chart" *ngIf="item.chartData && item.options">
+                        <gauge-chart-generate 
                             (emitData)="emitData($event)"
                             [item]="item">
-                        </gauge-chart>
+                        </gauge-chart-generate>
                     </div>
                 </div>
             </div>
@@ -75,107 +61,14 @@
             </dl>
         </div>
     </div>
-    <div class="Good5-type clearfix">
-        <div class="alarm-title good">
-            <span>Good</span>
-        </div>
-        <div class="alarm-width-calc">
-            <div id="good{{i}}" class="pdm-radar-wrapper" (click)="onParamClick(item, i)" (mouseenter)="mouseEnter(item, $event, i)" *ngFor="let item of G5Datas; let i = index;"
-                [ngClass]="{'alram-type-good':item.type === 'G5', 'type-none': item.type === ''}">
-                <div class="pdm-radar-section clearfix" (click)="onClickSection(item.type, i);" [ngClass]="{'good-section-active': selectedGoodSection === i}">
-                    <div class="pdm-radar-title" *ngIf="item.chartData && item.options">
-                        <div class="pdm-radar-name">{{item.name}}</div>
-                        <div class="pdm-radar-time">
-                            <!-- <span class="fa fa-search-plus" (click)="expandChart($event, item, 2); $event.stopPropagation();" aria-hidden="true"></span> -->
-                        </div>
-                    </div>
-                    <div class="pdm-radar-chart" *ngIf="item.chartData && item.options">
-                        <!-- <bar-chart 
-                            (paramClick)="onParamClick(item.type, item.name, item.id, $event, i);"
-                            [item]="item">
-                        </bar-chart> -->
-                        <gauge-chart 
-                            (emitData)="emitData($event)"
-                            [item]="item">
-                        </gauge-chart>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="float-wrapper" *ngIf="!G5Datas">
-            <dl>
-                <dt>
-                    <div class="a3-spinner-data"></div>
-                </dt>
-                <dd class="message-title">Loading ...</dd>
-            </dl>
-        </div>
-    </div>
-
-    <div id="bar_backdrop" #Backdrop class="a3-global-modal-backdrop" hidden></div>
-    <div *ngIf="isShowInfo && selectedItem" [ngClass]="{'pdm-radar-info':showInfo === false || trendShow === true, 'pdm-radar-info-hover': showInfo === true, 'alram-type-danger':selectedItem.type === 'alarm', 'alram-type-warning':selectedItem.type === 'warning', 'alram-type-bad':selectedItem.type ==='B5', 'alram-type-good':selectedItem.type ==='G5'}"
-        style="top:5%; right:0; bottom:0; left:0; margin:0 auto; box-shadow: 0 3px 6px rgba(0,0,0,.175); width:1200px; height:810px"
-        class="modal-dialog">
-        <div class="float-wrapper" *ngIf="!expandLoad">
-            <dl>
-                <dt>
-                    <div class="a3-spinner-data"></div>
-                </dt>
-                <dd class="message-title">Loading ...</dd>
-            </dl>
-        </div>
-        <div class="pdm-radar-detail-title modal-header">
-            <div class="pdm-radar-name">{{selectedItem.name}}</div>
-            <button (click)="closeRadarInfo();" type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">×</span>
-            </button>
-        </div>
-        <div class="pdm-radar-type" *ngIf="selectedItem.type === 'alarm'">
-            <div>
-                <span class="a3-synced-title">Max alarm : </span>
-                {{selectedItem.details.maxParamName}} [ {{selectedItem.details.maxAWwithAvg}} ]
-                <span class="a3-synced-title">90Days avg : </span>
-                {{selectedItem.details.maxSpecAvg}}
-            </div>
-            <div>
-                <span class="a3-synced-title">Problem reason</span>
-                {{selectedItem.problemreason}}
-            </div>
-        </div>
-        <div class="pdm-radar-type" *ngIf="selectedItem.type === 'warning'">
-            <div>
-                <span class="a3-synced-title">Max warning : </span>
-                {{selectedItem.details.maxParamName}} [ {{selectedItem.details.maxAWwithAvg}} ]
-                <span class="a3-synced-title">90Days avg : </span>
-                {{selectedItem.details.maxSpecAvg}}
-            </div>
-            <div></div>
-        </div>
-        <div class="pdm-radar-type" *ngIf="selectedItem.type === 'B5' || selectedItem.type === 'G5'">
-            <div>
-                <span class="a3-synced-title">Max variation : </span>
-                {{selectedItem.details.maxParamName}} [ {{selectedItem.details.minMaxRatioVariation}} ]
-                <span class="a3-synced-title">Target days avg : </span>
-                {{selectedItem.details.maxDailyAvg}}
-                <span class="a3-synced-title">90Days avg : </span>
-                {{selectedItem.details.maxSpecAvg}}
-            </div>
-            <div></div>
-        </div>
-        <!-- <div class="pdm-chart-area" (click)="onEqpClick($event, selectedItem,true)"  -->
-        <div class="pdm-chart-area" (click)="onEqpClick($event, selectedItem,true)" [ngClass]="{'alarm-info-hover':selectedItem.type === 'alarm', 'warning-info-hover': selectedItem.type === 'warning', 'bad-info-hover': selectedItem.type === 'B5', 'good-info-hover': selectedItem.type === 'G5'}">
-            <!-- <bar-chart [item]="selectedItem" (endExpandLoad)="endExpandLoad($event)" (paramClick)="onParamClick(selectedItem.type, selectedItem.name, selectedItem.id, $event, selectedItem.index, 'isInfo');">
-            </bar-chart> -->
-        </div>
-    </div>
 </div>
 
-<div class="radar-layer-on" #TrendChart id="bar_trendChart" [ngClass]="{'on': paramSelected ,'off':!paramSelected }">
-    <div class="radar-layer-on-chart">
+<div class="gauge-layer-on" #TrendChart id="gauge_trendChart" [ngClass]="{'on': paramSelected ,'off':!paramSelected }">
+    <div class="gauge-layer-on-chart">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="closeTrendChart();">
             <span aria-hidden="true">×</span>
         </button>
-        <div class="radar-chart-arrow arrow{{colIndex}}"></div>
+        <div class="gauge-chart-arrow arrow{{colIndex}}"></div>
         <trend-chart *ngIf="trendParamId && chartType" [type]="chartType" [plantId]="trendPlantId" [areaId]="trendAreaId" [eqpId]="trendEqpId"
             [paramId]="trendParamId" [fromDate]="trendFromDate" [toDate]="trendToDate" [eqpName]="trendEqpName" [paramName]="trendParamName"
             [value]="trendValue" [warning]="trendSpecWarning">

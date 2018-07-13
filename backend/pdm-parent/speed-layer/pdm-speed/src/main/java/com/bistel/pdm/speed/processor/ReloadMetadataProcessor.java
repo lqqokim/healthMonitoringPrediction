@@ -1,5 +1,6 @@
 package com.bistel.pdm.speed.processor;
 
+import com.bistel.pdm.lambda.kafka.master.MasterDataCache;
 import com.bistel.pdm.lambda.kafka.master.MasterDataUpdater;
 import org.apache.kafka.streams.processor.AbstractProcessor;
 import org.apache.kafka.streams.processor.ProcessorContext;
@@ -52,5 +53,7 @@ public class ReloadMetadataProcessor extends AbstractProcessor<String, byte[]> {
         MasterDataUpdater.updateSmtpConfigDataSet(targetUrl);
 
         log.info("all master data(equipment, param, event, spec, health, smtp) is reloaded.");
+
+        //log.debug("from : {}", MasterDataCache.getInstance().getMailConfigDataSet().getFromAddr());
     }
 }

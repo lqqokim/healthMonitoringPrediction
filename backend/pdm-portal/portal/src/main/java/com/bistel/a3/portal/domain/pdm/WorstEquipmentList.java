@@ -7,9 +7,6 @@ public class WorstEquipmentList {
 
     private String eqp_name;
     private Long eqp_id;
-
-
-
     private Double score;
     private Long area_id;
     private String area_name;

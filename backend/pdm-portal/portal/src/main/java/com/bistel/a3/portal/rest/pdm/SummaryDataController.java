@@ -1,13 +1,17 @@
 package com.bistel.a3.portal.rest.pdm;
 
 import com.bistel.a3.portal.domain.pdm.AreaFaultCountSummary;
+import com.bistel.a3.portal.domain.pdm.EqpStatisticsData;
 import com.bistel.a3.portal.service.pdm.ISummaryDataService;
+import com.bistel.a3.portal.service.pdm.ITraceDataService;
+import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -16,6 +20,9 @@ import java.util.List;
 public class SummaryDataController {
     @Autowired
     private ISummaryDataService summaryDataService;
+
+    @Autowired
+    private ITraceDataService traceDataService;
 
     //Done
     @RequestMapping("alarmCountSummary")
@@ -203,5 +210,77 @@ public class SummaryDataController {
         return summaryDataService.worstEquipmentList(fabId,areaId,null, from, to);
     }
 
+    @RequestMapping("/eqpHealthIndex")
+    public Object eqpHealthIndex(@PathVariable("fabId") String fabId,
+                                     @RequestParam("fromdate") Long fromdate,
+                                     @RequestParam("todate") Long todate) {
+
+        Long areaId=null;
+        Date from = new Date(fromdate);
+        Date to = new Date(todate);
+
+        return summaryDataService.eqpHealthIndex(fabId,areaId, from, to);
+    }
+
+    @RequestMapping("/areas/{areaId}/eqpHealthIndexByAreaId")
+    public Object eqpHealthIndexByAreaId(@PathVariable("fabId") String fabId,
+                                         @PathVariable("areaId") Long areaId,
+                                 @RequestParam("fromdate") Long fromdate,
+                                 @RequestParam("todate") Long todate) {
+
+        Date from = new Date(fromdate);
+        Date to = new Date(todate);
+
+        return summaryDataService.eqpHealthIndex(fabId,areaId, from, to);
+    }
+
+    @RequestMapping("eqps/{eqpId}/params/{paramId}/eqpHealthTrendChart")
+    public Object eqpHealthTrendChart(@PathVariable("fabId") String fabId,
+                                 @PathVariable("paramId") Long paramId,
+                                 @RequestParam("fromdate") Long fromdate,
+                                 @RequestParam("todate") Long todate) {
+
+
+        Date from = new Date(fromdate);
+        Date to = new Date(todate);
+
+        return traceDataService.getTraceData(fabId, paramId, fromdate, todate);
+    }
+
+    @RequestMapping("eqps/{eqpId}/params/{paramId}/eqpHealthTrendChartWithAVG")
+    public Object eqpHealthTrendChartWithAVG(@PathVariable("fabId") String fabId,
+                                      @PathVariable("paramId") Long paramId,
+                                      @RequestParam("fromdate") Long fromdate,
+                                      @RequestParam("todate") Long todate) {
+
+
+        Date from = new Date(fromdate);
+        Date to = new Date(todate);
+
+
+        List<List<Object>> eqpHealthTrendData= traceDataService.getTraceData(fabId, paramId, fromdate, todate);
+
+        return summaryDataService.eqpHealthTrendChartWithAVG(fabId, from, to, paramId , eqpHealthTrendData);
+    }
+
+    @RequestMapping("eqps/{eqpId}/params/{paramId}/eqpHealthTrendChartWithRUL")
+    public Object eqpHealthTrendChartWithRUL(@PathVariable("fabId") String fabId,
+                                             @PathVariable("paramId") Long paramId,
+                                             @RequestParam("fromdate") Long fromdate,
+                                             @RequestParam("todate") Long todate) {
+
+
+        Date from = new Date(fromdate);
+        Date to = new Date(todate);
+
+
+
+        List<List<Object>> eqpHealthTrendData= traceDataService.getTraceData(fabId, paramId, fromdate, todate);
+
+        return summaryDataService.eqpHealthTrendChartWithRUL(fabId, from, to, paramId , eqpHealthTrendData);
+
+
+    }
 
 }
+

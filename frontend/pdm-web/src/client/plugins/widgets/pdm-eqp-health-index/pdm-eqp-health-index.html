@@ -1,38 +1,24 @@
 <div class="widget widget-pdm-eqp-health-index">
-    <widget-chart-condition
-		[target]='targetName'
-		[timePeriod]='timePeriod'
-	></widget-chart-condition>
+    <widget-chart-condition #condition [target]='targetName'></widget-chart-condition>
 
     <div class="chart-body div01" table>
-        <ng2-Table
+        <ng2-Table #table
             [columns]="columns"
             [data]="listData"
             [paging]="paging"
             [totalFilter]="totalFilter"
             (cellClick)="cellClick($event)"
+            [initStart]="false"
+            [dataBindSwitch]="false"
         ></ng2-Table>
     </div>
 
     <modal-pop
-        [title]="'Logic1'"
+        #modalPop
+        [title]="modalPopTitle"
     >
         <line-chart
             [data]="lineData"
         ></line-chart>
     </modal-pop>
-
-    <!-- <ul class='guageChartList'>
-        <li *ngFor="let i of loopArr">
-            <guage-chart-d3
-                [chartColor]="chartColor"
-                [chartData]="chartData"
-                [dataRangeStart]="dataRangeStart"
-                [dataRangeEnd]="dataRangeEnd"
-                [markerCount]="markerCount"
-                [guagePoinerPercent]="guagePoinerPercent"
-            >
-            </guage-chart-d3>
-        </li>
-    </ul> -->
 </div>

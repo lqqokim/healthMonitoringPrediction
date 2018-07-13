@@ -108,24 +108,31 @@ export class LineChartComponent implements OnInit, OnChanges, OnDestroy, AfterVi
         }
     }
 
+    //* 데이터 생성
     makeData() {
-        let datas = []
-        let x = [];
+        let datas: Array<any> = [];
+        let x: Array<any> = [];
+        let i: number, j:number, iMax: number, jMax: number;
+
         datas.push(x);
-        
-        for (let index = 0; index < this.data.length; index++) {
-            const element: any = this.data[index];
+        iMax = this.data.length;
+
+        for( i = 0; i < iMax; i++ ){
+            const element: any = this.data[i];
             let newSeriesDatas = [];
-            newSeriesDatas.push(`series${index}`);
+            newSeriesDatas.push(`series${i}`);
+
             if (x.length > 0) {
-                for (let index1 = 0; index1 < element.length; index1++) {
-                    const seriesData = element[index1];
+                jMax = element.length;
+                for (j = 0; j < jMax; j++) {
+                    const seriesData = element[j];
                     newSeriesDatas.push(seriesData[1]);
                 }
             } else {
                 x.push("x");
-                for (let index1 = 0; index1 < element.length; index1++) {
-                    const seriesData = element[index1];
+                jMax = element.length;
+                for (j = 0; j < jMax; j++) {
+                    const seriesData = element[j];
                     x.push(seriesData[0]);
                     newSeriesDatas.push(seriesData[1]);
                 }

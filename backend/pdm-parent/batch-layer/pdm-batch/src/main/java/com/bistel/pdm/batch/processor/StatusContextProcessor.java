@@ -46,7 +46,6 @@ public class StatusContextProcessor extends AbstractProcessor<String, byte[]> {
 
         try {
             double paramValue = Double.parseDouble(recordColumns[event.getParamParseIndex()]);
-            paramValue = paramValue * 1000000;
 
             log.debug("[{}] - define status using {} parameter. ({}, {})", partitionKey,
                     event.getParameterName(), paramValue, event.getCondition());
@@ -75,6 +74,8 @@ public class StatusContextProcessor extends AbstractProcessor<String, byte[]> {
                 prevStatusInfo = kvStore.get(partitionKey);
             }
 
+            kvStore.put(partitionKey, nowStatusInfo);
+
             log.debug("[{}] - ({}, {}) ", partitionKey, nowStatusInfo, prevStatusInfo);
 
             // add trace with status code
@@ -83,7 +84,6 @@ public class StatusContextProcessor extends AbstractProcessor<String, byte[]> {
             context().forward(partitionKey, recordValue.getBytes());
             context().commit();
 
-            kvStore.put(partitionKey, nowStatusInfo);
         } catch (Exception e){
             log.error(e.getMessage(), e);
         }

@@ -691,24 +691,24 @@ export class PdmModelService extends ModelCommonService {
 	getAlaramHistoryByAreaId(fabId: string, areaId: number, fromDate:number, toDate:number): Promise<any> {
 		return this.GET({
 			uriPath: `pdm/fabs/${fabId}/areas/${areaId}/alarmHistoryByAreaId/?fromdate=${fromDate}&todate=${toDate}`
-		})
+		});
 	}
 	getAlaramHistory(fabId: string, fromDate:number, toDate:number): Promise<any> {
 		return this.GET({
 			uriPath: `pdm/fabs/${fabId}/alarmHistory/?fromdate=${fromDate}&todate=${toDate}`
-		})
+		});
 	}
 
 	// WorstEqpList
 	getWorstEqpListByAreaId(fabId: string, areaId: number, fromDate:number, toDate:number): Promise<any> {
 		return this.GET({
 			uriPath: `pdm/fabs/${fabId}/areas/${areaId}/worstEquipmentListByAreaId/?fromdate=${fromDate}&todate=${toDate}`
-		})
+		});
 	}
 	getWorstEqpList(fabId: string, fromDate:number, toDate:number): Promise<any> {
 		return this.GET({
 			uriPath: `pdm/fabs/${fabId}/worstEquipmentList/?fromdate=${fromDate}&todate=${toDate}`
-		})
+		});
 	}
 	getWorstEqpInfo(fabId: string,eqpId:string, fromDate:number, toDate:number): Promise<any> {
 		return this.GET({
@@ -725,18 +725,25 @@ export class PdmModelService extends ModelCommonService {
 	getAlarmClassificationSummary(fabId: string, fromDate:number, toDate:number): Promise<any> {
 		return this.GET({
 			uriPath: `pdm/fabs/${fabId}/alarmClassificationSummary/?fromdate=${fromDate}&todate=${toDate}`
-		})
+		});
 	}
 
 	// PdmEqpHealthIndex
 	getPdmEqpHealthIndexByAreaId(fabId: string, areaId: number, fromDate:number, toDate:number): Promise<any> {
 		return this.GET({
 			uriPath: `pdm/fabs/${fabId}/areas/${areaId}/eqpHealthIndexByAreaId/?fromdate=${fromDate}&todate=${toDate}`
-		})
+		});
 	}
 	getPdmEqpHealthIndex(fabId: string, fromDate:number, toDate:number): Promise<any> {
 		return this.GET({
 			uriPath: `pdm/fabs/${fabId}/eqpHealthIndex/?fromdate=${fromDate}&todate=${toDate}`
-		})
+		});
+	}
+
+	// eqpHealthTrendChart
+	getEqpHealthTrendChart(fabId: string, paramId:number, fromDate:number, toDate:number): Promise<any> {
+		return this.GET({
+			uriPath: `pdm/fabs/${fabId}/eqps/null/params/${paramId}/eqpHealthTrendChart/?fromdate=${fromDate}&todate=${toDate}`
+		});
 	}
 }

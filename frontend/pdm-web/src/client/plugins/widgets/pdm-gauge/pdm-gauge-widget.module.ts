@@ -14,18 +14,20 @@ import { ViewConfig } from './config/view.config';
 import { PdmGaugeWidgetComponent } from './pdm-gauge-widget.component';
 import { AlarmWarningVariationComponent } from './components/alarm-warning-variation.component';
 import { TrendChartComponent } from './components/trend-chart/trend-chart.component';
-import { GaugeChartComponent } from './components/gauge-chart/gauge-chart.component';
+import { GaugeChartGenerateComponent } from './components/gauge-chart/gauge-chart-generate.component';
+import { PluginCommonModule } from '../../common/plugins.common.module';
 
 @NgModule({
     imports: [
         A3_CommonModule,
-        BISTEL_SDKModule
+        BISTEL_SDKModule,
+        PluginCommonModule
     ],
     declarations: [
         PdmGaugeWidgetComponent,
         AlarmWarningVariationComponent,
         TrendChartComponent,
-        GaugeChartComponent,
+        GaugeChartGenerateComponent,
         // D3GaugeChartComponent
     ],
     exports: [

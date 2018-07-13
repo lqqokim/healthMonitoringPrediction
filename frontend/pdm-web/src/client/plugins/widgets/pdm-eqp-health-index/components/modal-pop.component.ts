@@ -11,13 +11,23 @@ import { Component, ViewEncapsulation, Input } from '@angular/core';
 export class ModalPopComponent {
     @Input() title: string;
 
-    private popOpen: boolean = true;
+    private popOpen: boolean = false;
 
     constructor(){
     }
 
-    popClose(e: MouseEvent): void {
-        e.preventDefault();
+    close(e?: MouseEvent): void {
+        if( e ){
+            e.preventDefault();
+        }
         this.popOpen = false;
     }
+
+    open(e?: MouseEvent): void {
+        if( e ){
+            e.preventDefault();
+        }
+        this.popOpen = true;
+    }
+    
 }

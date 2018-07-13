@@ -1,9 +1,6 @@
 package com.bistel.a3.portal.service.pdm;
 
-import com.bistel.a3.portal.domain.pdm.AlarmClassification;
-import com.bistel.a3.portal.domain.pdm.AlarmHistory;
-import com.bistel.a3.portal.domain.pdm.AreaFaultCountSummary;
-import com.bistel.a3.portal.domain.pdm.WorstEquipmentList;
+import com.bistel.a3.portal.domain.pdm.*;
 
 import java.util.Date;
 import java.util.List;
@@ -24,6 +21,10 @@ public interface ISummaryDataService {
 
     List<WorstEquipmentList> worstEquipmentList(String fabId, Long areaId ,Long eqpId, Date fromdate, Date todate);
 
+    List<EqpHealthIndex> eqpHealthIndex(String fabId, Long areaId, Date from, Date to);
 
+    EqpStatisticsData eqpHealthTrendChartWithAVG(String fabId, Date from, Date to, Long paramId, List<List<Object>> eqpHealthTrendData);
+
+    EqpHealthRUL eqpHealthTrendChartWithRUL(String fabId, Date from, Date to, Long paramId, List<List<Object>> eqpHealthTrendData);
 
 }

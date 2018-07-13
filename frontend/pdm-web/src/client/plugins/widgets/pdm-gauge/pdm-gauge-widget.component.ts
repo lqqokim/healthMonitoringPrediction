@@ -5,7 +5,6 @@ import { Component, ViewEncapsulation, ViewChild, OnDestroy, AfterViewInit, Elem
 import { WidgetRefreshType, WidgetApi, ContextMenuTemplateInfo, OnSetup } from '../../../common';
 import { Translater, ContextMenuType, SpinnerComponent } from '../../../sdk';
 
-import { PdmCommonService } from '../../../common/service/pdm-common.service';
 import { PdmRadarService } from './model/pdm-radar.service';
 import * as pdmRadarI from './model/pdm-radar.interface';
 
@@ -35,48 +34,44 @@ export class PdmGaugeWidgetComponent extends WidgetApi implements OnSetup, OnDes
     viewTrendChartLabel: string;
 
     private _areaId: any = 3;
-    private _plant: any;
     private _props: any;
-    private _timePeriod: any;
 
     isFull = false;
 
     constructor(
         private translater: Translater
-        // private _pdmRadarService: PdmRadarService
     ) {
         super();
     }
 
     ngOnSetup() {
-        // const radarTypeDatas: any[] = this._pdmRadarService.getRadarTypeInfo();
-        // this.setProp(CD.RADAR_TYPE, radarTypeDatas[0]); // type preInit
         this._init();
     }
 
     ngAfterViewInit() {
-
+        
     }
 
     refresh({ type, data }: WidgetRefreshType) {
         if (type === A3_WIDGET.APPLY_CONFIG_REFRESH || type === A3_WIDGET.JUST_REFRESH) {
             this.showSpinner();
             this._props = data;
-            this._setConfigInfo();
+            this._setConfigInfo(data);
         } else if (type === A3_WIDGET.SYNC_INCONDITION_REFRESH) {
 
         }
     }
 
-    _setConfigInfo(): void {
+    _setConfigInfo(props: any): void {
         let condition: pdmRadarI.RadarWidgetConfigType = {
             fabId: undefined,
             timePeriod: undefined
         };
 
         condition = {
-            fabId: this._props[CD.PLANT]['fabId'],
-            timePeriod: this._props[CD.TIME_PERIOD]
+            fabId: props[CD.PLANT]['fabId'],
+            timePeriod: props[CD.TIME_PERIOD],
+            worstTop: props[CD.WORST_TOP]
         };
 
         this.fabName = this._props[CD.PLANT]['fabName'];
@@ -85,28 +80,12 @@ export class PdmGaugeWidgetComponent extends WidgetApi implements OnSetup, OnDes
         this.condition = condition;
     }
 
-    onScroll(ev: any): void {
-        setTimeout(() => {
-            let drilldownMenu: any = $('.a3p-popover-drilldown-menu');
-            if (drilldownMenu.length === 1) {
-                let contextId: any = drilldownMenu[0].id;
-                $(`#${contextId}`).remove();
-            }
-        });
-    }
-
-    bindOnScroll(): void {
-        document.getElementById('onscroll').addEventListener('scroll', (ev: any) => {
-            console.log('scroll');
-            let drilldownMenu: any = $('.a3p-popover-drilldown-menu');
-
-            if (drilldownMenu.length === 1) {
-                let contextId: any = drilldownMenu[0].id;
-                $(`#${contextId}`).remove();
-            }
-        });
-
-        window.addEventListener('scroll', function (evt) { console.log('window scroll', evt) });
+    onScroll() {
+        let drilldownMenu: any = $('.a3p-popover-drilldown-menu');
+        if (drilldownMenu.length === 1) {
+            let contextId: any = drilldownMenu[0].id;
+            $(`#${contextId}`).remove();
+        }
     }
 
     covertDateFormatter(timestamp): string {
@@ -166,7 +145,6 @@ export class PdmGaugeWidgetComponent extends WidgetApi implements OnSetup, OnDes
 
     showParamContext(item: any): void {
         if (item) {
-            // console.log('showParamContext item', item);
             let dsCd: any = this.getViewData('paramDisplayContext');
             dsCd[LB.PARAM_NAME] = item.paramName; //view config에서 설정필요
             this._areaId = item.selectedItem.areaId;
@@ -288,7 +266,7 @@ export class PdmGaugeWidgetComponent extends WidgetApi implements OnSetup, OnDes
         this.showSpinner();
         this.setGlobalLabel();
         this._props = this.getProperties();
-        this._setConfigInfo();
+        this._setConfigInfo(this._props);
     }
 
     private setGlobalLabel(): void {

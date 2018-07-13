@@ -22,7 +22,7 @@ import { StatusChangeComponent } from '../common/status-chart-canvas/status-chan
 import { LineChartComponent }  from './line-chart/line-chart.component';
 
 import { Ng2C3Component } from './ng2-c3/ng2-c3.component';
-import { GuageChartComponent } from './guage-chart/guageChart.component';
+import { GaugeChartComponent } from './gauge-chart/gaugeChart.component';
 
 @NgModule({
     imports: [
@@ -39,7 +39,7 @@ import { GuageChartComponent } from './guage-chart/guageChart.component';
         CheckTreeComponent,
         StatusChartComponent,
         DonutChartComponent,
-        GuageChartComponent,
+        GaugeChartComponent,
         TableComponent,
         WidgetChartConditionComponent,
         StatusChangeComponent,
@@ -53,7 +53,7 @@ import { GuageChartComponent } from './guage-chart/guageChart.component';
         CheckTreeComponent,
         StatusChartComponent,
         DonutChartComponent,
-        GuageChartComponent,
+        GaugeChartComponent,
         TableComponent,
         WidgetChartConditionComponent,
         StatusChangeComponent,
