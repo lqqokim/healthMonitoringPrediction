@@ -2,7 +2,8 @@
     <div class="equipmentStatus">
         <label>Equipment Status</label>
         <div class="status-chart" *ngIf="params!=null && params.length>0">
-            <status-chart [datas]="statusData" [colors]="statusColor" [startDtts]="startDtts" [endDtts]="endDtts"></status-chart>
+            <!-- <status-chart [datas]="statusData" [colors]="statusColor" [startDtts]="startDtts" [endDtts]="endDtts"></status-chart> -->
+            <status-change [statusData]="statusData" [timePeriod]="timePeriod" [drawColors]="statusColor"></status-change>
         </div>
     </div>
     <div class="table-container">

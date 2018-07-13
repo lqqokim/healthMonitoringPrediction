@@ -2,6 +2,7 @@
 import { Component, ViewChild, ElementRef, OnInit, EventEmitter, Output, Input, OnChanges, DoCheck } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import { BistelChartComponent } from '../../../../../../../sdk/charts/charts/bistel-chart.component';
+import { time_period } from '../../../../../../../common/form/configs/common/time-period-form.cfg';
 
 @Component({
     moduleId: module.id,
@@ -14,8 +15,7 @@ export class EquipmentParameterTrendChartComponent implements OnInit, OnChanges,
     @Input() params;
     @Input() statusData;
     @Input() statusColor;
-    @Input() startDtts;
-    @Input() endDtts;
+    @Input() timePeriod;
     // params = [
     //     { name: 'param1', isEventParam: false, conditionValue: null, datas: [],eventConfig:[] },
     //     { name: 'param2', isEventParam: false, conditionValue: null, datas: [],eventConfig:[] },
