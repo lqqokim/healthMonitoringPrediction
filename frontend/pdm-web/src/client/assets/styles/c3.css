@@ -4,9 +4,9 @@
   -webkit-tap-highlight-color: transparent; }
 
 .c3 path, .c3 line {
-  fill: none;
-  stroke: #000; }
-
+	fill: none;
+	stroke: rgba(0,0,0,.2);
+}
 .c3 text {
   -webkit-user-select: none;
   -moz-user-select: none;
@@ -29,8 +29,9 @@
 
 /*-- Axis --*/
 /*-- Grid --*/
-.c3-grid line {
-  stroke: #aaa; }
+
+/*.c3-grid line {
+  stroke: #aaa; }*/
 
 .c3-grid text {
   fill: #aaa; }
