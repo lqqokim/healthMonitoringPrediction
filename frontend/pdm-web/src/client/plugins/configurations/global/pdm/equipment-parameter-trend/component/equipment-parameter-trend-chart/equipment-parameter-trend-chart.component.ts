@@ -51,6 +51,7 @@ export class EquipmentParameterTrendChartComponent implements OnInit, OnChanges,
                 // max: this.searchTimePeriod[CD.TO],
                 autoscale: true,
                 tickOptions: {
+                    showGridline: false,
                     formatter: (pattern: any, val: number, plot: any) => {
                         return val ? moment(val).format('YY-MM-DD HH:mm:ss') : '';
                     }
@@ -63,6 +64,7 @@ export class EquipmentParameterTrendChartComponent implements OnInit, OnChanges,
                 drawMajorGridlines: true,
                 labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
                 tickOptions: {
+                    showGridline: false,
                     formatString: '%.2f'
                 }
             }

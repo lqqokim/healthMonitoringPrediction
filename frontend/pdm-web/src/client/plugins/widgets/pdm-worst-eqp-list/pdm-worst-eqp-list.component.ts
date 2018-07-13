@@ -103,6 +103,7 @@ export class PdmWostEqpListComponent extends WidgetApi implements OnSetup, OnDes
         this.fabId = configData.fabId;
         this.targetName = configData.targetName;
         this.timePeriod = configData.timePeriod;
+        this.areaId = configData.areaId;
 
         // 타임 출력
         this.condition.timeConvert( this.timePeriod );

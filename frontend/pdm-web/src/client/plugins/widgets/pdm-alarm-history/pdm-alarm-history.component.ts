@@ -112,6 +112,7 @@ export class PdmAlarmHistoryComponent extends WidgetApi implements OnSetup, OnDe
         this.fabId = configData.fabId;
         this.targetName = configData.targetName;
         this.timePeriod = configData.timePeriod;
+        this.areaId = configData.areaId;
 
         // 타임 출력
         this.condition.timeConvert( this.timePeriod );

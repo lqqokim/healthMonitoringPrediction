@@ -14,6 +14,8 @@ export class ModelingChartComponent implements OnInit, OnChanges, DoCheck {
 
     @Input() params;
     @Input() eventLines;
+    @Input() xMin;
+    @Input() xMax;
     @Output() selectParam = new EventEmitter<any>();
     @ViewChild("bistelchart") bistelchart:BistelChartComponent[];
     selectedParamId;
@@ -58,9 +60,11 @@ export class ModelingChartComponent implements OnInit, OnChanges, DoCheck {
                 // max: this.searchTimePeriod[CD.TO],
                 autoscale: true,
                 tickOptions: {
+                    showGridline: false,
                     formatter: (pattern: any, val: number, plot: any) => {
                         return val ? moment(val).format('YY-MM-DD HH:mm:ss') : '';
-                    }
+                    },
+                    
                 },
                 rendererOptions: {
                     dataType: 'date'
@@ -70,8 +74,10 @@ export class ModelingChartComponent implements OnInit, OnChanges, DoCheck {
                 drawMajorGridlines: true,
                 labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
                 tickOptions: {
+                    showGridline: false,
                     formatString: '%.2f'
-                }
+                },
+                
             }
         },
         highlighter: {
@@ -174,15 +180,10 @@ export class ModelingChartComponent implements OnInit, OnChanges, DoCheck {
         return Math.floor(Math.random() * (maximum - minimum + 1)) + minimum
     }
     ngOnChanges(changes: { [propertyName: string]: SimpleChange }): void {
-        if (this.params != null && this.params.length > 0) {
-            this.trendConfig['axes']['xaxis']['min'] = this.params[0].from;
-            this.trendConfig['axes']['xaxis']['max'] = this.params[0].max;
-            
-
-
+        if (this.xMin!=null && this.xMax!=null) {
+            this.trendConfig['axes']['xaxis']['min'] = this.xMin;
+            this.trendConfig['axes']['xaxis']['max'] = this.xMax;
         }
-
-
 
         this.setStatusEventConfig();
     }

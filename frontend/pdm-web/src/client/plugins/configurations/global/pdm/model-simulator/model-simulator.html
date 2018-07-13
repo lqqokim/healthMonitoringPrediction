@@ -36,7 +36,7 @@
                 </split-area>
                 <split-area size="80" class="chart">
                     <div class="chart-container">
-                        <modeling-chart #modelChart [params]="paramDatas" [eventLines]="eventLines" (selectParam)="selectParam($event)"></modeling-chart>
+                        <modeling-chart #modelChart [params]="paramDatas" [xMin]="xMin" [xMax]="xMax" [eventLines]="eventLines" (selectParam)="selectParam($event)"></modeling-chart>
                     </div>
                 </split-area>
 

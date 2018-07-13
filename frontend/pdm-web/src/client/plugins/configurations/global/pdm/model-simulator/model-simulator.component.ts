@@ -44,6 +44,8 @@ export class ModelSimulatorComponent implements OnInit {
         to: null
     }
 
+    xMin;
+    xMax;
 
     paramDatas = [];
 
@@ -141,7 +143,9 @@ export class ModelSimulatorComponent implements OnInit {
                         this.showProgress = false;
                         if(this.paramDatas.length>0){
                             this.canDrawEvent = true;
-                            this.paramDatas = this.paramDatas.concat();
+                            this.paramDatas = this.paramDatas.concat(this.paramDatas);
+                            this.xMin = this.paramDatas[0].datas[0].from;
+                            this.xMax = this.paramDatas[0].datas[this.paramDatas[0].datas.length-1].to;
                         }
                     }
 
@@ -153,7 +157,9 @@ export class ModelSimulatorComponent implements OnInit {
                         this.showProgress = false;
                         if(this.paramDatas.length>0){
                             this.canDrawEvent = true;
-                            this.paramDatas = this.paramDatas.concat();
+                            this.paramDatas = this.paramDatas.concat(this.paramDatas);
+                            this.xMin = this.paramDatas[0].datas[0].from;
+                            this.xMax = this.paramDatas[0].datas[this.paramDatas[0].datas.length-1].to;
                         }
                     }
                     console.error(err);
