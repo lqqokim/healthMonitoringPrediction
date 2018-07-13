@@ -38,7 +38,7 @@ export class LineStatusSummaryComponent implements OnInit, OnChanges {
             let condition = changes['condition']['currentValue'];
             this.chartId = this.guid();
 
-            if (condition.fab.fabId && condition.timePeriod.fromDate && condition.timePeriod.toDate) { 
+            if (condition.fab.fabId && condition.timePeriod.fromDate && condition.timePeriod.toDate) {
                 this.getSummaryData(condition);
             }
         }
@@ -54,7 +54,7 @@ export class LineStatusSummaryComponent implements OnInit, OnChanges {
         }
     }
 
-    getSummaryData(condition: IDataType.ContitionType): void {        
+    getSummaryData(condition: IDataType.ContitionType): void {
         let fabId: string | number = condition.fab.fabId;
         let params: any = {
             from: condition.timePeriod.fromDate,
@@ -81,6 +81,7 @@ export class LineStatusSummaryComponent implements OnInit, OnChanges {
         let failures: any[] = ['failure'];
         let offlines: any[] = ['offline'];
         let axisCategories: string[] = ['x'];
+        let areas: any[] = [];
         const dataLangth: number = datas.length;
 
         for (let i = 0; i < dataLangth; i++) {
@@ -91,19 +92,25 @@ export class LineStatusSummaryComponent implements OnInit, OnChanges {
             failures.push(data.failure_count);
             offlines.push(data.offline_count);
             axisCategories.push(data.area_name);
+            areas.push({
+                areaId: data.area_id,
+                areaName: data.area_name
+            })
         }
 
         const chartData: any[] = [axisCategories, normals, warnings, alarms, failures, offlines];
 
         setTimeout(() => {
-            this.generateChart(chartData, axisCategories);
+            this.generateChart(chartData, axisCategories, areas);
             this.endChartLoad.emit({
                 isLoad: true
             });
         }, 500);
     }
 
-    generateChart(chartData: any[], axisCategories: string[]): void {
+
+
+    generateChart(chartData: any[], axisCategories: string[], areas: any[]): void {
         this.chart = c3Chart.generate({
             bindto: `#${this.chartId}`,
             // size: {
@@ -139,7 +146,7 @@ export class LineStatusSummaryComponent implements OnInit, OnChanges {
                 onclick: (d: any, s) => {
                     this.onSync.emit({
                         area: {
-                            areaId: 200,
+                            areaId: areas[d.index].areaId,
                             areaName: axisCategories[d.index + 1]
                         }
                     });
@@ -161,17 +168,6 @@ export class LineStatusSummaryComponent implements OnInit, OnChanges {
                 //     ]
                 // }
             },
-            // tooltip: {
-            //     format: {
-            //         title: (d) => {
-            //             return axisCategoryies[d];
-            //         },
-            //         value: (value, ratio, id) => {
-            //             // console.log(value, ratio, id);
-            //             return Number(value).toFixed(6);
-            //         }
-            //     },
-            // }
         });
     }
 

@@ -112,8 +112,7 @@ export class PdmAlarmCountSummaryWidgetComponent extends WidgetApi implements On
         outCd[CD.AREA] = area;
         outCd[CD.TIME_PERIOD] = {from: timePeriod.fromDate, to: timePeriod.toDate};
 
-        // console.log('out => ', JSON.stringify(outCd));
-
+        console.log('Out CD=> ', JSON.stringify(outCd));
         this.syncOutCondition(outCd);
     }
 
@@ -130,7 +129,8 @@ export class PdmAlarmCountSummaryWidgetComponent extends WidgetApi implements On
 
     private _init(): void {
         this.showSpinner();
-        this.setProps();
+        // this.setProps();
+        this._props = this.getProperties();
         this.setCondition(this._props);
     }
 

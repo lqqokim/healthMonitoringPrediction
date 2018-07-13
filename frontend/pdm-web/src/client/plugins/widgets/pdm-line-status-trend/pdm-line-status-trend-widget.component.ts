@@ -128,7 +128,8 @@ export class PdmLineStatusTrendWidgetComponent extends WidgetApi implements OnIn
 
     private _init(): void {
         this.showSpinner();
-        this.setProps();
+        // this.setProps();
+        this._props = this.getProperties();
         this.setCondition(this._props);
     }
 

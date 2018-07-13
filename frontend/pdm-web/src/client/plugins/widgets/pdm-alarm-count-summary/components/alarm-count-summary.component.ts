@@ -81,6 +81,7 @@ export class AlarmCountSummaryComponent implements OnInit, OnChanges {
         let failures: any[] = ['failure'];
         let offlines: any[] = ['offline'];
         let axisCategories: string[] = ['x'];
+        let areas: any[] = [];
         const dataLangth: number = datas.length;
 
         for (let i = 0; i < dataLangth; i++) {
@@ -92,19 +93,23 @@ export class AlarmCountSummaryComponent implements OnInit, OnChanges {
             failures.push(data.failure_count);
             offlines.push(data.offline_count);
             axisCategories.push(data.area_name);
+            areas.push({
+                areaId: data.area_id,
+                areaName: data.area_name
+            })
         }
 
         const chartData: any[] = [axisCategories, warnings, alarms];
 
         setTimeout(() => {
-            this.generateChart(chartData, axisCategories);
+            this.generateChart(chartData, axisCategories, areas);
             this.endChartLoad.emit({
                 isLoad: true
             });
         }, 500);
     }
 
-    generateChart(chartData: any[], axisCategories: string[]): void {
+    generateChart(chartData: any[], axisCategories: string[], areas: any[]): void {
         this.chart = c3Chart.generate({
             bindto: `#${this.chartId}`,
             legend: {
@@ -130,9 +135,11 @@ export class AlarmCountSummaryComponent implements OnInit, OnChanges {
                     warning: 'orange'
                 },
                 onclick: (d: any, s) => {
+                    console.log('onclick', d, s);
+                    console.log('area!!', areas[d.index]);
                     this.onSync.emit({
                         area: {
-                            areaId: 200,
+                            areaId: areas[d.index].areaId,
                             areaName: axisCategories[d.index + 1]
                         }
                     });
