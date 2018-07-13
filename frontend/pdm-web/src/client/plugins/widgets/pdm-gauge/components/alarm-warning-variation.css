@@ -1,4 +1,4 @@
-.pdm-radar-chart .c3-ygrid-lines line{
+.pdm-gauge-chart .c3-ygrid-lines line{
     stroke: red !important;
     stroke-width: 2;
 }
@@ -44,11 +44,6 @@
     margin-bottom: -3px;
 }
 
-.pdm-radar-chart .container,
-.pdm-chart-area .container {
-    overflow: hidden;
-}
-
 .alarm-warning-variation .alarm-title.alarm-warning {
     background-color: #ffe2de;
 }
@@ -61,19 +56,14 @@
     background-color: #c5f0f7;
 }
 
-.pdm-radar-time .glyphicon[aria-hidden] {
+.pdm-gauge-time .glyphicon[aria-hidden] {
     cursor: pointer;
     font-size: 15px;
 }
 
 /* arrow */
 
-/* .radar-layer-on {
-    transform: translateY(0px);
-    transition: all 250ms cubic-bezier(0.075, 0.820, 0.165, 1.000);
-} */
-
-.radar-layer-on {
+.gauge-layer-on {
     position: relative;
     border-radius: 2px;
     height: 500px;
@@ -85,7 +75,7 @@
     transform: translateY(0px);
     transition: height 750ms cubic-bezier(0.075, 0.820, 0.165, 1.000);
 }
-.radar-layer-on-chart {
+.gauge-layer-on-chart {
     top: -5px;
     left: -2px;
     position: absolute;
@@ -129,14 +119,14 @@
     padding: 0;
     visibility: hidden;
 }
-.radar-close {
+.gauge-close {
     margin: 0;
     height: 0;
     padding: 0;
     display:none;
 }
 
-.radar-chart-arrow {
+.gauge-chart-arrow {
     position: absolute;
     border-bottom: 10px solid #eee;
     border-left: 10px solid transparent;
@@ -148,13 +138,13 @@
 /* Alarm */
 
 /* .pdm-chart-area.alarm-info-hover:hover, */
-.pdm-radar-section.alarm-section-active {
+.pdm-gauge-section.alarm-section-active {
     transition: all 0.1s ease-in-out;
     background-color: rgba(253, 101, 105, 0.1);
 }
 
 
-.alram-type-danger .pdm-radar-section:hover {
+.alram-type-danger .pdm-gauge-section:hover {
     border: 1px solid #ff5d43;
     transition: all 0.1s ease-in-out;
     background-color: rgba(253, 101, 105, 0.1);
@@ -163,12 +153,12 @@
 /* Warning */
 
 /* .pdm-chart-area.warning-info-hover:hover, */
-.pdm-radar-section.warning-section-active {
+.pdm-gauge-section.warning-section-active {
     transition: all 0.1s ease-in-out;
     background-color: #ffefed;
 }
 
-.alram-type-warning .pdm-radar-section:hover {
+.alram-type-warning .pdm-gauge-section:hover {
     border: 1px solid #ffb4a8;
     transition: all 0.1s ease-in-out;
     background-color: #ffefed;
@@ -176,13 +166,12 @@
 
 /* Bad */
 
-/* .pdm-chart-area.bad-info-hover:hover, */
-.pdm-radar-section.bad-section-active {
+.pdm-gauge-section.bad-section-active {
     transition: all 0.1s ease-in-out;
     background-color: #fff4f9;
 }
 
-.alram-type-bad .pdm-radar-section:hover {
+.alram-type-bad .pdm-gauge-section:hover {
     border: 1px solid #ffa5c4;
     transition: all 0.1s ease-in-out;
     background-color: #fff4f9;
@@ -191,12 +180,12 @@
 /* Good */
 
 /* .pdm-chart-area.good-info-hover:hover, */
-.pdm-radar-section.good-section-active {
+.pdm-gauge-section.good-section-active {
     background-color: #f1fdff;
     transition: all 0.1s ease-in-out;
 }
 
-.alram-type-good .pdm-radar-section:hover {
+.alram-type-good .pdm-gauge-section:hover {
     border: 1px solid #98dae4;
     transition: all 0.1s ease-in-out;    
     background-color: #f1fdff;
@@ -204,7 +193,7 @@
 
 /* None */
 
-.type-none .pdm-radar-section:hover {
+.type-none .pdm-gauge-section:hover {
     border: 1px solid #ffffff;
     transition: all 0.1s ease-in-out;
     background-color: #f7f7f7;

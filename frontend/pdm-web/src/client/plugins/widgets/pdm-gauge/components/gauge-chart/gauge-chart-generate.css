@@ -1,0 +1,10 @@
+/* #gaugeChart .jqplot-meterGauge-label{
+    font-weight: bold;
+    font-size: 11.5px;
+    border: 1px solid;
+    padding: 1px 3px;
+} */
+guageChart { display:block; position:relative; }
+
+/* 라벨 이벤트x 기본 세팅 */
+guageChart > svg text { pointer-events:none; text-anchor:middle; fill:#333; font:bold 12px sans-serif; }

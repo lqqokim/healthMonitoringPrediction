@@ -17,6 +17,9 @@ export class InCondition extends ConditionApi {
 			Condic.Tool.plant({
 				required: true
 			}),
+			Condic.Tool.worst_top({
+				required: true
+			}),
 			Condic.Common.time_period({
 				required: true
 			}),

@@ -9,7 +9,7 @@ import { FormConfigType } from '../../../../sdk';
 export class Properties extends ConditionApi {
 
 	preInit(): Array<string> {
-		return [CD.PLANT];
+		return [CD.PLANT, CD.WORST_TOP];
 	}
 
 	// properties 초기값 설정
@@ -21,6 +21,7 @@ export class Properties extends ConditionApi {
 	config(): [ConditionType] {
 		return [
 			Condic.Tool.plant(),
+			Condic.Tool.worst_top(),
 			Condic.Common.time_period(),
 		];
 	}
@@ -39,6 +40,7 @@ export class Properties extends ConditionApi {
 		return [
 			Formcfg.Factory.plant(),
 			Formcfg.Common.time_period(newConfig),
+			Formcfg.Factory.worst_top(),
 			Formcfg.Common.communication()
 			
 		];

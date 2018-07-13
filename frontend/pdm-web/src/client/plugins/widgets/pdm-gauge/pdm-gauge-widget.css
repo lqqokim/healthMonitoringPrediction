@@ -1,14 +1,14 @@
 /* container header & date & legend*/
 
-.pdm-radar-legend {
+.pdm-gauge-legend {
     width: 50%;
 }
 
-.pdm-radar-legend .modl-rng {
+.pdm-gauge-legend .modl-rng {
     margin-left: 10px;
 }
 
-.pdm-radar-detail-title .close {
+.pdm-gauge-detail-title .close {
     font-weight: 100;
     font-size: 26px;
     text-shadow: none;
@@ -17,11 +17,11 @@
     color: #fff;
 }
 
-.pdm-radar-detail-title .close:hover {
+.pdm-gauge-detail-title .close:hover {
     opacity: 1;
 }
 
-.radar-layer-on .close {
+.gauge-layer-on .close {
     font-weight: 100;
     position: absolute;
     font-size: 30px;
@@ -29,49 +29,49 @@
     top: 6px;
 }
 
-.pdm-radar-legend li {
+.pdm-gauge-legend li {
     float: left;
     margin-left: 10px;
     display: inline-block;
     position: relative;
 }
 
-.pdm-radar-legend span.label {
+.pdm-gauge-legend span.label {
     margin-right: 4px;
 }
 
-.pdm-radar-legend li:first-child {
+.pdm-gauge-legend li:first-child {
     margin-left: 5px;
 }
 
-.pdm-radar-legend .legend-danger:before {
+.pdm-gauge-legend .legend-danger:before {
     background-color: #ff5d43;
 }
 
-.pdm-radar-legend .legend-warning:before {
+.pdm-gauge-legend .legend-warning:before {
     background-color: #f6b161;
 }
 
-.pdm-radar-legend .legend-bad:before {
+.pdm-gauge-legend .legend-bad:before {
     background-color: #f06595;
 }
 
-.pdm-radar-legend .legend-good:before {
+.pdm-gauge-legend .legend-good:before {
     background-color: #22b8cf;
 }
 
-.pdm-radar-legend .legend-label {
+.pdm-gauge-legend .legend-label {
     position: absolute;
     top: 0px;
     left: 3px;
     color: #fff;
 }
 
-.widget-pdm-radar .title {
+.widget-pdm-gauge .title {
     margin-bottom: 5px;
 }
 
-.widget-pdm-radar .a3-synced-title {
+.widget-pdm-gauge .a3-synced-title {
     padding-left: 10px;
     margin-left: 10px;
     color: #969696;
@@ -79,46 +79,44 @@
     line-height: 20px;
 }
 
-.widget-pdm-radar .a3-synced-title:first-child {
+.widget-pdm-gauge .a3-synced-title:first-child {
     border: none;
     padding-left: 0;
     margin-left: 0;
 }
 
-.pdm-radar-legend .checkbox {
+.pdm-gauge-legend .checkbox {
     display: inline-block;
     margin-left: 10px;
 }
 
-.pdm-radar-legend .radar-target li {
+.pdm-gauge-legend .gauge-target li {
     display: inline-block;
 }
 
 /* Charts Container */
 
-.widget-pdm-radar {
+.widget-pdm-gauge {
     height: 100%;
     width: 100%;
 }
 
-.widget-pdm-radar pdm-radar-widget {
+.widget-pdm-gauge pdm-gauge-widget {
     display: block;
     height: 100%;
 }
 
-.widget-pdm-radar alarm-warning-variation {
+.widget-pdm-gauge alarm-warning-variation {
     display: block;
     height: 100%;
-    overflow-y: auto;
 }
 
-.pdm-radar-column {
+.pdm-gauge-column {
     width: 100%;
     height: calc(100% - 25px);
-    /* position: relative; */
 }
 
-.widget-pdm-radar .container {
+.widget-pdm-gauge .container {
     display: inline-flex;
     width: 100% !important;
     height: 100% !important;
@@ -128,26 +126,20 @@
     float: left;
 }
 
-.widget-pdm-radar .alarm-warning-type {
+.widget-pdm-gauge .alarm-warning-type {
     width: 100%;
     margin-bottom: 3px;
-    /* height:100%; */
 }
 
-.widget-pdm-radar .alarm-warning-type .alarm-width-calc {
-    /* overflow-y: auto; */
-}
-
-.widget-pdm-radar .Bad5-type,
-.widget-pdm-radar .Good5-type {
+.widget-pdm-gauge .Bad5-type,
+.widget-pdm-gauge .Good5-type {
     width: 100%;
-    /* height:100%; */
     margin-bottom: 2px;
 }
 
-.widget-pdm-radar .alarm-warning-type .pdm-radar-wrapper,
-.widget-pdm-radar .Bad5-type .pdm-radar-wrapper,
-.widget-pdm-radar .Good5-type .pdm-radar-wrapper {
+.widget-pdm-gauge .alarm-warning-type .pdm-gauge-wrapper,
+.widget-pdm-gauge .Bad5-type .pdm-gauge-wrapper,
+.widget-pdm-gauge .Good5-type .pdm-gauge-wrapper {
     width: calc(100% / 5);
     height: 265px;
     display: inline-block;
@@ -158,11 +150,11 @@
     user-select: none;
 }
 
-.pdm-radar-overflow {
+.pdm-gauge-overflow {
     height: 100%;
 }
 
-.widget-pdm-radar .pdm-radar-section {
+.widget-pdm-gauge .pdm-gauge-section {
     position: relative;
     width: 100%;
     height: 100%;
@@ -175,69 +167,56 @@
 
 /* Charts Basic Information */
 
-.widget-pdm-radar .pdm-radar-title {
+.widget-pdm-gauge .pdm-gauge-title {
     position: absolute;
     top: 0px;
     left: 0px;
     height: 20px;
-    /* height: inherit; */
     padding: 3px 6px;
     width: 100%;
 }
 
-.widget-pdm-radar .pdm-radar-title>.pdm-radar-name {
+.widget-pdm-gauge .pdm-gauge-title>.pdm-gauge-name {
     color: #222;
     text-align: left;
     display: inline-block;
-    float: left;
     font-weight: bold;
 }
 
-.widget-pdm-radar .pdm-radar-title>.pdm-radar-time {
+.widget-pdm-gauge .pdm-gauge-title>.pdm-gauge-time {
     font-size: 12px;
     line-height: 14px;
     text-align: right;
     display: inline-block;
-    float: right;
 }
 
 /* Charts */
 
-.widget-pdm-radar .pdm-radar-chart {
+.widget-pdm-gauge .pdm-gauge-chart {
     width: 100%;
     height: calc(100% - 25px) !important;
     margin-top: 20px;
 }
 
-/* .widget-pdm-radar .pdm-radar-chart radar-chart {
-    height: 100%;
-    display: block;
-} */
-
-/* .widget-pdm-radar .pdm-radar-chart bar-chart {
-    height: 100%;
-    display: block;
-} */
-
-.widget-pdm-radar .pdm-radar-chart gauge-chart {
+.widget-pdm-gauge .pdm-gauge-chart gauge-chart-generate {
     height: 100%;
     display: block;
 }
 
-.widget-pdm-radar .alarm-warning-variation {
-    /* height: 33.333333333%; */
+.widget-pdm-gauge .alarm-warning-variation {
     height: 100%;
+    overflow: scroll;
 }
 
 /* Charts Stasus Class */
 
 /* Danger */
 
-.widget-pdm-radar .pdm-radar-time {
+.widget-pdm-gauge .pdm-gauge-time {
     color: #666;
 }
 
-.widget-pdm-radar .alram-type-danger.pdm-radar-info-hover .pdm-radar-detail-title {
+.widget-pdm-gauge .alram-type-danger.pdm-gauge-info-hover .pdm-gauge-detail-title {
     background-color: #ff5d43;
     color: #fff;
     border: 0px;
@@ -250,11 +229,11 @@
 
 /* Warning */
 
-.widget-pdm-radar .alram-type-warning .pdm-radar-time {
+.widget-pdm-gauge .alram-type-warning .pdm-gauge-time {
     color: #666;
 }
 
-.widget-pdm-radar .alram-type-warning.pdm-radar-info-hover .pdm-radar-detail-title {
+.widget-pdm-gauge .alram-type-warning.pdm-gauge-info-hover .pdm-gauge-detail-title {
     background-color: #f6b161;
     color: #fff;
     border: 0px;
@@ -267,7 +246,7 @@
 
 /* Bad */
 
-.alram-type-bad.pdm-radar-info-hover .pdm-radar-detail-title {
+.alram-type-bad.pdm-gauge-info-hover .pdm-gauge-detail-title {
     background-color: #f06595;
     color: #fff;
     border: 0px;
@@ -278,17 +257,17 @@
     align-items: center;
 }
 
-/* .widget-pdm-radar .alram-type-bad .pdm-radar-time,
-.widget-pdm-radar .alram-type-good .pdm-radar-time, */
+/* .widget-pdm-gauge .alram-type-bad .pdm-gauge-time,
+.widget-pdm-gauge .alram-type-good .pdm-gauge-time, */
 
-.widget-pdm-radar .alram-type-bad .pdm-radar-detail-title .pdm-radar-time,
-.widget-pdm-radar .alram-type-good .pdm-radar-detail-title .pdm-radar-time {
+.widget-pdm-gauge .alram-type-bad .pdm-gauge-detail-title .pdm-gauge-time,
+.widget-pdm-gauge .alram-type-good .pdm-gauge-detail-title .pdm-gauge-time {
     display: none;
 }
 
 /* Good */
 
-.widget-pdm-radar .alram-type-good.pdm-radar-info-hover .pdm-radar-detail-title {
+.widget-pdm-gauge .alram-type-good.pdm-gauge-info-hover .pdm-gauge-detail-title {
     background-color: #22b8cf;
     color: #fff;
     border: 0px;
@@ -301,9 +280,7 @@
 
 /* Charts Detail Layer */
 
-/* .widget-pdm-radar .pdm-radar-wrapper .pdm-radar-info { */
-
-.widget-pdm-radar .pdm-radar-info {
+.widget-pdm-gauge .pdm-gauge-info {
     color: #222;
     font-size: 12px;
     position: absolute;
@@ -317,9 +294,9 @@
     padding: 5px;
 }
 
-/* .widget-pdm-radar .pdm-radar-wrapper:hover .pdm-radar-info { */
+/* .widget-pdm-gauge .pdm-gauge-wrapper:hover .pdm-gauge-info { */
 
-.widget-pdm-radar .pdm-radar-info-hover {
+.widget-pdm-gauge .pdm-gauge-info-hover {
     color: #222;
     font-size: 12px;
     position: absolute;
@@ -333,11 +310,11 @@
     z-index: 710;
     opacity:0;
 }
-.widget-pdm-radar .pdm-radar-info-hover.prih-on {
+.widget-pdm-gauge .pdm-gauge-info-hover.prih-on {
     opacity:1;
 }
 
-.widget-pdm-radar .pdm-radar-detail-title {
+.widget-pdm-gauge .pdm-gauge-detail-title {
     /* position: absolute; */
     top: 0px;
     left: 0px;
@@ -348,14 +325,13 @@
     width: 100%;
 }
 
-.widget-pdm-radar .pdm-radar-info-hover .pdm-radar-title {
+.widget-pdm-gauge .pdm-gauge-info-hover .pdm-gauge-title {
     display: block;
     color: #fff;
     line-height: 14px;
 }
 
-.widget-pdm-radar .pdm-radar-info-hover .pdm-radar-name {
-    float: left;
+.widget-pdm-gauge .pdm-gauge-info-hover .pdm-gauge-name {
     display: inline-block;
     color: #fff;
     line-height: 14px;
@@ -363,39 +339,27 @@
     font-size: 16px;
 }
 
-.widget-pdm-radar .pdm-radar-info-hover .pdm-radar-time {
+.widget-pdm-gauge .pdm-gauge-info-hover .pdm-gauge-time {
     float: right;
     display: inline-block;
     color: #fff;
     line-height: 14px;
 }
 
-.widget-pdm-radar .pdm-radar-info-hover .pdm-radar-type {
+.widget-pdm-gauge .pdm-gauge-info-hover .pdm-gauge-type {
     padding: 6px 6px;
     display: block;
     height: 50px;
     border-bottom: 1px solid #eee;
 }
 
-.widget-pdm-radar .pdm-radar-info-hover .pdm-chart-area {
+.widget-pdm-gauge .pdm-gauge-info-hover .pdm-chart-area {
     height: calc(100% - 80px);
     width: 100%;
     padding: 6px;
 }
 
-/*
-.widget-pdm-radar .radar-layer-backdrop {
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
-    background-color: rgba(0, 0, 0, 0.3);
-    z-index: 710;
-    position: absolute;
-    content: '';
-}*/
-
-.widget-pdm-radar .pdm-radar-trend {
+.widget-pdm-gauge .pdm-gauge-trend {
     color: #222;
     font-size: 12px;
     position: absolute;
@@ -409,13 +373,11 @@
     padding: 5px;
 }
 
-/* PDM Radar Widget absolute layer */
+/* PDM gauge Widget absolute layer */
 
-.widget-pdm-radar .pdm-radar-trend-click {
+.widget-pdm-gauge .pdm-gauge-trend-click {
     color: #222;
     font-size: 12px;
-    height: 100%;
-    width: calc(100% - 5px);
     margin-left: 2px;
     transition: all 0.1s ease-in-out;
     background-color: #fff;
@@ -427,11 +389,11 @@
     box-shadow: 0 5px 10px rgba(0, 0, 0, 0.275);
 }
 
-.widget-pdm-radar trend-chart .info {
+.widget-pdm-gauge trend-chart .info {
     height: 20px;
     line-height: 20px;
 }
 
-.widget-pdm-radar trend-chart .chart {
+.widget-pdm-gauge trend-chart .chart {
     height: calc(100% - 20px);
 }

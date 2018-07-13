@@ -49,6 +49,7 @@ export interface G5DataType {
 export interface RadarWidgetConfigType {
     fabId: number;
     timePeriod: any;
+    worstTop?: number;
 }
 
 export interface RadarType {
@@ -81,7 +82,7 @@ export interface ChartDataType {
     isExpand?: boolean
 }
 
-export interface DataType{
+export interface DataType {
     alarms: any[];
     warns: any[];
     avgWithAWs?: any[];
