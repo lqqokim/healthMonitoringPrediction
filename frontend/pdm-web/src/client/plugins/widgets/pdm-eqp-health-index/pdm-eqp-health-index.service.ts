@@ -18,4 +18,14 @@ export class PdmEqpHealthIndexService {
             return this._pdmModel.getPdmEqpHealthIndexByAreaId(params.fabId, params.areaId, params.fromDate, params.toDate);
         }
     }
+
+    getChartData(params:{
+        fabId: string;
+        areaId?: number;
+        paramId?: number;
+        fromDate: number;
+        toDate: number;
+    }): Promise<any> {
+        return this._pdmModel.getEqpHealthTrendChart(params.fabId, params.paramId, params.fromDate, params.toDate);
+    }
 }

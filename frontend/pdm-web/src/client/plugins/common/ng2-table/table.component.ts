@@ -55,6 +55,12 @@ export class TableComponent implements OnInit, OnChanges, OnDestroy {
     //* 전체 필터 표기 여부 (ture:보임 / false: 숨김)
     @Input() totalFilter: boolean;
 
+    //* 초기 시작과 동시에 Input 데이터 근거로 테이블 그리기
+    @Input() initStart: boolean = true;
+
+    //* 데이터 바인딩 스위치 (true: 스위치 On/ false: Off)
+    @Input() dataBindSwitch: boolean = true;
+
     //* input() data 값에 의한 테이블 row 값
     public rows: Array<any> = [];
 
@@ -88,12 +94,11 @@ export class TableComponent implements OnInit, OnChanges, OnDestroy {
 
     //* 초기 설정
     ngOnInit() {
+        if( !this.initStart ){ return; }
        this.firstSet();
     }
 
-    firstSet(): void {
-        // if( this.data === undefined || this.data === null ){ return; }
-        
+    firstSet(): void {       
         this.length = this.data.length;
         this.pager = new PaginationHelper( this.length, this.page, this.itemsPerPage, this.pageChange.bind(this) );
 
@@ -107,11 +112,22 @@ export class TableComponent implements OnInit, OnChanges, OnDestroy {
         delete this.pager;
     }
 
-    ngOnChanges(c: any){
-        setTimeout(()=>{
-            this.pager = null;
-            this.onChangeTable(this.config);
-        }, 100);
+    ngOnChanges(c: any){        
+        if( !this.dataBindSwitch ){ return; }
+        this.dataBindSwitchOn();
+    }
+
+    //* 테이블 내용 그리기
+    public dataBindSwitchOn(): void {
+        if( !this.initStart ){
+            this.initStart = true;
+            this.firstSet();
+        } else {
+            setTimeout(()=>{
+                this.pager = null;
+                this.onChangeTable(this.config);
+            }, 100);
+        }
     }
 
     //* 테이블 페이지 변경
