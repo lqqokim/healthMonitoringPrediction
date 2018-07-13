@@ -73,18 +73,18 @@ export class WidgetConfigHelper {
     //* 위젯 컨피그 속성 값 설정
     setConfigData( type: string, timePeriod: ITimePeriod, dayPeriod: number ){
 
-        const cutoffType: string = type === 'DATE' ? 'DATE' : 'DAY';
-        const time: ITimePeriod = (type === 'DAY' ? this.getTodayPrevDayCalc( dayPeriod ) : timePeriod);
+        // const cutoffType: string = type === 'DATE' ? 'DATE' : 'DAY';
+        // const time: ITimePeriod = (type === 'DAY' ? this.getTodayPrevDayCalc( dayPeriod ) : timePeriod);
 
-        // 컨피스 radio 값 설정 (DAY-Previous day, DATE-Date Range)
-        this.widget.setProp('cutoffType', cutoffType);
+        // // 컨피스 radio 값 설정 (DAY-Previous day, DATE-Date Range)
+        // this.widget.setProp('cutoffType', cutoffType);
 
-        // 일별 자동 계산
-        if( cutoffType === 'DAY' ){
-            this.widget.setProp('dayPeriod', dayPeriod);
-        } else {
-            this.widget.setProp('dayPeriod', '');
-        }
+        // // 일별 자동 계산
+        // if( cutoffType === 'DAY' ){
+        //     this.widget.setProp('dayPeriod', dayPeriod);
+        // } else {
+        //     this.widget.setProp('dayPeriod', '');
+        // }
 
         // 날짜 설정
         // this.setProp('timePeriod', time);

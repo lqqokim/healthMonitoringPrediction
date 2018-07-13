@@ -142,6 +142,8 @@ export class PdmAlarmHistoryComponent extends WidgetApi implements OnSetup, OnDe
                 });
             }
 
+            this.listData = this.listData.concat();
+
             this.hideSpinner();
         },(err: any)=>{
             console.log('err', err);
