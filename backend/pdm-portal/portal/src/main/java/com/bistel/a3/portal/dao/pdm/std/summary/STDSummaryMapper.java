@@ -26,7 +26,7 @@ public interface STDSummaryMapper {
 
     List<AreaFaultCountSummary> selectLineStatusTrendByAreaId(@Param("fromdate") Date fromdate, @Param("todate") Date todate, @Param("area_id") Long area_id);
 
-    List<WorstEquipmentList> selectWorstEquipmentList(@Param("start_dtts") String start_dtts, @Param("end_dtts") String end_dtts);
+    List<WorstEquipmentList> selectWorstEquipmentList(@Param("start_dtts") String start_dtts, @Param("end_dtts") String end_dtts,@Param("eqp_id") Long eqp_id );
 
     ArrayList<WorstEqupmentListChartData> selectWorstEqupmentListChartData(@Param("start_dtts") String start_dtts, @Param("end_dtts") String end_dtts);
 

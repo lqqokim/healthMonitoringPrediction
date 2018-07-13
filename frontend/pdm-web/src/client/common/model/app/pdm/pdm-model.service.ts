@@ -710,6 +710,11 @@ export class PdmModelService extends ModelCommonService {
 			uriPath: `pdm/fabs/${fabId}/worstEquipmentList/?fromdate=${fromDate}&todate=${toDate}`
 		})
 	}
+	getWorstEqpInfo(fabId: string,eqpId:string, fromDate:number, toDate:number): Promise<any> {
+		return this.GET({
+			uriPath: `pdm/fabs/${fabId}/eqps/${eqpId}/worstEquipmentInfo/?fromdate=${fromDate}&todate=${toDate}`
+		})
+	}
 
 	// AlarmClassificationSummary
 	getAlarmClassificationSummaryByAreaId(fabId: string, areaId: number, fromDate:number, toDate:number): Promise<any> {

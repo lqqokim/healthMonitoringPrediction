@@ -2,7 +2,7 @@
     <div class="equipmentStatus">
         <label>Equipment Status</label>
         <div class="status-chart" *ngIf="params!=null && params.length>0">
-            <status-chart></status-chart>
+            <status-chart [datas]="statusData" [colors]="statusColor" [startDtts]="startDtts" [endDtts]="endDtts"></status-chart>
         </div>
     </div>
     <div class="table-container">

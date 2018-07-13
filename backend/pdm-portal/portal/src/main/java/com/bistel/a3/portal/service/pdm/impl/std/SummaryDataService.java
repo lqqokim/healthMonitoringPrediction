@@ -158,7 +158,7 @@ public class SummaryDataService implements ISummaryDataService {
     }
 
     @Override
-    public List<WorstEquipmentList> worstEquipmentList(String fabId, Long areaId, Date fromdate, Date todate) {
+    public List<WorstEquipmentList> worstEquipmentList(String fabId, Long areaId,Long eqpId, Date fromdate, Date todate) {
 
         STDSummaryMapper stdSummaryMapper= SqlSessionUtil.getMapper(sessions, fabId, STDSummaryMapper.class);
 
@@ -169,7 +169,7 @@ public class SummaryDataService implements ISummaryDataService {
 
         if (areaId==null)
         {
-            List<WorstEquipmentList> worstEquipmentLists = stdSummaryMapper.selectWorstEquipmentList(start_dtts,end_dtts);
+            List<WorstEquipmentList> worstEquipmentLists = stdSummaryMapper.selectWorstEquipmentList(start_dtts,end_dtts,eqpId);
             ArrayList<WorstEqupmentListChartData> worstEqupmentListChartData=stdSummaryMapper.selectWorstEqupmentListChartData(start_dtts,end_dtts);
 
 

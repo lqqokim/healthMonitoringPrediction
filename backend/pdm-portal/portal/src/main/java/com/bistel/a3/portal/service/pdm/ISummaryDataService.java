@@ -22,7 +22,7 @@ public interface ISummaryDataService {
 
     List<AreaFaultCountSummary> lineStatusTrend(String fabId, Long areaId, Date fromdate, Date todate);
 
-    List<WorstEquipmentList> worstEquipmentList(String fabId, Long areaId , Date fromdate, Date todate);
+    List<WorstEquipmentList> worstEquipmentList(String fabId, Long areaId ,Long eqpId, Date fromdate, Date todate);
 
 
 

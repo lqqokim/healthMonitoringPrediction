@@ -978,6 +978,9 @@
         select e.rawid as eqp_id, e.name as eqp_name, v.event_name, v.event_type_cd, t.event_dtts
         from eqp_mst_pdm e, eqp_event_mst_pdm v, eqp_event_trx_pdm t
         where e.rawid=v.eqp_mst_rawid
+        <if test="eqp_id != null">
+            and e.rawid = #{eqp_id}
+        </if>
         and v.rawid=t.eqp_event_mst_rawid
         and v.process_yn='Y'
         and t.event_dtts between TO_TIMESTAMP( #{start_dtts} , 'YYYY-MM-DD HH24:MI:SS')
@@ -996,6 +999,10 @@
         select e.rawid as eqp_id,name as eqp_name, max(h.score) as score
         from eqp_mst_pdm e, eqp_health_trx_pdm h
         where e.rawid=h.eqp_mst_rawid
+        <if test="eqp_id != null">
+            and e.rawid = #{eqp_id}
+        </if>
+        
         and e.offline_yn='N'
         and h.ALARM_DTTS between TO_TIMESTAMP( #{start_dtts} , 'YYYY-MM-DD HH24:MI:SS')
         and TO_TIMESTAMP( #{end_dtts} , 'YYYY-MM-DD HH24:MI:SS')
