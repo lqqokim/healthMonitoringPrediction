@@ -175,6 +175,7 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
 
                     Promise.all(promises)
                         .then((results) => {
+                            console.log('results', results);
                             let alarmDatas = [];
                             let warningDatas = [];
 
@@ -230,10 +231,12 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
             });
     }
 
-    _getAWRadars(eqp: any): Promise<any> {
+    _getAWRadars(eqp: any): Promise<any> | any {
         let alarmData: pdmRadarI.ChartDataType;
         let warningData: pdmRadarI.ChartDataType;
         let alarmWarningData: any = {};
+        let options: any = this.getChartOption();
+        let details: any = {};
         let radarParamsParam: pdmRadarI.RadarParamsRequestParam = {
             fabId: undefined,
             eqpId: undefined,
@@ -249,141 +252,170 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
         radarParamsParam.params.toDate = this.timePeriod['to'];
         return this._pdmRadarService.getRadarParams(radarParamsParam)
             .then((params: any) => {
-                let options: any = this.getChartOption();
-                let data: any = {};
-                let alarms: any[] = [];
-                let warns: any[] = [];
-                let avgSpecs: any[] = [];
-                let avgDailys: any[] = [];
-                let avgWithAWs: any[] = [];
-                let AWwithAvgs: any[] = [];
-                let variations: any[] = [];
-                let paramDatas: any = [];
+                if (params && params.length > 0) {
+                    // let options: any = this.getChartOption();
+                    let data: any = {};
+                    let alarms: any[] = [];
+                    let warns: any[] = [];
+                    let avgSpecs: any[] = [];
+                    let avgDailys: any[] = [];
+                    let avgWithAWs: any[] = [];
+                    let AWwithAvgs: any[] = [];
+                    let variations: any[] = [];
+                    let paramDatas: any = [];
 
-                for (let i = 0; i < params.length; i++) {
-                    let param: any = params[i];
+                    for (let i = 0; i < params.length; i++) {
+                        let param: any = params[i];
 
-                    alarms.push({ //경고
-                        id: param.paramId,
-                        axis: param.paramName,
-                        value: param.alarm
-                    });
+                        alarms.push({ //경고
+                            id: param.paramId,
+                            axis: param.paramName,
+                            value: param.alarm
+                        });
 
-                    warns.push({ //주의
-                        id: param.paramId,
-                        axis: param.paramName,
-                        value: param.warn
-                    });
+                        warns.push({ //주의
+                            id: param.paramId,
+                            axis: param.paramName,
+                            value: param.warn
+                        });
 
-                    avgSpecs.push({ //90일평균
-                        id: param.paramId,
-                        axis: param.paramName,
-                        value: param.avgSpec
-                    });
+                        avgSpecs.push({ //90일평균
+                            id: param.paramId,
+                            axis: param.paramName,
+                            value: param.avgSpec
+                        });
 
-                    avgDailys.push({ //하루평균
-                        id: param.paramId,
-                        axis: param.paramName,
-                        value: param.avgDaily
-                    });
+                        avgDailys.push({ //하루평균
+                            id: param.paramId,
+                            axis: param.paramName,
+                            value: param.avgDaily
+                        });
 
-                    avgWithAWs.push({ //평균값(Warning, Alarm)
-                        id: param.paramId,
-                        axis: param.paramName,
-                        value: param.avgWithAW,
-                        data: param
-                    });
+                        avgWithAWs.push({ //평균값(Warning, Alarm)
+                            id: param.paramId,
+                            axis: param.paramName,
+                            value: param.avgWithAW,
+                            data: param
+                        });
 
-                    paramDatas.push({
-                        paramId: param.paramId,
-                        paramName: param.paramName,
-                        eqpId: eqp.eqpId,
-                        eqpName: eqp.eqpName
-                    });
+                        paramDatas.push({
+                            paramId: param.paramId,
+                            paramName: param.paramName,
+                            eqpId: eqp.eqpId,
+                            eqpName: eqp.eqpName
+                        });
 
-                    AWwithAvgs.push(param.avgWithAW);//for max alarm or waring
-                    variations.push(param.variation);
-                }
+                        AWwithAvgs.push(param.avgWithAW);//for max alarm or waring
+                        variations.push(param.variation);
+                    }
 
-                data = {
-                    alarms: alarms,
-                    warns: warns,
-                    avgWithAWs: avgWithAWs,
-                    avgDailys: avgDailys,
-                    paramDatas: paramDatas
-                };
+                    data = {
+                        alarms: alarms,
+                        warns: warns,
+                        avgWithAWs: avgWithAWs,
+                        avgDailys: avgDailys,
+                        paramDatas: paramDatas
+                    };
 
-                options.series = [{ fill: false, circle: false }, { fill: false, circle: false }, { fill: true, circle: false }];
+                    options.series = [{ fill: false, circle: false }, { fill: false, circle: false }, { fill: true, circle: false }];
 
-                const maxAWwithAvg = Math.max(...AWwithAvgs);
-                let details: any = {};
-                let maxParam;
+                    const maxAWwithAvg = Math.max(...AWwithAvgs);
+                    // let details: any = {};
+                    let maxParam;
 
-                for (let i = 0; i < params.length; i++) {
-                    try {
-                        if (maxAWwithAvg === params[i].avgWithAW) {
-                            maxParam = params[i];
-                            details = {
-                                maxParamName: params[i].paramName,
-                                maxDailyAvg: this.sliceDecimal(params[i].avgDaily, 4),
-                                maxSpecAvg: this.sliceDecimal(params[i].avgSpec, 4),
-                                maxAvgWithAW: this.sliceDecimal(params[i].avgWithAW, 4),
-                                maxAWwithAvg: this.sliceDecimal(maxAWwithAvg, 4)
-                            };
+                    for (let i = 0; i < params.length; i++) {
+                        try {
+                            if (maxAWwithAvg === params[i].avgWithAW) {
+                                maxParam = params[i];
+                                details = {
+                                    maxParamName: params[i].paramName,
+                                    maxDailyAvg: this.sliceDecimal(params[i].avgDaily, 4),
+                                    maxSpecAvg: this.sliceDecimal(params[i].avgSpec, 4),
+                                    maxAvgWithAW: this.sliceDecimal(params[i].avgWithAW, 4),
+                                    maxAWwithAvg: this.sliceDecimal(maxAWwithAvg, 4)
+                                };
 
-                            options.SelectLabel = params[i].paramName;
+                                options.SelectLabel = params[i].paramName;
 
-                            break;
+                                break;
+                            }
+                        } catch (err) {
+                            console.log(err);
                         }
-                    } catch (err) {
-                        console.log(err);
                     }
+
+                    this.temp++;
+
+                    // if (eqp.type === "Alarm" && parseInt((this.temp % 2).toString()) === 0) {
+                    if (eqp.type === "Warning") {
+                        options.color = (i: number) => {
+                            // let c: string[] = ['red', 'yellow', 'olive', 'aqua', 'yellow', 'green', 'blue'];
+                            // let c: string[] = ['#eea29a', '#ffff56', 'olive', 'aqua', 'orange', 'green', 'blue'];
+                            let c: string[] = ['#eea29a', '#ffff56', 'olive', 'orange'];
+                            return c[i];
+                        }
+
+                        warningData = {
+                            type: 'warning',
+                            id: eqp.eqpId,
+                            name: eqp.name,
+                            problemreason: '',
+                            details: details,
+                            chartData: data,
+                            options: options
+                        };
+
+                        alarmWarningData = warningData;
+                        // } else if (eqp.type === 'Alarm' && parseInt((this.temp % 2).toString()) !== 0) {
+                    } else if (eqp.type === 'Alarm') {
+                        options.color = (i: number) => {
+                            // let c: string[] = ['#eea29a', '#ffff56', 'olive', 'aqua', 'red', 'green', 'blue'];
+                            let c: string[] = ['#eea29a', '#ffff56', 'olive', 'red'];
+                            return c[i];
+                        }
+                        alarmData = {
+                            type: 'alarm',
+                            id: eqp.eqpId,
+                            name: eqp.name,
+                            problemreason: maxParam.classifications,
+                            details: details,
+                            chartData: data,
+                            options: options,
+                            areaId: eqp.area_id
+                        };
+
+                        alarmWarningData = alarmData;
+                    }
+
+                    return Promise.resolve(alarmWarningData);
+                } else {
+                    let data = {};
+                    if(eqp.type === 'Alarm') {
+                        data = {
+                            type: 'alarm',
+                            id: eqp.eqpId,
+                            name: eqp.name,
+                            problemreason: '',
+                            details: details,
+                            chartData: null,
+                            options: options,
+                            areaId: eqp.area_id
+                        };
+                    } else if(eqp.type === 'Warning') {
+                        data = {
+                            type: 'warning',
+                            id: eqp.eqpId,
+                            name: eqp.name,
+                            problemreason: '',
+                            details: details,
+                            chartData: null,
+                            options: options,
+                            areaId: eqp.area_id
+                        };
+                    }
+
+                    return Promise.resolve(data);;
                 }
-
-                this.temp++;
-
-                // if (eqp.type === "Alarm" && parseInt((this.temp % 2).toString()) === 0) {
-                if (eqp.type === "Warning") {
-                    options.color = (i: number) => {
-                        // let c: string[] = ['red', 'yellow', 'olive', 'aqua', 'yellow', 'green', 'blue'];
-                        // let c: string[] = ['#eea29a', '#ffff56', 'olive', 'aqua', 'orange', 'green', 'blue'];
-                        let c: string[] = ['#eea29a', '#ffff56', 'olive', 'orange'];
-                        return c[i];
-                    }
-
-                    warningData = {
-                        type: 'warning',
-                        id: eqp.eqpId,
-                        name: eqp.name,
-                        problemreason: '',
-                        details: details,
-                        chartData: data,
-                        options: options
-                    };
-
-                    alarmWarningData = warningData;
-                    // } else if (eqp.type === 'Alarm' && parseInt((this.temp % 2).toString()) !== 0) {
-                } else if (eqp.type === 'Alarm') {
-                    options.color = (i: number) => {
-                        // let c: string[] = ['#eea29a', '#ffff56', 'olive', 'aqua', 'red', 'green', 'blue'];
-                        let c: string[] = ['#eea29a', '#ffff56', 'olive', 'red'];
-                        return c[i];
-                    }
-                    alarmData = {
-                        type: 'alarm',
-                        id: eqp.eqpId,
-                        name: eqp.name,
-                        problemreason: maxParam.classifications,
-                        details: details,
-                        chartData: data,
-                        options: options,
-                        areaId: eqp.area_id
-                    };
-
-                    alarmWarningData = alarmData;
-                }
-
-                return Promise.resolve(alarmWarningData);
             });
     }
 
@@ -401,6 +433,7 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
 
                     Promise.all(promises)
                         .then((results) => {
+                            console.log('NW results', results);
                             const resultLength = results.length;
 
                             if (resultLength && resultLength < 5) {
@@ -427,8 +460,10 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
             });
     }
 
-    _getNWRadars(eqp: any): Promise<any> {
+    _getNWRadars(eqp: any): Promise<any> | any{
         let NWData: any = {};
+        let options: any = this.getChartOption();
+        let details: any = {};
         let radarParamsParam: pdmRadarI.RadarParamsRequestParam = {
             fabId: undefined,
             eqpId: undefined,
@@ -445,8 +480,8 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
         return this._pdmRadarService.getRadarParams(radarParamsParam).then(
             (params: any) => {
                 // console.log('Params', params);
-                // if (params && params.length) {
-                    let options: any = this.getChartOption();
+                if (params && params.length > 0) {
+                    // let options: any = this.getChartOption();
                     // let data = [];
                     let data: any = {};
                     let alarms = [];
@@ -519,7 +554,7 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
                     }
 
                     const maxRatioVariation = Math.max(...ratioVariations);
-                    let details: any = {};
+                    // let details: any = {};
 
                     for (let i = 0; i < params.length; i++) {
                         try {
@@ -561,9 +596,22 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
                     // console.log('NW Data', NWData);
 
                     return Promise.resolve(NWData);
-                // } else {
-                //     return Promise.reject();
-                // }
+                } else {
+                    NWData = {
+                        type: 'B5',
+                        id: eqp.eqpId,
+                        name: eqp.name,
+                        duration: '',
+                        problemreason: '',
+                        details: details,
+                        chartData: null,
+                        options: options,
+                        labelColor: '#ff009d',
+                        areaId: eqp.area_id
+                    };
+
+                    return Promise.resolve(NWData);
+                }
             });
     }
 

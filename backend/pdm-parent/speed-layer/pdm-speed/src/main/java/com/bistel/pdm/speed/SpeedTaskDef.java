@@ -10,11 +10,13 @@ import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.state.StoreBuilder;
 import org.apache.kafka.streams.state.Stores;
+import org.apache.kafka.streams.state.WindowStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 /**
  *
@@ -47,11 +49,11 @@ public class SpeedTaskDef extends AbstractPipeline {
     private KafkaStreams processStreams() {
         final Topology topology = new Topology();
 
-        StoreBuilder<KeyValueStore<String, Long>> alarmTimeStoreSupplier =
-                Stores.keyValueStoreBuilder(
-                        Stores.inMemoryKeyValueStore("alarm-time-context"),
-                        Serdes.String(),
-                        Serdes.Long());
+//        StoreBuilder<KeyValueStore<String, Long>> alarmTimeStoreSupplier =
+//                Stores.keyValueStoreBuilder(
+//                        Stores.inMemoryKeyValueStore("alarm-time-context"),
+//                        Serdes.String(),
+//                        Serdes.Long());
 
         StoreBuilder<KeyValueStore<String, String>> statusStoreSupplier =
                 Stores.keyValueStoreBuilder(
@@ -59,20 +61,52 @@ public class SpeedTaskDef extends AbstractPipeline {
                         Serdes.String(),
                         Serdes.String());
 
+        StoreBuilder<WindowStore<String, Double>> paramValueStoreSupplier =
+                Stores.windowStoreBuilder(
+                        Stores.persistentWindowStore("fd-value-store",
+                            TimeUnit.DAYS.toMillis(1),
+                            24,
+                            TimeUnit.HOURS.toMillis(1),
+                            true),
+                        Serdes.String(),
+                        Serdes.Double());
+
+        StoreBuilder<KeyValueStore<String, Long>> sumIntervalStoreSupplier =
+                Stores.keyValueStoreBuilder(
+                        Stores.persistentKeyValueStore("fd-summary-interval"),
+                        Serdes.String(),
+                        Serdes.Long());
+
+        StoreBuilder<KeyValueStore<String, Integer>> alarmCountStoreSupplier =
+                Stores.keyValueStoreBuilder(
+                        Stores.persistentKeyValueStore("fd-alarm-count"),
+                        Serdes.String(),
+                        Serdes.Integer());
+
+        StoreBuilder<KeyValueStore<String, Integer>> warningCountStoreSupplier =
+                Stores.keyValueStoreBuilder(
+                        Stores.persistentKeyValueStore("fd-warning-count"),
+                        Serdes.String(),
+                        Serdes.Integer());
+
         topology.addSource("input-trace", this.getInputTraceTopic())
-                .addSource("input-reload", "pdm-input-reload")
-                .addProcessor("reload", ReloadMetadataProcessor::new, "input-reload")
                 .addProcessor("speed01", FilterByMasterProcessor::new, "input-trace")
                 .addProcessor("speed02", MarkStatusProcessor::new, "speed01")
                 .addProcessor("speed03", ExtractEventProcessor::new, "speed02")
                 .addStateStore(statusStoreSupplier, "speed02")
-                .addProcessor("fd01", DetectByRealTimeProcessor::new, "speed02")
-                .addStateStore(alarmTimeStoreSupplier, "fd01")
-                .addProcessor("sendmail", SendMailProcessor::new, "fd01")
+                .addProcessor("fd0102", DetectFaultProcessor::new, "speed02")
+                .addStateStore(paramValueStoreSupplier, "fd0102")
+                .addStateStore(sumIntervalStoreSupplier, "fd0102")
+                .addStateStore(alarmCountStoreSupplier, "fd0102")
+                .addStateStore(warningCountStoreSupplier, "fd0102")
+                .addProcessor("sendmail", SendMailProcessor::new, "fd0102")
                 .addSink("output-trace", this.getOutputTraceTopic(), "speed02")
                 .addSink("output-event", this.getOutputEventTopic(), "speed03")
-                .addSink("output-fault", this.getOutputFaultTopic(), "fd01")
-                .addSink("output-raw", this.getInputTimewaveTopic(), "fd01");
+                .addSink("output-fault", this.getOutputFaultTopic(), "fd0102")
+                .addSink("output-raw", this.getInputTimewaveTopic(), "fd0102");
+
+        topology.addSource("input-reload", "pdm-input-reload")
+                .addProcessor("reload", ReloadMetadataProcessor::new, "input-reload");
 
         return new KafkaStreams(topology, getStreamProperties());
     }

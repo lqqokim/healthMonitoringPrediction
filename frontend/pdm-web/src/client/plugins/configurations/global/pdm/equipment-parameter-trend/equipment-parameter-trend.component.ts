@@ -28,8 +28,7 @@ export class EquipmentParameterTrendComponent implements OnInit {
     @ViewChild('tree') tree: FabAreaEqpParamTreeComponent;
     @ViewChild('modelChart') modelChart: EquipmentParameterTrendChartComponent;
 
-    startDtts;
-    endDtts;
+    
 
     searchTimePeriod = {
         from: null,
@@ -40,10 +39,15 @@ export class EquipmentParameterTrendComponent implements OnInit {
         to: null
     }
     statusData;
-    statusColor=[
-        {'RUN': '#00b050'},
-        {'IDLE':'#a6a6a6'}
+    statusColor:Array<{name: string; color: string;}> = [
+        {name:'RUN', color:'#00b050'},
+        {name:'IDLE', color:'#a6a6a6'}
     ];
+    timePeriod  = {
+        fromDate: 0,
+        toDate: 0
+    };
+
 
     paramDatas = [];
 
@@ -116,10 +120,10 @@ export class EquipmentParameterTrendComponent implements OnInit {
             console.log(result);
 
             if(result.length==0) return;
-            this.startDtts = result[0].datas[0].start_dtts;
-            this.endDtts = result[0].datas[result[0].datas.length-1].end_dtts;
+            this.timePeriod.fromDate = result[0].datas[0].start_dtts;
+            this.timePeriod.toDate = result[0].datas[result[0].datas.length-1].end_dtts;
 
-            this.statusData = result[0].datas;
+            this.statusData = result[0].datas.map(d=>{return {type:d.status,start:d.start_dtts,end:d.end_dtts}});
         }).catch((e)=>{
             console.log(e);
         })

@@ -21,7 +21,7 @@
         </split-area>
         <split-area size="80" class='chart'>
             <div class="chart-container">
-                <equipment-parameter-trend-chart #modelChart [params]="paramDatas" [statusData]="statusData" [statusColor]="statusColor"  [startDtts]="startDtts" [endDtts]="endDtts" (selectParam)="selectParam($event)"></equipment-parameter-trend-chart>
+                <equipment-parameter-trend-chart #modelChart [params]="paramDatas" [statusData]="statusData" [statusColor]="statusColor"  [timePeriod]="timePeriod" (selectParam)="selectParam($event)"></equipment-parameter-trend-chart>
             </div>
         </split-area>
     </split>
