@@ -65,7 +65,7 @@ public class SpeedTaskDef extends AbstractPipeline {
                 Stores.windowStoreBuilder(
                         Stores.persistentWindowStore("fd-value-store",
                             TimeUnit.DAYS.toMillis(1),
-                            1,
+                            24,
                             TimeUnit.HOURS.toMillis(1),
                             true),
                         Serdes.String(),
@@ -107,7 +107,7 @@ public class SpeedTaskDef extends AbstractPipeline {
 
         topology.addSource("input-reload", "pdm-input-reload")
                 .addProcessor("reload", ReloadMetadataProcessor::new, "input-reload");
-        
+
         return new KafkaStreams(topology, getStreamProperties());
     }
 

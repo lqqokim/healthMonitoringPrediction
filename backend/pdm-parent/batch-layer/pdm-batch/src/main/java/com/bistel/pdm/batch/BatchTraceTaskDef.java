@@ -71,11 +71,15 @@ public class BatchTraceTaskDef extends AbstractPipeline {
                         Serdes.String(),
                         Serdes.String());
 
-        StoreBuilder<KeyValueStore<String, byte[]>> aggregationWindowSupplier =
-                Stores.keyValueStoreBuilder(
-                        Stores.persistentKeyValueStore("aggregation-window"),
+        StoreBuilder<WindowStore<String, Double>> summaryWindowStoreSupplier =
+                Stores.windowStoreBuilder(
+                        Stores.persistentWindowStore("summary-window",
+                                TimeUnit.DAYS.toMillis(1),
+                                24,
+                                TimeUnit.HOURS.toMillis(1),
+                                true),
                         Serdes.String(),
-                        Serdes.ByteArray());
+                        Serdes.Double());
 
         StoreBuilder<KeyValueStore<String, Long>> summaryIntervalStoreSupplier =
                 Stores.keyValueStoreBuilder(
@@ -88,7 +92,7 @@ public class BatchTraceTaskDef extends AbstractPipeline {
                 .addProcessor("batch02", StatusContextProcessor::new, "batch01")
                 .addStateStore(statusContextStoreSupplier, "batch02")
                 .addProcessor("batch03", AggregateFeatureProcessor::new, "batch02")
-                .addStateStore(aggregationWindowSupplier, "batch03")
+                .addStateStore(summaryWindowStoreSupplier, "batch03")
                 .addStateStore(summaryIntervalStoreSupplier, "batch03")
                 .addSink("output-feature", this.getOutputFeatureTopic(), "batch03");
                 //.addSink("route-feature", this.getRouteFeatureTopic(), "batch03");

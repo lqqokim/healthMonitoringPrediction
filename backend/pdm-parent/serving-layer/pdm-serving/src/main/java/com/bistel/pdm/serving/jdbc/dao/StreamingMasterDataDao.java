@@ -49,11 +49,35 @@ public class StreamingMasterDataDao {
                     ds.setParamParseIndex(rs.getInt(4));
                     ds.setParameterRawId(rs.getLong(5));
 
-                    ds.setUpperAlarmSpec(rs.getFloat(6));
-                    ds.setUpperWarningSpec(rs.getFloat(7));
-                    ds.setTarget(rs.getFloat(8));
-                    ds.setLowerAlarmSpec(rs.getFloat(9));
-                    ds.setLowerWarningSpec(rs.getFloat(10));
+                    Float uas = rs.getFloat(6);
+                    if(rs.wasNull()){
+                        uas = null;
+                    }
+                    ds.setUpperAlarmSpec(uas);
+
+                    Float uws = rs.getFloat(7);
+                    if(rs.wasNull()){
+                        uws = null;
+                    }
+                    ds.setUpperWarningSpec(uws);
+
+                    Float t = rs.getFloat(8);
+                    if(rs.wasNull()){
+                        t = null;
+                    }
+                    ds.setTarget(t);
+
+                    Float las = rs.getFloat(9);
+                    if(rs.wasNull()){
+                        las = null;
+                    }
+                    ds.setLowerAlarmSpec(las);
+
+                    Float lws = rs.getFloat(10);
+                    if(rs.wasNull()){
+                        lws = null;
+                    }
+                    ds.setLowerWarningSpec(lws);
 
                     resultRows.add(ds);
                 }

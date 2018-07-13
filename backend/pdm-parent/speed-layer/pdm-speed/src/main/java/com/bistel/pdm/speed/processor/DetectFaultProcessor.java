@@ -80,7 +80,21 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
             // processing
             if (prevStatusCodeAndTime[0].equalsIgnoreCase("R")) {
                 // check OOS
-                checkOutOfSpec(partitionKey, recordColumns, paramData, streamByteRecord);
+                for (ParameterMasterDataSet paramMaster : paramData) {
+                    if (paramMaster.getParamParseIndex() <= 0) continue;
+
+                    String paramKey = partitionKey + ":" + paramMaster.getParameterRawId();
+
+                    ParameterHealthDataSet healthData =
+                            MasterDataCache.getInstance().getParamHealthFD01(paramMaster.getParameterRawId());
+
+                    if (healthData == null) {
+                        log.debug("[{}] - No health info. for parameter : {}.", partitionKey, paramMaster.getParameterName());
+                        continue;
+                    }
+
+                    checkOutOfSpec(paramKey, partitionKey, recordColumns, paramMaster, healthData, streamByteRecord);
+                }
             }
 
             // run -> idle
@@ -93,7 +107,7 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
                 }
                 Long endTime = Long.parseLong(prevStatusCodeAndTime[1]);
 
-                log.debug("[{}] - processing interval from {} to {}.", startTime, endTime);
+                log.debug("[{}] - processing interval from {} to {}.", partitionKey, startTime, endTime);
 
                 HashMap<String, List<Double>> paramValueList = new HashMap<>();
 
@@ -112,13 +126,20 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
                 }
 
                 for (ParameterMasterDataSet paramMaster : paramData) {
-                    String paramKey = partitionKey + ":" + paramMaster.getParameterRawId();
-                    List<Double> doubleValueList = paramValueList.get(paramKey);
+                    if (paramMaster.getParamParseIndex() <= 0) continue;
 
-                    log.debug("[{}] - window data size : {}", paramKey, doubleValueList.size());
+                    String paramKey = partitionKey + ":" + paramMaster.getParameterRawId();
 
                     ParameterHealthDataSet fd02HealthInfo =
                             MasterDataCache.getInstance().getParamHealthFD02(paramMaster.getParameterRawId());
+
+                    if (fd02HealthInfo == null) {
+                        log.debug("[{}] - No health info. for parameter : {}.", partitionKey, paramMaster.getParameterName());
+                        continue;
+                    }
+
+                    List<Double> doubleValueList = paramValueList.get(paramKey);
+                    log.debug("[{}] - window data size : {}", paramKey, doubleValueList.size());
 
                     // check spc rule
                     this.evaluateRule(partitionKey, paramKey, doubleValueList, endTime, paramMaster, fd02HealthInfo);
@@ -133,62 +154,49 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
     }
 
     private boolean existAlarm(String paramKey) {
-        return kvAlarmCountStore.get(paramKey) > 0;
+        return kvAlarmCountStore.get(paramKey) != null && kvAlarmCountStore.get(paramKey) > 0;
     }
 
     private boolean existWarning(String paramKey) {
-        return kvWarningCountStore.get(paramKey) > 0;
+        return kvWarningCountStore.get(paramKey) != null && kvWarningCountStore.get(paramKey) > 0;
     }
 
-    private void checkOutOfSpec(String partitionKey, String[] recordColumns,
-                                List<ParameterMasterDataSet> paramData, byte[] streamByteRecord) {
+    private void checkOutOfSpec(String paramKey, String partitionKey, String[] recordColumns,
+                                ParameterMasterDataSet param, ParameterHealthDataSet healthData, byte[] streamByteRecord) {
 
-        for (ParameterMasterDataSet param : paramData) {
-            String paramKey = partitionKey + ":" + param.getParameterRawId();
+        Double paramValue = Double.parseDouble(recordColumns[param.getParamParseIndex()]);
+        kvParamValueStore.put(paramKey, paramValue, parseStringToTimestamp(recordColumns[0]));
 
-            Double value = Double.parseDouble(recordColumns[param.getParamParseIndex()]);
-            kvParamValueStore.put(paramKey, value, parseStringToTimestamp(recordColumns[0]));
-
-            ParameterHealthDataSet healthData =
-                    MasterDataCache.getInstance().getParamHealthFD01(param.getParameterRawId());
-
-            if (healthData == null) {
-                log.debug("[{}] - No health info. for parameter : {}.", partitionKey, param.getParameterName());
-                continue;
+        log.debug("[{}] : check the out of spec. - {}", paramKey, paramValue);
+        if ((param.getUpperAlarmSpec() != null && paramValue >= param.getUpperAlarmSpec())
+                || (param.getLowerAlarmSpec() != null && paramValue <= param.getLowerAlarmSpec())) {
+            // Alarm
+            if (kvAlarmCountStore.get(paramKey) == null) {
+                kvAlarmCountStore.put(paramKey, 1);
+            } else {
+                int cnt = kvAlarmCountStore.get(paramKey);
+                kvAlarmCountStore.put(paramKey, cnt + 1);
             }
 
-            float paramValue = Float.parseFloat(recordColumns[param.getParamParseIndex()]);
+            // time, param_rawid, health_rawid, vlaue, A/W, uas, uws, tgt, las, lws, fault_class
+            String sb = parseStringToTimestamp(recordColumns[0]) + "," +
+                    param.getParameterRawId() + "," +
+                    healthData.getParamHealthRawId() + ',' +
+                    paramValue + "," +
+                    "256" + "," +
+                    param.getUpperAlarmSpec() + "," +
+                    param.getUpperWarningSpec() + "," +
+                    param.getTarget() + "," +
+                    param.getLowerAlarmSpec() + "," +
+                    param.getLowerWarningSpec() + "," + "Unbalance";
 
-            log.debug("[{}] : check the out of spec. - {}", paramKey, paramValue);
-            if ((param.getUpperAlarmSpec() != null && paramValue >= param.getUpperAlarmSpec())
-                    || (param.getLowerAlarmSpec() != null && paramValue <= param.getLowerAlarmSpec())) {
-                // Alarm
-                if (kvAlarmCountStore.get(paramKey) == null) {
-                    kvAlarmCountStore.put(paramKey, 1);
-                } else {
-                    int cnt = kvAlarmCountStore.get(paramKey);
-                    kvAlarmCountStore.put(paramKey, cnt + 1);
-                }
+            // to do : fault classifications
 
-                // time, param_rawid, health_rawid, vlaue, A/W, uas, uws, tgt, las, lws, fault_class
-                String sb = parseStringToTimestamp(recordColumns[0]) + "," +
-                        param.getParameterRawId() + "," +
-                        healthData.getParamHealthRawId() + ',' +
-                        paramValue + "," +
-                        "256" + "," +
-                        param.getUpperAlarmSpec() + "," +
-                        param.getUpperWarningSpec() + "," +
-                        param.getTarget() + "," +
-                        param.getLowerAlarmSpec() + "," +
-                        param.getLowerWarningSpec() + "," + "Unbalance";
+            context().forward(partitionKey, sb.getBytes(), "output-fault");
+            log.debug("[{}] - ALARM (UAL:{}, LAL:{}) - {}", paramKey,
+                    param.getUpperAlarmSpec(), param.getLowerAlarmSpec(), paramValue);
 
-                // to do : fault classifications
-
-                context().forward(partitionKey, sb.getBytes(), "output-fault");
-                log.debug("[{}] - ALARM (UAL:{}, LAL:{}) - {}", paramKey,
-                        param.getUpperAlarmSpec(), param.getLowerAlarmSpec(), paramValue);
-
-                //send mail
+            //send mail
                 /*
                     - Equipment ID: EQP01
                     - Time: 2018.07.06 15:00:01
@@ -198,42 +206,42 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
                     - Parameter Spec: 0.40
                     - Fault Classification : Unbalance
                  */
-                String mailText = "" + "\n" +
-                        "- Equipment ID : " + paramKey + "\n" +
-                        "- Time : " + recordColumns[0] + "\n" +
-                        "- Alarm/Warning : Alarm" + "\n" +
-                        "- Parameter Name : " + param.getParameterName() + "\n" +
-                        "- Parameter Value : " + paramValue + "\n" +
-                        "- Parameter Spec : " + param.getUpperAlarmSpec() + "\n" +
-                        "- Fault Classification : Unbalance";
+//            String mailText = "" + "\n" +
+//                    "- Equipment ID : " + paramKey + "\n" +
+//                    "- Time : " + recordColumns[0] + "\n" +
+//                    "- Alarm/Warning : Alarm" + "\n" +
+//                    "- Parameter Name : " + param.getParameterName() + "\n" +
+//                    "- Parameter Value : " + paramValue + "\n" +
+//                    "- Parameter Spec : " + param.getUpperAlarmSpec() + "\n" +
+//                    "- Fault Classification : Unbalance";
+//
+//            log.debug("[{}] - send mail");
+//            context().forward(partitionKey, mailText.getBytes(), "sendmail");
 
-                log.debug("[{}] - send mail");
-                context().forward(partitionKey, mailText.getBytes(), "sendmail");
+//            log.debug("[{}] - collecting the raw data.");
+//            //context().forward(partitionKey, streamByteRecord, "output-raw");
 
-                log.debug("[{}] - collecting the raw data.");
-                context().forward(partitionKey, streamByteRecord, "output-raw");
+        } else if ((param.getUpperWarningSpec() != null && paramValue >= param.getUpperWarningSpec())
+                || (param.getLowerWarningSpec() != null && paramValue <= param.getLowerWarningSpec())) {
+            //warning
+            if (kvWarningCountStore.get(paramKey) == null) {
+                kvWarningCountStore.put(paramKey, 1);
+            } else {
+                int cnt = kvWarningCountStore.get(paramKey);
+                kvWarningCountStore.put(paramKey, cnt + 1);
+            }
 
-            } else if ((param.getUpperWarningSpec() != null && paramValue >= param.getUpperWarningSpec())
-                    || (param.getLowerWarningSpec() != null && paramValue <= param.getLowerWarningSpec())) {
-                //warning
-                if (kvWarningCountStore.get(paramKey) == null) {
-                    kvWarningCountStore.put(paramKey, 1);
-                } else {
-                    int cnt = kvWarningCountStore.get(paramKey);
-                    kvWarningCountStore.put(paramKey, cnt + 1);
-                }
-
-                // time, param_rawid, health_rawid, vlaue, A/W, uas, uws, tgt, las, lws, fault_class
-                String sb = parseStringToTimestamp(recordColumns[0]) + "," +
-                        param.getParameterRawId() + "," +
-                        healthData.getParamHealthRawId() + ',' +
-                        paramValue + "," +
-                        "128" + "," +
-                        param.getUpperAlarmSpec() + "," +
-                        param.getUpperWarningSpec() + "," +
-                        param.getTarget() + "," +
-                        param.getLowerAlarmSpec() + "," +
-                        param.getLowerWarningSpec() + "," + "N/A";
+            // time, param_rawid, health_rawid, vlaue, A/W, uas, uws, tgt, las, lws, fault_class
+            String sb = parseStringToTimestamp(recordColumns[0]) + "," +
+                    param.getParameterRawId() + "," +
+                    healthData.getParamHealthRawId() + ',' +
+                    paramValue + "," +
+                    "128" + "," +
+                    param.getUpperAlarmSpec() + "," +
+                    param.getUpperWarningSpec() + "," +
+                    param.getTarget() + "," +
+                    param.getLowerAlarmSpec() + "," +
+                    param.getLowerWarningSpec() + "," + "N/A";
 
 //                    String mailText = "" + "\n" +
 //                            "- Equipment ID : " + paramKey + "\n" +
@@ -246,12 +254,11 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
 //
 //                    context().forward(partitionKey, mailText.getBytes(), "sendmail");
 
-                context().forward(partitionKey, sb.getBytes(), "output-fault");
+            context().forward(partitionKey, sb.getBytes(), "output-fault");
 
-                log.debug("[{}] - WARNING (UWL:{}, LWL:{}) - {}", paramKey,
-                        param.getUpperWarningSpec(), param.getLowerWarningSpec(), paramValue);
+            log.debug("[{}] - WARNING (UWL:{}, LWL:{}) - {}", paramKey,
+                    param.getUpperWarningSpec(), param.getLowerWarningSpec(), paramValue);
 
-            }
         }
     }
 
@@ -262,7 +269,6 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
 
         if (existAlarm(paramKey)) {
             // alarm
-
             int totalAlarmCount = 0;
             for (int i = 0; i < paramValues.size(); i++) {
                 Double paramValue = paramValues.get(i);
@@ -278,28 +284,10 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
                         }
                     }
 
+                    log.debug("[{}] - window : {} ", paramKey, slidingWindow.toArray());
+
                     if (alarmCount > outCount) {
                         totalAlarmCount++;
-
-                        // is alarm
-                        // time, param_rawid, health_rawid, vlaue, A/W, uas, uws, tgt, las, lws, fault_class
-                        String sb = ruleTime + "," +
-                                paramMaster.getParameterRawId() + "," +
-                                fd02HealthInfo.getParamHealthRawId() + ',' +
-                                paramValue + "," +
-                                "256" + "," +
-                                paramMaster.getUpperAlarmSpec() + "," +
-                                paramMaster.getUpperWarningSpec() + "," +
-                                paramMaster.getTarget() + "," +
-                                paramMaster.getLowerAlarmSpec() + "," +
-                                paramMaster.getLowerWarningSpec() + "," + "RULE.33";
-
-                        // to do : fault classifications
-
-                        context().forward(partitionKey, sb.getBytes(), "output-fault");
-
-                        log.debug("[{}] - ALARM by Rule (UWL:{}, LWL:{}) - {}", paramKey,
-                                paramMaster.getUpperWarningSpec(), paramMaster.getLowerWarningSpec(), paramValue);
                     }
                     // remove last one
                     slidingWindow.remove(0);
@@ -307,7 +295,27 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
                 // add new value
                 slidingWindow.add(paramValue);
             }
-            log.debug("[{}] - total alarm count : {}", paramKey, totalAlarmCount);
+
+            if(totalAlarmCount > 0){
+                // is alarm
+                // time, param_rawid, health_rawid, vlaue, A/W, uas, uws, tgt, las, lws, fault_class
+                String sb = ruleTime + "," +
+                        paramMaster.getParameterRawId() + "," +
+                        fd02HealthInfo.getParamHealthRawId() + ',' +
+                        totalAlarmCount + "," +
+                        "256" + "," +
+                        paramMaster.getUpperAlarmSpec() + "," +
+                        paramMaster.getUpperWarningSpec() + "," +
+                        paramMaster.getTarget() + "," +
+                        paramMaster.getLowerAlarmSpec() + "," +
+                        paramMaster.getLowerWarningSpec() + "," + "N/A";
+
+                // to do : fault classifications
+
+                context().forward(partitionKey, sb.getBytes(), "output-fault");
+
+                log.debug("[{}] - ALARM by Rule - {} counts.", paramKey, totalAlarmCount);
+            }
 
         } else if (existWarning(paramKey)) {
             // warning
@@ -328,23 +336,6 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
 
                     if (warningCount > outCount) {
                         totalWarningCount++;
-
-                        // is alarm
-                        // time, param_rawid, health_rawid, vlaue, A/W, uas, uws, tgt, las, lws, fault_class
-                        String sb = ruleTime + "," +
-                                paramMaster.getParameterRawId() + "," +
-                                fd02HealthInfo.getParamHealthRawId() + ',' +
-                                paramValue + "," +
-                                "128" + "," +
-                                paramMaster.getUpperAlarmSpec() + "," +
-                                paramMaster.getUpperWarningSpec() + "," +
-                                paramMaster.getTarget() + "," +
-                                paramMaster.getLowerAlarmSpec() + "," +
-                                paramMaster.getLowerWarningSpec() + "," + "RULE.33";
-
-                        // to do : fault classifications
-
-                        context().forward(partitionKey, sb.getBytes(), "output-fault");
                     }
                     // remove last one
                     slidingWindow.remove(0);
@@ -353,7 +344,26 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
                 slidingWindow.add(paramValue);
             }
 
-            log.debug("[{}] - total warning count : {}", paramKey, totalWarningCount);
+            if(totalWarningCount > 0){
+                // is alarm
+                // time, param_rawid, health_rawid, vlaue, A/W, uas, uws, tgt, las, lws, fault_class
+                String sb = ruleTime + "," +
+                        paramMaster.getParameterRawId() + "," +
+                        fd02HealthInfo.getParamHealthRawId() + ',' +
+                        totalWarningCount + "," +
+                        "128" + "," +
+                        paramMaster.getUpperAlarmSpec() + "," +
+                        paramMaster.getUpperWarningSpec() + "," +
+                        paramMaster.getTarget() + "," +
+                        paramMaster.getLowerAlarmSpec() + "," +
+                        paramMaster.getLowerWarningSpec() + "," + "N/A";
+
+                // to do : fault classifications
+
+                context().forward(partitionKey, sb.getBytes(), "output-fault");
+                log.debug("[{}] - WARNING by Rule - {} counts.", paramKey, totalWarningCount);
+            }
+
         } else {
             log.debug("{} is normal.", paramKey);
         }
