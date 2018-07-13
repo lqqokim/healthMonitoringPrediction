@@ -178,12 +178,19 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
                             console.log('results', results);
                             let alarmDatas = [];
                             let warningDatas = [];
+                            let promiseResult = [];
 
                             for (let i = 0; i < results.length; i++) {
+                                if (results[i].chartData !== null) {
+                                    promiseResult.push(results[i]);
+                                }
+                            }
+
+                            for (let i = 0; i < promiseResult.length; i++) {
                                 if (results[i].type === "alarm") {
-                                    alarmDatas.push(results[i]);
+                                    alarmDatas.push(promiseResult[i]);
                                 } else if (results[i].type === "warning") {
-                                    warningDatas.push(results[i]);
+                                    warningDatas.push(promiseResult[i]);
                                 }
                             }
 
@@ -390,7 +397,7 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
                     return Promise.resolve(alarmWarningData);
                 } else {
                     let data = {};
-                    if(eqp.type === 'Alarm') {
+                    if (eqp.type === 'Alarm') {
                         data = {
                             type: 'alarm',
                             id: eqp.eqpId,
@@ -401,7 +408,7 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
                             options: options,
                             areaId: eqp.area_id
                         };
-                    } else if(eqp.type === 'Warning') {
+                    } else if (eqp.type === 'Warning') {
                         data = {
                             type: 'warning',
                             id: eqp.eqpId,
@@ -434,15 +441,25 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
                     Promise.all(promises)
                         .then((results) => {
                             console.log('NW results', results);
-                            const resultLength = results.length;
 
-                            if (resultLength && resultLength < 5) {
-                                for (let i = 0; i < 5 - resultLength; i++) {
-                                    results.push({ type: '', name: '', duration: '', problemreason: '', chartData: null, options: null, areaId: null });
+                            let promiseResult = [];
+
+                            for (let i = 0; i < results.length; i++) {
+                                if (results[i].chartData !== null) {
+                                    promiseResult.push(results[i]);
                                 }
                             }
 
-                            this.B5Datas = results;
+
+                            const resultLength = promiseResult.length;
+
+                            if (resultLength && resultLength < 5) {
+                                for (let i = 0; i < 5 - resultLength; i++) {
+                                    promiseResult.push({ type: '', name: '', duration: '', problemreason: '', chartData: null, options: null, areaId: null });
+                                }
+                            }
+
+                            this.B5Datas = promiseResult;
                             // console.log("B5Datas", results);
                         }).catch((e) => {
 
@@ -460,7 +477,7 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
             });
     }
 
-    _getNWRadars(eqp: any): Promise<any> | any{
+    _getNWRadars(eqp: any): Promise<any> | any {
         let NWData: any = {};
         let options: any = this.getChartOption();
         let details: any = {};
