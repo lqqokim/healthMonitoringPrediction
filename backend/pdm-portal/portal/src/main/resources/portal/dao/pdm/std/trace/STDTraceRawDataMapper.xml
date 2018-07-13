@@ -276,6 +276,7 @@
         values (seq_trace_raw_trx_pdm.nextval, #{measure_trx_id,jdbcType=NUMERIC},#{param_id},#{bin_data_type_cd,jdbcType=CHAR},#{end_freq,jdbcType=NUMERIC},#{sampling_time,jdbcType=NUMERIC},#{binary,jdbcType=BLOB},#{measure_dtts},#{reserved_col1},#{reserved_col2},#{reserved_col3},#{reserved_col4},#{reserved_col5})
 
     </insert>
+    <!-- TODO: Chris overall_minute_trx_pdm 테이블 없음 -->
     <select id="selectSpecOutMeasureTrxId" resultType="java.util.HashMap">
         SELECT *
         FROM trace_trx_pdm ,
@@ -297,7 +298,7 @@
         AND trace_trx_pdm.MEASURE_DTTS = specout_date_data.specout_date
         ORDER BY measure_dtts
     </select>
-    <select id="selectWarningRateMeasureTrxId" resultType="java.util.HashMap">
+    <select id="selectWarningRateMeasureTrxId" resultType="java.util.HashMap" databaseId="oracle">
         <!--SELECT *-->
         <!--FROM trace_trx_pdm ,-->
         <!--(SELECT MIN(measure_dtts) specout_date-->
@@ -379,11 +380,71 @@
         WHERE
                 trace_raw_trx_pdm.param_mst_rawid = #{param_id}
         AND   trace_raw_trx_pdm.event_dtts = specout_date_data.specout_date
-        ORDER BY
-                event_dtts
-
-
+        ORDER BY event_dtts
     </select>
+    <select id="selectWarningRateMeasureTrxId" resultType="java.util.HashMap" databaseId="postgresql">
+		SELECT
+            RAWID,
+            PARAM_MST_RAWID,
+            TRACE_TRX_RAWID,
+            DATA_TYPE_CD,
+            MAX_FREQ,
+            FREQ_COUNT,
+            RPM,
+            SAMPLING_TIME,
+            EVENT_DTTS,
+            RESERVED_COL1,
+            RESERVED_COL2,
+            RESERVED_COL3,
+            RESERVED_COL4,
+            RESERVED_COL5
+        FROM
+                trace_raw_trx_pdm,
+        (
+           select
+           *
+           from
+           (
+              SELECT
+           meas.event_dtts specout_date
+              FROM
+                trace_raw_trx_pdm meas,
+              (
+                 SELECT
+                 trx.param_mst_rawid,
+                 trx.event_dtts
+                 FROM
+                trace_trx_pdm trx,
+                 trace_spec_mst_pdm spec
+                 WHERE trx.param_mst_rawid =#{param_id}
+                 AND trx.param_mst_rawid = spec.param_mst_rawid
+                 AND trx.event_dtts <![CDATA[>=]]> #{start}
+                 AND trx.event_dtts <![CDATA[<]]> #{end}
+                 AND trx.value      >  case when trx.warning_spec is not null then trx.warning_spec - abs
+                 (
+                    trx.warning_spec
+                 )
+                 *
+                 (
+                    1- #{rate}
+                 )
+                 else spec.warning_spec -abs(spec.warning_spec)*(1-#{rate}) end
+              )
+              specout
+              WHERE
+                meas.param_mst_rawid = specout.param_mst_rawid
+              AND   meas.event_dtts <![CDATA[>=]]>  specout.event_dtts
+              AND   meas.event_dtts <![CDATA[<]]> #{end}
+                ) zzz
+           limit 2
+        )
+        specout_date_data
+        WHERE
+                trace_raw_trx_pdm.param_mst_rawid = #{param_id}
+        AND   trace_raw_trx_pdm.event_dtts = specout_date_data.specout_date
+        ORDER BY event_dtts
+    </select>
+    
 
     <select id="selectMeasureTrxWithSpec" resultType="com.bistel.a3.portal.domain.pdm.db.MeasureTrx">
         select *
@@ -447,14 +508,10 @@
         where
         b.bin_data_type = #{data_type}
         and b.measure_trx_id = #{measure_trx_id}
-
-
-
-
     </select>
 
-
-    <select id="selectSampleTraceRawClosedTimeWithCurrentASC" resultType="com.bistel.a3.portal.domain.pdm.db.MeasureTrx">
+	<!-- TODO: Chris 실행 안됨 -->
+    <select id="selectSampleTraceRawClosedTimeWithCurrentASC" resultType="com.bistel.a3.portal.domain.pdm.db.MeasureTrx" databaseId="oracle">
         select rawid, problem_data_rawid, measure_trx_id, to_timestamp(concat('1970-01-01',measure_dtts)), value, end_freq, spectra_line, rpm
         from
         (

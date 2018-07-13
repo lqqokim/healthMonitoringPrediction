@@ -51,6 +51,7 @@
         where a.rawid = #{paramId}
     </select>
 
+	<!-- TODO: Chris: 실행되지 않는 코드 -->
     <select id="selectSpeedParam" resultType="com.bistel.a3.portal.domain.pdm.db.Param">
         select
             a.eqp_mst_rawid as eqp_id, b.name as eqp_name,
@@ -65,13 +66,19 @@
           and a.param_type = 10001
     </select>
 
-    <insert id="insertOne">
+    <insert id="insertOne" databaseId="oracle">
         <selectKey keyProperty="param_id" resultType="Long" order="BEFORE">
             select seq_param_mst_pdm.nextval FROM DUAL
         </selectKey>
         insert into param_mst_pdm(rawid, eqp_mst_rawid, name, description, param_type_cd,unit_cd,parts_mst_rawid,create_by,create_dtts,update_by,update_dtts)
         values(#{param_id,jdbcType=VARCHAR}, #{eqp_id}, #{name,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, #{param_type_cd,jdbcType=VARCHAR}, #{unit_cd,jdbcType=VARCHAR},#{parts_id,jdbcType=NUMERIC},#{userName},systimestamp,#{userName},systimestamp)
-
+    </insert>
+    <insert id="insertOne" databaseId="postgresql">
+        <selectKey keyProperty="param_id" resultType="Long" order="BEFORE">
+            select nextval('seq_param_mst_pdm')
+        </selectKey>
+        insert into param_mst_pdm(rawid, eqp_mst_rawid, name, description, param_type_cd,unit_cd,parts_mst_rawid,create_by,create_dtts,update_by,update_dtts)
+        values(#{param_id,jdbcType=VARCHAR}, #{eqp_id}, #{name,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, #{param_type_cd,jdbcType=VARCHAR}, #{unit_cd,jdbcType=VARCHAR},#{parts_id,jdbcType=NUMERIC},#{userName},systimestamp,#{userName},systimestamp)
     </insert>
 
     <!--20180328 Allen-->
@@ -226,10 +233,12 @@
         spec.alarm_spec as alarm,
         spec.warning_spec as warn
 
-        from param_mst_pdm a
-        join eqp_mst_pdm e on a.eqp_mst_rawid = e.rawid
-        left join trace_spec_mst_pdm spec on spec.param_mst_rawid = a.rawid
-        left join parts_mst_pdm parts on parts.rawid = a.parts_mst_rawid
+        from param_mst_pdm a join eqp_mst_pdm e 
+        on a.eqp_mst_rawid = e.rawid
+        left join trace_spec_mst_pdm spec 
+        on spec.param_mst_rawid = a.rawid
+        left join parts_mst_pdm parts 
+        on parts.rawid = a.parts_mst_rawid
         where a.rawid = #{param_id}
     </select>
     <select id="selectParamWtihInfoByEqp" resultType="com.bistel.a3.portal.domain.pdm.master.ParamWithCommon">
@@ -247,10 +256,12 @@
         spec.alarm_spec as alarm,
         spec.warning_spec as warn
 
-        from param_mst_pdm a
-        join eqp_mst_pdm e on a.eqp_mst_rawid = e.rawid
-        left join trace_spec_mst_pdm spec on spec.param_mst_rawid = a.rawid
-        left join parts_mst_pdm parts on parts.rawid = a.parts_mst_rawid
+        from param_mst_pdm a join eqp_mst_pdm e 
+        on a.eqp_mst_rawid = e.rawid
+        left join trace_spec_mst_pdm spec 
+        on spec.param_mst_rawid = a.rawid
+        left join parts_mst_pdm parts 
+        on parts.rawid = a.parts_mst_rawid
 
         where a.eqp_mst_rawid = #{eqp_id}
         <!--<if test="eu_type != null">-->

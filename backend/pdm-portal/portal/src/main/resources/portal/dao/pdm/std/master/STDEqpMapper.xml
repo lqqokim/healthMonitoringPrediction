@@ -7,12 +7,11 @@
             a.description,
             a.image as binary,
             b.name as data_type
-        from eqp_mst_pdm a,code_mst_pdm b
-        where a.data_type_cd = b.code (+)
+        from eqp_mst_pdm a left outer join code_mst_pdm b
+        on a.data_type_cd = b.code
         <if test="areaId != null">
-            and area_mst_rawid = #{areaId}
+            where area_mst_rawid = #{areaId}
         </if>
-
         order by a.name
     </select>
 
@@ -22,8 +21,9 @@
         a.description,
         <!--a.image,-->
         b.name as data_type
-        from eqp_mst_pdm a,code_mst_pdm b
-        where a.data_type_cd = b.code (+)
+        from eqp_mst_pdm a left outer join code_mst_pdm b
+        on a.data_type_cd = b.code
+        where 1=1
         <if test="areaId != null">
             and area_mst_rawid = #{areaId}
         </if>
@@ -37,8 +37,9 @@
         a.description,
         <!--a.image,-->
         b.name as data_type
-        from eqp_mst_pdm a,code_mst_pdm b
-        where a.data_type_cd = b.code (+)
+        from eqp_mst_pdm a left outer join code_mst_pdm b
+        on a.data_type_cd = b.code
+        where 1=1
         <if test="areaId != null">
             and area_mst_rawid = #{areaId}
         </if>
@@ -60,11 +61,10 @@
         select a.rawid as eqp_id,
         a.name,
         a.description,
-
         b.name as data_type
-        from eqp_mst_pdm a,code_mst_pdm b
-        where a.data_type_cd = b.code (+)
-        and a.name in(
+        from eqp_mst_pdm a left outer join code_mst_pdm b
+        on a.data_type_cd = b.code
+        where a.name in(
         'Demo101','Demo102','Demo103','Demo104','Demo105','Demo106','Demo107','Demo108',
         'Demo109','Demo110','Demo111','Demo112','Demo113','Demo114','Demo115','Demo116',
         'Demo117','Demo118','Demo119','Demo120','Demo121','Demo122','Demo123','Demo124',
@@ -87,9 +87,9 @@
         a.description,
 
         b.name as data_type
-        from eqp_mst_pdm a,code_mst_pdm b
-        where a.data_type_cd = b.code (+)
-        and a.name in(
+        from eqp_mst_pdm a left outer join code_mst_pdm b
+        on a.data_type_cd = b.code
+        where a.name in(
         'Demo201','Demo202','Demo203','Demo204','Demo205','Demo206','Demo207','Demo208',
         'Demo209','Demo210','Demo211','Demo212','Demo213','Demo214','Demo215','Demo216',
         'Demo217','Demo218','Demo219','Demo220','Demo221','Demo222','Demo223','Demo224',
@@ -110,11 +110,10 @@
         select a.rawid as eqp_id,
         a.name,
         a.description,
-
         b.name as data_type
-        from eqp_mst_pdm a,code_mst_pdm b
-        where a.data_type_cd = b.code (+)
-        and a.name in(
+        from eqp_mst_pdm a left outer join code_mst_pdm b
+        on a.data_type_cd = b.code
+        where a.name in(
         'Demo301','Demo302','Demo303','Demo304','Demo305','Demo306','Demo307','Demo308',
         'Demo309','Demo310','Demo311','Demo312','Demo313','Demo314','Demo315','Demo316',
         'Demo317','Demo318','Demo319','Demo320','Demo321','Demo322','Demo323','Demo324',
@@ -138,9 +137,9 @@
         a.description,
 
         b.name as data_type
-        from eqp_mst_pdm a,code_mst_pdm b
-        where a.data_type_cd = b.code (+)
-        and a.name in(
+        from eqp_mst_pdm a left outer join code_mst_pdm b
+        on a.data_type_cd = b.code
+        where a.name in(
         'Demo401','Demo402','Demo403','Demo404','Demo405','Demo406','Demo407','Demo408',
         'Demo409','Demo410','Demo411','Demo412','Demo413','Demo414','Demo415','Demo416',
         'Demo417','Demo418','Demo419','Demo420','Demo421','Demo422','Demo423','Demo424',
@@ -157,17 +156,15 @@
         order by a.name
     </select>
 
-
-
-
     <select id="selectList9" resultType="com.bistel.a3.portal.domain.pdm.master.EqpWithEtc">
         select a.rawid as eqp_id,
         a.name,
         a.description,
         <!--a.image,-->
         b.name as data_type
-        from eqp_mst_pdm a,code_mst_pdm b
-        where a.data_type_cd = b.code (+)
+        from eqp_mst_pdm a left outer join code_mst_pdm b
+        on a.data_type_cd = b.code
+        where 1=1
         <if test="areaId != null">
             and area_mst_rawid = #{areaId}
         </if>
@@ -182,8 +179,9 @@
         a.description,
         <!--a.image,-->
         b.name as data_type
-        from eqp_mst_pdm a,code_mst_pdm b
-        where a.data_type_cd = b.code (+)
+        from eqp_mst_pdm a left outer join code_mst_pdm b
+        on a.data_type_cd = b.code
+        where 1=1
         <if test="areaId != null">
             and area_mst_rawid = #{areaId}
         </if>
@@ -208,10 +206,10 @@
         a.description,
 
         b.name as data_type
-        from eqp_mst_pdm a,code_mst_pdm b
-        where a.data_type_cd = b.code (+)
+        from eqp_mst_pdm a left outer join code_mst_pdm b
+        on a.data_type_cd = b.code
 
-        and regexp_like(a.name,'^Demo')
+        where regexp_like(a.name,'^Demo')
 
         order by a.name
     </select>
@@ -225,14 +223,23 @@
             a.image as binary,
             a.data_type_cd,
             b.name as data_type
-        from eqp_mst_pdm a,code_mst_pdm b
-        where a.data_type_cd = b.code(+)
-            and a.rawid = #{eqpId}
+        from eqp_mst_pdm a left outer join code_mst_pdm b
+        on a.data_type_cd = b.code
+        where a.rawid = #{eqpId}
     </select>
 
-    <insert id="insertOne">
+    <insert id="insertOne" databaseId="oracle">
         <selectKey keyProperty="eqp_id" resultType="Long" order="BEFORE">
             select seq_eqp_mst_pdm.nextval FROM DUAL
+        </selectKey>
+        insert into eqp_mst_pdm(rawid, name, description,data_type_cd, area_mst_rawid,image,create_by,create_dtts,update_by,update_dtts)
+        values(#{eqp_id}, #{name,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR},#{data_type_cd,jdbcType=VARCHAR}, #{area_id, jdbcType=DOUBLE}
+        ,#{binary, jdbcType=BLOB},#{userName, jdbcType=VARCHAR},systimestamp,#{userName,jdbcType=VARCHAR},systimestamp)
+    </insert>
+
+    <insert id="insertOne" databaseId="postgresql">
+        <selectKey keyProperty="eqp_id" resultType="Long" order="BEFORE">
+            select nextval('seq_eqp_mst_pdm')
         </selectKey>
         insert into eqp_mst_pdm(rawid, name, description,data_type_cd, area_mst_rawid,image,create_by,create_dtts,update_by,update_dtts)
         values(#{eqp_id}, #{name,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR},#{data_type_cd,jdbcType=VARCHAR}, #{area_id, jdbcType=DOUBLE}
@@ -290,9 +297,9 @@
             a.description,
             a.image,
             b.name as data_type
-        from eqp_mst_pdm a,code_mst_pdm b
-        where a.data_type_cd = b.code(+)
-        and a.eqp_id = #{eqpId}
+        from eqp_mst_pdm a left outer join code_mst_pdm b
+        on a.data_type_cd = b.code
+        where a.eqp_id = #{eqpId}
 
     </select>
 
@@ -327,11 +334,11 @@
         a.description,
         <!--a.image,-->
         b.name as data_type
-        from eqp_mst_pdm a,code_mst_pdm b
-        where a.data_type_cd = b.code(+)
+        from eqp_mst_pdm a left outer join code_mst_pdm b
+        on a.data_type_cd = b.code
 
     </select>
-    <select id="selectEqpsByArea" resultType="com.bistel.a3.portal.domain.pdm.EqpWithArea">
+    <select id="selectEqpsByArea" resultType="com.bistel.a3.portal.domain.pdm.EqpWithArea" databaseId="oracle">
         <!--select a.*, GET_AREA_FULL_NAME(a.eqp_id) as shopName-->
         <!--from eqp_pdm a-->
         <!--where area_id in (-->
@@ -359,5 +366,29 @@
         )
         order by area_mst_rawid
     </select>
-
+    <select id="selectEqpsByArea" resultType="com.bistel.a3.portal.domain.pdm.EqpWithArea" databaseId="postgresql">
+		SELECT
+			a.rawid as eqp_id,
+			a.name,
+			a.description,
+			a.area_mst_rawid as area_id,
+			a.data_type_cd
+		FROM eqp_mst_pdm a
+		WHERE area_mst_rawid in
+		(
+		    WITH RECURSIVE q AS (
+		    SELECT area.*
+		    FROM area_mst_pdm area
+		    WHERE area.parent_rawid = 0
+		    UNION ALL
+		    SELECT area.*
+		    FROM area_mst_pdm area
+		    JOIN q ON q.rawid=area.parent_rawid
+		    )
+		    SELECT qq.rawid as rawid
+			FROM q qq
+			WHERE (SELECT COUNT(*) FROM area_mst_pdm WHERE parent_rawid = qq.rawid) = 0
+		)
+		ORDER BY area_mst_rawid
+    </select>
 </mapper>

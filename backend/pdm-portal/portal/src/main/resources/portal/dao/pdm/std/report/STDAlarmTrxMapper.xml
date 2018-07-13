@@ -5,7 +5,7 @@
         insert into alarm_trx_pdm(rawid,param_mst_rawid, alarm_dtts, alarm_type_cd, value, alarm_spec, warning_spec)
         values(seq_alarm_trx_pdm.nextval, #{param_id}, #{alarm_dtts}, #{status_cd}, #{value}, #{alarm}, #{warn})
     </insert>
-    <insert id="insertEqpAlarm">
+    <insert id="insertEqpAlarm" databaseId="oracle">
         insert into eqp_alarm_daily_sum_pdm(rawid,eqp_mst_rawid, sum_dtts, status_cd, value,create_by,create_dtts)
         select seq_eqp_alarm_daily_sum_pdm.nextval, a.eqp_id, b.alarm_dtts, a.alarm_type_cd, a.value,#{userName},systimestamp
         from (
@@ -41,6 +41,44 @@
         and a.alarm_type_cd = b.alarm_type_cd
         and a.value = b.value
     </insert>
+    <insert id="insertEqpAlarm" databaseId="postgresql">
+  		insert into eqp_alarm_daily_sum_pdm(rawid,eqp_mst_rawid, sum_dtts, status_cd, value,create_by,create_dtts)
+        select nextval('seq_eqp_alarm_daily_sum_pdm'), a.eqp_id, b.alarm_dtts, a.alarm_type_cd, a.value,#{userName}, LOCALTIMESTAMP
+        from (
+        select
+        <!--seq_eqp_alarm_daily_sum_pdm.nextval,-->
+        eqp.rawid as eqp_id,
+        a.alarm_type_cd,
+        max(a.value/a.alarm_spec) as value
+        from alarm_trx_pdm a
+        join param_mst_pdm b on a.param_mst_rawid = b.rawid
+        join eqp_mst_pdm eqp on eqp.rawid = b.eqp_mst_rawid
+        where b.eqp_mst_rawid = #{eqpId}
+        and a.alarm_dtts <![CDATA[>=]]> #{start}
+        and a.alarm_dtts <![CDATA[<]]> #{end}
+        <!--and a.alarm is not null and a.lvl is null-->
+        group by eqp.rawid, a.alarm_type_cd
+        ) a join (
+        select
+        <!--seq_eqp_alarm_daily_sum_pdm.nextval,-->
+        eqp.rawid as eqp_id,
+        a.alarm_type_cd,
+        a.value/a.alarm_spec as value,
+        max(a.alarm_dtts) as alarm_dtts
+        from alarm_trx_pdm a
+        join param_mst_pdm b on a.param_mst_rawid = b.rawid
+        join eqp_mst_pdm eqp on eqp.rawid = b.eqp_mst_rawid
+        where b.eqp_mst_rawid = #{eqpId}
+        and a.alarm_dtts <![CDATA[>=]]> #{start}
+        and a.alarm_dtts <![CDATA[<]]> #{end}
+        <!--and a.alarm is not null and a.lvl is null-->
+        group by eqp.rawid, a.alarm_type_cd, a.value/a.alarm_spec
+        ) b on a.eqp_id = b.eqp_id
+        and a.alarm_type_cd = b.alarm_type_cd
+        and a.value = b.value
+    </insert>
+    
+    
     <delete id="deleteAlarm">
         delete from alarm_trx_pdm
         where param_mst_rawid = #{param_id}

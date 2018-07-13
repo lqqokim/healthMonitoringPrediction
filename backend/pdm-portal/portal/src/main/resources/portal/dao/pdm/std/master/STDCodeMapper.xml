@@ -134,10 +134,30 @@
         select distinct category from code_mst_pdm order by category
     </select>
 
-<!--Allen 2018-04-13 -->
-    <insert id="insertSTDCode">
+	<!--Allen 2018-04-13 -->
+    <insert id="insertSTDCode" databaseId="oracle">
         <selectKey resultType="Long" keyProperty="rawId" order="BEFORE">
             select seq_code_mst_pdm.nextval from dual
+        </selectKey>
+        insert into code_mst_pdm(rawId,category,code,name,used_yn,default_yn,ordering,description,create_by,create_dtts,update_by,update_dtts)
+        values(
+        #{rawId},
+        #{category},
+        #{code},
+        #{name},
+        #{used_yn, typeHandler=yn},
+        #{default_yn, typeHandler=yn},
+        #{ordering},
+        #{description},
+        #{create_by},
+        SYSDATE,
+        #{update_by},
+        SYSDATE
+        )
+    </insert>
+    <insert id="insertSTDCode" databaseId="postgresql">
+        <selectKey resultType="Long" keyProperty="rawId" order="BEFORE">
+            select nextval('seq_code_mst_pdm')
         </selectKey>
         insert into code_mst_pdm(rawId,category,code,name,used_yn,default_yn,ordering,description,create_by,create_dtts,update_by,update_dtts)
         values(
