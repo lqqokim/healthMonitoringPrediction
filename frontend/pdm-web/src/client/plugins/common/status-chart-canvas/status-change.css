@@ -1,4 +1,4 @@
-status-change { display:block; width:100%; user-select:none; }
+status-change { display:block; width:100%; user-select:none; position:relative; }
 status-change > canvas { display:block; }
 status-change > .sc-infoBox {
     position: absolute;
