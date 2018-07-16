@@ -103,6 +103,9 @@ public class TrendChangeProcessor extends AbstractProcessor<String, byte[]> {
             }
 
             List<Double> doubleValueList = paramValueList.get(paramKey);
+            if(doubleValueList == null) {
+                log.debug("[{}] - skip first time...", paramKey);
+            }
             log.debug("[{}] - data size : {}", paramKey, doubleValueList.size());
 
             DescriptiveStatistics stats = new DescriptiveStatistics();

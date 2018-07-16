@@ -84,6 +84,9 @@ public class PredictRULProcessor extends AbstractProcessor<String, byte[]> {
             }
 
             List<String> doubleValueList = paramValueList.get(paramKey); // (time, value)
+            if(doubleValueList == null) {
+                log.debug("[{}] - skip first time...", paramKey);
+            }
             log.debug("[{}] - data size : {}", paramKey, doubleValueList.size());
 
             // linear regression
