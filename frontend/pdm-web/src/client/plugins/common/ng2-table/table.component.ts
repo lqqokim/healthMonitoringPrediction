@@ -192,7 +192,9 @@ export class TableComponent implements OnInit, OnChanges, OnDestroy {
         filteredData.forEach((item:any) => {
             let flag = false;
             this.columns.forEach((column:any) => {
-                if (item[column.name].toString().match(this.config.filtering.filterString)) {
+                if( typeof(item[column.name]) !== 'string' || item[column.name] === null ){
+                    flag = false;
+                } else if (item[column.name].toString().match(this.config.filtering.filterString)) {
                     flag = true;
                 }
             });
