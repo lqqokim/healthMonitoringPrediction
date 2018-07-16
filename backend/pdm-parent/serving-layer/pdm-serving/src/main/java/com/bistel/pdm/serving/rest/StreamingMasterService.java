@@ -24,8 +24,8 @@ import java.util.List;
 @Singleton
 @Path("/master")
 @Produces(MediaType.APPLICATION_JSON)
-public class StreamingMasterData {
-    private static final Logger log = LoggerFactory.getLogger(StreamingMasterData.class);
+public class StreamingMasterService {
+    private static final Logger log = LoggerFactory.getLogger(StreamingMasterService.class);
 
     @GET
     @Path("/latest/equipment")

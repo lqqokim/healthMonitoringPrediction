@@ -49,31 +49,15 @@ public class BatchTraceTaskDef extends AbstractPipeline {
     private KafkaStreams processStreams() {
         final Topology topology = new Topology();
 
-//        StoreBuilder<WindowStore<String, Double>> fd02StoreSupplier =
-//                Stores.windowStoreBuilder(
-//                        Stores.persistentWindowStore("fd02-value-store",
-//                                TimeUnit.HOURS.toMillis(24),
-//                                1,
-//                                TimeUnit.MINUTES.toMillis(10),
-//                                true),
-//                        Serdes.String(),
-//                        Serdes.Double());
-
-//        StoreBuilder<KeyValueStore<String, byte[]>> fd02RuleDataStoreSupplier =
-//                Stores.keyValueStoreBuilder(
-//                        Stores.persistentKeyValueStore("fd02-rule-window"),
-//                        Serdes.String(),
-//                        Serdes.ByteArray());
-
         StoreBuilder<KeyValueStore<String, String>> statusContextStoreSupplier =
                 Stores.keyValueStoreBuilder(
-                        Stores.persistentKeyValueStore("status-context"),
+                        Stores.persistentKeyValueStore("batch-status-context"),
                         Serdes.String(),
                         Serdes.String());
 
         StoreBuilder<WindowStore<String, Double>> summaryWindowStoreSupplier =
                 Stores.windowStoreBuilder(
-                        Stores.persistentWindowStore("summary-window",
+                        Stores.persistentWindowStore("batch-feature-summary",
                                 TimeUnit.DAYS.toMillis(1),
                                 24,
                                 TimeUnit.HOURS.toMillis(1),
@@ -83,9 +67,29 @@ public class BatchTraceTaskDef extends AbstractPipeline {
 
         StoreBuilder<KeyValueStore<String, Long>> summaryIntervalStoreSupplier =
                 Stores.keyValueStoreBuilder(
-                        Stores.persistentKeyValueStore("summary-interval"),
+                        Stores.persistentKeyValueStore("batch-summary-interval"),
                         Serdes.String(),
                         Serdes.Long());
+
+        StoreBuilder<WindowStore<String, Double>> fd03WindowStoreSupplier =
+                Stores.windowStoreBuilder(
+                        Stores.persistentWindowStore("batch-fd03-feature-data",
+                                TimeUnit.DAYS.toMillis(8),
+                                24,
+                                TimeUnit.DAYS.toMillis(7),
+                                true),
+                        Serdes.String(),
+                        Serdes.Double());
+
+        StoreBuilder<WindowStore<String, String>> fd04WindowStoreSupplier =
+                Stores.windowStoreBuilder(
+                        Stores.persistentWindowStore("batch-fd04-feature-data",
+                                TimeUnit.DAYS.toMillis(8),
+                                24,
+                                TimeUnit.DAYS.toMillis(7),
+                                true),
+                        Serdes.String(),
+                        Serdes.String());
 
         topology.addSource("input-trace", this.getInputTraceTopic())
                 .addProcessor("batch01", FilterByMasterProcessor::new, "input-trace")
@@ -94,12 +98,16 @@ public class BatchTraceTaskDef extends AbstractPipeline {
                 .addProcessor("batch03", AggregateFeatureProcessor::new, "batch02")
                 .addStateStore(summaryWindowStoreSupplier, "batch03")
                 .addStateStore(summaryIntervalStoreSupplier, "batch03")
-                .addSink("output-feature", this.getOutputFeatureTopic(), "batch03");
-                //.addSink("route-feature", this.getRouteFeatureTopic(), "batch03");
+                .addSink("output-feature", this.getOutputFeatureTopic(), "batch03")
+                .addSink("route-feature", this.getRouteFeatureTopic(), "batch03");
 
-//        topology.addSource("input-feature", this.getRouteFeatureTopic())
-//                .addProcessor("fd02", DetectByRuleProcessor::new, "input-feature")
-//                .addSink("output-fault", this.getOutputFaultTopic());
+        topology.addSource("input-feature", this.getRouteFeatureTopic())
+                .addProcessor("fd03", TrendChangeProcessor::new, "input-feature")
+                .addStateStore(fd03WindowStoreSupplier, "fd03")
+                .addProcessor("fd04", PredictRULProcessor::new, "input-feature")
+                .addStateStore(fd04WindowStoreSupplier, "fd04")
+                .addSink("output-health-fd03", this.getOutputHealthTopic(), "fd03")
+                .addSink("output-health-fd04", this.getOutputHealthTopic(), "fd04");
 
         return new KafkaStreams(topology, getStreamProperties());
     }
