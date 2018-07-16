@@ -27,8 +27,8 @@ public abstract class AbstractPipeline implements Closeable {
     private final String outputTimewaveTopic = "pdm-output-raw";
     private final String outputFeatureTopic = "pdm-output-feature";
     private final String outputFaultTopic = "pdm-output-fault";
+    private final String outputHealthTopic = "pdm-output-health";
 
-    private final String routeTraceRunTopic = "pdm-route-run";
     private final String routeFeatureTopic = "pdm-route-feature";
 
     /**
@@ -115,15 +115,15 @@ public abstract class AbstractPipeline implements Closeable {
         return outputFaultTopic;
     }
 
+    public String getOutputHealthTopic() {
+        return outputHealthTopic;
+    }
+
     public String getRouteFeatureTopic() {
         return routeFeatureTopic;
     }
 
     public String getSchemaRegistryUrl() {
         return schemaRegistryUrl;
-    }
-
-    public String getRouteTraceRunTopic() {
-        return routeTraceRunTopic;
     }
 }
