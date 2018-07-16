@@ -1628,9 +1628,9 @@
         ) offlines
 
         where 1=1
-        and offlines.groupdate=total.groupdate
-        and total.groupdate=warning.groupdate
-        and warning.groupdate=alarm.groupdate
+        and offlines.groupdate(+)=total.groupdate
+        and total.groupdate(+)=warning.groupdate
+        and warning.groupdate(+)=alarm.groupdate
     </select>
 	<select id="selectLineStatusTrend" resultType="com.bistel.a3.portal.domain.pdm.AreaFaultCountSummary" databaseId="postgresql">
 		SELECT total.groupdate AS day,
@@ -1876,9 +1876,9 @@
         ) offlines
 
         where 1=1
-        and offlines.groupdate=total.groupdate
-        and total.groupdate=warning.groupdate
-        and warning.groupdate=alarm.groupdate
+        and offlines.groupdate(+)=total.groupdate
+        and total.groupdate(+)=warning.groupdate
+        and warning.groupdate(+)=alarm.groupdate
 
 
     </select>
