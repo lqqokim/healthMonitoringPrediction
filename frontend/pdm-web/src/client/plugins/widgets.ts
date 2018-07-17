@@ -21,6 +21,7 @@ import { PdmGaugeWidgetModule } from './widgets/pdm-gauge/pdm-gauge-widget.modul
 import { PdmAlarmClassSummaryModule } from './widgets/pdm-alarm-class-summary/pdm-alarm-class-summary.module';
 import { PdmAlarmHistoryModule } from './widgets/pdm-alarm-history/pdm-alarm-history.module';
 import { PdmEqpHealthIndexModule } from './widgets/pdm-eqp-health-index/pdm-eqp-health-index.module';
+import { PdmSpectrumDataAnalysisWidgetModule } from './widgets/pdm-spectrum-data-analysis/pdm-spectrum-data-analysis-widget.module';
 
 export const getWidgetClassInfo = (widgetName: string): any => {
     console.log('getWidgetClassInfo => ', widgetName);
@@ -48,7 +49,7 @@ export const getWidgetClassInfo = (widgetName: string): any => {
         case 'pdmRealTimeMain':
             return PdmRealTimeMainModule;
         case 'pdmRealTimeParamTrend':
-            return PdmRealTimeParamTrendModule;            
+            return PdmRealTimeParamTrendModule;
         case 'pdmFabMonitoring':
             return PdmFabMonitoringModule;
         case 'pdmWorstEqpList':
@@ -71,6 +72,8 @@ export const getWidgetClassInfo = (widgetName: string): any => {
             return PdmAlarmHistoryModule;
         case 'pdmEqpHealthIndex':
             return PdmEqpHealthIndexModule;
+        case 'pdmSpectrumDataAnalysis':
+            return PdmSpectrumDataAnalysisWidgetModule;
         default:
             // TODO: change Module Empty chart
             return PdmAreaStatusOverviewModule;

@@ -24,13 +24,16 @@ import { LineChartComponent }  from './line-chart/line-chart.component';
 import { Ng2C3Component } from './ng2-c3/ng2-c3.component';
 import { GaugeChartComponent } from './gauge-chart/gaugeChart.component';
 
+import { PlotlyModule } from 'angular-plotly.js';
+
 @NgModule({
     imports: [
         BISTEL_SDKModule,
         A3_CommonModule,
         FormsModule,
         // TreeModule,
-        Ng2TableModule
+        Ng2TableModule,
+        PlotlyModule
     ],
     declarations: [
         ModelingTreeComponent,
