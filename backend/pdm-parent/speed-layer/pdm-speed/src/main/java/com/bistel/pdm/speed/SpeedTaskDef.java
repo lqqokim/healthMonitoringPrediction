@@ -57,13 +57,13 @@ public class SpeedTaskDef extends AbstractPipeline {
 
         StoreBuilder<KeyValueStore<String, String>> statusStoreSupplier =
                 Stores.keyValueStoreBuilder(
-                        Stores.persistentKeyValueStore("status-context"),
+                        Stores.persistentKeyValueStore("speed-status-context"),
                         Serdes.String(),
                         Serdes.String());
 
         StoreBuilder<WindowStore<String, Double>> paramValueStoreSupplier =
                 Stores.windowStoreBuilder(
-                        Stores.persistentWindowStore("fd-value-store",
+                        Stores.persistentWindowStore("speed-param-value",
                             TimeUnit.DAYS.toMillis(1),
                             24,
                             TimeUnit.HOURS.toMillis(1),
@@ -73,19 +73,19 @@ public class SpeedTaskDef extends AbstractPipeline {
 
         StoreBuilder<KeyValueStore<String, Long>> sumIntervalStoreSupplier =
                 Stores.keyValueStoreBuilder(
-                        Stores.persistentKeyValueStore("fd-summary-interval"),
+                        Stores.persistentKeyValueStore("speed-process-interval"),
                         Serdes.String(),
                         Serdes.Long());
 
         StoreBuilder<KeyValueStore<String, Integer>> alarmCountStoreSupplier =
                 Stores.keyValueStoreBuilder(
-                        Stores.persistentKeyValueStore("fd-alarm-count"),
+                        Stores.persistentKeyValueStore("speed-alarm-count"),
                         Serdes.String(),
                         Serdes.Integer());
 
         StoreBuilder<KeyValueStore<String, Integer>> warningCountStoreSupplier =
                 Stores.keyValueStoreBuilder(
-                        Stores.persistentKeyValueStore("fd-warning-count"),
+                        Stores.persistentKeyValueStore("speed-warning-count"),
                         Serdes.String(),
                         Serdes.Integer());
 

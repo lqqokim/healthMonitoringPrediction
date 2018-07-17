@@ -23,6 +23,7 @@ public class RepositorySinker {
     private final String outputTimewaveTopic = "pdm-output-raw";
     private final String outputFeatureTopic = "pdm-output-feature";
     private final String outputFaultTopic = "pdm-output-fault";
+    private final String outputHealthTopic = "pdm-output-health";
 
     private final String configPath;
     private final String groupId;
@@ -59,6 +60,9 @@ public class RepositorySinker {
 
         executor.submit(new EventConsumerRunnable(
                 producerProperties, this.groupId + "-event", outputEventTopic));
+
+        executor.submit(new HealthConsumerRunnable(
+                producerProperties, this.groupId + "-health", outputHealthTopic));
     }
 
     public void awaitTerminationAfterShutdown() {

@@ -30,7 +30,7 @@ public class MarkStatusProcessor extends AbstractProcessor<String, byte[]> {
     @SuppressWarnings("unchecked")
     public void init(ProcessorContext processorContext) {
         super.init(processorContext);
-        kvStore = (KeyValueStore) this.context().getStateStore("status-context");
+        kvStore = (KeyValueStore) this.context().getStateStore("speed-status-context");
     }
 
     @Override

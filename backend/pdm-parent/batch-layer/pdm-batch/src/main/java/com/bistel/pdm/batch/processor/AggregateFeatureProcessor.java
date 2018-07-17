@@ -33,8 +33,8 @@ public class AggregateFeatureProcessor extends AbstractProcessor<String, byte[]>
     public void init(ProcessorContext context) {
         super.init(context);
 
-        kvSummaryWindowStore = (WindowStore) context().getStateStore("summary-window");
-        kvSummaryIntervalStore = (KeyValueStore) context().getStateStore("summary-interval");
+        kvSummaryWindowStore = (WindowStore) context().getStateStore("batch-feature-summary");
+        kvSummaryIntervalStore = (KeyValueStore) context().getStateStore("batch-summary-interval");
     }
 
     @Override
@@ -80,7 +80,7 @@ public class AggregateFeatureProcessor extends AbstractProcessor<String, byte[]>
                 //end trace
                 log.debug("[{}] - The event changed from R to I, let's aggregate stats.", partitionKey);
 
-                Long startTime = Long.parseLong(currStatusAndTime[1]);
+                Long startTime = Long.parseLong(prevStatusAndTime[1]);
                 if (kvSummaryIntervalStore.get(partitionKey) != null) {
                     startTime = kvSummaryIntervalStore.get(partitionKey);
                 }
@@ -110,6 +110,9 @@ public class AggregateFeatureProcessor extends AbstractProcessor<String, byte[]>
                     String paramKey = partitionKey + ":" + paramMaster.getParameterRawId();
 
                     List<Double> doubleValueList = paramValueList.get(paramKey);
+                    if(doubleValueList == null) {
+                        log.debug("[{}] - skip first time...", paramKey);
+                    }
                     log.debug("[{}] - window data size : {}", paramKey, doubleValueList.size());
 
                     DescriptiveStatistics stats = new DescriptiveStatistics();
