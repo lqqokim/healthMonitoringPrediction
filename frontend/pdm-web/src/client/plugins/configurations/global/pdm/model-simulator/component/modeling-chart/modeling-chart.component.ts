@@ -21,6 +21,16 @@ export class ModelingChartComponent implements OnInit, OnChanges, DoCheck {
     selectedParamId;
     conditionValue;
     conditionParamId;
+    conditionStartOperator=">";
+    conditionEndOperator=">=";
+
+    operators =[
+        {name:'>',value:'>'},
+        {name:'<',value:'<'},
+        {name:'>=',value:'>='},
+        {name:'<=',value:'<='},
+
+    ]
 
     paramChartData;
 

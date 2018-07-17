@@ -286,7 +286,7 @@ export class GaugeChartComponent implements OnInit, OnChanges, OnDestroy {
 
         // 폰트 크기
         let fontSize: number = radius * 0.05;
-        const fontSizeMin: number = 12;
+        const fontSizeMin: number = 10;
         const fontSizeMax: number = 16;
 
         // 바깥쪽, 안쪽 반지름 설정

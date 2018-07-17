@@ -181,9 +181,9 @@ export class GaugeChartGenerateComponent implements OnInit, OnChanges {
                 { name: 'alarm', start: alarmRatio, end: 1 }
             ],
             chartColor: [
-                { name: 'normal', color: 'green' },
-                { name: 'warning', color: 'yellow' },
-                { name: 'alarm', color: 'red' }
+                { name: 'normal', color: '#21b100' },
+                { name: 'warning', color: '#ffba00' },
+                { name: 'alarm', color: '#ff3d3d' }
             ],
             dataRangeStart: 0,
             dataRangeEnd: 100,
@@ -300,9 +300,9 @@ export class GaugeChartGenerateComponent implements OnInit, OnChanges {
                 { name: 'alarm', start: alarmRatio, end: 1 }
             ],
             chartColor: [
-                { name: 'normal', color: 'green' },
-                { name: 'warning', color: 'yellow' },
-                { name: 'alarm', color: 'red' }
+                { name: 'normal', color: '#21b100' },
+                { name: 'warning', color: '#ffba00' },
+                { name: 'alarm', color: '#ff3d3d' }
             ],
             dataRangeStart: 0,
             dataRangeEnd: 100,

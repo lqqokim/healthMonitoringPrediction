@@ -7,7 +7,7 @@
 <gauge-chart-d3 #gaugeChartComp>
 </gauge-chart-d3>
 
-<div class="gauge-info" *ngIf="gaugeChartInfo" style="text-align: center; margin: 30px;">
-    <div class="gauge-value" style="font-weight: bold;">{{gaugeChartInfo.value}}</div>
-    <div class="gauge-name" style="font-weight: bold;">{{gaugeChartInfo.name}}</div>
+<div class="gauge-info" *ngIf="gaugeChartInfo">
+    <div class="gauge-value">{{gaugeChartInfo.value}}</div>
+    <div class="gauge-name">{{gaugeChartInfo.name}}</div>
 </div>

@@ -376,6 +376,21 @@ public class MasterService implements IMasterService {
     }
 
     @Override
+    public void setEpqEvent(String fabId, EqpEvent eqpEvent) {
+
+    }
+
+    @Override
+    public List<EqpEvent> getEqpEvents(String fabId, Long eqpId) {
+        return null;
+    }
+
+    @Override
+    public List<EqpEvent> getEqpEventAll(String fabId) {
+        return null;
+    }
+
+    @Override
     public void eqpCopy(String userName,String fabId, Long fromEqpId, List<String> toEqpNames) {
 
 

@@ -43,10 +43,10 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
     public void init(ProcessorContext processorContext) {
         super.init(processorContext);
 
-        kvParamValueStore = (WindowStore) context().getStateStore("fd-value-store");
-        kvIntervalStore = (KeyValueStore) context().getStateStore("fd-summary-interval");
-        kvAlarmCountStore = (KeyValueStore) context().getStateStore("fd-alarm-count");
-        kvWarningCountStore = (KeyValueStore) context().getStateStore("fd-warning-count");
+        kvParamValueStore = (WindowStore) context().getStateStore("speed-param-value");
+        kvIntervalStore = (KeyValueStore) context().getStateStore("speed-process-interval");
+        kvAlarmCountStore = (KeyValueStore) context().getStateStore("speed-alarm-count");
+        kvWarningCountStore = (KeyValueStore) context().getStateStore("speed-warning-count");
     }
 
     @Override
@@ -101,7 +101,7 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
             if (prevStatusCodeAndTime[0].equalsIgnoreCase("R")
                     && !prevStatusCodeAndTime[0].equalsIgnoreCase(nowStatusCodeAndTime[0])) {
 
-                Long startTime = Long.parseLong(nowStatusCodeAndTime[1]);
+                Long startTime = Long.parseLong(prevStatusCodeAndTime[1]);
                 if (kvIntervalStore.get(partitionKey) != null) {
                     startTime = kvIntervalStore.get(partitionKey);
                 }
@@ -139,6 +139,9 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
                     }
 
                     List<Double> doubleValueList = paramValueList.get(paramKey);
+                    if(doubleValueList == null) {
+                        log.debug("[{}] - skip first time...", paramKey);
+                    }
                     log.debug("[{}] - window data size : {}", paramKey, doubleValueList.size());
 
                     // check spc rule

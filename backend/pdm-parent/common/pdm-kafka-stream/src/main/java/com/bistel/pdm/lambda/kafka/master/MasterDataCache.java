@@ -113,6 +113,36 @@ public class MasterDataCache {
         return healthData;
     }
 
+    public ParameterHealthDataSet getParamHealthFD03(Long key) {
+        ParameterHealthDataSet healthData = null;
+
+        if (this.paramHealthDataSet.get(key) != null) {
+            for (ParameterHealthDataSet health : this.paramHealthDataSet.get(key)) {
+                if (health.getHealthCode().equalsIgnoreCase("FD_CHANGE_RATE")) {
+                    healthData = health;
+                    break;
+                }
+            }
+        }
+
+        return healthData;
+    }
+
+    public ParameterHealthDataSet getParamHealthFD04(Long key) {
+        ParameterHealthDataSet healthData = null;
+
+        if (this.paramHealthDataSet.get(key) != null) {
+            for (ParameterHealthDataSet health : this.paramHealthDataSet.get(key)) {
+                if (health.getHealthCode().equalsIgnoreCase("FP_RUL")) {
+                    healthData = health;
+                    break;
+                }
+            }
+        }
+
+        return healthData;
+    }
+
     public EventMasterDataSet getEventForProcess(String key) {
         EventMasterDataSet result = null;
 

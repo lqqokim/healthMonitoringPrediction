@@ -2,10 +2,7 @@ package com.bistel.a3.portal.service.pdm;
 
 import com.bistel.a3.portal.domain.common.Code;
 import com.bistel.a3.portal.domain.pdm.EqpWithArea;
-import com.bistel.a3.portal.domain.pdm.db.Area;
-import com.bistel.a3.portal.domain.pdm.db.Bearing;
-import com.bistel.a3.portal.domain.pdm.db.Param;
-import com.bistel.a3.portal.domain.pdm.db.PartType;
+import com.bistel.a3.portal.domain.pdm.db.*;
 import com.bistel.a3.portal.domain.pdm.master.AreaWithChildren;
 import com.bistel.a3.portal.domain.pdm.master.EqpWithEtc;
 import com.bistel.a3.portal.domain.pdm.master.ParamWithCommonWithRpm;
@@ -92,4 +89,13 @@ public interface IMasterService {
     void removePart(String fabId, Long eqpId, Long partId);
 
     Param getSpeedParam(String fabId, Long eqpId);
+
+
+    //***************
+    //   Eqp Event
+    //***************
+    void setEpqEvent(String fabId,EqpEvent eqpEvent);
+    List<EqpEvent> getEqpEvents(String fabId,Long eqpId);
+    List<EqpEvent> getEqpEventAll(String fabId);
+
 }
