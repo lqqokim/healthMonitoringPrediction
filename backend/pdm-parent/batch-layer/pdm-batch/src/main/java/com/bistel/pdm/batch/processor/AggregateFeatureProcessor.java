@@ -52,6 +52,11 @@ public class AggregateFeatureProcessor extends AbstractProcessor<String, byte[]>
             List<ParameterMasterDataSet> parameterMasterDataSets =
                     MasterDataCache.getInstance().getParamMasterDataSet().get(partitionKey);
 
+            if (kvSummaryIntervalStore.get(partitionKey) == null) {
+                Long paramTime = Long.parseLong(currStatusAndTime[1]);
+                kvSummaryIntervalStore.put(partitionKey, paramTime);
+            }
+
             // idle -> run
             if (prevStatusAndTime[0].equalsIgnoreCase("I")
                     && !prevStatusAndTime[0].equalsIgnoreCase(currStatusAndTime[0])) {
@@ -78,12 +83,9 @@ public class AggregateFeatureProcessor extends AbstractProcessor<String, byte[]>
                     currStatusAndTime[0].equalsIgnoreCase("I")) {
 
                 //end trace
-                log.debug("[{}] - The event changed from R to I, let's aggregate stats.", partitionKey);
+                log.info("[{}] - From now on, aggregate the data of the operating interval.", partitionKey);
 
-                Long startTime = Long.parseLong(prevStatusAndTime[1]);
-                if (kvSummaryIntervalStore.get(partitionKey) != null) {
-                    startTime = kvSummaryIntervalStore.get(partitionKey);
-                }
+                Long startTime = kvSummaryIntervalStore.get(partitionKey);
                 Long endTime = Long.parseLong(prevStatusAndTime[1]);
 
                 log.debug("[{}] - processing interval from {} to {}.", partitionKey, startTime, endTime);
@@ -93,6 +95,8 @@ public class AggregateFeatureProcessor extends AbstractProcessor<String, byte[]>
                 KeyValueIterator<Windowed<String>, Double> storeIterator = kvSummaryWindowStore.fetchAll(startTime, endTime);
                 while (storeIterator.hasNext()) {
                     KeyValue<Windowed<String>, Double> kv = storeIterator.next();
+
+                    //log.debug("[{}] - fetch : {}", kv.key.key(), kv.value);
 
                     if (!paramValueList.containsKey(kv.key.key())) {
                         ArrayList<Double> arrValue = new ArrayList<>();
@@ -111,7 +115,8 @@ public class AggregateFeatureProcessor extends AbstractProcessor<String, byte[]>
 
                     List<Double> doubleValueList = paramValueList.get(paramKey);
                     if(doubleValueList == null) {
-                        log.debug("[{}] - skip first time...", paramKey);
+                        log.info("[{}] - Unable to aggregate...", paramKey);
+                        continue;
                     }
                     log.debug("[{}] - window data size : {}", paramKey, doubleValueList.size());
 
@@ -133,13 +138,12 @@ public class AggregateFeatureProcessor extends AbstractProcessor<String, byte[]>
                             stats.getPercentile(25) + "," +
                             stats.getPercentile(75);
 
-                    log.debug("[{}] - msg : {}", paramKey, msg);
+                    //log.debug("[{}] - msg : {}", paramKey, msg);
                     context().forward(partitionKey, msg.getBytes());
                     context().commit();
                 }
 
-                log.debug("[{}] - forward aggregated stream to route-feature, output-feature.", partitionKey);
-                log.debug(" ");
+                log.info("[{}] - forward aggregated stream to route-feature, output-feature.", partitionKey);
             }
         } catch (Exception e) {
             log.error(e.getMessage(), e);

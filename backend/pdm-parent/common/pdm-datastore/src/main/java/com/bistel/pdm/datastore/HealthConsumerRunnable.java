@@ -2,7 +2,9 @@ package com.bistel.pdm.datastore;
 
 import com.bistel.pdm.datastore.jdbc.DBType;
 import com.bistel.pdm.datastore.jdbc.DataSource;
+import com.bistel.pdm.datastore.jdbc.dao.HealthDataDao;
 import com.bistel.pdm.datastore.jdbc.dao.ora.HealthTrxDao;
+import com.bistel.pdm.datastore.jdbc.dao.pg.HealthTrxPostgreDao;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.slf4j.Logger;
@@ -23,7 +25,7 @@ public class HealthConsumerRunnable implements Runnable {
 
     private final static int PollingDurations = 1; // sec
 
-    private HealthTrxDao trxDao;
+    private HealthDataDao trxDao;
 
     public HealthConsumerRunnable(Properties property, String groupId, String topicName) {
         this.consumer = new KafkaConsumer<>(createConsumerConfig(groupId, property));
@@ -33,7 +35,7 @@ public class HealthConsumerRunnable implements Runnable {
             trxDao = new HealthTrxDao();
             log.info("loaded data object of oracle.");
         } else if (DataSource.getDBType() == DBType.postgresql) {
-            // to do
+            trxDao = new HealthTrxPostgreDao();
             log.info("loaded data object of postgresql.");
         } else {
             trxDao = new HealthTrxDao();

@@ -1,4 +1,4 @@
-package com.bistel.pdm.datastore.jdbc.dao.ora;
+package com.bistel.pdm.datastore.jdbc.dao.pg;
 
 import com.bistel.pdm.datastore.jdbc.DataSource;
 import com.bistel.pdm.datastore.jdbc.dao.FaultDataDao;
@@ -10,13 +10,12 @@ import org.slf4j.LoggerFactory;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.Timestamp;
-import java.sql.Types;
 
 /**
  *
  */
-public class FaultTrxDao implements FaultDataDao {
-    private static final Logger log = LoggerFactory.getLogger(FaultTrxDao.class);
+public class FaultTrxPostgreDao implements FaultDataDao {
+    private static final Logger log = LoggerFactory.getLogger(FaultTrxPostgreDao.class);
 
     private static final String INSERT_SQL =
             "insert into ALARM_TRX_PDM " +

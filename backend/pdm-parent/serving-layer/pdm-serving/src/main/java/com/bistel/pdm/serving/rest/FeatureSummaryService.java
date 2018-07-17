@@ -1,8 +1,8 @@
 package com.bistel.pdm.serving.rest;
 
+import com.bistel.pdm.common.json.SummarizedFeature;
 import com.bistel.pdm.serving.Exception.Message;
 import com.bistel.pdm.serving.jdbc.dao.FeatureSummaryDataDao;
-import org.apache.commons.math3.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,8 +16,7 @@ import javax.ws.rs.core.Response;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
+import java.util.List;
 
 /**
  *
@@ -32,16 +31,16 @@ public class FeatureSummaryService {
 
     @GET
     @Path("{from}/{to}")
-    public Response getAreaById(@PathParam("from") Long from, @PathParam("to") Long to) {
+    public Response getSummarizedFeature(@PathParam("from") Long from, @PathParam("to") Long to) {
         FeatureSummaryDataDao repository = new FeatureSummaryDataDao();
 
         try {
             String fromTime = convertTime(from);
             String endTime = convertTime(to);
 
-            ConcurrentHashMap<String, Pair<Double, Double>> paramFeatureValueList = repository.getParamFeatureAvg(fromTime, endTime);
+            List<SummarizedFeature> paramFeatureValueList = repository.getParamFeatureAvg(fromTime, endTime);
 
-            log.info("Provides the feature's average for parameter. count={}", paramFeatureValueList.size());
+            log.info("Provides the summarized features. count={}", paramFeatureValueList.size());
             return Response.status(Response.Status.OK).entity(paramFeatureValueList).build();
 
         } catch (SQLException e) {
