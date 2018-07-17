@@ -2,25 +2,21 @@ package com.bistel.pdm.batch.processor;
 
 import com.bistel.pdm.batch.util.ServingRequestor;
 import com.bistel.pdm.common.json.ParameterHealthDataSet;
-import com.bistel.pdm.common.json.ParameterMasterDataSet;
+import com.bistel.pdm.common.json.SummarizedFeature;
 import com.bistel.pdm.lambda.kafka.master.MasterDataCache;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
-import org.apache.commons.math3.util.Pair;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.kstream.Windowed;
 import org.apache.kafka.streams.processor.AbstractProcessor;
 import org.apache.kafka.streams.processor.ProcessorContext;
 import org.apache.kafka.streams.processor.PunctuationType;
 import org.apache.kafka.streams.state.KeyValueIterator;
-import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.state.WindowStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -33,7 +29,7 @@ public class TrendChangeProcessor extends AbstractProcessor<String, byte[]> {
 
     private WindowStore<String, Double> kvFeatureDataStore;
 
-    private ConcurrentHashMap<String, Pair<Double, Double>> paramFeatureValueList = new ConcurrentHashMap<>();
+    private final static List<SummarizedFeature> paramFeatureValueList = new ArrayList<>();
 
     @Override
     @SuppressWarnings("unchecked")
@@ -45,11 +41,12 @@ public class TrendChangeProcessor extends AbstractProcessor<String, byte[]> {
         context().schedule(TimeUnit.DAYS.toMillis(1),
                 PunctuationType.STREAM_TIME, l -> {
                     //call serving
-                    Long from = context().timestamp() - TimeUnit.DAYS.toMillis(7);
-                    Long to = from - TimeUnit.DAYS.toMillis(90);
+                    Long to = l - TimeUnit.DAYS.toMillis(7);
+                    Long from = to - TimeUnit.DAYS.toMillis(90);
 
-                    String url = "http://192.168.7.230:28000/feature/" + from + "/" + to;
-                    paramFeatureValueList = ServingRequestor.getParamFeatureAvgFor(url);
+                    paramFeatureValueList.clear();
+                    String url = "http://192.168.7.230:28000/pdm/api/feature/" + from + "/" + to;
+                    paramFeatureValueList.addAll(ServingRequestor.getParamFeatureAvgFor(url));
                 });
     }
 
@@ -60,86 +57,93 @@ public class TrendChangeProcessor extends AbstractProcessor<String, byte[]> {
         try {
             // startDtts, endDtts, param rawid, count, max, min, median, avg, stddev, q1, q3
             String[] recordColumns = recordValue.split(SEPARATOR);
-            String paramRawid = recordColumns[2];
+            String strParamRawid = recordColumns[2];
+            Long paramRawid = Long.parseLong(strParamRawid);
 
-            log.debug("[{}] - calculate Status Changes Rate with average. ");
+            String paramKey = partitionKey + ":" + paramRawid;
+
             Double dValue = Double.parseDouble(recordColumns[7]); //avg
-
-            ParameterMasterDataSet paramMaster =
-                    MasterDataCache.getInstance().getParamMasterDataSetWithRawId(partitionKey, paramRawid);
 
             Long endTime = Long.parseLong(recordColumns[1]);
             Long startTime = endTime - TimeUnit.DAYS.toMillis(7);
 
-            kvFeatureDataStore.put(paramRawid, dValue, endTime);
-
-            HashMap<String, List<Double>> paramValueList = new HashMap<>(); // value : (time, value)
-
-            KeyValueIterator<Windowed<String>, Double> storeIterator = kvFeatureDataStore.fetchAll(startTime, endTime);
-            while (storeIterator.hasNext()) {
-                KeyValue<Windowed<String>, Double> kv = storeIterator.next();
-
-                if (!paramValueList.containsKey(kv.key.key())) {
-                    ArrayList<Double> arrValue = new ArrayList<>();
-                    arrValue.add(kv.value);
-                    paramValueList.put(kv.key.key(), arrValue);
-                } else {
-                    List<Double> arrValue = paramValueList.get(kv.key.key());
-                    arrValue.add(kv.value);
-                }
-            }
-
-
-            if (paramMaster.getParamParseIndex() <= 0) return;
-
-            String paramKey = partitionKey + ":" + paramMaster.getParameterRawId();
+            kvFeatureDataStore.put(strParamRawid, dValue, endTime);
 
             ParameterHealthDataSet fd03HealthInfo =
-                    MasterDataCache.getInstance().getParamHealthFD03(paramMaster.getParameterRawId());
+                    MasterDataCache.getInstance().getParamHealthFD03(paramRawid);
 
-            if (fd03HealthInfo == null) {
-                log.debug("[{}] - No health info. for parameter : {}.", partitionKey, paramMaster.getParameterName());
-                return;
+            if (fd03HealthInfo != null) {
+                log.debug("[{}] - calculate Status Changes Rate with average ({}). ", partitionKey, dValue);
+
+                // ==========================================================================================
+                // Logic 3 health
+
+                List<Double> doubleValueList = new ArrayList<>();
+
+                KeyValueIterator<Windowed<String>, Double> storeIterator = kvFeatureDataStore.fetchAll(startTime, endTime);
+                while (storeIterator.hasNext()) {
+                    KeyValue<Windowed<String>, Double> kv = storeIterator.next();
+
+                    if (kv.key.key().equalsIgnoreCase(strParamRawid)) {
+                        doubleValueList.add(kv.value);
+                    }
+                }
+
+                if (doubleValueList.size() > 0) {
+                    log.debug("[{}] - data size : {}", paramKey, doubleValueList.size());
+
+                    DescriptiveStatistics stats = new DescriptiveStatistics();
+                    for (Double val : doubleValueList) {
+                        stats.addValue(val);
+                    }
+
+                    Double latestMean = stats.getMean();
+                    Double mean = null;
+                    Double sigma = null;
+
+                    for (SummarizedFeature sf : paramFeatureValueList) {
+                        if (sf.getParamRawId().equals(paramRawid)) {
+                            mean = sf.getMean();
+                            sigma = sf.getSigma();
+                            break;
+                        }
+                    }
+
+                    Double index = 0D;
+                    if (mean == null || sigma == null){
+                        log.info("[{}] - Historical data does not exist.", paramKey);
+                    } else {
+                        //logic 3 - calculate index
+                        index = (latestMean - mean) / sigma;
+                    }
+
+                    log.debug("[{}] - status changes rate : {}", paramKey, index);
+
+                    String statusCode = "N";
+
+                    if (index >= 1) {
+                        statusCode = "A";
+                    } else if (index >= 0.5 && index < 1) {
+                        statusCode = "W";
+                    }
+
+                    // time, param_rawid, param_health_rawid, status_cd, index
+                    String newMsg = endTime + ","
+                            + paramRawid + ","
+                            + fd03HealthInfo.getParamHealthRawId() + ","
+                            + statusCode + ","
+                            + index;
+
+                    context().forward(partitionKey, newMsg.getBytes());
+                    context().commit();
+                    log.debug("[{}] - logic 3 health : {}", paramKey, newMsg);
+
+                } else {
+                    log.debug("[{}] - Unable to calculate status change rate...", paramKey);
+                }
+            } else {
+                log.debug("[{}] - No health info.", paramKey);
             }
-
-            List<Double> doubleValueList = paramValueList.get(paramKey);
-            if(doubleValueList == null) {
-                log.debug("[{}] - skip first time...", paramKey);
-            }
-            log.debug("[{}] - data size : {}", paramKey, doubleValueList.size());
-
-            DescriptiveStatistics stats = new DescriptiveStatistics();
-            for (Double val : doubleValueList) {
-                stats.addValue(val);
-            }
-
-            Double latestAvg = stats.getMean();
-
-            Pair<Double, Double> valuePair = paramFeatureValueList.get(paramRawid);
-
-            //calculate index
-            Double index = (latestAvg - valuePair.getFirst()) / valuePair.getSecond();
-
-            log.debug("[{}] - status changes rate : {}", paramKey, index);
-
-            String statusCode = "N";
-
-            if (index >= 1) {
-                statusCode = "A";
-            } else if (index >= 0.5 && index < 1) {
-                statusCode = "W";
-            }
-
-            // time, param_rawid, param_health_rawid, status_cd, index
-            String newMsg = endTime + ","
-                    + paramRawid + ","
-                    + fd03HealthInfo.getParamHealthRawId() + ","
-                    + statusCode + ","
-                    + index;
-
-            context().forward(partitionKey, newMsg.getBytes());
-            context().commit();
-
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }

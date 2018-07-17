@@ -1,7 +1,7 @@
 package com.bistel.pdm.serving.jdbc.dao;
 
+import com.bistel.pdm.common.json.SummarizedFeature;
 import com.bistel.pdm.serving.jdbc.DataSource;
-import org.apache.commons.math3.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,8 +9,13 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.ArrayList;
+import java.util.List;
 
+/**
+ *
+ *
+ */
 public class FeatureSummaryDataDao {
     private static final Logger log = LoggerFactory.getLogger(FeatureSummaryDataDao.class);
 
@@ -18,15 +23,15 @@ public class FeatureSummaryDataDao {
             "select " +
                     "p.rawid as param_rawid, " +
                     "p.name as param_name, " +
-                    "avg(f.avg) mean, stddev(f.avg) sigma " +
+                    "avg(f.mean) mean, stddev(f.mean) sigma " +
                     "from param_mst_pdm p, param_feature_trx_pdm f " +
                     "where p.rawid=f.param_mst_rawid " +
                     "and f.end_dtts between to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS.FF') " +
                     "                   and to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS.FF') " +
                     "group by p.rawid, p.name ";
 
-    public ConcurrentHashMap<String, Pair<Double, Double>> getParamFeatureAvg(String from, String to) throws SQLException {
-        ConcurrentHashMap<String, Pair<Double, Double>> paramFeatureValueList = new ConcurrentHashMap<>();
+    public List<SummarizedFeature> getParamFeatureAvg(String from, String to) throws SQLException {
+        List<SummarizedFeature> paramFeatureValueList = new ArrayList<>();
 
         try (Connection conn = DataSource.getConnection()) {
             try (PreparedStatement pst = conn.prepareStatement(FEATURE_DS_SQL)) {
@@ -39,8 +44,12 @@ public class FeatureSummaryDataDao {
 
                 while (rs.next()) {
                     // param_rawid, average, sigma
-                    Pair<Double, Double> value = Pair.create(rs.getDouble(3), rs.getDouble(4));
-                    paramFeatureValueList.put(rs.getString(1), value);
+                    SummarizedFeature sf = new SummarizedFeature();
+                    sf.setParamRawId(rs.getLong(1));
+                    sf.setMean(rs.getDouble(3));
+                    sf.setSigma(rs.getDouble(4));
+
+                    paramFeatureValueList.add(sf);
                 }
 
             } catch (Exception e) {

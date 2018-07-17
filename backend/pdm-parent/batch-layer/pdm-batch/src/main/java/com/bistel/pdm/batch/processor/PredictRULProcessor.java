@@ -14,7 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -42,86 +41,129 @@ public class PredictRULProcessor extends AbstractProcessor<String, byte[]> {
         try {
             // startDtts, endDtts, param rawid, count, max, min, median, avg, stddev, q1, q3
             String[] recordColumns = recordValue.split(SEPARATOR);
-            String paramRawid = recordColumns[2];
+            String strParamRawid = recordColumns[2];
+            Long paramRawid = Long.parseLong(strParamRawid);
 
-            log.debug("[{}] - calculate RUL with average. ");
             Double dValue = Double.parseDouble(recordColumns[7]);
-
-            ParameterMasterDataSet paramMaster =
-                    MasterDataCache.getInstance().getParamMasterDataSetWithRawId(partitionKey, paramRawid);
 
             Long endTime = Long.parseLong(recordColumns[1]);
             Long startTime = endTime - TimeUnit.DAYS.toMillis(7);
 
-            HashMap<String, List<String>> paramValueList = new HashMap<>(); // value : (time, value)
+            String paramKey = partitionKey + ":" + paramRawid;
 
-            KeyValueIterator<Windowed<String>, String> storeIterator = kvFeatureDataStore.fetchAll(startTime, endTime);
-            while (storeIterator.hasNext()) {
-                KeyValue<Windowed<String>, String> kv = storeIterator.next();
-
-                if (!paramValueList.containsKey(kv.key.key())) {
-                    ArrayList<String> arrValue = new ArrayList<>();
-                    arrValue.add(kv.value);
-                    paramValueList.put(kv.key.key(), arrValue);
-                } else {
-                    List<String> arrValue = paramValueList.get(kv.key.key());
-                    arrValue.add(kv.value);
-                }
-            }
-
-            kvFeatureDataStore.put(paramRawid, endTime + "," + dValue, endTime);
-
-            if (paramMaster.getParamParseIndex() <= 0) return;
-
-            String paramKey = partitionKey + ":" + paramMaster.getParameterRawId();
+            ParameterMasterDataSet paramMaster =
+                    MasterDataCache.getInstance().getParamMasterDataSetWithRawId(partitionKey, paramRawid);
 
             ParameterHealthDataSet fd04HealthInfo =
-                    MasterDataCache.getInstance().getParamHealthFD04(paramMaster.getParameterRawId());
+                    MasterDataCache.getInstance().getParamHealthFD04(paramRawid);
 
-            if (fd04HealthInfo == null) {
-                log.debug("[{}] - No health info. for parameter : {}.", partitionKey, paramMaster.getParameterName());
-                return;
+            if (fd04HealthInfo != null) {
+                log.debug("[{}] - calculate RUL with average ({}). ", partitionKey, dValue);
+
+                // ==========================================================================================
+                // Logic 4 health
+
+                List<String> doubleValueList = new ArrayList<>();
+
+                KeyValueIterator<Windowed<String>, String> storeIterator = kvFeatureDataStore.fetchAll(startTime, endTime);
+                while (storeIterator.hasNext()) {
+                    KeyValue<Windowed<String>, String> kv = storeIterator.next();
+
+                    //log.debug("[{}] - fetch : {}", kv.key.key(), kv.value);
+
+                    if (kv.key.key().equalsIgnoreCase(strParamRawid)) {
+                        doubleValueList.add(kv.value);
+                    }
+                }
+
+                if (doubleValueList.size() > 0) {
+                    log.debug("[{}] - data size : {}", paramKey, doubleValueList.size());
+
+                    // logic 4 - linear regression
+                    SimpleRegression regression = new SimpleRegression();
+                    for (String val : doubleValueList) {
+                        String[] dbl = val.split(","); // (time, value)
+                        regression.addData(Long.parseLong(dbl[0]), Double.parseDouble(dbl[1]));
+                    }
+
+                    double intercept = regression.getIntercept();
+                    double slope = regression.getSlope();
+                    //if(Double.isNaN(intercept) || Double.isNaN(slope) || slope <=0) return null;
+                    double x = (paramMaster.getUpperAlarmSpec() - intercept) / slope;
+
+                    // y = intercept + slope * x
+                    log.debug("[{}] - intercept : {}, slope : {}, X : {}", paramKey, intercept, slope, x);
+
+                    // x - today
+                    long remain = TimeUnit.DAYS.convert((long) x - endTime, TimeUnit.MILLISECONDS);
+
+                    /*
+                       Convert Score
+                        30 day : 1
+                        60 day : 0.5
+                        90 day : 0.25
+
+                        y = -0.0167x + 1.5
+                     */
+
+                    Double index = -0.0167 * remain + 1.5;
+
+                    String statusCode = "N";
+
+                    if (index >= 1) {
+                        statusCode = "A";
+                    } else if (index >= 0.5 && index < 1) {
+                        statusCode = "W";
+                    }
+
+                    // time, param_rawid, param_health_rawid, status_cd, index
+                    String newMsg = endTime + ","
+                            + paramRawid + ","
+                            + fd04HealthInfo.getParamHealthRawId() + ","
+                            + statusCode + ","
+                            + index;
+
+                    context().forward(partitionKey, newMsg.getBytes());
+                    context().commit();
+                    log.debug("[{}] - logic 4 health : {}", paramKey, newMsg);
+
+                } else {
+                    log.info("[{}] - Unable to calculate RUL...", paramKey);
+                }
+
+                // ==========================================================================================
+                // Logic 1 health
+
+                // logic 1 - calculate index
+                ParameterHealthDataSet fd01HealthInfo = MasterDataCache.getInstance().getParamHealthFD01(paramRawid);
+
+                Double davg = Double.parseDouble(recordColumns[7]);
+                double index = davg / paramMaster.getUpperAlarmSpec();
+
+                String statusCode = "N";
+
+                if (index >= 1.0) {
+                    statusCode = "A";
+                } else if (index >= 0.8 && index < 1) {
+                    statusCode = "W";
+                }
+
+                // time, param_rawid, param_health_rawid, status_cd, index
+                String newMsg = endTime + ","
+                        + paramRawid + ","
+                        + fd01HealthInfo.getParamHealthRawId() + ","
+                        + statusCode + ","
+                        + index;
+
+                context().forward(partitionKey, newMsg.getBytes());
+                context().commit();
+                log.debug("[{}] - logic 1 health : {}", paramKey, newMsg);
+
+            } else {
+                log.debug("[{}] - No health info.", paramKey);
             }
 
-            List<String> doubleValueList = paramValueList.get(paramKey); // (time, value)
-            if(doubleValueList == null) {
-                log.debug("[{}] - skip first time...", paramKey);
-            }
-            log.debug("[{}] - data size : {}", paramKey, doubleValueList.size());
-
-            // linear regression
-            SimpleRegression regression = new SimpleRegression();
-            for (String val : doubleValueList) {
-                String[] dbl = val.split(","); // (time, value)
-                regression.addData(Long.parseLong(dbl[0]), Double.parseDouble(dbl[1]));
-            }
-
-            double intercept = regression.getIntercept();
-            double slope = regression.getSlope();
-            //if(Double.isNaN(intercept) || Double.isNaN(slope) || slope <=0) return null;
-            double x = (paramMaster.getUpperAlarmSpec() - intercept) / slope;
-            double index = regression.predict(dValue);
-
-            log.debug("[{}] - intercept : {}, slope : {}, X : {}, prediction : {}", paramKey,
-                    intercept, slope, x, index);
-
-            String statusCode = "N";
-
-            if (index < 30) {
-                statusCode = "A";
-            } else if (index > 30 && index <= 90) {
-                statusCode = "W";
-            }
-
-            // time, param_rawid, param_health_rawid, status_cd, index
-            String newMsg = endTime + ","
-                    + paramRawid + ","
-                    + fd04HealthInfo.getParamHealthRawId() + ","
-                    + statusCode + ","
-                    + index;
-
-            context().forward(partitionKey, newMsg.getBytes());
-            context().commit();
+            kvFeatureDataStore.put(strParamRawid, endTime + "," + dValue, endTime);
 
         } catch (Exception e) {
             log.error(e.getMessage(), e);

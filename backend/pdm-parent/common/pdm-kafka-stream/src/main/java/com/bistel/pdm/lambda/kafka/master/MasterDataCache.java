@@ -49,12 +49,12 @@ public class MasterDataCache {
         return paramMasterDataSet;
     }
 
-    public ParameterMasterDataSet getParamMasterDataSetWithRawId(String key, String rawId) {
+    public ParameterMasterDataSet getParamMasterDataSetWithRawId(String key, Long rawId) {
         ParameterMasterDataSet param = null;
 
         List<ParameterMasterDataSet> paramList = paramMasterDataSet.get(key);
         for(ParameterMasterDataSet p : paramList){
-            if(p.getParameterRawId() == Long.parseLong(rawId)){
+            if(p.getParameterRawId().equals(rawId)){
                 param = p;
                 break;
             }

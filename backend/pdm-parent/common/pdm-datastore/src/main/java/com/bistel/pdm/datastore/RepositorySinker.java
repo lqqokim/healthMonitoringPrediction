@@ -28,7 +28,7 @@ public class RepositorySinker {
     private final String configPath;
     private final String groupId;
 
-    private ExecutorService executor = Executors.newFixedThreadPool(5);
+    private ExecutorService executor = Executors.newFixedThreadPool(6);
 
     public RepositorySinker(final String groupId, String servingAddr, String configPath) {
         this.groupId = groupId;

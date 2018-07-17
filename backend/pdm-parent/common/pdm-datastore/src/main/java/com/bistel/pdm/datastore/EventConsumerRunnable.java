@@ -4,6 +4,7 @@ import com.bistel.pdm.datastore.jdbc.DBType;
 import com.bistel.pdm.datastore.jdbc.DataSource;
 import com.bistel.pdm.datastore.jdbc.dao.EventDataDao;
 import com.bistel.pdm.datastore.jdbc.dao.ora.EventTrxDao;
+import com.bistel.pdm.datastore.jdbc.dao.pg.EventTrxPostgreDao;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.slf4j.Logger;
@@ -34,7 +35,7 @@ public class EventConsumerRunnable implements Runnable {
             trxDao = new EventTrxDao();
             log.info("loaded data object of oracle.");
         } else if (DataSource.getDBType() == DBType.postgresql) {
-            // to do
+            trxDao = new EventTrxPostgreDao();
             log.info("loaded data object of postgresql.");
         } else {
             trxDao = new EventTrxDao();
