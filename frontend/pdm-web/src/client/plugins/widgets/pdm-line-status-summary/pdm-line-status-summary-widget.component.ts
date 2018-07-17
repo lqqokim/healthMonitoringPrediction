@@ -17,17 +17,17 @@ export class PdmLineStatusSummaryWidgetComponent extends WidgetApi implements On
     @ViewChild('statusSummary') statusSummary: LineStatusSummaryComponent;
     @ViewChild('WidgetCondition') WidgetCondition: WidgetChartConditionComponent;
 
-    condition: IDataType.ContitionType = {
+    condition = {
         fab: {
             fabId: undefined,
             fabName: undefined
-        },
+        } as IDataType.Fab,
         timePeriod: {
-            fromDate: undefined,
-            toDate: undefined
-        }
+            toDate: undefined,
+            fromDate: undefined
+        } as ITimePeriod
     };
-    
+
     private readonly DEFAULT_PERIOD: number = 1;
     private readonly DEFAULT_TARGET_NAME: string = 'All Lines';
 
@@ -55,7 +55,7 @@ export class PdmLineStatusSummaryWidgetComponent extends WidgetApi implements On
 
         if (this._currentEl !== undefined) {
             this._currentEl.addEventListener('transitionend', this.resizeCallback, false);
-            this.onResize();        
+            this.onResize();
         }
     }
 
@@ -111,7 +111,7 @@ export class PdmLineStatusSummaryWidgetComponent extends WidgetApi implements On
 
         outCd[CD.PLANT] = plant;
         outCd[CD.AREA] = area;
-        outCd[CD.TIME_PERIOD] = {from: timePeriod.fromDate, to: timePeriod.toDate};
+        outCd[CD.TIME_PERIOD] = { from: timePeriod.fromDate, to: timePeriod.toDate };
 
         console.log('Out CD=> ', JSON.stringify(outCd));
         this.syncOutCondition(outCd);
