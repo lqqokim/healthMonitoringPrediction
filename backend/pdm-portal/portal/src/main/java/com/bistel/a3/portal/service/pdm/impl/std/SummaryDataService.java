@@ -1,5 +1,6 @@
 package com.bistel.a3.portal.service.pdm.impl.std;
 
+import com.bistel.a3.portal.dao.pdm.std.report.STDReportMapper;
 import com.bistel.a3.portal.dao.pdm.std.summary.STDSummaryMapper;
 import com.bistel.a3.portal.domain.pdm.*;
 import com.bistel.a3.portal.service.pdm.ISummaryDataService;
@@ -300,19 +301,18 @@ public class SummaryDataService implements ISummaryDataService {
     }
 
 
-    public EqpStatisticsData eqpHealthTrendChartWithAVG(String fabId, Date from, Date to, Long paramId, List<List<Object>> eqpHealthTrendData){
+    public EqpStatisticsData eqpHealthTrendChartWithAVG(String fabId, Date previous, Date from, Date to, Long paramId, List<List<Object>> eqpHealthTrendData){
 
         EqpStatisticsData eqpStatisticsData=new EqpStatisticsData();
         eqpStatisticsData.setEqpHealthTrendData(eqpHealthTrendData);
 
         //90d일 평균
-        Date previdous_date=DateUtils.addDays(from, -90);
-        eqpStatisticsData.setPrevious_date(previdous_date);
+        eqpStatisticsData.setPrevious_date(previous);
 
         List<List<Object>> trendData=eqpStatisticsData.getEqpHealthTrendData();
-        Long previousDate = previdous_date.getTime();
-        Long fromDate = from.getTime() ;
-        Long toDate = to.getTime();
+        Long lPrevious = previous.getTime();
+        Long lFrom = from.getTime() ;
+        Long lTo = to.getTime();
 
         Double previous_sum=0.0;
         int previous_count=0;
@@ -321,7 +321,7 @@ public class SummaryDataService implements ISummaryDataService {
 
             Long time= (Long) trendData.get(i).get(0); //시간들
 
-            if (time>= previousDate && time <=fromDate)
+            if (time>= lPrevious && time <=lFrom)
             {
                 previous_sum+=(Double)trendData.get(i).get(1);
                 previous_count++;
@@ -339,7 +339,7 @@ public class SummaryDataService implements ISummaryDataService {
 
             Long time= (Long) trendData.get(i).get(0); //시간들
 
-            if (time>= fromDate && time <=toDate)
+            if (time>= lFrom && time <=lTo)
             {
                 period_sum+=(Double)trendData.get(i).get(1);
                 period_count++;
@@ -370,13 +370,40 @@ public class SummaryDataService implements ISummaryDataService {
 
 
 
-        System.out.println("hi");
-
-
 
 
         return eqpHealthRUL;
     }
+
+    @Override
+    public Long eqpHealthIndexGetWorstParam(String fabId, Long eqpId, Date from, Date to) {
+
+        STDReportMapper mapper = SqlSessionUtil.getMapper(sessions, fabId, STDReportMapper.class);
+        List<ParamClassificationData> paramList = mapper.selectRadar(eqpId, from, to);
+
+        //avg_with_aw기준으로 paramList정렬 --> 가장 큰값(Worst)을 찾기위해서
+        Collections.sort(paramList, new Comparator<ParamClassificationData>() {
+            @Override
+            public int compare(ParamClassificationData o1, ParamClassificationData o2) {
+                if (o1.getAvg_with_aw() < o2.getAvg_with_aw())
+                {
+                    return 1;
+                }
+                else if(o1.getAvg_with_aw() > o2.getAvg_with_aw())
+                {
+                    return -1;
+                }
+                return 0;
+            }
+        });
+
+
+        Long worstParamId= paramList.get(0).getParam_id();
+
+        return worstParamId;
+    }
+
+
 
 
 }

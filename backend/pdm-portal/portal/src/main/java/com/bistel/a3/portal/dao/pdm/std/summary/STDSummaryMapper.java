@@ -41,5 +41,4 @@ public interface STDSummaryMapper {
 
     List<EqpHealthIndex> selectEqpHealthIndexByAreaId(@Param("fromdate") Date fromdate, @Param("todate") Date todate, @Param("area_id") Long area_id);
 
-
 }

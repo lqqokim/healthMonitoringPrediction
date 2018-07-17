@@ -23,8 +23,9 @@ public interface ISummaryDataService {
 
     List<EqpHealthIndex> eqpHealthIndex(String fabId, Long areaId, Date from, Date to);
 
-    EqpStatisticsData eqpHealthTrendChartWithAVG(String fabId, Date from, Date to, Long paramId, List<List<Object>> eqpHealthTrendData);
+    EqpStatisticsData eqpHealthTrendChartWithAVG(String fabId,Date previous, Date from, Date to, Long paramId, List<List<Object>> eqpHealthTrendData);
 
     EqpHealthRUL eqpHealthTrendChartWithRUL(String fabId, Date from, Date to, Long paramId, List<List<Object>> eqpHealthTrendData);
 
+    Long eqpHealthIndexGetWorstParam(String fabId, Long eqpId, Date from, Date to);
 }
