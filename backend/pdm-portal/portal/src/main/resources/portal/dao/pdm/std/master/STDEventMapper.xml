@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bistel.a3.portal.dao.pdm.std.master.STDEventMapper">
+    
+    <insert id="insert" parameterType="com.bistel.a3.portal.domain.pdm.db.EqpEvent" databaseId="oracle">
+        <selectKey keyProperty="rawId" resultType="Long" order="BEFORE">
+            select seq_eqp_event_mst_pdm.nextval FROM DUAL
+        </selectKey>
+        insert into eqp_event_mst_pdm(rawid, eqp_mst_rawid,event_name,event_type_cd,process_yn,param_mst_rawid,condition,create_by,create_dtts,update_by,update_dtts)
+        values(#{rawId}, #{eqpMstRawId}, #{eventName,jdbcType=VARCHAR}, #{eventTypeCd},#{processYn},#{paramMstRawId},#{condition},#{userName},systimestamp,#{userName},systimestamp)
+    </insert>
+      <insert id="insert" parameterType="com.bistel.a3.portal.domain.pdm.db.EqpEvent" databaseId="postgresql" >
+        <selectKey keyProperty="rawId" resultType="Long" order="BEFORE">
+            select nextval('seq_eqp_event_mst_pdm')
+        </selectKey>
+        insert into eqp_event_mst_pdm(rawid, eqp_mst_rawid,event_name,event_type_cd,process_yn,param_mst_rawid,condition,create_by,create_dtts,update_by,update_dtts)
+        values(#{rawId}, #{eqpMstRawId}, #{eventName,jdbcType=VARCHAR}, #{eventTypeCd},#{processYn},#{paramMstRawId},#{condition},#{userName},systimestamp,#{userName},systimestamp)
+    </insert>
+    
+     <update id="update">
+        update eqp_event_mst_pdm
+        set eqp_mst_rawid = #{eqpMstRawId},
+            event_name = #{eventName},
+            event_type_cd = #{eventTypeCd},
+            process_yn = #{processYn},
+            param_mst_rawid = #{paramMstRawId},
+            condition = #{condition},
+            update_dtts = systimestamp,
+            update_by = #{userName}
+        where rawid = #{rawId}
+    </update>
+    
+    
+
+    <select id="select" resultType="com.bistel.a3.portal.domain.pdm.db.EqpEvent">
+        select *
+        from eqp_event_mst_pdm
+        where eqp_mst_rawid = #{eqpId}
+        order by eqp_mst_rawid,param_mst_rawid,event_type_cd
+    </select>
+    <select id="selectAll" resultType="com.bistel.a3.portal.domain.pdm.db.EqpEvent">
+        select *
+        from eqp_event_mst_pdm
+        where eqp_mst_rawid = #{eqpId}
+        order by eqp_mst_rawid,param_mst_rawid,event_type_cd
+    </select>
+
+
+</mapper>

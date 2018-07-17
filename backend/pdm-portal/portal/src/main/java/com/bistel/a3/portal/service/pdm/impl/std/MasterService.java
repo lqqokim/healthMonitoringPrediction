@@ -35,6 +35,9 @@ public class MasterService implements IMasterService {
     private Map<String, PlatformTransactionManager> trMgrs;
 
     @Autowired
+    private STDEventMapper stdEventMapper;
+
+    @Autowired
     private CodeMapper codeMapper;
 
     //***************
@@ -489,6 +492,27 @@ public class MasterService implements IMasterService {
         return mapper.selectSpeedParam(eqpId);
     }
 
+    @Override
+    public void setEpqEvent(String fabId,EqpEvent eqpEvent) {
+        STDEventMapper mapper = SqlSessionUtil.getMapper(sessions, fabId, STDEventMapper.class);
+        if(eqpEvent.getRawId()==null){
+            mapper.insert(eqpEvent);
+        }else{
+            mapper.update(eqpEvent);
+        }
+    }
+
+    @Override
+    public List<EqpEvent> getEqpEvents(String fabId,Long eqpId) {
+        STDEventMapper mapper = SqlSessionUtil.getMapper(sessions, fabId, STDEventMapper.class);
+        return mapper.select(eqpId);
+    }
+
+    @Override
+    public List<EqpEvent> getEqpEventAll(String fabId) {
+        STDEventMapper mapper = SqlSessionUtil.getMapper(sessions, fabId, STDEventMapper.class);
+        return mapper.selectAll();
+    }
 
 
 }

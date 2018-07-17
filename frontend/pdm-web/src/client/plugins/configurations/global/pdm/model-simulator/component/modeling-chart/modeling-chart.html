@@ -2,18 +2,33 @@
     <table>
         <thead>
             <th class="parameter" (click)="sortClick('parameter')">Parameter
-                    <i class="fa fa-sort-asc" *ngIf="sort.parameter === 'asc'"></i>
-                    <i class="fa fa-sort-desc" *ngIf="sort.parameter === 'desc'"></i>
-                    <i class="fa fa-sort" *ngIf="sort.parameter === 'none'"></i>
+                <i class="fa fa-sort-asc" *ngIf="sort.parameter === 'asc'"></i>
+                <i class="fa fa-sort-desc" *ngIf="sort.parameter === 'desc'"></i>
+                <i class="fa fa-sort" *ngIf="sort.parameter === 'none'"></i>
             </th>
             <th>Chart</th>
         </thead>
         <tr class="param-info" *ngFor="let param of params">
             <td>
                 <label>
-                    <input type="radio" name="param" [(ngModel)]="selectedParamId" [value]="param.paramId" (change)="onClickParam(param)"> {{param.name}}
+                    <input type="radio" name="param1" id="param1"  [(ngModel)]="selectedParamId" [value]="param.paramId" (change)="onClickParam(param)"> {{param.name}}
                 </label>
-                <input type="number" class="conditionValue" [(ngModel)]="conditionValue" (input)="onChange($event,param)" *ngIf="selectedParamId==param.paramId">
+                <br>
+                <div *ngIf="selectedParamId==param.paramId">
+                    <label>Start</label>
+                    <select class="form-control conditionOperator" [(ngModel)]="conditionStartOperator" name="conditionStartOperator" >
+                        <option *ngFor="let item of operators" [ngValue]="item.value">
+                            {{item.name}}
+                        </option>
+                    </select>
+                    <input type="number" class="conditionValue" [(ngModel)]="conditionValue" (input)="onChange($event,param)">
+                    <select class="form-control conditionOperator" [(ngModel)]="conditionEndOperator" name="conditionEndOperator">
+                        <option *ngFor="let item of operators" [ngValue]="item.value">
+                            {{item.name}}
+                        </option>
+                    </select>
+                    <label>End</label>
+                </div>
             </td>
             <td>
                 <div class="chart-container">
