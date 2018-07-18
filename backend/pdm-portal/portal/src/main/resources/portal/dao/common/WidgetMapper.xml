@@ -26,32 +26,62 @@
         <include refid="BaseAllQuery"/>
         where widget_id = #{widgetId}
     </select>
-    <insert id="insert">
+    
+    
+    <insert id="insert" databaseId="oracle">
         <selectKey resultType="Long" keyProperty="widgetId" order="BEFORE">
             select seq_widget_a3.nextval from dual
         </selectKey>
         <if test="page != null" >
-        insert into widget_a3(widget_id, dashboard_id, title, x, y, width, height, conditions, properties, widget_type_id, page)
+        	insert into widget_a3(widget_id, dashboard_id, title, x, y, width, height, conditions, properties, widget_type_id, page)
         </if>
         <if test="page == null" >
-        insert into widget_a3(widget_id, dashboard_id, title, x, y, width, height, conditions, properties, widget_type_id)
+        	insert into widget_a3(widget_id, dashboard_id, title, x, y, width, height, conditions, properties, widget_type_id)
         </if>
-        values(
-            #{widgetId},
-            #{dashboardId},
-            #{title},
-            #{x},
-            #{y},
-            #{width},
-            #{height},
-            #{conditions, typeHandler=json},
-            #{properties, typeHandler=json},
-            #{widgetTypeId}
-			<if test="page != null" >            
-            ,#{page}
-            </if>
+	        values(
+	            #{widgetId},
+	            #{dashboardId},
+	            #{title},
+	            #{x},
+	            #{y},
+	            #{width},
+	            #{height},
+	            #{conditions, typeHandler=json},
+	            #{properties, typeHandler=json},
+	            #{widgetTypeId}
+				<if test="page != null" >            
+	            ,#{page}
+	         	</if>
         )
     </insert>
+    <insert id="insert" databaseId="postgresql">
+        <selectKey resultType="Long" keyProperty="widgetId" order="BEFORE">
+            select nextval('seq_widget_a3')
+        </selectKey>
+        <if test="page != null" >
+        	insert into widget_a3(widget_id, dashboard_id, title, x, y, width, height, conditions, properties, widget_type_id, page)
+        </if>
+        <if test="page == null" >
+        	insert into widget_a3(widget_id, dashboard_id, title, x, y, width, height, conditions, properties, widget_type_id)
+        </if>
+	        values(
+	            #{widgetId},
+	            #{dashboardId},
+	            #{title},
+	            #{x},
+	            #{y},
+	            #{width},
+	            #{height},
+	            #{conditions, typeHandler=json},
+	            #{properties, typeHandler=json},
+	            #{widgetTypeId}
+				<if test="page != null" >
+	            ,#{page}
+	            </if>
+	        )
+    </insert>
+    
+    
     <update id="update">
         update widget_a3
         <set >

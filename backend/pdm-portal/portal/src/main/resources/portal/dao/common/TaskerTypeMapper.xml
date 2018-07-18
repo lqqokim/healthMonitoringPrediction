@@ -24,7 +24,9 @@
         <include refid="BaseAllQuery"/>
         where tasker_type_id = #{taskerTypeId}
     </select>
-    <insert id="insert">
+    
+    
+    <insert id="insert" databaseId="oracle">
         <selectKey resultType="Long" keyProperty="taskerTypeId" order="BEFORE">
             select seq_tasker_type_a3.nextval from dual
         </selectKey>
@@ -37,6 +39,21 @@
             #{description}
         )
     </insert>
+    <insert id="insert" databaseId="postgresql">
+        <selectKey resultType="Long" keyProperty="taskerTypeId" order="BEFORE">
+            select nextval('seq_tasker_type_a3')
+        </selectKey>
+        insert into tasker_type_a3 (
+            tasker_type_id, name, title, description
+        ) values (
+            #{taskerTypeId},
+            #{name},
+            #{title},
+            #{description}
+        )
+    </insert>
+    
+    
     <update id="update">
         update tasker_type_a3
         <set >

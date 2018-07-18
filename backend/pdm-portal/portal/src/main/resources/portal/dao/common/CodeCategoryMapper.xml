@@ -24,7 +24,8 @@
         where b.name = #{appName}
         and a.name = #{categoryName}
     </select>
-    <insert id="insert">
+    
+    <insert id="insert" databaseId="oracle">
         <selectKey resultType="Long" keyProperty="codeCategoryId" order="BEFORE">
             select seq_code_category_a3.nextval from dual
         </selectKey>
@@ -36,6 +37,19 @@
             #{codeCategory.name}
         )
     </insert>
+    <insert id="insert" databaseId="postgresql">
+        <selectKey resultType="Long" keyProperty="codeCategoryId" order="BEFORE">
+            select nextval('seq_code_category_a3')
+        </selectKey>
+        insert into code_category_a3 (
+            code_category_id, app_id, name
+        ) values (
+            #{codeCategoryId},
+            (select app_id from app_a3 where name=#{appName}),
+            #{codeCategory.name}
+        )
+    </insert>
+    
     <update id="update">
         update code_category_a3
         set name = #{name}

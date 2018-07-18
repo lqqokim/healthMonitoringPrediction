@@ -37,25 +37,33 @@
     </sql>
     
     <sql id="BaseSelectWorkspace">
+<!-- 
        SELECT W.WORKSPACE_ID, W.TITLE, W.USER_ID,
 		      DECODE(UWL.FAVORITE, NULL, 'N', UWL.FAVORITE) AS FAVORITE,
 		      W.DESCRIPTION, W.CREATE_DTTS, W.UPDATE_DTTS
 	     FROM WORKSPACE_A3 W, USER_WORKSPACE_LNK_A3 UWL 
 	    WHERE W.WORKSPACE_ID = UWL.WORKSPACE_ID(+)
+ -->
+ 	   SELECT W.WORKSPACE_ID, W.TITLE, W.USER_ID,
+	   case when UWL.FAVORITE is NULL then 'N' else UWL.FAVORITE end AS FAVORITE,
+	   W.DESCRIPTION, W.CREATE_DTTS, W.UPDATE_DTTS
+	   FROM WORKSPACE_A3 W left outer join USER_WORKSPACE_LNK_A3 UWL 
+	   on W.WORKSPACE_ID = UWL.WORKSPACE_ID
     </sql> 
     
     <select id="selectByUserWithShare" resultMap="BaseResultMap">
 		 SELECT WORKSPACE_ID, TITLE, USER_ID,  FAVORITE, DESCRIPTION, CREATE_DTTS, UPDATE_DTTS
-		   FROM(
+		 FROM (
         <include refid="BaseSelectWorkspace"/>
-        <![CDATA[
-        	          AND W.USER_ID = UWL.USER_ID(+) AND W.USER_ID = #{userId}
-		      UNION 
+        
+<!-- 
+        	 AND W.USER_ID = UWL.USER_ID(+) AND W.USER_ID = #{userId}
+		     UNION 
 		     SELECT W.WORKSPACE_ID, W.TITLE, W.USER_ID,
 		            DECODE(UWL.FAVORITE, NULL, 'N', UWL.FAVORITE) AS FAVORITE,
 		            W.DESCRIPTION, W.CREATE_DTTS, W.UPDATE_DTTS
-		       FROM WORKSPACE_A3 W, USER_WORKSPACE_LNK_A3 UWL 
-		      WHERE W.WORKSPACE_ID = UWL.WORKSPACE_ID(+)
+		     FROM WORKSPACE_A3 W, USER_WORKSPACE_LNK_A3 UWL 
+		     WHERE W.WORKSPACE_ID = UWL.WORKSPACE_ID(+)
 		            AND W.USER_ID = UWL.USER_ID(+) 
 		            AND W.WORKSPACE_ID IN 
 		             ( SELECT WORKSPACE_ID 
@@ -65,22 +73,54 @@
 		             AND W.USER_ID <> #{userId}
 		     ) 
 		 ORDER BY WORKSPACE_ID DESC
-	   ]]>        
+-->
+	   
+        <![CDATA[
+        	 AND W.USER_ID = UWL.USER_ID
+        	 WHERE W.USER_ID = #{userId}
+		     UNION 
+		     SELECT W.WORKSPACE_ID, W.TITLE, W.USER_ID,
+		            CASE WHEN UWL.FAVORITE is NULL THEN 'N' ELSE UWL.FAVORITE END AS FAVORITE,
+		            W.DESCRIPTION, W.CREATE_DTTS, W.UPDATE_DTTS
+		     FROM WORKSPACE_A3 W LEFT OUTER JOIN USER_WORKSPACE_LNK_A3 UWL
+		     ON W.WORKSPACE_ID = UWL.WORKSPACE_ID AND W.USER_ID = UWL.USER_ID
+		     WHERE W.WORKSPACE_ID IN 
+						             ( SELECT WORKSPACE_ID 
+						                 FROM USER_WORKSPACE_LNK_A3 
+						                WHERE USER_ID = #{userId}
+						             )
+             AND W.USER_ID <> #{userId}
+		 ) ZZZ 
+		 ORDER BY WORKSPACE_ID DESC
+	   ]]>
+	   
+	           	       
     </select>
      
      <select id="selectByUser" resultMap="BaseResultMap">
        <include refid="BaseSelectWorkspace"/>
-   	          AND W.USER_ID = UWL.USER_ID(+) AND W.USER_ID = #{userId}
+<!-- 
+       AND W.USER_ID = UWL.USER_ID(+) AND W.USER_ID = #{userId}
+       ORDER BY W.WORKSPACE_ID DESC
+ -->       
+  	   AND W.USER_ID = UWL.USER_ID
+   	   WHERE W.USER_ID = #{userId}
        ORDER BY W.WORKSPACE_ID DESC
     </select>     
      
     <select id="selectById" resultMap="BaseResultMap">
       <include refid="BaseSelectWorkspace"/>
-      	          AND W.USER_ID = UWL.USER_ID(+) AND W.USER_ID = #{userId}
+<!--
+        AND W.USER_ID = UWL.USER_ID(+) AND W.USER_ID = #{userId}
+        AND W.WORKSPACE_ID = #{workspaceId}
+ -->
+        AND W.USER_ID = UWL.USER_ID
+        WHERE W.USER_ID = #{userId}
         AND W.WORKSPACE_ID = #{workspaceId}
     </select>    
+
      
-    <insert id="insert">
+    <insert id="insert" databaseId="oracle">
         <selectKey resultType="Long" keyProperty="workspaceId" order="BEFORE">
             select seq_workspace_a3.nextval from dual
         </selectKey>
@@ -95,20 +135,45 @@
             systimestamp
         )
     </insert>
+    <insert id="insert" databaseId="postgresql">
+        <selectKey resultType="Long" keyProperty="workspaceId" order="BEFORE">
+            select nextval('seq_workspace_a3')
+        </selectKey>
+        insert into workspace_a3 (
+            workspace_id, user_id, title, description, create_dtts, update_dtts
+        ) values (
+            #{workspaceId},
+            #{userId},
+            #{title},
+            #{description, jdbcType=VARCHAR},
+            localtimestamp,
+            localtimestamp
+        )
+    </insert>
     
+    <!-- TODO: Chris workspace_id 컬럼 없음 -->
     <insert id="insertUserWorkspaceLnk">
     	merge into user_workspace_lnk_a3
 		using dual
 		on(workspace_id =#{workspaceId} and user_id=#{userId})
 		when not matched then
 		insert(workspace_id , user_id, favorite) values(#{workspaceId}, #{userId}, #{favorite, typeHandler=yn})
-    </insert>         
+    </insert>
 
-	<update id="update" parameterType="com.bistel.a3.portal.domain.common.Workspace">
+	<update id="update" parameterType="com.bistel.a3.portal.domain.common.Workspace" databaseId="oracle">
         update workspace_a3
         set title = #{title},
             description = #{description},
             update_dtts = systimestamp
+        where 
+        	workspace_id = #{workspaceId}
+        	and user_id = #{userId}
+    </update>
+    <update id="update" parameterType="com.bistel.a3.portal.domain.common.Workspace" databaseId="postgresql">
+        update workspace_a3
+        set title = #{title},
+            description = #{description},
+            update_dtts = localtimestamp
         where 
         	workspace_id = #{workspaceId}
         	and user_id = #{userId}
@@ -119,7 +184,7 @@
         set 
         	favorite = #{favorite, typeHandler=yn}
         where workspace_id = #{workspaceId}
-       and user_id = #{userId}
+        and user_id = #{userId}
     </update>   
 
    	<select id="selectWorkspaceCountByWorkspaceId" resultType="java.lang.Integer">
@@ -158,8 +223,8 @@
     <select id="selectShareGroupsByWorkspaceId" resultType="String">
       <![CDATA[ 
     	select user_group_id 
-    	  from user_group_workspace_share_a3 
-    	 where workspace_id = #{workspaceId}
+    	from user_group_workspace_share_a3 
+    	where workspace_id = #{workspaceId}
       ]]>
     </select>     
      
@@ -178,7 +243,7 @@
     	select user_id from workspace_a3 where workspace_id = #{workspaceId}
     </select>
 
- <select id="selectMyWorkspaces" resultType="com.bistel.a3.portal.domain.common.MyWorkspace">
+ 	<select id="selectMyWorkspaces" resultType="com.bistel.a3.portal.domain.common.MyWorkspace" databaseId="oracle">
 		select  a. workspaceId,
 		       	a.title,
 		        b.workspaceCount,
@@ -201,7 +266,7 @@
 		    		workspace_a3 w, 
 		    		user_workspace_lnk_a3 uwl,
 		    		user_a3 u
-		     where 
+		      where 
 		    		w.user_id = u.user_id
 		    		and w.workspace_id=uwl.workspace_id(+)
 		            and uwl.user_id=#{userId}
@@ -211,10 +276,43 @@
 		     group by workspace_id
 		   ) b
 		where a.workspaceId = b.workspace_id
-		order by a.workspaceId desc  
+		order by a.workspaceId desc
+    </select>
+    <select id="selectMyWorkspaces" resultType="com.bistel.a3.portal.domain.common.MyWorkspace" databaseId="postgresql">
+		select  a. workspaceId,
+		       	a.title,
+		        b.workspaceCount,
+		        a.userId,
+		        a.userName,
+		  		a.favorite,        		
+		  		a.description,
+		        a.createDtts,
+		        a.updateDtts
+		from(   
+		     select w.workspace_id as workspaceId,
+		        	w.title as title,
+		        	w.user_id as userId,
+		        	u.name as userName,
+		  	  	    coalesce(uwl.favorite, 'N') as favorite,        		
+		  			w.description as description,
+		        	w.create_dtts as createDtts,
+		        	w.update_dtts as updateDtts
+		      from 
+		    		workspace_a3 w join user_a3 u
+		    		on w.user_id = u.user_id
+		    		left outer join user_workspace_lnk_a3 uwl
+		    		on w.workspace_id=uwl.workspace_id
+		      where uwl.user_id=#{userId}
+		   ) a, 
+		   ( select workspace_id, count(*) as workspaceCount 
+		     from user_workspace_lnk_a3
+		     group by workspace_id
+		   ) b
+		where a.workspaceId = b.workspace_id
+		order by a.workspaceId desc
     </select>
 
-    <select id="selectWorspaceShareMemberInfo" resultType="com.bistel.a3.portal.domain.common.WorkspaceShareMemberInfo">
+    <select id="selectWorspaceShareMemberInfo" resultType="com.bistel.a3.portal.domain.common.WorkspaceShareMemberInfo" databaseId="oracle">
       <![CDATA[
 	    select 
 	      ugws.user_group_id as id, 
@@ -253,8 +351,48 @@
 		      and ugws.workspace_id = #{workspaceId}
 	  ]]>	          
     </select>
+    <select id="selectWorspaceShareMemberInfo" resultType="com.bistel.a3.portal.domain.common.WorkspaceShareMemberInfo" databaseId="postgresql">
+      <![CDATA[
+	    select 
+	      ugws.user_group_id as id, 
+	      ug.user_group_id as name, 
+	      'group' as type
+	    from
+	      user_group_workspace_share_a3 ugws,
+	      user_group_a3 ug
+	    where
+	      ug.user_group_id = ugws.user_group_id
+	      and
+	      ugws.workspace_id = #{workspaceId}
+	    union
+    	select 
+			uwl.user_id as id,
+			u.name as name,
+			'user' as type   
+		from
+			user_workspace_lnk_a3 uwl,
+			user_a3 u
+		where
+			u.user_id=uwl.user_id
+			and uwl.workspace_id = #{workspaceId}
+			and uwl.USER_ID <> #{userId}
+        EXCEPT
+	    select u.user_id as id,
+	           u.name as name,
+	           'user' as type
+	    from user_group_workspace_share_a3 ugws,
+	           user_group_a3 ug,
+	           user_group_lnk_a3 ugl,
+	           user_a3 u
+	    where ug.user_group_id = ugws.user_group_id
+		      and ugws.user_group_id = ugl.user_group_id 
+		      and ugl.user_id = u.user_id
+		      and ugws.workspace_id = #{workspaceId}
+	  ]]>	          
+    </select>
 
-   <select id="selectMyWorkspace" resultType="com.bistel.a3.portal.domain.common.MyWorkspace">
+
+    <select id="selectMyWorkspace" resultType="com.bistel.a3.portal.domain.common.MyWorkspace" databaseId="oracle">
 		select  a. workspaceId,
 		       	a.title,
 		        b.workspaceCount,
@@ -289,8 +427,41 @@
 		   ) b
 		where a.workspaceId = b.workspace_id
     </select>
+    <select id="selectMyWorkspace" resultType="com.bistel.a3.portal.domain.common.MyWorkspace" databaseId="postgresql">
+		select  a. workspaceId,
+		       	a.title,
+		        b.workspaceCount,
+		        a.userId,
+		        a.userName,
+		  		a.favorite,        		
+		  		a.description,
+		        a.createDtts,
+		        a.updateDtts
+		from(   
+		     select w.workspace_id as workspaceId,
+		        	w.title as title,
+		        	w.user_id as userId,
+		        	u.name as userName,
+		  	  	    coalesce(uwl.favorite, 'N') as favorite,        		
+		  			w.description as description,
+		        	w.create_dtts as createDtts,
+		        	w.update_dtts as updateDtts
+		      from 
+		    		workspace_a3 w left outer join user_workspace_lnk_a3 uwl
+					on w.workspace_id=uwl.workspace_id
+		    		join user_a3 u
+					on w.user_id = u.user_id
+		     where  uwl.user_id=#{userId}
+		            and uwl.workspace_id = #{workspaceId}
+		   ) a, 
+		   ( select workspace_id, count(*) as workspaceCount 
+		     from user_workspace_lnk_a3
+		     group by workspace_id
+		   ) b
+		where a.workspaceId = b.workspace_id
+    </select>
 
-     <select id="selectShareWorkspaceMember" resultType="com.bistel.a3.portal.domain.common.WorkspaceShareMember">
+     <select id="selectShareWorkspaceMember" resultType="com.bistel.a3.portal.domain.common.WorkspaceShareMember" databaseId="oracle">
       <![CDATA[
 	    select 
 	      ugws.user_group_id as id, 
@@ -336,6 +507,52 @@
 		      and ugws.workspace_id = #{workspaceId}
 	  ]]>	          
     </select> 
+     <select id="selectShareWorkspaceMember" resultType="com.bistel.a3.portal.domain.common.WorkspaceShareMember" databaseId="postgresql">
+      <![CDATA[
+	    select 
+	      ugws.user_group_id as id, 
+	      ug.user_group_id as name, 
+          '' as imageUrl,
+	      'group' as type,
+          ug.email as email
+	    from
+	      user_group_workspace_share_a3 ugws,
+	      user_group_a3 ug
+	    where
+	      ug.user_group_id = ugws.user_group_id
+	      and
+	      ugws.workspace_id = #{workspaceId}
+	    union
+	    	select 
+				uwl.user_id as id,
+				u.name as name,
+        '' as imageUrl,
+				'user' as type, 
+        u.email as email
+			from
+				user_workspace_lnk_a3 uwl,
+				user_a3 u
+			where
+				u.user_id=uwl.user_id
+				and uwl.workspace_id  = #{workspaceId}
+				and uwl.USER_ID <> #{userId}
+	    EXCEPT
+	      select			
+           u.user_id as id,
+				   u.name as name,
+           '' as imageUrl,
+				   'user' as type, 
+            u.email as email
+	      from user_group_workspace_share_a3 ugws,
+	           user_group_a3 ug,
+	           user_group_lnk_a3 ugl,
+	           user_a3 u
+	      where ug.user_group_id = ugws.user_group_id
+		      and ugws.user_group_id = ugl.user_group_id 
+		      and ugl.user_id = u.user_id
+		      and ugws.workspace_id = #{workspaceId}
+	  ]]>	          
+    </select> 
 
    <select id="selectUserImgByGroup" resultType="com.bistel.a3.portal.domain.common.WorkspaceShareMemberGroupUser">
 	    select
@@ -348,7 +565,7 @@
 			and 
 			u.user_id != #{userId}
 			and
-			ugl.user_group_id = #{groupId}    
+			ugl.user_group_id = #{groupId}
     </select>    
 
     <select id="selectSharingGroupsByWorkspaceId" resultType="String">
@@ -393,25 +610,25 @@
      
     <!-- 내에게 workspace를 share해주고 있는 user list -->
     <select id="selectWorkspaceSharedUser" resultMap="UserResultMap">
-	SELECT user_id,
-		name,
-		email,
-		img_url,
-		phone_no,
-		description,
-		department,
-		responsibilities
-	FROM user_a3
-	WHERE user_id IN
-		( 
-		SELECT DISTINCT(user_id)
-		FROM workspace_a3
-		WHERE user_id    != #{userId}
-			AND workspace_id IN
-		    ( 
-		    	SELECT workspace_id FROM user_workspace_lnk_a3 WHERE user_id = #{userId}
-		    )
-		  )
+		SELECT user_id,
+			name,
+			email,
+			img_url,
+			phone_no,
+			description,
+			department,
+			responsibilities
+		FROM user_a3
+		WHERE user_id IN
+			( 
+			SELECT DISTINCT(user_id)
+			FROM workspace_a3
+			WHERE user_id    != #{userId}
+				AND workspace_id IN
+			    ( 
+			    	SELECT workspace_id FROM user_workspace_lnk_a3 WHERE user_id = #{userId}
+			    )
+			  )
    </select>        
      
     <!-- 내가 쉐어 해주고 있는 workspace가 있는 user list-->
@@ -443,7 +660,7 @@
 			)
    </select>  
      
-	<select id="selectWorkspaceIdsWithOwnerId" resultType="com.bistel.a3.portal.domain.common.WorkspaceOwner">
+	<select id="selectWorkspaceIdsWithOwnerId" resultType="com.bistel.a3.portal.domain.common.WorkspaceOwner" databaseId="oracle">
 		select ownerId, workspaceId
 		from (
 		      select rownum as rnum, w.user_id as ownerId, w.workspace_id as workspaceId
@@ -458,8 +675,23 @@
 		where rnum between 1 and #{workspacesCount}
 		order by ownerId
      </select>    
+	<select id="selectWorkspaceIdsWithOwnerId" resultType="com.bistel.a3.portal.domain.common.WorkspaceOwner" databaseId="postgresql">
+		select ownerId, workspaceId
+		from (
+		      select ROW_NUMBER() OVER (ORDER BY uwl.favorite desc, w.workspace_id desc) as rnum, w.user_id as ownerId, w.workspace_id as workspaceId
+		      from workspace_a3 w, user_workspace_lnk_a3 uwl
+		      where w.workspace_id = uwl.workspace_id
+		      and uwl.user_id = #{userId}
+              <if test="!sharedIncludeYN">		        
+		        and w.user_id = #{userId}
+		      </if>   
+		      order by uwl.favorite desc, w.workspace_id desc
+		) zzz
+		where rnum between 1 and #{workspacesCount}
+		order by ownerId
+     </select>
     
-  <select id="selectWorkspaceNodes" resultMap="WorkspaceNodeResultMap">
+	<select id="selectWorkspaceNodes" resultMap="WorkspaceNodeResultMap">
 	 select
         	w.workspace_id AS workspace_id ,
 			w.workspace_id      AS id,
@@ -499,7 +731,7 @@
 			w.create_dtts
 		from tasker_a3 t, workspace_a3 w
 		where 
-			w.user_id    = #{userId}
+			w.user_id = #{userId}
 			and t.workspace_id = w.workspace_id
 			<if test="workspaceIdList != null">
 			and t.workspace_id in 
@@ -526,7 +758,7 @@
 	 		(select user_id from workspace_a3 where workspace_id=#{workspaceId})
      </select>   
      
-     <select id="selectSharedWorkspaceIds" resultType="java.lang.Long">
+     <select id="selectSharedWorkspaceIds" resultType="java.lang.Long" databaseId="oracle">
        select workspaceId
 		from (
 		      select rownum as rnum, w.workspace_id as workspaceId
@@ -538,8 +770,20 @@
 		) 
 		where rnum between 1 and #{workspacesCount}
       </select>   
+     <select id="selectSharedWorkspaceIds" resultType="java.lang.Long" databaseId="postgresql">
+       select workspaceId
+		from (
+		      select ROW_NUMBER() OVER (ORDER BY w.user_id) as rnum, w.workspace_id as workspaceId
+		      from workspace_a3 w, user_workspace_lnk_a3 uwl
+		      where w.workspace_id = uwl.workspace_id
+		      and w.user_id = #{sharedUserId}
+              and uwl.user_id = #{ownerUserId}
+		      order by w.user_id
+		) zzz
+		where rnum between 1 and #{workspacesCount}
+      </select>   
      
-      <select id="selectSharingWorkspaceIds" resultType="java.lang.Long">
+      <select id="selectSharingWorkspaceIds" resultType="java.lang.Long" databaseId="oracle">
        select workspaceId
 		from (
 		      select rownum as rnum, w.workspace_id as workspaceId
@@ -549,6 +793,18 @@
             and uwl.user_id = #{sharingUserId}
 		      order by w.user_id
 		) 
+		where rnum between 1 and #{workspacesCount}
+    </select>
+      <select id="selectSharingWorkspaceIds" resultType="java.lang.Long" databaseId="postgresql">
+       select workspaceId
+		from (
+		      select ROW_NUMBER() OVER (ORDER BY w.user_id) as rnum, w.workspace_id as workspaceId
+		      from workspace_a3 w, user_workspace_lnk_a3 uwl
+		      where w.workspace_id = uwl.workspace_id
+		      and w.user_id = #{ownerUserId}
+              and uwl.user_id = #{sharingUserId}
+		      order by w.user_id
+		) zzz
 		where rnum between 1 and #{workspacesCount}
     </select>
     
