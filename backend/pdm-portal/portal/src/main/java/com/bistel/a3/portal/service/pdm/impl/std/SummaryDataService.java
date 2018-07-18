@@ -252,19 +252,19 @@ public class SummaryDataService implements ISummaryDataService {
                     int logic_number=eqpHealthIndexInfo.get(j).getHealth_logic_mst_rawid();
 
 
-                    if (eqp_id_master.equals(eqp_id_Info) && logic_number==1 )
+                    if (eqp_id_master.equals(eqp_id_Info) && logic_number==2 )
                     {
                         eqpHealthIndexMasterInfo.get(i).setLogic1(eqpHealthIndexInfo.get(j).getScore());
                     }
-                    else if (eqp_id_master.equals(eqp_id_Info) && logic_number==2 )
+                    else if (eqp_id_master.equals(eqp_id_Info) && logic_number==3 )
                     {
                         eqpHealthIndexMasterInfo.get(i).setLogic2(eqpHealthIndexInfo.get(j).getScore());
                     }
-                    else if (eqp_id_master.equals(eqp_id_Info) && logic_number==3 )
+                    else if (eqp_id_master.equals(eqp_id_Info) && logic_number==4 )
                     {
                         eqpHealthIndexMasterInfo.get(i).setLogic3(eqpHealthIndexInfo.get(j).getScore());
                     }
-                    else if (eqp_id_master.equals(eqp_id_Info) && logic_number==4 )
+                    else if (eqp_id_master.equals(eqp_id_Info) && logic_number==5 )
                     {
                         eqpHealthIndexMasterInfo.get(i).setLogic4(eqpHealthIndexInfo.get(j).getScore());
                     }
@@ -283,7 +283,7 @@ public class SummaryDataService implements ISummaryDataService {
                 Collections.sort(logics);
                 eqpHealthIndexMasterInfo.get(i).setHealth_index(logics.get(logics.size()-1));
 
-                System.out.println("Hi");
+
             }
 
             return eqpHealthIndexMasterInfo;
@@ -360,23 +360,26 @@ public class SummaryDataService implements ISummaryDataService {
         EqpHealthRUL eqpHealthRUL = new EqpHealthRUL();
         eqpHealthRUL.setEqpHealthTrendData(eqpHealthTrendData);
 
-        Long start_date=(Long)eqpHealthTrendData.get(0).get(0);
-        double start_value=(double)eqpHealthTrendData.get(0).get(1);
-
-        Date end_date=new Date((Long)eqpHealthTrendData.get(eqpHealthTrendData.size()-1).get(0));
-        Date alarm_date= DateUtils.addDays(from, 35);
-
-        Long tAlarm_date=alarm_date.getTime();
+        Long lStartDate=(Long)eqpHealthTrendData.get(0).get(0);
+        Double dStartValue=(Double)eqpHealthTrendData.get(0).get(1);
 
 
+        Date alarm_date= DateUtils.addDays(to, 45);
+        Long lAlarmDate=alarm_date.getTime();
+        Double dAlarmValue=(Double)eqpHealthTrendData.get(eqpHealthTrendData.size()-1).get(2);//마지막 알람값
 
 
+        eqpHealthRUL.setRulStartTime(lStartDate);
+        eqpHealthRUL.setRulStartValue(dStartValue);
+
+        eqpHealthRUL.setRulEndTime(lAlarmDate);
+        eqpHealthRUL.setRulEndValue(dAlarmValue);
 
         return eqpHealthRUL;
     }
 
     @Override
-    public Long eqpHealthIndexGetWorstParam(String fabId, Long eqpId, Date from, Date to) {
+    public Long eqpHealthIndexGetWorstParam(String fabId, Long eqpId, Date from, Date to) { //장비에서 가장 상태가 않좋은 Param_id return
 
         STDReportMapper mapper = SqlSessionUtil.getMapper(sessions, fabId, STDReportMapper.class);
         List<ParamClassificationData> paramList = mapper.selectRadar(eqpId, from, to);
