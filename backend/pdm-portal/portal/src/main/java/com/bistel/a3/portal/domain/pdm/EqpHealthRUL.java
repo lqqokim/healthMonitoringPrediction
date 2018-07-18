@@ -2,20 +2,49 @@ package com.bistel.a3.portal.domain.pdm;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 public class EqpHealthRUL {
 
 
-    private List<Object> rul_data;
 
     private List<List<Object>> eqpHealthTrendData;
 
-    public List<Object> getRul_data() {
-        return rul_data;
+    private Long rulStartTime;
+    private Double rulStartValue;
+    private Long rulEndTime;
+    private Double rulEndValue;
+
+    public Long getRulStartTime() {
+        return rulStartTime;
     }
 
-    public void setRul_data(List<Object> rul_data) {
-        this.rul_data = rul_data;
+    public void setRulStartTime(Long rulStartTime) {
+        this.rulStartTime = rulStartTime;
+    }
+
+    public Double getRulStartValue() {
+        return rulStartValue;
+    }
+
+    public void setRulStartValue(Double rulStartValue) {
+        this.rulStartValue = rulStartValue;
+    }
+
+    public Long getRulEndTime() {
+        return rulEndTime;
+    }
+
+    public void setRulEndTime(Long rulEndTime) {
+        this.rulEndTime = rulEndTime;
+    }
+
+    public Double getRulEndValue() {
+        return rulEndValue;
+    }
+
+    public void setRulEndValue(Double rulEndValue) {
+        this.rulEndValue = rulEndValue;
     }
 
     public List<List<Object>> getEqpHealthTrendData() {

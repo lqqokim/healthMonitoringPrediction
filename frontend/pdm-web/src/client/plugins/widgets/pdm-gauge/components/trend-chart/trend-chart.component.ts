@@ -143,7 +143,7 @@ export class TrendChartComponent implements OnInit, OnChanges,AfterViewInit {
                         name: `${this.warningSpecLabel} (${spec_warning.toFixed(2)})`,
                         show: true, // default : false
                         value: spec_warning,
-                        color: '#ffff00',
+                        color: '#fde045',
                         width: 1,       // default : 1
                         adjust: 0,      // default : 0
                         pattern: null,  // default : null

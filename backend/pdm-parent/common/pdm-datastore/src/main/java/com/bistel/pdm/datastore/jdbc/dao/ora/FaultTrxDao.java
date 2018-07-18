@@ -40,7 +40,7 @@ public class FaultTrxDao implements FaultDataDao {
                     String valueString = new String(features);
 
                     String[] values = valueString.split(",");
-                    // time, param_rawid, health_rawid, vlaue, A/W, uas, uws, tgt, las, lws, fault_class
+                    // time, param_rawid, health_rawid, value, alarm type, alarm_spec, warning_spec, fault_class
 
                     Timestamp timestamp = new Timestamp(Long.parseLong(values[0]));
                     Long param_rawid = Long.parseLong(values[1]);
@@ -50,7 +50,7 @@ public class FaultTrxDao implements FaultDataDao {
                     pstmt.setLong(2, param_health_rawid);
                     pstmt.setString(3, values[4]); //alarm type code
                     pstmt.setFloat(4, Float.parseFloat(values[3])); //value
-                    pstmt.setString(5, values[10]); //fault classifications
+                    pstmt.setString(5, values[7]); //fault classifications
                     pstmt.setFloat(6, Float.parseFloat(values[5])); // alarm spec
                     pstmt.setFloat(7, Float.parseFloat(values[6])); // warning spec
                     pstmt.setTimestamp(8, timestamp);

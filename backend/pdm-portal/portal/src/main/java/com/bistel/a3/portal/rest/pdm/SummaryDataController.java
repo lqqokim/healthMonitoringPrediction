@@ -24,6 +24,8 @@ public class SummaryDataController {
     @Autowired
     private ITraceDataService traceDataService;
 
+
+
     //Done
     @RequestMapping("alarmCountSummary")
     public Object getAlarmCountSummary(@PathVariable("fabId") String fabId,
@@ -234,7 +236,7 @@ public class SummaryDataController {
         return summaryDataService.eqpHealthIndex(fabId,areaId, from, to);
     }
 
-    @RequestMapping("eqps/{eqpId}/params/{paramId}/eqpHealthTrendChart")
+    @RequestMapping("/params/{paramId}/eqpHealthTrendChart")
     public Object eqpHealthTrendChart(@PathVariable("fabId") String fabId,
                                  @PathVariable("paramId") Long paramId,
                                  @RequestParam("fromdate") Long fromdate,
@@ -247,7 +249,7 @@ public class SummaryDataController {
         return traceDataService.getTraceData(fabId, paramId, fromdate, todate);
     }
 
-    @RequestMapping("eqps/{eqpId}/params/{paramId}/eqpHealthTrendChartWithAVG")
+    @RequestMapping("/params/{paramId}/eqpHealthTrendChartWithAVG")
     public Object eqpHealthTrendChartWithAVG(@PathVariable("fabId") String fabId,
                                       @PathVariable("paramId") Long paramId,
                                       @RequestParam("fromdate") Long fromdate,
@@ -257,13 +259,16 @@ public class SummaryDataController {
         Date from = new Date(fromdate);
         Date to = new Date(todate);
 
+        Date previous=DateUtils.addDays(from, -90);
+        Long lPrevious_date=previous.getTime();
 
-        List<List<Object>> eqpHealthTrendData= traceDataService.getTraceData(fabId, paramId, fromdate, todate);
 
-        return summaryDataService.eqpHealthTrendChartWithAVG(fabId, from, to, paramId , eqpHealthTrendData);
+        List<List<Object>> eqpHealthTrendData= traceDataService.getTraceData(fabId, paramId, lPrevious_date, todate);
+
+        return summaryDataService.eqpHealthTrendChartWithAVG(fabId,previous, from, to, paramId , eqpHealthTrendData);
     }
 
-    @RequestMapping("eqps/{eqpId}/params/{paramId}/eqpHealthTrendChartWithRUL")
+    @RequestMapping("/params/{paramId}/eqpHealthTrendChartWithRUL")
     public Object eqpHealthTrendChartWithRUL(@PathVariable("fabId") String fabId,
                                              @PathVariable("paramId") Long paramId,
                                              @RequestParam("fromdate") Long fromdate,
@@ -281,6 +286,23 @@ public class SummaryDataController {
 
 
     }
+
+
+    @RequestMapping("eqps/{eqpId}/eqpHealthIndexGetWorstParam")
+    public Object eqpHealthIndexWorstParam(@PathVariable("fabId") String fabId,
+                                             @PathVariable("eqpId") Long eqpId,
+                                             @RequestParam("fromdate") Long fromdate,
+                                             @RequestParam("todate") Long todate) {
+
+
+        Date from = new Date(fromdate);
+        Date to = new Date(todate);
+
+        return summaryDataService.eqpHealthIndexGetWorstParam(fabId, eqpId ,from, to);
+
+
+    }
+
 
 }
 

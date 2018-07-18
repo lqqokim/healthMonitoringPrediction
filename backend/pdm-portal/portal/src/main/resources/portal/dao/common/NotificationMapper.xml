@@ -17,7 +17,7 @@
         <result column="update_dtts" property="updateDtts"/>
     </resultMap>
     
-    <select id="selectNotificationByUser" resultMap="BaseResultMap">
+    <select id="selectNotificationByUser" resultMap="BaseResultMap" databaseId="oracle">
     	select 
     		* 
     	from 
@@ -28,8 +28,16 @@
 	    	create_dtts > sysdate-16
 	    order by create_dtts desc
     </select>
+    <select id="selectNotificationByUser" resultMap="BaseResultMap" databaseId="postgresql">
+    	select * 
+    	from notification_a3
+    	where target_user_id = #{userId}
+	    and create_dtts > current_date - 16
+	    order by create_dtts desc
+    </select>
+
     
-    <insert id="insertNotification" parameterType="com.bistel.a3.portal.domain.common.Notification">
+    <insert id="insertNotification" parameterType="com.bistel.a3.portal.domain.common.Notification" databaseId="oracle">
     	insert into notification_a3
     	(
 	    	notification_id,
@@ -63,6 +71,42 @@
 	        'N'
     	)
     </insert>
+    <insert id="insertNotification" parameterType="com.bistel.a3.portal.domain.common.Notification" databaseId="postgresql">
+    	insert into notification_a3
+    	(
+	    	notification_id,
+	    	source_user_id,
+	    	target_user_id,
+	    	notification_type,
+	    	message,
+	    	link_url,
+	    	detail_view_yn,
+	    	detail_view_dtts,
+	    	read_yn,
+	    	read_dtts,
+	    	create_dtts,
+	    	update_dtts,
+	    	send_yn
+    	)
+    	values
+    	(
+    		nextval('seq_notification_a3'),
+	        #{sourceUserId},
+	        #{targetUserId},
+	        #{notificationType},
+	        #{message},
+	        #{linkUrl},
+	        #{detailViewYN, typeHandler=yn},
+	        current_date,
+	        #{readYN, typeHandler=yn},
+	        current_date,
+	        current_date,
+	        current_date,
+	        'N'
+    	)
+    </insert>
+    
+    
     <update id="updateNotification" parameterType="com.bistel.a3.portal.domain.common.Notification">
         update notification_a3
         <set>            
@@ -120,6 +164,7 @@
     </update>
     
     <select id="selectPushDataCount" resultType="java.lang.Integer">
+<!--
 	    select 
 	    	count(*) 
 		from (
@@ -132,6 +177,17 @@
 			noti.readYn = 'N'
 			or
 			noti.sendYn = 'N'
+-->
+		select 
+			count(*) 
+		from (
+			SELECT 
+				notification_id as notificationId,
+				target_user_id as targetUserId,
+				case when send_yn is null then 'N' else send_yn end as sendYn,
+				case when read_yn is null then 'N' else read_yn end as readYn
+			FROM NOTIFICATION_A3) noti
+		where noti.readYn = 'N' or noti.sendYn = 'N'
     </select>
     
     <!-- target userId로 검색을 해서, source user id 정보를 보여 줌 -->
@@ -145,9 +201,10 @@
     		notification_a3
     	where
     		target_user_id = #{userId}
-    		and send_yn = 'N'    	
+    		and send_yn = 'N'
     </select>
     <select id="selectNotificationUnReadCount" resultType="java.lang.Integer">
+<!-- 
 	    select 
 	    	count(*) 
 		from (
@@ -160,7 +217,22 @@
 		where 
 			noti.readYn = 'N'
 			and
-			noti.targetUserId = #{userId}			
+			noti.targetUserId = #{userId}
+ -->
+	    select 
+	    	count(*) 
+		from (
+			SELECT 
+				notification_id as notificationId,
+				target_user_id as targetUserId,
+				case when send_yn is null then 'N' else send_yn end as sendYn,
+				case when read_yn is null then 'N' else read_yn end as readYn
+			FROM NOTIFICATION_A3) noti
+		where 
+			noti.readYn = 'N'
+			and
+			noti.targetUserId = #{userId}
+
     </select>
     <update id="updateReadStatus">
     	update 

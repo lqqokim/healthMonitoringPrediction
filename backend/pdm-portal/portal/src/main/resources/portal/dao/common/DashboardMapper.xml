@@ -171,7 +171,7 @@
    		(select user_id from dashboard_a3 where dashboard_id = #{dashboardId}) and user_id != #{userId}
 	</select>
 
-	<insert id="insert">
+	<insert id="insert" databaseId="oracle">
 		<selectKey resultType="Long" keyProperty="dashboardId"
 			order="BEFORE">
 			select seq_dashboard_a3.nextval from dual
@@ -190,9 +190,29 @@
 				#{userId},
 				#{createDtts}
 			)
-	</insert>	
+	</insert>
+	<insert id="insert" databaseId="postgresql">
+		<selectKey resultType="Long" keyProperty="dashboardId" order="BEFORE">
+			select nextval('seq_dashboard_a3')
+		</selectKey>
+		insert into dashboard_a3 
+			(
+				dashboard_id, 
+				title, 
+				user_id, 
+				create_dtts
+			)
+		values
+			(
+				#{dashboardId},
+				#{title},
+				#{userId},
+				#{createDtts}
+			)
+	</insert>
 	
-	<insert id="insertLinkData">
+	
+	<insert id="insertLinkData" databaseId="oracle">
 		merge 
 		into user_dashboard_lnk_a3
 		using dual
@@ -214,14 +234,53 @@
 			#{favorite, typeHandler=yn},
 		</if>
 		<if test="dashboardOrder == null">
-			(select max(dashboard_order)+1 from user_dashboard_lnk_a3 where user_id =
-			#{userId}),
+			(select max(dashboard_order) + 1, from user_dashboard_lnk_a3 where user_id = #{userId}),
 		</if>
 		<if test="dashboardOrder != null">
 			#{dashboardOrder}
 		</if>
 		)
 	</insert>
+	<insert id="insertLinkData" databaseId="postgresql">
+		WITH UPSERT AS 
+		(
+			select 
+			#{userId} as user_id, 
+			#{dashboardId} as dashboard_id, 
+			#{home, typeHandler=yn} as home,
+			<if test="favorite == null">
+				'N' as favorite,
+			</if>		
+			<if test="favorite != null">
+				#{favorite, typeHandler=yn} as favorite,
+			</if>
+			<if test="dashboardOrder == null">
+				(select coalesce(dashboard_order) + 1 from user_dashboard_lnk_a3 where user_id = #{userId}) as dashboard_order,
+			</if>
+			<if test="dashboardOrder != null">
+				#{dashboardOrder} as dashboard_order
+			</if>
+		),
+		UPDATE_OPTION AS
+		(
+			update user_dashboard_lnk_a3 d set
+			user_id = UPSERT.user_id,
+			dashboard_id = UPSERT.dashboard_id,
+			home = UPSERT.home,
+			favorite = UPSERT.favorite,
+			dashboard_order = UPSERT.dashboard_order
+			from UPSERT
+			Where d.user_id=UPSERT.user_id and d.dashboard_id=UPSERT.dashboard_id
+		)
+		insert into user_dashboard_lnk_a3 (user_id, dashboard_id, home, favorite, dashboard_order)
+		select user_id, dashboard_id, home, favorite, dashboard_order
+		from UPSERT	where not exists (
+										select user_id, dashboard_id, home, favorite, dashboard_order
+										from user_dashboard_lnk_a3
+										where user_id = UPSERT.user_id and dashboard_id=UPSERT.dashboard_id
+									  )
+	</insert>
+	
 		
 	<update id="update">
 		update dashboard_a3
@@ -376,13 +435,17 @@
 			#{userId})
 		)
 	</insert>
+	
 	<select id="selectUserIdListByGroup" parameterType="java.lang.String" resultType="java.lang.String">
+	
 		select distinct(u.user_id) as userId
 		from user_a3 u, user_group_lnk_a3 ugl, user_group_dashboard_share_a3 ugds
 		where u.user_id = ugl.user_id
     		and ugds.USER_GROUP_ID = #{groupId}
 			and ugl.user_group_id = #{groupId}
+			
 	</select>
+		
 	<select id="selectGroupIdByUser" parameterType="java.lang.String" resultType="java.lang.String">
 		select ug.user_group_id 
 	    from user_group_a3 ug, user_group_lnk_a3 ugl    

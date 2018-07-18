@@ -1,4 +1,4 @@
 gaugeChart { display:block; position:relative; }
 
 /* 라벨 이벤트x 기본 세팅 */
-gaugeChart > svg text { pointer-events:none; text-anchor:middle; fill:#333; font:bold 12px sans-serif; }
+gaugeChart > svg text { pointer-events:none; text-anchor:middle; fill:#666; font:bold 10px sans-serif; }

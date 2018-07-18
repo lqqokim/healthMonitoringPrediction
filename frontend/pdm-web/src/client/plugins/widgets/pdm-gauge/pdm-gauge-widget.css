@@ -26,7 +26,7 @@
     position: absolute;
     font-size: 30px;
     right: 10px;
-    top: 6px;
+    top: 18px;
 }
 
 .pdm-gauge-legend li {
@@ -195,7 +195,7 @@
 .widget-pdm-gauge .pdm-gauge-chart {
     width: 100%;
     height: calc(100% - 25px) !important;
-    margin-top: 20px;
+    margin-top: 30px;
 }
 
 .widget-pdm-gauge .pdm-gauge-chart gauge-chart-generate {
@@ -206,6 +206,11 @@
 .widget-pdm-gauge .alarm-warning-variation {
     height: 100%;
     overflow: scroll;
+}
+
+.widget-pdm-gauge .pdm-gauge-chart .gauge-info {
+    text-align: center;
+    margin: 30px;
 }
 
 /* Charts Stasus Class */
@@ -308,10 +313,11 @@
     transition: all 0.1s ease-in-out;
     display: inherit;
     z-index: 710;
-    opacity:0;
+    opacity: 0;
 }
+
 .widget-pdm-gauge .pdm-gauge-info-hover.prih-on {
-    opacity:1;
+    opacity: 1;
 }
 
 .widget-pdm-gauge .pdm-gauge-detail-title {
@@ -390,10 +396,10 @@
 }
 
 .widget-pdm-gauge trend-chart .info {
-    height: 20px;
+    height: 30px;
     line-height: 20px;
 }
 
 .widget-pdm-gauge trend-chart .chart {
-    height: calc(100% - 20px);
+    height: calc(100% - 30px);
 }

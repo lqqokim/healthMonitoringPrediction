@@ -103,7 +103,8 @@ public class SpeedTaskDef extends AbstractPipeline {
                 .addSink("output-trace", this.getOutputTraceTopic(), "speed02")
                 .addSink("output-event", this.getOutputEventTopic(), "speed03")
                 .addSink("output-fault", this.getOutputFaultTopic(), "fd0102")
-                .addSink("output-raw", this.getInputTimewaveTopic(), "fd0102");
+                .addSink("output-raw", this.getInputTimewaveTopic(), "fd0102")
+                .addSink("output-health", this.getOutputHealthTopic(), "fd0102");
 
         topology.addSource("input-reload", "pdm-input-reload")
                 .addProcessor("reload", ReloadMetadataProcessor::new, "input-reload");

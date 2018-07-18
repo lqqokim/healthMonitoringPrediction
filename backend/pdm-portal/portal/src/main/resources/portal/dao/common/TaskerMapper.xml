@@ -37,7 +37,9 @@
         <include refid="BaseAllQuery"/>
         where tasker_id = #{taskerId}
     </select>
-    <insert id="insert">
+    
+    
+    <insert id="insert" databaseId="oracle">
         <selectKey resultType="Long" keyProperty="taskerId" order="BEFORE">
             select seq_tasker_a3.nextval from dual
         </selectKey>
@@ -51,6 +53,22 @@
             #{parentId, jdbcType=NUMERIC}
         )
     </insert>
+    <insert id="insert" databaseId="postgresql">
+        <selectKey resultType="Long" keyProperty="taskerId" order="BEFORE">
+            select nextval('seq_tasker_a3')
+        </selectKey>
+        insert into tasker_a3 (
+            tasker_id, tasker_type_id, workspace_id, title, parent_id
+        ) values (
+            #{taskerId},
+            #{taskerTypeId},
+            #{workspaceId},
+            #{title},
+            #{parentId, jdbcType=NUMERIC}
+        )
+    </insert>
+    
+    
     <update id="update">
         update tasker_a3
         set title = #{title}
@@ -89,7 +107,13 @@
     </select>
     
     <select id="hasParentId" parameterType="java.lang.Long" resultType="java.lang.String">
-        select decode(parent_id, null, 'false', 'true') as result  from tasker_a3 where tasker_id = #{taskerId}
+<!--         
+        select decode(parent_id, null, 'false', 'true') as result  
+        from tasker_a3 where tasker_id = #{taskerId}
+-->
+		select case when parent_id is null then 'false' else 'true' end as result 
+		from tasker_a3
+		where tasker_id = #{taskerId}
     </select>
     
     <select id="getChildTaskerIdList" parameterType="java.lang.Long" resultType="java.lang.Long">

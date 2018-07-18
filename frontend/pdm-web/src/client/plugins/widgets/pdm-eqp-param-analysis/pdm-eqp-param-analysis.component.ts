@@ -1138,7 +1138,7 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
         this.col_row = [];
 
         this._service.getParamInfoByEqpId(plantId, areaId, eqpId).then((result) => {
-            console.log(result);
+            console.log('getParamInfoByEqpId ==> ', result);
 
 
             for (let i = 0; i < result.length; i++) {
@@ -1973,6 +1973,7 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
             this._paramId,
             this.searchTimePeriod[CD.FROM],
             this.searchTimePeriod[CD.TO]).then(data => {
+                console.log('getMeasurements data ==> ', data)
                 this.measureDatas = data;
                 // console.log('getMeasurements : ', data);
                 let measurement = [];
@@ -2128,6 +2129,7 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
         }));
         calls.push(this._service.getSpectrum(this._plantId, this._areaId, this._eqpId, measurementId).then(data => {
             this.spectrumData = [data];
+            console.log('spectrum data ==> ', this.spectrumData);
             this.spectrumConfig['series'].push({ label: 'Current', color: 'rgb(51, 88, 255 )' });
             this.spectrumConfig = Object.assign({}, this.spectrumConfig);
 

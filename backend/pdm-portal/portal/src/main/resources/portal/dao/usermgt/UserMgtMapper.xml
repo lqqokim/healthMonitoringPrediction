@@ -23,9 +23,8 @@
 	        a.company_phone as companyPhone,
 	        a.type as type,
 	        a.location as location			
-		from user_a3 a    
-    		, user_group_lnk_a3 b
-		where a.user_id = b.USER_ID(+)
+		from user_a3 a left outer join user_group_lnk_a3 b
+		on a.user_id = b.USER_ID
 		order by a.user_id
 	</select>
 	
@@ -46,13 +45,13 @@
 	        a.company_phone as companyPhone,
 	        a.type as type,
 	        a.location as location			
-		from user_a3 a    
-    		, user_group_lnk_a3 b
-		where a.user_id = b.USER_ID(+)
-		and b.user_group_id = #{groupId}
+		from user_a3 a left outer join user_group_lnk_a3 b
+		on a.user_id = b.USER_ID
+		where b.user_group_id = #{groupId}
 		order by a.user_id
 	</select>
 	
+	<!-- TODO: Chris role_object_operation_lnk_a3 테이블 없음 -->
 	<select id="selectUserAuthorityList" resultType="java.lang.String">
 		SELECT                                                                     
 		  roles.condition||':' || OB.OBJECT_NAME||':'||OP.OPERATION_NAME  role ,   
@@ -362,6 +361,7 @@
 	 	where 
 			t.ancestor=#{roleId, jdbcType=VARCHAR} and r.role_id not in (#{roleId, jdbcType=VARCHAR})
 	</select>
+	<!-- TODO: Chris ROLE_OBJECT_OPERATION_LNK_A3 테이블 없음 -->
 	<select id="selectRolePermissionList" parameterType="java.lang.String" resultType="java.lang.String">	
 		select distinct(roo.object_operation_id) as permission
 		from
@@ -413,12 +413,14 @@
         <result column="objectOperationId" property="objectOperationId"/>
 <!--         <collection property="operation" javaType="java.util.List" column="id"  ofType="com.bistel.a3.portal.domain.usermgt.OperationVo" select="selectObjectOperationList"/> -->
     </resultMap>
+    
+    <!-- TODO: Chris ROLE_OBJECT_OPERATION_LNK_A3 테이블 없음 -->
 	<select id="selectObjectList" parameterType="java.lang.String" resultMap="ObjectVoResultMap">
 		select 
 			o.object_id as "id",
 			o.object_name as "name",
 			o.object_level as "level",
-      complexop.object_operation_id as "objectOperationId"
+            complexop.object_operation_id as "objectOperationId"
 		from OBJECT_A3 o, (select OBJECT_ID,  object_operation_id from OBJECT_OPERATION_LNK_A3 ool
 				where ool.object_operation_id
 					in (
@@ -430,12 +432,14 @@
 			) complexop
 		where o.object_id in complexop.OBJECT_ID
 	</select>
-		<select id="selectObjectListIncludeChild" parameterType="java.lang.String" resultMap="ObjectVoResultMap">
+	
+	<!-- TODO: Chris ROLE_OBJECT_OPERATION_LNK_A3 테이블 없음 -->
+	<select id="selectObjectListIncludeChild" parameterType="java.lang.String" resultMap="ObjectVoResultMap">
 		select 
 			o.object_id as "id",
 			o.object_name as "name",
 			o.object_level as "level",
-      complexop.object_operation_id as "objectOperationId"
+            complexop.object_operation_id as "objectOperationId"
 		from OBJECT_A3 o, (select OBJECT_ID,  object_operation_id from OBJECT_OPERATION_LNK_A3 ool
 				where ool.object_operation_id
 					in (
@@ -447,12 +451,16 @@
 			) complexop
 		where o.object_id in complexop.OBJECT_ID
 	</select>
+	
+	<!-- TODO: Chris object_operation_lnk_a3 테이블 없음 -->
 	<select id="selectOperationNameListByObjectId" parameterType="java.lang.String" resultType="java.lang.String">
 		select o.operation_name as operationName
 		from object_operation_lnk_a3 ool, operation_a3 o 
 		where ool.object_operation_id = #{objectOperationId, jdbcType=VARCHAR}
     		and o.operation_id=ool.OPERATION_ID
 	</select>
+	
+	<!-- TODO: Chris object_operation_lnk_a3 테이블 없음 -->
 	<select id="selectActionExtListByObjectId" parameterType="java.lang.String" resultType="com.bistel.a3.portal.domain.usermgt.ActionExtVo">
 		select o.operation_id as id, o.operation_name as name
 		from object_operation_lnk_a3 ool, operation_a3 o 
@@ -605,7 +613,7 @@
 		select operation_name from operation_a3
 	</select>
 	
-	<!--  -->
+	<!-- TODO: Chris object_operation_lnk_a3 테이블 없음  -->
 	<select id="selectExtOperationIdsByObjectId" parameterType="java.lang.String" resultType="java.lang.String">
       	select 
 			ool.OPERATION_ID 
@@ -714,9 +722,9 @@
         where user_id = #{userId}	    	
     </update>
     
-    	 <select id="selectGroupIdByUserId" resultType="java.lang.String">
+    <select id="selectGroupIdByUserId" resultType="java.lang.String">
     	select user_group_id
-    	  from user_group_lnk_a3
-    	 where user_id = #{userId} 
+        from user_group_lnk_a3
+    	where user_id = #{userId} 
     </select>
  </mapper>
