@@ -9,7 +9,8 @@ import { FormConfigType } from '../../../../sdk';
 export class SpectrumDataAnalysisProperties extends ConditionApi {
 
 	preInit(): Array<string> {
-		return [CD.PLANT, CD.CUTOFF_TYPE_DAY, CD.ANALYSIS_SPEC, CD.ANALYSIS_SPEC_VISIBLE];
+		// return [CD.PLANT, CD.CUTOFF_TYPE_DAY, CD.ANALYSIS_SPEC, CD.ANALYSIS_SPEC_VISIBLE];
+		return [CD.PLANT, CD.CUTOFF_TYPE_DAY];
 	}
 
 	// properties 초기값 설정
@@ -45,8 +46,8 @@ export class SpectrumDataAnalysisProperties extends ConditionApi {
 			Formcfg.Factory.plant(),
 			Formcfg.Common.time_period(newConfig),
 			// Formcfg.Common.communication(),
-			Formcfg.Factory.analysis_spec(),
-			Formcfg.Factory.analysis_spec_visible(),
+			// Formcfg.Factory.analysis_spec(),
+			// Formcfg.Factory.analysis_spec_visible(),
 			Formcfg.Common.auto_refresh()
 		];
 	}

@@ -1,10 +1,20 @@
 // Angular
-import { Component, ViewEncapsulation, ViewChild, OnDestroy, ElementRef, OnInit } from '@angular/core';
+import { Component, ViewEncapsulation, ViewChild, OnDestroy, ElementRef, OnInit, AfterViewInit } from '@angular/core';
 import { WidgetRefreshType, WidgetApi, OnSetup, RequestType } from '../../../common';
 
 //MIP
 import { PdmCommonService } from '../../../common/service/pdm-common.service';
 import { PdmEqpParamAnalysisService } from '../pdm-eqp-param-analysis/pdm-eqp-param-analysis.service';
+
+export interface ConditionType {
+    fab: {
+        fabId: number,
+        fabName: string
+    },timePeriod: {
+        from: number,
+        to: number
+    } 
+}
 
 @Component({
     moduleId: module.id,
@@ -15,8 +25,10 @@ import { PdmEqpParamAnalysisService } from '../pdm-eqp-param-analysis/pdm-eqp-pa
     encapsulation: ViewEncapsulation.None
 })
 export class PdmSpectrumDataAnalysisWidgetComponent extends WidgetApi implements OnInit, OnSetup, OnDestroy {
+    condition: ConditionType;
 
-    condition: any;
+    private _currentEl: any;
+    private _props: any;
 
     constructor() {
         super();
@@ -27,12 +39,11 @@ export class PdmSpectrumDataAnalysisWidgetComponent extends WidgetApi implements
     }
 
     ngOnInit() {
-
+        this.removeBlur();
     }
 
     refresh({ type, data }: WidgetRefreshType): void {
-        // this.showSpinner();
-        // this._props = data;
+        this._props = data;
 
         if (type === A3_WIDGET.APPLY_CONFIG_REFRESH) {
 
@@ -42,24 +53,36 @@ export class PdmSpectrumDataAnalysisWidgetComponent extends WidgetApi implements
 
         }
 
-        this.setCondition();
+        this.setCondition(data);
     }
 
-    setCondition(): void {
-        // this.condition = true;
+    setCondition(props: any): void {
+        this.condition = {
+            fab: props[CD.PLANT],
+            timePeriod: props[CD.TIME_PERIOD]
+        };
     }
 
-    // onLoad(ev: any): void {
-    //     if (ev.isLoad) {
-    //         this.hideSpinner();
-    //     } else {
-    //         this.hideSpinner();
-    //     }
-    // }
+    onLoad(ev: any): void {
+        if (ev) {
+            this.hideSpinner();
+        }
+    }
 
     private _init(): void {
         // this.showSpinner();
-        this.setCondition();
+        // this.removeBlur();
+        this._props = this.getProperties();
+        this.setCondition(this._props);
+    }
+
+    removeBlur(): void {
+        this._currentEl = $('pdm-spectrum-data-analysis-widget');
+        const parentEl = this._currentEl.parent();
+        
+        if (parentEl.hasClass('blur')) {
+            parentEl.removeClass('blur');
+        }
     }
 
     ngOnDestroy() {

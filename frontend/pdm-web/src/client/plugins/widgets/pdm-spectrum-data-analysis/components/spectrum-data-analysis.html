@@ -1,4 +1,57 @@
-<plotly-plot *ngIf="graph.data && graph.layout"
-    [data]="graph.data" 
-    [layout]="graph.layout">
-</plotly-plot>
+<div class="node-tree clearfix">
+    <modeling-tree *ngIf="fab" #tree (nodeClick)="nodeClick($event)" [fab]="fab.fabId"></modeling-tree>
+</div>
+
+<div class="ehmp-raw-wrapper clearfix">
+    <div class="ehmp-chart-row-head clearfix">
+        <div class="header-period-group pull-left">
+            <div class="a3-from-to" *ngIf="searchTimePeriod.from && searchTimePeriod.to"
+                [from]="searchTimePeriod?.from" 
+                [to]="searchTimePeriod?.to" 
+                [format]="'yyyy/MM/dd hh:mm:ss'" 
+                (changedFromTo)="fromToChange($event)">
+            </div>
+            <button class="btn btn-default" type="button" (click)="search();">Search</button>
+        </div>
+        <div class="header-condition-group pull-right">
+            <div class="chart-info">
+                <span class="a3-synced-title">Current Time : </span>
+                <!-- {{formatDate(_toDate)}} -->
+                <span class="a3-synced-title">Fab : </span>
+            </div>
+        </div>
+        <div class="a3-form-period period-to">
+            <label class="period-form-label">To</label>
+            <div class="btn-group">
+                <div class="input-group date input-append a3-datetime-picker">
+                    <input class="form-control a3-datetime-input" disabled="" type="text">
+                    <span class="input-group-addon add-on a3-datetime-calendar">
+                        <i class="fa fa-calendar" data-date-icon="fa fa-calendar" data-time-icon="glyphicon glyphicon-time"></i>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="sample-number">
+            <label for="trash_id">Sampling</label>
+            <input class="input-number" type="number" id="trash_id" value="1" placeholder="only number" step="1" />
+        </div>
+        <button class="btn btn-default" type="button">Search</button>
+    </div>
+    <div class="ehmp-chart-row-body">
+        <!-- Metrix Chart -->
+        <!-- <div class="metrix-row-chart-group" #chartHealth onselectstart="return false;">
+                <div class="row-chart-header chr-pad-height">
+                    <h3 class="panel-title">Eqp Parameter Matrix</h3>
+                </div>
+                <div class="metrix-row-chart-area metrix-row">
+                    <div class="metrix-chart-col">
+                       
+                    <div class="metrix-row-chart">
+
+                    </div>
+                </div>
+            </div>
+        </div> -->
+        <plotly-plot *ngIf="graph.data && graph.layout" [data]="graph.data" [layout]="graph.layout"></plotly-plot>
+    </div>
+</div>
