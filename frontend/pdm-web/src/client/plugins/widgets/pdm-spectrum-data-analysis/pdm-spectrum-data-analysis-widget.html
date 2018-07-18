@@ -1,5 +1,107 @@
-<div class="widget pdm-spectrum-data-analysis-container">
-    <spectrum-data-analysis>
-        
-    </spectrum-data-analysis>
+<div class="widget spectrum-data-analysis widget-pdm-eqp-param-analysis">
+    <!-- start mark up -->
+    <div class="node-tree clearfix">
+
+    </div>
+
+    <div class="ehmp-raw-wrapper clearfix">
+        <div class="ehmp-chart-row-head clearfix">
+            <div class="a3-form-period period-from">
+                <label class="period-form-label">From</label>
+                <div class="btn-group">
+                    <div class="input-group date input-append a3-datetime-picker">
+                        <input class="form-control a3-datetime-input" disabled="" type="text">
+                        <span class="input-group-addon add-on a3-datetime-calendar">
+                            <i class="fa fa-calendar" data-date-icon="fa fa-calendar" data-time-icon="glyphicon glyphicon-time"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="a3-form-period period-to">
+                <label class="period-form-label">To</label>
+                <div class="btn-group">
+                    <div class="input-group date input-append a3-datetime-picker">
+                        <input class="form-control a3-datetime-input" disabled="" type="text">
+                        <span class="input-group-addon add-on a3-datetime-calendar">
+                            <i class="fa fa-calendar" data-date-icon="fa fa-calendar" data-time-icon="glyphicon glyphicon-time"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="sample-number">
+                <label for="trash_id">Sampling</label>
+                <input class="input-number" type="number" id="trash_id" value="1" placeholder="only number" step="1" />
+            </div>
+            <button class="btn btn-default" type="button">Search</button>
+            <!--Currnt Time!! <div class="a3-chart-header pull-right">
+                <div class="chart-info">
+                    <span class="a3-synced-title">Current Time : </span>2018/07/17 16
+                    <span class="a3-synced-title">Fab : </span>
+                </div>
+            </div> -->
+        </div>
+        <div class="ehmp-chart-row-body">
+            <!-- Metrix Chart -->
+            <div class="metrix-row-chart-group" #chartHealth onselectstart="return false;">
+                <div class="row-chart-header chr-pad-height">
+                    <h3 class="panel-title">Eqp Parameter Matrix</h3>
+                    <!-- <i class="fa fa-search" (click)="expandChart($event, chartHealth, 0)"></i> -->
+                </div>
+                <div class="metrix-row-chart-area metrix-row">
+                    <div class="metrix-chart-col">
+                       
+                    <div class="metrix-row-chart">
+                        <div class="metrix-row-label">
+                            <label>{{rowItem}}</label>
+                        </div>
+                        <div class="metrix-width-calc">
+                            <!-- .metrix-warning-boder -->
+                            <div class="metrix-chart-container" (dblclick)="matrixDblClick(col_row[rowItem][colItem])" [ngClass]="{'metrix-warning':col_row[rowItem][colItem]!=undefined && col_row[rowItem][colItem].analysis!=undefined}"
+                                *ngFor="let colItem of cols">
+                                <div class="metrix-chart" *ngIf="col_row[rowItem][colItem]!=undefined">
+                                    <a3c-bistel-chart [data]="col_row[rowItem][colItem].data" [config]="TrendMetrixChartConfig" [eventLines]="col_row[rowItem][colItem].trendEventLines"
+                                        style="width: 100%; " class="chart-body">
+                                    </a3c-bistel-chart>
+                                    <div class="float-wrapper" *ngIf="col_row[rowItem][colItem].data==null">
+                                        <dl>
+                                            <dt>
+                                                <div class="a3-spinner-data"></div>
+                                            </dt>
+                                            <dd class="message-title">Loading ...</dd>
+                                        </dl>
+                                    </div>
+                                </div>
+                                <div class="metrix-chart-problem chart-warning" *ngIf="col_row[rowItem][colItem]!=undefined && col_row[rowItem][colItem].analysis!=undefined"
+                                    (click)="analysisSummaryClick(col_row[rowItem][colItem])">
+                                    <label>{{col_row[rowItem][colItem].analysisSummary}}</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div [ngStyle]="{'display': isContributionShow? 'block' : 'none'}" class="row-chart-group sectrum-chr" onselectstart="return false;"
+                #chartHealthContribute>
+                <div class="row-chart-header chr-pad-height" (dblclick)="expandChart($event, chartHealthContribute, 1)">
+                    <h3 class="panel-title">Health Contribution</h3>
+                    <span class="pull-right">
+                        <label class="checkbox-inline">
+                            <input type="checkbox" [checked]="isHealthContributionLegend" (change)="setHealthLegendStatus()" (dblclick)="$event.stopPropagation();"
+                            />
+                            <button type="button" class="btn btn-default model-button" (click)="hideContributionChart()" (dblclick)="$event.stopPropagation();">Hide Contribution</button>
+                            <span>Show legend</span>
+                        </label>
+                    </span>
+                </div>
+                <div class="row-chart-area mgin-l heal-wdh">
+                    <div class="chart hth-ctrbtn">
+                        <a3c-bistel-chart #healthContributeChart id="healthContributeChart" [data]="healthIndexContributeData" [config]="healthIndexContributeConfig"
+                            [eventLines]="healthContributionEventLines" [chartEvents]="healthIndexContributeEventConfig" class="chart-body"
+                            style="width: 100%;">
+                        </a3c-bistel-chart>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
