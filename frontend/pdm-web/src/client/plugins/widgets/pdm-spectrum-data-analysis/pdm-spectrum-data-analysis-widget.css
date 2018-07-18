@@ -20,13 +20,7 @@ spectrum-data-analysis .ehmp-chart-row-head{
     width: 100%;
     height: 35px;
 }
-spectrum-data-analysis .a3-form-text.current-text{
-    display: inline-block;
-}
-spectrum-data-analysis .a3-configuration-forms-wrapper{
-    width: 172px;
-    display: inline-block;
-}
+
 spectrum-data-analysis .ehmp-chart-row-body{
     height: calc(100% - 35px);
     overflow-y: auto;
@@ -35,7 +29,7 @@ spectrum-data-analysis .ehmp-chart-row-body{
     width: 100%;
 }
 spectrum-data-analysis .metrix-row-chart-area{
-    height: 250px;
+    height: 250px !important;
 }
 spectrum-data-analysis .a3-from-to{
     display: flex;
@@ -47,16 +41,72 @@ spectrum-data-analysis .sample-number{
     display: inline-block;
 }
 spectrum-data-analysis .a3-configuration-forms-wrapper{
-    width: 207px;
+    width: 180px;
     display: flex;
 }
 spectrum-data-analysis .a3-form-text.current-text{
     display: flex;
+    width: 36px;
+    align-items: center;
+    justify-content: center;
 }
+
 spectrum-data-analysis .input-group.date{
     width: 90px;
 }
 spectrum-data-analysis .input-group.date .form-control{
     width: 100px;
+}
+spectrum-data-analysis .row-chart-header{
+    height: 35px;
+    line-height:30px;
+}
+spectrum-data-analysis .row-chart-header .panel-title{
+    display: inline-block;
+    margin-right: 4px;
+    font-weight: bold;
+    font-size: 14px;
+}
+spectrum-data-analysis .metrix-chart-col{
+    display: inline-flex;
+    width: 100%;
+    height: 18px;
+    padding: 0 0 0 62px;
+    margin-bottom: 6px;
+}
+spectrum-data-analysis .metrix-chart-col .metrix-chart-col-label{
+    height: 100%;
+    width: 100%;
+    text-align: center;
+}
+spectrum-data-analysis .metrix-row-chart{
+    height: calc(100% - 24px);
+}
+spectrum-data-analysis .metrix-row-chart .metrix-row-label{
+    display: inline-flex;
+    width: 62px;
+    height: 100%;
+    margin-right: 5px;
+}
+spectrum-data-analysis .metrix-row-label label{
+    font-weight: bold;
+    text-align: center;
+    color: #767679;
+}
+spectrum-data-analysis .metrix-width-calc {
+    width: calc(100% - 62px);
+    height: 100%;
+}
+spectrum-data-analysis .metrix-width-calc .metrix-chart-container{
+    position: relative;
+    height: 100%;
+    width: 100%;
+    padding: 10px;
+    margin-right: 5px;
+    border: 1px solid #ddd;
+}
+spectrum-data-analysis .metrix-chart{
+    height: 100%;
+    width: 100%;
 }
 
