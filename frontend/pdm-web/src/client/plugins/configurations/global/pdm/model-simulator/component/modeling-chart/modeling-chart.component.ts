@@ -16,6 +16,7 @@ export class ModelingChartComponent implements OnInit, OnChanges, DoCheck {
     @Input() eventLines;
     @Input() xMin;
     @Input() xMax;
+    @Input() eqpEvents;
     @Output() selectParam = new EventEmitter<any>();
     @ViewChild("bistelchart") bistelchart:BistelChartComponent[];
     selectedParamId;
@@ -196,6 +197,65 @@ export class ModelingChartComponent implements OnInit, OnChanges, DoCheck {
         }
 
         this.setStatusEventConfig();
+
+        if(changes["eqpEvents"]!=null &&  this.eqpEvents.length>=2){
+            let eqpId ="";
+            for (let index = 0; index < this.eqpEvents.length; index++) {
+                const element = this.eqpEvents[index];
+                eqpId = element.eqpId;
+                if(element.eventTypeCd="S"){
+                    let operator = element.condition.replace('value','').trim();
+                    let value="";
+                    if(operator.substring(0,2)==">="){
+                        value = operator.substring(2);
+                        operator = ">=";
+                    }else if(operator.substring(0,2)=="<="){
+                        value = operator.substring(2);
+                        operator = "<=";
+                    }else if(operator.substring(0,1)=="<"){
+                        value = operator.substring(1);
+                        operator = "<";
+                    }else if(operator.substring(0,1)==">"){
+                        value = operator.substring(1);
+                        operator = ">";
+                    }
+                    this.conditionStartOperator = operator;
+                    this.conditionValue = parseFloat(value);
+                }else if(element.eventTypeCd="E"){ //End는 보이는 모양이 반대라서 Operation모두 반대임 
+                    let operator = element.condition.replace('value','').trim();
+                    let value="";
+                    if(operator.substring(0,2)==">="){
+                        value = operator.substring(2);
+                        operator = "<=";
+                    }else if(operator.substring(0,2)=="<="){
+                        value = operator.substring(2);
+                        operator = ">=";
+                    }else if(operator.substring(0,1)=="<"){
+                        value = operator.substring(1);
+                        operator = ">";
+                    }else if(operator.substring(0,1)==">"){
+                        value = operator.substring(1);
+                        operator = "<";
+                    }
+                    this.conditionEndOperator = operator;
+                    this.conditionValue = parseFloat(value);
+                }
+                
+            }
+
+            // this.setStatusEventConfig();
+            let param = null;
+            for(let i=0;i<this.params.length;i++){
+                if(this.params[i].paramId == this.selectedParamId){
+                    param = this.params[i];
+                    break;
+                }
+            }
+            // this.selectParam.emit(param);
+            this.selectedParamId = this.eqpEvents[0].paramId;
+
+            this.drawConditionLine(param);
+        }
     }
     // getChartData(datas){
     //     let chartOptions = $.extend(true,{},this.chartOptions);
@@ -365,6 +425,7 @@ export class ModelingChartComponent implements OnInit, OnChanges, DoCheck {
                 param = this.params[i];
             }
         }
+        
         this.drawConditionLine(param);
     }
 
@@ -380,6 +441,8 @@ export class ModelingChartComponent implements OnInit, OnChanges, DoCheck {
         }) / param.datas[0].length;
 
         this.conditionParamId = param.paramId;
+
+        // this.selectedParamId = param.paramId;
 
         this.setStatusEventConfig();
         this.drawConditionLine(param);
@@ -461,5 +524,11 @@ export class ModelingChartComponent implements OnInit, OnChanges, DoCheck {
     }
     public getConditionParamId() {
         return this.conditionParamId;
+    }
+    public getConditionStartOperator(){
+        return this.conditionStartOperator;
+    }
+    public getConditionEndOperator(){
+        return this.conditionEndOperator;
     }
 }
