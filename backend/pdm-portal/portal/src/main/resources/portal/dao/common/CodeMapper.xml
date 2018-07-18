@@ -11,6 +11,7 @@
         <result column="used" property="used" typeHandler="yn"/>
         <result column="code_category_id" property="codeCategoryId"/>
     </resultMap>
+    
     <sql id="BaseAllQuery">
         select
             a.code_id,
@@ -27,8 +28,6 @@
             join app_a3 c
                 on c.app_id = b.app_id
     </sql>
-
-
 
     <select id="selectByCategoryName" resultMap="BaseResultMap">
         <include refid="BaseAllQuery"/>
@@ -51,7 +50,8 @@
         delete from code_a3
         where code_category_id = #{codeCategoryId}
     </delete>
-    <insert id="insert">
+    
+    <insert id="insert" databaseId="oracle">
         <selectKey resultType="Long" keyProperty="codeId" order="BEFORE">
             select seq_code_a3.nextval from dual
         </selectKey>
@@ -68,6 +68,25 @@
             #{codeCategoryId}
         )
     </insert>
+    <insert id="insert" databaseId="postgresql">
+        <selectKey resultType="Long" keyProperty="codeId" order="BEFORE">
+            select nextval('seq_code_a3')
+        </selectKey>
+        insert into code_a3 (
+            code_id, code, name, code_order, code_default, description, used, code_category_id
+        ) values (
+            #{codeId},
+            #{code},
+            #{name},
+            #{codeOrder},
+            #{defaultCode, typeHandler=yn},
+            #{description},
+            #{used, typeHandler=yn},
+            #{codeCategoryId}
+        )
+    </insert>
+
+
     <delete id="delete">
         delete from code_a3
         where code_id = #{codeId}
@@ -125,13 +144,6 @@
         delete from code_a3
         where code_id = #{codeId}
     </delete>
-
-
-
-
-
-
-
 
 
 </mapper>

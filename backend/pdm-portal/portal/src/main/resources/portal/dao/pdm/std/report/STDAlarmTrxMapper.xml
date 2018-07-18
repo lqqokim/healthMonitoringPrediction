@@ -43,7 +43,7 @@
     </insert>
     <insert id="insertEqpAlarm" databaseId="postgresql">
   		insert into eqp_alarm_daily_sum_pdm(rawid,eqp_mst_rawid, sum_dtts, status_cd, value,create_by,create_dtts)
-        select nextval('seq_eqp_alarm_daily_sum_pdm'), a.eqp_id, b.alarm_dtts, a.alarm_type_cd, a.value,#{userName}, LOCALTIMESTAMP
+        select nextval('seq_eqp_alarm_daily_sum_pdm'), a.eqp_id, b.alarm_dtts, a.alarm_type_cd, a.value,#{userName}, localtimestamp
         from (
         select
         <!--seq_eqp_alarm_daily_sum_pdm.nextval,-->

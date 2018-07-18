@@ -25,7 +25,9 @@
         <include refid="BaseAllQuery"/>
         where widget_type_id = #{widgetTypeId}
     </select>
-    <insert id="insert">
+    
+    
+    <insert id="insert" databaseId="oracle">
         <selectKey resultType="Long" keyProperty="widgetTypeId" order="BEFORE">
             select seq_widget_type_a3.nextval from dual
         </selectKey>
@@ -43,6 +45,26 @@
             #{properties, typeHandler=json}
         )
     </insert>
+    <insert id="insert" databaseId="postgresql">
+        <selectKey resultType="Long" keyProperty="widgetTypeId" order="BEFORE">
+            select nextval('seq_widget_type_a3')
+        </selectKey>
+        insert into widget_type_a3 (
+            widget_type_id, thumbnail, title, name, description, width, height, category, properties
+        ) values (
+            #{widgetTypeId},
+            #{thumbnail},
+            #{title},
+            #{name},
+            #{description},
+            #{width},
+            #{height},
+            #{category},
+            #{properties, typeHandler=json}
+        )
+	</insert>
+    
+    
     <update id="update">
         update widget_type_a3
         <set >

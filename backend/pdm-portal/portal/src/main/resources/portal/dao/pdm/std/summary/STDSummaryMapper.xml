@@ -1639,32 +1639,40 @@
 		       warning.warning_count,
 		       offlines.offline_count,
 		       total.total_count - ( alarm.alarm_count + warning.warning_count + offlines.offline_count ) AS normal_count
-		FROM   (SELECT groupdate,
-		               Count(eqp_mst_rawid) AS alarm_count
-		        FROM   (SELECT eqpalarm.groupdate,
-		                       eqpalarm.eqp_mst_rawid,
-		                       emp.offline_yn
-		                FROM   (SELECT groupdate,
-		                               eqp_mst_rawid
-		                        FROM   (SELECT To_char(alarm_dtts, 'yyyy-MM-dd') AS
-		                                       groupdate,
-		                                       param.eqp_mst_rawid
-		                                FROM   alarm_trx_pdm alarm,
-		                                       param_mst_pdm param
-		                                WHERE  alarm_dtts <![CDATA[>=]]> #{fromdate}
-									   	       and alarm_dtts <![CDATA[<]]> #{todate}
-		                                       AND alarm_type_cd = '256'
-		                                       AND alarm.param_mst_rawid = param.rawid
-		                                GROUP  BY To_char(alarm_dtts, 'yyyy-MM-dd'),
-		                                          param.eqp_mst_rawid
-		                                ORDER  BY groupdate) z) eqpalarm,
-		                       eqp_mst_pdm emp
-		                WHERE  1 = 1
-		                       AND eqpalarm.eqp_mst_rawid = emp.rawid
-		                       AND emp.offline_yn = 'N'
-		                ORDER  BY groupdate) zz
+		FROM   (SELECT groupdate, Count(eqp_mst_rawid) AS offline_count
+		        FROM   (SELECT *
+		                FROM   (SELECT To_char(event_dtts, 'yyyy-MM-dd') AS groupdate,
+		                               param.eqp_mst_rawid
+		                        FROM   trace_trx_pdm trx,
+		                               param_mst_pdm param,
+		                               eqp_mst_pdm eqp
+		                        WHERE  event_dtts <![CDATA[>=]]> #{fromdate}
+		        					   and event_dtts <![CDATA[<]]> #{todate}
+		                               AND trx.param_mst_rawid = param.rawid
+		                               AND param.eqp_mst_rawid = eqp.rawid
+		                               AND eqp.offline_yn = 'Y'
+		                        GROUP  BY To_char(event_dtts, 'yyyy-MM-dd'),
+		                                  param.eqp_mst_rawid
+		                        ORDER  BY groupdate) zzz) zzzz
 		        GROUP  BY groupdate
-		        ORDER  BY groupdate) alarm,
+		        ORDER  BY groupdate) offlines
+				right outer join
+		       (SELECT groupdate,
+		               Count(eqp_mst_rawid) AS total_count
+		        FROM   (SELECT To_char(event_dtts, 'yyyy-MM-dd') AS groupdate,
+		                       param.eqp_mst_rawid
+		                FROM   trace_trx_pdm trx,
+		                       param_mst_pdm param
+		                WHERE  event_dtts <![CDATA[>=]]> #{fromdate}
+		        			   and event_dtts <![CDATA[<]]> #{todate}
+		                       AND trx.param_mst_rawid = param.rawid
+		                GROUP  BY To_char(event_dtts, 'yyyy-MM-dd'),
+		                          param.eqp_mst_rawid
+		                ORDER  BY groupdate) zzzzz
+		        GROUP  BY groupdate
+		        ORDER  BY groupdate) total
+		        on offlines.groupdate=total.groupdate
+				right outer join
 		       (SELECT groupdate,
 		               Count (eqp_mst_rawid) AS warning_count
 		        FROM   (SELECT eqpwarn.groupdate,
@@ -1699,42 +1707,36 @@
 		                       AND emp.offline_yn = 'N'
 		                ORDER  BY groupdate) zzzz
 		        GROUP  BY groupdate
-		        ORDER  BY groupdate) warning,
-		       (SELECT groupdate,
-		               Count(eqp_mst_rawid) AS total_count
-		        FROM   (SELECT To_char(event_dtts, 'yyyy-MM-dd') AS groupdate,
-		                       param.eqp_mst_rawid
-		                FROM   trace_trx_pdm trx,
-		                       param_mst_pdm param
-		                WHERE  event_dtts <![CDATA[>=]]> #{fromdate}
-		        			   and event_dtts <![CDATA[<]]> #{todate}
-		                       AND trx.param_mst_rawid = param.rawid
-		                GROUP  BY To_char(event_dtts, 'yyyy-MM-dd'),
-		                          param.eqp_mst_rawid
-		                ORDER  BY groupdate) zzzzz
+		        ORDER  BY groupdate) warning
+		        on total.groupdate=warning.groupdate
+				right outer join
+				(SELECT groupdate,
+		               Count(eqp_mst_rawid) AS alarm_count
+		        FROM   (SELECT eqpalarm.groupdate,
+		                       eqpalarm.eqp_mst_rawid,
+		                       emp.offline_yn
+		                FROM   (SELECT groupdate,
+		                               eqp_mst_rawid
+		                        FROM   (SELECT To_char(alarm_dtts, 'yyyy-MM-dd') AS
+		                                       groupdate,
+		                                       param.eqp_mst_rawid
+		                                FROM   alarm_trx_pdm alarm,
+		                                       param_mst_pdm param
+		                                WHERE  alarm_dtts <![CDATA[>=]]> #{fromdate}
+									   	       and alarm_dtts <![CDATA[<]]> #{todate}
+		                                       AND alarm_type_cd = '256'
+		                                       AND alarm.param_mst_rawid = param.rawid
+		                                GROUP  BY To_char(alarm_dtts, 'yyyy-MM-dd'),
+		                                          param.eqp_mst_rawid
+		                                ORDER  BY groupdate) z) eqpalarm,
+		                       eqp_mst_pdm emp
+		                WHERE  1 = 1
+		                       AND eqpalarm.eqp_mst_rawid = emp.rawid
+		                       AND emp.offline_yn = 'N'
+		                ORDER  BY groupdate) zz
 		        GROUP  BY groupdate
-		        ORDER  BY groupdate) total,
-		       (SELECT groupdate, Count(eqp_mst_rawid) AS offline_count
-		        FROM   (SELECT *
-		                FROM   (SELECT To_char(event_dtts, 'yyyy-MM-dd') AS groupdate,
-		                               param.eqp_mst_rawid
-		                        FROM   trace_trx_pdm trx,
-		                               param_mst_pdm param,
-		                               eqp_mst_pdm eqp
-		                        WHERE  event_dtts <![CDATA[>=]]> #{fromdate}
-		        					   and event_dtts <![CDATA[<]]> #{todate}
-		                               AND trx.param_mst_rawid = param.rawid
-		                               AND param.eqp_mst_rawid = eqp.rawid
-		                               AND eqp.offline_yn = 'Y'
-		                        GROUP  BY To_char(event_dtts, 'yyyy-MM-dd'),
-		                                  param.eqp_mst_rawid
-		                        ORDER  BY groupdate) zzz) zzzz
-		        GROUP  BY groupdate
-		        ORDER  BY groupdate) offlines
-		WHERE  1 = 1
-		AND offlines.groupdate = total.groupdate
-		AND total.groupdate = warning.groupdate
-		AND warning.groupdate = alarm.groupdate 
+		        ORDER  BY groupdate) alarm
+				on warning.groupdate=alarm.groupdate
 	</select>
 
 
@@ -1885,145 +1887,110 @@
     <select id="selectLineStatusTrendByAreaId" resultType="com.bistel.a3.portal.domain.pdm.AreaFaultCountSummary" databaseId="postgresql">
 		select total.groupdate as day, total.total_count, alarm.alarm_count, warning.warning_count, offlines.offline_count , total.total_count-(alarm.alarm_count+warning.warning_count+offlines.offline_count) as normal_count
         from
-	        (
-	        select groupdate, count(eqp_mst_rawid) as alarm_count
-	        from
-	        (
-	        select eqpalarm.groupdate, eqpalarm.eqp_mst_rawid, emp.offline_yn
-	        from
-	        (
-	        select groupdate, eqp_mst_rawid
-	        from
-	        (
-	        select to_char(alarm_dtts,'yyyy-MM-dd')  as groupdate , param.eqp_mst_rawid
-	        from alarm_trx_pdm alarm,param_mst_pdm param
-	        where 1=1 
-			alarm_dtts <![CDATA[>=]]> #{fromdate}
-	        and alarm_dtts <![CDATA[<]]> #{todate}
-	        and alarm_type_cd = '256'
-	        and alarm.param_mst_rawid = param.rawid
-	        group by to_char(alarm_dtts,'yyyy-MM-dd'), param.eqp_mst_rawid
-	        order by groupdate
-	        ) z
-	        ) eqpalarm,
-	        eqp_mst_pdm emp
-	        where 1=1
-	        and eqpalarm.eqp_mst_rawid=emp.rawid
-	        and emp.offline_yn='N'
-	        and emp.area_mst_rawid= #{area_id}
-	        order by groupdate
-	        ) zz
-	        group by groupdate
-	        order by groupdate
-	
-	        ) alarm,
-	
-	
-	
-	        (
-	        select groupdate,count (eqp_mst_rawid) as warning_count
-	        from
-	        (
-	        select eqpwarn.groupdate, eqpwarn.eqp_mst_rawid
-	        from
-	        (
-	
-	
-	
-	        select *
-	        from
-	        (
-	
-	        (
-	        select to_char(alarm_dtts,'yyyy-MM-dd')  as groupdate ,  param.eqp_mst_rawid
-	        from alarm_trx_pdm alarm,param_mst_pdm param
-	        where 1=1
-			and alarm_dtts <![CDATA[>=]]> #{fromdate}
-	        and alarm_dtts <![CDATA[<]]> #{todate}
-	        and alarm_type_cd = '128'
-	        and alarm.param_mst_rawid = param.rawid
-	        group by to_char(alarm_dtts,'yyyy-MM-dd'), param.eqp_mst_rawid
-	
-	        )
-	        EXCEPT
-	        (
-	        select to_char(alarm_dtts,'yyyy-MM-dd')  as groupdate ,  param.eqp_mst_rawid
-	        from alarm_trx_pdm alarm,param_mst_pdm param
-	        where 1=1
-			and alarm_dtts <![CDATA[>=]]> #{fromdate}
-	        and alarm_dtts <![CDATA[<]]> #{todate}
-	        and alarm_type_cd = '256'
-	        and alarm.param_mst_rawid = param.rawid
-	        group by to_char(alarm_dtts,'yyyy-MM-dd'), param.eqp_mst_rawid
-	
-	        )
-	        ) zzz
-	
-	
-	        ) eqpwarn,
-	        eqp_mst_pdm emp
-	        where 1=1
-	        and eqpwarn.eqp_mst_rawid=emp.rawid
-	        and emp.offline_yn='N'
-	        and emp.area_mst_rawid= #{area_id}
-	        order by groupdate
-	        ) zzzz
-	        group by groupdate
-	        order by groupdate
-	
-	        ) warning,
-	
-	
-	        (
-	        select groupdate, count(eqp_mst_rawid) as total_count
-	        from
-	        (
-	        select to_char(event_dtts,'yyyy-MM-dd')  as groupdate ,  param.eqp_mst_rawid
-	        from trace_trx_pdm trx,param_mst_pdm param, eqp_mst_pdm emp
-	        where 1=1
-	        and event_dtts <![CDATA[>=]]> #{fromdate}
-			and event_dtts <![CDATA[<]]> #{todate}
-	        and trx.param_mst_rawid = param.rawid
-	        and param.eqp_mst_rawid=emp.rawid
-	        and emp.area_mst_rawid= #{area_id}
-	        group by to_char(event_dtts,'yyyy-MM-dd'), param.eqp_mst_rawid
-	        order by groupdate
-	        ) z
-	        group by groupdate
-	        order by groupdate
-	        ) total,
-	
-	
-	
-	        (
-	
-	        select groupdate, count(eqp_mst_rawid) as offline_count
-	        from
-	        (
-	        select *
-	        from
-	        (
-	        select to_char(event_dtts,'yyyy-MM-dd')  as groupdate ,  param.eqp_mst_rawid
-	        from trace_trx_pdm trx,param_mst_pdm param, eqp_mst_pdm eqp
-	        where 1=1
-	        and event_dtts <![CDATA[>=]]> #{fromdate}
-			and event_dtts <![CDATA[<]]> #{todate}
-	        and trx.param_mst_rawid = param.rawid
-	        and param.eqp_mst_rawid= eqp.rawid
-	        and eqp.offline_yn='Y'
-	        and eqp.area_mst_rawid= #{area_id}
-	        group by to_char(event_dtts,'yyyy-MM-dd'), param.eqp_mst_rawid
-	        order by groupdate
-	        ) zz
-	        ) zzz
-	        group by groupdate
-	        order by groupdate
-	
-	        ) offlines
-        where 1=1
-        and offlines.groupdate=total.groupdate
-        and total.groupdate=warning.groupdate
-        and warning.groupdate=alarm.groupdate
+	        (select groupdate, count(eqp_mst_rawid) as offline_count
+	         from
+	        	(select *
+				 from
+					(select to_char(event_dtts,'yyyy-MM-dd')  as groupdate ,  param.eqp_mst_rawid
+					from trace_trx_pdm trx,param_mst_pdm param, eqp_mst_pdm eqp
+					where 1=1
+					and event_dtts <![CDATA[>=]]> #{fromdate}
+					and event_dtts <![CDATA[<]]> #{todate}
+					and trx.param_mst_rawid = param.rawid
+					and param.eqp_mst_rawid= eqp.rawid
+					and eqp.offline_yn='Y'
+					and eqp.area_mst_rawid= #{area_id}
+					group by to_char(event_dtts,'yyyy-MM-dd'), param.eqp_mst_rawid
+					order by groupdate
+					) zz
+		        ) zzz
+	         group by groupdate
+	         order by groupdate) offlines
+			 right outer join
+	        (select groupdate, count(eqp_mst_rawid) as total_count
+	         from
+	        	(select to_char(event_dtts,'yyyy-MM-dd')  as groupdate ,  param.eqp_mst_rawid
+				from trace_trx_pdm trx,param_mst_pdm param, eqp_mst_pdm emp
+				where 1=1
+				and event_dtts <![CDATA[>=]]> #{fromdate}
+				and event_dtts <![CDATA[<]]> #{todate}
+				and trx.param_mst_rawid = param.rawid
+				and param.eqp_mst_rawid=emp.rawid
+				and emp.area_mst_rawid= #{area_id}
+				group by to_char(event_dtts,'yyyy-MM-dd'), param.eqp_mst_rawid
+				order by groupdate
+				) z
+	         group by groupdate
+	         order by groupdate) total
+			 on offlines.groupdate=total.groupdate
+			 right outer join
+	        (select groupdate,count (eqp_mst_rawid) as warning_count
+	         from
+	        	(select eqpwarn.groupdate, eqpwarn.eqp_mst_rawid
+				from
+				(
+					select *
+					from
+					(
+						(
+						select to_char(alarm_dtts,'yyyy-MM-dd')  as groupdate ,  param.eqp_mst_rawid
+						from alarm_trx_pdm alarm,param_mst_pdm param
+						where 1=1
+						and alarm_dtts <![CDATA[>=]]> #{fromdate}
+						and alarm_dtts <![CDATA[<]]> #{todate}
+						and alarm_type_cd = '128'
+						and alarm.param_mst_rawid = param.rawid
+						group by to_char(alarm_dtts,'yyyy-MM-dd'), param.eqp_mst_rawid
+
+						)
+						EXCEPT
+						(
+						select to_char(alarm_dtts,'yyyy-MM-dd')  as groupdate ,  param.eqp_mst_rawid
+						from alarm_trx_pdm alarm,param_mst_pdm param
+						where 1=1
+						and alarm_dtts <![CDATA[>=]]> #{fromdate}
+						and alarm_dtts <![CDATA[<]]> #{todate}
+						and alarm_type_cd = '256'
+						and alarm.param_mst_rawid = param.rawid
+						group by to_char(alarm_dtts,'yyyy-MM-dd'), param.eqp_mst_rawid
+						)
+					) zzz
+				) eqpwarn,
+				eqp_mst_pdm emp
+				where 1=1
+				and eqpwarn.eqp_mst_rawid=emp.rawid
+				and emp.offline_yn='N'
+				and emp.area_mst_rawid= #{area_id}
+				order by groupdate) zzzz
+			 group by groupdate
+			 order by groupdate) warning
+			 on total.groupdate=warning.groupdate
+			 right outer join
+	        (select groupdate, count(eqp_mst_rawid) as alarm_count
+	         from
+				(select eqpalarm.groupdate, eqpalarm.eqp_mst_rawid, emp.offline_yn
+				 from
+					(select groupdate, eqp_mst_rawid
+					 from
+						(select to_char(alarm_dtts,'yyyy-MM-dd')  as groupdate , param.eqp_mst_rawid
+						 from alarm_trx_pdm alarm,param_mst_pdm param
+						 where 1=1 
+						 alarm_dtts <![CDATA[>=]]> #{fromdate}
+						 and alarm_dtts <![CDATA[<]]> #{todate}
+						 and alarm_type_cd = '256'
+						 and alarm.param_mst_rawid = param.rawid
+						 group by to_char(alarm_dtts,'yyyy-MM-dd'), param.eqp_mst_rawid
+						 order by groupdate) z
+					 ) eqpalarm, eqp_mst_pdm emp
+				where 1=1
+				and eqpalarm.eqp_mst_rawid=emp.rawid
+				and emp.offline_yn='N'
+				and emp.area_mst_rawid= #{area_id}
+				order by groupdate
+				) zz
+ 			 group by groupdate
+		 	 order by groupdate) alarm
+        	 on warning.groupdate=alarm.groupdate
     </select>
 
 
@@ -2600,76 +2567,6 @@
 		) fault
 		group by fault_class
     </select>
-
-
-    <select id="selectEqpHealthIndexMasterInfo" resultType="com.bistel.a3.portal.domain.pdm.EqpHealthIndex">
-        select eqphealthmasterinfo.area_id, eqphealthmasterinfo.area_name, eqphealthmasterinfo.eqp_id, eqphealthmasterinfo.eqp_name, alarmcount.alarm_count
-        from
-        (
-        select area_id, area_name, eqp_id, eqp_name
-        from
-        (
-        select area.rawid as area_id, area.name as area_name, eqp.rawid as eqp_id, eqp.name as eqp_name , eqphealth.health_logic_mst_rawid, eqphealth.score, eqphealth.alarm_count
-        from eqp_health_daily_sum_pdm eqphealth, eqp_mst_pdm eqp, area_mst_pdm area
-        where 1=1
-        and area.rawid=eqp.area_mst_rawid
-        and eqphealth.EQP_MST_RAWID=eqp.rawid
-        and eqphealth.sum_dtts <![CDATA[>=]]> #{fromdate}
-        and eqphealth.sum_dtts <![CDATA[<]]> #{todate}
-        )
-        group by area_id, area_name, eqp_id, eqp_name
-        ) eqphealthmasterinfo,
-
-        (
-        select eqp_id, sum(alarm_count) as alarm_count
-        from
-        (
-        select area.rawid as area_id, area.name as area_name, eqp.rawid as eqp_id, eqp.name as eqp_name , eqphealth.health_logic_mst_rawid, eqphealth.score, eqphealth.alarm_count
-        from eqp_health_daily_sum_pdm eqphealth, eqp_mst_pdm eqp, area_mst_pdm area
-        where 1=1
-        and area.rawid=eqp.area_mst_rawid
-        and eqphealth.EQP_MST_RAWID=eqp.rawid
-        and eqphealth.sum_dtts  <![CDATA[>=]]> #{fromdate}
-        and eqphealth.sum_dtts  <![CDATA[<]]> #{todate}
-        )
-        group by eqp_id
-        ) alarmcount
-
-        where 1=1
-        and eqphealthmasterinfo.eqp_id=alarmcount.eqp_id
-
-    </select>
-
-    <select id="selectEqpHealthIndexInfo" resultType="com.bistel.a3.portal.domain.pdm.EqpHealthIndex">
-
-        select eqp_id, health_logic_mst_rawid, score, alarm_count
-        from
-        (
-        select area.rawid as area_id, area.name as area_name, eqp.rawid as eqp_id, eqp.name as eqp_name , eqphealth.health_logic_mst_rawid, eqphealth.score, eqphealth.alarm_count
-        from eqp_health_daily_sum_pdm eqphealth, eqp_mst_pdm eqp, area_mst_pdm area
-        where 1=1
-        and area.rawid=eqp.area_mst_rawid
-        and eqphealth.EQP_MST_RAWID=eqp.rawid
-        and eqphealth.sum_dtts <![CDATA[>=]]> #{fromdate}
-        and eqphealth.sum_dtts <![CDATA[<]]> #{todate}
-        )
-
-    </select>
-
-    <select id="selectEqpHealthIndexByAreaId" resultType="com.bistel.a3.portal.domain.pdm.EqpHealthIndex">
-        select area.rawid as area_id, area.name as area_name, eqp.rawid as eqp_id, eqp.name as eqp_name , eqphealth.health_logic_mst_rawid, eqphealth.score, eqphealth.alarm_count
-        from eqp_health_daily_sum_pdm eqphealth, eqp_mst_pdm eqp, area_mst_pdm area
-        where 1=1
-        and area.rawid=eqp.area_mst_rawid
-        and eqphealth.EQP_MST_RAWID=eqp.rawid
-        and eqphealth.sum_dtts <![CDATA[>=]]> #{fromdate}
-        and eqphealth.sum_dtts <![CDATA[<]]> #{todate}
-        and area.rawid= #{area_id}
-    </select>
-
-
-
-
 </mapper>
 
 

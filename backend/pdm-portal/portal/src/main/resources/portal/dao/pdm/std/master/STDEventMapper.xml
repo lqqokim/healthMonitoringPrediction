@@ -14,10 +14,10 @@
             select nextval('seq_eqp_event_mst_pdm')
         </selectKey>
         insert into eqp_event_mst_pdm(rawid, eqp_mst_rawid,event_name,event_type_cd,process_yn,param_mst_rawid,condition,create_by,create_dtts,update_by,update_dtts)
-        values(#{rawId}, #{eqpMstRawId}, #{eventName,jdbcType=VARCHAR}, #{eventTypeCd},#{processYn},#{paramMstRawId},#{condition},#{userName},systimestamp,#{userName},systimestamp)
+        values(#{rawId}, #{eqpMstRawId}, #{eventName,jdbcType=VARCHAR}, #{eventTypeCd},#{processYn},#{paramMstRawId},#{condition},#{userName},localtimestamp,#{userName},localtimestamp)
     </insert>
     
-     <update id="update">
+     <update id="update" databaseId="oracle">
         update eqp_event_mst_pdm
         set eqp_mst_rawid = #{eqpMstRawId},
             event_name = #{eventName},
@@ -26,6 +26,18 @@
             param_mst_rawid = #{paramMstRawId},
             condition = #{condition},
             update_dtts = systimestamp,
+            update_by = #{userName}
+        where rawid = #{rawId}
+    </update>
+     <update id="update" databaseId="postgresql">
+        update eqp_event_mst_pdm
+        set eqp_mst_rawid = #{eqpMstRawId},
+            event_name = #{eventName},
+            event_type_cd = #{eventTypeCd},
+            process_yn = #{processYn},
+            param_mst_rawid = #{paramMstRawId},
+            condition = #{condition},
+            update_dtts = localtimestamp,
             update_by = #{userName}
         where rawid = #{rawId}
     </update>

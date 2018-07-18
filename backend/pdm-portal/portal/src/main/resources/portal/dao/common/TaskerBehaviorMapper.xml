@@ -35,7 +35,9 @@
         from tasker_behavior_data_a3
         where tasker_behavior_id = #{taskerBehaviorId}
     </select>
-    <insert id="insert">
+    
+    
+    <insert id="insert" databaseId="oracle">
         <selectKey resultType="Long" keyProperty="taskerBehaviorId" order="BEFORE">
             select seq_tasker_behavior_a3.nextval from dual
         </selectKey>
@@ -49,11 +51,27 @@
             systimestamp
         )
     </insert>
+    <insert id="insert" databaseId="postgresql">
+        <selectKey resultType="Long" keyProperty="taskerBehaviorId" order="BEFORE">
+            select nextval('seq_tasker_behavior_a3')
+        </selectKey>
+        insert into tasker_behavior_a3 (
+            tasker_behavior_id, tasker_behavior_type_name, tasker_id, status, start_dtts
+        ) values (
+            #{taskerBehaviorId},
+            #{taskerBehaviorTypeName},
+            #{taskerId},
+            #{status},
+            localtimestamp
+        )
+    </insert>
+    
+    
     <insert id="insertData">
         insert into tasker_behavior_data_a3 (
             tasker_behavior_id, input
         ) values (
-            #{taskerBehaviorId},
+            #{taskerBehaviorId}, 
             #{input, typeHandler=json}
         )
     </insert>
@@ -65,12 +83,22 @@
         delete from tasker_behavior_a3
         where tasker_behavior_id = #{taskerBehaviorId}
     </delete>
-    <update id="updateStatus">
+    
+    
+    <update id="updateStatus" databaseId="oracle">
         update tasker_behavior_a3
         set status = #{status},
             end_dtts = systimestamp
         where tasker_behavior_id = #{taskerBehaviorId}
     </update>
+    <update id="updateStatus" databaseId="postgresql">
+        update tasker_behavior_a3
+        set status = #{status},
+            end_dtts = localtimestamp
+        where tasker_behavior_id = #{taskerBehaviorId}
+    </update>
+    
+    
     <update id="updateOutputData">
         update tasker_behavior_data_a3
         set output = #{output, typeHandler=json}
