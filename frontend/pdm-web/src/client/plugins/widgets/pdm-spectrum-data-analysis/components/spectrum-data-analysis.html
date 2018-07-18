@@ -11,37 +11,24 @@
                 [format]="'yyyy/MM/dd hh:mm:ss'" 
                 (changedFromTo)="fromToChange($event)">
             </div>
-            <button class="btn btn-default" type="button" (click)="search();">Search</button>
         </div>
         <div class="header-condition-group pull-right">
             <div class="chart-info">
-                <span class="a3-synced-title">Current Time : </span>
-                <!-- {{formatDate(_toDate)}} -->
-                <span class="a3-synced-title">Fab : </span>
-            </div>
-        </div>
-        <div class="a3-form-period period-to">
-            <label class="period-form-label">To</label>
-            <div class="btn-group">
-                <div class="input-group date input-append a3-datetime-picker">
-                    <input class="form-control a3-datetime-input" disabled="" type="text">
-                    <span class="input-group-addon add-on a3-datetime-calendar">
-                        <i class="fa fa-calendar" data-date-icon="fa fa-calendar" data-time-icon="glyphicon glyphicon-time"></i>
-                    </span>
-                </div>
+                <span class="a3-synced-title">Current Time : </span> 2018/07/18 15
+                <span class="a3-synced-title">Fab : </span> [Fab1]
             </div>
         </div>
         <div class="sample-number">
             <label for="trash_id">Sampling</label>
             <input class="input-number" type="number" id="trash_id" value="1" placeholder="only number" step="1" />
         </div>
-        <button class="btn btn-default" type="button">Search</button>
+        <button class="btn btn-default" type="button" (click)="search();">Search</button>
     </div>
     <div class="ehmp-chart-row-body">
         <!-- Metrix Chart -->
-        <!-- <div class="metrix-row-chart-group" #chartHealth onselectstart="return false;">
+        <div class="metrix-row-chart-group" #chartHealth onselectstart="return false;">
                 <div class="row-chart-header chr-pad-height">
-                    <h3 class="panel-title">Eqp Parameter Matrix</h3>
+                    <h3 class="panel-title">Spectrum Matrix</h3>
                 </div>
                 <div class="metrix-row-chart-area metrix-row">
                     <div class="metrix-chart-col">
@@ -51,7 +38,7 @@
                     </div>
                 </div>
             </div>
-        </div> -->
+        </div>
         <plotly-plot *ngIf="graph.data && graph.layout" [data]="graph.data" [layout]="graph.layout"></plotly-plot>
     </div>
 </div>

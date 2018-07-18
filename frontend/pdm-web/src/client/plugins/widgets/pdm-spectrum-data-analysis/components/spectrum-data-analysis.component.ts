@@ -69,12 +69,16 @@ export class SpectrumDataAnalysisComponent implements OnInit, OnChanges, OnDestr
     }
 
     ngOnChanges(changes: SimpleChanges) {
-        console.log('ngOnChanges', changes);
         if (changes['condition'] !== null && changes['condition']['currentValue']) {
             let currentValue = changes['condition']['currentValue'];
-
+            console.log('Spectrum condition', currentValue);
             this.fab = currentValue['fab'];
             this.timePeriod = currentValue['timePeriod'];
+            this.searchTimePeriod = {
+                from: this.timePeriod.from,
+                to: this.timePeriod.to
+            }
+
             this.setChartData();
         }
     }
