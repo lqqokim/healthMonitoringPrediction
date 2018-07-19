@@ -14,29 +14,27 @@
 
             <split direction="horizontal" [gutterSize]="3">
                 <split-area size="20" class='condition'>
-                    <label>Options</label>
-                    <label>
-                        <input type="radio" name="eventType" [(ngModel)]="eventType" value="event"> Event Base
-                    </label>
-                    <label>
-                        <input type="radio" name="eventType" [(ngModel)]="eventType" value="time"> Time Base
-                    </label>
-                    <br>
-                    <br>
+										<div class="option">
+											<div>Options</div>
+											<label>
+													<input type="radio" name="eventType" [(ngModel)]="eventType" value="event"> Event Base
+											</label>
+											<label>
+													<input type="radio" name="eventType" [(ngModel)]="eventType" value="time"> Time Base
+											</label>
+										</div>	
                     <div class="a3-from-to" [from]="searchTimePeriod?.from" [to]="searchTimePeriod?.to" [format]="'yyyy/MM/dd hh:mm:ss'" (changedFromTo)="fromToChange($event)"></div>
-                    <br>
-                    <br>
                     <div class="eqp-tree">
                         <fab-area-eqp-param-tree (changeParamSelection)="nodeClick($event)" #tree></fab-area-eqp-param-tree>
                     </div>
-                    <br>
                     <button class="btn btn-primary" [ngClass]="{candoit:treeParamSelect}" (click)="drawChart()" [disabled]='this.showProgress||treeParamSelect==false'>Draw Chart</button>
                     <button class="btn btn-primary" [ngClass]="{candoit:canDrawEvent && selectedParam}" (click)="drawEvent()" [disabled]='canDrawEvent==false  || this.showProgress || selectedParam==false'>Draw Event</button>
+                    <button class="btn btn-primary" [ngClass]="{candoit:canDrawEvent && selectedParam}" (click)="save()" [disabled]='canDrawEvent==false  || this.showProgress || selectedParam==false'>Save</button>
 
                 </split-area>
                 <split-area size="80" class="chart">
                     <div class="chart-container">
-                        <modeling-chart #modelChart [params]="paramDatas" [xMin]="xMin" [xMax]="xMax" [eventLines]="eventLines" (selectParam)="selectParam($event)"></modeling-chart>
+                        <modeling-chart #modelChart [eqpEvents]="eqpEvents" [params]="paramDatas" [xMin]="xMin" [xMax]="xMax" [eventLines]="eventLines" (selectParam)="selectParam($event)"></modeling-chart >
                     </div>
                 </split-area>
 
@@ -47,11 +45,9 @@
             <split direction="horizontal" [gutterSize]="3">
                 <split-area size="20" class='condition'>
                     <div class="a3-from-to" [from]="searchTimePeriod2?.from" [to]="searchTimePeriod2?.to" [format]="'yyyy/MM/dd hh:mm:ss'" (changedFromTo)="fromToChange2($event)"></div>
-                    <br>
                     <div class="eqp-tree">
                         <fab-area-eqp-param-tree (changeParamSelection)="nodeClick2($event)" #tree2></fab-area-eqp-param-tree>
                     </div>
-                    <br>
                     <div class="aggregation">
                         <label>Ad-Hoc Functions</label>
                         <div *ngFor="let item of aggregations; let i=index">
@@ -61,11 +57,10 @@
                         </div>
                     </div>
                     <div class="aggregation" *ngIf="eventType=='time'">
-                        <label>Aggregation Time</label>
-                        <input type="number" [(ngModel)]="aggregationTime">
+                        <div>Aggregation Time</div>
+                        <input class="form-control"type="number" [(ngModel)]="aggregationTime">
                         <label>minutes</label>
                     </div>
-                    <br>
                     <button class="btn btn-primary" [ngClass]="{candoit:canDrawAdHoc&& aggregationChecked && tree2ParamSelect}" (click)="adHocSummary()"
                         [disabled]='canDrawAdHoc==false || this.showProgress || aggregationChecked==false || tree2ParamSelect==false'>Ad-Hoc Summary</button>
                 </split-area>

@@ -47,8 +47,6 @@ public class AggregateFeatureProcessor extends AbstractProcessor<String, byte[]>
             String[] currStatusAndTime = columns[columns.length - 2].split(":");
             String[] prevStatusAndTime = columns[columns.length - 1].split(":");
 
-            log.debug("[{}] - ({} to {})", partitionKey, prevStatusAndTime[0], currStatusAndTime[0]);
-
             List<ParameterMasterDataSet> parameterMasterDataSets =
                     MasterDataCache.getInstance().getParamMasterDataSet().get(partitionKey);
 
@@ -56,6 +54,8 @@ public class AggregateFeatureProcessor extends AbstractProcessor<String, byte[]>
                 Long paramTime = Long.parseLong(currStatusAndTime[1]);
                 kvSummaryIntervalStore.put(partitionKey, paramTime);
             }
+
+            //log.debug("[{}] - ({} to {})", partitionKey, prevStatusAndTime[0], currStatusAndTime[0]);
 
             // idle -> run
             if (prevStatusAndTime[0].equalsIgnoreCase("I")
@@ -118,7 +118,7 @@ public class AggregateFeatureProcessor extends AbstractProcessor<String, byte[]>
                         log.info("[{}] - Unable to aggregate...", paramKey);
                         continue;
                     }
-                    log.debug("[{}] - window data size : {}", paramKey, doubleValueList.size());
+                    log.trace("[{}] - window data size : {}", paramKey, doubleValueList.size());
 
                     DescriptiveStatistics stats = new DescriptiveStatistics();
                     for (double i : doubleValueList) {

@@ -3,8 +3,7 @@ package com.bistel.pdm.datastore;
 import com.bistel.pdm.datastore.jdbc.DBType;
 import com.bistel.pdm.datastore.jdbc.DataSource;
 import com.bistel.pdm.datastore.jdbc.dao.HealthDataDao;
-import com.bistel.pdm.datastore.jdbc.dao.ora.HealthTrxDao;
-import com.bistel.pdm.datastore.jdbc.dao.pg.HealthTrxPostgreDao;
+import com.bistel.pdm.datastore.jdbc.dao.ora.ParamHealthTrxDao;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.slf4j.Logger;
@@ -17,8 +16,8 @@ import java.util.concurrent.TimeUnit;
 /**
  *
  */
-public class HealthConsumerRunnable implements Runnable {
-    private static final Logger log = LoggerFactory.getLogger(HealthConsumerRunnable.class);
+public class ParamHealthConsumerRunnable implements Runnable {
+    private static final Logger log = LoggerFactory.getLogger(ParamHealthConsumerRunnable.class);
 
     private final KafkaConsumer<String, byte[]> consumer;
     private final String topicName;
@@ -27,18 +26,18 @@ public class HealthConsumerRunnable implements Runnable {
 
     private HealthDataDao trxDao;
 
-    public HealthConsumerRunnable(Properties property, String groupId, String topicName) {
+    public ParamHealthConsumerRunnable(Properties property, String groupId, String topicName) {
         this.consumer = new KafkaConsumer<>(createConsumerConfig(groupId, property));
         this.topicName = topicName;
 
         if (DataSource.getDBType() == DBType.oracle) {
-            trxDao = new HealthTrxDao();
+            trxDao = new ParamHealthTrxDao();
             log.info("loaded data object of oracle.");
         } else if (DataSource.getDBType() == DBType.postgresql) {
-            trxDao = new HealthTrxPostgreDao();
+            trxDao = new ParamHealthTrxDao();
             log.info("loaded data object of postgresql.");
         } else {
-            trxDao = new HealthTrxDao();
+            trxDao = new ParamHealthTrxDao();
             log.info("loaded data object of default(oracle).");
         }
     }

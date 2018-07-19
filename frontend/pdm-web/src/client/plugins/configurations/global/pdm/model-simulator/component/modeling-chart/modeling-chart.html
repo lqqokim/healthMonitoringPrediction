@@ -1,5 +1,5 @@
 <div class="modeling-chart">
-    <table>
+    <table class="table">
         <thead>
             <th class="parameter" (click)="sortClick('parameter')">Parameter
                 <i class="fa fa-sort-asc" *ngIf="sort.parameter === 'asc'"></i>
@@ -11,12 +11,13 @@
         <tr class="param-info" *ngFor="let param of params">
             <td>
                 <label>
-                    <input type="radio" name="param1" id="param1"  [(ngModel)]="selectedParamId" [value]="param.paramId" (change)="onClickParam(param)"> {{param.name}}
+                    <!-- <input type="radio" name="paramRadio" [(ngModel)]="selectedParamId" value={{param.paramId}} (change)="onClickParam(param)"> {{param.name}} -->
+                    <input type="radio" name="paramRadio" [(ngModel)]="selectedParamId" value='{{param.paramId}}' (change)="onClickParam(param)"  > {{param.name}}
                 </label>
                 <br>
                 <div *ngIf="selectedParamId==param.paramId">
                     <label>Start</label>
-                    <select class="form-control conditionOperator" [(ngModel)]="conditionStartOperator" name="conditionStartOperator" >
+                    <select class="form-control conditionOperator" [(ngModel)]="conditionStartOperator" name="conditionStartOperator">
                         <option *ngFor="let item of operators" [ngValue]="item.value">
                             {{item.name}}
                         </option>

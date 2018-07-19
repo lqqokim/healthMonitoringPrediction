@@ -12,6 +12,7 @@ import { ModalAction, ModalRequester, RequestType } from '../../../../../common'
 import { NotifyService, Translater, SpinnerComponent } from '../../../../../sdk';
 import { ModelingChartComponent } from './component/modeling-chart/modeling-chart.component';
 import { ModelingSimulatorChartComponent } from './component/modeling-simulator-chart/modeling-simulator-chart.component';
+import { EqpEventType } from '../../../../../common/types/eqpEvent.type';
 
 // import { CODE_LIST } from './mock-data';
 
@@ -34,6 +35,10 @@ export class ModelSimulatorComponent implements OnInit {
     //     { name: 'param2', isEventParam: false, conditionValue: null, datas: [],eventConfig:[] },
     //     { name: 'param3', isEventParam: false, conditionValue: null, datas: [] ,eventConfig:[]}
     // ]
+
+
+    fabId;
+    eqpId;
 
     searchTimePeriod = {
         from: null,
@@ -81,6 +86,9 @@ export class ModelSimulatorComponent implements OnInit {
     treeParamSelect = false;
     tree2ParamSelect = false;
 
+    eqpEvents = [];
+    _eventTypeEvents = {};
+
     constructor(private pdmModelService: PdmModelService, private pdmConfigService: PdmConfigService) {
         this.searchTimePeriod.to = new Date().getTime();
         let fromDate = new Date();
@@ -102,7 +110,7 @@ export class ModelSimulatorComponent implements OnInit {
     drawChart() {
         this.drawChart_init();
 
-        let fabId = this.tree.selectedFab.fabId;
+        this.fabId = this.tree.selectedFab.fabId;
         let node = this.tree.getSelectedNodes();
         let parameters = [];
         for (let index = 0; index < node.length; index++) {
@@ -119,7 +127,7 @@ export class ModelSimulatorComponent implements OnInit {
         for (let i = 0; i < parameters.length; i++) {
             this.showProgress = true;
             try {
-                this.pdmModelService.getTraceDataByParamId(fabId, parameters[i].paramId, this.searchTimePeriod.from, this.searchTimePeriod.to).then((datas) => {
+                this.pdmModelService.getTraceDataByParamId(this.fabId, parameters[i].paramId, this.searchTimePeriod.from, this.searchTimePeriod.to).then((datas) => {
                     console.log(datas);
                     if (datas.length > 0) {
 
@@ -147,6 +155,7 @@ export class ModelSimulatorComponent implements OnInit {
                             this.xMin = this.paramDatas[0].datas[0].from;
                             this.xMax = this.paramDatas[0].datas[this.paramDatas[0].datas.length-1].to;
                         }
+                        this.setEqpEvent();
                     }
 
                 }).catch((err) => {
@@ -161,6 +170,7 @@ export class ModelSimulatorComponent implements OnInit {
                             this.xMin = this.paramDatas[0].datas[0].from;
                             this.xMax = this.paramDatas[0].datas[this.paramDatas[0].datas.length-1].to;
                         }
+                        this.setEqpEvent();
                     }
                     console.error(err);
                 })
@@ -171,15 +181,41 @@ export class ModelSimulatorComponent implements OnInit {
         }
 
     }
+    
+    setEqpEvent(){
+        // let fabId = this.tree.selectedFab.fabId;
+        let node = this.tree.getSelectedNodes();
+        // let eqpId = "";
+        for (let index = 0; index < node.length; index++) {
+            const element = node[index];
+            if (element.nodeType == 'parameter') {
+                this.eqpId = element.eqpId;
+                break;
+            }
+
+        }
+        this._eventTypeEvents ={};
+        this.pdmModelService.getEqpEventByEqpId(this.fabId,this.eqpId).then((datas)=>{
+            if(datas.length>0){
+                this.eqpEvents = datas;
+                for(let i=0;i<this.eqpEvents.length;i++){
+                    this._eventTypeEvents[ this.eqpEvents[i].eventTypeCd]=Object.assign({}, this.eqpEvents[i]);
+                }
+
+                this.selectParam(null);
+            }
+
+        });
+    }
     drawEvent() {
 
         this.drawEvent_init();
 
         this.componentSpinner.showSpinner();
-        let fabId = this.tree.selectedFab.fabId;
+        // let fabId = this.tree.selectedFab.fabId;
         let paramId = this.modelChart.getParamId();
         let conditionValue = this.modelChart.getConditionValue();
-        this.pdmModelService.getTraceDataEventSimulation(fabId, paramId, this.searchTimePeriod.from, this.searchTimePeriod.to, conditionValue).then((datas) => {
+        this.pdmModelService.getTraceDataEventSimulation(this.fabId, paramId, this.searchTimePeriod.from, this.searchTimePeriod.to, conditionValue).then((datas) => {
             this.eventLines = datas;
             this.canDrawAdHoc = true;
             this.componentSpinner.hideSpinner();
@@ -189,6 +225,48 @@ export class ModelSimulatorComponent implements OnInit {
                 console.log(e);
                 this.componentSpinner.hideSpinner();
             })
+    }
+    save(){
+        // let fabId = this.tree.selectedFab.fabId;
+        let eqpEvents :EqpEventType[] =[] ;
+        
+        let eqpStartEvent :EqpEventType ;
+        let eqpEndEvent :EqpEventType ;
+
+        if(this._eventTypeEvents['S']!=null){
+            eqpStartEvent = this._eventTypeEvents['S'];
+            eqpStartEvent.condition = "value"+ this.modelChart.getConditionStartOperator() +this.modelChart.getConditionValue();
+            eqpStartEvent.paramId = this.modelChart.getParamId();
+            eqpStartEvent.processYn = this.eventType == "event"?"Y":"N";
+        }else{
+            eqpStartEvent.eqpId = this.eqpId;
+            eqpStartEvent.condition = "value"+ this.modelChart.getConditionStartOperator() +this.modelChart.getConditionValue();
+            eqpStartEvent.eventName = "process start";
+            eqpStartEvent.eventTypeCd="S";
+            eqpStartEvent.paramId = this.modelChart.getParamId();
+            eqpStartEvent.processYn = this.eventType == "event"?"Y":"N";
+        }
+        eqpEvents.push(eqpStartEvent);
+        
+        if(this._eventTypeEvents['E']!=null){
+            eqpEndEvent = this._eventTypeEvents['E'];
+            eqpEndEvent.condition = "value"+ this.modelChart.getConditionStartOperator() +this.modelChart.getConditionValue();
+            eqpEndEvent.paramId = this.modelChart.getParamId();
+            eqpEndEvent.processYn = this.eventType == "event"?"Y":"N";
+        }else{
+            eqpEndEvent.eqpId = this.eqpId;
+            eqpEndEvent.condition = "value"+ this.modelChart.getConditionStartOperator() +this.modelChart.getConditionValue();
+            eqpEndEvent.eventName = "process end";
+            eqpEndEvent.eventTypeCd="E";
+            eqpEndEvent.paramId = this.modelChart.getParamId();
+            eqpEndEvent.processYn = this.eventType == "event"?"Y":"N";
+        }
+        eqpEvents.push(eqpEndEvent);
+        
+
+        this.pdmModelService.setEqpEvent(this.fabId,eqpEvents).subscribe((result)=>{
+            alert("save success!");
+        })
     }
     drawChart_init(){
         this.canDrawAdHoc = false;

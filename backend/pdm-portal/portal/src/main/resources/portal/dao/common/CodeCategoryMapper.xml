@@ -25,7 +25,8 @@
         and a.name = #{categoryName}
     </select>
     
-    <insert id="insert" databaseId="oracle">
+    <!-- <insert id="insert" databaseId="oracle"> -->
+    <insert id="insert">
         <selectKey resultType="Long" keyProperty="codeCategoryId" order="BEFORE">
             select seq_code_category_a3.nextval from dual
         </selectKey>
@@ -37,6 +38,7 @@
             #{codeCategory.name}
         )
     </insert>
+<!-- 
     <insert id="insert" databaseId="postgresql">
         <selectKey resultType="Long" keyProperty="codeCategoryId" order="BEFORE">
             select nextval('seq_code_category_a3')
@@ -49,7 +51,7 @@
             #{codeCategory.name}
         )
     </insert>
-    
+ -->    
     <update id="update">
         update code_category_a3
         set name = #{name}

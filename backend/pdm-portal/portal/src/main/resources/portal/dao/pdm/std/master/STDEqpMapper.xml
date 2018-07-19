@@ -243,7 +243,7 @@
         </selectKey>
         insert into eqp_mst_pdm(rawid, name, description,data_type_cd, area_mst_rawid,image,create_by,create_dtts,update_by,update_dtts)
         values(#{eqp_id}, #{name,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR},#{data_type_cd,jdbcType=VARCHAR}, #{area_id, jdbcType=DOUBLE}
-        ,#{binary, jdbcType=BLOB},#{userName, jdbcType=VARCHAR},systimestamp,#{userName,jdbcType=VARCHAR},systimestamp)
+        ,#{binary, jdbcType=BLOB},#{userName, jdbcType=VARCHAR},localtimestamp,#{userName,jdbcType=VARCHAR},localtimestamp)
     </insert>
 
     <insert id="insertEtcOne">
@@ -271,12 +271,24 @@
         where eqp_id = #{eqpId}
     </delete>
 
-    <update id="updateOne">
+    <update id="updateOne" databaseId="oracle">
         update eqp_mst_pdm
         set name = #{name},
             description = #{description,jdbcType=VARCHAR},
             area_mst_rawid = #{area_id},
             update_dtts = systimestamp,
+            update_by = #{userName}
+            <if test="image != null">
+                ,image = #{binary,jdbcType=VARCHAR}
+            </if>
+        where rawid = #{eqp_id}
+    </update>
+    <update id="updateOne" databaseId="postgresql">
+        update eqp_mst_pdm
+        set name = #{name},
+            description = #{description,jdbcType=VARCHAR},
+            area_mst_rawid = #{area_id},
+            update_dtts = localtimestamp,
             update_by = #{userName}
             <if test="image != null">
                 ,image = #{binary,jdbcType=VARCHAR}

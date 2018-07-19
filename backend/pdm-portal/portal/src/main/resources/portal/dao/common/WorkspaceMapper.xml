@@ -120,7 +120,8 @@
     </select>    
 
      
-    <insert id="insert" databaseId="oracle">
+    <!-- <insert id="insert" databaseId="oracle"> -->
+    <insert id="insert">
         <selectKey resultType="Long" keyProperty="workspaceId" order="BEFORE">
             select seq_workspace_a3.nextval from dual
         </selectKey>
@@ -135,6 +136,7 @@
             systimestamp
         )
     </insert>
+<!-- 
     <insert id="insert" databaseId="postgresql">
         <selectKey resultType="Long" keyProperty="workspaceId" order="BEFORE">
             select nextval('seq_workspace_a3')
@@ -150,7 +152,7 @@
             localtimestamp
         )
     </insert>
-    
+ -->    
     <!-- TODO: Chris workspace_id 컬럼 없음 -->
     <insert id="insertUserWorkspaceLnk">
     	merge into user_workspace_lnk_a3
@@ -160,7 +162,8 @@
 		insert(workspace_id , user_id, favorite) values(#{workspaceId}, #{userId}, #{favorite, typeHandler=yn})
     </insert>
 
-	<update id="update" parameterType="com.bistel.a3.portal.domain.common.Workspace" databaseId="oracle">
+	<!-- <update id="update" parameterType="com.bistel.a3.portal.domain.common.Workspace" databaseId="oracle"> -->
+	<update id="update" parameterType="com.bistel.a3.portal.domain.common.Workspace">
         update workspace_a3
         set title = #{title},
             description = #{description},
@@ -169,6 +172,7 @@
         	workspace_id = #{workspaceId}
         	and user_id = #{userId}
     </update>
+<!-- 
     <update id="update" parameterType="com.bistel.a3.portal.domain.common.Workspace" databaseId="postgresql">
         update workspace_a3
         set title = #{title},
@@ -178,7 +182,7 @@
         	workspace_id = #{workspaceId}
         	and user_id = #{userId}
     </update>
-
+ -->
     <update id="updateWorkspaceFavorite">
         update user_workspace_lnk_a3
         set 
@@ -243,7 +247,8 @@
     	select user_id from workspace_a3 where workspace_id = #{workspaceId}
     </select>
 
- 	<select id="selectMyWorkspaces" resultType="com.bistel.a3.portal.domain.common.MyWorkspace" databaseId="oracle">
+ 	<!-- <select id="selectMyWorkspaces" resultType="com.bistel.a3.portal.domain.common.MyWorkspace" databaseId="oracle"> -->
+ 	<select id="selectMyWorkspaces" resultType="com.bistel.a3.portal.domain.common.MyWorkspace">
 		select  a. workspaceId,
 		       	a.title,
 		        b.workspaceCount,
@@ -278,6 +283,7 @@
 		where a.workspaceId = b.workspace_id
 		order by a.workspaceId desc
     </select>
+<!-- 
     <select id="selectMyWorkspaces" resultType="com.bistel.a3.portal.domain.common.MyWorkspace" databaseId="postgresql">
 		select  a. workspaceId,
 		       	a.title,
@@ -311,8 +317,9 @@
 		where a.workspaceId = b.workspace_id
 		order by a.workspaceId desc
     </select>
-
-    <select id="selectWorspaceShareMemberInfo" resultType="com.bistel.a3.portal.domain.common.WorkspaceShareMemberInfo" databaseId="oracle">
+ -->
+    <!-- <select id="selectWorspaceShareMemberInfo" resultType="com.bistel.a3.portal.domain.common.WorkspaceShareMemberInfo" databaseId="oracle"> -->
+    <select id="selectWorspaceShareMemberInfo" resultType="com.bistel.a3.portal.domain.common.WorkspaceShareMemberInfo">
       <![CDATA[
 	    select 
 	      ugws.user_group_id as id, 
@@ -351,6 +358,7 @@
 		      and ugws.workspace_id = #{workspaceId}
 	  ]]>	          
     </select>
+<!-- 
     <select id="selectWorspaceShareMemberInfo" resultType="com.bistel.a3.portal.domain.common.WorkspaceShareMemberInfo" databaseId="postgresql">
       <![CDATA[
 	    select 
@@ -390,9 +398,10 @@
 		      and ugws.workspace_id = #{workspaceId}
 	  ]]>	          
     </select>
+ -->
 
-
-    <select id="selectMyWorkspace" resultType="com.bistel.a3.portal.domain.common.MyWorkspace" databaseId="oracle">
+    <!-- <select id="selectMyWorkspace" resultType="com.bistel.a3.portal.domain.common.MyWorkspace" databaseId="oracle"> -->
+    <select id="selectMyWorkspace" resultType="com.bistel.a3.portal.domain.common.MyWorkspace">
 		select  a. workspaceId,
 		       	a.title,
 		        b.workspaceCount,
@@ -427,6 +436,7 @@
 		   ) b
 		where a.workspaceId = b.workspace_id
     </select>
+<!-- 
     <select id="selectMyWorkspace" resultType="com.bistel.a3.portal.domain.common.MyWorkspace" databaseId="postgresql">
 		select  a. workspaceId,
 		       	a.title,
@@ -460,8 +470,9 @@
 		   ) b
 		where a.workspaceId = b.workspace_id
     </select>
-
-     <select id="selectShareWorkspaceMember" resultType="com.bistel.a3.portal.domain.common.WorkspaceShareMember" databaseId="oracle">
+ -->
+     <!-- <select id="selectShareWorkspaceMember" resultType="com.bistel.a3.portal.domain.common.WorkspaceShareMember" databaseId="oracle"> -->
+     <select id="selectShareWorkspaceMember" resultType="com.bistel.a3.portal.domain.common.WorkspaceShareMember">
       <![CDATA[
 	    select 
 	      ugws.user_group_id as id, 
@@ -507,6 +518,7 @@
 		      and ugws.workspace_id = #{workspaceId}
 	  ]]>	          
     </select> 
+<!-- 
      <select id="selectShareWorkspaceMember" resultType="com.bistel.a3.portal.domain.common.WorkspaceShareMember" databaseId="postgresql">
       <![CDATA[
 	    select 
@@ -553,7 +565,7 @@
 		      and ugws.workspace_id = #{workspaceId}
 	  ]]>	          
     </select> 
-
+ -->
    <select id="selectUserImgByGroup" resultType="com.bistel.a3.portal.domain.common.WorkspaceShareMemberGroupUser">
 	    select
 			u.img_url as imgUrl,
@@ -660,7 +672,8 @@
 			)
    </select>  
      
-	<select id="selectWorkspaceIdsWithOwnerId" resultType="com.bistel.a3.portal.domain.common.WorkspaceOwner" databaseId="oracle">
+	<!-- <select id="selectWorkspaceIdsWithOwnerId" resultType="com.bistel.a3.portal.domain.common.WorkspaceOwner" databaseId="oracle"> -->
+	<select id="selectWorkspaceIdsWithOwnerId" resultType="com.bistel.a3.portal.domain.common.WorkspaceOwner">
 		select ownerId, workspaceId
 		from (
 		      select rownum as rnum, w.user_id as ownerId, w.workspace_id as workspaceId
@@ -675,6 +688,7 @@
 		where rnum between 1 and #{workspacesCount}
 		order by ownerId
      </select>    
+<!-- 
 	<select id="selectWorkspaceIdsWithOwnerId" resultType="com.bistel.a3.portal.domain.common.WorkspaceOwner" databaseId="postgresql">
 		select ownerId, workspaceId
 		from (
@@ -690,7 +704,7 @@
 		where rnum between 1 and #{workspacesCount}
 		order by ownerId
      </select>
-    
+ -->    
 	<select id="selectWorkspaceNodes" resultMap="WorkspaceNodeResultMap">
 	 select
         	w.workspace_id AS workspace_id ,
@@ -758,7 +772,8 @@
 	 		(select user_id from workspace_a3 where workspace_id=#{workspaceId})
      </select>   
      
-     <select id="selectSharedWorkspaceIds" resultType="java.lang.Long" databaseId="oracle">
+     <!-- <select id="selectSharedWorkspaceIds" resultType="java.lang.Long" databaseId="oracle"> -->
+     <select id="selectSharedWorkspaceIds" resultType="java.lang.Long">
        select workspaceId
 		from (
 		      select rownum as rnum, w.workspace_id as workspaceId
@@ -770,6 +785,7 @@
 		) 
 		where rnum between 1 and #{workspacesCount}
       </select>   
+<!-- 
      <select id="selectSharedWorkspaceIds" resultType="java.lang.Long" databaseId="postgresql">
        select workspaceId
 		from (
@@ -782,8 +798,9 @@
 		) zzz
 		where rnum between 1 and #{workspacesCount}
       </select>   
-     
-      <select id="selectSharingWorkspaceIds" resultType="java.lang.Long" databaseId="oracle">
+ -->     
+      <!-- <select id="selectSharingWorkspaceIds" resultType="java.lang.Long" databaseId="oracle"> -->
+      <select id="selectSharingWorkspaceIds" resultType="java.lang.Long">
        select workspaceId
 		from (
 		      select rownum as rnum, w.workspace_id as workspaceId
@@ -795,6 +812,7 @@
 		) 
 		where rnum between 1 and #{workspacesCount}
     </select>
+<!-- 
       <select id="selectSharingWorkspaceIds" resultType="java.lang.Long" databaseId="postgresql">
        select workspaceId
 		from (
@@ -807,7 +825,7 @@
 		) zzz
 		where rnum between 1 and #{workspacesCount}
     </select>
-    
+ -->    
     <select id="selectSharedWorkspaceUsers" resultType="com.bistel.a3.portal.domain.common.ShareUser">
 
 		SELECT 

@@ -1,4 +1,4 @@
-package com.bistel.pdm.datastore.jdbc.dao.ora;
+package com.bistel.pdm.datastore.jdbc.dao.pg;
 
 import com.bistel.pdm.datastore.jdbc.DataSource;
 import com.bistel.pdm.datastore.jdbc.dao.HealthDataDao;
@@ -15,8 +15,8 @@ import java.sql.Timestamp;
 /**
  *
  */
-public class HealthTrxDao implements HealthDataDao {
-    private static final Logger log = LoggerFactory.getLogger(HealthTrxDao.class);
+public class ParamHealthTrxDao implements HealthDataDao {
+    private static final Logger log = LoggerFactory.getLogger(ParamHealthTrxDao.class);
 
     private static final String INSERT_SQL =
             "insert into param_health_trx_pdm (RAWID, PARAM_MST_RAWID, PARAM_HEALTH_MST_RAWID, STATUS_CD, SCORE, ALARM_DTTS) " +

@@ -20,19 +20,24 @@ public class EqpEventController {
         return service.getEqpEventAll(fabId);
     }
 
-    @RequestMapping("/eqps/{eqpId}/eqpEventsByeqpId")
+    @RequestMapping("/eqps/{eqpId}/eqpEventsByEqpId")
     public List<EqpEvent> getEqpEventByEqpId(@PathVariable String fabId,@PathVariable Long eqpId) {
         return service.getEqpEvents(fabId,eqpId);
     }
 
 
     @RequestMapping(value = "eqpEvent", method = RequestMethod.PUT)
-    public void setPart(Principal user,@PathVariable String fabId, @RequestBody EqpEvent eqpEvent) {
-        if(eqpEvent.getRawId()==null){
-            eqpEvent.setCreateBy(user.getName());
+    public void setEqpEvent(Principal user,@PathVariable String fabId, @RequestBody List<EqpEvent> eqpEvents) {
+
+        for (int i = 0; i < eqpEvents.size(); i++) {
+            if(eqpEvents.get(i).getRawId()==null){
+
+                eqpEvents.get(i).setCreateBy(user.getName());
+            }
+            eqpEvents.get(i).setUpdateBy(user.getName());
+            service.setEpqEvent(fabId,eqpEvents.get(i));
+
         }
-        eqpEvent.setUpdateBy(user.getName());
-        service.setEpqEvent(fabId,eqpEvent);
     }
 
 

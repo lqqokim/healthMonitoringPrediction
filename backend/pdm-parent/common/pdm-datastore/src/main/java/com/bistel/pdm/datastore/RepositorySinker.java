@@ -23,12 +23,13 @@ public class RepositorySinker {
     private final String outputTimewaveTopic = "pdm-output-raw";
     private final String outputFeatureTopic = "pdm-output-feature";
     private final String outputFaultTopic = "pdm-output-fault";
-    private final String outputHealthTopic = "pdm-output-health";
+    private final String outputParamHealthTopic = "pdm-output-param-health";
+    private final String outputEQPHealthTopic = "pdm-output-eqp-health";
 
     private final String configPath;
     private final String groupId;
 
-    private ExecutorService executor = Executors.newFixedThreadPool(6);
+    private ExecutorService executor = Executors.newFixedThreadPool(7);
 
     public RepositorySinker(final String groupId, String servingAddr, String configPath) {
         this.groupId = groupId;
@@ -61,8 +62,11 @@ public class RepositorySinker {
         executor.submit(new EventConsumerRunnable(
                 producerProperties, this.groupId + "-event", outputEventTopic));
 
-        executor.submit(new HealthConsumerRunnable(
-                producerProperties, this.groupId + "-health", outputHealthTopic));
+        executor.submit(new ParamHealthConsumerRunnable(
+                producerProperties, this.groupId + "-param-health", outputParamHealthTopic));
+
+        executor.submit(new EqpHealthConsumerRunnable(
+                producerProperties, this.groupId + "-eqp-health", outputEQPHealthTopic));
     }
 
     public void awaitTerminationAfterShutdown() {

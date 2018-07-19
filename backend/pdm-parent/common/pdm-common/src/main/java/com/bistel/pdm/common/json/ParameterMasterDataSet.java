@@ -13,6 +13,9 @@ public class ParameterMasterDataSet {
     @JsonProperty("equipmentName")
     private String equipmentName;
 
+    @JsonProperty("equipmentRawId")
+    private Long equipmentRawId;
+
     @JsonProperty("parameterName")
     private String parameterName;
 
@@ -21,6 +24,9 @@ public class ParameterMasterDataSet {
 
     @JsonProperty("parameterRawId")
     private Long parameterRawId;
+
+    @JsonProperty("parameterType")
+    private String parameterType;
 
     @JsonProperty("upperWarningSpec")
     private Float upperWarningSpec;
@@ -47,6 +53,14 @@ public class ParameterMasterDataSet {
 
     public void setAreaName(String areaName) {
         this.areaName = areaName;
+    }
+
+    public Long getEquipmentRawId() {
+        return equipmentRawId;
+    }
+
+    public void setEquipmentRawId(Long equipmentRawId) {
+        this.equipmentRawId = equipmentRawId;
     }
 
     public String getEquipmentName() {
@@ -79,6 +93,14 @@ public class ParameterMasterDataSet {
 
     public void setParameterRawId(Long paramRawId) {
         this.parameterRawId = paramRawId;
+    }
+
+    public String getParameterType() {
+        return parameterType;
+    }
+
+    public void setParameterType(String parameterType) {
+        this.parameterType = parameterType;
     }
 
     public Float getUpperWarningSpec() {

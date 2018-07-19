@@ -28,7 +28,8 @@
     </select>
     
     
-    <insert id="insert" databaseId="oracle">
+    <!-- <insert id="insert" databaseId="oracle"> -->
+    <insert id="insert">
         <selectKey resultType="Long" keyProperty="widgetId" order="BEFORE">
             select seq_widget_a3.nextval from dual
         </selectKey>
@@ -54,6 +55,7 @@
 	         	</if>
         )
     </insert>
+<!-- 
     <insert id="insert" databaseId="postgresql">
         <selectKey resultType="Long" keyProperty="widgetId" order="BEFORE">
             select nextval('seq_widget_a3')
@@ -80,7 +82,7 @@
 	            </if>
 	        )
     </insert>
-    
+ -->    
     
     <update id="update">
         update widget_a3

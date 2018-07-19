@@ -4,11 +4,11 @@ import java.util.Date;
 
 public class EqpEvent {
     private Long rawId;
-    private Long eqpMstRawId;
+    private Long eqpId;
     private String eventName;
     private String eventTypeCd;
     private String processYn;
-    private Long paramMstRawId;
+    private Long paramId;
     private String condition;
     private String createBy;
     private Date createDtts;
@@ -24,12 +24,12 @@ public class EqpEvent {
         this.rawId = rawId;
     }
 
-    public Long getEqpMstRawId() {
-        return eqpMstRawId;
+    public Long getEqpId() {
+        return eqpId;
     }
 
-    public void setEqpMstRawId(Long eqpMstRawId) {
-        this.eqpMstRawId = eqpMstRawId;
+    public void setEqpId(Long eqpId) {
+        this.eqpId = eqpId;
     }
 
     public String getEventName() {
@@ -56,12 +56,12 @@ public class EqpEvent {
         this.processYn = processYn;
     }
 
-    public Long getParamMstRawId() {
-        return paramMstRawId;
+    public Long getParamId() {
+        return paramId;
     }
 
-    public void setParamMstRawId(Long paramMstRawId) {
-        this.paramMstRawId = paramMstRawId;
+    public void setParamId(Long paramId) {
+        this.paramId = paramId;
     }
 
     public String getCondition() {

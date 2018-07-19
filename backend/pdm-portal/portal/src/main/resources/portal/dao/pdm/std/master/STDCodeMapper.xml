@@ -170,13 +170,13 @@
         #{ordering},
         #{description},
         #{create_by},
-        SYSDATE,
+        current_date,
         #{update_by},
-        SYSDATE
+        current_date
         )
     </insert>
 
-    <update id="updateSTDCode">
+    <update id="updateSTDCode" databaseId="oracle">
         update code_mst_pdm
         set category=#{category},
         code=#{code},
@@ -186,6 +186,18 @@
         description=#{description,jdbcType=VARCHAR},
         update_by=#{update_by},
         update_dtts=SYSDATE
+        where rawid = #{rawId}
+    </update>
+    <update id="updateSTDCode" databaseId="postgresql">
+        update code_mst_pdm
+        set category=#{category},
+        code=#{code},
+        name=#{name},
+        used_yn=#{used_yn, typeHandler=yn},
+        default_yn=#{default_yn, typeHandler=yn},
+        description=#{description,jdbcType=VARCHAR},
+        update_by=#{update_by},
+        update_dtts=current_date
         where rawid = #{rawId}
     </update>
 

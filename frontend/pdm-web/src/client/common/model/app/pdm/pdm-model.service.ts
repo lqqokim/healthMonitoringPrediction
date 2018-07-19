@@ -3,6 +3,7 @@ import { ModelCommonService } from '../../model-common.service';
 import * as pdmI from '../../../../plugins/widgets/pdm-modeler/pdm-modeler.interface';
 import * as pdmRadarI from '../../../../plugins/widgets/pdm-radar/model/pdm-radar.interface';
 import { Observable } from 'rxjs';
+import { EqpEventType } from '../../../types/eqpEvent.type';
 
 
 
@@ -571,6 +572,22 @@ export class PdmModelService extends ModelCommonService {
 		// });
 	}
 
+	setEqpEvent(fabId,eqpEvents:EqpEventType[]): Observable<any> {
+		return this.rxPUT({
+			uriPath: `pdm/fabs/${fabId}/eqpEvent`,
+			params: eqpEvents
+		})
+	}
+	getEqpEvents(fabId): Promise<any> {
+		return this.GET({
+			uriPath: `pdm/fabs/${fabId}/eqpEvents`,
+		});
+	}
+	getEqpEventByEqpId(fabId,eqpId): Promise<any> {
+		return this.GET({
+			uriPath: `pdm/fabs/${fabId}/eqps/${eqpId}/eqpEventsByEqpId`,
+		});
+	}
 
 	createMonitoring(fabId,param): Observable<any> {
 		let fabInfo = Object.assign({},param);
