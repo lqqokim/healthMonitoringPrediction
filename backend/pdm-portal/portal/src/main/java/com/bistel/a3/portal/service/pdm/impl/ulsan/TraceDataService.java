@@ -671,14 +671,15 @@ public class TraceDataService implements com.bistel.a3.portal.service.pdm.ITrace
     }
 
     @Override
-    public Object getEventSimulation(String fabId, Long paramId, Long fromdate, Long todate, Float condition) {
+    public Object getEventSimulation(String fabId, Long paramId, Long fromdate, Long todate, String startCondition, String endCondition) {
         return null;
     }
 
     @Override
-    public Object getEventSimulationByConditionValue(String fabId,Long paramId,Long fromdate,Long todate,Long conditionParamId,Float conditonValue,String eventType,List<String> adHocFunctions,Integer adHocTime){
+    public Object getEventSimulationByConditionValue(String fabId, Long paramId, Long fromdate, Long todate, Long conditionParamId, String startCondition, String endCondition, String eventType, List<String> adHocFunctions, Integer adHocTime) {
         return null;
     }
+
 
     @Override
     public Object getFeatureData(String fabId, Long paramId, Long fromdate, Long todate) {

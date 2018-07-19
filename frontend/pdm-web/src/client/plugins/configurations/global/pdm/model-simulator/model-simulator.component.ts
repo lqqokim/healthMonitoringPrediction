@@ -151,7 +151,7 @@ export class ModelSimulatorComponent implements OnInit {
                         this.showProgress = false;
                         if(this.paramDatas.length>0){
                             this.canDrawEvent = true;
-                            this.paramDatas = this.paramDatas.concat(this.paramDatas);
+                            this.paramDatas = this.paramDatas.concat([]);
                             this.xMin = this.paramDatas[0].datas[0].from;
                             this.xMax = this.paramDatas[0].datas[this.paramDatas[0].datas.length-1].to;
                         }
@@ -166,7 +166,7 @@ export class ModelSimulatorComponent implements OnInit {
                         this.showProgress = false;
                         if(this.paramDatas.length>0){
                             this.canDrawEvent = true;
-                            this.paramDatas = this.paramDatas.concat(this.paramDatas);
+                            this.paramDatas = this.paramDatas.concat([]);
                             this.xMin = this.paramDatas[0].datas[0].from;
                             this.xMax = this.paramDatas[0].datas[this.paramDatas[0].datas.length-1].to;
                         }
@@ -215,7 +215,7 @@ export class ModelSimulatorComponent implements OnInit {
         // let fabId = this.tree.selectedFab.fabId;
         let paramId = this.modelChart.getParamId();
         let conditionValue = this.modelChart.getConditionValue();
-        this.pdmModelService.getTraceDataEventSimulation(this.fabId, paramId, this.searchTimePeriod.from, this.searchTimePeriod.to, conditionValue).then((datas) => {
+        this.pdmModelService.getTraceDataEventSimulation(this.fabId, paramId, this.searchTimePeriod.from, this.searchTimePeriod.to, this.getStartCondition(),this.getEndCondition()).then((datas) => {
             this.eventLines = datas;
             this.canDrawAdHoc = true;
             this.componentSpinner.hideSpinner();
@@ -226,6 +226,12 @@ export class ModelSimulatorComponent implements OnInit {
                 this.componentSpinner.hideSpinner();
             })
     }
+    getStartCondition(){
+        return "value"+ this.modelChart.getConditionStartOperator() +this.modelChart.getConditionValue();
+    }
+    getEndCondition(){
+        return "value"+ this.modelChart.getConditionEndOperator() +this.modelChart.getConditionValue();
+    }
     save(){
         // let fabId = this.tree.selectedFab.fabId;
         let eqpEvents :EqpEventType[] =[] ;
@@ -235,12 +241,12 @@ export class ModelSimulatorComponent implements OnInit {
 
         if(this._eventTypeEvents['S']!=null){
             eqpStartEvent = this._eventTypeEvents['S'];
-            eqpStartEvent.condition = "value"+ this.modelChart.getConditionStartOperator() +this.modelChart.getConditionValue();
+            eqpStartEvent.condition = this.getStartCondition();
             eqpStartEvent.paramId = this.modelChart.getParamId();
             eqpStartEvent.processYn = this.eventType == "event"?"Y":"N";
         }else{
             eqpStartEvent.eqpId = this.eqpId;
-            eqpStartEvent.condition = "value"+ this.modelChart.getConditionStartOperator() +this.modelChart.getConditionValue();
+            eqpStartEvent.condition = this.getEndCondition();
             eqpStartEvent.eventName = "process start";
             eqpStartEvent.eventTypeCd="S";
             eqpStartEvent.paramId = this.modelChart.getParamId();
@@ -338,7 +344,7 @@ export class ModelSimulatorComponent implements OnInit {
     adHocSummary() {
         this.adHocSummary_init();
 
-        let conditionValue = this.modelChart.getConditionValue();
+        // let conditionValue = this.modelChart.getConditionValue();
         let fabId = this.tree2.selectedFab.fabId;
         let conditionParamId = this.modelChart.getConditionParamId();
         let node = this.tree2.getSelectedNodes();
@@ -366,7 +372,7 @@ export class ModelSimulatorComponent implements OnInit {
             this.showProgress = true;
             try {
                 this.pdmModelService.getTraceDataEventSimulationByConditionValue(fabId, parameters[i].paramId,
-                    this.searchTimePeriod2.from, this.searchTimePeriod2.to, conditionParamId, conditionValue, adHocFunctions, this.aggregationTime, this.eventType).subscribe((datas) => {
+                    this.searchTimePeriod2.from, this.searchTimePeriod2.to, conditionParamId, this.getStartCondition(),this.getEndCondition(), adHocFunctions, this.aggregationTime, this.eventType).subscribe((datas) => {
 
                         let keys = Object.keys(datas);
                         for (let j = 0; j < keys.length; j++) {
