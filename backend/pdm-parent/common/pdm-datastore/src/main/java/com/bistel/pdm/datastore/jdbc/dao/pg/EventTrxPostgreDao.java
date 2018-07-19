@@ -19,8 +19,8 @@ public class EventTrxPostgreDao implements EventDataDao {
     private static final Logger log = LoggerFactory.getLogger(EventTrxPostgreDao.class);
 
     private static final String INSERT_SQL =
-            "insert into eqp_event_trx_pdm (RAWID, EQP_EVENT_MST_RAWID, EVENT_TYPE_CD, EVENT_DTTS) " +
-                    "values (SEQ_EQP_EVENT_TRX_PDM.nextval,?,?,?) ";
+            "insert into eqp_event_trx_pdm (EQP_EVENT_MST_RAWID, EVENT_TYPE_CD, EVENT_DTTS) " +
+                    "values (?,?,?) ";
 
     @Override
     public void storeRecord(ConsumerRecords<String, byte[]> records) {

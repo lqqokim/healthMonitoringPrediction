@@ -137,6 +137,7 @@ public class TrendChangeProcessor extends AbstractProcessor<String, byte[]> {
                             + paramRawid + ","
                             + fd03HealthInfo.getParamHealthRawId() + ","
                             + statusCode + ","
+                            + doubleValueList.size() + ","
                             + index + ","
                             + fd03HealthInfo.getHealthLogicRawId();
 

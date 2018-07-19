@@ -2,6 +2,8 @@ package com.bistel.pdm.datastore.jdbc.dao.pg;
 
 import com.bistel.pdm.datastore.jdbc.DataSource;
 import com.bistel.pdm.datastore.jdbc.dao.HealthDataDao;
+import com.bistel.pdm.datastore.model.ParamHealthData;
+import com.bistel.pdm.datastore.model.ParamHealthRULData;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.slf4j.Logger;
@@ -11,6 +13,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.List;
 
 /**
  *
@@ -19,8 +22,9 @@ public class EqpHealthTrxPostgreDao implements HealthDataDao {
     private static final Logger log = LoggerFactory.getLogger(EqpHealthTrxPostgreDao.class);
 
     private static final String INSERT_SQL =
-            "insert into eqp_health_trx_pdm (RAWID, EQP_MST_RAWID, HEALTH_LOGIC_MST_RAWID, STATUS_CD, SCORE, ALARM_DTTS) " +
-                    "values (SEQ_EQP_HEALTH_TRX_PDM.nextval,?,?,?,?,?) ";
+            "insert into eqp_health_trx_pdm " +
+                    "(EQP_MST_RAWID, HEALTH_LOGIC_MST_RAWID, STATUS_CD, DATA_COUNT, SCORE, ALARM_DTTS) " +
+                    "values (?,?,?,?,?,?) ";
 
     @Override
     public void storeRecord(ConsumerRecords<String, byte[]> records) {
@@ -36,14 +40,15 @@ public class EqpHealthTrxPostgreDao implements HealthDataDao {
 
                     byte[] healthData = record.value();
                     String valueString = new String(healthData);
-                    // time, eqpRawid, param_rawid, param_health_rawid, status_cd, index, health_logic_rawid
+                    // time, eqpRawid, param_rawid, param_health_rawid, status_cd, count, index, health_logic_rawid
                     String[] values = valueString.split(",");
 
                     pstmt.setLong(1, Long.parseLong(values[1])); //eqp_mst_rawid
-                    pstmt.setLong(2, Long.parseLong(values[6])); //health_logic_rawid
+                    pstmt.setLong(2, Long.parseLong(values[7])); //health_logic_rawid
                     pstmt.setString(3, values[4]);
-                    pstmt.setDouble(4, Double.parseDouble(values[5])); //index value
-                    pstmt.setTimestamp(5, new Timestamp(Long.parseLong(values[0])));
+                    pstmt.setDouble(4, Double.parseDouble(values[5])); //data count
+                    pstmt.setDouble(5, Double.parseDouble(values[6])); //index value
+                    pstmt.setTimestamp(6, new Timestamp(Long.parseLong(values[0])));
 
                     pstmt.addBatch();
                     //log.debug("offset = " + record.offset() + " value = " + valueString);
@@ -74,5 +79,20 @@ public class EqpHealthTrxPostgreDao implements HealthDataDao {
         } catch (SQLException e) {
             log.error(e.getMessage(), e);
         }
+    }
+
+    @Override
+    public Long getTraceRawId() {
+        return null;
+    }
+
+    @Override
+    public void storeHealth(List<ParamHealthData> records) {
+
+    }
+
+    @Override
+    public void storeHealthRUL(List<ParamHealthRULData> records) {
+
     }
 }

@@ -19,8 +19,8 @@ public class FeatureTrxPostgreDao implements FeatureDataDao {
 
     private static final String INSERT_SQL =
             "insert into param_feature_trx_pdm " +
-                    "(RAWID, PARAM_MST_RAWID, BEGIN_DTTS, END_DTTS, COUNT, MIN, MAX, MEDIAN, MEAN, STDDEV, Q1, Q3) " +
-                    "values (seq_param_feature_trx_pdm.nextval, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                    "(PARAM_MST_RAWID, BEGIN_DTTS, END_DTTS, COUNT, MIN, MAX, MEDIAN, MEAN, STDDEV, Q1, Q3) " +
+                    "values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     @Override
     public void storeRecord(ConsumerRecords<String, byte[]> records) {

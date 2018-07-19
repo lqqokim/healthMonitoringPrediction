@@ -60,6 +60,10 @@ public class PredictRULProcessor extends AbstractProcessor<String, byte[]> {
             if (fd04HealthInfo != null) {
                 log.debug("[{}] - calculate RUL with average ({}). ", partitionKey, dValue);
 
+                if(paramMaster.getUpperAlarmSpec() == null){
+                    log.debug("[{}] - No spec!!! : {} ", paramKey, paramMaster.getParameterName());
+                    return;
+                }
                 // ==========================================================================================
                 // Logic 4 health
 
@@ -89,6 +93,7 @@ public class PredictRULProcessor extends AbstractProcessor<String, byte[]> {
                     double intercept = regression.getIntercept();
                     double slope = regression.getSlope();
                     //if(Double.isNaN(intercept) || Double.isNaN(slope) || slope <=0) return null;
+
                     double x = (paramMaster.getUpperAlarmSpec() - intercept) / slope;
 
                     // y = intercept + slope * x
@@ -116,14 +121,18 @@ public class PredictRULProcessor extends AbstractProcessor<String, byte[]> {
                         statusCode = "W";
                     }
 
-                    // time, eqpRawid, param_rawid, param_health_rawid, status_cd, index
+                    // time, eqpRawid, param_rawid, param_health_rawid, status_cd, count, index, health_logic_rawid
                     String newMsg = endTime + ","
                             + paramMaster.getEquipmentRawId() + ","
                             + paramRawid + ","
                             + fd04HealthInfo.getParamHealthRawId() + ","
                             + statusCode + ","
+                            + doubleValueList.size() + ","
                             + index + ","
-                            + fd04HealthInfo.getHealthLogicRawId();
+                            + fd04HealthInfo.getHealthLogicRawId() + ","
+                            + intercept + ","
+                            + slope + ","
+                            + x ;
 
                     context().forward(partitionKey, newMsg.getBytes());
                     context().commit();
@@ -156,6 +165,7 @@ public class PredictRULProcessor extends AbstractProcessor<String, byte[]> {
                         + paramRawid + ","
                         + fd01HealthInfo.getParamHealthRawId() + ","
                         + statusCode + ","
+                        + doubleValueList.size() + ","
                         + index + ","
                         + fd01HealthInfo.getHealthLogicRawId();
 
