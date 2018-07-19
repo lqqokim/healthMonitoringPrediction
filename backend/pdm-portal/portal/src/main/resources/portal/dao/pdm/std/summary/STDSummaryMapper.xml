@@ -2065,7 +2065,7 @@
 			from
 			(
 			select eqp_id,eqp_name, event_type_cd, lead(event_type_cd) over (partition by eqp_name order by event_dtts) type_cd, event_dtts as start_dtts,
-			COALESCE(lead(event_dtts) over (partition by eqp_name order by event_dtts), TO_TIMESTAMP('2018-06-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS')) end_dtts
+			COALESCE(lead(event_dtts) over (partition by eqp_name order by event_dtts), TO_TIMESTAMP(#{end_dtts}, 'YYYY-MM-DD HH24:MI:SS')) end_dtts
 		
 			from
 			(
