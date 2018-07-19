@@ -1,54 +1,58 @@
-.modeling-chart{
-    width:100%;
+.modeling-chart {
+    width: 100%;
     height: 100%;
 }
-.modeling-chart .param-container{
-    width:100%;
-    height:200px;
+
+.modeling-chart .param-container {
+    width: 100%;
+    height: 200px;
 }
 
-.modeling-chart .chart-container{
+.modeling-chart .chart-container {
     /* width:100%; */
-    height:100%;
+    height: 100%;
 }
 
-.modeling-chart .conditionValue{
-    width:80px;
+.modeling-chart .conditionValue {
+    width: 80px;
 }
-.modeling-chart .conditionOperator{
-    width:80px;
+
+.modeling-chart .conditionOperator {
+    width: 80px;
     height: 24px;
 }
 
-
-.modeling-chart table{
-    width:100%;
-    height:100%;
+.modeling-chart table {
+    width: 100%;
+    height: 100%;
 }
 
-.modeling-chart table th{
+/*.modeling-chart table th {
     font-size: 14px;
     font-weight: normal;
     color: #039;
     border-bottom: 2px solid #6678b1;
-    padding: 10px 8px;  
+    padding: 10px 8px;
     text-align: center;
 }
-.modeling-chart table tr{
+
+.modeling-chart table tr {
     border-bottom: 1px solid #ddd;
-}
-.modeling-chart table td{
+}*/
+
+.modeling-chart table td {
     text-align: left;
 }
-.modeling-chart .param-info{
+
+.modeling-chart .param-info {
     height: 250px;
 }
 
-.modeling-chart .parameter{
-    width:140px;
+.modeling-chart .parameter {
+    width: 140px;
 }
 
 .modeling-chart .jqplot-yaxis {
-    margin-left:-100px !important;
-    width:100px !important;
-  }
+    margin-left: -100px !important;
+    width: 100px !important;
+}

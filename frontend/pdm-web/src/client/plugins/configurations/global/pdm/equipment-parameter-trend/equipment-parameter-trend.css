@@ -13,19 +13,22 @@ table {
 .equipment-parameter-trend .condition {
     width: 250px;
     padding: 10px;
-    border: solid 1px gray;
+    /*border: solid 1px gray;*/
     vertical-align: top;
 }
 
 .equipment-parameter-trend .chart {
     padding: 10px;
-    border: solid 1px gray;
+    /*border: solid 1px gray;*/
 }
 
 .equipment-parameter-trend .eqp-tree {
     height: calc(100% - 190px);
     overflow: auto;
-    border: solid 1px lightgray;
+		/*border: solid 1px lightgray;*/
+		padding-bottom: 8px;
+		margin-bottom: 12px;
+		border-bottom: 1px solid #eee;
 }
 
 .equipment-parameter-trend .progress {
@@ -71,4 +74,22 @@ table {
 .equipment-parameter-trend .jqplot-yaxis {
     margin-left: -100px !important;
     width: 100px !important;
+}
+
+.equipment-parameter-trend .eqp-tree .title{
+	font-size: 13px !important;
+}
+
+.equipment-parameter-trend .pdm-configuration-builder .pdm-body{
+	padding: 0 !important;
+}
+
+.equipment-parameter-trend .a3-from-to{
+	padding-bottom: 8px;
+	margin-bottom: 12px;
+	border-bottom: 1px solid #eee;
+}
+
+.equipment-parameter-trend .a3-configuration-forms-wrapper{
+  margin-bottom:5px;
 }
