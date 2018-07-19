@@ -22,10 +22,12 @@ public class StreamingMasterDataDao {
 
     private final static String PARAM_MASTER_DS_SQL =
             "select " +
-                    "area.name area_name, eqp.name as eqp_name, " +
+                    "area.name area_name, eqp.name as eqp_name, eqp.rawid as eqp_rawid, " +
                     "param.name as param_name, param.parse_index, param.rawid param_id, " +
-                    "spec.upper_alarm_spec, spec.upper_warning_spec, spec.target, " +
-                    "spec.lower_alarm_spec, spec.lower_warning_spec " +
+                    "spec.alarm_spec, spec.warning_spec, " +
+                    "param.param_type_cd " +
+                    //"spec.upper_alarm_spec, spec.upper_warning_spec, spec.target, " +
+                    //"spec.lower_alarm_spec, spec.lower_warning_spec " +
                     "from area_mst_pdm area, eqp_mst_pdm eqp, param_mst_pdm param, trace_spec_mst_pdm spec " +
                     "where area.rawid=eqp.area_mst_rawid " +
                     "and eqp.rawid=param.eqp_mst_rawid " +
@@ -45,39 +47,41 @@ public class StreamingMasterDataDao {
                     ParameterMasterDataSet ds = new ParameterMasterDataSet();
                     ds.setAreaName(rs.getString(1));
                     ds.setEquipmentName(rs.getString(2));
-                    ds.setParameterName(rs.getString(3));
-                    ds.setParamParseIndex(rs.getInt(4));
-                    ds.setParameterRawId(rs.getLong(5));
+                    ds.setEquipmentRawId(rs.getLong(3));
+                    ds.setParameterName(rs.getString(4));
+                    ds.setParamParseIndex(rs.getInt(5));
+                    ds.setParameterRawId(rs.getLong(6));
+                    ds.setParameterType(rs.getString(9));
 
-                    Float uas = rs.getFloat(6);
+                    Float uas = rs.getFloat(7);
                     if(rs.wasNull()){
                         uas = null;
                     }
                     ds.setUpperAlarmSpec(uas);
 
-                    Float uws = rs.getFloat(7);
+                    Float uws = rs.getFloat(8);
                     if(rs.wasNull()){
                         uws = null;
                     }
                     ds.setUpperWarningSpec(uws);
 
-                    Float t = rs.getFloat(8);
-                    if(rs.wasNull()){
-                        t = null;
-                    }
-                    ds.setTarget(t);
-
-                    Float las = rs.getFloat(9);
-                    if(rs.wasNull()){
-                        las = null;
-                    }
-                    ds.setLowerAlarmSpec(las);
-
-                    Float lws = rs.getFloat(10);
-                    if(rs.wasNull()){
-                        lws = null;
-                    }
-                    ds.setLowerWarningSpec(lws);
+//                    Float t = rs.getFloat(8);
+//                    if(rs.wasNull()){
+//                        t = null;
+//                    }
+//                    ds.setTarget(t);
+//
+//                    Float las = rs.getFloat(9);
+//                    if(rs.wasNull()){
+//                        las = null;
+//                    }
+//                    ds.setLowerAlarmSpec(las);
+//
+//                    Float lws = rs.getFloat(10);
+//                    if(rs.wasNull()){
+//                        lws = null;
+//                    }
+//                    ds.setLowerWarningSpec(lws);
 
                     resultRows.add(ds);
                 }

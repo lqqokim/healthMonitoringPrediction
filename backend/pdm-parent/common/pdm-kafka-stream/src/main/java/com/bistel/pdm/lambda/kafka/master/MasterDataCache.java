@@ -49,6 +49,21 @@ public class MasterDataCache {
         return paramMasterDataSet;
     }
 
+    public int getParamCount(String key){
+        List<ParameterMasterDataSet> li = paramMasterDataSet.get(key);
+
+        int i = 0;
+        for(ParameterMasterDataSet param : li){
+            if (param.getParamParseIndex() <= 0) continue;
+
+            if(MasterDataCache.getInstance().getParamHealthDataSet().containsKey(param.getParameterRawId())){
+                i++;
+            }
+        }
+
+        return i;
+    }
+
     public ParameterMasterDataSet getParamMasterDataSetWithRawId(String key, Long rawId) {
         ParameterMasterDataSet param = null;
 
@@ -57,6 +72,21 @@ public class MasterDataCache {
             if(p.getParameterRawId().equals(rawId)){
                 param = p;
                 break;
+            }
+        }
+
+        return param;
+    }
+
+    public ParameterMasterDataSet getParamMasterDataSetWithRawId(Long rawId) {
+        ParameterMasterDataSet param = null;
+
+        for(List<ParameterMasterDataSet> paramList : paramMasterDataSet.values()){
+            for(ParameterMasterDataSet paramObj : paramList){
+                if(paramObj.getParameterRawId().equals(rawId)){
+                    param = paramObj;
+                    break;
+                }
             }
         }
 

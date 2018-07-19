@@ -2,6 +2,7 @@ package com.bistel.pdm.batch.processor;
 
 import com.bistel.pdm.batch.util.ServingRequestor;
 import com.bistel.pdm.common.json.ParameterHealthDataSet;
+import com.bistel.pdm.common.json.ParameterMasterDataSet;
 import com.bistel.pdm.common.json.SummarizedFeature;
 import com.bistel.pdm.lambda.kafka.master.MasterDataCache;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
@@ -69,11 +70,14 @@ public class TrendChangeProcessor extends AbstractProcessor<String, byte[]> {
 
             kvFeatureDataStore.put(strParamRawid, dValue, endTime);
 
+            ParameterMasterDataSet paramMaster =
+                    MasterDataCache.getInstance().getParamMasterDataSetWithRawId(partitionKey, paramRawid);
+
             ParameterHealthDataSet fd03HealthInfo =
                     MasterDataCache.getInstance().getParamHealthFD03(paramRawid);
 
             if (fd03HealthInfo != null) {
-                log.debug("[{}] - calculate Status Changes Rate with average ({}). ", partitionKey, dValue);
+                log.debug("[{}] - calculate SCR with average ({}). ", partitionKey, dValue);
 
                 // ==========================================================================================
                 // Logic 3 health
@@ -127,12 +131,14 @@ public class TrendChangeProcessor extends AbstractProcessor<String, byte[]> {
                         statusCode = "W";
                     }
 
-                    // time, param_rawid, param_health_rawid, status_cd, index
+                    // time, eqpRawid, param_rawid, param_health_rawid, status_cd, index, health_logic_rawid
                     String newMsg = endTime + ","
+                            + paramMaster.getEquipmentRawId() + ","
                             + paramRawid + ","
                             + fd03HealthInfo.getParamHealthRawId() + ","
                             + statusCode + ","
-                            + index;
+                            + index + ","
+                            + fd03HealthInfo.getHealthLogicRawId();
 
                     context().forward(partitionKey, newMsg.getBytes());
                     context().commit();
@@ -142,7 +148,7 @@ public class TrendChangeProcessor extends AbstractProcessor<String, byte[]> {
                     log.debug("[{}] - Unable to calculate status change rate...", paramKey);
                 }
             } else {
-                log.debug("[{}] - No health info.", paramKey);
+                log.trace("[{}] - No health info.", paramKey);
             }
         } catch (Exception e) {
             log.error(e.getMessage(), e);

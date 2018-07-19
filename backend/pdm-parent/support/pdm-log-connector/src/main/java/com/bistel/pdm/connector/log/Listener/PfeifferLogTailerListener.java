@@ -35,6 +35,8 @@ public class PfeifferLogTailerListener extends TailerListenerAdapter {
         if (line.length() <= 0) return;
 
         String[] columns = line.split("/");
+        if(columns[0].equalsIgnoreCase("time")) return;
+
         final String partitionKey = "A1804H,TP8016901"; //area,eqp
 
         final String[] paramName = new String[]{"F1 CH1 V",
@@ -73,19 +75,6 @@ public class PfeifferLogTailerListener extends TailerListenerAdapter {
                 + columns[20];
         rmsProducer.send(new ProducerRecord<>(topicName, partitionKey, msg.getBytes()));
         log.info("send {}", msg);
-
-//        for (int i = 0; i < paramName.length; i++) {
-//            Timestamp ts = new Timestamp(System.currentTimeMillis());
-//            String timeStamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(ts);
-//            String value = timeStamp
-//                    + ",PFEIFFER,VACUUM,ADIXEN,"
-//                    + paramName[i]
-//                    + columns[i + 1].trim();
-//
-//            String topicName = this.topicPrefix + "-trace";
-//            rmsProducer.send(new ProducerRecord<>(topicName, partitionKey, value.getBytes()));
-//            log.info("send {}", value);
-//        }
 
         try {
             Thread.sleep(1000);

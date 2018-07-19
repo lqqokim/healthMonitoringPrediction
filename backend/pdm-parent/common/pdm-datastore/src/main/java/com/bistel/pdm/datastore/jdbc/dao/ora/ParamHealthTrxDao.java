@@ -1,4 +1,4 @@
-package com.bistel.pdm.datastore.jdbc.dao.pg;
+package com.bistel.pdm.datastore.jdbc.dao.ora;
 
 import com.bistel.pdm.datastore.jdbc.DataSource;
 import com.bistel.pdm.datastore.jdbc.dao.HealthDataDao;
@@ -15,8 +15,8 @@ import java.sql.Timestamp;
 /**
  *
  */
-public class HealthTrxPostgreDao implements HealthDataDao {
-    private static final Logger log = LoggerFactory.getLogger(HealthTrxPostgreDao.class);
+public class ParamHealthTrxDao implements HealthDataDao {
+    private static final Logger log = LoggerFactory.getLogger(ParamHealthTrxDao.class);
 
     private static final String INSERT_SQL =
             "insert into param_health_trx_pdm (RAWID, PARAM_MST_RAWID, PARAM_HEALTH_MST_RAWID, STATUS_CD, SCORE, ALARM_DTTS) " +
@@ -36,13 +36,13 @@ public class HealthTrxPostgreDao implements HealthDataDao {
 
                     byte[] healthData = record.value();
                     String valueString = new String(healthData);
-                    // time, param_rawid, param_health_rawid, status_cd, index
+                    // time, eqpRawid, param_rawid, param_health_rawid, status_cd, index, health_logic_rawid
                     String[] values = valueString.split(",");
 
-                    pstmt.setLong(1, Long.parseLong(values[1])); //param_mst_rawid
-                    pstmt.setLong(2, Long.parseLong(values[2])); //param_health_rawid
-                    pstmt.setString(3, values[3]);
-                    pstmt.setDouble(4, Double.parseDouble(values[4])); //index value
+                    pstmt.setLong(1, Long.parseLong(values[2])); //param_mst_rawid
+                    pstmt.setLong(2, Long.parseLong(values[3])); //param_health_rawid
+                    pstmt.setString(3, values[4]);
+                    pstmt.setDouble(4, Double.parseDouble(values[5])); //index value
                     pstmt.setTimestamp(5, new Timestamp(Long.parseLong(values[0])));
 
                     pstmt.addBatch();

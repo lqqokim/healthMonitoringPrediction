@@ -106,8 +106,10 @@ public class BatchTraceTaskDef extends AbstractPipeline {
                 .addStateStore(fd03WindowStoreSupplier, "fd03")
                 .addProcessor("fd04", PredictRULProcessor::new, "input-feature")
                 .addStateStore(fd04WindowStoreSupplier, "fd04")
-                .addSink("output-health-fd03", this.getOutputHealthTopic(), "fd03")
-                .addSink("output-health-fd04", this.getOutputHealthTopic(), "fd04");
+                .addSink("output-health-fd03", this.getOutputParamHealthTopic(), "fd03")
+                .addSink("route-health-fd03", this.getRouteHealthTopic(), "fd03")
+                .addSink("output-health-fd04", this.getOutputParamHealthTopic(), "fd04")
+                .addSink("route-health-fd04", this.getRouteHealthTopic(), "fd04");
 
         return new KafkaStreams(topology, getStreamProperties());
     }
