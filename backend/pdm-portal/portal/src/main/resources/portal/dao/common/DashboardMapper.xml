@@ -44,7 +44,8 @@
 		where user_id = #{userId}
 		order by dashboard_order asc
 	</select>
--->
+	-->
+	
 	<!-- 위 쿼리가 사용되는 곳이 있다면, 아래와 같이 바꿔야함.-->
 	<select id="selectByUser" resultMap="BaseResultMap">
 		select 
@@ -171,8 +172,7 @@
    		(select user_id from dashboard_a3 where dashboard_id = #{dashboardId}) and user_id != #{userId}
 	</select>
 
-	<!-- <insert id="insert" databaseId="oracle"> -->
-	<insert id="insert">
+	<insert id="insert" databaseId="oracle">
 		<selectKey resultType="Long" keyProperty="dashboardId"
 			order="BEFORE">
 			select seq_dashboard_a3.nextval from dual
@@ -192,7 +192,6 @@
 				#{createDtts}
 			)
 	</insert>
-<!-- 
 	<insert id="insert" databaseId="postgresql">
 		<selectKey resultType="Long" keyProperty="dashboardId" order="BEFORE">
 			select nextval('seq_dashboard_a3')
@@ -212,10 +211,8 @@
 				#{createDtts}
 			)
 	</insert>
- -->	
 	
-	<!-- <insert id="insertLinkData" databaseId="oracle"> -->
-	<insert id="insertLinkData">
+	<insert id="insertLinkData" databaseId="oracle">
 		merge 
 		into user_dashboard_lnk_a3
 		using dual
@@ -244,7 +241,6 @@
 		</if>
 		)
 	</insert>
-<!-- 
 	<insert id="insertLinkData" databaseId="postgresql">
 		WITH UPSERT AS 
 		(
@@ -284,7 +280,6 @@
 										where user_id = UPSERT.user_id and dashboard_id=UPSERT.dashboard_id
 									  )
 	</insert>
- -->	
 		
 	<update id="update">
 		update dashboard_a3
