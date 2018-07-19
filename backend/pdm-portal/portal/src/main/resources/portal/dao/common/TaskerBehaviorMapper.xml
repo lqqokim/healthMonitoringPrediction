@@ -37,7 +37,8 @@
     </select>
     
     
-    <insert id="insert" databaseId="oracle">
+    <!-- <insert id="insert" databaseId="oracle"> -->
+    <insert id="insert">
         <selectKey resultType="Long" keyProperty="taskerBehaviorId" order="BEFORE">
             select seq_tasker_behavior_a3.nextval from dual
         </selectKey>
@@ -51,6 +52,7 @@
             systimestamp
         )
     </insert>
+<!-- 
     <insert id="insert" databaseId="postgresql">
         <selectKey resultType="Long" keyProperty="taskerBehaviorId" order="BEFORE">
             select nextval('seq_tasker_behavior_a3')
@@ -65,7 +67,7 @@
             localtimestamp
         )
     </insert>
-    
+ -->    
     
     <insert id="insertData">
         insert into tasker_behavior_data_a3 (
@@ -85,19 +87,21 @@
     </delete>
     
     
-    <update id="updateStatus" databaseId="oracle">
+    <!-- <update id="updateStatus" databaseId="oracle"> -->
+    <update id="updateStatus">
         update tasker_behavior_a3
         set status = #{status},
             end_dtts = systimestamp
         where tasker_behavior_id = #{taskerBehaviorId}
     </update>
+<!-- 
     <update id="updateStatus" databaseId="postgresql">
         update tasker_behavior_a3
         set status = #{status},
             end_dtts = localtimestamp
         where tasker_behavior_id = #{taskerBehaviorId}
     </update>
-    
+ -->    
     
     <update id="updateOutputData">
         update tasker_behavior_data_a3

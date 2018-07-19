@@ -39,7 +39,8 @@
     </select>
     
     
-    <insert id="insert" databaseId="oracle">
+    <!-- <insert id="insert" databaseId="oracle"> -->
+    <insert id="insert">
         <selectKey resultType="Long" keyProperty="taskerId" order="BEFORE">
             select seq_tasker_a3.nextval from dual
         </selectKey>
@@ -53,6 +54,7 @@
             #{parentId, jdbcType=NUMERIC}
         )
     </insert>
+<!-- 
     <insert id="insert" databaseId="postgresql">
         <selectKey resultType="Long" keyProperty="taskerId" order="BEFORE">
             select nextval('seq_tasker_a3')
@@ -67,7 +69,7 @@
             #{parentId, jdbcType=NUMERIC}
         )
     </insert>
-    
+ -->    
     
     <update id="update">
         update tasker_a3

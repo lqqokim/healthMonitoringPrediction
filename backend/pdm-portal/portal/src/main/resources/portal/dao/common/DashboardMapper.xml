@@ -171,7 +171,8 @@
    		(select user_id from dashboard_a3 where dashboard_id = #{dashboardId}) and user_id != #{userId}
 	</select>
 
-	<insert id="insert" databaseId="oracle">
+	<!-- <insert id="insert" databaseId="oracle"> -->
+	<insert id="insert">
 		<selectKey resultType="Long" keyProperty="dashboardId"
 			order="BEFORE">
 			select seq_dashboard_a3.nextval from dual
@@ -191,6 +192,7 @@
 				#{createDtts}
 			)
 	</insert>
+<!-- 
 	<insert id="insert" databaseId="postgresql">
 		<selectKey resultType="Long" keyProperty="dashboardId" order="BEFORE">
 			select nextval('seq_dashboard_a3')
@@ -210,9 +212,10 @@
 				#{createDtts}
 			)
 	</insert>
+ -->	
 	
-	
-	<insert id="insertLinkData" databaseId="oracle">
+	<!-- <insert id="insertLinkData" databaseId="oracle"> -->
+	<insert id="insertLinkData">
 		merge 
 		into user_dashboard_lnk_a3
 		using dual
@@ -241,6 +244,7 @@
 		</if>
 		)
 	</insert>
+<!-- 
 	<insert id="insertLinkData" databaseId="postgresql">
 		WITH UPSERT AS 
 		(
@@ -280,7 +284,7 @@
 										where user_id = UPSERT.user_id and dashboard_id=UPSERT.dashboard_id
 									  )
 	</insert>
-	
+ -->	
 		
 	<update id="update">
 		update dashboard_a3
