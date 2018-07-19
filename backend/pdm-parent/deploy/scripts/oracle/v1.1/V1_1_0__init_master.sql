@@ -9,7 +9,8 @@ insert into code_mst_pdm(rawid, code, name, category, create_by) values(seq_code
 insert into code_mst_pdm(rawid, code, name, category, create_by) values(seq_code_mst_pdm.nextval, 'Acceleration', 'Acceleration', 'PARAM_TYPE', 'system');
 insert into code_mst_pdm(rawid, code, name, category, create_by) values(seq_code_mst_pdm.nextval, 'Enveloping', 'Enveloping', 'PARAM_TYPE', 'system');
 insert into code_mst_pdm(rawid, code, name, category, create_by) values(seq_code_mst_pdm.nextval, 'Rpm', 'Rpm', 'PARAM_TYPE', 'system');
-insert into code_mst_pdm(rawid, code, name, category, create_by) values(seq_code_mst_pdm.nextval, 'Normal', 'Normal', 'PARAM_TYPE', 'system');
+insert into code_mst_pdm(rawid, code, name, category, create_by) values(seq_code_mst_pdm.nextval, 'Summary', 'Summary', 'PARAM_TYPE', 'system');
+insert into code_mst_pdm(rawid, code, name, category, create_by) values(seq_code_mst_pdm.nextval, 'Trace', 'Trace', 'PARAM_TYPE', 'system');
 
 insert into code_mst_pdm(rawid, code, name, category, create_by) values(seq_code_mst_pdm.nextval, 'mm/s Rms', 'mm/s Rms', 'UNIT_TYPE', 'system');
 insert into code_mst_pdm(rawid, code, name, category, create_by) values(seq_code_mst_pdm.nextval, 'gE PtP', 'gE PtP', 'UNIT_TYPE', 'system');
@@ -63,6 +64,3 @@ values (SEQ_HEALTH_LOGIC_OPT_MST_PDM.NEXTVAL, 2,'M',6);
 
 commit;
 
-
-
-commit;

@@ -54,10 +54,15 @@
           and occur_dtts = #{occur_dtts}
     </delete>
 
-    <insert id="insertBatchJobHst">
+    <insert id="insertBatchJobHst" databaseId="oracle">
         insert into batch_job_hst_pdm(job_dtts, job_cd, eqp_id, job_status_cd, job_type_cd, update_dtts, update_by)
         values(#{job_dtts}, #{job_cd}, #{eqp_id,jdbcType=NUMERIC}, #{job_status_cd}, #{job_type_cd}, systimestamp, #{update_user_id})
     </insert>
+    <insert id="insertBatchJobHst" databaseId="postgresql">
+        insert into batch_job_hst_pdm(job_dtts, job_cd, eqp_id, job_status_cd, job_type_cd, update_dtts, update_by)
+        values(#{job_dtts}, #{job_cd}, #{eqp_id,jdbcType=NUMERIC}, #{job_status_cd}, #{job_type_cd}, localtimestamp, #{update_user_id})
+    </insert>
+
     <delete id="deleteBatchJobHst">
         delete from batch_job_hst_pdm
         where job_dtts = #{job_dtts}
@@ -764,13 +769,22 @@
         and sum_dtts  <![CDATA[>=]]> #{start}
         and sum_dtts  <![CDATA[<]]> #{end}
     </delete>
-    <insert id="insertSummaryTrx">
+    
+    <insert id="insertSummaryTrx" databaseId="oracle">
         insert into trace_daily_sum_pdm(rawid,param_mst_rawid,alarm_spec,warning_spec,sum_dtts,
             avg_period,avg_daily,avg_oos,variation,cause,
             create_by,create_dtts)
         values (seq_trace_daily_sum_pdm.nextval, #{param_id}, #{alarm,jdbcType=FLOAT}, #{warn,jdbcType=FLOAT}, #{read_dtts},
             #{avg_spec,jdbcType=FLOAT}, #{avg_daily,jdbcType=FLOAT}, #{avg_with_aw,jdbcType=FLOAT}, #{variation,jdbcType=FLOAT}, #{cause,jdbcType=VARCHAR},
             #{userName},systimestamp)
+    </insert>
+    <insert id="insertSummaryTrx" databaseId="postgresql">
+        insert into trace_daily_sum_pdm(rawid,param_mst_rawid,alarm_spec,warning_spec,sum_dtts,
+            avg_period,avg_daily,avg_oos,variation,cause,
+            create_by,create_dtts)
+        values (nextval('seq_trace_daily_sum_pdm'), #{param_id}, #{alarm,jdbcType=FLOAT}, #{warn,jdbcType=FLOAT}, #{read_dtts},
+            #{avg_spec,jdbcType=FLOAT}, #{avg_daily,jdbcType=FLOAT}, #{avg_with_aw,jdbcType=FLOAT}, #{variation,jdbcType=FLOAT}, #{cause,jdbcType=VARCHAR},
+            #{userName},localtimestamp)
     </insert>
 
 </mapper>

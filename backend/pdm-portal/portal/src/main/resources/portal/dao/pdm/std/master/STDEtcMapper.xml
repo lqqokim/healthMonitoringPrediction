@@ -33,10 +33,10 @@
         ,#{width,jdbcType=NUMERIC}
         ,#{height,jdbcType=NUMERIC}
         ,#{userName}
-        ,systimestamp,#{userName},systimestamp)
+        ,localtimestamp,#{userName},localtimestamp)
     </insert>
     
-    <update id="updateMonitoring">
+    <update id="updateMonitoring" databaseId="oracle">
         update monitoring_mst_pdm
         set name = #{name},
             image = #{image},
@@ -45,6 +45,17 @@
             height = #{height,jdbcType=NUMERIC},
             update_by = #{userName},
             update_dtts = systimestamp
+        where rawid = #{rawId}
+    </update>
+    <update id="updateMonitoring" databaseId="postgresql">
+        update monitoring_mst_pdm
+        set name = #{name},
+            image = #{image},
+            datas = #{datas},
+            width = #{width,jdbcType=NUMERIC},
+            height = #{height,jdbcType=NUMERIC},
+            update_by = #{userName},
+            update_dtts = localtimestamp
         where rawid = #{rawId}
     </update>
 

@@ -6,7 +6,11 @@
         <div class="header-period-group pull-left">
             <div class="a3-from-to" [from]="searchTimePeriod?.from" [to]="searchTimePeriod?.to" [format]="'yyyy/MM/dd hh:mm:ss'" (changedFromTo)="fromToChange($event)">
             </div>
-            <button class="btn btn-default" type="button" (click)="search();">Search</button>
+            <div class="sample-number">
+                <label for="trash_id">Sampling</label>
+                <input class="input-number" type="number" id="trash_id" value="1" placeholder="only number" step="1" />
+                <button class="btn btn-default" type="button" (click)="search();">Search</button>
+            </div>
         </div>
         <div class="a3-chart-header pull-right">
             <div class="chart-info">
@@ -53,12 +57,16 @@
                         <div class="metrix-chart-container" (dblclick)="matrixDblClick(col_row[rowItem][colItem])" [ngClass]="{'metrix-warning':col_row[rowItem][colItem]!=undefined && col_row[rowItem][colItem].analysis!=undefined}"
                             *ngFor="let colItem of cols">
                             <div class="metrix-chart" *ngIf="col_row[rowItem][colItem]!=undefined">
-                                <button class="btn btn-default" id="wjPopup" (click)="openPopup(col_row[rowItem][colItem].data)">
-                                    <i class="fa fa-search-plus"></i>
-                                </button>
-                                <a3c-bistel-chart [data]="col_row[rowItem][colItem].data"  [config]="spectrumConfig" [eventLines]="col_row[rowItem][colItem].trendEventLines"
+                                <div class="pull-right">
+                                    <button class="btn btn-default" id="wjPopup" (click)="openPopup(col_row[rowItem][colItem].data)">
+                                        <i class="fa fa-search-plus"></i>
+                                    </button>
+                                </div>
+                                <div class="a3c-chart-padding">
+                                <a3c-bistel-chart [data]="col_row[rowItem][colItem].data" [config]="spectrumConfig" [eventLines]="col_row[rowItem][colItem].trendEventLines"
                                     style="width: 100%; " class="chart-body">
                                 </a3c-bistel-chart>
+                                </div>
                                 <div class="float-wrapper" *ngIf="!col_row[rowItem][colItem].data">
                                     <dl>
                                         <dt>
@@ -84,7 +92,8 @@
                 <h3 class="panel-title">Health Contribution</h3>
                 <span class="pull-right">
                     <label class="checkbox-inline">
-                        <input type="checkbox" [checked]="isHealthContributionLegend" (change)="setHealthLegendStatus()" (dblclick)="$event.stopPropagation();"/>
+                        <input type="checkbox" [checked]="isHealthContributionLegend" (change)="setHealthLegendStatus()" (dblclick)="$event.stopPropagation();"
+                        />
                         <button type="button" class="btn btn-default model-button" (click)="hideContributionChart()" (dblclick)="$event.stopPropagation();">Hide Contribution</button>
                         <span>Show legend</span>
                     </label>
@@ -173,8 +182,8 @@
 
                 <span class="pull-right">
 
-                    <wj-multi-select class="form-control" placeholder="Select 1X Item" title="You can select multiple 1x items" checkedMemberPath="selected" headerFormat="{count} selected"
-                        displayMemberPath="display" [itemsSource]="rpmscombo" (checkedItemsChanged)="multiComboCheckedItemsChanged($event);"
+                    <wj-multi-select class="form-control" placeholder="Select 1X Item" title="You can select multiple 1x items" checkedMemberPath="selected"
+                        headerFormat="{count} selected" displayMemberPath="display" [itemsSource]="rpmscombo" (checkedItemsChanged)="multiComboCheckedItemsChanged($event);"
                         (dblclick)="$event.stopPropagation();">
                     </wj-multi-select>
                     <button *ngIf="isShowExpandBtn" class="btn btn-default" id="wjPopup" (click)="expandChart($event, chartSpectra, 3);">
@@ -334,9 +343,7 @@
 <wj-popup owner="#wjPopup" #chartPopup [hideTrigger]="None" class="a3-global-modal-dialog pdm-eqp-param-analysis-popup">
     <div class="a3-global-modal-content">
         <div class="modal-body">
-            <plotly-plot class="plotly-plot" *ngIf="graph.data && graph.layout" 
-                [data]="graph.data" 
-                [layout]="graph.layout">
+            <plotly-plot class="plotly-plot" *ngIf="graph.data && graph.layout" [data]="graph.data" [layout]="graph.layout">
             </plotly-plot>
         </div>
         <div class="modal-footer">

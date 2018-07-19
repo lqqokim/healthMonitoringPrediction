@@ -6,6 +6,7 @@ import com.bistel.a3.portal.domain.pdm.*;
 import com.bistel.a3.portal.service.pdm.ISummaryDataService;
 import com.bistel.a3.portal.util.SqlSessionUtil;
 import org.apache.commons.lang3.time.DateUtils;
+import org.apache.commons.math3.stat.regression.SimpleRegression;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +20,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @ConditionalOnExpression("${run.standard}")
@@ -376,6 +378,11 @@ public class SummaryDataService implements ISummaryDataService {
         eqpHealthRUL.setRulEndValue(dAlarmValue);
 
         return eqpHealthRUL;
+
+
+
+
+
     }
 
     @Override
@@ -406,7 +413,70 @@ public class SummaryDataService implements ISummaryDataService {
         return worstParamId;
     }
 
+    @Override
+    public EqpHealthSPC eqpHealthTrendChartWithSPC(String fabId, Long paramId, Long fromdate, Long todate, List<List<Object>> eqpHealthTrendData) {
 
+        STDSummaryMapper stdSummaryMapper= SqlSessionUtil.getMapper(sessions, fabId, STDSummaryMapper.class);
+
+        EqpHealthSPC eqpHealthSPC=new EqpHealthSPC();
+        eqpHealthSPC.setEqpHealthTrendData(eqpHealthTrendData);
+
+
+        List<EqpHealthSPCRule> eqpHealthSPCRules= stdSummaryMapper.selectEqpHealthSPCRule(paramId,2L);
+        int seriesAlarmCount=0;
+        int seriesTotalCount=0;
+
+        for (int i = 0; i < eqpHealthSPCRules.size(); i++) {
+
+            String optionName=eqpHealthSPCRules.get(i).getOption_name();
+
+            if (optionName.equals("M"))
+            {
+                seriesTotalCount=eqpHealthSPCRules.get(i).getOption_value();
+            }
+            else if(optionName.equals("N"))
+            {
+                seriesAlarmCount=eqpHealthSPCRules.get(i).getOption_value();
+            }
+
+        }
+
+
+        List<List<Object>> eqpHealthTrendSPCData=eqpHealthSPC.getEqpHealthTrendSPCData();
+        int eqpHealthTrendData_IDX=0;
+        for (int i = 0; i < eqpHealthTrendData.size(); i++) {
+
+
+
+
+                Double dAlarm_Spec=(Double)eqpHealthTrendData.get(i).get(2); //Alarm
+                Double dValue=(Double)eqpHealthTrendData.get(i).get(1); //value
+                int spcTotalCount=0;
+
+                if(seriesTotalCount==spcTotalCount)
+                {
+                    spcTotalCount=0;
+                }
+
+                if(dValue>=dAlarm_Spec && spcTotalCount<seriesTotalCount)
+                {
+                    eqpHealthTrendSPCData.add(eqpHealthTrendData.get(i));
+                    spcTotalCount++;
+                }
+
+
+
+
+        }
+
+
+
+
+
+
+
+        return eqpHealthSPC;
+    }
 
 
 }

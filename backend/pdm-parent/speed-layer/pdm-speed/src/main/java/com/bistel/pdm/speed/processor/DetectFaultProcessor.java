@@ -143,13 +143,13 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
                             log.debug("[{}] - Unable to check spec...", paramKey);
                             continue;
                         }
-                        log.debug("[{}] - window data size : {}", paramKey, doubleValueList.size());
+                        //log.debug("[{}] - window data size : {}", paramKey, doubleValueList.size());
 
                         // check spc rule
                         this.evaluateRule(partitionKey, paramKey, doubleValueList, endTime, paramMaster, fd02HealthInfo);
 
                     } else {
-                        //log.debug("[{}] - No health info. for parameter : {}.", partitionKey, paramMaster.getParameterName());
+                        log.trace("[{}] - No health info. parameter : {}.", partitionKey, paramMaster.getParameterName());
                     }
                 }
             }
@@ -172,7 +172,7 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
                                 ParameterMasterDataSet param, ParameterHealthDataSet healthData,
                                 Double paramValue) {
 
-        log.debug("[{}] : check the out of spec. - {}", paramKey, paramValue);
+        log.debug("[{}] : check the out of individual spec. - {}", paramKey, paramValue);
         if ((param.getUpperAlarmSpec() != null && paramValue >= param.getUpperAlarmSpec())
                 || (param.getLowerAlarmSpec() != null && paramValue <= param.getLowerAlarmSpec())) {
             // Alarm
@@ -193,7 +193,14 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
                     param.getUpperWarningSpec() + "," +
                     "Unbalance";
 
-            // to do : fault classifications
+            // fault classifications
+            if(param.getParameterType().equalsIgnoreCase("Acceleration") ||
+                    param.getParameterType().equalsIgnoreCase("Velocity") ||
+                    param.getParameterType().equalsIgnoreCase("Enveloping")){
+
+                log.debug("[{}] - fault classification : ", paramKey);
+
+            }
 
             context().forward(partitionKey, sb.getBytes(), "output-fault");
             log.debug("[{}] - ALARM (UAL:{}, LAL:{}) - {}", paramKey,
@@ -256,7 +263,6 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
 //                    context().forward(partitionKey, mailText.getBytes(), "sendmail");
 
             context().forward(partitionKey, sb.getBytes(), "output-fault");
-
             log.debug("[{}] - WARNING (UWL:{}, LWL:{}) - {}", paramKey,
                     param.getUpperWarningSpec(), param.getLowerWarningSpec(), paramValue);
 
@@ -313,14 +319,20 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
                         paramMaster.getUpperWarningSpec() + "," +
                         "N/A";
 
-                // to do : fault classifications
+                // fault classifications
+                if(paramMaster.getParameterType().equalsIgnoreCase("Acceleration") ||
+                        paramMaster.getParameterType().equalsIgnoreCase("Velocity") ||
+                        paramMaster.getParameterType().equalsIgnoreCase("Enveloping")){
+
+                    log.debug("[{}] - fault classification : ", paramKey);
+
+                }
 
                 context().forward(partitionKey, sb.getBytes(), "output-fault");
-                context().commit();
                 log.debug("[{}] - ALARM by Rule - detected {} cases.", paramKey, totalAlarmCount);
 
                 // ==========================================================================================
-                // Logic 2 health
+                // Logic 2 health with alarm
                 DescriptiveStatistics stats = new DescriptiveStatistics();
                 for (Double val : specOutValue) {
                     stats.addValue(val);
@@ -337,14 +349,48 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
                 }
 
                 String newMsg = ruleTime + ","
+                        + paramMaster.getEquipmentRawId() + ","
                         + paramMaster.getParameterRawId() + ","
                         + fd02HealthInfo.getParamHealthRawId() + ','
                         + statusCode + ","
-                        + index;
+                        + index + ","
+                        + fd02HealthInfo.getHealthLogicRawId();
 
+                context().forward(partitionKey, newMsg.getBytes(), "route-health");
                 context().forward(partitionKey, newMsg.getBytes(), "output-health");
-                context().commit();
-                log.debug("[{}] - logic 2 health : {}", paramKey, newMsg);
+
+                log.debug("[{}] - logic 2 health with alarm : {}", paramKey, newMsg);
+            } else {
+                // ==========================================================================================
+                // Logic 2 health without alarm - If no alarm goes off, calculate the average of the intervals.
+
+                DescriptiveStatistics stats = new DescriptiveStatistics();
+                for (Double val : paramValues) {
+                    stats.addValue(val);
+                }
+
+                Double index = (stats.getMean() / paramMaster.getUpperAlarmSpec());
+
+                String statusCode = "N";
+
+                if (totalAlarmCount > 1) {
+                    statusCode = "A";
+                } else if (totalAlarmCount == 1) {
+                    statusCode = "W";
+                }
+
+                String newMsg = ruleTime + ","
+                        + paramMaster.getEquipmentRawId() + ","
+                        + paramMaster.getParameterRawId() + ","
+                        + fd02HealthInfo.getParamHealthRawId() + ','
+                        + statusCode + ","
+                        + index + ","
+                        + fd02HealthInfo.getHealthLogicRawId();
+
+                context().forward(partitionKey, newMsg.getBytes(), "route-health");
+                context().forward(partitionKey, newMsg.getBytes(), "output-health");
+
+                log.debug("[{}] - logic 2 health without alarm : {}", paramKey, newMsg);
             }
 
         } else if (existWarning(paramKey)) {
@@ -392,7 +438,6 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
                 // to do : fault classifications
 
                 context().forward(partitionKey, sb.getBytes(), "output-fault");
-                context().commit();
                 log.debug("[{}] - WARNING by Rule - detected {} cases.", paramKey, totalWarningCount);
 
                 // to do : logic 2 for warning

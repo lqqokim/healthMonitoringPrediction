@@ -249,6 +249,22 @@ public class SummaryDataController {
         return traceDataService.getTraceData(fabId, paramId, fromdate, todate);
     }
 
+    @RequestMapping("/params/{paramId}/eqpHealthTrendChartWithSPC")
+    public Object eqpHealthTrendChartWithSPC(@PathVariable("fabId") String fabId,
+                                      @PathVariable("paramId") Long paramId,
+                                      @RequestParam("fromdate") Long fromdate,
+                                      @RequestParam("todate") Long todate) {
+
+
+        Date from = new Date(fromdate);
+        Date to = new Date(todate);
+
+        List<List<Object>> eqpHealthTrendData= traceDataService.getTraceData(fabId, paramId, fromdate, todate);
+
+        return summaryDataService.eqpHealthTrendChartWithSPC(fabId, paramId, fromdate, todate, eqpHealthTrendData);
+    }
+
+
     @RequestMapping("/params/{paramId}/eqpHealthTrendChartWithAVG")
     public Object eqpHealthTrendChartWithAVG(@PathVariable("fabId") String fabId,
                                       @PathVariable("paramId") Long paramId,

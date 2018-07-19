@@ -111,7 +111,7 @@
                 #{bearing_id, jdbcType=NUMERIC}
             ,#{parts_type_cd, jdbcType=VARCHAR}
         ,#{ratio, jdbcType=NUMERIC},#{base_ratio_yn,jdbcType=VARCHAR},#{rpm, jdbcType=NUMERIC},#{userName},
-                systimestamp,#{userName},systimestamp)
+                localtimestamp,#{userName},localtimestamp)
     </insert>
     
     <insert id="insertLnk">
@@ -119,7 +119,7 @@
         values (#{param_id,jdbcType=NUMERIC},#{part_id,jdbcType=NUMERIC})
     </insert>
 
-    <update id="updateOne">
+    <update id="updateOne" databaseId="oracle">
         update parts_mst_pdm
         set name = #{name},
             parts_type_cd = #{parts_type_cd},
@@ -130,6 +130,19 @@
             rpm = #{rpm,jdbcType=NUMERIC},
             update_by = #{userName},
             update_dtts = systimestamp
+        where rawid = #{part_id}
+    </update>
+    <update id="updateOne" databaseId="postgresql">
+        update parts_mst_pdm
+        set name = #{name},
+            parts_type_cd = #{parts_type_cd},
+            ratio = #{ratio,jdbcType=NUMERIC},
+            eqp_mst_rawid = #{eqp_id,jdbcType=NUMERIC},
+            bearing_mst_rawid = #{bearing_id,jdbcType=NUMERIC},
+            base_ratio_yn = #{base_ratio_yn},
+            rpm = #{rpm,jdbcType=NUMERIC},
+            update_by = #{userName},
+            update_dtts = localtimestamp
         where rawid = #{part_id}
     </update>
 

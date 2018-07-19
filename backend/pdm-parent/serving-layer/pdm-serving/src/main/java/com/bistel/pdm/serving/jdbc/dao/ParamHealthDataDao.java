@@ -20,6 +20,7 @@ public class ParamHealthDataDao {
                     " h.rawid health_rawid, " +
                     " p.name param_name, " +
                     " l.code, " +
+                    " l.rawid as health_logic_rawid , " +
                     " l.alarm_condition, " +
                     " l.warning_condition, " +
                     " o.option_name, " +
@@ -45,10 +46,12 @@ public class ParamHealthDataDao {
                 ds.setParamHealthRawId(rs.getLong(2));
                 ds.setParameterName(rs.getString(3));
                 ds.setHealthCode(rs.getString(4));
-                ds.setAlarmCondition(rs.getString(5));
-                ds.setWarningCondition(rs.getString(6));
-                ds.setOptionName(rs.getString(7));
-                ds.setOptionValue(rs.getInt(8));
+                ds.setHealthLogicRawId(rs.getLong(5));
+
+                ds.setAlarmCondition(rs.getString(6));
+                ds.setWarningCondition(rs.getString(7));
+                ds.setOptionName(rs.getString(8));
+                ds.setOptionValue(rs.getInt(9));
 
                 resultRows.add(ds);
             }

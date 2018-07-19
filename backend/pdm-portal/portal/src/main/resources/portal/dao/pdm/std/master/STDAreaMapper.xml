@@ -32,7 +32,7 @@
             select nextval('seq_area_mst_pdm') 
         </selectKey>
         insert into area_mst_pdm(rawid, name, description, parent_rawid,create_by,create_dtts,update_by,update_dtts)
-        values(#{area_id}, #{name}, #{description,jdbcType=VARCHAR}, #{parent_id},#{userName},systimestamp,#{userName},systimestamp)
+        values(#{area_id}, #{name}, #{description,jdbcType=VARCHAR}, #{parent_id},#{userName},localtimestamp,#{userName},localtimestamp)
     </insert>
 
     <delete id="deleteOne">
@@ -40,7 +40,7 @@
         where rawid = #{areaId}
     </delete>
 
-    <update id="updateOne">
+    <update id="updateOne" databaseId="oracle">
         update area_mst_pdm
         set name = #{name},
             description = #{description,jdbcType=VARCHAR},
@@ -49,6 +49,16 @@
             update_by = #{userName}
         where rawid = #{area_id}
     </update>
+    <update id="updateOne" databaseId="postgresql">
+        update area_mst_pdm
+        set name = #{name},
+            description = #{description,jdbcType=VARCHAR},
+            parent_rawid = #{parent_id},
+            update_dtts = localtimestamp,
+            update_by = #{userName}
+        where rawid = #{area_id}
+    </update>
+    
     <select id="selectNodes" resultType="com.bistel.a3.portal.domain.pdm.Node" databaseId="oracle">
 
         SELECT

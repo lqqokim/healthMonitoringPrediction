@@ -27,9 +27,11 @@ public abstract class AbstractPipeline implements Closeable {
     private final String outputTimewaveTopic = "pdm-output-raw";
     private final String outputFeatureTopic = "pdm-output-feature";
     private final String outputFaultTopic = "pdm-output-fault";
-    private final String outputHealthTopic = "pdm-output-health";
+    private final String outputParamHealthTopic = "pdm-output-param-health";
+    private final String outputEQPHealthTopic = "pdm-output-eqp-health";
 
     private final String routeFeatureTopic = "pdm-route-feature";
+    private final String routeHealthTopic = "pdm-route-health";
 
     /**
      * What to do when there is no initial offset in Kafka or if the current offset does not exist any more on the server (e.g. because that data has been deleted):
@@ -115,12 +117,20 @@ public abstract class AbstractPipeline implements Closeable {
         return outputFaultTopic;
     }
 
-    public String getOutputHealthTopic() {
-        return outputHealthTopic;
-    }
-
     public String getRouteFeatureTopic() {
         return routeFeatureTopic;
+    }
+
+    public String getRouteHealthTopic() {
+        return routeHealthTopic;
+    }
+
+    public String getOutputParamHealthTopic() {
+        return outputParamHealthTopic;
+    }
+
+    public String getOutputEQPHealthTopic() {
+        return outputEQPHealthTopic;
     }
 
     public String getSchemaRegistryUrl() {

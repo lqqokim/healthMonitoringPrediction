@@ -51,7 +51,8 @@
         where code_category_id = #{codeCategoryId}
     </delete>
     
-    <insert id="insert" databaseId="oracle">
+    <!-- <insert id="insert" databaseId="oracle"> -->
+    <insert id="insert">
         <selectKey resultType="Long" keyProperty="codeId" order="BEFORE">
             select seq_code_a3.nextval from dual
         </selectKey>
@@ -68,6 +69,7 @@
             #{codeCategoryId}
         )
     </insert>
+<!-- 
     <insert id="insert" databaseId="postgresql">
         <selectKey resultType="Long" keyProperty="codeId" order="BEFORE">
             select nextval('seq_code_a3')
@@ -85,7 +87,7 @@
             #{codeCategoryId}
         )
     </insert>
-
+ -->
 
     <delete id="delete">
         delete from code_a3

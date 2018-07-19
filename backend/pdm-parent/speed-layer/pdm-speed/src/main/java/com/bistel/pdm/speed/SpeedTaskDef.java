@@ -64,10 +64,10 @@ public class SpeedTaskDef extends AbstractPipeline {
         StoreBuilder<WindowStore<String, Double>> paramValueStoreSupplier =
                 Stores.windowStoreBuilder(
                         Stores.persistentWindowStore("speed-param-value",
-                            TimeUnit.DAYS.toMillis(1),
-                            24,
-                            TimeUnit.HOURS.toMillis(1),
-                            true),
+                                TimeUnit.DAYS.toMillis(1),
+                                24,
+                                TimeUnit.HOURS.toMillis(1),
+                                true),
                         Serdes.String(),
                         Serdes.Double());
 
@@ -89,6 +89,9 @@ public class SpeedTaskDef extends AbstractPipeline {
                         Serdes.String(),
                         Serdes.Integer());
 
+        topology.addSource("input-reload", "pdm-input-reload")
+                .addProcessor("reload", ReloadMetadataProcessor::new, "input-reload");
+
         topology.addSource("input-trace", this.getInputTraceTopic())
                 .addProcessor("speed01", FilterByMasterProcessor::new, "input-trace")
                 .addProcessor("speed02", MarkStatusProcessor::new, "speed01")
@@ -102,12 +105,10 @@ public class SpeedTaskDef extends AbstractPipeline {
                 .addProcessor("sendmail", SendMailProcessor::new, "fd0102")
                 .addSink("output-trace", this.getOutputTraceTopic(), "speed02")
                 .addSink("output-event", this.getOutputEventTopic(), "speed03")
-                .addSink("output-fault", this.getOutputFaultTopic(), "fd0102")
                 .addSink("output-raw", this.getInputTimewaveTopic(), "fd0102")
-                .addSink("output-health", this.getOutputHealthTopic(), "fd0102");
-
-        topology.addSource("input-reload", "pdm-input-reload")
-                .addProcessor("reload", ReloadMetadataProcessor::new, "input-reload");
+                .addSink("route-health", this.getRouteHealthTopic(), "fd0102")
+                .addSink("output-fault", this.getOutputFaultTopic(), "fd0102")
+                .addSink("output-health", this.getOutputParamHealthTopic(), "fd0102");
 
         return new KafkaStreams(topology, getStreamProperties());
     }

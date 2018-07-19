@@ -1,61 +1,103 @@
-.model-simulator ,table{
-	width:100%;
-	height:100%;
-	overflow: auto;
-}
-.model-simulator table{
-	width:100%;
-	height:100%;
+.model-simulator,
+table {
+    width: 100%;
+    height: 100%;
+    overflow: auto;
 }
 
-.model-simulator .condition{
-	width: 250px;
+.model-simulator table {
+    width: 100%;
+    height: 100%;
+}
+
+.model-simulator .condition {
+    width: 250px;
     padding: 10px;
-	border: solid 1px gray;
-	vertical-align: top;
-}
-.model-simulator .chart{
-	padding:10px;
-	border: solid 1px gray;
-}
-.model-simulator .eqp-tree{
-	height:300px;
-	/* overflow: auto; */
-	border: solid 1px lightgray;
+    /*border: solid 1px gray;*/
+    vertical-align: top;
 }
 
-.model-simulator .progress{
-	width:100%;
-}
-.model-simulator .aggregation{
-	width: 100%;
+.model-simulator .chart {
     padding: 10px;
-	border: solid 1px lightgray;
-}
-.model-simulator aggregation > input{
-	width:70px;
+    /*border: solid 1px gray;*/
 }
 
-.model-simulator .modeling-container{
-	height:800px;
-}
-.model-simulator .chart-container{
-	height:100%;
-	width:100%;
-	overflow: auto;
-}
-
-.model-simulator .candoit{
-	color: #fff !important;
-    background-color: #5bc0de  !important;
-    border-color: #46b8da  !important;
+.model-simulator .eqp-tree {
+    height: 300px;
+    /* overflow: auto; */
+    /*border: solid 1px lightgray;*/
+    padding-bottom: 8px;
+    margin-bottom: 12px;
+    border-bottom: 1px solid #eee;
 }
 
-.model-simulator button{
-	width:100%;
-	margin-bottom: 10px;
-
+.model-simulator .progress {
+    width: 100%;
 }
-.modeling-container .condition button{
-	margin-bottom: 10px;
+
+.model-simulator .aggregation {
+    width: 100%;
+    /*padding: 10px;*/
+    /*border: solid 1px lightgray;*/
+    padding-bottom: 8px;
+    margin-bottom: 12px;
+    border-bottom: 1px solid #eee;
+}
+
+.model-simulator .aggregation>input {
+    width: 70px;
+    display: inline-block;
+}
+
+.model-simulator .modeling-container {
+    height: 800px;
+}
+
+.model-simulator .chart-container {
+    height: 100%;
+    width: 100%;
+    overflow: auto;
+}
+
+.model-simulator .candoit {
+    color: #fff !important;
+    background-color: #5bc0de !important;
+    border-color: #46b8da !important;
+}
+
+.model-simulator button {
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.modeling-container .condition button {
+    margin-bottom: 10px;
+}
+
+.a3-configuration-builder .model-simulator .eqp-tree .title {
+    font-size: 13px !important;
+}
+
+.a3-configuration-builder .model-simulator .pdm-configuration-builder .pdm-body {
+    padding: 0 !important;
+}
+
+.model-simulator .a3-from-to {
+    padding-bottom: 8px;
+    margin-bottom: 12px;
+    border-bottom: 1px solid #eee;
+}
+
+.model-simulator .a3-configuration-forms-wrapper {
+    margin-bottom: 5px;
+}
+
+.model-simulator .option {
+    padding-bottom: 8px;
+    margin-bottom: 12px;
+    border-bottom: 1px solid #eee;
+}
+
+.model-simulator .option label {
+    margin-right: 5px;
 }

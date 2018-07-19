@@ -28,4 +28,6 @@ public interface ISummaryDataService {
     EqpHealthRUL eqpHealthTrendChartWithRUL(String fabId, Date from, Date to, Long paramId, List<List<Object>> eqpHealthTrendData);
 
     Long eqpHealthIndexGetWorstParam(String fabId, Long eqpId, Date from, Date to);
+
+    EqpHealthSPC eqpHealthTrendChartWithSPC(String fabId, Long paramId, Long from, Long to, List<List<Object>> eqpHealthTrendData);
 }

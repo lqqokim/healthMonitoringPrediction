@@ -158,7 +158,7 @@
 
     <select id="selectFeatureByTime" resultType="java.util.HashMap" >
         select n.name as "name",
-       concat(TO_CHAR(a.MEASURE_DTTS, 'YYYY-MM-DD HH24'), ':00:00') as "time",
+        concat(TO_CHAR(a.MEASURE_DTTS, 'YYYY-MM-DD HH24'), ':00:00') as "time",
         b.PEAK , b.RMS, b.SKEWNESS, b.KURTOSIS, b.CREST, b.CLEARANCE, b.IMPULSE, b.SHAPE, b.OVERALL
         from MEASURE_trx_pdm a
         join feature_trx_pdm b
@@ -199,7 +199,8 @@
     <select id="selectModel" resultType="com.bistel.a3.portal.domain.pdm.db.HealthModel" >
         select * from Health_Model_Pdm where eqp_id =  #{eqp_id,jdbcType=NUMERIC}
     </select>
-    <insert id="insertHealthModel">
+    
+    <insert id="insertHealthModel" databaseId="oracle">
         insert into Health_Model_pdm
         (
             eqp_id,model_obj,pca_model_obj,start_dtts,end_dtts,create_user_id,description,create_type_cd,create_dtts,
@@ -212,7 +213,21 @@
             systimestamp,#{alarm_spec,jdbcType=DOUBLE},#{warn_spec,jdbcType=DOUBLE},#{model_params,jdbcType=CLOB}
         )
     </insert>
-    <update id="updateHealthModel">
+    <insert id="insertHealthModel" databaseId="postgresql">
+        insert into Health_Model_pdm
+        (
+            eqp_id,model_obj,pca_model_obj,start_dtts,end_dtts,create_user_id,description,create_type_cd,create_dtts,
+            alarm_spec,warn_spec,model_params
+        )
+        values
+        (
+            #{eqp_id,jdbcType=NUMERIC},#{model_obj,jdbcType=CLOB},#{pca_model_obj,jdbcType=CLOB},#{start_dtts,jdbcType=TIMESTAMP},#{end_dtts,jdbcType=TIMESTAMP},
+            #{create_user_id,jdbcType=VARCHAR},#{description,jdbcType=VARCHAR},#{create_type_cd,jdbcType=CHAR},
+            localtimestamp,#{alarm_spec,jdbcType=DOUBLE},#{warn_spec,jdbcType=DOUBLE},#{model_params,jdbcType=CLOB}
+        )
+    </insert>
+
+    <update id="updateHealthModel" databaseId="oracle">
         update Health_Model_pdm
         set model_obj=#{model_obj,jdbcType=CLOB},
             pca_model_obj=#{pca_model_obj,jdbcType=CLOB},
@@ -228,7 +243,24 @@
         where
             eqp_id=#{eqp_id,jdbcType=NUMERIC}
     </update>
-    <insert id="insertHealthModelHst">
+    <update id="updateHealthModel" databaseId="postgresql">
+        update Health_Model_pdm
+        set model_obj=#{model_obj,jdbcType=CLOB},
+            pca_model_obj=#{pca_model_obj,jdbcType=CLOB},
+            start_dtts=#{start_dtts,jdbcType=TIMESTAMP},
+            end_dtts=#{end_dtts,jdbcType=TIMESTAMP},
+            create_user_id=#{create_user_id,jdbcType=VARCHAR},
+            description=#{description,jdbcType=VARCHAR},
+            create_type_cd=#{create_type_cd,jdbcType=CHAR},
+            create_dtts=localtimestamp,
+            alarm_spec=#{alarm_spec,jdbcType=DOUBLE},
+            warn_spec=#{warn_spec,jdbcType=DOUBLE},
+            model_params=#{model_params,jdbcType=CLOB}
+        where
+            eqp_id=#{eqp_id,jdbcType=NUMERIC}
+    </update>
+
+    <insert id="insertHealthModelHst" databaseId="oracle">
         insert into Health_Model_Hst_pdm
         (
         eqp_id,model_obj,pca_model_obj,start_dtts,end_dtts,create_user_id,description,create_type_cd,create_dtts,
@@ -242,6 +274,21 @@
         #{version,jdbcType=NUMERIC}
         )
     </insert>
+    <insert id="insertHealthModelHst" databaseId="postgresql">
+        insert into Health_Model_Hst_pdm
+        (
+        eqp_id,model_obj,pca_model_obj,start_dtts,end_dtts,create_user_id,description,create_type_cd,create_dtts,
+        alarm_spec,warn_spec,model_params,version
+        )
+        values
+        (
+        #{eqp_id,jdbcType=NUMERIC},#{model_obj,jdbcType=CLOB},#{pca_model_obj,jdbcType=CLOB},#{start_dtts,jdbcType=TIMESTAMP},#{end_dtts,jdbcType=TIMESTAMP},
+        #{create_user_id,jdbcType=VARCHAR},#{description,jdbcType=VARCHAR},#{create_type_cd,jdbcType=CHAR},
+        localtimestamp,#{alarm_spec,jdbcType=DOUBLE},#{warn_spec,jdbcType=DOUBLE},#{model_params,jdbcType=CLOB},
+        #{version,jdbcType=NUMERIC}
+        )
+    </insert>
+
     <select id="selectMaxVersionHealthModelHst" resultType="java.util.HashMap">
         select max(version) version from Health_Model_Hst_pdm
         where eqp_id=#{eqp_id}

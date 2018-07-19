@@ -76,13 +76,13 @@ public class StatusContextProcessor extends AbstractProcessor<String, byte[]> {
 
             kvStore.put(partitionKey, nowStatusInfo);
 
-            log.debug("[{}] - ({}, {}) ", partitionKey, nowStatusInfo, prevStatusInfo);
-
             // add trace with status code
             // time, p1, p2, p3, p4, ... pn,now,prev
             recordValue = recordValue + "," + nowStatusInfo + "," + prevStatusInfo;
             context().forward(partitionKey, recordValue.getBytes());
             context().commit();
+
+            log.debug("[{}] - forwarded. (Prev : {}, Now : {}) ", partitionKey, prevStatusInfo, nowStatusInfo);
 
         } catch (Exception e){
             log.error(e.getMessage(), e);
