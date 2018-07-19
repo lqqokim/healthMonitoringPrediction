@@ -116,12 +116,14 @@ public class PredictRULProcessor extends AbstractProcessor<String, byte[]> {
                         statusCode = "W";
                     }
 
-                    // time, param_rawid, param_health_rawid, status_cd, index
+                    // time, eqpRawid, param_rawid, param_health_rawid, status_cd, index
                     String newMsg = endTime + ","
+                            + paramMaster.getEquipmentRawId() + ","
                             + paramRawid + ","
                             + fd04HealthInfo.getParamHealthRawId() + ","
                             + statusCode + ","
-                            + index;
+                            + index + ","
+                            + fd04HealthInfo.getHealthLogicRawId();
 
                     context().forward(partitionKey, newMsg.getBytes());
                     context().commit();
@@ -148,19 +150,21 @@ public class PredictRULProcessor extends AbstractProcessor<String, byte[]> {
                     statusCode = "W";
                 }
 
-                // time, param_rawid, param_health_rawid, status_cd, index
+                // time, eqpRawid, param_rawid, param_health_rawid, status_cd, index
                 String newMsg = endTime + ","
+                        + paramMaster.getEquipmentRawId() + ","
                         + paramRawid + ","
                         + fd01HealthInfo.getParamHealthRawId() + ","
                         + statusCode + ","
-                        + index;
+                        + index + ","
+                        + fd01HealthInfo.getHealthLogicRawId();
 
                 context().forward(partitionKey, newMsg.getBytes());
                 context().commit();
                 log.debug("[{}] - logic 1 health : {}", paramKey, newMsg);
 
             } else {
-                log.debug("[{}] - No health info.", paramKey);
+                log.trace("[{}] - No health info.", paramKey);
             }
 
             kvFeatureDataStore.put(strParamRawid, endTime + "," + dValue, endTime);

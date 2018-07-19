@@ -13,6 +13,9 @@ public class ParameterHealthDataSet {
     @JsonProperty("paramHealthRawId")
     private Long paramHealthRawId;
 
+    @JsonProperty("healthLogicRawId")
+    private Long healthLogicRawId;
+
     @JsonProperty("parameterName")
     private String parameterName;
 
@@ -49,6 +52,14 @@ public class ParameterHealthDataSet {
 
     public void setParamHealthRawId(Long paramHealthRawId) {
         this.paramHealthRawId = paramHealthRawId;
+    }
+
+    public Long getHealthLogicRawId() {
+        return healthLogicRawId;
+    }
+
+    public void setHealthLogicRawId(Long healthLogicRawId) {
+        this.healthLogicRawId = healthLogicRawId;
     }
 
     public String getParameterName() {

@@ -23,6 +23,8 @@ import java.util.Properties;
 public class StreamUpdateService {
     private static final Logger log = LoggerFactory.getLogger(StreamUpdateService.class);
 
+    private final String topicName = "pdm-input-reload";
+
     private final String clientId = "serving";
     private Producer<String, byte[]> producer;
 
@@ -42,9 +44,7 @@ public class StreamUpdateService {
     @GET
     @Path("/latest/reload")
     public Response getAreaById() {
-
         try {
-            String topicName = "pdm-input-reload";
             producer.send(new ProducerRecord<>(topicName, "all", "http://localhost:28000".getBytes()));
 
             log.info("stream update.");
