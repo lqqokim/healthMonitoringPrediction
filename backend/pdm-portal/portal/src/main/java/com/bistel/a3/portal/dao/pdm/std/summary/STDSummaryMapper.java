@@ -34,7 +34,9 @@ public interface STDSummaryMapper {
 
     ArrayList<WorstEqupmentListChartData> selectWorstEqupmentListChartDataByAreaId(@Param("start_dtts") String start_dtts, @Param("end_dtts") String end_dtts, @Param("area_id") Long area_id);
 
-    List<EqpHealthIndex> selectEqpHealthIndexMasterInfo(@Param("fromdate") Date fromdate, @Param("todate") Date todate);
+    List<EqpHealthIndex> selectEqpHealthIndexMasterEqpInfo(@Param("fromdate") Date fromdate, @Param("todate") Date todate);
+
+    List<EqpHealthIndex> selectEqpHealthIndexMasterParamInfo(@Param("fromdate") Date fromdate, @Param("todate") Date todate);
 
     List<EqpHealthIndex> selectEqpHealthIndexInfo(@Param("fromdate") Date fromdate, @Param("todate") Date todate);
 
@@ -42,5 +44,11 @@ public interface STDSummaryMapper {
     List<EqpHealthIndex> selectEqpHealthIndexByAreaId(@Param("fromdate") Date fromdate, @Param("todate") Date todate, @Param("area_id") Long area_id);
 
     List<EqpHealthSPCRule> selectEqpHealthSPCRule(@Param("param_id") Long param_id, @Param("health_logic_id") Long health_logic_id);
+
+    List<BasicData> selectSummaryData(@Param("param_id") Long param_id, @Param("fromdate") Date fromdate, @Param("todate") Date todate);
+
+
+    List<WorstEquipmentList> selectEqpHealthDiff(@Param("start_dtts") String start_dtts, @Param("end_dtts") String end_dtts,@Param("eqp_id") Long eqp_id );
+
 
 }

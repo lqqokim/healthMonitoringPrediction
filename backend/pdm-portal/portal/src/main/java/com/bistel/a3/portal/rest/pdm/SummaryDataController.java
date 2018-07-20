@@ -236,6 +236,7 @@ public class SummaryDataController {
         return summaryDataService.eqpHealthIndex(fabId,areaId, from, to);
     }
 
+
     @RequestMapping("/params/{paramId}/eqpHealthTrendChart")
     public Object eqpHealthTrendChart(@PathVariable("fabId") String fabId,
                                  @PathVariable("paramId") Long paramId,
@@ -246,7 +247,8 @@ public class SummaryDataController {
         Date from = new Date(fromdate);
         Date to = new Date(todate);
 
-        return traceDataService.getTraceData(fabId, paramId, fromdate, todate);
+        return summaryDataService.getSummaryData(fabId, paramId, fromdate, todate);
+
     }
 
     @RequestMapping("/params/{paramId}/eqpHealthTrendChartWithSPC")
@@ -259,7 +261,7 @@ public class SummaryDataController {
         Date from = new Date(fromdate);
         Date to = new Date(todate);
 
-        List<List<Object>> eqpHealthTrendData= traceDataService.getTraceData(fabId, paramId, fromdate, todate);
+        List<List<Object>> eqpHealthTrendData= summaryDataService.getSummaryData(fabId, paramId, fromdate, todate);
 
         return summaryDataService.eqpHealthTrendChartWithSPC(fabId, paramId, fromdate, todate, eqpHealthTrendData);
     }
@@ -279,9 +281,10 @@ public class SummaryDataController {
         Long lPrevious_date=previous.getTime();
 
 
-        List<List<Object>> eqpHealthTrendData= traceDataService.getTraceData(fabId, paramId, lPrevious_date, todate);
+        List<List<Object>> eqpHealthTraceData= traceDataService.getTraceData(fabId, paramId, lPrevious_date, todate);
+        List<List<Object>> eqpHealthFeatureData= summaryDataService.getSummaryData(fabId, paramId, lPrevious_date, todate);
 
-        return summaryDataService.eqpHealthTrendChartWithAVG(fabId,previous, from, to, paramId , eqpHealthTrendData);
+        return summaryDataService.eqpHealthTrendChartWithAVG(fabId,previous, from, to, paramId , eqpHealthFeatureData, eqpHealthTraceData);
     }
 
     @RequestMapping("/params/{paramId}/eqpHealthTrendChartWithRUL")
@@ -296,7 +299,7 @@ public class SummaryDataController {
 
 
 
-        List<List<Object>> eqpHealthTrendData= traceDataService.getTraceData(fabId, paramId, fromdate, todate);
+        List<List<Object>> eqpHealthTrendData= summaryDataService.getSummaryData(fabId, paramId, fromdate, todate);
 
         return summaryDataService.eqpHealthTrendChartWithRUL(fabId, from, to, paramId , eqpHealthTrendData);
 

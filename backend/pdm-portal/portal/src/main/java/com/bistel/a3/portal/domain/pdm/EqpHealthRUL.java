@@ -10,6 +10,8 @@ public class EqpHealthRUL {
 
     private List<List<Object>> eqpHealthTrendData;
 
+
+
     private Long rulStartTime;
     private Double rulStartValue;
     private Long rulEndTime;

@@ -12,6 +12,8 @@ public class EqpStatisticsData {
     private List<List<Object>> eqpHealthTrendData;
 
 
+
+
     public Date getPrevious_date() {
         return previous_date;
     }

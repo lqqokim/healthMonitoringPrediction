@@ -6,7 +6,15 @@ public class EqpHealthSPC {
 
     private List<List<Object>> eqpHealthTrendData;
 
-    private List<List<Object>> eqpHealthTrendSPCData;
+    private List<List<Object>> scpPeriod;
+
+    public List<List<Object>> getScpPeriod() {
+        return scpPeriod;
+    }
+
+    public void setScpPeriod(List<List<Object>> scpPeriod) {
+        this.scpPeriod = scpPeriod;
+    }
 
     public List<List<Object>> getEqpHealthTrendData() {
         return eqpHealthTrendData;
@@ -16,11 +24,5 @@ public class EqpHealthSPC {
         this.eqpHealthTrendData = eqpHealthTrendData;
     }
 
-    public List<List<Object>> getEqpHealthTrendSPCData() {
-        return eqpHealthTrendSPCData;
-    }
 
-    public void setEqpHealthTrendSPCData(List<List<Object>> eqpHealthTrendSPCData) {
-        this.eqpHealthTrendSPCData = eqpHealthTrendSPCData;
-    }
 }

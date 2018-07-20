@@ -1,9 +1,8 @@
 package com.bistel.a3.portal.domain.pdm;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class EqpHealthIndex {
+public class EqpHealthIndexEQP {
 
     private Long area_id;
 
@@ -22,11 +21,6 @@ public class EqpHealthIndex {
     private double logic3;
 
     private double logic4;
-
-    private Long logic1Param;
-    private Long logic2Param;
-    private Long logic3Param;
-    private Long logic4Param;
 
     private double score;
 
@@ -147,23 +141,16 @@ public class EqpHealthIndex {
     private String param_name;
     private int health_logic_id;
     private String code;
-    private List<EqpHealthIndex> eqpHealthIndexParam = new ArrayList<>();
-    private List<EqpHealthIndex> eqpHealthIndexInfo = new ArrayList<>();
 
-    public List<EqpHealthIndex> getEqpHealthIndexParam() {
+
+    private List<EqpHealthIndexPARAM> eqpHealthIndexParam;
+
+    public List<EqpHealthIndexPARAM> getEqpHealthIndexParam() {
         return eqpHealthIndexParam;
     }
 
-    public void setEqpHealthIndexParam(List<EqpHealthIndex> eqpHealthIndexParam) {
+    public void setEqpHealthIndexParam(List<EqpHealthIndexPARAM> eqpHealthIndexParam) {
         this.eqpHealthIndexParam = eqpHealthIndexParam;
-    }
-
-    public List<EqpHealthIndex> getEqpHealthIndexInfo() {
-        return eqpHealthIndexInfo;
-    }
-
-    public void setEqpHealthIndexInfo(List<EqpHealthIndex> eqpHealthIndexInfo) {
-        this.eqpHealthIndexInfo = eqpHealthIndexInfo;
     }
 
     public int getHealth_logic_id() {
@@ -200,35 +187,5 @@ public class EqpHealthIndex {
         this.code = code;
     }
 
-    public Long getLogic1Param() {
-        return logic1Param;
-    }
 
-    public void setLogic1Param(Long logic1Param) {
-        this.logic1Param = logic1Param;
-    }
-
-    public Long getLogic2Param() {
-        return logic2Param;
-    }
-
-    public void setLogic2Param(Long logic2Param) {
-        this.logic2Param = logic2Param;
-    }
-
-    public Long getLogic3Param() {
-        return logic3Param;
-    }
-
-    public void setLogic3Param(Long logic3Param) {
-        this.logic3Param = logic3Param;
-    }
-
-    public Long getLogic4Param() {
-        return logic4Param;
-    }
-
-    public void setLogic4Param(Long logic4Param) {
-        this.logic4Param = logic4Param;
-    }
 }
