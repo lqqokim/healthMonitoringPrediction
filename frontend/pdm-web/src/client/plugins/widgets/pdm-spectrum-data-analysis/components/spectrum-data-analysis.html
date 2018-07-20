@@ -54,11 +54,11 @@
                     </div>
                     <div class="metrix-width-calc">
                         <!-- .metrix-warning-boder -->
-                        <div class="metrix-chart-container" (dblclick)="matrixDblClick(col_row[rowItem][colItem])" [ngClass]="{'metrix-warning':col_row[rowItem][colItem]!=undefined && col_row[rowItem][colItem].analysis!=undefined}"
+                        <div class="metrix-chart-container" (dblclick)="matrixDblClick(col_row[rowItem][colItem])"
                             *ngFor="let colItem of cols">
-                            <div class="metrix-chart" *ngIf="col_row[rowItem][colItem]!=undefined">
+                            <div class="metrix-chart" *ngIf="col_row[rowItem][colItem] !== undefined">
                                 <div class="pull-right">
-                                    <button class="btn btn-default" id="wjPopup" (click)="openPopup(col_row[rowItem][colItem].data)">
+                                    <button class="btn btn-default" id="wjPopup" (click)="openPopup(col_row[rowItem][colItem].data, col_row[rowItem][colItem].measurement)">
                                         <i class="fa fa-search-plus"></i>
                                     </button>
                                 </div>
@@ -70,7 +70,7 @@
                                         style="width: 100%; height: 100%;" class="chart-body">
                                     </a3c-bistel-chart>
                                 </div>
-                                <div class="float-wrapper" *ngIf="!col_row[rowItem][colItem].data">
+                                <div class="float-wrapper" *ngIf="col_row[rowItem][colItem].data === null">
                                     <dl>
                                         <dt>
                                             <div class="a3-spinner-data"></div>
