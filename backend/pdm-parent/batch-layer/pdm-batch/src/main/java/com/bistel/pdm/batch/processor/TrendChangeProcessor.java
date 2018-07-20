@@ -66,7 +66,7 @@ public class TrendChangeProcessor extends AbstractProcessor<String, byte[]> {
             Double dValue = Double.parseDouble(recordColumns[7]); //avg
 
             Long endTime = Long.parseLong(recordColumns[1]);
-            Long startTime = endTime - TimeUnit.DAYS.toMillis(7);
+            Long startTime = endTime - TimeUnit.DAYS.toMillis(1);
 
             kvFeatureDataStore.put(strParamRawid, dValue, endTime);
 
@@ -138,8 +138,7 @@ public class TrendChangeProcessor extends AbstractProcessor<String, byte[]> {
                             + fd03HealthInfo.getParamHealthRawId() + ","
                             + statusCode + ","
                             + doubleValueList.size() + ","
-                            + index + ","
-                            + fd03HealthInfo.getHealthLogicRawId();
+                            + index;// + "," + fd03HealthInfo.getHealthLogicRawId();
 
                     context().forward(partitionKey, newMsg.getBytes());
                     context().commit();

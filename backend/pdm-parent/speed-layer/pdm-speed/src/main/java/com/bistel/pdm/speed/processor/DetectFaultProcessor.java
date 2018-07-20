@@ -188,7 +188,7 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
             // time, param_rawid, health_rawid, value, alarm type, alarm_spec, warning_spec, fault_class
             String sb = parseStringToTimestamp(recordColumns[0]) + "," +
                     param.getParameterRawId() + "," +
-                    healthData.getParamHealthRawId() + ',' +
+                    healthData.getHealthLogicRawId() + ',' +
                     paramValue + "," +
                     "256" + "," +
                     param.getUpperAlarmSpec() + "," +
@@ -246,7 +246,7 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
             // time, param_rawid, health_rawid, value, alarm type, alarm_spec, warning_spec, fault_class
             String sb = parseStringToTimestamp(recordColumns[0]) + "," +
                     param.getParameterRawId() + "," +
-                    healthData.getParamHealthRawId() + ',' +
+                    healthData.getHealthLogicRawId() + ',' +
                     paramValue + "," +
                     "128" + "," +
                     param.getUpperAlarmSpec() + "," +
@@ -282,7 +282,7 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
             int totalAlarmCount = 0;
             for (int i = 0; i < paramValues.size(); i++) {
                 String[] strValue = paramValues.get(i).split(",");
-                Long timeValue = Long.parseLong(strValue[0]);
+                //Long timeValue = Long.parseLong(strValue[0]);
                 Double paramValue = Double.parseDouble(strValue[1]);
 
                 if (slidingWindow.size() == windowSize) {
@@ -316,7 +316,7 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
                 // time, param_rawid, health_rawid, value, alarm type, alarm_spec, warning_spec, fault_class
                 String sb = ruleTime + "," +
                         paramMaster.getParameterRawId() + "," +
-                        fd02HealthInfo.getParamHealthRawId() + ',' +
+                        fd02HealthInfo.getHealthLogicRawId() + ',' +
                         totalAlarmCount + "," +
                         "256" + "," +
                         paramMaster.getUpperAlarmSpec() + "," +
@@ -358,8 +358,7 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
                         + fd02HealthInfo.getParamHealthRawId() + ','
                         + statusCode + ","
                         + totalAlarmCount + ","
-                        + index + ","
-                        + fd02HealthInfo.getHealthLogicRawId();
+                        + index; //+ "," + fd02HealthInfo.getHealthLogicRawId();
 
                 context().forward(partitionKey, newMsg.getBytes(), "route-health");
                 context().forward(partitionKey, newMsg.getBytes(), "output-health");
@@ -394,8 +393,7 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
                         + fd02HealthInfo.getParamHealthRawId() + ','
                         + statusCode + ","
                         + paramValues.size() + ","
-                        + index + ","
-                        + fd02HealthInfo.getHealthLogicRawId();
+                        + index; // + "," + fd02HealthInfo.getHealthLogicRawId();
 
                 context().forward(partitionKey, newMsg.getBytes(), "route-health");
                 context().forward(partitionKey, newMsg.getBytes(), "output-health");
@@ -439,7 +437,7 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
                 // time, param_rawid, health_rawid, value, alarm type, alarm_spec, warning_spec, fault_class
                 String sb = ruleTime + "," +
                         paramMaster.getParameterRawId() + "," +
-                        fd02HealthInfo.getParamHealthRawId() + ',' +
+                        fd02HealthInfo.getHealthLogicRawId() + ',' +
                         totalWarningCount + "," +
                         "128" + "," +
                         paramMaster.getUpperAlarmSpec() + "," +

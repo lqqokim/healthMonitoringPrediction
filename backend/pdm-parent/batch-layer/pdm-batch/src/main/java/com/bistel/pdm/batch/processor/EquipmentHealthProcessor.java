@@ -30,7 +30,7 @@ public class EquipmentHealthProcessor extends AbstractProcessor<String, byte[]> 
     @Override
     public void process(String partitionKey, byte[] streamByteRecord) {
         String recordValue = new String(streamByteRecord);
-        // time, eqpRawid, param_rawid, param_health_rawid, status_cd, data_count, index, health_logic_rawid
+        // time, eqpRawid, param_rawid, param_health_rawid, status_cd, data_count, index
         String[] recordColumns = recordValue.split(SEPARATOR);
 
         try {
@@ -48,7 +48,7 @@ public class EquipmentHealthProcessor extends AbstractProcessor<String, byte[]> 
                 if (dValue > v) {
                     kvParamHealthStore.put(partitionKey, recordValue);
                     log.debug("[{}} - param : {}, logic : {}, value : {}",
-                            partitionKey, recordColumns[2], recordColumns[7], dValue);
+                            partitionKey, recordColumns[2], recordColumns[3], dValue);
                 }
 
                 int cnt = kvParamCountStore.get(partitionKey);

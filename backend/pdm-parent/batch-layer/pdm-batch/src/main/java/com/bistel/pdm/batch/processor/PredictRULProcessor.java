@@ -49,6 +49,8 @@ public class PredictRULProcessor extends AbstractProcessor<String, byte[]> {
             Long endTime = Long.parseLong(recordColumns[1]);
             Long startTime = endTime - TimeUnit.DAYS.toMillis(7);
 
+            kvFeatureDataStore.put(strParamRawid, endTime + "," + dValue, endTime);
+
             String paramKey = partitionKey + ":" + paramRawid;
 
             ParameterMasterDataSet paramMaster =
@@ -128,8 +130,7 @@ public class PredictRULProcessor extends AbstractProcessor<String, byte[]> {
                             + fd04HealthInfo.getParamHealthRawId() + ","
                             + statusCode + ","
                             + doubleValueList.size() + ","
-                            + index + ","
-                            + fd04HealthInfo.getHealthLogicRawId() + ","
+                            + index + "," //+ fd04HealthInfo.getHealthLogicRawId() + ","
                             + intercept + ","
                             + slope + ","
                             + x;
@@ -166,8 +167,7 @@ public class PredictRULProcessor extends AbstractProcessor<String, byte[]> {
                         + fd01HealthInfo.getParamHealthRawId() + ","
                         + statusCode + ","
                         + doubleValueList.size() + ","
-                        + index + ","
-                        + fd01HealthInfo.getHealthLogicRawId();
+                        + index;// + "," + fd01HealthInfo.getHealthLogicRawId();
 
                 context().forward(partitionKey, newMsg.getBytes());
                 context().commit();
@@ -176,8 +176,6 @@ public class PredictRULProcessor extends AbstractProcessor<String, byte[]> {
             } else {
                 log.trace("[{}] - No health info.", paramKey);
             }
-
-            kvFeatureDataStore.put(strParamRawid, endTime + "," + dValue, endTime);
 
         } catch (Exception e) {
             log.error(e.getMessage(), e);

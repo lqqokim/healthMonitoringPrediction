@@ -23,7 +23,7 @@ public class EqpHealthTrxDao implements HealthDataDao {
 
     private static final String INSERT_SQL =
             "insert into eqp_health_trx_pdm " +
-                    "(RAWID, EQP_MST_RAWID, HEALTH_LOGIC_MST_RAWID, STATUS_CD, DATA_COUNT, SCORE, ALARM_DTTS) " +
+                    "(RAWID, EQP_MST_RAWID, PARAM_HEALTH_MST_RAWID, STATUS_CD, DATA_COUNT, SCORE, ALARM_DTTS) " +
                     "values (SEQ_EQP_HEALTH_TRX_PDM.nextval,?,?,?,?,?,?) ";
 
 
@@ -46,7 +46,7 @@ public class EqpHealthTrxDao implements HealthDataDao {
                     String[] values = valueString.split(",");
 
                     pstmt.setLong(1, Long.parseLong(values[1])); //eqp_mst_rawid
-                    pstmt.setLong(2, Long.parseLong(values[7])); //health_logic_rawid
+                    pstmt.setLong(2, Long.parseLong(values[3])); //
                     pstmt.setString(3, values[4]);
                     pstmt.setDouble(4, Double.parseDouble(values[5])); //data count
                     pstmt.setDouble(5, Double.parseDouble(values[6])); //index value
