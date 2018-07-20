@@ -4,6 +4,7 @@ import * as pdmI from '../../../../plugins/widgets/pdm-modeler/pdm-modeler.inter
 import * as pdmRadarI from '../../../../plugins/widgets/pdm-radar/model/pdm-radar.interface';
 import { Observable } from 'rxjs';
 import { EqpEventType } from '../../../types/eqpEvent.type';
+import { start } from 'repl';
 
 
 
@@ -545,19 +546,22 @@ export class PdmModelService extends ModelCommonService {
 			}
 		});
 	}
-	getTraceDataEventSimulation(fabId,paramId,fromDate,toDate,condition): Promise<any> {
+	getTraceDataEventSimulation(fabId,paramId,fromDate,toDate,startCondition,endCondition): Promise<any> {
 		return this.GET({
 			uriPath: `pdm/fabs/${fabId}/areas/0/eqps/0/params/${paramId}/eventsimulation`,
 			params: {
 				fromdate: fromDate,
 				todate: toDate,
-				condition:condition
+				startCondition:startCondition,
+				endCondition:endCondition
 			}
 		});
 	}
-	getTraceDataEventSimulationByConditionValue(fabId,paramId,fromDate,toDate,conditionParamId,conditionValue,adHocFunctions,adHocTime,eventType): Observable<any> {
+	getTraceDataEventSimulationByConditionValue(fabId,paramId,fromDate,toDate,conditionParamId,startCondition,endCondition,adHocFunctions,adHocTime,eventType): Observable<any> {
+		let startConditionParam = encodeURIComponent(startCondition);
+		let endConditionParam = encodeURIComponent(endCondition);
 		return this.rxPOST({
-			uriPath: `pdm/fabs/${fabId}/areas/0/eqps/0/params/${paramId}/eventsimulationbyconditionvalue?fromdate=${fromDate}&todate=${toDate}&eventType=${eventType}&adHocTime=${adHocTime}&conditionValue=${conditionValue}&conditionParamId=${conditionParamId}`,
+			uriPath: `pdm/fabs/${fabId}/areas/0/eqps/0/params/${paramId}/eventsimulationbyconditionvalue?fromdate=${fromDate}&todate=${toDate}&eventType=${eventType}&adHocTime=${adHocTime}&startCondition=${startConditionParam}&endCondition=${endConditionParam}&conditionParamId=${conditionParamId}`,
 			params:
 				adHocFunctions
 			
@@ -757,10 +761,34 @@ export class PdmModelService extends ModelCommonService {
 		});
 	}
 
-	// eqpHealthTrendChart
+	// eqpHealthTrendChart (Logic1 -Standard)
 	getEqpHealthTrendChart(fabId: string, paramId:number, fromDate:number, toDate:number): Promise<any> {
 		return this.GET({
-			uriPath: `pdm/fabs/${fabId}/eqps/null/params/${paramId}/eqpHealthTrendChart/?fromdate=${fromDate}&todate=${toDate}`
+			uriPath: `pdm/fabs/${fabId}/params/${paramId}/eqpHealthTrendChart/?fromdate=${fromDate}&todate=${toDate}`
+		});
+	}
+	// eqpHealthTrendChart (Logic2 -SPC)
+	getEqpHealthTrendChartWithSPC(fabId: string, paramId:number, fromDate:number, toDate:number): Promise<any> {
+		return this.GET({
+			uriPath: `pdm/fabs/${fabId}/params/${paramId}/eqpHealthTrendChartWithSPC/?fromdate=${fromDate}&todate=${toDate}`
+		});
+	}
+	// eqpHealthTrendChart (Logic3 -Variation)
+	getEqpHealthTrendChartWithAVG(fabId: string, paramId:number, fromDate:number, toDate:number): Promise<any> {
+		return this.GET({
+			uriPath: `pdm/fabs/${fabId}/params/${paramId}/eqpHealthTrendChartWithAVG/?fromdate=${fromDate}&todate=${toDate}`
+		});
+	}
+	// eqpHealthTrendChart (Logic4 -RUL)
+	getEqpHealthTrendChartWithRUL(fabId: string, paramId:number, fromDate:number, toDate:number): Promise<any> {
+		return this.GET({
+			uriPath: `pdm/fabs/${fabId}/params/${paramId}/eqpHealthTrendChartWithRUL/?fromdate=${fromDate}&todate=${toDate}`
+		});
+	}
+	// eqpHealthTrendChart (Logic1 ~ 4 get paramid)
+	getEqpHealthIndexGetWorstParam(fabId: string, eqpId:number, fromDate:number, toDate:number): Promise<any> {
+		return this.GET({
+			uriPath: `pdm/fabs/${fabId}/eqps/${eqpId}/eqpHealthIndexGetWorstParam/?fromdate=${fromDate}&todate=${toDate}`
 		});
 	}
 }

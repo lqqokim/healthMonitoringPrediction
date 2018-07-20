@@ -17,8 +17,7 @@
         <result column="update_dtts" property="updateDtts"/>
     </resultMap>
     
-    <!-- <select id="selectNotificationByUser" resultMap="BaseResultMap" databaseId="oracle"> -->
-    <select id="selectNotificationByUser" resultMap="BaseResultMap">
+    <select id="selectNotificationByUser" resultMap="BaseResultMap" databaseId="oracle">
     	select 
     		* 
     	from 
@@ -29,7 +28,6 @@
 	    	create_dtts > sysdate-16
 	    order by create_dtts desc
     </select>
-<!-- 
     <select id="selectNotificationByUser" resultMap="BaseResultMap" databaseId="postgresql">
     	select * 
     	from notification_a3
@@ -37,10 +35,8 @@
 	    and create_dtts > current_date - 16
 	    order by create_dtts desc
     </select>
- -->
     
-    <!-- <insert id="insertNotification" parameterType="com.bistel.a3.portal.domain.common.Notification" databaseId="oracle"> -->
-    <insert id="insertNotification" parameterType="com.bistel.a3.portal.domain.common.Notification">
+    <insert id="insertNotification" parameterType="com.bistel.a3.portal.domain.common.Notification" databaseId="oracle">
     	insert into notification_a3
     	(
 	    	notification_id,
@@ -74,7 +70,6 @@
 	        'N'
     	)
     </insert>
-<!-- 
     <insert id="insertNotification" parameterType="com.bistel.a3.portal.domain.common.Notification" databaseId="postgresql">
     	insert into notification_a3
     	(
@@ -109,10 +104,8 @@
 	        'N'
     	)
     </insert>
- -->    
     
-    <!-- <update id="updateNotification" parameterType="com.bistel.a3.portal.domain.common.Notification" databaseId="oracle"> -->
-    <update id="updateNotification" parameterType="com.bistel.a3.portal.domain.common.Notification">
+    <update id="updateNotification" parameterType="com.bistel.a3.portal.domain.common.Notification" databaseId="oracle">
         update notification_a3
         <set>            
             <if test="notificationType != null" >
@@ -140,7 +133,6 @@
         </set>
         where notification_id = #{notificationId}
     </update>
-<!-- 
     <update id="updateNotification" parameterType="com.bistel.a3.portal.domain.common.Notification" databaseId="postgresql">
         update notification_a3
         <set>            
@@ -169,10 +161,8 @@
         </set>
         where notification_id = #{notificationId}
     </update>
- -->    
     
-    <!-- <update id="updateNotificationView" databaseId="oracle"> -->
-    <update id="updateNotificationView">
+    <update id="updateNotificationView" databaseId="oracle">
         update notification_a3
         <set> 
                 detail_view_yn = 'Y',
@@ -180,7 +170,6 @@
         </set>
         where notification_id = #{notificationId}
     </update>
-<!--     
     <update id="updateNotificationView" databaseId="postgresql">
         update notification_a3
         <set> 
@@ -189,9 +178,8 @@
         </set>
         where notification_id = #{notificationId}
     </update>
- -->
-    <!-- <update id="updateNotificationReadById" databaseId="oracle"> -->
-    <update id="updateNotificationReadById">
+    
+    <update id="updateNotificationReadById" databaseId="oracle">
         update notification_a3
          <set> 
                 read_yn = 'Y',
@@ -199,7 +187,6 @@
         </set>
         where notification_id = #{notificationId}
     </update>
-<!-- 
     <update id="updateNotificationReadById" databaseId="postgresql">
         update notification_a3
          <set> 
@@ -208,9 +195,8 @@
         </set>
         where notification_id = #{notificationId}
     </update>
- -->
-    <!-- <update id="updateNotificationReadByUser" databaseId="oracle"> -->
-    <update id="updateNotificationReadByUser">
+
+    <update id="updateNotificationReadByUser" databaseId="oracle">
         update notification_a3
          <set> 
                 read_yn = 'Y',
@@ -218,7 +204,6 @@
         </set>
         where target_user_id = #{userId}
     </update>
-<!-- 
     <update id="updateNotificationReadByUser" databaseId="postgresql">
         update notification_a3
          <set> 
@@ -227,7 +212,7 @@
         </set>
         where target_user_id = #{userId}
     </update>
- -->    
+    
     <select id="selectPushDataCount" resultType="java.lang.Integer">
 <!--
 	    select 
@@ -364,4 +349,3 @@
     </insert>
     -->
 </mapper>
-

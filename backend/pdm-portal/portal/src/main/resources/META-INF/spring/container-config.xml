@@ -27,10 +27,23 @@
         <property name="prefix" value="/WEB-INF/views/" />
         <property name="suffix" value=".jsp" />
     </bean>
-
+    
     <context:property-placeholder  location="classpath:/config/config.properties"/>
 
-    <bean class="org.apache.commons.dbcp.BasicDataSource" id="dataSource" >
+    <bean id="vendorProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+        <property name="properties">
+            <props>
+                <prop key="Oracle">oracle</prop>
+                <prop key="PostgreSQL">postgresql</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="databaseIdProvider" class="org.apache.ibatis.mapping.VendorDatabaseIdProvider">
+        <property name="properties" ref="vendorProperties"/>
+    </bean>
+    
+    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
         <property name="driverClassName" value="${db.driverClassName}" />
         <property name="url" value="${db.url}" />
         <property name="username" value="${db.username}" />
@@ -43,4 +56,5 @@
     </bean>
 
     <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer" p:basePackage="com.bistel.a3.portal.oauth" p:sqlSessionFactoryBeanName="sqlSessionFactory" />
+    
 </beans>

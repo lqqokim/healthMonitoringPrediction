@@ -42,11 +42,12 @@ table {
     padding-bottom: 8px;
     margin-bottom: 12px;
     border-bottom: 1px solid #eee;
+    overflow: auto;
 }
 
 .model-simulator .aggregation>input {
     width: 70px;
-    display: inline-block;
+    display: inline-block
 }
 
 .model-simulator .modeling-container {
@@ -60,9 +61,22 @@ table {
 }
 
 .model-simulator .candoit {
+    color: #47B8CA !important;
+    /* background-color: #5bc0de !important; */
+    border-color: #46b8da !important;
+}
+.model-simulator .candoit:hover {
+    color: #fff !important;
+    background-color: #46b8da !important;
+}
+
+.model-simulator .candosave {
     color: #fff !important;
     background-color: #5bc0de !important;
     border-color: #46b8da !important;
+}
+.model-simulator .candosave:hover {
+    background: #3289a3 !important;
 }
 
 .model-simulator button {
@@ -74,11 +88,11 @@ table {
     margin-bottom: 10px;
 }
 
-.a3-configuration-builder .model-simulator .eqp-tree .title {
+.model-simulator .eqp-tree .title {
     font-size: 13px !important;
 }
 
-.a3-configuration-builder .model-simulator .pdm-configuration-builder .pdm-body {
+.model-simulator .pdm-configuration-builder .pdm-body {
     padding: 0 !important;
 }
 
@@ -88,8 +102,8 @@ table {
     border-bottom: 1px solid #eee;
 }
 
-.model-simulator .a3-configuration-forms-wrapper {
-    margin-bottom: 5px;
+.model-simulator .condition .a3-configuration-forms-wrapper:first-child {
+    padding-bottom: 8px;
 }
 
 .model-simulator .option {
@@ -100,4 +114,16 @@ table {
 
 .model-simulator .option label {
     margin-right: 5px;
+}
+
+.model-simulator .condition .aggregation{
+    display: flex;
+}
+.model-simulator .condition .aggregation div{
+    padding-top:5px;
+    padding-right: 5px; 
+}
+.model-simulator .condition .aggregation label{
+    padding-top: 5px;
+    padding-left: 5px;
 }

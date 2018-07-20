@@ -57,12 +57,16 @@ table {
 	padding-right: 10px; */
 }
 
+
 .equipment-parameter-trend .candoit {
-    color: #fff !important;
-    background-color: #5bc0de !important;
+    color: #47B8CA !important;
+    /* background-color: #5bc0de !important; */
     border-color: #46b8da !important;
 }
-
+.equipment-parameter-trend .candoit:hover {
+    color: #ddd !important;
+    border-color: #ddd !important;
+}
 .equipment-parameter-trend button {
     width: 100%;
 }
@@ -90,6 +94,6 @@ table {
 	border-bottom: 1px solid #eee;
 }
 
-.equipment-parameter-trend .a3-configuration-forms-wrapper{
-  margin-bottom:5px;
+.equipment-parameter-trend .a3-configuration-forms-wrapper:first-child{
+  margin-bottom:8px;
 }

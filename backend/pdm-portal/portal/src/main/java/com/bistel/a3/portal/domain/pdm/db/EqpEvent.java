@@ -14,6 +14,9 @@ public class EqpEvent {
     private Date createDtts;
     private String updateBy;
     private Date updateDtts;
+    private String eventGroup;
+    private String timeIntervalYn;
+    private Integer intervalTimeMs;
 
 
     public Long getRawId() {
@@ -102,5 +105,29 @@ public class EqpEvent {
 
     public void setUpdateDtts(Date updateDtts) {
         this.updateDtts = updateDtts;
+    }
+
+    public String getEventGroup() {
+        return eventGroup;
+    }
+
+    public void setEventGroup(String eventGroup) {
+        this.eventGroup = eventGroup;
+    }
+
+    public String getTimeIntervalYn() {
+        return timeIntervalYn;
+    }
+
+    public void setTimeIntervalYn(String timeIntervalYn) {
+        this.timeIntervalYn = timeIntervalYn;
+    }
+
+    public Integer getIntervalTimeMs() {
+        return intervalTimeMs;
+    }
+
+    public void setIntervalTimeMs(Integer intervalTimeMs) {
+        this.intervalTimeMs = intervalTimeMs;
     }
 }

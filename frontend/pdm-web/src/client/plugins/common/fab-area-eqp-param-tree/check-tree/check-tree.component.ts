@@ -31,6 +31,7 @@ export class CheckTreeComponent implements OnInit, OnChanges {
                 // }
                 // node.isChecked = !node.isChecked;
                 // this.selectedNode = node;
+                console.log(this.treeview);
                 console.log(node);
                 this.clickNode.emit({
                     treeview: node,
@@ -113,4 +114,7 @@ export class CheckTreeComponent implements OnInit, OnChanges {
     //         treeNode.isDisabled = isDisabled;
     //     }
     // }
+    getRootNode(){
+        return this.treeview.treeRoot[0];
+    }
 }

@@ -116,7 +116,7 @@
 
     </select>
     <select id="selectNodes" resultType="com.bistel.a3.portal.domain.pdm.Node" databaseId="postgresql">
-		WITH RECURSIVE q AS (
+		(WITH RECURSIVE q AS (
 		    SELECT area.*
 		    FROM area_mst_pdm area
 		    WHERE area.parent_rawid = 0
@@ -129,16 +129,19 @@
 		       CASE WHEN (SELECT COUNT(*) FROM area_mst_pdm WHERE parent_rawid = qq.rawid) > 0 THEN 0
 		       ELSE 1 END AS node_type
 		FROM q qq
+		order by qq.rawid asc)
 		
 		UNION ALL
 		
-		SELECT rawid as eqp_id, name, area_mst_rawid, 2 AS node_type
+		(SELECT rawid as eqp_id, name, area_mst_rawid, 2 AS node_type
 		FROM eqp_mst_pdm
+		order by rawid asc)
 		
 		UNION ALL
 				
-		SELECT rawid as param_id, name, eqp_mst_rawid as eqp_id, 100
+		(SELECT rawid as param_id, name, eqp_mst_rawid as eqp_id, 100
 		FROM param_mst_pdm
+		order by rawid asc)
     </select>
      
     <select id="selectAreaWithTree" resultType="com.bistel.a3.portal.domain.pdm.AreaWithTree" databaseId="oracle">
@@ -165,5 +168,6 @@
 		       CASE WHEN (SELECT COUNT(*) FROM area_mst_pdm WHERE parent_rawid = qq.rawid) > 0 THEN 0
 		       ELSE 1 END AS leaf
 		FROM q qq
+		order by qq.rawid asc
     </select>
 </mapper>

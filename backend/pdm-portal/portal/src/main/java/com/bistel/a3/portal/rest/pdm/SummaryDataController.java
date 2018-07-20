@@ -196,7 +196,7 @@ public class SummaryDataController {
         Long areaId=null;
         Date from = new Date(fromdate);
         Date to = new Date(todate);
-
+//
         return summaryDataService.worstEquipmentList(fabId,areaId,eqpId, from, to);
     }
 

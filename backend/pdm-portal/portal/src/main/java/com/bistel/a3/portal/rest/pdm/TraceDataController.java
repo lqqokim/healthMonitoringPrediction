@@ -41,16 +41,20 @@ public class TraceDataController {
 
     @RequestMapping("params/{paramId}/eventsimulation")
     public Object getTraceData(@PathVariable("fabId") String fabId, @PathVariable("paramId") Long paramId,
-                               @RequestParam("condition") Float condition,
+//                               @RequestParam("condition") Float condition,
+                               @RequestParam("startCondition") String startCondition,
+                               @RequestParam("endCondition") String endCondition,
                                @RequestParam("fromdate") Long fromdate, @RequestParam("todate") Long todate) {
-        return traceDataService.getEventSimulation(fabId, paramId, fromdate, todate,condition);
+        return traceDataService.getEventSimulation(fabId, paramId, fromdate, todate,startCondition,endCondition);
     }
     @RequestMapping(method = RequestMethod.POST, value ="params/{paramId}/eventsimulationbyconditionvalue")
     public Object getTraceDataSimulationByEvent(@PathVariable("fabId") String fabId, @PathVariable("paramId") Long paramId,
-                                                @RequestParam("conditionParamId") Long conditionParamId,@RequestParam("conditionValue") Float conditionValue,
+                                                @RequestParam("conditionParamId") Long conditionParamId,
+                                                @RequestParam("startCondition") String startCondition,
+                                                @RequestParam("endCondition") String endCondition,
                                                 @RequestParam("eventType") String eventType,@RequestParam("adHocTime") Integer adHocTime,
                                                 @RequestParam("fromdate") Long fromdate, @RequestParam("todate") Long todate,
                                                 @RequestBody List<String> adHocFucntions) {
-        return traceDataService.getEventSimulationByConditionValue(fabId, paramId, fromdate, todate,conditionParamId,conditionValue,eventType,adHocFucntions,adHocTime);
+        return traceDataService.getEventSimulationByConditionValue(fabId, paramId, fromdate, todate,conditionParamId,startCondition,endCondition,eventType,adHocFucntions,adHocTime);
     }
 }

@@ -24,12 +24,13 @@ export class ModelingChartComponent implements OnInit, OnChanges, DoCheck {
     conditionParamId;
     conditionStartOperator=">";
     conditionEndOperator=">=";
+    endOperators=[];
 
     operators =[
-        {name:'>',value:'>'},
-        {name:'<',value:'<'},
-        {name:'>=',value:'>='},
-        {name:'<=',value:'<='},
+        {name:'>',value:'>',subOperators:[{name:'>=',value:'>='}]},
+        {name:'<',value:'<',subOperators:[{name:'<=',value:'<='}]},
+        {name:'>=',value:'>=',subOperators:[{name:'>',value:'>'}]},
+        {name:'<=',value:'<=',subOperators:[{name:'<',value:'<'}]},
 
     ]
 
@@ -118,12 +119,24 @@ export class ModelingChartComponent implements OnInit, OnChanges, DoCheck {
         jqplotZoom: (ev, gridpos, datapos, plot, cursor)=>{
             var plotData = plot.series[0].data;
 
-            // this.trendConfig.axes.xaxis['min'] = plot.axes.xaxis.min;
-            // this.trendConfig.axes.xaxis['max'] = plot.axes.xaxis.max;
+            this.trendConfig.axes.xaxis['min'] = plot.axes.xaxis.min;
+            this.trendConfig.axes.xaxis['max'] = plot.axes.xaxis.max;
+            this.trendConfig = Object.assign({},this.trendConfig);
 
-            // this.trendConfig = Object.assign({}, this.trendConfig);
-    
+        },
+        jqplotUndoZoom:(ev, gridpos, datapos, plot, cursor)=>{
+            var plotData = plot.series[0].data;
+
+        },
+        jqplotResetZoom:(ev, gridpos, datapos, plot, cursor)=>{
+            // var plotData = plot.series[0].data;
+
+            this.trendConfig.axes.xaxis['min'] = this.xMin;
+            this.trendConfig.axes.xaxis['max'] = this.xMax;
+            this.trendConfig = Object.assign({},this.trendConfig);
         }
+
+        
     };
     sort = { parameter: 'none', adHoc: 'none' };
 
@@ -191,9 +204,17 @@ export class ModelingChartComponent implements OnInit, OnChanges, DoCheck {
         return Math.floor(Math.random() * (maximum - minimum + 1)) + minimum
     }
     ngOnChanges(changes: { [propertyName: string]: SimpleChange }): void {
-        if (this.xMin!=null && this.xMax!=null) {
+        // if (this.xMin!=null && this.xMax!=null) {
+        //     this.trendConfig['axes']['xaxis']['min'] = this.xMin;
+        //     this.trendConfig['axes']['xaxis']['max'] = this.xMax;
+        // }
+        if(changes['xMin']!=null ){
             this.trendConfig['axes']['xaxis']['min'] = this.xMin;
+            this.trendConfig = Object.assign({},this.trendConfig);
+        }
+        if(changes['xMax']!=null ){
             this.trendConfig['axes']['xaxis']['max'] = this.xMax;
+            this.trendConfig = Object.assign({},this.trendConfig);
         }
 
         this.setStatusEventConfig();
@@ -242,7 +263,10 @@ export class ModelingChartComponent implements OnInit, OnChanges, DoCheck {
                 }
                 
             }
+            this.onChangeOperator();
 
+            this.selectedParamId =  this.eqpEvents[0].paramId.toString();
+            this.conditionParamId = this.eqpEvents[0].paramId.toString();
             // this.setStatusEventConfig();
             let param = null;
             for(let i=0;i<this.params.length;i++){
@@ -252,9 +276,11 @@ export class ModelingChartComponent implements OnInit, OnChanges, DoCheck {
                 }
             }
             // this.selectParam.emit(param);
-            this.selectedParamId = this.eqpEvents[0].paramId;
 
             this.drawConditionLine(param);
+
+            //향후 수정 Hard coding
+            setTimeout(()=>{$('.chart-container').animate({ scrollTop: $('.scroll-here').offset().top -90 }, 500)});
         }
     }
     // getChartData(datas){
@@ -448,6 +474,18 @@ export class ModelingChartComponent implements OnInit, OnChanges, DoCheck {
         this.drawConditionLine(param);
 
     }
+    onChangeOperator(){
+        for(let i=0;i<this.operators.length;i++){
+            let key = this.operators[i].name;
+            if(key==this.conditionStartOperator){
+                this.endOperators = this.operators[i].subOperators;
+                if(this.endOperators.length==1){
+                    this.conditionEndOperator = this.endOperators[0].name;
+                }
+                break;
+            }
+        }
+    }
     drawConditionLine(param) {
         if(param==null) return;
 
@@ -520,7 +558,7 @@ export class ModelingChartComponent implements OnInit, OnChanges, DoCheck {
         return this.selectedParamId;
     }
     public getConditionValue() {
-        return this.conditionValue;
+        return  parseFloat( this.conditionValue);
     }
     public getConditionParamId() {
         return this.conditionParamId;
@@ -529,6 +567,18 @@ export class ModelingChartComponent implements OnInit, OnChanges, DoCheck {
         return this.conditionStartOperator;
     }
     public getConditionEndOperator(){
+
+
+        if(this.conditionEndOperator==">="){
+            return "<=";
+        }else if(this.conditionEndOperator=="<="){
+            return ">=";
+        }else if(this.conditionEndOperator=="<"){
+            return  ">";
+        }else if(this.conditionEndOperator==">"){
+            return  "<";
+        }
+
         return this.conditionEndOperator;
     }
 }

@@ -1,5 +1,5 @@
 
-import { Component, ViewChild, ElementRef, OnInit, EventEmitter, Output, Input, OnChanges, DoCheck } from '@angular/core';
+import { Component, ViewChild, ElementRef, OnInit, EventEmitter, Output, Input, OnChanges, DoCheck,SimpleChange } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import { BistelChartComponent } from '../../../../../../../sdk/charts/charts/bistel-chart.component';
 import { time_period } from '../../../../../../../common/form/configs/common/time-period-form.cfg';
@@ -92,7 +92,26 @@ export class EquipmentParameterTrendChartComponent implements OnInit, OnChanges,
     eventConfig = {
         jqplotDblClick: (ev: any, seriesIndex: number, pointIndex: number, data: any) => {
             console.log(ev);
+        },
+        jqplotZoom: (ev, gridpos, datapos, plot, cursor)=>{
+            var plotData = plot.series[0].data;
+
+            this.trendConfig['axes']['xaxis']['min'] = plot.axes.xaxis.min;
+            this.trendConfig['axes']['xaxis']['max'] = plot.axes.xaxis.max;
+
+            this.trendConfig = Object.assign({},this.trendConfig);
+
+        },
+        jqplotResetZoom:(ev, gridpos, datapos, plot, cursor)=>{
+
+            this.trendConfig['axes']['xaxis']['min'] = this.timePeriod.from;
+            this.trendConfig['axes']['xaxis']['max'] = this.timePeriod.to;
+
+            this.trendConfig = Object.assign({},this.trendConfig);
+
         }
+
+        
     };
     sort={parameter:'none',adHoc:'none'};
     constructor() { }
@@ -118,15 +137,18 @@ export class EquipmentParameterTrendChartComponent implements OnInit, OnChanges,
     randomRange(maximum, minimum) {
         return Math.floor(Math.random() * (maximum - minimum + 1)) + minimum
     }
-    ngOnChanges() {
-        if(this.params!=null && this.params.length>0){
-            this.trendConfig['axes']['xaxis']['min'] = this.params[0].from;
-            this.trendConfig['axes']['xaxis']['max'] = this.params[0].max;
-
-        }
-        this.drawSpecLine();
+    ngOnChanges(changes: { [propertyName: string]: SimpleChange }): void {
         
+        if(changes['timePeriod']!=null){
+            this.trendConfig['axes']['xaxis']['min'] = this.timePeriod.from;
+            this.trendConfig['axes']['xaxis']['max'] = this.timePeriod.to;
+            this.trendConfig = Object.assign({},this.trendConfig);
+        }
+
+        this.drawSpecLine();
+
     }
+
     ngDoCheck() {
         //    this.selectecItemAction();
         //        console.log(this.displayName+":"+this.selectedItems.length);

@@ -944,7 +944,7 @@ public class TraceDataService implements ITraceDataService {
 
 
     @Override
-    public Object getEventSimulation(String fabId, Long paramId, Long fromdate, Long todate, Float conditonValue) {
+    public Object getEventSimulation(String fabId, Long paramId, Long fromdate, Long todate, String startCondition,String endCondition) {
 
         List<List<Object>> traceDatas = this.getTraceData(fabId,paramId,fromdate,todate);
         boolean isStart = false;
@@ -952,12 +952,12 @@ public class TraceDataService implements ITraceDataService {
 
         List<Object> startEnd = new ArrayList<>();
         for (int i = 0; i < traceDatas.size(); i++) {
-            if(isStart && Float.valueOf( traceDatas.get(i).get(1).toString())<=conditonValue){
+            if(isStart && excuteRule(Float.valueOf( traceDatas.get(i).get(1).toString()),endCondition)){
                 isStart = false;
                 startEnd.add(traceDatas.get(i).get(0));
                 result.add(startEnd);
                 startEnd = new ArrayList<>();
-            }else if(isStart ==false && Float.valueOf( traceDatas.get(i).get(1).toString())>=conditonValue) {
+            }else if(isStart ==false && excuteRule(Float.valueOf( traceDatas.get(i).get(1).toString()),startCondition)) {
                 isStart = true;
                 startEnd.add(traceDatas.get(i).get(0));
             }
@@ -966,10 +966,49 @@ public class TraceDataService implements ITraceDataService {
 
         return result;
     }
-    @Override
-    public Object getEventSimulationByConditionValue(String fabId,Long paramId,Long fromdate,Long todate,Long conditionParamId,Float conditonValue,String eventType,List<String> adHocFunctions,Integer adHocTime){
+    private boolean excuteRule(Float value,String condition){
+        int index;
+        if((index = condition.indexOf(">="))>=0) {
+            String valueString = condition.substring(index+2);
+            Float baseValue = Float.valueOf(valueString);
+            if (value >= baseValue) {
+                return true;
+            } else {
+                return false;
+            }
+        }else if((index = condition.indexOf("<="))>=0){
+            String valueString = condition.substring(index+2);
+            Float baseValue = Float.valueOf(valueString);
+            if(value <= baseValue){
+                return true;
+            }else{
+                return false;
+            }
+        }else if((index = condition.indexOf(">"))>=0){
+            String valueString = condition.substring(index+1);
+            Float baseValue = Float.valueOf(valueString);
+            if(value > baseValue){
+                return true;
+            }else{
+                return false;
+            }
+        }else if((index = condition.indexOf("<"))>=0){
+            String valueString = condition.substring(index+1);
+            Float baseValue = Float.valueOf(valueString);
+            if(value < baseValue){
+                return true;
+            }else{
+                return false;
+            }
+        }
 
-        List<List<Long>> events =(List<List<Long>>) this.getEventSimulation(fabId,conditionParamId,fromdate,todate,conditonValue);
+        return false;
+
+    }
+    @Override
+    public Object getEventSimulationByConditionValue(String fabId,Long paramId,Long fromdate,Long todate,Long conditionParamId,String startCondition,String endCondition,String eventType,List<String> adHocFunctions,Integer adHocTime){
+
+        List<List<Long>> events =(List<List<Long>>) this.getEventSimulation(fabId,conditionParamId,fromdate,todate,startCondition,endCondition);
 
         STDTraceDataMapper mapper = SqlSessionUtil.getMapper(sessions, fabId, STDTraceDataMapper.class);
 

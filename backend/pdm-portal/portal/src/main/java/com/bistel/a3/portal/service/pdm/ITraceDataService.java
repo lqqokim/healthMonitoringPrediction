@@ -48,9 +48,9 @@ public interface ITraceDataService {
 
     List<EqpParamDatas> getFilterTraceDataByEqpIdParamIds(String fabId, Long eqpId,String eqpName, List<Long> paramIds, List<String> paramNames, Date from, Date to, FilterTraceRequest bodyData);
 
-    Object getEventSimulation(String fabId, Long paramId, Long fromdate, Long todate, Float condition);
+    Object getEventSimulation(String fabId, Long paramId, Long fromdate, Long todate, String startCondition,String endCondition);
 
-    Object getEventSimulationByConditionValue(String fabId,Long paramId,Long fromdate,Long todate,Long conditionParamId,Float conditonValue,String eventType,List<String> adHocFunctions,Integer adHocTime);
+    Object getEventSimulationByConditionValue(String fabId,Long paramId,Long fromdate,Long todate,Long conditionParamId,String startCondition,String endCondition,String eventType,List<String> adHocFunctions,Integer adHocTime);
 
     Object getFeatureData(String fabId, Long paramId, Long fromdate, Long todate);
 }

@@ -6,52 +6,84 @@
         <selectKey keyProperty="rawId" resultType="Long" order="BEFORE">
             select seq_eqp_event_mst_pdm.nextval FROM DUAL
         </selectKey>
-        insert into eqp_event_mst_pdm(rawid, eqp_mst_rawid,event_name,event_type_cd,process_yn,param_mst_rawid,condition,create_by,create_dtts,update_by,update_dtts)
-        values(#{rawId}, #{eqpMstRawId}, #{eventName,jdbcType=VARCHAR}, #{eventTypeCd},#{processYn},#{paramMstRawId},#{condition},#{userName},systimestamp,#{userName},systimestamp)
+        insert into eqp_event_mst_pdm(rawid, eqp_mst_rawid,event_name,event_type_cd,process_yn,param_mst_rawid,condition,create_by,create_dtts,update_by,update_dtts,event_group,time_interval_yn,interval_time_ms)
+        values(#{rawId}, #{eqpId}, #{eventName,jdbcType=VARCHAR}, #{eventTypeCd},#{processYn},#{paramId},#{condition},#{userName},systimestamp,#{userName},systimestamp,#{eventGroup},#{timeIntervalYn},#{intervalTimeMs})
     </insert>
       <insert id="insert" parameterType="com.bistel.a3.portal.domain.pdm.db.EqpEvent" databaseId="postgresql" >
         <selectKey keyProperty="rawId" resultType="Long" order="BEFORE">
             select nextval('seq_eqp_event_mst_pdm')
         </selectKey>
-        insert into eqp_event_mst_pdm(rawid, eqp_mst_rawid,event_name,event_type_cd,process_yn,param_mst_rawid,condition,create_by,create_dtts,update_by,update_dtts)
-        values(#{rawId}, #{eqpMstRawId}, #{eventName,jdbcType=VARCHAR}, #{eventTypeCd},#{processYn},#{paramMstRawId},#{condition},#{userName},localtimestamp,#{userName},localtimestamp)
+        insert into eqp_event_mst_pdm(rawid, eqp_mst_rawid,event_name,event_type_cd,process_yn,param_mst_rawid,condition,create_by,create_dtts,update_by,update_dtts,event_group,time_interval_yn,interval_time_ms)
+        values(#{rawId}, #{eqpId}, #{eventName,jdbcType=VARCHAR}, #{eventTypeCd},#{processYn},#{paramId},#{condition},#{createBy},localtimestamp,#{updateBy},localtimestamp,#{eventGroup},#{timeIntervalYn},#{intervalTimeMs})
     </insert>
     
-     <update id="update" databaseId="oracle">
+     <update id="update"  databaseId="oracle">
         update eqp_event_mst_pdm
-        set eqp_mst_rawid = #{eqpMstRawId},
+        set eqp_mst_rawid = #{eqpId},
             event_name = #{eventName},
             event_type_cd = #{eventTypeCd},
             process_yn = #{processYn},
-            param_mst_rawid = #{paramMstRawId},
+            param_mst_rawid = #{paramId},
             condition = #{condition},
+            event_group = #{eventGroup},
+            time_interval_yn = #{timeIntervalYn},
+            interval_time_ms  = #{intervalTimeMs},
             update_dtts = systimestamp,
-            update_by = #{userName}
+            update_by = #{updateBy}
         where rawid = #{rawId}
     </update>
      <update id="update" databaseId="postgresql">
         update eqp_event_mst_pdm
-        set eqp_mst_rawid = #{eqpMstRawId},
+        set eqp_mst_rawid = #{eqpId},
             event_name = #{eventName},
             event_type_cd = #{eventTypeCd},
             process_yn = #{processYn},
-            param_mst_rawid = #{paramMstRawId},
+            param_mst_rawid = #{paramId},
             condition = #{condition},
+            event_group = #{eventGroup},
+            time_interval_yn = #{timeIntervalYn},
+            interval_time_ms  = #{intervalTimeMs},
             update_dtts = localtimestamp,
-            update_by = #{userName}
+            update_by = #{updateBy}
         where rawid = #{rawId}
     </update>
     
     
 
     <select id="select" resultType="com.bistel.a3.portal.domain.pdm.db.EqpEvent">
-        select *
+        select rawId,
+            event_name as eventName,
+            event_type_cd as eventTypeCd,
+            process_yn as processYn,
+            eqp_mst_rawid as eqpId,
+            param_mst_rawid as paramId,
+            condition,
+            event_group as eventGroup,
+            time_interval_yn as timeIntervalYn,
+            interval_time_ms as intervalTimeMs,
+            create_dtts as createDtts,
+            create_by as createBy,
+            update_dtts as updateDtts,
+            update_by as updateBy
         from eqp_event_mst_pdm
         where eqp_mst_rawid = #{eqpId}
         order by eqp_mst_rawid,param_mst_rawid,event_type_cd
     </select>
     <select id="selectAll" resultType="com.bistel.a3.portal.domain.pdm.db.EqpEvent">
-        select *
+        select rawId, eventName,eventTypeCd,processYn,
+            event_name as eventName,
+            event_type_cd as eventTypeCd,
+            process_yn as processYn,
+            eqp_mst_rawid as eqpId,
+            param_mst_rawid as paramId,
+            condition,
+            event_group as eventGroup,
+            time_interval_yn as timeIntervalYn,
+            interval_time_ms as intervalTimeMs,
+            create_dtts as createDtts,
+            create_by as createBy,
+            update_dtts as updateDtts,
+            update_by as updateBy
         from eqp_event_mst_pdm
         where eqp_mst_rawid = #{eqpId}
         order by eqp_mst_rawid,param_mst_rawid,event_type_cd

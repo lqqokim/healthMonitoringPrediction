@@ -66,18 +66,23 @@ public class PfeifferLogTailerListener extends TailerListenerAdapter {
         Timestamp ts = new Timestamp(System.currentTimeMillis());
         String timeStamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(ts);
 
-        String msg = timeStamp + "," + columns[1] + "," + columns[2] + ","
-                + columns[3] + "," + columns[4] + ","
-                + columns[5] + "," + columns[6] + "," + columns[7] + "," + columns[8] + ","
-                + columns[9] + "," + columns[10] + "," + columns[11] + "," + columns[12] + ","
-                + columns[13] + "," + columns[14] + "," + columns[15] + "," + columns[16] + ","
-                + columns[16] + "," + columns[17] + "," + columns[18] + "," + columns[19] + ","
-                + columns[20];
+        String msg = timeStamp + ","
+                + columns[1].trim() + "," + columns[2].trim() + ","
+                + columns[3].trim() + "," + columns[4].trim() + ","
+                + columns[5].trim() + "," + columns[6].trim() + ","
+                + columns[7].trim() + "," + columns[8].trim() + ","
+                + columns[9].trim() + "," + columns[10].trim() + ","
+                + columns[11].trim() + "," + columns[12].trim() + ","
+                + columns[13].trim() + "," + columns[14].trim() + ","
+                + columns[15].trim() + "," + columns[16].trim() + ","
+                + columns[16].trim() + "," + columns[17].trim() + ","
+                + columns[18].trim() + "," + columns[19].trim() + ","
+                + columns[20].trim();
         rmsProducer.send(new ProducerRecord<>(topicName, partitionKey, msg.getBytes()));
         log.info("send {}", msg);
 
         try {
-            Thread.sleep(1000);
+            Thread.sleep(100);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

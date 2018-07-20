@@ -1,0 +1,13 @@
+<a3c-bistel-chart
+    [data]="chartDatas"
+    [config]="trendConfig"
+    [eventLines]="eventLines"
+>
+</a3c-bistel-chart>
+
+<a3c-bistel-chart *ngIf='mode_dual'
+    [data]="chartDatas_se"
+    [config]="trendConfig_se"
+    [eventLines]="eventLines_se"
+>
+</a3c-bistel-chart>

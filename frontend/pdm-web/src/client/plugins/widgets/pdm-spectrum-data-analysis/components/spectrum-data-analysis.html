@@ -7,8 +7,8 @@
             <div class="a3-from-to" [from]="searchTimePeriod?.from" [to]="searchTimePeriod?.to" [format]="'yyyy/MM/dd hh:mm:ss'" (changedFromTo)="fromToChange($event)">
             </div>
             <div class="sample-number">
-                <label for="trash_id">Sampling</label>
-                <input class="input-number" type="number" id="trash_id" value="1" placeholder="only number" step="1" />
+                <!-- <label for="trash_id">Sampling</label>
+                <input class="input-number" type="number" id="trash_id" value="1" placeholder="only number" step="1" /> -->
                 <button class="btn btn-default" type="button" (click)="search();">Search</button>
             </div>
         </div>
@@ -54,20 +54,23 @@
                     </div>
                     <div class="metrix-width-calc">
                         <!-- .metrix-warning-boder -->
-                        <div class="metrix-chart-container" (dblclick)="matrixDblClick(col_row[rowItem][colItem])" [ngClass]="{'metrix-warning':col_row[rowItem][colItem]!=undefined && col_row[rowItem][colItem].analysis!=undefined}"
+                        <div class="metrix-chart-container" (dblclick)="matrixDblClick(col_row[rowItem][colItem])"
                             *ngFor="let colItem of cols">
-                            <div class="metrix-chart" *ngIf="col_row[rowItem][colItem]!=undefined">
+                            <div class="metrix-chart" *ngIf="col_row[rowItem][colItem] !== undefined">
                                 <div class="pull-right">
-                                    <button class="btn btn-default" id="wjPopup" (click)="openPopup(col_row[rowItem][colItem].data)">
+                                    <button class="btn btn-default" id="wjPopup" (click)="openPopup(col_row[rowItem][colItem].data, col_row[rowItem][colItem].measurement)">
                                         <i class="fa fa-search-plus"></i>
                                     </button>
                                 </div>
                                 <div class="a3c-chart-padding">
-                                <a3c-bistel-chart [data]="col_row[rowItem][colItem].data" [config]="spectrumConfig" [eventLines]="col_row[rowItem][colItem].trendEventLines"
-                                    style="width: 100%; " class="chart-body">
-                                </a3c-bistel-chart>
+                                    <a3c-bistel-chart 
+                                        [data]="col_row[rowItem][colItem].data" 
+                                        [config]="spectrumConfig" 
+                                        [eventLines]="col_row[rowItem][colItem].trendEventLines"
+                                        style="width: 100%; height: 100%;" class="chart-body">
+                                    </a3c-bistel-chart>
                                 </div>
-                                <div class="float-wrapper" *ngIf="!col_row[rowItem][colItem].data">
+                                <div class="float-wrapper" *ngIf="col_row[rowItem][colItem].data === null">
                                     <dl>
                                         <dt>
                                             <div class="a3-spinner-data"></div>
@@ -342,7 +345,7 @@
 <!--Using wijmo-->
 <wj-popup owner="#wjPopup" #chartPopup [hideTrigger]="None" class="a3-global-modal-dialog pdm-eqp-param-analysis-popup">
     <div class="a3-global-modal-content">
-        <div class="modal-body">
+        <div class="modal-body" #modalBody>
             <plotly-plot class="plotly-plot" *ngIf="graph.data && graph.layout" [data]="graph.data" [layout]="graph.layout">
             </plotly-plot>
         </div>

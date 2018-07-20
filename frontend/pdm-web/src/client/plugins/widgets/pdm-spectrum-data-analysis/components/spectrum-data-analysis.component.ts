@@ -14,6 +14,11 @@ export interface ChartDataType {
     layout: any;
 }
 
+export interface Measurement {
+    measurementIds: number[]
+    measureDtts: number[]
+}
+
 @Component({
     moduleId: module.id,
     selector: 'spectrum-data-analysis',
@@ -155,7 +160,7 @@ export class SpectrumDataAnalysisComponent implements OnDestroy, AfterViewInit {
     isVibration: boolean = true;
     isSetupState: boolean = true;
 
-    plotlyEl: any;
+    isSpectrumLoad: boolean = false;;
 
     @ViewChild('chartProblem') chartProblem: ElementRef;
     @ViewChild('chartHealth') chartHealth: ElementRef;
@@ -171,6 +176,7 @@ export class SpectrumDataAnalysisComponent implements OnDestroy, AfterViewInit {
     @ViewChild('healthContributeChart') healthContributeChart: any;
     @ViewChild('healthContributeBarChart') healthContributeBarChart: any;
     @ViewChild('contributionModal') contributionModal: any;
+    @ViewChild('modalBody') modalBody: ElementRef;
 
     private _specAlarm: number = 90;
     private _paramEuType: string = '';
@@ -1165,17 +1171,21 @@ export class SpectrumDataAnalysisComponent implements OnDestroy, AfterViewInit {
         this._service.getParamInfoByEqpId(plantId, areaId, eqpId).then((result) => {
             console.log('getParamInfoByEqpId ==> ', result);
 
-
-            for (let i = 0; i < result.length; i++) {
-                // if (!(result[i].paramType == 10201 || result[i].paramType == 10202)) continue;
+            const resultLength: number = result.length;
+            for (let i = 0; i < resultLength; i++) {
+                const paramTypeCd: string = result[i]['param_type_cd'];
+                if (!(paramTypeCd === 'Acceleration' || paramTypeCd === 'Enveloping' || paramTypeCd === 'Velocity')) continue;
                 let index = result[i].paramName.lastIndexOf(' ');
                 let name = result[i].paramName.substr(0, index);
                 let type = result[i].paramName.substr(index + 1);
 
                 if (this.rows.indexOf(name) < 0) this.rows.push(name);
                 if (this.cols.indexOf(type) < 0) this.cols.push(type);
+
+
                 if (this.col_row[name] == undefined) this.col_row[name] = {};
                 this.col_row[name][type] = { paramName: result[i].paramName, paramId: result[i].paramId };
+
                 let col_row_Data = this.col_row[name][type];
                 col_row_Data['analysis'] = "Progressing...";
                 col_row_Data['analysisSummary'] = "Progressing...";
@@ -1185,84 +1195,84 @@ export class SpectrumDataAnalysisComponent implements OnDestroy, AfterViewInit {
 
                 this._service.getMeasurements(this._plantId, this._areaId, this._eqpId, result[i].paramId, this.searchTimePeriod[CD.FROM], this.searchTimePeriod[CD.TO])
                     .then(data => {
-                        // console.log('getMeasurements : ', data);
+                        console.log('getMeasurements : ', data);
                         col_row_Data['areaId'] = this._areaId;
                         col_row_Data['eqpId'] = this._eqpId;
                         col_row_Data['paramId'] = paramId;
 
-                        let measurement = [];
+                        let measurement: Measurement = {
+                            measurementIds: [],
+                            measureDtts: []
+                        };
+
                         let count = 2;
                         let increase = data.length / count;
-                        for (let i = 0; i < data.length - 1; i++) {
+                        const dataLength: number = data.length;
+                        for (let i = 0; i < dataLength - 1; i++) {
                             if (i % increase === 0) {
-                                measurement.push(data[i].measurementId);
+                                measurement.measurementIds.push(data[i].measurementId);
+                                measurement.measureDtts.push(data[i].measureDtts);
                             }
                         }
 
                         if (data.length > 0) {
-                            measurement.push(data[data.length - 1].measurementId);
+                            measurement.measurementIds.push(data[data.length - 1].measurementId);
+                            measurement.measureDtts.push(data[data.length - 1].measureDtts);
                         }
 
                         col_row_Data['data'] = [];
-                        console.log('measurement ==> ', measurement);
-                        for (let i = 0; i < measurement.length; i++) {
-                            this._service.getSpectrum(this._plantId, this._areaId, this._eqpId, measurement[i])
+                        col_row_Data['measurement'] = [];
+                        const measurementLength: number = measurement.measurementIds.length;
+                        for (let i = 0; i < measurementLength; i++) {
+                            this._service.getSpectrum(this._plantId, this._areaId, this._eqpId, measurement.measurementIds[i])
                                 .then(data => {
                                     // this.spectrumData = [data];
-                                    console.log('spectrum data ==> ', data);
-
                                     col_row_Data['data'].push(data);
+                                  
 
                                     this.spectrumConfig['series'].push({ label: 'Current', color: 'rgb(51, 88, 255 )' });
                                     this.spectrumConfig = Object.assign({}, this.spectrumConfig);
                                 });
                         }
+
+                        col_row_Data['measurement'].push(measurement);
                     }).catch(err => {
                         console.log(err);
                         this.hideSpinner();
                     });
             }
+
         }).catch((err) => {
             console.log(err);
             this.hideSpinner();
-        })
+        });
     }
 
-    openPopup(datas): void {
-        // $('#plotlyChart').modal('show');
+    openPopup(datas, measurement): void {
         this.chartPopup.show();
-
-        setTimeout(() => {
-            // this.plotlyEl = $('plotly-plot');
-            // let width: number, height: number;
-
-            // if(this.plotlyEl) {
-            //     const parentEl = this.plotlyEl.parent();
-            //     width = parentEl.width();
-            //     height = parentEl.height();
-            // } else {
-            //     width = 1000
-            //     height = 500;
-            // }
-
-            this.setChartData(1000, 500, datas);
-        }, 300);
+        this.setPlotlyData(datas, measurement);
     }
 
-    setChartData(width, heigth, series): void {
-        console.log('series list => ', series);
-        let datas: any[] = [];
+    setPlotlyData(seriesDatas, measurement: Measurement): void {
+        let ModalbodyEl = $(this.modalBody.nativeElement);
+        const width: number = ModalbodyEl.width();
+        const height: number = ModalbodyEl.height();
 
-        for (var i = 0; i < series.length; i++) { // series count
+        let datas: any[] = [];
+        const seriesDatasLength: number = seriesDatas.length;
+
+        for (let i = 0; i < seriesDatasLength; i++) { // series count
             let x = []; // 시리즈 (count) -> Time
             let y = []; // 주파수 [0]  -> Frequency
             let z = []; // 주파수 값 [1] -> 
+            const seriesLength: number = seriesDatas[i].length;
 
-            for (let j = 0; j < series[i].length; j++) {
-                let data = series[i][j];
-                x.push(i);
-                y.push(data[0]);
-                z.push(data[1]);
+            for (let j = 0; j < seriesLength; j++) {
+                const frequency: number[] = seriesDatas[i][j];
+                const dtts: number = measurement[0].measureDtts[i]
+                x.push(dtts);
+                y.push(frequency[0]);
+                z.push(frequency[1]); // hz
                 // if (j > 20 && j < 30) {
                 //     z.push(randomRange(10, 20) / 10);
                 // } else {
@@ -1295,11 +1305,11 @@ export class SpectrumDataAnalysisComponent implements OnDestroy, AfterViewInit {
         };
 
         const layout: any = {
-            title: '3D Line Plot',
-            autosize: false,
+            title: '3D Spectrum Chart',
+            autosize: true,
             showlegend: false,
             width: width,
-            height: heigth,
+            height: height,
             margin: {
                 l: 0,
                 r: 0,
@@ -1312,7 +1322,10 @@ export class SpectrumDataAnalysisComponent implements OnDestroy, AfterViewInit {
                 },
                 camera: {
                     eye: { x: 1.9896227268277047, y: 0.0645906841396725, z: 0.5323776223386583 }
-                }
+                },
+                "zaxis": { "type": "linear", "title": "Hz" },
+                "xaxis": { "type": "linear", "title": "Time" },
+                "yaxis": { "type": "linear", "title": "Frequency" }
             }
         };
 
