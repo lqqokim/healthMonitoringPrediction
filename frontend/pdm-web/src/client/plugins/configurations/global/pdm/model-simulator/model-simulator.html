@@ -22,7 +22,13 @@
 											<label>
 													<input type="radio" name="eventType" [(ngModel)]="eventType" value="time"> Time Base
 											</label>
-										</div>	
+                                        </div>	
+                                        <div class="aggregation" *ngIf="eventType=='time'">
+                                            <div>Aggregation Time</div>
+                                            <input class="form-control"type="number" [(ngModel)]="aggregationTime">
+                                            <label>minutes</label>
+                                        </div>
+                    
                     <div class="a3-from-to" [from]="searchTimePeriod?.from" [to]="searchTimePeriod?.to" [format]="'yyyy/MM/dd hh:mm:ss'" (changedFromTo)="fromToChange($event)"></div>
                     <div class="eqp-tree">
                         <fab-area-eqp-param-tree (changeParamSelection)="nodeClick($event)" #tree></fab-area-eqp-param-tree>
@@ -55,11 +61,6 @@
                                 <input type="checkbox" [(ngModel)]="item.checked" (change)="clickCheck()"> {{item.f}}
                             </label>
                         </div>
-                    </div>
-                    <div class="aggregation" *ngIf="eventType=='time'">
-                        <div>Aggregation Time</div>
-                        <input class="form-control"type="number" [(ngModel)]="aggregationTime">
-                        <label>minutes</label>
                     </div>
                     <button class="btn btn-primary" [ngClass]="{candoit:canDrawAdHoc&& aggregationChecked && tree2ParamSelect}" (click)="adHocSummary()"
                         [disabled]='canDrawAdHoc==false || this.showProgress || aggregationChecked==false || tree2ParamSelect==false'>Ad-Hoc Summary</button>

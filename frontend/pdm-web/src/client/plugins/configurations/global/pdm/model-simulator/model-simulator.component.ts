@@ -203,6 +203,12 @@ export class ModelSimulatorComponent implements OnInit {
                 }
 
                 this.selectParam(null);
+                if(this.eqpEvents[0].timeIntervalYn=='Y'){
+                    this.eventType="time";
+                    this.aggregationTime = this.eqpEvents[0].intervalTimeMs/1000/60;
+                }else{
+                    this.eventType="event";
+                }
             }
 
         });
@@ -243,29 +249,39 @@ export class ModelSimulatorComponent implements OnInit {
             eqpStartEvent = this._eventTypeEvents['S'];
             eqpStartEvent.condition = this.getStartCondition();
             eqpStartEvent.paramId = this.modelChart.getParamId();
-            eqpStartEvent.processYn = this.eventType == "event"?"Y":"N";
+            eqpStartEvent.eventGroup="PROCESS_EVENT";
+            eqpStartEvent.timeIntervalYn = this.eventType == "event"?"N":"Y";
+            eqpStartEvent.intervalTimeMs = this.aggregationTime*1000*60;
         }else{
             eqpStartEvent.eqpId = this.eqpId;
             eqpStartEvent.condition = this.getEndCondition();
             eqpStartEvent.eventName = "process start";
             eqpStartEvent.eventTypeCd="S";
             eqpStartEvent.paramId = this.modelChart.getParamId();
-            eqpStartEvent.processYn = this.eventType == "event"?"Y":"N";
+            eqpStartEvent.processYn="Y";
+            eqpStartEvent.eventGroup="PROCESS_EVENT";
+            eqpStartEvent.timeIntervalYn = this.eventType == "event"?"N":"Y";
+            eqpStartEvent.intervalTimeMs = this.aggregationTime*1000*60;
         }
         eqpEvents.push(eqpStartEvent);
         
         if(this._eventTypeEvents['E']!=null){
             eqpEndEvent = this._eventTypeEvents['E'];
-            eqpEndEvent.condition = "value"+ this.modelChart.getConditionStartOperator() +this.modelChart.getConditionValue();
+            eqpEndEvent.condition = this.getEndCondition();
             eqpEndEvent.paramId = this.modelChart.getParamId();
-            eqpEndEvent.processYn = this.eventType == "event"?"Y":"N";
+            eqpEndEvent.eventGroup="PROCESS_EVENT";
+            eqpEndEvent.timeIntervalYn = this.eventType == "event"?"N":"Y";
+            eqpEndEvent.intervalTimeMs = this.aggregationTime*1000*60;
         }else{
             eqpEndEvent.eqpId = this.eqpId;
-            eqpEndEvent.condition = "value"+ this.modelChart.getConditionStartOperator() +this.modelChart.getConditionValue();
+            eqpEndEvent.condition = this.getEndCondition();
             eqpEndEvent.eventName = "process end";
+            eqpEndEvent.eventGroup="PROCESS_EVENT";
+            eqpEndEvent.processYn="Y";
             eqpEndEvent.eventTypeCd="E";
             eqpEndEvent.paramId = this.modelChart.getParamId();
-            eqpEndEvent.processYn = this.eventType == "event"?"Y":"N";
+            eqpEndEvent.timeIntervalYn = this.eventType == "event"?"N":"Y";
+            eqpEndEvent.intervalTimeMs = this.aggregationTime*1000*60;
         }
         eqpEvents.push(eqpEndEvent);
         

@@ -6,6 +6,9 @@ export interface EqpEventType {
     processYn:string;
     paramId:number;
     condition:string;
+    eventGroup:string;
+    timeIntervalYn:string;
+    intervalTimeMs:number;
     createBy:string;
     createDtts:any;
     updateBy:string;
