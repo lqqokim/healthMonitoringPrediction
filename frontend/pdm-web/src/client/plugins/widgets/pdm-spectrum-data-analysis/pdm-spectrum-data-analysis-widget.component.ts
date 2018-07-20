@@ -44,6 +44,7 @@ export class PdmSpectrumDataAnalysisWidgetComponent extends WidgetApi implements
     }
 
     refresh({ type, data }: WidgetRefreshType): void {
+        // this.showSpinner();
         this._props = data;
 
         if (type === A3_WIDGET.APPLY_CONFIG_REFRESH) {
@@ -54,7 +55,7 @@ export class PdmSpectrumDataAnalysisWidgetComponent extends WidgetApi implements
 
         }
 
-        this.setCondition(data);
+        this.setCondition(this._props);
     }
 
     setCondition(props: any): void {
