@@ -66,7 +66,7 @@
                 </split-area>
                 <split-area size="80" class='condition'>
                     <div class="chart-container">
-                        <modeling-simulator-chart #simulationChart [params]="simulation_params"></modeling-simulator-chart>
+                        <modeling-simulator-chart #simulationChart [params]="simulation_params" [xMin]="searchTimePeriod2.from" [xMax]="searchTimePeriod2.to"></modeling-simulator-chart>
                     </div>
 
                 </split-area>

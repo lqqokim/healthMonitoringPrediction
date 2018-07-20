@@ -152,8 +152,8 @@ export class ModelSimulatorComponent implements OnInit {
                         if(this.paramDatas.length>0){
                             this.canDrawEvent = true;
                             this.paramDatas = this.paramDatas.concat([]);
-                            this.xMin = this.paramDatas[0].datas[0].from;
-                            this.xMax = this.paramDatas[0].datas[this.paramDatas[0].datas.length-1].to;
+                            this.xMin = this.searchTimePeriod.from;
+                            this.xMax = this.searchTimePeriod.to;
                         }
                         this.setEqpEvent();
                     }
@@ -167,8 +167,8 @@ export class ModelSimulatorComponent implements OnInit {
                         if(this.paramDatas.length>0){
                             this.canDrawEvent = true;
                             this.paramDatas = this.paramDatas.concat([]);
-                            this.xMin = this.paramDatas[0].datas[0].from;
-                            this.xMax = this.paramDatas[0].datas[this.paramDatas[0].datas.length-1].to;
+                            this.xMin = this.searchTimePeriod.from;
+                            this.xMax = this.searchTimePeriod.to;
                         }
                         this.setEqpEvent();
                     }
@@ -311,10 +311,12 @@ export class ModelSimulatorComponent implements OnInit {
     nodeClick(event){
         let node = this.tree.getSelectedNodes();
         let parameters = [];
+        let eqpId = "";
         for (let index = 0; index < node.length; index++) {
             const element = node[index];
             if (element.nodeType == 'parameter') {
                 parameters.push(element);
+                eqpId = element.eqpId;
             }
 
         }
@@ -322,6 +324,9 @@ export class ModelSimulatorComponent implements OnInit {
             this.treeParamSelect = true;
         }else{
             this.treeParamSelect = false;
+        }
+        if(this.eqpId!= eqpId){
+            this.canDrawEvent = false;
         }
     }
     nodeClick2(event){
@@ -415,5 +420,6 @@ export class ModelSimulatorComponent implements OnInit {
             
         });
     }
+   
 
 }

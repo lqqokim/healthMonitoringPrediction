@@ -57,3 +57,7 @@
     margin-left: -100px !important;
     width: 100px !important;
 }
+
+.modeling-chart .table > tbody > tr:hover, .a3 .ui-grid .ui-grid-viewport .ui-grid-canvas .ui-grid-row:hover, .a3 .ui-grid .ui-grid-viewport .ui-grid-canvas .ui-grid-row:nth-child(odd):hover{
+	cursor: default;
+}

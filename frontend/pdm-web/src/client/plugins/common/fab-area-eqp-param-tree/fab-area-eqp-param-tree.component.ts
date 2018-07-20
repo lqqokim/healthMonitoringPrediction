@@ -245,6 +245,16 @@ export class FabAreaEqpParamTreeComponent implements OnInit, AfterViewInit, OnCh
         }
 
     }
+    clearCheck(node,excludeId){
+        node.isChecked = false;
+        if(node.children==null) return;
+        for(let i=0;i<node.children.length;i++){
+            if(node.children[i].id!=excludeId){
+                node.children[i].isChecked = false;
+                this.clearCheck(node.children[i],excludeId);
+            }
+        }
+    }
     changeChecked(node,isChecked){
         if(node.children==null) return;
         for(let i=0;i<node.children.length;i++){
@@ -260,8 +270,18 @@ export class FabAreaEqpParamTreeComponent implements OnInit, AfterViewInit, OnCh
         this.selectedItem.isOpen = true;
         this.selectedEv = ev;
         if(ev.type=="node"){
-            this.selectedItem.isChecked = !this.selectedItem.isChecked;
-            this.changeChecked(this.selectedItem,this.selectedItem.isChecked);
+            if(this.selectedItem.nodeType=="eqp" || this.selectedItem.nodeType=="parameter"){
+                this.selectedItem.isChecked = !this.selectedItem.isChecked;
+                if(this.selectedItem.isChecked){
+                    if(this.selectedItem.nodeType=="parameter"){
+                        this.clearCheck(this.tv.getRootNode(),this.selectedItem.parentnode.id);
+                    }else{
+                        this.clearCheck(this.tv.getRootNode(),this.selectedItem.id);
+                    }
+                    
+                }
+                this.changeChecked(this.selectedItem,this.selectedItem.isChecked);
+            }
             this.changeParamSelection.emit([this.selectedItem]);
         }
        
