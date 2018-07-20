@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.Timestamp;
+import java.sql.Types;
 
 /**
  *
@@ -19,8 +20,11 @@ public class FeatureTrxDao implements FeatureDataDao {
 
     private static final String INSERT_SQL =
             "insert into param_feature_trx_pdm " +
-                    "(RAWID, PARAM_MST_RAWID, BEGIN_DTTS, END_DTTS, COUNT, MIN, MAX, MEDIAN, MEAN, STDDEV, Q1, Q3) " +
-                    "values (seq_param_feature_trx_pdm.nextval, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                    "(RAWID, PARAM_MST_RAWID, BEGIN_DTTS, END_DTTS, " +
+                    "COUNT, MIN, MAX, MEDIAN, MEAN, STDDEV, Q1, Q3, " +
+                    "UPPER_ALARM_SPEC, UPPER_WARNING_SPEC, TARGET, " +
+                    "LOWER_ALARM_SPEC, LOWER_WARNING_SPEC) " +
+                    "values (seq_param_feature_trx_pdm.nextval,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
     @Override
     public void storeRecord(ConsumerRecords<String, byte[]> records) {
@@ -53,6 +57,37 @@ public class FeatureTrxDao implements FeatureDataDao {
                     pstmt.setFloat(9, Float.parseFloat(values[8]));
                     pstmt.setFloat(10, Float.parseFloat(values[9]));
                     pstmt.setFloat(11, Float.parseFloat(values[10]));
+
+                    // SPEC
+                    if (values[11].length() > 0) {
+                        pstmt.setFloat(12, Float.parseFloat(values[11])); //upper alarm spec
+                    } else {
+                        pstmt.setNull(12, Types.FLOAT);
+                    }
+
+                    if (values[12].length() > 0) {
+                        pstmt.setFloat(13, Float.parseFloat(values[12])); //upper warning spec
+                    } else {
+                        pstmt.setNull(13, Types.FLOAT);
+                    }
+
+                    if (values[13].length() > 0) {
+                        pstmt.setFloat(14, Float.parseFloat(values[13])); //target
+                    } else {
+                        pstmt.setNull(14, Types.FLOAT);
+                    }
+
+                    if (values[14].length() > 0) {
+                        pstmt.setFloat(15, Float.parseFloat(values[14])); //lower alarm spec
+                    } else {
+                        pstmt.setNull(15, Types.FLOAT);
+                    }
+
+                    if (values[15].length() > 0) {
+                        pstmt.setFloat(16, Float.parseFloat(values[15])); //lower warning spec
+                    } else {
+                        pstmt.setNull(16, Types.FLOAT);
+                    }
 
                     pstmt.addBatch();
 
