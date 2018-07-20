@@ -151,6 +151,8 @@ export class StatusChangeComponent implements OnInit, OnDestroy {
             max: this.timePeriod.toDate - this.timePeriod.fromDate
         };
 
+        if(this.statusData==null) return;
+        
         // status 시간 기준 그려질 폭 퍼센트(%) 계산
         len = this.statusData.length;
         for( i=0; i<len; i++ ){
