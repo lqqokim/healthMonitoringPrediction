@@ -152,8 +152,8 @@ export class ModelSimulatorComponent implements OnInit {
                         if(this.paramDatas.length>0){
                             this.canDrawEvent = true;
                             this.paramDatas = this.paramDatas.concat([]);
-                            this.xMin = this.paramDatas[0].datas[0].from;
-                            this.xMax = this.paramDatas[0].datas[this.paramDatas[0].datas.length-1].to;
+                            this.xMin = this.searchTimePeriod.from;
+                            this.xMax = this.searchTimePeriod.to;
                         }
                         this.setEqpEvent();
                     }
@@ -167,8 +167,8 @@ export class ModelSimulatorComponent implements OnInit {
                         if(this.paramDatas.length>0){
                             this.canDrawEvent = true;
                             this.paramDatas = this.paramDatas.concat([]);
-                            this.xMin = this.paramDatas[0].datas[0].from;
-                            this.xMax = this.paramDatas[0].datas[this.paramDatas[0].datas.length-1].to;
+                            this.xMin = this.searchTimePeriod.from;
+                            this.xMax = this.searchTimePeriod.to;
                         }
                         this.setEqpEvent();
                     }
@@ -420,5 +420,6 @@ export class ModelSimulatorComponent implements OnInit {
             
         });
     }
+   
 
 }
