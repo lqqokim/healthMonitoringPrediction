@@ -25,10 +25,10 @@ table {
 .model-simulator .eqp-tree {
     height: 300px;
     /* overflow: auto; */
-		/*border: solid 1px lightgray;*/
-		padding-bottom: 8px;
-		margin-bottom: 12px;
-		border-bottom: 1px solid #eee;
+    /*border: solid 1px lightgray;*/
+    padding-bottom: 8px;
+    margin-bottom: 12px;
+    border-bottom: 1px solid #eee;
 }
 
 .model-simulator .progress {
@@ -38,15 +38,15 @@ table {
 .model-simulator .aggregation {
     width: 100%;
     /*padding: 10px;*/
-		/*border: solid 1px lightgray;*/
-		padding-bottom: 8px;
-		margin-bottom: 12px;
-		border-bottom: 1px solid #eee;
+    /*border: solid 1px lightgray;*/
+    padding-bottom: 8px;
+    margin-bottom: 12px;
+    border-bottom: 1px solid #eee;
 }
 
 .model-simulator .aggregation>input {
-		width: 70px;
-		display: inline-block
+    width: 70px;
+    display: inline-block
 }
 
 .model-simulator .modeling-container {
@@ -60,9 +60,22 @@ table {
 }
 
 .model-simulator .candoit {
+    color: #47B8CA !important;
+    /* background-color: #5bc0de !important; */
+    border-color: #46b8da !important;
+}
+.model-simulator .candoit:hover {
+    color: #fff !important;
+    background-color: #46b8da !important;
+}
+
+.model-simulator .candosave {
     color: #fff !important;
     background-color: #5bc0de !important;
     border-color: #46b8da !important;
+}
+.model-simulator .candosave:hover {
+    background: #3289a3 !important;
 }
 
 .model-simulator button {
@@ -74,30 +87,30 @@ table {
     margin-bottom: 10px;
 }
 
-.model-simulator .eqp-tree .title{
-	font-size: 13px !important;
+.model-simulator .eqp-tree .title {
+    font-size: 13px !important;
 }
 
-.model-simulator .pdm-configuration-builder .pdm-body{
-	padding: 0 !important;
+.model-simulator .pdm-configuration-builder .pdm-body {
+    padding: 0 !important;
 }
 
-.model-simulator .a3-from-to{
-	padding-bottom: 8px;
-	margin-bottom: 12px;
-	border-bottom: 1px solid #eee;
+.model-simulator .a3-from-to {
+    padding-bottom: 8px;
+    margin-bottom: 12px;
+    border-bottom: 1px solid #eee;
 }
 
-.model-simulator  .condition .a3-configuration-forms-wrapper:first-child{
-  padding-bottom:8px;
+.model-simulator .condition .a3-configuration-forms-wrapper:first-child {
+    padding-bottom: 8px;
 }
 
-.model-simulator .option{
-	padding-bottom: 8px;
-	margin-bottom: 12px;
-	border-bottom: 1px solid #eee;
+.model-simulator .option {
+    padding-bottom: 8px;
+    margin-bottom: 12px;
+    border-bottom: 1px solid #eee;
 }
 
-.model-simulator .option label{
-	margin-right: 5px;
+.model-simulator .option label {
+    margin-right: 5px;
 }
