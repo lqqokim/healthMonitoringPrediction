@@ -311,10 +311,12 @@ export class ModelSimulatorComponent implements OnInit {
     nodeClick(event){
         let node = this.tree.getSelectedNodes();
         let parameters = [];
+        let eqpId = "";
         for (let index = 0; index < node.length; index++) {
             const element = node[index];
             if (element.nodeType == 'parameter') {
                 parameters.push(element);
+                eqpId = element.eqpId;
             }
 
         }
@@ -322,6 +324,9 @@ export class ModelSimulatorComponent implements OnInit {
             this.treeParamSelect = true;
         }else{
             this.treeParamSelect = false;
+        }
+        if(this.eqpId!= eqpId){
+            this.canDrawEvent = false;
         }
     }
     nodeClick2(event){
