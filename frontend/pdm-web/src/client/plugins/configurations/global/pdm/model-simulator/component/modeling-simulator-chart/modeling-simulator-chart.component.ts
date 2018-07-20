@@ -1,5 +1,5 @@
 
-import { Component, ViewChild, ElementRef, OnInit, EventEmitter, Output, Input, OnChanges, DoCheck } from '@angular/core';
+import { Component, ViewChild, ElementRef, OnInit, EventEmitter, Output, Input, OnChanges, DoCheck,SimpleChange } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 
 @Component({
@@ -11,6 +11,8 @@ import { Observable } from 'rxjs/Observable';
 export class ModelingSimulatorChartComponent implements OnInit, OnChanges, DoCheck {
 
     @Input() params;
+    @Input() xMin;
+    @Input() xMax;
 
     selectedParam;
     // params = [
@@ -92,7 +94,35 @@ export class ModelingSimulatorChartComponent implements OnInit, OnChanges, DoChe
     eventConfig = {
         jqplotDblClick: (ev: any, seriesIndex: number, pointIndex: number, data: any) => {
             console.log(ev);
+        },
+        jqplotZoom: (ev, gridpos, datapos, plot, cursor)=>{
+            var plotData = plot.series[0].data;
+
+            this.trendConfig['axes']['xaxis']['min'] = plot.axes.xaxis.min;
+            this.trendConfig['axes']['xaxis']['max'] = plot.axes.xaxis.max;
+
+            this.trendConfig = Object.assign({},this.trendConfig);
+
+            // for(let i=0;i<this.params.length;i++){
+            //     this.params.eventConfig.axes.xaxis['min'] = plot.axes.xaxis.min;
+            //     this.params.eventConfig.axes.xaxis['max'] = plot.axes.xaxis.max;
+            // }
+
+        },
+        jqplotResetZoom:(ev, gridpos, datapos, plot, cursor)=>{
+            // var plotData = plot.series[0].data;
+            // for(let i=0;i<this.params.length;i++){
+            //     this.params.eventConfig.axes.xaxis['min'] = this.xMin;
+            //     this.params.eventConfig.axes.xaxis['max'] = this.xMax;
+            // }
+            this.trendConfig['axes']['xaxis']['min'] = this.xMin;
+            this.trendConfig['axes']['xaxis']['max'] = this.xMax;
+
+            this.trendConfig = Object.assign({},this.trendConfig);
+
         }
+
+        
     };
     constructor() { }
 
@@ -106,11 +136,16 @@ export class ModelingSimulatorChartComponent implements OnInit, OnChanges, DoChe
     randomRange(maximum, minimum) {
         return Math.floor(Math.random() * (maximum - minimum + 1)) + minimum
     }
-    ngOnChanges() {
-        if(this.params!=null && this.params.length>0){
-            this.trendConfig['axes']['xaxis']['min'] = this.params[0].from;
-            this.trendConfig['axes']['xaxis']['max'] = this.params[0].max;
+    ngOnChanges(changes: { [propertyName: string]: SimpleChange }): void {
+        
+        if(changes['xMin']!=null){
+            this.trendConfig['axes']['xaxis']['min'] = this.xMin;
+            this.trendConfig = Object.assign({},this.trendConfig);
+        }
 
+        if(changes['xMax']!=null){
+            this.trendConfig['axes']['xaxis']['max'] = this.xMax;
+            this.trendConfig = Object.assign({},this.trendConfig);
         }
 
     }
