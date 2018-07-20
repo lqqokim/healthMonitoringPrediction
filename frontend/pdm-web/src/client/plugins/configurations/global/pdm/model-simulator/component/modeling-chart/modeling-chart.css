@@ -49,7 +49,8 @@
 }
 
 .modeling-chart .parameter {
-    width: 140px;
+		width: 140px;
+		padding-bottom: 5px;
 }
 
 .modeling-chart .jqplot-yaxis {

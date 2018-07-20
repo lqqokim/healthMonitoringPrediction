@@ -171,6 +171,7 @@ export class SpectrumDataAnalysisComponent implements OnDestroy, AfterViewInit {
     @ViewChild('healthContributeChart') healthContributeChart: any;
     @ViewChild('healthContributeBarChart') healthContributeBarChart: any;
     @ViewChild('contributionModal') contributionModal: any;
+    @ViewChild('modalBody') modalBody: ElementRef;
 
     private _specAlarm: number = 90;
     private _paramEuType: string = '';
@@ -1174,8 +1175,11 @@ export class SpectrumDataAnalysisComponent implements OnDestroy, AfterViewInit {
 
                 if (this.rows.indexOf(name) < 0) this.rows.push(name);
                 if (this.cols.indexOf(type) < 0) this.cols.push(type);
+
+
                 if (this.col_row[name] == undefined) this.col_row[name] = {};
                 this.col_row[name][type] = { paramName: result[i].paramName, paramId: result[i].paramId };
+                
                 let col_row_Data = this.col_row[name][type];
                 col_row_Data['analysis'] = "Progressing...";
                 col_row_Data['analysisSummary'] = "Progressing...";
@@ -1204,12 +1208,10 @@ export class SpectrumDataAnalysisComponent implements OnDestroy, AfterViewInit {
                         }
 
                         col_row_Data['data'] = [];
-                        console.log('measurement ==> ', measurement);
                         for (let i = 0; i < measurement.length; i++) {
                             this._service.getSpectrum(this._plantId, this._areaId, this._eqpId, measurement[i])
                                 .then(data => {
                                     // this.spectrumData = [data];
-                                    console.log('spectrum data ==> ', data);
 
                                     col_row_Data['data'].push(data);
 
@@ -1217,6 +1219,7 @@ export class SpectrumDataAnalysisComponent implements OnDestroy, AfterViewInit {
                                     this.spectrumConfig = Object.assign({}, this.spectrumConfig);
                                 });
                         }
+
                     }).catch(err => {
                         console.log(err);
                         this.hideSpinner();
@@ -1229,28 +1232,19 @@ export class SpectrumDataAnalysisComponent implements OnDestroy, AfterViewInit {
     }
 
     openPopup(datas): void {
-        // $('#plotlyChart').modal('show');
         this.chartPopup.show();
-
-        setTimeout(() => {
-            // this.plotlyEl = $('plotly-plot');
-            // let width: number, height: number;
-
-            // if(this.plotlyEl) {
-            //     const parentEl = this.plotlyEl.parent();
-            //     width = parentEl.width();
-            //     height = parentEl.height();
-            // } else {
-            //     width = 1000
-            //     height = 500;
-            // }
-
-            this.setChartData(1000, 500, datas);
-        }, 300);
+        this.setChartData(datas);
     }
 
-    setChartData(width, heigth, series): void {
-        console.log('series list => ', series);
+    setChartData(series): void {
+        // console.log('series list => ', series);
+
+        let ModalbodyEl = $(this.modalBody.nativeElement);
+        const width: number = ModalbodyEl.width();
+        const height: number = ModalbodyEl.height();
+
+        console.log(ModalbodyEl, width, height);
+
         let datas: any[] = [];
 
         for (var i = 0; i < series.length; i++) { // series count
@@ -1293,13 +1287,37 @@ export class SpectrumDataAnalysisComponent implements OnDestroy, AfterViewInit {
 
             datas.push(data);
         };
+        // {
+        //     "autosize": false,
+        //         "title": "3D Line Plot",
+        //             "scene": {
+        //         "aspectratio": { "y": 2, "x": 1, "z": 0.1 },
+        //         "camera": {
+        //             "eye": {
+        //                 "y": 0.03143871383290033,
+        //                     "x": 0.9684241679327764,
+        //                         "z": 1.8186156060559222
+        //             },
+        //             "up": { "y": 0, "x": 0, "z": 1 },
+        //             "center": { "y": 0, "x": 0, "z": 0 }
+        //         },
+        //         "zaxis": { "type": "linear", "title": "Value" }, "xaxis": { "type": "linear", "title": "Series" }, "yaxis": { "type": "linear", "title": "Frequency" }
+        //     },
+        //     "height": 500,
+        //         "width": 1000,
+        //             "showlegend": false,
+        //                 "breakpoints": [],
+        //                     "margin": { "r": 0, "b": 0, "l": 0, "t": 65 } \
+        // },
+
+
 
         const layout: any = {
-            title: '3D Line Plot',
-            autosize: false,
+            title: '3D Spectrum Chart',
+            autosize: true,
             showlegend: false,
             width: width,
-            height: heigth,
+            height: height,
             margin: {
                 l: 0,
                 r: 0,
@@ -1312,7 +1330,10 @@ export class SpectrumDataAnalysisComponent implements OnDestroy, AfterViewInit {
                 },
                 camera: {
                     eye: { x: 1.9896227268277047, y: 0.0645906841396725, z: 0.5323776223386583 }
-                }
+                },
+                "zaxis": { "type": "linear", "title": "Value" },
+                "xaxis": { "type": "linear", "title": "Series" },
+                "yaxis": { "type": "linear", "title": "Frequency" }
             }
         };
 

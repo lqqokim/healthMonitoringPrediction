@@ -34,7 +34,7 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
     private int windowSize = 6;
     private int outCount = 3;
 
-    private WindowStore<String, Double> kvParamValueStore;
+    private WindowStore<String, String> kvParamValueStore;
     private KeyValueStore<String, Long> kvIntervalStore;
     private KeyValueStore<String, Integer> kvAlarmCountStore;
     private KeyValueStore<String, Integer> kvWarningCountStore;
@@ -94,7 +94,9 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
                             MasterDataCache.getInstance().getParamHealthFD01(paramMaster.getParameterRawId());
 
                     Double paramValue = Double.parseDouble(recordColumns[paramMaster.getParamParseIndex()]);
-                    kvParamValueStore.put(paramKey, paramValue, parseStringToTimestamp(recordColumns[0]));
+
+                    Long time = parseStringToTimestamp(recordColumns[0]);
+                    kvParamValueStore.put(paramKey, time + "," + paramValue, time);
 
                     if (healthData != null) {
                         checkOutOfSpec(paramKey, partitionKey, recordColumns, paramMaster, healthData, paramValue);
@@ -111,20 +113,20 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
 
                 log.debug("[{}] - processing interval from {} to {}.", partitionKey, startTime, endTime);
 
-                HashMap<String, List<Double>> paramValueList = new HashMap<>();
+                HashMap<String, List<String>> paramValueList = new HashMap<>();
 
-                KeyValueIterator<Windowed<String>, Double> storeIterator = kvParamValueStore.fetchAll(startTime, endTime);
+                KeyValueIterator<Windowed<String>, String> storeIterator = kvParamValueStore.fetchAll(startTime, endTime);
                 while (storeIterator.hasNext()) {
-                    KeyValue<Windowed<String>, Double> kv = storeIterator.next();
+                    KeyValue<Windowed<String>, String> kv = storeIterator.next();
 
                     //log.debug("[{}] - fetch : {}", kv.key.key(), kv.value);
 
                     if (!paramValueList.containsKey(kv.key.key())) {
-                        ArrayList<Double> arrValue = new ArrayList<>();
+                        ArrayList<String> arrValue = new ArrayList<>();
                         arrValue.add(kv.value);
                         paramValueList.put(kv.key.key(), arrValue);
                     } else {
-                        List<Double> arrValue = paramValueList.get(kv.key.key());
+                        List<String> arrValue = paramValueList.get(kv.key.key());
                         arrValue.add(kv.value);
                     }
                 }
@@ -138,7 +140,7 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
                             MasterDataCache.getInstance().getParamHealthFD02(paramMaster.getParameterRawId());
 
                     if (fd02HealthInfo != null) {
-                        List<Double> doubleValueList = paramValueList.get(paramKey);
+                        List<String> doubleValueList = paramValueList.get(paramKey);
                         if (doubleValueList == null) {
                             log.debug("[{}] - Unable to check spec...", paramKey);
                             continue;
@@ -194,9 +196,9 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
                     "Unbalance";
 
             // fault classifications
-            if(param.getParameterType().equalsIgnoreCase("Acceleration") ||
+            if (param.getParameterType().equalsIgnoreCase("Acceleration") ||
                     param.getParameterType().equalsIgnoreCase("Velocity") ||
-                    param.getParameterType().equalsIgnoreCase("Enveloping")){
+                    param.getParameterType().equalsIgnoreCase("Enveloping")) {
 
                 log.debug("[{}] - fault classification : ", paramKey);
 
@@ -269,7 +271,7 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
         }
     }
 
-    private void evaluateRule(String partitionKey, String paramKey, List<Double> paramValues, Long ruleTime,
+    private void evaluateRule(String partitionKey, String paramKey, List<String> paramValues, Long ruleTime,
                               ParameterMasterDataSet paramMaster, ParameterHealthDataSet fd02HealthInfo) {
 
         ArrayList<Double> specOutValue = new ArrayList<>();
@@ -279,7 +281,9 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
             // alarm
             int totalAlarmCount = 0;
             for (int i = 0; i < paramValues.size(); i++) {
-                Double paramValue = paramValues.get(i);
+                String[] strValue = paramValues.get(i).split(",");
+                Long timeValue = Long.parseLong(strValue[0]);
+                Double paramValue = Double.parseDouble(strValue[1]);
 
                 if (slidingWindow.size() == windowSize) {
                     //check alarm
@@ -320,9 +324,9 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
                         "N/A";
 
                 // fault classifications
-                if(paramMaster.getParameterType().equalsIgnoreCase("Acceleration") ||
+                if (paramMaster.getParameterType().equalsIgnoreCase("Acceleration") ||
                         paramMaster.getParameterType().equalsIgnoreCase("Velocity") ||
-                        paramMaster.getParameterType().equalsIgnoreCase("Enveloping")){
+                        paramMaster.getParameterType().equalsIgnoreCase("Enveloping")) {
 
                     log.debug("[{}] - fault classification : ", paramKey);
 
@@ -353,6 +357,7 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
                         + paramMaster.getParameterRawId() + ","
                         + fd02HealthInfo.getParamHealthRawId() + ','
                         + statusCode + ","
+                        + totalAlarmCount + ","
                         + index + ","
                         + fd02HealthInfo.getHealthLogicRawId();
 
@@ -365,8 +370,12 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
                 // Logic 2 health without alarm - If no alarm goes off, calculate the average of the intervals.
 
                 DescriptiveStatistics stats = new DescriptiveStatistics();
-                for (Double val : paramValues) {
-                    stats.addValue(val);
+
+                for (int i = 0; i < paramValues.size(); i++) {
+                    String[] strValue = paramValues.get(i).split(",");
+                    Double paramValue = Double.parseDouble(strValue[1]);
+
+                    stats.addValue(paramValue);
                 }
 
                 Double index = (stats.getMean() / paramMaster.getUpperAlarmSpec());
@@ -384,6 +393,7 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
                         + paramMaster.getParameterRawId() + ","
                         + fd02HealthInfo.getParamHealthRawId() + ','
                         + statusCode + ","
+                        + paramValues.size() + ","
                         + index + ","
                         + fd02HealthInfo.getHealthLogicRawId();
 
@@ -397,7 +407,8 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
             // warning
             int totalWarningCount = 0;
             for (int i = 0; i < paramValues.size(); i++) {
-                Double paramValue = paramValues.get(i);
+                String[] strValue = paramValues.get(i).split(",");
+                Double paramValue = Double.parseDouble(strValue[1]);
 
                 if (slidingWindow.size() == windowSize) {
                     //check warning

@@ -61,7 +61,7 @@ public class SpeedTaskDef extends AbstractPipeline {
                         Serdes.String(),
                         Serdes.String());
 
-        StoreBuilder<WindowStore<String, Double>> paramValueStoreSupplier =
+        StoreBuilder<WindowStore<String, String>> paramValueStoreSupplier =
                 Stores.windowStoreBuilder(
                         Stores.persistentWindowStore("speed-param-value",
                                 TimeUnit.DAYS.toMillis(1),
@@ -69,7 +69,7 @@ public class SpeedTaskDef extends AbstractPipeline {
                                 TimeUnit.HOURS.toMillis(1),
                                 true),
                         Serdes.String(),
-                        Serdes.Double());
+                        Serdes.String());
 
         StoreBuilder<KeyValueStore<String, Long>> sumIntervalStoreSupplier =
                 Stores.keyValueStoreBuilder(

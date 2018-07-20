@@ -57,7 +57,7 @@ public class MasterDataCache {
             if (param.getParamParseIndex() <= 0) continue;
 
             if(MasterDataCache.getInstance().getParamHealthDataSet().containsKey(param.getParameterRawId())){
-                i++;
+                i = i + 4;
             }
         }
 

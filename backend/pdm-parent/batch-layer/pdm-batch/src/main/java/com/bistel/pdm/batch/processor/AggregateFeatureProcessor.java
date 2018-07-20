@@ -125,7 +125,13 @@ public class AggregateFeatureProcessor extends AbstractProcessor<String, byte[]>
                         stats.addValue(i);
                     }
 
-                    // startDtts, endDtts, param rawid, count, max, min, median, avg, stddev, q1, q3
+                    String uas = paramMaster.getUpperAlarmSpec() == null ? "" : Float.toString(paramMaster.getUpperAlarmSpec());
+                    String uws = paramMaster.getUpperWarningSpec() == null ? "" : Float.toString(paramMaster.getUpperWarningSpec());
+                    String tgt = paramMaster.getTarget() == null ? "" : Float.toString(paramMaster.getTarget());
+                    String las = paramMaster.getLowerAlarmSpec() == null ? "" : Float.toString(paramMaster.getLowerAlarmSpec());
+                    String lws = paramMaster.getLowerAlarmSpec() == null ? "" : Float.toString(paramMaster.getLowerAlarmSpec());
+
+                    // startDtts, endDtts, param rawid, count, max, min, median, avg, stddev, q1, q3, spec...
                     String msg = String.valueOf(startTime) + "," +
                             String.valueOf(endTime) + "," +
                             paramMaster.getParameterRawId() + "," +
@@ -136,7 +142,12 @@ public class AggregateFeatureProcessor extends AbstractProcessor<String, byte[]>
                             stats.getMean() + "," +
                             stats.getStandardDeviation() + "," +
                             stats.getPercentile(25) + "," +
-                            stats.getPercentile(75);
+                            stats.getPercentile(75) + "," +
+                            uas + "," +
+                            uws + "," +
+                            tgt + "," +
+                            las + "," +
+                            lws;
 
                     //log.debug("[{}] - msg : {}", paramKey, msg);
                     context().forward(partitionKey, msg.getBytes());

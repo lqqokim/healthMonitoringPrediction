@@ -19,11 +19,11 @@ public class FaultTrxPostgreDao implements FaultDataDao {
 
     private static final String INSERT_SQL =
             "insert into ALARM_TRX_PDM " +
-                    "(RAWID, PARAM_MST_RAWID, HEALTH_LOGIC_MST_RAWID, ALARM_TYPE_CD, VALUE, " +
+                    "(PARAM_MST_RAWID, HEALTH_LOGIC_MST_RAWID, ALARM_TYPE_CD, VALUE, " +
                     " FAULT_CLASS, " +
                     " ALARM_SPEC, WARNING_SPEC, " +
                     " ALARM_DTTS) " +
-                    "values (seq_alarm_trx_pdm.nextval, ?, ?, ?, ?, ?, ?, ?, ?)";
+                    "values (?, ?, ?, ?, ?, ?, ?, ?)";
 
     @Override
     public void storeRecord(ConsumerRecords<String, byte[]> records) {

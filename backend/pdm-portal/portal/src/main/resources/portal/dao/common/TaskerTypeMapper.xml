@@ -26,8 +26,7 @@
     </select>
     
     
-    <!-- <insert id="insert" databaseId="oracle"> -->
-    <insert id="insert">
+    <insert id="insert" databaseId="oracle">
         <selectKey resultType="Long" keyProperty="taskerTypeId" order="BEFORE">
             select seq_tasker_type_a3.nextval from dual
         </selectKey>
@@ -40,7 +39,6 @@
             #{description}
         )
     </insert>
-<!-- 
     <insert id="insert" databaseId="postgresql">
         <selectKey resultType="Long" keyProperty="taskerTypeId" order="BEFORE">
             select nextval('seq_tasker_type_a3')
@@ -54,7 +52,6 @@
             #{description}
         )
     </insert>
- -->    
     
     <update id="update">
         update tasker_type_a3
