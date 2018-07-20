@@ -761,10 +761,34 @@ export class PdmModelService extends ModelCommonService {
 		});
 	}
 
-	// eqpHealthTrendChart
+	// eqpHealthTrendChart (Logic1 -Standard)
 	getEqpHealthTrendChart(fabId: string, paramId:number, fromDate:number, toDate:number): Promise<any> {
 		return this.GET({
-			uriPath: `pdm/fabs/${fabId}/eqps/null/params/${paramId}/eqpHealthTrendChart/?fromdate=${fromDate}&todate=${toDate}`
+			uriPath: `pdm/fabs/${fabId}/params/${paramId}/eqpHealthTrendChart/?fromdate=${fromDate}&todate=${toDate}`
+		});
+	}
+	// eqpHealthTrendChart (Logic2 -SPC)
+	getEqpHealthTrendChartWithSPC(fabId: string, paramId:number, fromDate:number, toDate:number): Promise<any> {
+		return this.GET({
+			uriPath: `pdm/fabs/${fabId}/params/${paramId}/eqpHealthTrendChartWithSPC/?fromdate=${fromDate}&todate=${toDate}`
+		});
+	}
+	// eqpHealthTrendChart (Logic3 -Variation)
+	getEqpHealthTrendChartWithAVG(fabId: string, paramId:number, fromDate:number, toDate:number): Promise<any> {
+		return this.GET({
+			uriPath: `pdm/fabs/${fabId}/params/${paramId}/eqpHealthTrendChartWithAVG/?fromdate=${fromDate}&todate=${toDate}`
+		});
+	}
+	// eqpHealthTrendChart (Logic4 -RUL)
+	getEqpHealthTrendChartWithRUL(fabId: string, paramId:number, fromDate:number, toDate:number): Promise<any> {
+		return this.GET({
+			uriPath: `pdm/fabs/${fabId}/params/${paramId}/eqpHealthTrendChartWithRUL/?fromdate=${fromDate}&todate=${toDate}`
+		});
+	}
+	// eqpHealthTrendChart (Logic1 ~ 4 get paramid)
+	getEqpHealthIndexGetWorstParam(fabId: string, eqpId:number, fromDate:number, toDate:number): Promise<any> {
+		return this.GET({
+			uriPath: `pdm/fabs/${fabId}/eqps/${eqpId}/eqpHealthIndexGetWorstParam/?fromdate=${fromDate}&todate=${toDate}`
 		});
 	}
 }
