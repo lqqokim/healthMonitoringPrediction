@@ -38,7 +38,7 @@ public class FeatureTrxDao implements FeatureDataDao {
                 for (ConsumerRecord<String, byte[]> record : records) {
                     byte[] features = record.value();
                     String valueString = new String(features);
-                    String[] values = valueString.split(",");
+                    String[] values = valueString.split(",", -1);
 
                     // startDtts, endDtts, param rawid, count, min, max, median, avg, stddev, q1, q3
                     Long param_rawid = Long.parseLong(values[2]);

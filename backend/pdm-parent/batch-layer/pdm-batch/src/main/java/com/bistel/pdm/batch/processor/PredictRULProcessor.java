@@ -132,7 +132,7 @@ public class PredictRULProcessor extends AbstractProcessor<String, byte[]> {
                             + fd04HealthInfo.getHealthLogicRawId() + ","
                             + intercept + ","
                             + slope + ","
-                            + x ;
+                            + x;
 
                     context().forward(partitionKey, newMsg.getBytes());
                     context().commit();
