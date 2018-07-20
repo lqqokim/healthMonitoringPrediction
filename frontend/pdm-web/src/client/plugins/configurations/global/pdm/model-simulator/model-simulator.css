@@ -88,8 +88,8 @@ table {
 	border-bottom: 1px solid #eee;
 }
 
-.model-simulator .a3-configuration-forms-wrapper{
-  margin-bottom:5px;
+.model-simulator  .condition .a3-configuration-forms-wrapper:first-child{
+  padding-bottom:8px;
 }
 
 .model-simulator .option{

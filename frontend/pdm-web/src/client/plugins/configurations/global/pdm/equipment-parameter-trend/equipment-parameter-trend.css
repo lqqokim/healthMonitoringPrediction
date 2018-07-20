@@ -90,6 +90,6 @@ table {
 	border-bottom: 1px solid #eee;
 }
 
-.equipment-parameter-trend .a3-configuration-forms-wrapper{
-  margin-bottom:5px;
+.equipment-parameter-trend .a3-configuration-forms-wrapper:first-child{
+  margin-bottom:8px;
 }

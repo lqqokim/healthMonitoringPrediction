@@ -54,12 +54,12 @@
 }
 
 .spectrum-data-analysis .header-period-group {
-    width: 82%;
+    width: 500px;
 }
 
 .spectrum-data-analysis .a3-chart-header {
     line-height: 28px;
-    width: 18%;
+    width: calc(100% - 500px);
     text-align: right;
     text-overflow: ellipsis;
 }
