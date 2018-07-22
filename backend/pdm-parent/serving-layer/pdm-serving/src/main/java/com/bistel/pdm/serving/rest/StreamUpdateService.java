@@ -1,6 +1,7 @@
 package com.bistel.pdm.serving.rest;
 
 import com.bistel.pdm.serving.Exception.Message;
+import com.bistel.pdm.serving.HostInfo;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -17,6 +18,9 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Properties;
 
+/**
+ *
+ */
 @Singleton
 @Path("/master")
 @Produces(MediaType.APPLICATION_JSON)
@@ -43,11 +47,12 @@ public class StreamUpdateService {
 
     @GET
     @Path("/latest/reload")
-    public Response getAreaById() {
+    public Response getReload() {
         try {
-            producer.send(new ProducerRecord<>(topicName, "all", "http://localhost:28000".getBytes()));
+            String msg = "http://" + HostInfo.ip + ":" + HostInfo.port;
+            producer.send(new ProducerRecord<>(topicName, "updater", msg.getBytes()));
 
-            log.info("stream update.");
+            log.info("stream updated.");
             return Response.status(Response.Status.OK).entity("").build();
 
         } catch (Exception e) {

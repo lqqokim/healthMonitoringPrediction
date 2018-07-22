@@ -9,6 +9,7 @@ public class SensorTraceData {
     public Float target;
     public Float lowerAlarmSpec;
     public Float lowerWarningSpec;
+    public String statusCode;
     public long event_dtts;
     public String reserved_col1;
     public String reserved_col2;
@@ -38,6 +39,14 @@ public class SensorTraceData {
 
     public void setValue(float value) {
         this.value = value;
+    }
+
+    public String getStatusCode() {
+        return statusCode;
+    }
+
+    public void setStatusCode(String statusCode) {
+        this.statusCode = statusCode;
     }
 
     public Float getUpperAlarmSpec() {

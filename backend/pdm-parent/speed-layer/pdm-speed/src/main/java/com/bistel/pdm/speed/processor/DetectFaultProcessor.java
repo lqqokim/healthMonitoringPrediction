@@ -1,5 +1,6 @@
 package com.bistel.pdm.speed.processor;
 
+import com.bistel.pdm.common.collection.Pair;
 import com.bistel.pdm.common.json.ParameterHealthDataSet;
 import com.bistel.pdm.common.json.ParameterMasterDataSet;
 import com.bistel.pdm.lambda.kafka.master.MasterDataCache;
@@ -147,6 +148,16 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
                         }
                         //log.debug("[{}] - window data size : {}", paramKey, doubleValueList.size());
 
+                        for(Pair<String, Integer> option :
+                                MasterDataCache.getInstance().getParamHealthFD02Options(paramMaster.getParameterRawId())){
+
+                            if(option.getFirst().equalsIgnoreCase("M")){
+                                this.windowSize = option.getSecond();
+                            } else {
+                                this.outCount = option.getSecond();
+                            }
+                        }
+
                         // check spc rule
                         this.evaluateRule(partitionKey, paramKey, doubleValueList, endTime, paramMaster, fd02HealthInfo);
 
@@ -282,7 +293,7 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
             int totalAlarmCount = 0;
             for (int i = 0; i < paramValues.size(); i++) {
                 String[] strValue = paramValues.get(i).split(",");
-                Long timeValue = Long.parseLong(strValue[0]);
+                //Long timeValue = Long.parseLong(strValue[0]);
                 Double paramValue = Double.parseDouble(strValue[1]);
 
                 if (slidingWindow.size() == windowSize) {
@@ -346,9 +357,9 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
 
                 String statusCode = "N";
 
-                if (totalAlarmCount > 1) {
+                if (totalAlarmCount >= 1) {
                     statusCode = "A";
-                } else if (totalAlarmCount == 1) {
+                } else if (totalAlarmCount < 1) {
                     statusCode = "W";
                 }
 
@@ -358,8 +369,7 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
                         + fd02HealthInfo.getParamHealthRawId() + ','
                         + statusCode + ","
                         + totalAlarmCount + ","
-                        + index + ","
-                        + fd02HealthInfo.getHealthLogicRawId();
+                        + index; //+ "," + fd02HealthInfo.getHealthLogicRawId();
 
                 context().forward(partitionKey, newMsg.getBytes(), "route-health");
                 context().forward(partitionKey, newMsg.getBytes(), "output-health");
@@ -382,9 +392,9 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
 
                 String statusCode = "N";
 
-                if (totalAlarmCount > 1) {
+                if (totalAlarmCount >= 1) {
                     statusCode = "A";
-                } else if (totalAlarmCount == 1) {
+                } else if (totalAlarmCount < 1) {
                     statusCode = "W";
                 }
 
@@ -394,8 +404,7 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
                         + fd02HealthInfo.getParamHealthRawId() + ','
                         + statusCode + ","
                         + paramValues.size() + ","
-                        + index + ","
-                        + fd02HealthInfo.getHealthLogicRawId();
+                        + index; // + "," + fd02HealthInfo.getHealthLogicRawId();
 
                 context().forward(partitionKey, newMsg.getBytes(), "route-health");
                 context().forward(partitionKey, newMsg.getBytes(), "output-health");

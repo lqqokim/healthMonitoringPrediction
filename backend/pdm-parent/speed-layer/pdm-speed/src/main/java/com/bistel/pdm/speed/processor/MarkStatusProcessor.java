@@ -48,7 +48,7 @@ public class MarkStatusProcessor extends AbstractProcessor<String, byte[]> {
             //log.debug("parsing index:{}, value:{}", event.getParamParseIndex(), recordColumns[event.getParamParseIndex()]);
             double paramValue = Double.parseDouble(recordColumns[event.getParamParseIndex()]);
 
-            log.debug("[{}] - define status using {} parameter. ({}, {})", partitionKey,
+            log.debug("[{}] - defined status using {} parameter. ({}, {})", partitionKey,
                     event.getParameterName(), paramValue, event.getCondition());
 
             RuleVariables ruleVariables = new RuleVariables();
@@ -75,7 +75,7 @@ public class MarkStatusProcessor extends AbstractProcessor<String, byte[]> {
                 prevStatusAndTime = kvStore.get(partitionKey);
             }
 
-            log.debug("[{}] - ({}, {}) ", partitionKey, statusCodeAndTime, prevStatusAndTime);
+            kvStore.put(partitionKey, statusCodeAndTime);
 
             // add trace with status code
             // time, p1, p2, p3, p4, ... pn, status:time, prev:time
@@ -83,7 +83,8 @@ public class MarkStatusProcessor extends AbstractProcessor<String, byte[]> {
             context().forward(partitionKey, recordValue.getBytes());
             context().commit();
 
-            kvStore.put(partitionKey, statusCodeAndTime);
+            log.trace("[{}] - forwarded. (Prev : {}, Now : {}) ", partitionKey, prevStatusAndTime, statusCodeAndTime);
+
         } catch (Exception e){
             log.error(e.getMessage(), e);
         }

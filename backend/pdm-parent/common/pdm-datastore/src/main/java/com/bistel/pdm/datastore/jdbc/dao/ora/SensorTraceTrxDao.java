@@ -27,24 +27,24 @@ public class SensorTraceTrxDao implements SensorTraceDataDao {
             "insert into trace_trx_pdm (RAWID, PARAM_MST_RAWID, VALUE, " +
                     "ALARM_SPEC, WARNING_SPEC, " +
                     //"UPPER_ALARM_SPEC, UPPER_WARNING_SPEC, " +
-                    "TARGET, " +
-                    "LOWER_ALARM_SPEC, LOWER_WARNING_SPEC, " +
+                    //"TARGET, " +
+                   //"LOWER_ALARM_SPEC, LOWER_WARNING_SPEC, " +
                     "STATUS_CD, " +
                     "EVENT_DTTS, " +
                     "RESERVED_COL1, RESERVED_COL2, RESERVED_COL3, RESERVED_COL4, RESERVED_COL5) " +
-                    "values (SEQ_TRACE_TRX_PDM.nextval,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+                    "values (SEQ_TRACE_TRX_PDM.nextval,?,?,?,?,?,?,?,?,?,?,?)";
 
     private static final String INSERT_SQL_WITH_RAW =
             "insert into trace_trx_pdm " +
                     "(RAWID, PARAM_MST_RAWID, VALUE, " +
                     "ALARM_SPEC, WARNING_SPEC, " +
                     //"UPPER_ALARM_SPEC, UPPER_WARNING_SPEC, " +
-                    "TARGET, " +
-                    "LOWER_ALARM_SPEC, LOWER_WARNING_SPEC, " +
+                    //"TARGET, " +
+                    //"LOWER_ALARM_SPEC, LOWER_WARNING_SPEC, " +
                     "STATUS_CD, " +
                     "EVENT_DTTS, " +
                     "RESERVED_COL1, RESERVED_COL2, RESERVED_COL3, RESERVED_COL4, RESERVED_COL5) " +
-                    "values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+                    "values (?,?,?,?,?,?,?,?,?,?,?,?)";
 
     public SensorTraceTrxDao() {
     }
@@ -82,7 +82,7 @@ public class SensorTraceTrxDao implements SensorTraceDataDao {
                     byte[] sensorData = record.value();
                     String valueString = new String(sensorData);
 
-                    // time, p1, p2, p3, p4, ... pn,
+                    // time, p1, p2, p3, p4, ... pn, status:time, prev:time
                     String[] values = valueString.split(",");
 
                     List<ParameterMasterDataSet> paramData =
@@ -108,34 +108,36 @@ public class SensorTraceTrxDao implements SensorTraceDataDao {
                             pstmt.setNull(4, Types.FLOAT);
                         }
 
-                        if (param.getTarget() != null) {
-                            pstmt.setFloat(5, param.getTarget()); //target
-                        } else {
-                            pstmt.setNull(5, Types.FLOAT);
-                        }
-
-                        if (param.getLowerAlarmSpec() != null) {
-                            pstmt.setFloat(6, param.getLowerAlarmSpec()); //lower alarm spec
-                        } else {
-                            pstmt.setNull(6, Types.FLOAT);
-                        }
-
-                        if (param.getLowerWarningSpec() != null) {
-                            pstmt.setFloat(7, param.getLowerWarningSpec()); //lower warning spec
-                        } else {
-                            pstmt.setNull(7, Types.FLOAT);
-                        }
+//                        if (param.getTarget() != null) {
+//                            pstmt.setFloat(5, param.getTarget()); //target
+//                        } else {
+//                            pstmt.setNull(5, Types.FLOAT);
+//                        }
+//
+//                        if (param.getLowerAlarmSpec() != null) {
+//                            pstmt.setFloat(6, param.getLowerAlarmSpec()); //lower alarm spec
+//                        } else {
+//                            pstmt.setNull(6, Types.FLOAT);
+//                        }
+//
+//                        if (param.getLowerWarningSpec() != null) {
+//                            pstmt.setFloat(7, param.getLowerWarningSpec()); //lower warning spec
+//                        } else {
+//                            pstmt.setNull(7, Types.FLOAT);
+//                        }
 
                         //status
-                        pstmt.setString(8, "");
+                        String statusCodeAndTime = values[values.length - 2];
+                        String[] nowStatusCodeAndTime = statusCodeAndTime.split(":");
+                        pstmt.setString(5, nowStatusCodeAndTime[0]);
 
-                        pstmt.setTimestamp(9, getTimeStampFromString(values[0]));
+                        pstmt.setTimestamp(6, getTimeStampFromString(values[0]));
 
+                        pstmt.setNull(7, Types.VARCHAR);
+                        pstmt.setNull(8, Types.VARCHAR);
+                        pstmt.setNull(9, Types.VARCHAR);
                         pstmt.setNull(10, Types.VARCHAR);
                         pstmt.setNull(11, Types.VARCHAR);
-                        pstmt.setNull(12, Types.VARCHAR);
-                        pstmt.setNull(13, Types.VARCHAR);
-                        pstmt.setNull(14, Types.VARCHAR);
 
                         pstmt.addBatch();
 
@@ -199,33 +201,34 @@ public class SensorTraceTrxDao implements SensorTraceDataDao {
                         pstmt.setNull(5, Types.FLOAT);
                     }
 
-                    if (sensorData.getTarget() != null) {
-                        pstmt.setFloat(6, sensorData.getTarget()); //target
-                    } else {
-                        pstmt.setNull(6, Types.FLOAT);
-                    }
+//                    if (sensorData.getTarget() != null) {
+//                        pstmt.setFloat(6, sensorData.getTarget()); //target
+//                    } else {
+//                        pstmt.setNull(6, Types.FLOAT);
+//                    }
+//
+//                    if (sensorData.getLowerAlarmSpec() != null) {
+//                        pstmt.setFloat(7, sensorData.getLowerAlarmSpec()); //lower alarm spec
+//                    } else {
+//                        pstmt.setNull(7, Types.FLOAT);
+//                    }
+//
+//                    if (sensorData.getLowerWarningSpec() != null) {
+//                        pstmt.setFloat(8, sensorData.getLowerWarningSpec()); //lower warning spec
+//                    } else {
+//                        pstmt.setNull(8, Types.FLOAT);
+//                    }
 
-                    if (sensorData.getLowerAlarmSpec() != null) {
-                        pstmt.setFloat(7, sensorData.getLowerAlarmSpec()); //lower alarm spec
-                    } else {
-                        pstmt.setNull(7, Types.FLOAT);
-                    }
-
-                    if (sensorData.getLowerWarningSpec() != null) {
-                        pstmt.setFloat(8, sensorData.getLowerWarningSpec()); //lower warning spec
-                    } else {
-                        pstmt.setNull(8, Types.FLOAT);
-                    }
-
-                    pstmt.setString(9, ""); //status
-                    pstmt.setTimestamp(10, new Timestamp(sensorData.getEventDtts()));
+                    //status
+                    pstmt.setString(6, sensorData.getStatusCode()); //status
+                    pstmt.setTimestamp(7, new Timestamp(sensorData.getEventDtts()));
 
                     //reserved columns
-                    pstmt.setString(11, sensorData.getReservedCol1());
-                    pstmt.setString(12, sensorData.getReservedCol2());
-                    pstmt.setString(13, sensorData.getReservedCol3());
-                    pstmt.setString(14, sensorData.getReservedCol4());
-                    pstmt.setString(15, sensorData.getReservedCol5());
+                    pstmt.setString(8, sensorData.getReservedCol1());
+                    pstmt.setString(9, sensorData.getReservedCol2());
+                    pstmt.setString(10, sensorData.getReservedCol3());
+                    pstmt.setString(11, sensorData.getReservedCol4());
+                    pstmt.setString(12, sensorData.getReservedCol5());
 
                     pstmt.addBatch();
 
