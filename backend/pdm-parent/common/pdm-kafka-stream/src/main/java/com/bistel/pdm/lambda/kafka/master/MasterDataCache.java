@@ -1,7 +1,9 @@
 package com.bistel.pdm.lambda.kafka.master;
 
+import com.bistel.pdm.common.collection.Pair;
 import com.bistel.pdm.common.json.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -141,6 +143,20 @@ public class MasterDataCache {
         }
 
         return healthData;
+    }
+
+    public List<Pair<String, Integer>> getParamHealthFD02Options(Long key) {
+        List<Pair<String, Integer>> optionList = new ArrayList<>();
+
+        if (this.paramHealthDataSet.get(key) != null) {
+            for (ParameterHealthDataSet health : this.paramHealthDataSet.get(key)) {
+                if (health.getHealthCode().equalsIgnoreCase("FD_RULE_1")) {
+                    optionList.add(new Pair<>(health.getOptionName(), health.getOptionValue()));
+                }
+            }
+        }
+
+        return optionList;
     }
 
     public ParameterHealthDataSet getParamHealthFD03(Long key) {

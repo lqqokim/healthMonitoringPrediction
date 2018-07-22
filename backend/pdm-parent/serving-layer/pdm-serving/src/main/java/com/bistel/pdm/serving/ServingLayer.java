@@ -19,6 +19,9 @@ public class ServingLayer implements Closeable {
 
         log.info("Starting PdM Serving Layer...");
 
+        HostInfo.ip = ip;
+        HostInfo.port = port;
+
         //http://localhost:8080/pdm/api/...
         final EmbeddedServer server = new EmbeddedServer(ip, port);
         server.contextPath("/pdm")

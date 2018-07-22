@@ -42,7 +42,7 @@ public class FeatureSummaryDataDao {
                     "                     and to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS.FF') " +
                     "group by p.rawid, p.name ";
 
-    public List<SummarizedFeature> getParamFeatureAvg(String from, String to) throws SQLException {
+    public List<SummarizedFeature> getParamAverage(String from, String to) throws SQLException {
         List<SummarizedFeature> paramFeatureValueList = new ArrayList<>();
 
         try (Connection conn = DataSource.getConnection()) {

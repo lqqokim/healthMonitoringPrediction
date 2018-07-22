@@ -19,13 +19,13 @@ import java.util.Date;
 import java.util.List;
 
 /**
- *
+ * The value of the 90 day summary of the original data is provided.
  */
 @Singleton
 @Path("/feature")
 @Produces(MediaType.APPLICATION_JSON)
-public class FeatureSummaryService {
-    private static final Logger log = LoggerFactory.getLogger(FeatureSummaryService.class);
+public class SummaryService {
+    private static final Logger log = LoggerFactory.getLogger(SummaryService.class);
 
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
@@ -38,7 +38,7 @@ public class FeatureSummaryService {
             String fromTime = convertTime(from);
             String endTime = convertTime(to);
 
-            List<SummarizedFeature> paramFeatureValueList = repository.getParamFeatureAvg(fromTime, endTime);
+            List<SummarizedFeature> paramFeatureValueList = repository.getParamAverage(fromTime, endTime);
 
             log.info("Provides the summarized features. count={}", paramFeatureValueList.size());
             return Response.status(Response.Status.OK).entity(paramFeatureValueList).build();

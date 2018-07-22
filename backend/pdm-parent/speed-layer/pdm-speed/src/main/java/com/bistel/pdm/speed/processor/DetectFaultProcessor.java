@@ -1,5 +1,6 @@
 package com.bistel.pdm.speed.processor;
 
+import com.bistel.pdm.common.collection.Pair;
 import com.bistel.pdm.common.json.ParameterHealthDataSet;
 import com.bistel.pdm.common.json.ParameterMasterDataSet;
 import com.bistel.pdm.lambda.kafka.master.MasterDataCache;
@@ -147,6 +148,16 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
                         }
                         //log.debug("[{}] - window data size : {}", paramKey, doubleValueList.size());
 
+                        for(Pair<String, Integer> option :
+                                MasterDataCache.getInstance().getParamHealthFD02Options(paramMaster.getParameterRawId())){
+
+                            if(option.getFirst().equalsIgnoreCase("M")){
+                                this.windowSize = option.getSecond();
+                            } else {
+                                this.outCount = option.getSecond();
+                            }
+                        }
+
                         // check spc rule
                         this.evaluateRule(partitionKey, paramKey, doubleValueList, endTime, paramMaster, fd02HealthInfo);
 
@@ -188,7 +199,7 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
             // time, param_rawid, health_rawid, value, alarm type, alarm_spec, warning_spec, fault_class
             String sb = parseStringToTimestamp(recordColumns[0]) + "," +
                     param.getParameterRawId() + "," +
-                    healthData.getHealthLogicRawId() + ',' +
+                    healthData.getParamHealthRawId() + ',' +
                     paramValue + "," +
                     "256" + "," +
                     param.getUpperAlarmSpec() + "," +
@@ -246,7 +257,7 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
             // time, param_rawid, health_rawid, value, alarm type, alarm_spec, warning_spec, fault_class
             String sb = parseStringToTimestamp(recordColumns[0]) + "," +
                     param.getParameterRawId() + "," +
-                    healthData.getHealthLogicRawId() + ',' +
+                    healthData.getParamHealthRawId() + ',' +
                     paramValue + "," +
                     "128" + "," +
                     param.getUpperAlarmSpec() + "," +
@@ -316,7 +327,7 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
                 // time, param_rawid, health_rawid, value, alarm type, alarm_spec, warning_spec, fault_class
                 String sb = ruleTime + "," +
                         paramMaster.getParameterRawId() + "," +
-                        fd02HealthInfo.getHealthLogicRawId() + ',' +
+                        fd02HealthInfo.getParamHealthRawId() + ',' +
                         totalAlarmCount + "," +
                         "256" + "," +
                         paramMaster.getUpperAlarmSpec() + "," +
@@ -346,9 +357,9 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
 
                 String statusCode = "N";
 
-                if (totalAlarmCount > 1) {
+                if (totalAlarmCount >= 1) {
                     statusCode = "A";
-                } else if (totalAlarmCount == 1) {
+                } else if (totalAlarmCount < 1) {
                     statusCode = "W";
                 }
 
@@ -381,9 +392,9 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
 
                 String statusCode = "N";
 
-                if (totalAlarmCount > 1) {
+                if (totalAlarmCount >= 1) {
                     statusCode = "A";
-                } else if (totalAlarmCount == 1) {
+                } else if (totalAlarmCount < 1) {
                     statusCode = "W";
                 }
 
@@ -437,7 +448,7 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
                 // time, param_rawid, health_rawid, value, alarm type, alarm_spec, warning_spec, fault_class
                 String sb = ruleTime + "," +
                         paramMaster.getParameterRawId() + "," +
-                        fd02HealthInfo.getHealthLogicRawId() + ',' +
+                        fd02HealthInfo.getParamHealthRawId() + ',' +
                         totalWarningCount + "," +
                         "128" + "," +
                         paramMaster.getUpperAlarmSpec() + "," +
