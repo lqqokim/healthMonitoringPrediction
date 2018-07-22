@@ -86,9 +86,9 @@ public class ParamHealthConsumerRunnable implements Runnable {
                         //rule based
                         ParamHealthRULData rule = new ParamHealthRULData();
                         rule.setParamHealthTrxRawId(rawId);
-                        rule.setIntercept(Double.parseDouble(values[8]));
-                        rule.setSlope(Double.parseDouble(values[9]));
-                        rule.setX(Double.parseDouble(values[10]));
+                        rule.setIntercept(Double.parseDouble(values[7]));
+                        rule.setSlope(Double.parseDouble(values[8]));
+                        rule.setX(Double.parseDouble(values[9]));
                         rule.setTime(Long.parseLong(values[0]));
 
                         rulList.add(rule);

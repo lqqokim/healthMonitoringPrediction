@@ -47,7 +47,7 @@ public class StatusContextProcessor extends AbstractProcessor<String, byte[]> {
         try {
             double paramValue = Double.parseDouble(recordColumns[event.getParamParseIndex()]);
 
-            log.debug("[{}] - define status using {} parameter. ({}, {})", partitionKey,
+            log.debug("[{}] - defined status using {} parameter. ({}, {})", partitionKey,
                     event.getParameterName(), paramValue, event.getCondition());
 
             RuleVariables ruleVariables = new RuleVariables();
@@ -82,7 +82,7 @@ public class StatusContextProcessor extends AbstractProcessor<String, byte[]> {
             context().forward(partitionKey, recordValue.getBytes());
             context().commit();
 
-            log.debug("[{}] - forwarded. (Prev : {}, Now : {}) ", partitionKey, prevStatusInfo, nowStatusInfo);
+            log.trace("[{}] - forwarded. (Prev : {}, Now : {}) ", partitionKey, prevStatusInfo, nowStatusInfo);
 
         } catch (Exception e){
             log.error(e.getMessage(), e);

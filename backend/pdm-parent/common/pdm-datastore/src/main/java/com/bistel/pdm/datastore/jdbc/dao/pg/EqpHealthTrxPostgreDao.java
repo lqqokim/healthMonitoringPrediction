@@ -23,7 +23,7 @@ public class EqpHealthTrxPostgreDao implements HealthDataDao {
 
     private static final String INSERT_SQL =
             "insert into eqp_health_trx_pdm " +
-                    "(EQP_MST_RAWID, HEALTH_LOGIC_MST_RAWID, STATUS_CD, DATA_COUNT, SCORE, ALARM_DTTS) " +
+                    "(EQP_MST_RAWID, PARAM_HEALTH_MST_RAWID, STATUS_CD, DATA_COUNT, SCORE, ALARM_DTTS) " +
                     "values (?,?,?,?,?,?) ";
 
     @Override
