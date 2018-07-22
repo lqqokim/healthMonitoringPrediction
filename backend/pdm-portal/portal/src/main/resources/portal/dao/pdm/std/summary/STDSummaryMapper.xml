@@ -2657,47 +2657,7 @@
         order by eqp_id, eqp_name,param_id ,param_name,health_logic_id ,code
     </select>
 
-    <!--<select id="selectEqpHealthIndexMasterParamInfo" resultType="com.bistel.a3.portal.domain.pdm.EqpHealthIndex">-->
-        <!--select eqp_id, eqp_name, param_id, param_name-->
-        <!--from-->
-        <!--(-->
-        <!--select eqp_id,eqp_name, param_id,param_name, health_logic_id ,code, max(score) score-->
-        <!--from-->
-        <!--(-->
-        <!--select e.rawid eqp_id, e.name eqp_name,p.rawid param_id ,p.name param_name,l.rawid health_logic_id ,l.code, h.score-->
-        <!--from eqp_mst_pdm e, param_mst_pdm p, PARAM_HEALTH_TRX_PDM h, PARAM_HEALTH_mst_pdm a, health_logic_mst_pdm l-->
-        <!--where p.rawid=h.param_mst_rawid-->
-        <!--and p.eqp_mst_rawid=e.rawid-->
-        <!--and h.PARAM_HEALTH_MST_RAWID = a.rawid-->
-        <!--and a.health_logic_mst_rawid=l.rawid-->
-        <!--and h.ALARM_DTTS <![CDATA[>=]]> #{fromdate}-->
-        <!--and h.ALARM_DTTS <![CDATA[<]]> #{todate}-->
-        <!--)-->
-        <!--group by eqp_id, eqp_name,param_id, param_name,health_logic_id, code-->
-        <!--order by eqp_id, eqp_name,param_id ,param_name,health_logic_id ,code-->
-        <!--)-->
-        <!--group by eqp_id, eqp_name, param_id, param_name-->
 
-    <!--</select>-->
-
-    <!--<select id="selectEqpHealthIndexInfo" resultType="com.bistel.a3.portal.domain.pdm.EqpHealthIndex">-->
-
-        <!--select param_id ,param_name, health_logic_id ,code, max(score) score-->
-        <!--from-->
-        <!--(-->
-        <!--select e.rawid eqp_id, e.name eqp_name,p.rawid param_id ,p.name param_name,l.rawid health_logic_id ,l.code, h.score-->
-        <!--from eqp_mst_pdm e, param_mst_pdm p, PARAM_HEALTH_TRX_PDM h, PARAM_HEALTH_mst_pdm a, health_logic_mst_pdm l-->
-        <!--where p.rawid=h.param_mst_rawid-->
-        <!--and p.eqp_mst_rawid=e.rawid-->
-        <!--and h.PARAM_HEALTH_MST_RAWID = a.rawid-->
-        <!--and a.health_logic_mst_rawid=l.rawid-->
-        <!--and h.ALARM_DTTS <![CDATA[>=]]> #{fromdate}-->
-        <!--and h.ALARM_DTTS <![CDATA[<]]> #{todate}-->
-        <!--)-->
-        <!--group by eqp_id, eqp_name,param_id, param_name,health_logic_id, code-->
-        <!--order by eqp_id, eqp_name,param_id ,param_name,health_logic_id ,code-->
-
-    <!--</select>-->
 
 
     <select id="selectEqpHealthIndexByAreaId" resultType="com.bistel.a3.portal.domain.pdm.EqpHealthIndex">
@@ -2723,7 +2683,55 @@
     </select>
 
 
+    <select id="selectPreviousAVGAndSigma" resultType="com.bistel.a3.portal.domain.pdm.EqpStatisticsData">
+        select *
+        from
+        (
+        select
+        a.rawid param_id, a.name as param_name, mean as previous_avg, sigma, score
+        from
+        (
+        select p.rawid, p.name, avg(t.value) mean, stddev(t.value) sigma
+        from param_mst_pdm p, trace_trx_pdm t
+        where p.rawid=t.param_mst_rawid
+        and t.status_cd='R'
+        and t.event_dtts between to_timestamp(#{start_dtts}, 'YYYY-MM-DD HH24:MI:SS.FF') - 90
+        and to_timestamp(#{start_dtts}, 'YYYY-MM-DD HH24:MI:SS.FF')
+        group by p.rawid,p.name
+        ) a,
+        (
+        select
+        name, sum(mean*count)/n as score
+        from
+        (
+        select p.name, t.mean, t.count, count(*) over(partition by p.rawid) n
+        from param_mst_pdm p, param_feature_trx_pdm t
+        where p.rawid=t.param_mst_rawid
+        and t.end_dtts between to_timestamp(#{start_dtts}, 'YYYY-MM-DD HH24:MI:SS.FF') - 7
+        and to_timestamp(#{start_dtts}, 'YYYY-MM-DD HH24:MI:SS.FF')
+        )
+        group by name, n
+        ) b
+        where a.name=b.name
+        )
+        where param_id = #{param_id}
 
+
+    </select>
+
+    <select id="selectPeriodAVG" resultType="com.bistel.a3.portal.domain.pdm.EqpStatisticsData">
+        select *
+        from
+        (
+        select p.rawid as param_id, p.name as param_name, t.mean as period_avg, t.end_dtts as previous_date
+        from param_mst_pdm p, param_feature_trx_pdm t
+        where p.rawid=t.param_mst_rawid
+        and t.end_dtts between to_timestamp(#{start_dtts}, 'YYYY-MM-DD HH24:MI:SS.FF') - 7
+        and to_timestamp(#{start_dtts}, 'YYYY-MM-DD HH24:MI:SS.FF')
+        )
+        where param_id = #{param_id};
+
+    </select>
 
 
 

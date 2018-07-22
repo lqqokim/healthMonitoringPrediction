@@ -50,5 +50,9 @@ public interface STDSummaryMapper {
 
     List<WorstEquipmentList> selectEqpHealthDiff(@Param("start_dtts") String start_dtts, @Param("end_dtts") String end_dtts,@Param("eqp_id") Long eqp_id );
 
+    EqpStatisticsData selectPreviousAVGAndSigma(@Param("start_dtts") String start_dtts, @Param("param_id") Long param_id );
+
+    EqpStatisticsData selectPeriodAVG(@Param("start_dtts") String start_dtts, @Param("param_id") Long param_id );
+
 
 }

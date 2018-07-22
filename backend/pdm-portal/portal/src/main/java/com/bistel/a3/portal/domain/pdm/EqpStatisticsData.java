@@ -5,6 +5,9 @@ import java.util.List;
 
 public class EqpStatisticsData {
 
+    private Long param_id;
+    private String param_name;
+    private Double score;
     private double previous_avg;
     private double period_avg;
     private double sigma;
@@ -12,7 +15,29 @@ public class EqpStatisticsData {
     private List<List<Object>> eqpHealthTrendData;
 
 
+    public Long getParam_id() {
+        return param_id;
+    }
 
+    public void setParam_id(Long param_id) {
+        this.param_id = param_id;
+    }
+
+    public String getParam_name() {
+        return param_name;
+    }
+
+    public void setParam_name(String param_name) {
+        this.param_name = param_name;
+    }
+
+    public Double getScore() {
+        return score;
+    }
+
+    public void setScore(Double score) {
+        this.score = score;
+    }
 
     public Date getPrevious_date() {
         return previous_date;

@@ -491,58 +491,30 @@ public class SummaryDataService implements ISummaryDataService {
     }
 
 
-    public EqpStatisticsData eqpHealthTrendChartWithAVG(String fabId, Date previous, Date from, Date to, Long paramId, List<List<Object>> eqpHealthTrendData, List<List<Object>> eqpHealthTraceData){
+    public EqpStatisticsData eqpHealthTrendChartWithAVG(String fabId, Date previous, Date from, Date to, Long paramId, List<List<Object>> eqpHealthFeatureData, List<List<Object>> eqpHealthTraceData){
 
         EqpStatisticsData eqpStatisticsData=new EqpStatisticsData();
-        eqpStatisticsData.setEqpHealthTrendData(eqpHealthTrendData);
+        eqpStatisticsData.setEqpHealthTrendData(eqpHealthFeatureData);
 
         STDSummaryMapper stdSummaryMapper = SqlSessionUtil.getMapper(sessions, fabId, STDSummaryMapper.class);
 
+        SimpleDateFormat simpleDateFormat= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-        //90d일 평균
-//        eqpStatisticsData.setPrevious_date(previous);
-//
-//        List<List<Object>> trendData=eqpStatisticsData.getEqpHealthTrendData();
-//        Long lPrevious = previous.getTime();
-//        Long lFrom = from.getTime() ;
-//        Long lTo = to.getTime();
-//
-//        Double previous_sum=0.0;
-//        int previous_count=0;
-//        for (int i = 0; i < trendData.size(); i++)
-//        { //90일 이전 평균구하기
-//
-//            Long time= (Long) trendData.get(i).get(0); //시간들
-//
-//            if (time>= lPrevious && time <=lFrom)
-//            {
-//                previous_sum+=(Double)trendData.get(i).get(1);
-//                previous_count++;
-//            }
-//
-//        }
-//        Double previous_avg=previous_sum/previous_count;
-//        eqpStatisticsData.setPrevious_avg(previous_avg);
-//        //
-//        //기간 평균구하기
-//        Double period_sum=0.0;
-//        int period_count=0;
-//        for (int i = 0; i < trendData.size(); i++)
-//        { //90일 이전 평균구하기
-//
-//            Long time= (Long) trendData.get(i).get(0); //시간들
-//
-//            if (time>= lFrom && time <=lTo)
-//            {
-//                period_sum+=(Double)trendData.get(i).get(1);
-//                period_count++;
-//            }
-//        }
-//        Double period_avg=period_sum/period_count;
-//        eqpStatisticsData.setPeriod_avg(period_avg);
-//
-//        //sigma설정
-//        eqpStatisticsData.setSigma(1665);
+        String date=simpleDateFormat.format(to);
+
+        EqpStatisticsData previousData=stdSummaryMapper.selectPreviousAVGAndSigma(date,paramId);
+        EqpStatisticsData periodData=stdSummaryMapper.selectPeriodAVG(date, paramId);
+
+        eqpStatisticsData.setParam_id(previousData.getParam_id());
+        eqpStatisticsData.setParam_name(previousData.getParam_name());
+        eqpStatisticsData.setPrevious_avg(previousData.getPrevious_avg());
+        eqpStatisticsData.setSigma(previousData.getSigma());
+        eqpStatisticsData.setScore(previousData.getScore());
+        eqpStatisticsData.setPrevious_date(previousData.getPrevious_date());
+
+        eqpStatisticsData.setPeriod_avg(periodData.getPeriod_avg());
+
+
 
         return eqpStatisticsData;
     }

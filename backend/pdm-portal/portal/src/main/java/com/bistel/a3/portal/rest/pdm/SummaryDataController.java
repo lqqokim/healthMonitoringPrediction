@@ -299,9 +299,9 @@ public class SummaryDataController {
 
 
 
-        List<List<Object>> eqpHealthTrendData= summaryDataService.getSummaryData(fabId, paramId, fromdate, todate);
+        List<List<Object>> eqpHealthFeatureData= summaryDataService.getSummaryData(fabId, paramId, fromdate, todate);
 
-        return summaryDataService.eqpHealthTrendChartWithRUL(fabId, from, to, paramId , eqpHealthTrendData);
+        return summaryDataService.eqpHealthTrendChartWithRUL(fabId, from, to, paramId , eqpHealthFeatureData);
 
 
     }
