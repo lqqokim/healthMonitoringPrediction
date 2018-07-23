@@ -2729,7 +2729,7 @@
         and t.end_dtts between to_timestamp(#{start_dtts}, 'YYYY-MM-DD HH24:MI:SS.FF') - 7
         and to_timestamp(#{start_dtts}, 'YYYY-MM-DD HH24:MI:SS.FF')
         )
-        where param_id = #{param_id};
+        where param_id = #{param_id}
 
     </select>
 
