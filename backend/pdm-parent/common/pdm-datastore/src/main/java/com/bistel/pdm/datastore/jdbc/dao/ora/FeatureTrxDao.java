@@ -40,6 +40,9 @@ public class FeatureTrxDao implements FeatureDataDao {
                     String valueString = new String(features);
                     String[] values = valueString.split(",", -1);
 
+                    log.debug("[{}] - from : {}, end : {}, param : {}", record.key(),
+                            values[0], values[1], values[2]);
+
                     // startDtts, endDtts, param rawid, count, min, max, median, avg, stddev, q1, q3
                     Long param_rawid = Long.parseLong(values[2]);
                     Timestamp beginDtts = new Timestamp(Long.parseLong(values[0]));

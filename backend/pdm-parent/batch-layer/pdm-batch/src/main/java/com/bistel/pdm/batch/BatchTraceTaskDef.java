@@ -2,11 +2,13 @@ package com.bistel.pdm.batch;
 
 import com.bistel.pdm.batch.processor.*;
 import com.bistel.pdm.lambda.kafka.AbstractPipeline;
+import com.bistel.pdm.lambda.kafka.master.MasterDataCache;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.Topology;
+import org.apache.kafka.streams.processor.ProcessorSupplier;
 import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.state.StoreBuilder;
 import org.apache.kafka.streams.state.Stores;
@@ -31,6 +33,8 @@ public class BatchTraceTaskDef extends AbstractPipeline {
 
         super(brokers, schemaUrl, servingAddr);
         this.applicationId = applicationId;
+
+        MasterDataCache.getInstance().setServingAddress(servingAddr);
     }
 
     public void start() {
@@ -60,7 +64,7 @@ public class BatchTraceTaskDef extends AbstractPipeline {
                         Stores.persistentWindowStore("batch-feature-summary",
                                 TimeUnit.DAYS.toMillis(1),
                                 24,
-                                TimeUnit.HOURS.toMillis(1),
+                                TimeUnit.DAYS.toMillis(1),
                                 true),
                         Serdes.String(),
                         Serdes.Double());
@@ -91,6 +95,9 @@ public class BatchTraceTaskDef extends AbstractPipeline {
                         Serdes.String(),
                         Serdes.String());
 
+        topology.addSource("input-reload", "pdm-input-reload")
+                .addProcessor("reload", ReloadMetadataProcessor::new, "input-reload");
+
         topology.addSource("input-trace", this.getInputTraceTopic())
                 .addProcessor("batch01", FilterByMasterProcessor::new, "input-trace")
                 .addProcessor("batch02", StatusContextProcessor::new, "batch01")
@@ -104,12 +111,12 @@ public class BatchTraceTaskDef extends AbstractPipeline {
         topology.addSource("input-feature", this.getRouteFeatureTopic())
                 .addProcessor("fd03", TrendChangeProcessor::new, "input-feature")
                 .addStateStore(fd03WindowStoreSupplier, "fd03")
-                .addProcessor("fd04", PredictRULProcessor::new, "input-feature")
-                .addStateStore(fd04WindowStoreSupplier, "fd04")
+                //.addProcessor("fd04", PredictRULProcessor::new, "input-feature")
+                //.addStateStore(fd04WindowStoreSupplier, "fd04")
                 .addSink("output-health-fd03", this.getOutputParamHealthTopic(), "fd03")
-                .addSink("route-health-fd03", this.getRouteHealthTopic(), "fd03")
-                .addSink("output-health-fd04", this.getOutputParamHealthTopic(), "fd04")
-                .addSink("route-health-fd04", this.getRouteHealthTopic(), "fd04");
+                .addSink("route-health-fd03", this.getRouteHealthTopic(), "fd03");
+        //.addSink("output-health-fd04", this.getOutputParamHealthTopic(), "fd04")
+        //.addSink("route-health-fd04", this.getRouteHealthTopic(), "fd04");
 
         return new KafkaStreams(topology, getStreamProperties());
     }

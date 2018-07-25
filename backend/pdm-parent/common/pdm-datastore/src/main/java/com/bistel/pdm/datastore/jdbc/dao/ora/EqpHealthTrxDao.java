@@ -45,6 +45,9 @@ public class EqpHealthTrxDao implements HealthDataDao {
                     // time, eqpRawid, param_rawid, param_health_rawid, status_cd, count, index, health_logic_rawid
                     String[] values = valueString.split(",");
 
+                    log.debug("[{}] - time : {}, eqp : {}, param : {}", record.key(),
+                            values[0], values[1], values[2]);
+
                     pstmt.setLong(1, Long.parseLong(values[1])); //eqp_mst_rawid
                     pstmt.setLong(2, Long.parseLong(values[3])); //
                     pstmt.setString(3, values[4]);

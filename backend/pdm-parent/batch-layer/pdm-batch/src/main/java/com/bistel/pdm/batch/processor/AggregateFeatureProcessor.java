@@ -149,9 +149,11 @@ public class AggregateFeatureProcessor extends AbstractProcessor<String, byte[]>
                             las + "," +
                             lws;
 
-                    //log.debug("[{}] - msg : {}", paramKey, msg);
                     context().forward(partitionKey, msg.getBytes());
                     context().commit();
+
+                    log.debug("[{}] - from : {}, end : {}, param : {} ",
+                            partitionKey, startTime, endTime, paramMaster.getParameterName());
                 }
 
                 log.info("[{}] - forward aggregated stream to route-feature, output-feature.", partitionKey);

@@ -38,54 +38,61 @@ public class MarkStatusProcessor extends AbstractProcessor<String, byte[]> {
         String recordValue = new String(streamByteRecord);
         String[] recordColumns = recordValue.split(SEPARATOR);
 
-        EventMasterDataSet event = MasterDataCache.getInstance().getEventForProcess(partitionKey);
-        if (event == null) {
-            log.info("[{}] - There are no registered events.", partitionKey);
-            return;
-        }
-
         try {
-            //log.debug("parsing index:{}, value:{}", event.getParamParseIndex(), recordColumns[event.getParamParseIndex()]);
-            double paramValue = Double.parseDouble(recordColumns[event.getParamParseIndex()]);
+            EventMasterDataSet event = MasterDataCache.getInstance().getEventForProcess(partitionKey);
+            if (event != null) {
+                //log.debug("parsing index:{}, value:{}", event.getParamParseIndex(), recordColumns[event.getParamParseIndex()]);
+                double paramValue = Double.parseDouble(recordColumns[event.getParamParseIndex()]);
 
-            log.debug("[{}] - defined status using {} parameter. ({}, {})", partitionKey,
-                    event.getParameterName(), paramValue, event.getCondition());
+                log.trace("[{}] - defined status using {} parameter. ({}, {})", partitionKey,
+                        event.getParameterName(), paramValue, event.getCondition());
 
-            RuleVariables ruleVariables = new RuleVariables();
-            ruleVariables.putValue("value", paramValue);
-            RuleEvaluator ruleEvaluator = new RuleEvaluator(ruleVariables);
-            boolean isRun = ruleEvaluator.evaluate(event.getCondition());
+                RuleVariables ruleVariables = new RuleVariables();
+                ruleVariables.putValue("value", paramValue);
+                RuleEvaluator ruleEvaluator = new RuleEvaluator(ruleVariables);
+                boolean isRun = ruleEvaluator.evaluate(event.getCondition());
 
-            String statusCode;
-            if (isRun) {
-                statusCode = "R";
-            } else {
-                statusCode = "I";
-            }
+                String statusCode;
+                if (isRun) {
+                    statusCode = "R";
+                } else {
+                    statusCode = "I";
+                }
 
-            //------
-            Long msgTimeStamp = parseStringToTimestamp(recordColumns[0]);
-            String statusCodeAndTime = statusCode + ":" + msgTimeStamp;
-            String prevStatusAndTime;
+                //------
+                Long msgTimeStamp = parseStringToTimestamp(recordColumns[0]);
+                String statusCodeAndTime = statusCode + ":" + msgTimeStamp;
+                String prevStatusAndTime;
 
-            if (kvStore.get(partitionKey) == null) {
+                if (kvStore.get(partitionKey) == null) {
+                    kvStore.put(partitionKey, statusCodeAndTime);
+                    prevStatusAndTime = statusCodeAndTime;
+                } else {
+                    prevStatusAndTime = kvStore.get(partitionKey);
+                }
+
                 kvStore.put(partitionKey, statusCodeAndTime);
-                prevStatusAndTime = statusCodeAndTime;
+
+                // add trace with status code
+                // time, p1, p2, p3, p4, ... pn, status:time, prev:time
+                recordValue = recordValue + "," + statusCodeAndTime + "," + prevStatusAndTime;
+                context().forward(partitionKey, recordValue.getBytes());
+                context().commit();
+
+                log.trace("[{}] - forwarded. (Prev : {}, Now : {}) ", partitionKey, prevStatusAndTime, statusCodeAndTime);
+
             } else {
-                prevStatusAndTime = kvStore.get(partitionKey);
+
+                String statusCode = "I";
+                Long msgTimeStamp = parseStringToTimestamp(recordColumns[0]);
+                String statusCodeAndTime = statusCode + ":" + msgTimeStamp;
+
+                recordValue = recordValue + "," + statusCodeAndTime + "," + statusCodeAndTime;
+                context().forward(partitionKey, recordValue.getBytes());
+                context().commit();
+                log.info("[{}] - There are no registered events. trace will be only saved.", partitionKey);
             }
-
-            kvStore.put(partitionKey, statusCodeAndTime);
-
-            // add trace with status code
-            // time, p1, p2, p3, p4, ... pn, status:time, prev:time
-            recordValue = recordValue + "," + statusCodeAndTime + "," + prevStatusAndTime;
-            context().forward(partitionKey, recordValue.getBytes());
-            context().commit();
-
-            log.trace("[{}] - forwarded. (Prev : {}, Now : {}) ", partitionKey, prevStatusAndTime, statusCodeAndTime);
-
-        } catch (Exception e){
+        } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
     }

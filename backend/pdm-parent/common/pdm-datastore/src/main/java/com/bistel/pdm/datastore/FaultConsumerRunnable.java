@@ -55,7 +55,7 @@ public class FaultConsumerRunnable implements Runnable {
             if (records.count() > 0) {
                 log.debug(" polling {} records", records.count());
                 trxDao.storeRecord(records);
-                consumer.commitSync();
+                consumer.commitAsync();
                 log.info("{} records are committed.", records.count());
             }
         }

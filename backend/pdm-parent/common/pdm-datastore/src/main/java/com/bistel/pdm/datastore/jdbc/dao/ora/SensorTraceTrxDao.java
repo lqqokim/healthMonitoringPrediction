@@ -28,7 +28,7 @@ public class SensorTraceTrxDao implements SensorTraceDataDao {
                     "ALARM_SPEC, WARNING_SPEC, " +
                     //"UPPER_ALARM_SPEC, UPPER_WARNING_SPEC, " +
                     //"TARGET, " +
-                   //"LOWER_ALARM_SPEC, LOWER_WARNING_SPEC, " +
+                    //"LOWER_ALARM_SPEC, LOWER_WARNING_SPEC, " +
                     "STATUS_CD, " +
                     "EVENT_DTTS, " +
                     "RESERVED_COL1, RESERVED_COL2, RESERVED_COL3, RESERVED_COL4, RESERVED_COL5) " +
@@ -94,7 +94,17 @@ public class SensorTraceTrxDao implements SensorTraceDataDao {
                         if(param.getParamParseIndex() == -1) continue;
 
                         pstmt.setLong(1, param.getParameterRawId()); //param rawid
-                        pstmt.setFloat(2, Float.parseFloat(values[param.getParamParseIndex()])); //value
+
+                        String strValue = values[param.getParamParseIndex()];
+                        if(strValue.length() <= 0){
+                            log.debug("key:{}, param:{}, index:{} - value is empty.",
+                                    record.key(), param.getParameterName(), param.getParamParseIndex());
+                            pstmt.setFloat(2, Types.FLOAT); //value
+                        } else {
+                            pstmt.setFloat(2, Float.parseFloat(strValue)); //value
+                        }
+
+                        pstmt.setFloat(2, Float.parseFloat(strValue)); //value
 
                         if (param.getUpperAlarmSpec() != null) {
                             pstmt.setFloat(3, param.getUpperAlarmSpec()); //upper alarm spec

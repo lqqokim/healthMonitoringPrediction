@@ -37,8 +37,12 @@ public class EventMasterDataSet {
     @JsonProperty("paramParseIndex")
     private Integer paramParseIndex;
 
+//    public String toKey(){
+//        return this.areaName  + "," + this.equipmentName;
+//    }
+
     public String toKey(){
-        return this.areaName  + "," + this.equipmentName;
+        return this.equipmentName;
     }
 
     public String getAreaName() {

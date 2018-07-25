@@ -58,6 +58,8 @@ public class StreamUpdateService {
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return Response.status(Response.Status.NOT_FOUND).entity(new Message(e.getMessage())).build();
+        } finally {
+            producer.close();
         }
     }
 }

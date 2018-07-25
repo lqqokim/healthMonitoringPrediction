@@ -43,14 +43,6 @@ public class PredictRULProcessor extends AbstractProcessor<String, byte[]> {
             String[] recordColumns = recordValue.split(SEPARATOR);
             String strParamRawid = recordColumns[2];
             Long paramRawid = Long.parseLong(strParamRawid);
-
-            Double dValue = Double.parseDouble(recordColumns[7]);
-
-            Long endTime = Long.parseLong(recordColumns[1]);
-            Long startTime = endTime - TimeUnit.DAYS.toMillis(7);
-
-            kvFeatureDataStore.put(strParamRawid, endTime + "," + dValue, endTime);
-
             String paramKey = partitionKey + ":" + paramRawid;
 
             ParameterMasterDataSet paramMaster =
@@ -59,7 +51,17 @@ public class PredictRULProcessor extends AbstractProcessor<String, byte[]> {
             ParameterHealthDataSet fd04HealthInfo =
                     MasterDataCache.getInstance().getParamHealthFD04(paramRawid);
 
-            if (fd04HealthInfo != null) {
+            Long endTime = Long.parseLong(recordColumns[1]);
+            Long startTime = endTime - TimeUnit.DAYS.toMillis(7);
+
+            List<String> doubleValueList = new ArrayList<>();
+
+            if (fd04HealthInfo != null && fd04HealthInfo.getApplyLogicYN().equalsIgnoreCase("Y")) {
+
+                Double dValue = Double.parseDouble(recordColumns[7]);
+
+                kvFeatureDataStore.put(strParamRawid, endTime + "," + dValue, endTime);
+
                 log.debug("[{}] - calculate RUL with average ({}). ", partitionKey, dValue);
 
                 if(paramMaster.getUpperAlarmSpec() == null){
@@ -68,8 +70,6 @@ public class PredictRULProcessor extends AbstractProcessor<String, byte[]> {
                 }
                 // ==========================================================================================
                 // Logic 4 health
-
-                List<String> doubleValueList = new ArrayList<>();
 
                 KeyValueIterator<Windowed<String>, String> storeIterator = kvFeatureDataStore.fetchAll(startTime, endTime);
                 while (storeIterator.hasNext()) {
@@ -142,12 +142,29 @@ public class PredictRULProcessor extends AbstractProcessor<String, byte[]> {
                 } else {
                     log.info("[{}] - Unable to calculate RUL...", paramKey);
                 }
+            } else {
+                log.debug("[{}] - No health because skip the logic 4.", paramKey);
+            }
 
-                // ==========================================================================================
-                // Logic 1 health
+            // ==========================================================================================
+            // Logic 1 health
+            // logic 1 - calculate index
+            ParameterHealthDataSet fd01HealthInfo = MasterDataCache.getInstance().getParamHealthFD01(paramRawid);
 
-                // logic 1 - calculate index
-                ParameterHealthDataSet fd01HealthInfo = MasterDataCache.getInstance().getParamHealthFD01(paramRawid);
+            if(fd01HealthInfo != null){
+
+                if(doubleValueList.size() <= 0){
+                    KeyValueIterator<Windowed<String>, String> storeIterator = kvFeatureDataStore.fetchAll(startTime, endTime);
+                    while (storeIterator.hasNext()) {
+                        KeyValue<Windowed<String>, String> kv = storeIterator.next();
+
+                        //log.debug("[{}] - fetch : {}", kv.key.key(), kv.value);
+
+                        if (kv.key.key().equalsIgnoreCase(strParamRawid)) {
+                            doubleValueList.add(kv.value);
+                        }
+                    }
+                }
 
                 Double davg = Double.parseDouble(recordColumns[7]);
                 double index = davg / paramMaster.getUpperAlarmSpec();
@@ -172,11 +189,9 @@ public class PredictRULProcessor extends AbstractProcessor<String, byte[]> {
                 context().forward(partitionKey, newMsg.getBytes());
                 context().commit();
                 log.debug("[{}] - logic 1 health : {}", paramKey, newMsg);
-
             } else {
-                log.trace("[{}] - No health info.", paramKey);
+                log.debug("[{}] - No health because skip the logic 1.", paramKey);
             }
-
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }

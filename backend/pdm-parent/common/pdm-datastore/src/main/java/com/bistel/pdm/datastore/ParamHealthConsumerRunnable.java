@@ -65,8 +65,12 @@ public class ParamHealthConsumerRunnable implements Runnable {
                 for (ConsumerRecord<String, byte[]> record : records) {
                     byte[] healthData = record.value();
                     String valueString = new String(healthData);
+
                     // time, eqpRawid, param_rawid, param_health_rawid, status_cd, count, index, health_logic_rawid
                     String[] values = valueString.split(",");
+
+                    log.debug("[{}] - time : {}, eqp : {}, param : {}, health : {}", record.key(),
+                            values[0], values[1], values[2], values[3]);
 
                     Long rawId = trxDao.getTraceRawId();
 
@@ -101,7 +105,7 @@ public class ParamHealthConsumerRunnable implements Runnable {
                     trxDao.storeHealthRUL(rulList);
                 }
 
-                consumer.commitSync();
+                consumer.commitAsync();
                 log.info("{} records are committed.", records.count());
             }
         }

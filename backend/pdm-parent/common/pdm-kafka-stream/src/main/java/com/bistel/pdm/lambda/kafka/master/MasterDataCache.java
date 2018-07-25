@@ -10,6 +10,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class MasterDataCache {
 
+    private String servingAddress;
+
     // EQP
     private final Map<String, Long> eqpMasterDataSet = new ConcurrentHashMap<>();
 
@@ -25,6 +27,7 @@ public class MasterDataCache {
     // health logic
     private final Map<Long, List<ParameterHealthDataSet>> paramHealthDataSet = new ConcurrentHashMap<>();
 
+    //mail config
     private MailConfigDataSet mailConfigDataSet = new MailConfigDataSet();
 
     // Private constructor prevents instantiation from other classes
@@ -230,5 +233,13 @@ public class MasterDataCache {
 
     public void putMailConfigDataSet(MailConfigDataSet conf) {
         mailConfigDataSet = conf;
+    }
+
+    public String getServingAddress() {
+        return servingAddress;
+    }
+
+    public void setServingAddress(String servingAddress) {
+        this.servingAddress = servingAddress;
     }
 }

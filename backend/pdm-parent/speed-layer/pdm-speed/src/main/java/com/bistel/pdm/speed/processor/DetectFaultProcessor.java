@@ -91,7 +91,7 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
 
                     String paramKey = partitionKey + ":" + paramMaster.getParameterRawId();
 
-                    ParameterHealthDataSet healthData =
+                    ParameterHealthDataSet fd01HealthInfo =
                             MasterDataCache.getInstance().getParamHealthFD01(paramMaster.getParameterRawId());
 
                     Double paramValue = Double.parseDouble(recordColumns[paramMaster.getParamParseIndex()]);
@@ -99,8 +99,10 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
                     Long time = parseStringToTimestamp(recordColumns[0]);
                     kvParamValueStore.put(paramKey, time + "," + paramValue, time);
 
-                    if (healthData != null) {
-                        checkOutOfSpec(paramKey, partitionKey, recordColumns, paramMaster, healthData, paramValue);
+                    if (fd01HealthInfo != null && fd01HealthInfo.getApplyLogicYN().equalsIgnoreCase("Y")) {
+                        checkOutOfSpec(paramKey, partitionKey, recordColumns, paramMaster, fd01HealthInfo, paramValue);
+                    } else {
+                        log.trace("[{}] - No health because skip the logic 1.", paramKey);
                     }
                 }
             }
@@ -140,7 +142,7 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
                     ParameterHealthDataSet fd02HealthInfo =
                             MasterDataCache.getInstance().getParamHealthFD02(paramMaster.getParameterRawId());
 
-                    if (fd02HealthInfo != null) {
+                    if (fd02HealthInfo != null && fd02HealthInfo.getApplyLogicYN().equalsIgnoreCase("Y")) {
                         List<String> doubleValueList = paramValueList.get(paramKey);
                         if (doubleValueList == null) {
                             log.debug("[{}] - Unable to check spec...", paramKey);
@@ -162,7 +164,7 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
                         this.evaluateRule(partitionKey, paramKey, doubleValueList, endTime, paramMaster, fd02HealthInfo);
 
                     } else {
-                        log.trace("[{}] - No health info. parameter : {}.", partitionKey, paramMaster.getParameterName());
+                        log.trace("[{}] - No health because skip the logic 2.", paramKey);
                     }
                 }
             }
@@ -185,7 +187,7 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
                                 ParameterMasterDataSet param, ParameterHealthDataSet healthData,
                                 Double paramValue) {
 
-        log.debug("[{}] : check the out of individual spec. - {}", paramKey, paramValue);
+        log.trace("[{}] : check the out of individual spec. - {}", paramKey, paramValue);
         if ((param.getUpperAlarmSpec() != null && paramValue >= param.getUpperAlarmSpec())
                 || (param.getLowerAlarmSpec() != null && paramValue <= param.getLowerAlarmSpec())) {
             // Alarm
@@ -204,7 +206,7 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
                     "256" + "," +
                     param.getUpperAlarmSpec() + "," +
                     param.getUpperWarningSpec() + "," +
-                    "Unbalance";
+                    "N/A";
 
             // fault classifications
             if (param.getParameterType().equalsIgnoreCase("Acceleration") ||

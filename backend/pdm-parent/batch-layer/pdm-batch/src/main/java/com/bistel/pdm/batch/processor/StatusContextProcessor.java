@@ -47,7 +47,7 @@ public class StatusContextProcessor extends AbstractProcessor<String, byte[]> {
         try {
             double paramValue = Double.parseDouble(recordColumns[event.getParamParseIndex()]);
 
-            log.debug("[{}] - defined status using {} parameter. ({}, {})", partitionKey,
+            log.trace("[{}] - defined status using {} parameter. ({}, {})", partitionKey,
                     event.getParameterName(), paramValue, event.getCondition());
 
             RuleVariables ruleVariables = new RuleVariables();

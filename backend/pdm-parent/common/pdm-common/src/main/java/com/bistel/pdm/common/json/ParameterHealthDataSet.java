@@ -34,6 +34,9 @@ public class ParameterHealthDataSet {
     @JsonProperty("optionValue")
     private Integer optionValue;
 
+    @JsonProperty("applyLogicYN")
+    private String applyLogicYN;
+
     public Long toKey() {
         return this.paramRawId;
     }
@@ -108,5 +111,13 @@ public class ParameterHealthDataSet {
 
     public void setOptionValue(Integer optionValue) {
         this.optionValue = optionValue;
+    }
+
+    public String getApplyLogicYN() {
+        return applyLogicYN;
+    }
+
+    public void setApplyLogicYN(String applyLogicYN) {
+        this.applyLogicYN = applyLogicYN;
     }
 }

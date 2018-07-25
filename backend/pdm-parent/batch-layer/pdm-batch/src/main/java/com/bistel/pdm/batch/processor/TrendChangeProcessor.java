@@ -39,6 +39,16 @@ public class TrendChangeProcessor extends AbstractProcessor<String, byte[]> {
 
         kvFeatureDataStore = (WindowStore) this.context().getStateStore("batch-fd03-feature-data");
 
+//        //call serving
+//        Long totime = context().timestamp() - TimeUnit.DAYS.toMillis(7);
+//        Long fromtime = totime - TimeUnit.DAYS.toMillis(90);
+//
+//        paramFeatureValueList.clear();
+//        //String url = "http://10.50.21.240:28000/pdm/api/feature/" + from + "/" + to;
+//        String urlInit = MasterDataCache.getInstance().getServingAddress() + "/pdm/api/feature/" + fromtime + "/" + totime;
+//        paramFeatureValueList.addAll(ServingRequestor.getParamFeatureAvgFor(urlInit));
+//        log.debug("init - 90 days summary from {} to {}.", fromtime, totime);
+
         context().schedule(TimeUnit.DAYS.toMillis(1),
                 PunctuationType.STREAM_TIME, l -> {
                     //call serving
@@ -46,8 +56,10 @@ public class TrendChangeProcessor extends AbstractProcessor<String, byte[]> {
                     Long from = to - TimeUnit.DAYS.toMillis(90);
 
                     paramFeatureValueList.clear();
-                    String url = "http://192.168.7.230:28000/pdm/api/feature/" + from + "/" + to;
+                    //String url = "http://10.50.21.240:28000/pdm/api/feature/" + from + "/" + to;
+                    String url = MasterDataCache.getInstance().getServingAddress() + "/pdm/api/feature/" + from + "/" + to;
                     paramFeatureValueList.addAll(ServingRequestor.getParamFeatureAvgFor(url));
+                    log.debug("refresh - 90 days summary from {} to {}.", from, to);
                 });
     }
 
@@ -56,19 +68,16 @@ public class TrendChangeProcessor extends AbstractProcessor<String, byte[]> {
         String recordValue = new String(streamByteRecord);
 
         try {
+            if(paramFeatureValueList.size() <= 0) {
+                log.debug("[{}] - The 90 days average value does not exist. because logic 3 can not be executed.", partitionKey);
+                return;
+            }
+
             // startDtts, endDtts, param rawid, count, max, min, median, avg, stddev, q1, q3
             String[] recordColumns = recordValue.split(SEPARATOR);
             String strParamRawid = recordColumns[2];
             Long paramRawid = Long.parseLong(strParamRawid);
-
             String paramKey = partitionKey + ":" + paramRawid;
-
-            Double dValue = Double.parseDouble(recordColumns[7]); //avg
-
-            Long endTime = Long.parseLong(recordColumns[1]);
-            Long startTime = endTime - TimeUnit.DAYS.toMillis(1);
-
-            kvFeatureDataStore.put(strParamRawid, dValue, endTime);
 
             ParameterMasterDataSet paramMaster =
                     MasterDataCache.getInstance().getParamMasterDataSetWithRawId(partitionKey, paramRawid);
@@ -76,9 +85,16 @@ public class TrendChangeProcessor extends AbstractProcessor<String, byte[]> {
             ParameterHealthDataSet fd03HealthInfo =
                     MasterDataCache.getInstance().getParamHealthFD03(paramRawid);
 
-            if (fd03HealthInfo != null) {
-                log.debug("[{}] - calculate SCR with average ({}). ", partitionKey, dValue);
+            if (fd03HealthInfo != null && fd03HealthInfo.getApplyLogicYN().equalsIgnoreCase("Y")) {
 
+                Double dValue = Double.parseDouble(recordColumns[7]); //avg
+
+                Long endTime = Long.parseLong(recordColumns[1]);
+                Long startTime = endTime - TimeUnit.DAYS.toMillis(7);
+
+                kvFeatureDataStore.put(strParamRawid, dValue, endTime);
+
+                log.debug("[{}] - calculate SCR with average ({}). ", partitionKey, dValue);
                 // ==========================================================================================
                 // Logic 3 health
 
@@ -148,7 +164,7 @@ public class TrendChangeProcessor extends AbstractProcessor<String, byte[]> {
                     log.debug("[{}] - Unable to calculate status change rate...", paramKey);
                 }
             } else {
-                log.trace("[{}] - No health info.", paramKey);
+                log.debug("[{}] - No health because skip the logic 4.", paramKey);
             }
         } catch (Exception e) {
             log.error(e.getMessage(), e);

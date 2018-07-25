@@ -38,6 +38,8 @@ public class MasterDataUpdater {
                 masterDataList = mapper.readValue(body, new TypeReference<List<EquipmentMasterDataSet>>() {
                 });
 
+                MasterDataCache.getInstance().getEqpMasterDataSet().clear();
+
                 for (EquipmentMasterDataSet data : masterDataList) {
                     MasterDataCache.getInstance().getEqpMasterDataSet().put(data.toKey(), data.getEqpRawId());
                 }
@@ -69,6 +71,8 @@ public class MasterDataUpdater {
             } else {
                 masterDataList = mapper.readValue(body, new TypeReference<List<ParameterMasterDataSet>>() {
                 });
+
+                MasterDataCache.getInstance().getParamMasterDataSet().clear();
 
                 for (ParameterMasterDataSet data : masterDataList) {
                     if(!MasterDataCache.getInstance().getParamMasterDataSet().containsKey(data.toKey())){
@@ -106,6 +110,8 @@ public class MasterDataUpdater {
                 masterDataList = mapper.readValue(body, new TypeReference<List<EventMasterDataSet>>() {
                 });
 
+                MasterDataCache.getInstance().getEventMasterDataSet().clear();
+
                 for (EventMasterDataSet data : masterDataList) {
                     if(!MasterDataCache.getInstance().getEventMasterDataSet().containsKey(data.toKey())){
                         List<EventMasterDataSet> list = new ArrayList<>();
@@ -142,6 +148,8 @@ public class MasterDataUpdater {
                 paramSpecDataList = mapper.readValue(body, new TypeReference<List<ParameterSpecDataSet>>() {
                 });
 
+                MasterDataCache.getInstance().getParamSpecDataSet().clear();
+
                 for (ParameterSpecDataSet data : paramSpecDataList) {
                     if(!MasterDataCache.getInstance().getParamSpecDataSet().containsKey(data.toKey())){
                         List<ParameterSpecDataSet> list = new ArrayList<>();
@@ -177,6 +185,8 @@ public class MasterDataUpdater {
             } else {
                 paramHealthDataList = mapper.readValue(body, new TypeReference<List<ParameterHealthDataSet>>() {
                 });
+
+                MasterDataCache.getInstance().getParamHealthDataSet().clear();
 
                 for (ParameterHealthDataSet data : paramHealthDataList) {
                     if(!MasterDataCache.getInstance().getParamHealthDataSet().containsKey(data.toKey())){

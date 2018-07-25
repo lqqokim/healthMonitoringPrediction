@@ -106,7 +106,7 @@ public class TimewaveConsumerRunnable implements Runnable {
                 if (traceRow.size() > 0) {
                     trxDao.storeRecord(traceRow);
                     trxRawDao.storeRecord(rawRow);
-                    consumer.commitSync();
+                    consumer.commitAsync();
                     log.info("{} records are committed.", records.count());
                 }
             } catch (Exception e) {

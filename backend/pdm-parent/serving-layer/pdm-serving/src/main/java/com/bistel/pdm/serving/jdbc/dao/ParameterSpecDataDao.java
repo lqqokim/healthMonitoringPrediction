@@ -15,14 +15,23 @@ import java.util.List;
 public class ParameterSpecDataDao {
     private static final Logger log = LoggerFactory.getLogger(ParameterSpecDataDao.class);
 
+//    private final static String SPEC_DS_SQL =
+//            "select " +
+//                    "p.rawid, " +
+//                    "t.upper_alarm_spec, " +
+//                    "t.upper_warning_spec, " +
+//                    "t.target, " +
+//                    "t.lower_alarm_spec, " +
+//                    "t.lower_warning_spec " +
+//                    "from param_mst_pdm p, trace_spec_mst_pdm t " +
+//                    "where p.rawid=t.param_mst_rawid " +
+//                    " ";
+
     private final static String SPEC_DS_SQL =
             "select " +
                     "p.rawid, " +
-                    "t.upper_alarm_spec, " +
-                    "t.upper_warning_spec, " +
-                    "t.target, " +
-                    "t.lower_alarm_spec, " +
-                    "t.lower_warning_spec " +
+                    "t.alarm_spec, " +
+                    "t.warning_spec " +
                     "from param_mst_pdm p, trace_spec_mst_pdm t " +
                     "where p.rawid=t.param_mst_rawid " +
                     " ";
@@ -41,9 +50,9 @@ public class ParameterSpecDataDao {
                 ds.setParamRawId(rs.getLong(1));
                 ds.setUpperAlarmSpec(rs.getFloat(2));
                 ds.setUpperWarningSpec(rs.getFloat(3));
-                ds.setTarget(rs.getFloat(4));
-                ds.setLowerAlarmSpec(rs.getFloat(5));
-                ds.setLowerWarningSpec(rs.getFloat(6));
+                ds.setTarget(null);
+                ds.setLowerAlarmSpec(null);
+                ds.setLowerWarningSpec(null);
 
                 resultRows.add(ds);
             }

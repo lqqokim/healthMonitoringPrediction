@@ -24,7 +24,8 @@ public class ParamHealthDataDao {
                     " l.alarm_condition, " +
                     " l.warning_condition, " +
                     " o.option_name, " +
-                    " o.option_value " +
+                    " o.option_value, " +
+                    " h.apply_logic_yn " +
                     "from param_mst_pdm p, health_logic_mst_pdm l, " +
                     "     param_health_mst_pdm h, param_health_option_mst_pdm o " +
                     "where p.rawid=h.param_mst_rawid " +
@@ -52,6 +53,7 @@ public class ParamHealthDataDao {
                 ds.setWarningCondition(rs.getString(7));
                 ds.setOptionName(rs.getString(8));
                 ds.setOptionValue(rs.getInt(9));
+                ds.setApplyLogicYN(rs.getString(10));
 
                 resultRows.add(ds);
             }
