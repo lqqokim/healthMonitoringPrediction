@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 public class FaultConsumerRunnable implements Runnable {
     private static final Logger log = LoggerFactory.getLogger(FaultConsumerRunnable.class);
 
-    private final static int PollingDurations = 1; // sec
+    private final static int PollingDurations = 5; // sec
 
     private final KafkaConsumer<String, byte[]> consumer;
     private final String topicName;
@@ -55,7 +55,7 @@ public class FaultConsumerRunnable implements Runnable {
             if (records.count() > 0) {
                 log.debug(" polling {} records", records.count());
                 trxDao.storeRecord(records);
-                consumer.commitSync();
+                consumer.commitAsync();
                 log.info("{} records are committed.", records.count());
             }
         }

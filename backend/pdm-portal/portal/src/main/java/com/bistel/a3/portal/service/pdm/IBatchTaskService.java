@@ -26,4 +26,23 @@ public interface IBatchTaskService {
     List<BatchJobHst> getJobHst(String fab, Date start, Date end, JOB_TYPE jobFrom);
 
     void alarmUpdate(Date date, Date ceiling, Set<String> fabs, JOB_TYPE manual, String name) throws NoSuchMethodException;
+
+    void summaryHealthSTDSPC(Set<String> fabs, Date from, Date to) ;
+
+    void summaryHealthDiff(Set<String> fabs, Date from, Date to);
+
+    void summaryHealthRUL(Set<String> fabs, Date from, Date to);
+
+    void deleteHealthDailySum(Set<String> fabs, Date start, Date end);
+
+    void deleteEqpAlarmDailySum(Set<String> fabs, Date from, Date to);
+
+    void summaryEqpAlarmDaily(Set<String> fabs, Date from, Date to);
+
+    void summaryParamHealthRUL(Set<String> fabs,Date rulFrom, Date from, Date to);
+
+    void deleteParamHealthRUL(Set<String> fabs, Date from, Date to);
+
+
+
 }

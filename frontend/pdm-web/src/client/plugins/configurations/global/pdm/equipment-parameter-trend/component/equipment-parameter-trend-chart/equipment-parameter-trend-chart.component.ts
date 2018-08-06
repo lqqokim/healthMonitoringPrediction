@@ -1,5 +1,5 @@
 
-import { Component, ViewChild, ElementRef, OnInit, EventEmitter, Output, Input, OnChanges, DoCheck,SimpleChange } from '@angular/core';
+import { Component, ViewChild, ElementRef, ChangeDetectorRef,OnInit, EventEmitter, Output, Input, OnChanges, DoCheck,SimpleChange,ViewEncapsulation } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import { BistelChartComponent } from '../../../../../../../sdk/charts/charts/bistel-chart.component';
 import { time_period } from '../../../../../../../common/form/configs/common/time-period-form.cfg';
@@ -8,7 +8,8 @@ import { time_period } from '../../../../../../../common/form/configs/common/tim
     moduleId: module.id,
     selector: 'equipment-parameter-trend-chart',
     templateUrl: `./equipment-parameter-trend-chart.html`,
-    styleUrls: [`./equipment-parameter-trend-chart.css`]
+    styleUrls: [`./equipment-parameter-trend-chart.css`],
+    encapsulation: ViewEncapsulation.None
 })
 export class EquipmentParameterTrendChartComponent implements OnInit, OnChanges, DoCheck {
 
@@ -83,9 +84,9 @@ export class EquipmentParameterTrendChartComponent implements OnInit, OnChanges,
             stroke: true,
             strokeStyle: '#acafaa',
             // tslint:disable-next-line:max-line-length
-            // tooltipContentEditor: (str: string, seriesIndex: number, pointIndex: number, plot: any, tooltipContentProc: any, ev: Event) => {
-            //     tooltipContentProc(this.trendConfig['series'][seriesIndex].label + ': ' + moment(parseInt(str.split(',')[0])).format('YYYY/MM/DD HH:mm:ss') + ' [' + (+str.split(',')[1]).toFixed(2) + ']');
-            // },
+            tooltipContentEditor: (str: string, seriesIndex: number, pointIndex: number, plot: any, tooltipContentProc: any, ev: Event) => {
+                tooltipContentProc(moment(parseInt(str.split(',')[0])).format('YYYY/MM/DD HH:mm:ss') + ' [' + (+str.split(',')[1]).toFixed(2) + ']');
+            },
         }
     };
 
@@ -100,21 +101,23 @@ export class EquipmentParameterTrendChartComponent implements OnInit, OnChanges,
             this.trendConfig['axes']['xaxis']['max'] = plot.axes.xaxis.max;
 
             this.trendConfig = Object.assign({},this.trendConfig);
+            this._chRef.detectChanges();
 
         },
         jqplotResetZoom:(ev, gridpos, datapos, plot, cursor)=>{
 
-            this.trendConfig['axes']['xaxis']['min'] = this.timePeriod.from;
-            this.trendConfig['axes']['xaxis']['max'] = this.timePeriod.to;
+            this.trendConfig['axes']['xaxis']['min'] = this.timePeriod.fromDate;
+            this.trendConfig['axes']['xaxis']['max'] = this.timePeriod.toDate;
 
             this.trendConfig = Object.assign({},this.trendConfig);
+            this._chRef.detectChanges();
 
         }
 
         
     };
     sort={parameter:'none',adHoc:'none'};
-    constructor() { }
+    constructor(private _chRef: ChangeDetectorRef) { }
 
     ngOnInit() {
 

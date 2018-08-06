@@ -24,7 +24,7 @@ import { LineChartComponent }  from './line-chart/line-chart.component';
 import { Ng2C3Component } from './ng2-c3/ng2-c3.component';
 import { GaugeChartComponent } from './gauge-chart/gaugeChart.component';
 
-import { PlotlyModule } from 'angular-plotly.js';
+// import { PlotlyModule } from 'angular-plotly.js';
 
 @NgModule({
     imports: [
@@ -33,7 +33,7 @@ import { PlotlyModule } from 'angular-plotly.js';
         FormsModule,
         // TreeModule,
         Ng2TableModule,
-        PlotlyModule
+        // PlotlyModule
     ],
     declarations: [
         ModelingTreeComponent,

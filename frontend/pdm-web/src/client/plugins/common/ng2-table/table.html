@@ -5,16 +5,19 @@
     class="form-control"
     (tableChanged)="onChangeTable(config)"
 />
-    
-<ng-table
-    [config]="config"
-    (tableChanged)="onChangeTable(config)"
-    (cellClicked)="onCellClick($event)"
-    [rows]="rows" [columns]="columns"
-></ng-table>
+
+<div class='vscrollArea' #vscrollArea [style.height.px]='vsAreaHeight'>
+    <ng-table #ngTable
+        [ngStyle]="{'height':vsFullHeight+'px', 'transform':'translateY('+vsTopPosition+'px)'}"
+        [config]="config"
+        (tableChanged)="onChangeTable(config)"
+        (cellClicked)="onCellClick($event)"
+        [rows]="rows" [columns]="columns"
+    ></ng-table>
+</div>
 
 
-<div class='paginationArea' *ngIf="config.paging">
+<!-- <div class='paginationArea' *ngIf="config.paging">
     <ul *ngIf="pager.pages && pager.pages.length" class="pagination">
         <li [ngClass]="{disabled:pager.currPage === 1}">
             <a (click)="pager.setPage(1)">First</a>
@@ -32,6 +35,6 @@
             <a (click)="pager.setPage(pager.totalPages)">Last</a>
         </li>
     </ul>
-</div>
+</div> -->
 
 <!-- <pre *ngIf="config.paging" class="card card-block card-header">Page: {{page}} / {{numPages}}</pre> -->

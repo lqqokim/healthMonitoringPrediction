@@ -111,6 +111,8 @@ export const LabelConstant = {
 	ANALYSIS_SPEC_VISIBLE: 'analysisSpecVisible',
 	WORST_TOP: 'worstTop',
 	MONITORING: 'monitoring',
+	MAX_PARAM_COUNT: 'maxParamCount',
+	SPECTRUM_COUNT: 'spectrumCount',
 
 	STEP_DRIFT: 'stepDrift',
 	STEP_DOWN_TREND: 'stepDownTrend',

@@ -1,0 +1,2 @@
+/* 차트 우측 날짜 짤림현상 방지 */
+line-status-trend > div > svg { overflow:visible !important; }

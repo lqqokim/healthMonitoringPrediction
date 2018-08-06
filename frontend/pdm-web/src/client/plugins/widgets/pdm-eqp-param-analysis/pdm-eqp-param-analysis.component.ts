@@ -21,6 +21,7 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
     @ViewChild('tree') tree: ModelingTreeComponent;
 
     datas: any;
+    isDataLoaded: boolean = false;
 
     healthIndexData: any;
     healthIndexConfig = {};
@@ -212,6 +213,7 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
     refresh({ type, data }: WidgetRefreshType) {
         this.showSpinner();
         this._prevHealthIndexKey = '';
+
         if (type === A3_WIDGET.APPLY_CONFIG_REFRESH) {
             this._props = data;
             if (this._plantId !== data[CD.PLANT][CD.PLANT_ID]) {
@@ -271,6 +273,10 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
                     this._nodeType = 2;
                     this._paramId = '';
                 }
+
+                // tree 자동 오픈 (_eqpId, _areaId) 활용
+                this.autoTreeOpen();
+
             } else if (data[CD.CATEGORY] === 'realtime') { //for realtime sync
                 this.searchTimePeriod = {
                     from: data[CD.TIME_PERIOD][CD.FROM],
@@ -573,7 +579,7 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
                     // },
                     tickOptions: {
                         formatter: (pattern: any, val: number, plot: any) => {
-                            return val ? moment(val).format('YYYY-MM-DD H') : '';
+                            return val ? moment(val).format('MM-DD H') : '';
                         }
                     },
                     rendererOptions: {
@@ -616,16 +622,16 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
                         show: false,
                         shadow: false,
                         lineWidth: 1,
-                        color: '#ffff00'
+                        color: '#ffa500'
                     },
-                    color: '#ffff00'
+                    color: '#ffa500'
                 },
                 {
                     trendline: {
                         show: false,
                         shadow: false,
                         lineWidth: 1,
-                        color: '#ffff00'
+                        color: '#ffa500'
                     },
                     color: '#80FF00'
                 },
@@ -1144,6 +1150,9 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
             for (let i = 0; i < result.length; i++) {
                 // if (!(result[i].paramType == 10201 || result[i].paramType == 10202)) continue;
                 let index = result[i].paramName.lastIndexOf(' ');
+                if(index<0){
+                    index = result[i].paramName.lastIndexOf('_');
+                }
                 let name = result[i].paramName.substr(0, index);
                 let type = result[i].paramName.substr(index + 1);
 
@@ -1271,10 +1280,15 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
                                 this.hideSpinner();
                             }).catch((err) => {
                                 console.log(err);
+                                col_row_Data['analysisSummary'] = ""
+                                col_row_Data['analysis'] =undefined;
                                 this.hideSpinner();
                             });
                     }).catch((err) => {
                         console.log(err);
+                        col_row_Data['analysis']=undefined;
+                        col_row_Data['analysisSummary'] = "";
+                        col_row_Data['data'] = [];
                         this.hideSpinner();
                     })
             }
@@ -1347,7 +1361,7 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
                         name: `${this.warningText} (${spec_warning.toFixed(2)})`,
                         show: true, // default : false
                         value: spec_warning,
-                        color: '#ffff00',
+                        color: '#ffa500',
                         width: 1,       // default : 1
                         adjust: 0,      // default : 0
                         pattern: null,  // default : null
@@ -1537,7 +1551,7 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
                         name: `${this.warningText} (${spec_warning.toFixed(2)})`,
                         show: true, // default : false
                         value: spec_warning,
-                        color: '#ffff00',
+                        color: '#ffa500',
                         width: 1,       // default : 1
                         adjust: 0,      // default : 0
                         pattern: null,  // default : null
@@ -1734,7 +1748,7 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
                         name: `${this.warningText} (${(spec_warning * (90 / this._specAlarm)).toFixed(2)})`,
                         show: true, // default : false
                         value: spec_warning,
-                        color: '#ffff00',
+                        color: '#ffa500',
                         width: 1,       // default : 1
                         adjust: 0,      // default : 0
                         pattern: null,  // default : null
@@ -1900,7 +1914,7 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
                                     show: true
                                 }
                             },
-                            color: '#ffff00'
+                            color: '#ffa500'
                         });
                         this.trendConfig['legend']['labels'].push("Alarm");
                         this.trendConfig['legend']['labels'].push("Warning");
@@ -2271,7 +2285,7 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
                     autoscale: true,
                     tickOptions: {
                         formatter: (pattern: any, val: number, plot: any) => {
-                            return val ? moment(val).format('YYYY-MM-DD H') : '';
+                            return val ? moment(val).format('MM-DD H') : '';
                         }
                     },
                     rendererOptions: {
@@ -2362,6 +2376,51 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
 
         this.removeContributioModal();
         this.nodeData(this._nodeType, this._areaId, this._eqpId, this._paramId);
+    }
+
+    // 데이터 로딩이 끝난 뒤 호출 될 함수
+    nodeDataRes(): void {
+        this.isDataLoaded = true;
+    }
+
+    // 자동으로 트리 오픈
+    autoTreeOpen(): void {
+        
+        // 테이터를 불러온적이 없다면 트리 오픈 x
+        if( !this.isDataLoaded ){ return; }
+
+        // 첫번째 트리 오픈
+        this.tree.initialTreeDatas[0].isChecked = true;
+        this.tree.initialTreeDatas[0].isChildLoaded = true;
+        this.tree.initialTreeDatas[0].isOpen = true;
+
+        const treeChilds: any = this.tree.initialTreeDatas[0].children;
+        const len: number = treeChilds.length;
+        let i: number = 0;
+        let row: any;
+        let areaRow: any;
+
+        // 2번째 area 오픈
+        for( i=0; i<len; i++ ){
+            row = treeChilds[i];
+            if( row.areaId === this._areaId ){
+                row.isChecked = true;
+                row.isChildLoaded = true;
+                row.isOpen = true;
+                areaRow = row;
+                break;
+            }
+        }
+
+        const areaLen: number = areaRow.length;
+        // 3번째 eqp 오픈
+        for( i=0; i<areaLen; i++ ){
+            if( areaRow[i].eqpId === this._eqpId ){
+                areaRow[i].isChecked = true;
+                areaRow[i].isChildLoaded = true;
+                areaRow[i].isOpen = true;
+            }
+        }
     }
 
     matrixDblClick(item) {

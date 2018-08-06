@@ -44,7 +44,8 @@ public class MonitoringDetailController {
 
     @RequestMapping("params/{paramId}/overallminute")
     public Object overallminute(@PathVariable("fabId") String fabId, @PathVariable("paramId") Long paramId, @RequestParam("fromdate") Long fromdate, @RequestParam("todate") Long todate) {
-        return traceDataService.getTraceData(fabId, paramId, fromdate, todate);
+//        return traceDataService.getTraceData(fabId, paramId, fromdate, todate);
+        return reportService.getHealthIndexTrend(fabId,paramId,fromdate,todate);
     }
 
     @RequestMapping("params/{paramId}/paramfeature")

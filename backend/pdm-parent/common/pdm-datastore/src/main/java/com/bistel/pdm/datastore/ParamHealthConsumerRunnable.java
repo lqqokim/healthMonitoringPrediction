@@ -4,6 +4,7 @@ import com.bistel.pdm.datastore.jdbc.DBType;
 import com.bistel.pdm.datastore.jdbc.DataSource;
 import com.bistel.pdm.datastore.jdbc.dao.HealthDataDao;
 import com.bistel.pdm.datastore.jdbc.dao.ora.ParamHealthTrxDao;
+import com.bistel.pdm.datastore.jdbc.dao.pg.ParamHealthTrxPostgreDao;
 import com.bistel.pdm.datastore.model.ParamHealthData;
 import com.bistel.pdm.datastore.model.ParamHealthRULData;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -27,7 +28,7 @@ public class ParamHealthConsumerRunnable implements Runnable {
     private final KafkaConsumer<String, byte[]> consumer;
     private final String topicName;
 
-    private final static int PollingDurations = 1; // sec
+    private final static int PollingDurations = 5; // sec
 
     private HealthDataDao trxDao;
 
@@ -39,7 +40,7 @@ public class ParamHealthConsumerRunnable implements Runnable {
             trxDao = new ParamHealthTrxDao();
             log.info("loaded data object of oracle.");
         } else if (DataSource.getDBType() == DBType.postgresql) {
-            trxDao = new ParamHealthTrxDao();
+            trxDao = new ParamHealthTrxPostgreDao();
             log.info("loaded data object of postgresql.");
         } else {
             trxDao = new ParamHealthTrxDao();
@@ -54,56 +55,85 @@ public class ParamHealthConsumerRunnable implements Runnable {
         consumer.subscribe(Collections.singletonList(topicName));
         log.info("Reading topic: {}, db type: {}", topicName, DataSource.getDBType());
 
-        while (true) {
-            ConsumerRecords<String, byte[]> records = consumer.poll(TimeUnit.SECONDS.toMillis(PollingDurations));
-            if (records.count() > 0) {
-                log.debug(" polling {} records", records.count());
+        try {
+            while (true) {
+                ConsumerRecords<String, byte[]> records = consumer.poll(TimeUnit.SECONDS.toMillis(PollingDurations));
+                if (records.count() > 0) {
+                    log.debug(" polling {} records", records.count());
 
-                List<ParamHealthData> dataList = new ArrayList<>();
-                List<ParamHealthRULData> rulList = new ArrayList<>();
+                    List<ParamHealthData> dataList = new ArrayList<>();
+                    List<ParamHealthRULData> rulList = new ArrayList<>();
 
-                for (ConsumerRecord<String, byte[]> record : records) {
-                    byte[] healthData = record.value();
-                    String valueString = new String(healthData);
-                    // time, eqpRawid, param_rawid, param_health_rawid, status_cd, count, index, health_logic_rawid
-                    String[] values = valueString.split(",");
+                    for (ConsumerRecord<String, byte[]> record : records) {
+                        byte[] healthData = record.value();
+                        String valueString = new String(healthData);
 
-                    Long rawId = trxDao.getTraceRawId();
+                        // time, eqpRawid, param_rawid, param_health_rawid, status_cd, data_count, index, specs
+                        String[] values = valueString.split(",", -1);
 
-                    ParamHealthData data = new ParamHealthData();
+                        log.trace("[{}] - time : {}, eqp : {}, param : {}, health : {}", record.key(),
+                                values[0], values[1], values[2], values[3]);
 
-                    data.setRawId(rawId);
-                    data.setParamRawId(Long.parseLong(values[2]));
-                    data.setParamHealthRawId(Long.parseLong(values[3]));
-                    data.setStatus(values[4]);
-                    data.setDataCount(Integer.parseInt(values[5]));
-                    data.setIndex(Double.parseDouble(values[6]));
-                    data.setTime(Long.parseLong(values[0]));
+                        Long rawId = trxDao.getTraceRawId();
 
-                    dataList.add(data);
+                        ParamHealthData data = new ParamHealthData();
 
-                    if (values.length > 8) {
-                        //rule based
-                        ParamHealthRULData rule = new ParamHealthRULData();
-                        rule.setParamHealthTrxRawId(rawId);
-                        rule.setIntercept(Double.parseDouble(values[7]));
-                        rule.setSlope(Double.parseDouble(values[8]));
-                        rule.setX(Double.parseDouble(values[9]));
-                        rule.setTime(Long.parseLong(values[0]));
+                        data.setRawId(rawId);
+                        data.setTime(Long.parseLong(values[0]));
+                        data.setParamRawId(Long.parseLong(values[2]));
+                        data.setParamHealthRawId(Long.parseLong(values[3]));
+                        data.setStatus(values[4]);
+                        data.setDataCount(Integer.parseInt(values[5]));
+                        data.setIndex(Double.parseDouble(values[6]));
 
-                        rulList.add(rule);
+                        //spec
+                        if(values[7].length() > 0){
+                            data.setUpperAlarmSpec(Float.parseFloat(values[7]));
+                        }
+
+                        if(values[8].length() > 0){
+                            data.setUpperWarningSpec(Float.parseFloat(values[8]));
+                        }
+
+                        if(values[9].length() > 0){
+                            data.setTarget(Float.parseFloat(values[9]));
+                        }
+
+                        if(values[10].length() > 0){
+                            data.setLowerAlarmSpec(Float.parseFloat(values[10]));
+                        }
+
+                        if(values[11].length() > 0){
+                            data.setLowerWarningSpec(Float.parseFloat(values[11]));
+                        }
+
+                        dataList.add(data);
+
+                        if (values.length > 12) {
+                            //rule based
+                            ParamHealthRULData rule = new ParamHealthRULData();
+                            rule.setParamHealthTrxRawId(rawId);
+                            rule.setIntercept(Double.parseDouble(values[12]));
+                            rule.setSlope(Double.parseDouble(values[13]));
+                            rule.setX(Double.parseDouble(values[14]));
+                            rule.setTime(Long.parseLong(values[0]));
+
+                            rulList.add(rule);
+                        }
                     }
+
+                    trxDao.storeHealth(dataList);
+
+                    if (rulList.size() > 0) {
+                        trxDao.storeHealthRUL(rulList);
+                    }
+
+                    consumer.commitAsync();
+                    log.info("{} records are committed.", records.count());
                 }
-
-                trxDao.storeHealth(dataList);
-
-                if (rulList.size() > 0) {
-                    trxDao.storeHealthRUL(rulList);
-                }
-
-                consumer.commitSync();
-                log.info("{} records are committed.", records.count());
             }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
         }
     }
 

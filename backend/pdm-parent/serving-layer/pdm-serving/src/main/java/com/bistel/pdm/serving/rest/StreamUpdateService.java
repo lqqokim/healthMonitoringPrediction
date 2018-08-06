@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Singleton;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -46,18 +47,20 @@ public class StreamUpdateService {
     }
 
     @GET
-    @Path("/latest/reload")
-    public Response getReload() {
+    @Path("/latest/reload/{eqpid}")
+    public Response getReload(@PathParam("eqpid") String eqpId) {
         try {
             String msg = "http://" + HostInfo.ip + ":" + HostInfo.port;
-            producer.send(new ProducerRecord<>(topicName, "updater", msg.getBytes()));
+            producer.send(new ProducerRecord<>(topicName, eqpId, msg.getBytes()));
 
-            log.info("stream updated.");
-            return Response.status(Response.Status.OK).entity("").build();
+            log.info("requested to {} to update the master information.", eqpId);
+            return Response.status(Response.Status.OK).entity(eqpId).build();
 
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return Response.status(Response.Status.NOT_FOUND).entity(new Message(e.getMessage())).build();
+        } finally {
+            producer.close();
         }
     }
 }

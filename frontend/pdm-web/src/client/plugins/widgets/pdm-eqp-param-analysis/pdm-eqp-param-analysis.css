@@ -152,6 +152,7 @@
     padding: 10px;
     margin-right: 5px;
     border: 1px solid #ddd;
+    min-width: 300px;
 }
 
 .widget-pdm-eqp-param-analysis .metrix-chart {
@@ -173,11 +174,14 @@
 
 .widget-pdm-eqp-param-analysis .metrix-row-chart-group {
     width: 100%;
+    height:calc(100% - 50px);
     padding: 5px 10px;
     margin-bottom: 20px;
     /*border: 1px solid #eee;*/
     position: relative;
     border-radius: 2px;
+    overflow:auto;
+    border: solid 1px lightblue;
 }
 
 .widget-pdm-eqp-param-analysis .metrix-row-chart-area {
@@ -186,11 +190,11 @@
     margin-bottom: 6px;
 }
 
-.widget-pdm-eqp-param-analysis .metrix-row-chart-area:nth-child(2) {
+/* .widget-pdm-eqp-param-analysis .metrix-row-chart-area:nth-child(2) {
     height: 250px !important;
-}
+} */
 
-.widget-pdm-eqp-param-analysis .metrix-row-chart-area:nth-child(2) .metrix-row-chart {
+.widget-pdm-eqp-param-analysis .metrix-row-chart-area:nth-child(1) .metrix-row-chart {
     height: calc(100% - 24px);
 }
 
@@ -210,6 +214,7 @@
     height: 100%;
     width: 100%;
     text-align: center;
+    min-width: 300px;
 }
 
 .widget-pdm-eqp-param-analysis .metrix-chart-col-label label {
@@ -260,6 +265,7 @@
     margin-right: 5px;
     display: inline-flex;
     align-items: center;
+    word-break: break-all;
 }
 
 .widget-pdm-eqp-param-analysis .metrix-row-label label {

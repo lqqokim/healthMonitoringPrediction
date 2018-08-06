@@ -6,24 +6,24 @@
         </div>
         <div class="alarm-width-calc">
             <!-- <div class="pdm-radar-wrapper" (click)="onClick($event,item)" (mouseenter)="mouseEnter(item,$event)" (mousemove)="mouseMove($event)" (mouseleave)="mouseLeave(item)" -->
-            <div id="alarmWarning{{i}}" class="pdm-radar-wrapper" (click)="onEqpClick($event, item)" (mouseenter)="mouseEnter(item, $event, i)"
+            <div id="alarmWarning{{i}}" class="pdm-radar-wrapper" (click)="onEqpClick($event, item)" (mouseenter)="mouseEnter(item, i)"
                 *ngFor="let item of alarmWarningDatas; let i = index;" [ngClass]="{'alram-type-danger':item.type === 'alarm', 'alram-type-warning':item.type ==='warning', 'type-none': item.type === ''}">
                 <div class="pdm-radar-section clearfix" (click)="onClickSection(item.type, i);" 
                     [ngClass]="{'alarm-section-active': selectedAWSection === i, 'warning-section-active': selectedAWSection === i && 1 >= alarmDatas.length}">
                     <!-- [class.alarm-section-active]="selectedAWSection === i" [class.warning-section-active]="selectedAWSection === i && 1 >= alarmDatas.length"> -->
-                    <div class="pdm-radar-title" *ngIf="item.chartData && item.options">
+                    <div class="pdm-radar-title" *ngIf="item.chartData && item.option">
                         <div class="pdm-radar-name">{{item.name}}</div>
                         <div class="pdm-radar-time">
                             <!-- <span class="glyphicon glyphicon-info-sign" aria-hidden="true" (click)="zoom('plus',item,$event);$event.stopPropagation();"></span> -->
                             <span class="glyphicon glyphicon-info-sign" aria-hidden="true" (click)="showRadarInfo(item, $event, i); $event.stopPropagation();"></span>
                         </div>
                     </div>
-                    <div class="pdm-radar-chart" *ngIf="item.chartData && item.options">
+                    <div class="pdm-radar-chart" *ngIf="item.chartData && item.option">
                         <radar-chart 
                             [data]="item.chartData" 
-                            [options]="item.options" 
+                            [options]="item.option" 
                             (click)="clickRadarChart($event);" 
-                            (paramClick)="onParamClick(item.type, item.name ,item.id, $event, i)">
+                            (paramClick)="onParamClick(item, $event, i)">
                         </radar-chart>
                     </div>
                 </div>
@@ -45,24 +45,24 @@
         </div>
         <div class="alarm-width-calc">
             <!-- <div class="pdm-radar-wrapper" (click)="onClick($event,item)" (mouseenter)="mouseEnter(item,$event)" (mousemove)="mouseMove($event)" (mouseleave)="mouseLeave(item)"-->
-            <div id="bad{{i}}" class="pdm-radar-wrapper" (click)="onEqpClick($event, item)" (mouseenter)="mouseEnter(item, $event, i)" 
+            <div id="bad{{i}}" class="pdm-radar-wrapper" (click)="onEqpClick($event, item)" (mouseenter)="mouseEnter(item, i)" 
                 *ngFor="let item of B5Datas; let i = index;" [ngClass]="{'alram-type-bad':item.type === 'B5', 'type-none': item.type === ''}">
                 <div class="pdm-radar-section clearfix" (click)="onClickSection(item.type, i);" 
                 [ngClass]="{'bad-section-active': selectedBadSection === i}">
                 <!-- [class.bad-section-active]="selectedBadSection === i"> -->
-                    <div class="pdm-radar-title" *ngIf="item.chartData && item.options">
+                    <div class="pdm-radar-title" *ngIf="item.chartData && item.option">
                         <div class="pdm-radar-name">{{item.name}}</div>
                         <div class="pdm-radar-time">
                             <!-- <span class="glyphicon glyphicon-info-sign" aria-hidden="true" (click)="zoom('plus',item,$event);$event.stopPropagation();"></span> -->
                             <span class="glyphicon glyphicon-info-sign" aria-hidden="true" (click)="showRadarInfo(item, $event, i); $event.stopPropagation();"></span>
                         </div>
                     </div>
-                    <div class="pdm-radar-chart" *ngIf="item.chartData && item.options">
+                    <div class="pdm-radar-chart" *ngIf="item.chartData && item.option">
                         <radar-chart 
                             [data]="item.chartData" 
-                            [options]="item.options" 
+                            [options]="item.option" 
                             (click)="clickRadarChart($event);"
-                            (paramClick)="onParamClick(item.type, item.name, item.id, $event, i)">
+                            (paramClick)="onParamClick(item, $event, i)">
                         </radar-chart>
                     </div>
                 </div>
@@ -83,24 +83,24 @@
         </div>
         <div class="alarm-width-calc">
             <!-- <div class="pdm-radar-wrapper" (click)="onClick($event,item)" (mouseenter)="mouseEnter(item,$event)" (mousemove)="mouseMove($event)" (mouseleave)="mouseLeave(item)"-->
-            <div id="good{{i}}" class="pdm-radar-wrapper" (click)="onEqpClick($event, item)" (mouseenter)="mouseEnter(item, $event, i)"
+            <div id="good{{i}}" class="pdm-radar-wrapper" (click)="onEqpClick($event, item)" (mouseenter)="mouseEnter(item, i)"
                 *ngFor="let item of G5Datas; let i = index;" [ngClass]="{'alram-type-good':item.type === 'G5', 'type-none': item.type === ''}">
                 <div class="pdm-radar-section clearfix" (click)="onClickSection(item.type, i);" 
                 [ngClass]="{'good-section-active': selectedGoodSection === i}">
                 <!-- [class.good-section-active]="selectedGoodSection === i"> -->
-                    <div class="pdm-radar-title" *ngIf="item.chartData && item.options">
+                    <div class="pdm-radar-title" *ngIf="item.chartData && item.option">
                         <div class="pdm-radar-name">{{item.name}}</div>
                         <div class="pdm-radar-time">
                             <!-- <span class="glyphicon glyphicon-info-sign" aria-hidden="true" (click)="zoom('plus',item, $event);$event.stopPropagation();"></span> -->
                             <span class="glyphicon glyphicon-info-sign" aria-hidden="true" (click)="showRadarInfo(item, $event, i); $event.stopPropagation();"></span>
                         </div>
                     </div>
-                    <div class="pdm-radar-chart" *ngIf="item.chartData && item.options">
+                    <div class="pdm-radar-chart" *ngIf="item.chartData && item.option">
                         <radar-chart 
                             [data]="item.chartData" 
-                            [options]="item.options"
+                            [options]="item.option"
                             (click)="clickRadarChart($event);" 
-                            (paramClick)="onParamClick(item.type, item.name, item.id, $event, i);">
+                            (paramClick)="onParamClick(item, $event, i);">
                         </radar-chart>
                     </div>
                 </div>
@@ -135,9 +135,9 @@
         <div class="pdm-radar-type" *ngIf="selectedItem.type === 'alarm'">
             <div>
                 <span class="a3-synced-title">Max alarm : </span>
-                {{selectedItem.details.maxParamName}} [ {{selectedItem.details.maxAWwithAvg}} ]
+                {{selectedItem.detail.maxParamName}} [ {{selectedItem.detail.maxAWwithAvg}} ]
                 <span class="a3-synced-title">90Days avg : </span>
-                {{selectedItem.details.maxSpecAvg}}
+                {{selectedItem.detail.maxSpecAvg}}
             </div>
             <div>
                 <span class="a3-synced-title">Problem reason</span>
@@ -147,20 +147,20 @@
         <div class="pdm-radar-type" *ngIf="selectedItem.type === 'warning'">
             <div>
                 <span class="a3-synced-title">Max warning : </span>
-                {{selectedItem.details.maxParamName}} [ {{selectedItem.details.maxAWwithAvg}} ]
+                {{selectedItem.detail.maxParamName}} [ {{selectedItem.detail.maxAWwithAvg}} ]
                 <span class="a3-synced-title">90Days avg : </span>
-                {{selectedItem.details.maxSpecAvg}}
+                {{selectedItem.detail.maxSpecAvg}}
             </div>
             <div></div>
         </div>
         <div class="pdm-radar-type" *ngIf="selectedItem.type === 'B5' || selectedItem.type === 'G5'">
             <div>
                 <span class="a3-synced-title">Max variation : </span>
-                {{selectedItem.details.maxParamName}} [ {{selectedItem.details.minMaxRatioVariation}} ]
+                {{selectedItem.detail.maxParamName}} [ {{selectedItem.detail.minMaxRatioVariation}} ]
                 <span class="a3-synced-title">Target days avg : </span>
-                {{selectedItem.details.maxDailyAvg}}
+                {{selectedItem.detail.maxDailyAvg}}
                 <span class="a3-synced-title">90Days avg : </span>
-                {{selectedItem.details.maxSpecAvg}}
+                {{selectedItem.detail.maxSpecAvg}}
             </div>
             <div></div>
         </div>
@@ -168,9 +168,9 @@
             [ngClass]="{'alarm-info-hover':selectedItem.type === 'alarm', 'warning-info-hover': selectedItem.type === 'warning', 'bad-info-hover': selectedItem.type === 'B5', 'good-info-hover': selectedItem.type === 'G5'}">
             <radar-chart
                 [data]="selectedItem.chartData" 
-                [options]="selectedItem.options"
+                [options]="selectedItem.option"
                 (click)="clickRadarChart($event);"
-                (paramClick)="onParamClick(selectedItem.type, selectedItem.name, selectedItem.id, $event, selectedItem.index, 'isInfo');">
+                (paramClick)="onParamClick(selectedItem, $event, selectedItem.index, 'isInfo');">
             </radar-chart>
         </div>
     </div>
@@ -182,9 +182,18 @@
             <span aria-hidden="true">×</span>
         </button>
         <div class="radar-chart-arrow arrow{{colIndex}}"></div>
-        <trend-chart *ngIf="trendParamId && chartType" [type]="chartType" [plantId]="trendPlantId" [areaId]="trendAreaId" [eqpId]="trendEqpId"
-            [paramId]="trendParamId" [fromDate]="trendFromDate" [toDate]="trendToDate" [eqpName]="trendEqpName" [paramName]="trendParamName"
-            [value]="trendValue" [warning]="trendSpecWarning">
+        <trend-chart *ngIf="trendData" 
+            [type]="trendData.trendChartType" 
+            [plantId]="trendData.trendPlantId" 
+            [areaId]="trendData.trendAreaId" 
+            [eqpId]="trendData.trendEqpId"
+            [paramId]="trendData.trendParamId" 
+            [fromDate]="trendData.trendFromDate" 
+            [toDate]="trendData.trendToDate" 
+            [eqpName]="trendData.trendEqpName" 
+            [paramName]="trendData.trendParamName"
+            [value]="trendData.trendValue" 
+            [warning]="trendData.trendSpecWarning">
         </trend-chart>
     </div>
 </div>

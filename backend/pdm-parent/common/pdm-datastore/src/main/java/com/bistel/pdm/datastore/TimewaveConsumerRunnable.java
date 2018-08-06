@@ -26,7 +26,7 @@ public class TimewaveConsumerRunnable implements Runnable {
     private final KafkaConsumer<String, byte[]> consumer;
     private final String topicName;
 
-    private final static int PollingDurations = 1;
+    private final static int PollingDurations = 5;
 
     private SensorTraceDataDao trxDao;
     private SensorRawDataDao trxRawDao;
@@ -106,7 +106,7 @@ public class TimewaveConsumerRunnable implements Runnable {
                 if (traceRow.size() > 0) {
                     trxDao.storeRecord(traceRow);
                     trxRawDao.storeRecord(rawRow);
-                    consumer.commitSync();
+                    consumer.commitAsync();
                     log.info("{} records are committed.", records.count());
                 }
             } catch (Exception e) {

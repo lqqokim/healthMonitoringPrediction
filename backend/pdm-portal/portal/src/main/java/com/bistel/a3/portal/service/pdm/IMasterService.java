@@ -67,11 +67,15 @@ public interface IMasterService {
 
     ParamWithCommonWithRpm getParam(String fabId, Long paramId);
 
-    void setParam(String fabId, ParamWithCommonWithRpm param);
+    void setParam(String fabId, Long eqpId ,  ParamWithCommonWithRpm param);
 
     void removeParam(String fabId, Long eqpId, Long paramId);
 
     void removeParams(String fabId, Long eqpId, Long[] paramIds);
+
+    void updateParamHealth(String fabId, Long eqpId, Long paramId);
+
+    void deleteParamHealth(String fabId, Long eqpId, Long paramId);
 
     //***************
     //   Parts

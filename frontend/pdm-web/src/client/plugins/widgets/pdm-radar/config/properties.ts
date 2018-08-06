@@ -9,7 +9,7 @@ import { FormConfigType } from '../../../../sdk';
 export class Properties extends ConditionApi {
 
 	preInit(): Array<string> {
-		return [CD.PLANT];
+		return [CD.PLANT, CD.MAX_PARAM_COUNT];
 	}
 
 	// properties 초기값 설정
@@ -22,6 +22,7 @@ export class Properties extends ConditionApi {
 		return [
 			Condic.Tool.plant(),
 			Condic.Common.time_period(),
+			Condic.Tool.max_param_count(),
 		];
 	}
 
@@ -39,6 +40,7 @@ export class Properties extends ConditionApi {
 		return [
 			Formcfg.Factory.plant(),
 			Formcfg.Common.time_period(newConfig),
+			Formcfg.Factory.max_param_count(),
 			Formcfg.Common.communication()
 			
 		];

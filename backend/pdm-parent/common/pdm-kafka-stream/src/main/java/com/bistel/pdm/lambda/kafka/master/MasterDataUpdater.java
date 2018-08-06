@@ -23,7 +23,7 @@ public class MasterDataUpdater {
      * update equipment master into stream
      * @param targetUrl
      */
-    public static void updateEqpMasterDataSet(String targetUrl) {
+    public static void updateEqpMasterDataSet(String key, String targetUrl) {
         ResteasyClient client = new ResteasyClientBuilder().build();
         Response response = client.target(targetUrl).request().get();
         String body = response.readEntity(String.class);
@@ -38,10 +38,20 @@ public class MasterDataUpdater {
                 masterDataList = mapper.readValue(body, new TypeReference<List<EquipmentMasterDataSet>>() {
                 });
 
-                for (EquipmentMasterDataSet data : masterDataList) {
-                    MasterDataCache.getInstance().getEqpMasterDataSet().put(data.toKey(), data.getEqpRawId());
+                if(key.equalsIgnoreCase("all")){
+                    if(MasterDataCache.getInstance().getEqpMasterDataSet() != null){
+                        MasterDataCache.getInstance().getEqpMasterDataSet().clear();
+                    }
+
+                    for (EquipmentMasterDataSet data : masterDataList) {
+                        MasterDataCache.getInstance().getEqpMasterDataSet().put(data.toKey(), data.getEqpRawId());
+                    }
+                } else {
+                    for (EquipmentMasterDataSet data : masterDataList) {
+                        MasterDataCache.getInstance().getEqpMasterDataSet().put(data.toKey(), data.getEqpRawId());
+                    }
                 }
-                log.info("{} reference has been updated.", masterDataList.size());
+                log.info("{} updated.", key);
             }
         } catch (IOException e) {
             log.error(e.getMessage(), e);
@@ -55,7 +65,7 @@ public class MasterDataUpdater {
      * update parameter master into stream
      * @param targetUrl
      */
-    public static void updateParameterMasterDataSet(String targetUrl) {
+    public static void updateParameterMasterDataSet(String key, String targetUrl) {
         ResteasyClient client = new ResteasyClientBuilder().build();
         Response response = client.target(targetUrl).request().get();
         String body = response.readEntity(String.class);
@@ -70,18 +80,39 @@ public class MasterDataUpdater {
                 masterDataList = mapper.readValue(body, new TypeReference<List<ParameterMasterDataSet>>() {
                 });
 
-                for (ParameterMasterDataSet data : masterDataList) {
-                    if(!MasterDataCache.getInstance().getParamMasterDataSet().containsKey(data.toKey())){
-                        List<ParameterMasterDataSet> list = new ArrayList<>();
-                        list.add(data);
-                        MasterDataCache.getInstance().getParamMasterDataSet().put(data.toKey(), list);
-                    } else {
-                        List<ParameterMasterDataSet> list =
-                                MasterDataCache.getInstance().getParamMasterDataSet().get(data.toKey());
-                        list.add(data);
+                if(key.equalsIgnoreCase("all")){
+                    MasterDataCache.getInstance().getParamMasterDataSet().clear();
+
+                    for (ParameterMasterDataSet data : masterDataList) {
+                        if(!MasterDataCache.getInstance().getParamMasterDataSet().containsKey(data.toKey())){
+                            List<ParameterMasterDataSet> list = new ArrayList<>();
+                            list.add(data);
+                            MasterDataCache.getInstance().getParamMasterDataSet().put(data.toKey(), list);
+                        } else {
+                            List<ParameterMasterDataSet> list =
+                                    MasterDataCache.getInstance().getParamMasterDataSet().get(data.toKey());
+                            list.add(data);
+                        }
+                    }
+                } else {
+                    if(MasterDataCache.getInstance().getParamMasterDataSet().get(key) != null){
+                        MasterDataCache.getInstance().getParamMasterDataSet().get(key).clear();
+                    }
+
+                    for (ParameterMasterDataSet data : masterDataList) {
+                        if(!MasterDataCache.getInstance().getParamMasterDataSet().containsKey(data.toKey())){
+                            List<ParameterMasterDataSet> list = new ArrayList<>();
+                            list.add(data);
+                            MasterDataCache.getInstance().getParamMasterDataSet().put(data.toKey(), list);
+                        } else {
+                            List<ParameterMasterDataSet> list =
+                                    MasterDataCache.getInstance().getParamMasterDataSet().get(data.toKey());
+                            list.add(data);
+                        }
                     }
                 }
-                log.info("{} reference has been updated.", masterDataList.size());
+
+                log.info("{} updated.", key);
             }
         } catch (IOException e) {
             log.error(e.getMessage(), e);
@@ -91,7 +122,7 @@ public class MasterDataUpdater {
         }
     }
 
-    public static void updateEventMasterDataSet(String targetUrl) {
+    public static void updateEventMasterDataSet(String key, String targetUrl) {
         ResteasyClient client = new ResteasyClientBuilder().build();
         Response response = client.target(targetUrl).request().get();
         String body = response.readEntity(String.class);
@@ -106,18 +137,39 @@ public class MasterDataUpdater {
                 masterDataList = mapper.readValue(body, new TypeReference<List<EventMasterDataSet>>() {
                 });
 
-                for (EventMasterDataSet data : masterDataList) {
-                    if(!MasterDataCache.getInstance().getEventMasterDataSet().containsKey(data.toKey())){
-                        List<EventMasterDataSet> list = new ArrayList<>();
-                        list.add(data);
-                        MasterDataCache.getInstance().getEventMasterDataSet().put(data.toKey(), list);
-                    } else {
-                        List<EventMasterDataSet> list =
-                                MasterDataCache.getInstance().getEventMasterDataSet().get(data.toKey());
-                        list.add(data);
+                if(key.equalsIgnoreCase("all")){
+                    MasterDataCache.getInstance().getEventMasterDataSet().clear();
+
+                    for (EventMasterDataSet data : masterDataList) {
+                        if(!MasterDataCache.getInstance().getEventMasterDataSet().containsKey(data.toKey())){
+                            List<EventMasterDataSet> list = new ArrayList<>();
+                            list.add(data);
+                            MasterDataCache.getInstance().getEventMasterDataSet().put(data.toKey(), list);
+                        } else {
+                            List<EventMasterDataSet> list =
+                                    MasterDataCache.getInstance().getEventMasterDataSet().get(data.toKey());
+                            list.add(data);
+                        }
+                    }
+                } else {
+                    if(MasterDataCache.getInstance().getEventMasterDataSet().get(key) != null){
+                        MasterDataCache.getInstance().getEventMasterDataSet().get(key).clear();
+                    }
+
+                    for (EventMasterDataSet data : masterDataList) {
+                        if(!MasterDataCache.getInstance().getEventMasterDataSet().containsKey(data.toKey())){
+                            List<EventMasterDataSet> list = new ArrayList<>();
+                            list.add(data);
+                            MasterDataCache.getInstance().getEventMasterDataSet().put(data.toKey(), list);
+                        } else {
+                            List<EventMasterDataSet> list =
+                                    MasterDataCache.getInstance().getEventMasterDataSet().get(data.toKey());
+                            list.add(data);
+                        }
                     }
                 }
-                log.info("{} reference has been updated.", masterDataList.size());
+
+                log.info("{} updated.", key);
             }
         } catch (IOException e) {
             log.error(e.getMessage(), e);
@@ -127,43 +179,7 @@ public class MasterDataUpdater {
         }
     }
 
-    public static void updateParamSpecDataSet(String targetUrl) {
-        ResteasyClient client = new ResteasyClientBuilder().build();
-        Response response = client.target(targetUrl).request().get();
-        String body = response.readEntity(String.class);
-
-        ObjectMapper mapper = new ObjectMapper();
-        List<ParameterSpecDataSet> paramSpecDataList = null;
-
-        try {
-            if (body.length() <= 0) {
-                log.info("spec data does not exists. message: " + body);
-            } else {
-                paramSpecDataList = mapper.readValue(body, new TypeReference<List<ParameterSpecDataSet>>() {
-                });
-
-                for (ParameterSpecDataSet data : paramSpecDataList) {
-                    if(!MasterDataCache.getInstance().getParamSpecDataSet().containsKey(data.toKey())){
-                        List<ParameterSpecDataSet> list = new ArrayList<>();
-                        list.add(data);
-                        MasterDataCache.getInstance().getParamSpecDataSet().put(data.toKey(), list);
-                    } else {
-                        List<ParameterSpecDataSet> list =
-                                MasterDataCache.getInstance().getParamSpecDataSet().get(data.toKey());
-                        list.add(data);
-                    }
-                }
-                log.info("{} reference has been updated.", paramSpecDataList.size());
-            }
-        } catch (IOException e) {
-            log.error(e.getMessage(), e);
-        } finally {
-            response.close();
-            client.close();
-        }
-    }
-
-    public static void updateParamHealthDataSet(String targetUrl) {
+    public static void updateParamHealthDataSet(String key, String targetUrl) {
         ResteasyClient client = new ResteasyClientBuilder().build();
         Response response = client.target(targetUrl).request().get();
         String body = response.readEntity(String.class);
@@ -178,18 +194,47 @@ public class MasterDataUpdater {
                 paramHealthDataList = mapper.readValue(body, new TypeReference<List<ParameterHealthDataSet>>() {
                 });
 
-                for (ParameterHealthDataSet data : paramHealthDataList) {
-                    if(!MasterDataCache.getInstance().getParamHealthDataSet().containsKey(data.toKey())){
-                        List<ParameterHealthDataSet> list = new ArrayList<>();
-                        list.add(data);
-                        MasterDataCache.getInstance().getParamHealthDataSet().put(data.toKey(), list);
-                    } else {
-                        List<ParameterHealthDataSet> list =
-                                MasterDataCache.getInstance().getParamHealthDataSet().get(data.toKey());
-                        list.add(data);
+                if(key.equalsIgnoreCase("all")){
+                    MasterDataCache.getInstance().getParamHealthDataSet().clear();
+
+                    for (ParameterHealthDataSet data : paramHealthDataList) {
+                        if(!MasterDataCache.getInstance().getParamHealthDataSet().containsKey(data.toKey())){
+                            List<ParameterHealthDataSet> list = new ArrayList<>();
+                            list.add(data);
+                            MasterDataCache.getInstance().getParamHealthDataSet().put(data.toKey(), list);
+                        } else {
+                            List<ParameterHealthDataSet> list =
+                                    MasterDataCache.getInstance().getParamHealthDataSet().get(data.toKey());
+                            list.add(data);
+                        }
+                    }
+                } else {
+                    List<ParameterMasterDataSet> paramList = MasterDataCache.getInstance().getParamMasterDataSet().get(key);
+                    if(paramList != null){
+                        for(ParameterMasterDataSet param : paramList){
+                            if(MasterDataCache.getInstance().getParamHealthDataSet().get(param.getParameterRawId()) != null){
+                                MasterDataCache.getInstance().getParamHealthDataSet().get(param.getParameterRawId()).clear();
+                                log.debug("clear health for {}", param.getParameterName());
+                            }
+                        }
+                    }
+
+                    if(paramHealthDataList != null){
+                        for (ParameterHealthDataSet data : paramHealthDataList) {
+                            if(!MasterDataCache.getInstance().getParamHealthDataSet().containsKey(data.toKey())){
+                                List<ParameterHealthDataSet> list = new ArrayList<>();
+                                list.add(data);
+                                MasterDataCache.getInstance().getParamHealthDataSet().put(data.toKey(), list);
+                            } else {
+                                List<ParameterHealthDataSet> list =
+                                        MasterDataCache.getInstance().getParamHealthDataSet().get(data.toKey());
+                                list.add(data);
+                            }
+                        }
                     }
                 }
-                log.info("{} reference has been updated.", paramHealthDataList.size());
+
+                log.info("{} updated.", key);
             }
         } catch (IOException e) {
             log.error(e.getMessage(), e);

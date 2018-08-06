@@ -16,6 +16,9 @@ export function worstTopValidator(form: FormControl) {
         if (!form.value.match(/^[0-9]+$/gm) || form.value.split("")[0] === '0') {
             valid = false;
             invalidMessage = 'Please enter only integers greater than 0.';
+        } else if (form.value > 999) {
+            valid = false;
+            invalidMessage = 'Please enter a value less than 999.';
         }
     }
 

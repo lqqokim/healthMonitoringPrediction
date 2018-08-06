@@ -11,6 +11,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.text.SimpleDateFormat;
 
 /**
  *
@@ -35,10 +36,15 @@ public class FeatureTrxDao implements FeatureDataDao {
 
                 int totalCount = 0;
                 int batchCount = 0;
+                Timestamp ts = null;
+
                 for (ConsumerRecord<String, byte[]> record : records) {
                     byte[] features = record.value();
                     String valueString = new String(features);
                     String[] values = valueString.split(",", -1);
+
+                    log.trace("[{}] - from : {}, end : {}, param : {}", record.key(),
+                            values[0], values[1], values[2]);
 
                     // startDtts, endDtts, param rawid, count, min, max, median, avg, stddev, q1, q3
                     Long param_rawid = Long.parseLong(values[2]);
@@ -89,6 +95,8 @@ public class FeatureTrxDao implements FeatureDataDao {
                         pstmt.setNull(16, Types.FLOAT);
                     }
 
+                    ts = endDtts;
+
                     pstmt.addBatch();
 
                     if (++batchCount == 100) {
@@ -106,7 +114,8 @@ public class FeatureTrxDao implements FeatureDataDao {
                     pstmt.clearBatch();
                 }
                 conn.commit();
-                log.debug("{} records are inserted into PARAM_FEATURE_TRX_PDM.", totalCount);
+                String timeStamp = new SimpleDateFormat("MMdd HH:mm:ss.SSS").format(ts);
+                log.debug("[{}] - {} records are inserted into PARAM_FEATURE_TRX_PDM.", timeStamp, totalCount);
 
             } catch (Exception e) {
                 conn.rollback();

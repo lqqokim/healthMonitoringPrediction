@@ -2,11 +2,13 @@ package com.bistel.pdm.batch;
 
 import com.bistel.pdm.batch.processor.*;
 import com.bistel.pdm.lambda.kafka.AbstractPipeline;
+import com.bistel.pdm.lambda.kafka.master.MasterDataCache;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.Topology;
+import org.apache.kafka.streams.processor.ProcessorSupplier;
 import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.state.StoreBuilder;
 import org.apache.kafka.streams.state.Stores;
@@ -31,6 +33,8 @@ public class BatchTraceTaskDef extends AbstractPipeline {
 
         super(brokers, schemaUrl, servingAddr);
         this.applicationId = applicationId;
+
+        MasterDataCache.getInstance().setServingAddress(servingAddr);
     }
 
     public void start() {
@@ -60,7 +64,7 @@ public class BatchTraceTaskDef extends AbstractPipeline {
                         Stores.persistentWindowStore("batch-feature-summary",
                                 TimeUnit.DAYS.toMillis(1),
                                 24,
-                                TimeUnit.HOURS.toMillis(1),
+                                TimeUnit.DAYS.toMillis(1),
                                 true),
                         Serdes.String(),
                         Serdes.Double());
@@ -71,15 +75,21 @@ public class BatchTraceTaskDef extends AbstractPipeline {
                         Serdes.String(),
                         Serdes.Long());
 
-        StoreBuilder<WindowStore<String, Double>> fd03WindowStoreSupplier =
-                Stores.windowStoreBuilder(
-                        Stores.persistentWindowStore("batch-fd03-feature-data",
-                                TimeUnit.DAYS.toMillis(8),
-                                24,
-                                TimeUnit.DAYS.toMillis(7),
-                                true),
-                        Serdes.String(),
-                        Serdes.Double());
+//        StoreBuilder<WindowStore<String, Double>> fd03WindowStoreSupplier =
+//                Stores.windowStoreBuilder(
+//                        Stores.persistentWindowStore("batch-fd03-feature-data",
+//                                TimeUnit.DAYS.toMillis(8),
+//                                24,
+//                                TimeUnit.DAYS.toMillis(7),
+//                                true),
+//                        Serdes.String(),
+//                        Serdes.Double());
+
+        StoreBuilder<KeyValueStore<Long, String>> fd03WindowStoreSupplier =
+                Stores.keyValueStoreBuilder(
+                        Stores.persistentKeyValueStore("batch-moving-average"),
+                        Serdes.Long(),
+                        Serdes.String());
 
         StoreBuilder<WindowStore<String, String>> fd04WindowStoreSupplier =
                 Stores.windowStoreBuilder(
@@ -90,6 +100,10 @@ public class BatchTraceTaskDef extends AbstractPipeline {
                                 true),
                         Serdes.String(),
                         Serdes.String());
+
+        topology.addSource("input-reload", "pdm-input-reload")
+                .addProcessor("reload", ReloadMetadataProcessor::new, "input-reload")
+                .addSink("ouput-reload", this.getOutputReloadTopic(), "reload");
 
         topology.addSource("input-trace", this.getInputTraceTopic())
                 .addProcessor("batch01", FilterByMasterProcessor::new, "input-trace")

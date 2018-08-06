@@ -22,6 +22,7 @@ import { PartGlobalConfigModule } from './configurations/global/pdm/part/part-gl
 import { AutoModelingGlobalConfigModule } from './configurations/global/pdm/modeling/auto-modeling-globalconfig.module';
 import { JobExecuteConfigModule } from './configurations/global/manual/job-execute/job-execute-config.module';
 import { JobHistoryConfigModule } from './configurations/global/manual/job-history/job-history-config.module';
+import { LogSqlParseModule } from './configurations/global/manual/log-sql-parse/log-sql-parse.module';
 import { MasterInfoModule } from './configurations/global/pdm/master-info/master-info.module';
 import { CodeModule } from './configurations/global/pdm/code/code-list.module';
 import { FilterAnalysisModule } from './configurations/global/pdm/filter-analysis/filter-analysis.module';
@@ -30,6 +31,7 @@ import { CategoryModule } from './configurations/global/pdm/category/category-li
 
 import { ModelSimulatorModule }  from './configurations/global/pdm/model-simulator/model-simulator.module';
 import { EquipmentParameterTrendModule  } from './configurations/global/pdm/equipment-parameter-trend/equipment-parameter-trend.module';
+import { SummaryTrendModule }  from './configurations/global/pdm/summary-trend/summary-trend.module';
 
 export const getConfigurationClassInfo = (menuId: string): any => {
 
@@ -82,6 +84,8 @@ export const getConfigurationClassInfo = (menuId: string): any => {
             return JobExecuteConfigModule;
         case 'jobHistory':
             return JobHistoryConfigModule;
+        case 'logSQLParser':
+            return LogSqlParseModule;
         case 'pdmMasterInfo':
             return MasterInfoModule;
         case 'pdmCategory':
@@ -94,6 +98,10 @@ export const getConfigurationClassInfo = (menuId: string): any => {
             return FabMonitoringModule;
         case 'pdmModelSimulator':
             return ModelSimulatorModule;
+        case 'pdmSummaryTrend':
+            return SummaryTrendModule;
+
+            
         case 'pdmEqupmentParameterTrend':
             return EquipmentParameterTrendModule;
         default:

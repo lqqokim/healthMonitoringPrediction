@@ -1,15 +1,12 @@
 <div class="widget widget-pdm-radar">
     <div class="title clearfix" (click)="onClickOutArea();">
-        <!-- <span class="pdm-radar-date">{{fabName}}, 2018/01 ~ 2018/02</span> -->
         <div class="pdm-radar-legend pull-left">
             <ul>
                 <li><span class="label label-danger">{{alarmCount}}</span>Alarm</li>
                 <li><span class="label label-warning">{{warningCount}}</span>Warning</li>
-                <!-- <li class="legend-bad">Bad</li>
-                <li class="legend-good">Good</li> -->
             </ul>
             <span class="a3-synced-title">Fab : </span> {{fabName}} 
-            <span class="a3-synced-title">Period : </span> {{fromDate}} ~ {{toDate}}
+            <span class="a3-synced-title">Time Period : </span> {{viewTimePeriod}}
            
 						
             <!-- <button *ngIf="!isFull" class="btn btn-debug" (click)="full();"><img src="assets/images/maximize-size-option.png"> Alarm Waring Full-Size</button>
@@ -39,7 +36,7 @@
                 id="onscroll"
                 [condition]="condition" 
                 [fullScreen]="isFull"
-                (showContext)="showContext($event)" 
+                (showEqpContext)="showEqpContext($event)" 
                 (showParamContext)="showParamContext($event)"
                 (countAlarmWarning)="countAlarmWarning($event);"
                 (endLoading)="endLoading($event)">

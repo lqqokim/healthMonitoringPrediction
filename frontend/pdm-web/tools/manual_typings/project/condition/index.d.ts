@@ -248,7 +248,9 @@ interface ICONDITION {
 	WORST_TOP: string;
 	MONITORING: string;
 	MONITORING_ID: string;
-	MONITORING_NAME: string;	
+	MONITORING_NAME: string;
+	MAX_PARAM_COUNT: string;
+	SPECTRUM_COUNT: string;	
 
 	TIME_PERIOD_30: string;
 	CUTOFF_TYPE_DAY: string;

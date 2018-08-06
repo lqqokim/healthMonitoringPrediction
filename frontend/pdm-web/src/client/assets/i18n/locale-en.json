@@ -523,7 +523,9 @@
         "ANALYSIS_SPEC": "Analysis spec(Warning criteria)",
         "ANALYSIS_SPEC_VISIBLE": "Analysis spec visible",
         "WORST_TOP": "Worst Top",
-        "MONITORING": "Monitoring"
+        "MONITORING": "Monitoring",
+        "MAX_PARAM_COUNT": "Display max parameter count",
+        "SPECTRUM_COUNT": "Display spectrum count"
     },
     "CONTEXT": {
         "BUTTON": {

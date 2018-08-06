@@ -90,7 +90,8 @@ public class SpeedTaskDef extends AbstractPipeline {
                         Serdes.Integer());
 
         topology.addSource("input-reload", "pdm-input-reload")
-                .addProcessor("reload", ReloadMetadataProcessor::new, "input-reload");
+                .addProcessor("reload", ReloadMetadataProcessor::new, "input-reload")
+                .addSink("ouput-reload", this.getOutputReloadTopic(), "reload");
 
         topology.addSource("input-trace", this.getInputTraceTopic())
                 .addProcessor("speed01", FilterByMasterProcessor::new, "input-trace")

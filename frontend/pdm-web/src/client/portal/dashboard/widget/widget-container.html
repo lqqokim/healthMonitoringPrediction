@@ -6,12 +6,13 @@
         <button aria-expanded="true" name="options" title="Options" aria-haspopup="true" class="widget-set-btn"
                 data-toggle="dropdown" id="dLabel" type="button"
                 [ngClass]="{disabled: widgetModel.isPredefined && isDisabledConfig}">
-            <i class="fa a3-icon-widget-bar"></i>
+            <!-- <i class="fa a3-icon-widget-bar"></i> -->
+            <i class="fa fa-ellipsis-v" style="font-size: 15px;line-height: 15px;padding-left: 3px;"></i>
         </button>
         <ul aria-labelledby="dLabel" class="dropdown-menu dropdown-menu-left" role="menu">
-            <li>
+            <!-- <li>
                 <a href="#" (click)="$event.preventDefault(); refresh()">Refresh</a>
-            </li>
+            </li> -->
             <li *ngIf="widgetModel.isDashboardOwner && !widgetModel.isPredefined">
                 <a href="" (click)="$event.preventDefault(); deleteWidget()">Delete</a>
             </li>
@@ -22,7 +23,11 @@
     <a3p-widget-container-title [main]="widgetModel"></a3p-widget-container-title>
     <!-- widget right button(Watch, configuration -->
     <div class="widget-set dropdown pull-right">
-        <div refresh-clock class="a3-clock-icon" [attr.title]="refreshTime" [refresh]="refreshInfo"></div>
+        <!-- <div refresh-clock class="a3-clock-icon" [attr.title]="refreshTime" [refresh]="refreshInfo"></div> -->
+        <button class="widget-set-btn" type="button" [ngClass]="{disabled: widgetModel.isPredefined && isDisabledConfig}"
+            (click)="$event.preventDefault(); refresh()" style="padding-right: 10px;font-size: 14px;line-height :13px;">
+            <i class="fa fa-refresh"></i>
+        </button>
         <button #widgetConfig
                 aria-expanded="true" name="configuration" aria-haspopup="true"
                 [attr.title]="configurationTitle"

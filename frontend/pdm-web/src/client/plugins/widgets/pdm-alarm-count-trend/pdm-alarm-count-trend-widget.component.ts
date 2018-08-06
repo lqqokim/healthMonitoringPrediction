@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { WidgetApi, WidgetRefreshType, OnSetup } from '../../../common';
 
-import * as IDataType from './model/data-type.interface';
+import * as IData from './model/data-type.interface';
 import { AlarmCountTrendComponent } from './components/alarm-count-trend.component';
 import { ITimePeriod, WidgetChartConditionComponent } from '../../common/widget-chart-condition/widget-chart-condition.component';
 
@@ -13,10 +13,11 @@ import { ITimePeriod, WidgetChartConditionComponent } from '../../common/widget-
 })
 export class PdmAlarmCountTrendWidgetComponent extends WidgetApi implements OnInit, OnSetup {
     @ViewChild('container') container: ElementRef;
+    @ViewChild('chartBody') chartBody: ElementRef;
     @ViewChild('alarmCountTrendComp') alarmCountTrendComp: AlarmCountTrendComponent;
     @ViewChild('widgetCondition') widgetCondition: WidgetChartConditionComponent;
 
-    condition: IDataType.ContitionType = {
+    condition: IData.Contition = {
         fab: {
             fabId: undefined,
             fabName: undefined
@@ -46,7 +47,7 @@ export class PdmAlarmCountTrendWidgetComponent extends WidgetApi implements OnIn
     }
 
     ngOnSetup() {
-        if(this.isConfigurationWidget) {
+        if (this.isConfigurationWidget) {
             this.setCondition(this.getProperties());
         } else {
             this._init();
@@ -65,7 +66,13 @@ export class PdmAlarmCountTrendWidgetComponent extends WidgetApi implements OnIn
     onResize(e?: TransitionEvent): void {
         if ((e !== undefined && !e.isTrusted) || this._currentEl === undefined) { return; }
         if (e) {
-            this.alarmCountTrendComp.onChartResize();
+            const chartBodyEl = $(this.chartBody.nativeElement);
+            if(chartBodyEl) {
+                this.alarmCountTrendComp.onChartResize({
+                    width: chartBodyEl.width(),
+                    height: chartBodyEl.height()
+                });
+            }
         }
     }
 
@@ -116,13 +123,12 @@ export class PdmAlarmCountTrendWidgetComponent extends WidgetApi implements OnIn
 
     endChartLoad(ev: any): void {
         if (ev.isLoad) {
-            if (this.isShowNoData) {
-                this.isShowNoData = false;
-            }
-            this.hideSpinner();
+
         } else if (!ev.isLoad) {
-            this.isShowNoData = true;
+
         }
+        
+        this.hideSpinner();
     }
 
     private _init(): void {

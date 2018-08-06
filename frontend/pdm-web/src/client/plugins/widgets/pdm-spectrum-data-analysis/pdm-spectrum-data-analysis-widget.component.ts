@@ -14,7 +14,8 @@ export interface ConditionType {
         from: number,
         to: number
     },
-    props: any 
+    props: any,
+    spectrumCount: number 
 }
 
 @Component({
@@ -62,7 +63,8 @@ export class PdmSpectrumDataAnalysisWidgetComponent extends WidgetApi implements
         this.condition = {
             fab: props[CD.PLANT],
             timePeriod: props[CD.TIME_PERIOD],
-            props: props
+            props: props,
+            spectrumCount: props[CD.SPECTRUM_COUNT]
         };
     }
 

@@ -3,7 +3,7 @@
 
     <table class="table">
         <thead>
-            <th class="parameter" (click)="sortClick('parameter')">Parameter
+            <th class="parameter sortable" (click)="sortClick('parameter')">Parameter
                 <i class="fa fa-sort-asc" *ngIf="sort.parameter === 'asc'"></i>
                 <i class="fa fa-sort-desc" *ngIf="sort.parameter === 'desc'"></i>
                 <i class="fa fa-sort" *ngIf="sort.parameter === 'none'"></i>
@@ -11,7 +11,7 @@
             <th>Chart</th>
         </thead>
         <tr class="param-info" *ngFor="let param of params">
-            <td>
+            <td class='param-label'>
                 <label>
                     <!-- <input type="radio" name="paramRadio" [(ngModel)]="selectedParamId" value={{param.paramId}} (change)="onClickParam(param)"> {{param.name}} -->
                     <input type="radio" name="paramRadio" [(ngModel)]="selectedParamId" value='{{param.paramId}}' (change)="onClickParam(param)"  > {{param.name}}

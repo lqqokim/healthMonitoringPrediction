@@ -17,6 +17,15 @@ public class Eqp {
     @JsonProperty("dataTypeCd")
     private String data_type_cd;
     private String userName;
+    private String offline_yn;
+
+    public String getOffline_yn() {
+        return offline_yn;
+    }
+
+    public void setOffline_yn(String offline_yn) {
+        this.offline_yn = offline_yn;
+    }
 
     public String getUserName() {
         return userName;

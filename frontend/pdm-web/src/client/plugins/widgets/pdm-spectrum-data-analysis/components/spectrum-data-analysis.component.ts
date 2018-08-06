@@ -160,7 +160,8 @@ export class SpectrumDataAnalysisComponent implements OnDestroy, AfterViewInit {
     isVibration: boolean = true;
     isSetupState: boolean = true;
 
-    isSpectrumLoad: boolean = false;;
+    isSpectrumLoad: boolean = false;
+    spectrumCount: number;
 
     @ViewChild('chartProblem') chartProblem: ElementRef;
     @ViewChild('chartHealth') chartHealth: ElementRef;
@@ -189,7 +190,6 @@ export class SpectrumDataAnalysisComponent implements OnDestroy, AfterViewInit {
     private _timePeriod: any;
     private _props: any;
 
-
     constructor(private _service: PdmEqpParamAnalysisService,
         private translater: Translater,
         private elementref: ElementRef,
@@ -204,6 +204,7 @@ export class SpectrumDataAnalysisComponent implements OnDestroy, AfterViewInit {
             let curVal = changes['condition']['currentValue'];
             this._props = curVal['props'];
             this._setProperties(this._props);
+            this.spectrumCount = this._props[CD.SPECTRUM_COUNT];
 
             const fromDt: Date = this.addDays(this._toDate.getTime(), -this._dayPeriod);
             this.searchTimePeriod = {
@@ -223,8 +224,6 @@ export class SpectrumDataAnalysisComponent implements OnDestroy, AfterViewInit {
             this.chartPopup.hideTrigger = wjcInput.PopupTrigger.None;
             this.contributeBarChartData = null;
             this._init();
-
-            console.log('change', changes);
         }
     }
 
@@ -496,7 +495,7 @@ export class SpectrumDataAnalysisComponent implements OnDestroy, AfterViewInit {
                     },
                     tickOptions: {
                         formatter: (pattern: any, val: number, plot: any) => {
-                            return val ? moment(val).format('YYYY-MM-DD H') : '';
+                            return val ? moment(val).format('MM-DD H') : '';
                         }
                     }
                 },
@@ -604,7 +603,7 @@ export class SpectrumDataAnalysisComponent implements OnDestroy, AfterViewInit {
                     // },
                     tickOptions: {
                         formatter: (pattern: any, val: number, plot: any) => {
-                            return val ? moment(val).format('YYYY-MM-DD H') : '';
+                            return val ? moment(val).format('MM-DD H') : '';
                         }
                     },
                     rendererOptions: {
@@ -647,16 +646,16 @@ export class SpectrumDataAnalysisComponent implements OnDestroy, AfterViewInit {
                         show: false,
                         shadow: false,
                         lineWidth: 1,
-                        color: '#ffff00'
+                        color: '#ffa500'
                     },
-                    color: '#ffff00'
+                    color: '#ffa500'
                 },
                 {
                     trendline: {
                         show: false,
                         shadow: false,
                         lineWidth: 1,
-                        color: '#ffff00'
+                        color: '#ffa500'
                     },
                     color: '#80FF00'
                 },
@@ -730,7 +729,7 @@ export class SpectrumDataAnalysisComponent implements OnDestroy, AfterViewInit {
                     // },
                     tickOptions: {
                         formatter: (pattern: any, val: number, plot: any) => {
-                            return val ? moment(val).format('YYYY-MM-DD H') : '';
+                            return val ? moment(val).format('MM-DD H') : '';
                         }
                     },
                     //numberTicks: 15,
@@ -1191,7 +1190,7 @@ export class SpectrumDataAnalysisComponent implements OnDestroy, AfterViewInit {
                 col_row_Data['analysisSummary'] = "Progressing...";
                 col_row_Data['data'] = null;
                 let paramId = result[i].paramId;
-                let rate = this.analysisSpec / 100;
+                // let rate = this.analysisSpec / 100;
 
                 this._service.getMeasurements(this._plantId, this._areaId, this._eqpId, result[i].paramId, this.searchTimePeriod[CD.FROM], this.searchTimePeriod[CD.TO])
                     .then(data => {
@@ -1205,8 +1204,9 @@ export class SpectrumDataAnalysisComponent implements OnDestroy, AfterViewInit {
                             measureDtts: []
                         };
 
-                        let count = 2;
-                        let increase = data.length / count;
+                        let count: number = this.spectrumCount;
+                        console.log('count', count);
+                        let increase: number = data.length / count;
                         const dataLength: number = data.length;
                         for (let i = 0; i < dataLength - 1; i++) {
                             if (i % increase === 0) {
@@ -1226,10 +1226,7 @@ export class SpectrumDataAnalysisComponent implements OnDestroy, AfterViewInit {
                         for (let i = 0; i < measurementLength; i++) {
                             this._service.getSpectrum(this._plantId, this._areaId, this._eqpId, measurement.measurementIds[i])
                                 .then(data => {
-                                    // this.spectrumData = [data];
                                     col_row_Data['data'].push(data);
-                                  
-
                                     this.spectrumConfig['series'].push({ label: 'Current', color: 'rgb(51, 88, 255 )' });
                                     this.spectrumConfig = Object.assign({}, this.spectrumConfig);
                                 });
@@ -1400,7 +1397,7 @@ export class SpectrumDataAnalysisComponent implements OnDestroy, AfterViewInit {
                         name: `${this.warningText} (${spec_warning.toFixed(2)})`,
                         show: true, // default : false
                         value: spec_warning,
-                        color: '#ffff00',
+                        color: '#FFA500',
                         width: 1,       // default : 1
                         adjust: 0,      // default : 0
                         pattern: null,  // default : null
@@ -1590,7 +1587,7 @@ export class SpectrumDataAnalysisComponent implements OnDestroy, AfterViewInit {
                         name: `${this.warningText} (${spec_warning.toFixed(2)})`,
                         show: true, // default : false
                         value: spec_warning,
-                        color: '#ffff00',
+                        color: '#FFA500',
                         width: 1,       // default : 1
                         adjust: 0,      // default : 0
                         pattern: null,  // default : null
@@ -1787,7 +1784,7 @@ export class SpectrumDataAnalysisComponent implements OnDestroy, AfterViewInit {
                         name: `${this.warningText} (${(spec_warning * (90 / this._specAlarm)).toFixed(2)})`,
                         show: true, // default : false
                         value: spec_warning,
-                        color: '#ffff00',
+                        color: '#ffa500',
                         width: 1,       // default : 1
                         adjust: 0,      // default : 0
                         pattern: null,  // default : null
@@ -1953,7 +1950,7 @@ export class SpectrumDataAnalysisComponent implements OnDestroy, AfterViewInit {
                                     show: true
                                 }
                             },
-                            color: '#ffff00'
+                            color: '#ffa500'
                         });
                         this.trendConfig['legend']['labels'].push("Alarm");
                         this.trendConfig['legend']['labels'].push("Warning");
@@ -2324,7 +2321,7 @@ export class SpectrumDataAnalysisComponent implements OnDestroy, AfterViewInit {
                     autoscale: true,
                     tickOptions: {
                         formatter: (pattern: any, val: number, plot: any) => {
-                            return val ? moment(val).format('YYYY-MM-DD H') : '';
+                            return val ? moment(val).format('MM-DD H') : '';
                         }
                     },
                     rendererOptions: {
@@ -2640,7 +2637,7 @@ export class SpectrumDataAnalysisComponent implements OnDestroy, AfterViewInit {
     expandChart(ev, panel, index) {
         this.isShowExpandBtn = false;
         this.chartPopup.show();
-        const popupElem = $(this.popupBody.nativeElement);
+        const popupElem = $(this.modalBody.nativeElement);
         this._popupPanelElem = $(panel);
         if (index === 0) {
             this._prevPanel = null;
@@ -2670,6 +2667,13 @@ export class SpectrumDataAnalysisComponent implements OnDestroy, AfterViewInit {
     }
 
     closePopup() {
+        if (this.graph.data && this.graph.layout) {
+            this.graph = {
+                data: undefined,
+                layout: undefined
+            };
+        }
+
         this.isShowExpandBtn = true;
         // this._restoreChartPanel();
         this.chartPopup.hide();

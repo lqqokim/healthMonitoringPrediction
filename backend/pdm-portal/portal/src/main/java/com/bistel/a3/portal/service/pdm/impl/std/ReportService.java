@@ -636,6 +636,7 @@ public class ReportService implements IReportService {
         for(EqpStatusData data : list) {
             if(data.getStatus() == null) continue;
             EqpAlarmTrx alarm = mapper.selectStartAlarm(data.getEqp_id(), data.getStatus(), from, to);
+            if(alarm==null) return;
             data.setStart_dtts(alarm.getAlarm_dtts());
 
             switch(data.getStatus()) {
@@ -677,6 +678,22 @@ public class ReportService implements IReportService {
 //        result.setDay3(calculateRegression(fabId, paramId, todate, result.getAlarm(), 3));
         result.setDay7(calculateRegressionByFeature(fabId, paramId, todate, result.getAlarm(), 7));
 //        result.setDay14(calculateRegression(fabId, paramId, todate, result.getAlarm(), 14));
+        return result;
+    }
+
+    @Override
+    public List<List<Object>> getHealthIndexTrend(String fabId, Long paramId, Long fromdate, Long todate) {
+        STDReportMapper mapper = SqlSessionUtil.getMapper(sessions, fabId, STDReportMapper.class);
+
+
+        List<BasicData> datas = mapper.selectHealthIndexTrend(paramId,new Date(fromdate),new Date(todate));
+        return changeList(datas);
+    }
+    private List<List<Object>> changeList(List<BasicData> data) {
+        List<List<Object>> result = new ArrayList<>();
+        for(BasicData d : data) {
+            result.add(Arrays.asList(d.getX().getTime(), d.getY() ,d.getAlarm(),d.getWarn() ));
+        }
         return result;
     }
 
@@ -918,7 +935,8 @@ public class ReportService implements IReportService {
 
         //check alarm, warning
         //double[] result = checkSpec(dailyData, spec.getAlarm());
-        double[] result = checkSpec(dailyData, "alarm",spec.getAlarm());
+        Double alarmSpec=spec.getAlarm();
+        double[] result = checkSpec(dailyData, "alarm",alarmSpec);
         int alarmCode = 0;
 
         Double avgWithAW = dailyAvg;
@@ -1111,6 +1129,8 @@ public class ReportService implements IReportService {
         }
         return new double[] { Double.NaN, Double.NaN };
     }
+
+
     private double median(double[] scores){
         if(scores.length==1){
             return scores[0];

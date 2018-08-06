@@ -35,9 +35,12 @@ public class EqpEventController {
                 eqpEvents.get(i).setCreateBy(user.getName());
             }
             eqpEvents.get(i).setUpdateBy(user.getName());
-            service.setEpqEvent(fabId,eqpEvents.get(i));
+            service.setEpqEvent(fabId , eqpEvents.get(i));
 
         }
+
+
+
     }
 
 

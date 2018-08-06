@@ -43,7 +43,9 @@
     <bean id="fab1" class="org.mybatis.spring.SqlSessionTemplate">
         <constructor-arg index="0" ref="fab1SqlSessionFactory"/>
     </bean>
-
+    <bean class="com.bistel.a3.portal.util.ApacheHttpClientGet" id="requestURL">
+        <property name="url" value="${requestURL}"/>
+    </bean>
 
     <!--Ulsan-->
     <!--&lt;!&ndash; fab 1&ndash;&gt;-->

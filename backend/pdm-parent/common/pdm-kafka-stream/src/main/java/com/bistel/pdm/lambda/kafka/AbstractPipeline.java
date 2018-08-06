@@ -29,6 +29,7 @@ public abstract class AbstractPipeline implements Closeable {
     private final String outputFaultTopic = "pdm-output-fault";
     private final String outputParamHealthTopic = "pdm-output-param-health";
     private final String outputEQPHealthTopic = "pdm-output-eqp-health";
+    private final String outputReloadTopic = "pdm-output-reload";
 
     private final String routeFeatureTopic = "pdm-route-feature";
     private final String routeHealthTopic = "pdm-route-health";
@@ -58,23 +59,23 @@ public abstract class AbstractPipeline implements Closeable {
 
         String targetUrl = servingAddr + "/pdm/api/master/latest/equipment";
         log.info("call to {}", targetUrl);
-        MasterDataUpdater.updateEqpMasterDataSet(targetUrl);
+        MasterDataUpdater.updateEqpMasterDataSet("all", targetUrl);
 
         targetUrl = servingAddr + "/pdm/api/master/latest/param";
         log.info("call to {}", targetUrl);
-        MasterDataUpdater.updateParameterMasterDataSet(targetUrl);
+        MasterDataUpdater.updateParameterMasterDataSet("all", targetUrl);
 
         targetUrl = servingAddr + "/pdm/api/master/latest/event";
         log.info("call to {}", targetUrl);
-        MasterDataUpdater.updateEventMasterDataSet(targetUrl);
+        MasterDataUpdater.updateEventMasterDataSet("all", targetUrl);
 
-        targetUrl = servingAddr + "/pdm/api/master/latest/spec";
-        log.info("call to {}", targetUrl);
-        MasterDataUpdater.updateParamSpecDataSet(targetUrl);
+//        targetUrl = servingAddr + "/pdm/api/master/latest/spec";
+//        log.info("call to {}", targetUrl);
+//        MasterDataUpdater.updateParamSpecDataSet(targetUrl);
 
         targetUrl = servingAddr + "/pdm/api/master/latest/health";
         log.info("call to {}", targetUrl);
-        MasterDataUpdater.updateParamHealthDataSet(targetUrl);
+        MasterDataUpdater.updateParamHealthDataSet("all", targetUrl);
 
         targetUrl = servingAddr + "/pdm/api/master/latest/smtp";
         log.info("call to {}", targetUrl);
@@ -131,6 +132,10 @@ public abstract class AbstractPipeline implements Closeable {
 
     public String getOutputEQPHealthTopic() {
         return outputEQPHealthTopic;
+    }
+
+    public String getOutputReloadTopic() {
+        return outputReloadTopic;
     }
 
     public String getSchemaRegistryUrl() {

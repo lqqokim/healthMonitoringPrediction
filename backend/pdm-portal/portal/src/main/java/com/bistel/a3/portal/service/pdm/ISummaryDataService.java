@@ -1,7 +1,9 @@
 package com.bistel.a3.portal.service.pdm;
 
 import com.bistel.a3.portal.domain.pdm.*;
+import com.bistel.a3.portal.domain.pdm.db.HealthInfo;
 
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 
@@ -31,6 +33,9 @@ public interface ISummaryDataService {
 
     EqpHealthSPC eqpHealthTrendChartWithSPC(String fabId, Long paramId, Long from, Long to, List<List<Object>> eqpHealthTrendData);
 
-    List<List<Object>> getSummaryData(String fabId, Long paramId, Long fromdate, Long todate);
+    List<List<Object>> getSummaryDataForHealth(String fabId, Long paramId, Long lHealthLogic , Long fromdate, Long todate);
 
+    Object getSummaryData(String fabId,Long paramId, Long fromdate, Long todate, List<String> adHocFucntions);
+
+    List<HealthInfo> getWorstEqpsByHealthIndex(String fabId, Date from, Date to,Integer numberOfWorst);
 }

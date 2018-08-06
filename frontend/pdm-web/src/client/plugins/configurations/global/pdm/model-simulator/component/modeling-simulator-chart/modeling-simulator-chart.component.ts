@@ -1,12 +1,14 @@
 
-import { Component, ViewChild, ElementRef, OnInit, EventEmitter, Output, Input, OnChanges, DoCheck,SimpleChange } from '@angular/core';
+import { Component, ViewChild, ElementRef, OnInit, EventEmitter, Output, Input,ChangeDetectorRef, OnChanges, DoCheck,SimpleChange ,ViewEncapsulation} from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 
 @Component({
     moduleId: module.id,
     selector: 'modeling-simulator-chart',
     templateUrl: `modeling-simulator-chart.html`,
-    styleUrls: [`modeling-simulator-chart.css`]
+    styleUrls: [`modeling-simulator-chart.css`],
+    encapsulation: ViewEncapsulation.None
+
 })
 export class ModelingSimulatorChartComponent implements OnInit, OnChanges, DoCheck {
 
@@ -85,9 +87,9 @@ export class ModelingSimulatorChartComponent implements OnInit, OnChanges, DoChe
             stroke: true,
             strokeStyle: '#acafaa',
             // tslint:disable-next-line:max-line-length
-            // tooltipContentEditor: (str: string, seriesIndex: number, pointIndex: number, plot: any, tooltipContentProc: any, ev: Event) => {
-            //     tooltipContentProc(this.trendConfig['series'][seriesIndex].label + ': ' + moment(parseInt(str.split(',')[0])).format('YYYY/MM/DD HH:mm:ss') + ' [' + (+str.split(',')[1]).toFixed(2) + ']');
-            // },
+            tooltipContentEditor: (str: string, seriesIndex: number, pointIndex: number, plot: any, tooltipContentProc: any, ev: Event) => {
+                tooltipContentProc( moment(parseInt(str.split(',')[0])).format('YYYY/MM/DD HH:mm:ss') + ' [' + (+str.split(',')[1]).toFixed(2) + ']');
+            },
         }
     };
 
@@ -103,6 +105,7 @@ export class ModelingSimulatorChartComponent implements OnInit, OnChanges, DoChe
 
             this.trendConfig = Object.assign({},this.trendConfig);
 
+            this._chRef.detectChanges();
             // for(let i=0;i<this.params.length;i++){
             //     this.params.eventConfig.axes.xaxis['min'] = plot.axes.xaxis.min;
             //     this.params.eventConfig.axes.xaxis['max'] = plot.axes.xaxis.max;
@@ -120,11 +123,12 @@ export class ModelingSimulatorChartComponent implements OnInit, OnChanges, DoChe
 
             this.trendConfig = Object.assign({},this.trendConfig);
 
+            this._chRef.detectChanges();
         }
 
         
     };
-    constructor() { }
+    constructor(private _chRef: ChangeDetectorRef) { }
 
     ngOnInit() {
 

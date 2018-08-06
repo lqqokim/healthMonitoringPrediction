@@ -54,8 +54,8 @@
                     <div class="eqp-tree">
                         <fab-area-eqp-param-tree (changeParamSelection)="nodeClick2($event)" #tree2></fab-area-eqp-param-tree>
                     </div>
+                    <label>Ad-Hoc Functions</label>
                     <div class="aggregation">
-                        <label>Ad-Hoc Functions</label>
                         <div *ngFor="let item of aggregations; let i=index">
                             <label>
                                 <input type="checkbox" [(ngModel)]="item.checked" (change)="clickCheck()"> {{item.f}}

@@ -10,7 +10,7 @@ export class SpectrumDataAnalysisProperties extends ConditionApi {
 
 	preInit(): Array<string> {
 		// return [CD.PLANT, CD.CUTOFF_TYPE_DAY, CD.ANALYSIS_SPEC, CD.ANALYSIS_SPEC_VISIBLE];
-		return [CD.PLANT, CD.CUTOFF_TYPE_DAY];
+		return [CD.PLANT, CD.CUTOFF_TYPE_DAY, CD.SPECTRUM_COUNT];
 	}
 
 	// properties 초기값 설정
@@ -26,6 +26,7 @@ export class SpectrumDataAnalysisProperties extends ConditionApi {
 			Condic.Common.cutoff_type(),
 			Condic.Common.day_period(),
 			Condic.Common.day_period30(),
+			Condic.Tool.spectrum_count(),
 			Condic.Common.time_period(),
 			Condic.Tool.analysis_spec(),
 			Condic.Tool.analysis_spec_visible(),
@@ -48,6 +49,7 @@ export class SpectrumDataAnalysisProperties extends ConditionApi {
 			// Formcfg.Common.communication(),
 			// Formcfg.Factory.analysis_spec(),
 			// Formcfg.Factory.analysis_spec_visible(),
+			Formcfg.Factory.spectrum_count(),
 			Formcfg.Common.auto_refresh()
 		];
 	}

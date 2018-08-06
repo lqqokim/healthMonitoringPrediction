@@ -5,9 +5,9 @@ export abstract class ViewApi {
     private _model: any;
     private _data: any;
 
-    abstract displayContext(): [ConditionType];
-    abstract displayConfiguration(): [ConditionType];
-    abstract displaySync(): [ConditionType];
+    abstract displayContext(): ConditionType[];
+    abstract displayConfiguration(): ConditionType[];
+    abstract displaySync(): ConditionType[];
 
     /**
      * call from widget.api when apply configuration.

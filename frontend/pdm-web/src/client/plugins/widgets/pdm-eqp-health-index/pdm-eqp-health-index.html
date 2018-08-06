@@ -5,11 +5,11 @@
         <ng2-Table #table
             [columns]="columns"
             [data]="listData"
-            [paging]="paging"
             [totalFilter]="totalFilter"
             (cellClick)="cellClick($event)"
             [initStart]="false"
             [dataBindSwitch]="false"
+            (drawEnd)="drawEnd($event)"
         ></ng2-Table>
     </div>
 

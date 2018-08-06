@@ -251,6 +251,9 @@ export const ConditionConstant = {
 	MONITORING: 'monitoring',
 	MONITORING_ID: 'rawId',
 	MONITORING_NAME: 'name',
+	MAX_PARAM_COUNT: 'maxParamCount',
+	SPECTRUM_COUNT: 'spectrumCount', 
+	
 
 	TIME_PERIOD_30: 'timePeriod30',
 	CUTOFF_TYPE_DAY: 'cutoffTypeDay',

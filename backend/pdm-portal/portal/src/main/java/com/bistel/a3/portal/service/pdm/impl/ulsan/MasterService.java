@@ -237,7 +237,7 @@ public class MasterService implements IMasterService {
     }
 
     @Override
-    public void setParam(String fabId, ParamWithCommonWithRpm param) {
+    public void setParam(String fabId, Long eqpId ,ParamWithCommonWithRpm param) {
         ParamMapper mapper = SqlSessionUtil.getMapper(sessions, fabId, ParamMapper.class);
         PlatformTransactionManager manager = TransactionUtil.getTransactionManger(trMgrs, fabId);
         TransactionStatus status = TransactionUtil.getTransactionStatus(manager);
@@ -296,7 +296,15 @@ public class MasterService implements IMasterService {
         }
     }
 
+    @Override
+    public void updateParamHealth(String fabId, Long eqpId, Long paramId) {
 
+    }
+
+    @Override
+    public void deleteParamHealth(String fabId, Long eqpId, Long paramId) {
+
+    }
 
 
     //***************

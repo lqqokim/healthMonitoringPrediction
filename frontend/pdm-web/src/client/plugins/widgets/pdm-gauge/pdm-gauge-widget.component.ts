@@ -25,6 +25,7 @@ export class PdmGaugeWidgetComponent extends WidgetApi implements OnSetup, OnDes
     fabName: string;
     fromDate: any;
     toDate: any;
+    viewTimePeriod: string = '';
 
     alarmCount: number;
     warningCount: number;
@@ -67,16 +68,20 @@ export class PdmGaugeWidgetComponent extends WidgetApi implements OnSetup, OnDes
             fabId: undefined,
             timePeriod: undefined
         };
-
+        
         condition = {
             fabId: props[CD.PLANT]['fabId'],
-            timePeriod: props[CD.TIME_PERIOD],
+            timePeriod: {
+                from: props[CD.TIME_PERIOD][CD.FROM],
+                to: new Date(this._props[CD.TIME_PERIOD].to).setHours(0,0,0,0)
+            },
             worstTop: props[CD.WORST_TOP]
         };
 
         this.fabName = this._props[CD.PLANT]['fabName'];
-        this.fromDate = this.covertDateFormatter(this._props[CD.TIME_PERIOD]['from']);
-        this.toDate = this.covertDateFormatter(this._props[CD.TIME_PERIOD]['to']);
+        // this.fromDate = this.covertDateFormatter(this._props[CD.TIME_PERIOD]['from']);
+        // this.toDate = this.covertDateFormatter(this._props[CD.TIME_PERIOD]['to']);
+        this.viewTimePeriod = this.covertDateFormatter(condition.timePeriod);
         this.condition = condition;
     }
 
@@ -89,8 +94,10 @@ export class PdmGaugeWidgetComponent extends WidgetApi implements OnSetup, OnDes
     }
 
     covertDateFormatter(timestamp): string {
-        const date = new Date(timestamp);
-        return `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`;
+        return  moment(timestamp.from).format('YYYY-MM-DD HH:mm') +' ~ '+
+        moment(timestamp.to).format('YYYY-MM-DD HH:mm');
+        // const date = new Date(timestamp);
+        // return `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`;
     }
 
     showContext(item: any): void {

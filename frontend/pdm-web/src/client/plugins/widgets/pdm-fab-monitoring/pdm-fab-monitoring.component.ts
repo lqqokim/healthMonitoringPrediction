@@ -49,6 +49,8 @@ export class PdmFabMonitoringComponent extends WidgetApi implements OnInit, OnSe
 
     setConfig(): void {
         this.selectedMonitoring = this._props.monitoring;
+        if(this.selectedMonitoring==null) return;
+        
         setTimeout(()=>{
             this.fabMonitoring.simulationStart()},500);
         this.hideSpinner();

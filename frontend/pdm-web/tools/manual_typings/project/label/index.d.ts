@@ -112,7 +112,9 @@ interface ILABEL {
 	ANALYSIS_SPEC_VISIBLE: string;
 	WORST_TOP: string;
 	MONITORING: string;
-	MONITORING_NAME: string;	
+	MONITORING_NAME: string;
+	MAX_PARAM_COUNT: string;
+	SPECTRUM_COUNT: string;
 
 	STEP_DRIFT: string;
 	STEP_DOWN_TREND: string;

@@ -1221,4 +1221,22 @@ export class LabelConditionDic {
 			},
 			newCondition);
 	}
+
+	static maxParamCount(newCondition: ConditionValueType = {}): ConditionType {
+		return labelCompose(
+			LB.MAX_PARAM_COUNT,
+			{
+				i18n: 'DATA_LABEL.MAX_PARAM_COUNT'
+			},
+			newCondition);
+	}
+
+	static spectrumCount(newCondition: ConditionValueType = {}): ConditionType {
+		return labelCompose(
+			LB.SPECTRUM_COUNT,
+			{
+				i18n: 'DATA_LABEL.SPECTRUM_COUNT'
+			},
+			newCondition);
+	}
 }

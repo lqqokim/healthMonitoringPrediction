@@ -42,6 +42,7 @@ public interface STDParamMapper {
 
     void deleteCommonOne(@Param("paramId") Long paramId);
 
+    void deleteSpec(@Param("param_id") Long param_id);
 
 
     @MapKey("param_id")

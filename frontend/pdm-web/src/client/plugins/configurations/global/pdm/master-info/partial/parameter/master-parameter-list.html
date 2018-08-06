@@ -95,11 +95,11 @@
             </div> -->
             <div class="form-group a3-input-group">
               <label class="control-label">Alarm</label>
-              <input type="number" id="alarmInput" class="form-control" (keypress)="alarmKeypress($event)" min="0" [(ngModel)]="paramData.alarm" name="alarm" #alarm="ngModel"/>
+              <input type="number" id="alarmInput" class="form-control" (keypress)="alarmKeypress($event)" [(ngModel)]="paramData.alarm" name="alarm" #alarm="ngModel"/>
             </div>
             <div class="form-group a3-input-group">
               <label class="control-label">Warning</label>
-              <input type="number" id="warningInput" class="form-control" (keypress)="warningKeypress($event)" min="0" [(ngModel)]="paramData.warning" name="warning" #warning="ngModel"/>
+              <input type="number" id="warningInput" class="form-control" (keypress)="warningKeypress($event)" [(ngModel)]="paramData.warning" name="warning" #warning="ngModel"/>
             </div>
             <div class="form-group a3-input-group">
               <label class="control-label">Description</label>

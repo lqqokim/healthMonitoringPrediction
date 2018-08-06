@@ -1,8 +1,10 @@
 package com.bistel.a3.portal.service.pdm;
 
 import com.bistel.a3.common.util.DateUtil;
+import com.bistel.a3.portal.dao.pdm.std.summary.STDSummaryMapper;
 import com.bistel.a3.portal.enums.JOB_TYPE;
 import com.bistel.a3.portal.module.pdm.FabsComponent;
+import com.bistel.a3.portal.util.ApacheHttpClientGet;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.slf4j.Logger;
@@ -33,6 +35,9 @@ public class SchedulerService {
     @Autowired
     private IDataCollectService dataCollectService;
 
+    @Autowired
+    private ApacheHttpClientGet apacheHttpClientGet;
+
     private static FastDateFormat ff = FastDateFormat.getDateInstance(DateFormat.LONG);
 
     @Scheduled(cron="${schedule.partition}")
@@ -60,6 +65,7 @@ public class SchedulerService {
         batchTaskService.summaryData("System",start, end, fabsComponent.scheduleFabs(), Collections.EMPTY_SET, JOB_TYPE.SCHEDULER, "SCHEDULER");
         logger.info("END   scheduled summaryData [{} ~ {})", ff.format(start), ff.format(end));
     }
+
     @Value("${schedule.summaryRealTimeData.enable}")
     private boolean schedulerEnableSummaryRealTimeData;
     @Scheduled(cron="${schedule.summaryRealTimeData}")
@@ -76,5 +82,46 @@ public class SchedulerService {
     }
 
 
+    @Value("${schedule.summaryHealth.enable}")
+    private boolean schedulerEnableSummaryHealth;
+    @Scheduled(cron="${schedule.summaryHealth}")
+    public void summaryHealth() throws InterruptedException, ExecutionException, ParseException, IOException {
+        if(!schedulerEnableSummaryHealth) return;
+
+
+
+
+        Date startDate = new Date();
+
+        Date start = DateUtils.truncate(new Date(), Calendar.DATE);
+        Date start_dtts=DateUtils.addDays(start, -1);
+        Date end = DateUtils.truncate(new Date(), Calendar.DATE);
+
+//        for (int i = 6; i > 1; i--) {
+//
+
+//            Date start = DateUtils.truncate(new Date(), Calendar.DATE);
+//            Date start_dtts = DateUtils.addDays(start, -(i + 1));
+//            Date end_sdf = DateUtils.truncate(new Date(), Calendar.DATE);
+//            Date end = DateUtils.addDays(end_sdf, -i);
+
+            Date rulStart_dtts = DateUtils.addDays(end, -7);
+            logger.info("START scheduled summaryHealth [{} ~ {}]", ff.format(start_dtts), ff.format(end));
+
+
+            batchTaskService.deleteHealthDailySum(fabsComponent.scheduleFabs(), start_dtts, end);
+            batchTaskService.summaryHealthSTDSPC(fabsComponent.scheduleFabs(), start_dtts, end); //STD (Logic1, Logic2) Insert eqp_health_daily_sum_pdm
+            batchTaskService.summaryHealthDiff(fabsComponent.scheduleFabs(), start_dtts, end); //Diff (Logic3) Insert eqp_health_daily_sum_pdm
+
+
+            batchTaskService.deleteEqpAlarmDailySum(fabsComponent.scheduleFabs(), start_dtts, end); //delete EQP_ALARM_DAILY_SUM_PDM
+            batchTaskService.summaryEqpAlarmDaily(fabsComponent.scheduleFabs(), start_dtts, end); // insert EQP_ALARM_DAILY_SUM_PDM
+
+            batchTaskService.deleteParamHealthRUL(fabsComponent.scheduleFabs(), start_dtts, end); //delete param_health_rul_trx_pdm
+            batchTaskService.summaryParamHealthRUL(fabsComponent.scheduleFabs(), rulStart_dtts, start_dtts, end); // insert param_health_rul_trx_pdm, insert eqp_health_daily_sum_pdm
+
+            logger.info("END   scheduled summaryHealth [{} ~ {}] time spend:{}", ff.format(start_dtts), ff.format(end), com.bistel.a3.portal.util.date.DateUtil.getProgressStatusString("End", 100, 100, startDate, "summaryHealth"));
+//        }
+    }
 
 }

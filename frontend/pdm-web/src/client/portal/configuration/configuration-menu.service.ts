@@ -30,7 +30,7 @@ export class ConfigurationMenuService {
         return Promise.resolve([
             {
                 applicationId: 'pdm',
-                name: 'PdM Management',
+                name: 'HMP Management',
                 menus: [
                     // {
                     //     menuId: 'pdmArea',
@@ -105,6 +105,12 @@ export class ConfigurationMenuService {
                         description: 'Equipment Parameter Trend',
                         menus: <any>[]
                     },
+                    {
+                        menuId: 'pdmSummaryTrend',
+                        name: 'Summary Trend',
+                        description: 'Summary Trend',
+                        menus: <any>[]
+                    },
 
                     
                 ]
@@ -123,6 +129,12 @@ export class ConfigurationMenuService {
                         menuId: 'jobHistory',
                         name: 'Job History',
                         description: 'Job History',
+                        menus: <any>[]
+                    },
+                    {
+                        menuId: 'logSQLParser',
+                        name: 'Log SQL Parser',
+                        description: 'log SQL Parser',
                         menus: <any>[]
                     }
                 ]
@@ -166,12 +178,13 @@ export class ConfigurationMenuService {
                         description: 'User List',
                         menus: <any>[]
                     },
-                    {
-                        menuId: 'groupList',
-                        name: 'Group List',
-                        description: 'Group List',
-                        menus: <any>[]
-                    }/*,
+                    // {
+                    //     menuId: 'groupList',
+                    //     name: 'Group List',
+                    //     description: 'Group List',
+                    //     menus: <any>[]
+                    // }
+                    /*,
                     {
                         menuId: 'roleList',
                         name: 'Role List',
@@ -335,12 +348,13 @@ export class ConfigurationMenuService {
                         description: 'User List',
                         menus: <any>[]
                     },
-                    {
-                        menuId: 'groupList',
-                        name: 'Group List',
-                        description: 'Group List',
-                        menus: <any>[]
-                    }/*,
+                    // {
+                    //     menuId: 'groupList',
+                    //     name: 'Group List',
+                    //     description: 'Group List',
+                    //     menus: <any>[]
+                    // }
+                    /*,
                     {
                         menuId: 'roleList',
                         name: 'Role List',

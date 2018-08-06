@@ -7,7 +7,7 @@
             select seq_eqp_event_mst_pdm.nextval FROM DUAL
         </selectKey>
         insert into eqp_event_mst_pdm(rawid, eqp_mst_rawid,event_name,event_type_cd,process_yn,param_mst_rawid,condition,create_by,create_dtts,update_by,update_dtts,event_group,time_interval_yn,interval_time_ms)
-        values(#{rawId}, #{eqpId}, #{eventName,jdbcType=VARCHAR}, #{eventTypeCd},#{processYn},#{paramId},#{condition},#{userName},systimestamp,#{userName},systimestamp,#{eventGroup},#{timeIntervalYn},#{intervalTimeMs})
+        values(#{rawId}, #{eqpId}, #{eventName,jdbcType=VARCHAR}, #{eventTypeCd},#{processYn},#{paramId},#{condition},#{updateBy},systimestamp,#{createBy},systimestamp,#{eventGroup},#{timeIntervalYn},#{intervalTimeMs})
     </insert>
       <insert id="insert" parameterType="com.bistel.a3.portal.domain.pdm.db.EqpEvent" databaseId="postgresql" >
         <selectKey keyProperty="rawId" resultType="Long" order="BEFORE">

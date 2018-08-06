@@ -23,7 +23,7 @@ public class FeatureConsumerRunnable implements Runnable {
     private final KafkaConsumer<String, byte[]> consumer;
     private final String topicName;
 
-    private final static int PollingDurations = 1;
+    private final static int PollingDurations = 5;
 
     private FeatureDataDao trxDao;
 
@@ -55,7 +55,7 @@ public class FeatureConsumerRunnable implements Runnable {
             if (records.count() > 0) {
                 log.debug(" polling {} records", records.count());
                 trxDao.storeRecord(records);
-                consumer.commitSync();
+                consumer.commitAsync();
                 log.info("{} records are committed.", records.count());
             }
         }

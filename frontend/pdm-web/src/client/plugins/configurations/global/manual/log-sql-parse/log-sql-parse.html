@@ -1,0 +1,29 @@
+<div class="panel panel-info">
+    <div class="panel-heading">Log</div>
+    <div class="panel-body">
+        <textarea cols="40" rows="5" (change)="logParse()" class="form-control" id="log">2018-05-14 09:26:45.338 DEBUG 7911 --- [nio-8080-exec-1] c.b.a.p.d.p.s.r.S.selectStartAlarm       : ==>  Preparing: select min(sum_dtts) as alarm_dtts from eqp_alarm_daily_sum_pdm where eqp_mst_rawid = ? and sum_dtts >= ? and sum_dtts < ? and status_cd = ? 
+                2018-05-14 09:26:45.338 DEBUG 7911 --- [nio-8080-exec-1] c.b.a.p.d.p.s.r.S.selectStartAlarm       : ==> Parameters: 746(Long), 2018-05-13 00:00:00.0(Timestamp), 2018-05-14 09:26:45.312(Timestamp), 256(Integer)
+    </textarea>
+    </div>
+</div>
+<div class="btn btn-info" id='logParse' (click)="logParse()">Log Parse</div>
+
+<div class="panel panel-info" style="display:none">
+    <div class="panel-heading">SQL</div>
+    <div class="panel-body">
+        <textarea cols="40" rows="20" class="form-control" id="sql">SELECT * FROM ( SELECT eqp.rawid AS eqp_id, eqp.name, alarm.status_cd FROM ( SELECT param.eqp_mst_rawid AS eqp_id, MAX(daily.value) AS value FROM ( SELECT param_mst_rawid AS param_id, AVG(avg_daily / alarm_spec) AS value FROM trace_daily_sum_pdm WHERE sum_dtts >= ? AND sum_dtts < ? GROUP BY param_mst_rawid ) daily JOIN param_mst_pdm param ON daily.param_id = param.rawid GROUP BY param.eqp_mst_rawid ) eqpgroup JOIN eqp_mst_pdm eqp ON eqpgroup.eqp_id = eqp.rawid LEFT JOIN ( SELECT eqp_mst_rawid AS eqp_id, MAX(status_cd) AS status_cd FROM eqp_alarm_daily_sum_pdm WHERE sum_dtts >= ? AND sum_dtts < ? GROUP BY eqp_mst_rawid ) alarm ON eqp.rawid = alarm.eqp_id ORDER BY eqpgroup.value DESC ) where rownum <= ?</textarea> </div>
+</div>
+<div class="panel panel-info"  style="display:none">
+    <div class="panel-heading">Data</div>
+    <div class="panel-body">
+        <textarea cols="40" rows="20" class="form-control" id="data">2018-04-19 11:52:09.61(Timestamp), 2018-04-19 11:42:59.796(Timestamp), 2018-04-19 11:52:09.61(Timestamp), 2018-04-19 11:42:59.796(Timestamp), 7(Integer)</textarea>
+    </div>
+</div>
+<div class="btn btn-info" id='parse' style="display: none">Parse</div>
+<br><br>
+<div class="panel panel-info">
+    <div class="panel-heading">Result</div>
+    <div class="panel-body">
+        <textarea cols="40" rows="20" class="form-control" id="result"></textarea>
+    </div>
+</div>

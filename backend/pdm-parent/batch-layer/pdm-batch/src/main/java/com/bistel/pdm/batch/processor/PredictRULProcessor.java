@@ -5,16 +5,13 @@ import com.bistel.pdm.common.json.ParameterMasterDataSet;
 import com.bistel.pdm.lambda.kafka.master.MasterDataCache;
 import org.apache.commons.math3.stat.regression.SimpleRegression;
 import org.apache.kafka.streams.KeyValue;
-import org.apache.kafka.streams.kstream.Windowed;
 import org.apache.kafka.streams.processor.AbstractProcessor;
 import org.apache.kafka.streams.processor.ProcessorContext;
-import org.apache.kafka.streams.state.KeyValueIterator;
 import org.apache.kafka.streams.state.WindowStore;
+import org.apache.kafka.streams.state.WindowStoreIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -43,59 +40,51 @@ public class PredictRULProcessor extends AbstractProcessor<String, byte[]> {
             String[] recordColumns = recordValue.split(SEPARATOR);
             String strParamRawid = recordColumns[2];
             Long paramRawid = Long.parseLong(strParamRawid);
-
-            Double dValue = Double.parseDouble(recordColumns[7]);
-
-            Long endTime = Long.parseLong(recordColumns[1]);
-            Long startTime = endTime - TimeUnit.DAYS.toMillis(7);
-
-            kvFeatureDataStore.put(strParamRawid, endTime + "," + dValue, endTime);
-
             String paramKey = partitionKey + ":" + paramRawid;
 
             ParameterMasterDataSet paramMaster =
                     MasterDataCache.getInstance().getParamMasterDataSetWithRawId(partitionKey, paramRawid);
 
+            if (paramMaster == null) return;
+
+            Long endTime = Long.parseLong(recordColumns[1]);
+            Long startTime = endTime - TimeUnit.DAYS.toMillis(7);
+
             ParameterHealthDataSet fd04HealthInfo =
                     MasterDataCache.getInstance().getParamHealthFD04(paramRawid);
+            if (fd04HealthInfo != null && fd04HealthInfo.getApplyLogicYN().equalsIgnoreCase("Y")) {
 
-            if (fd04HealthInfo != null) {
+                if (paramMaster.getUpperAlarmSpec() == null) return;
+
+                Double dValue = Double.parseDouble(recordColumns[7]);
+
+                kvFeatureDataStore.put(strParamRawid, endTime + "," + dValue, endTime);
+
                 log.debug("[{}] - calculate RUL with average ({}). ", partitionKey, dValue);
 
-                if(paramMaster.getUpperAlarmSpec() == null){
-                    log.debug("[{}] - No spec!!! : {} ", paramKey, paramMaster.getParameterName());
-                    return;
-                }
                 // ==========================================================================================
                 // Logic 4 health
 
-                List<String> doubleValueList = new ArrayList<>();
+                // logic 4 - linear regression
+                SimpleRegression regression = new SimpleRegression();
 
-                KeyValueIterator<Windowed<String>, String> storeIterator = kvFeatureDataStore.fetchAll(startTime, endTime);
+                int dataCount = 0;
+                WindowStoreIterator<String> storeIterator = kvFeatureDataStore.fetch(strParamRawid, startTime, endTime);
                 while (storeIterator.hasNext()) {
-                    KeyValue<Windowed<String>, String> kv = storeIterator.next();
-
+                    KeyValue<Long, String> kv = storeIterator.next();
                     //log.debug("[{}] - fetch : {}", kv.key.key(), kv.value);
 
-                    if (kv.key.key().equalsIgnoreCase(strParamRawid)) {
-                        doubleValueList.add(kv.value);
-                    }
+                    String[] dbl = kv.value.split(","); // (time, value)
+                    regression.addData(Long.parseLong(dbl[0]), Double.parseDouble(dbl[1]));
+                    dataCount++;
                 }
+                storeIterator.close();
 
-                if (doubleValueList.size() > 0) {
-                    log.debug("[{}] - data size : {}", paramKey, doubleValueList.size());
-
-                    // logic 4 - linear regression
-                    SimpleRegression regression = new SimpleRegression();
-                    for (String val : doubleValueList) {
-                        String[] dbl = val.split(","); // (time, value)
-                        regression.addData(Long.parseLong(dbl[0]), Double.parseDouble(dbl[1]));
-                    }
+                if (dataCount > 0) {
+                    log.trace("[{}] - data size : {}", paramKey, dataCount);
 
                     double intercept = regression.getIntercept();
                     double slope = regression.getSlope();
-                    //if(Double.isNaN(intercept) || Double.isNaN(slope) || slope <=0) return null;
-
                     double x = (paramMaster.getUpperAlarmSpec() - intercept) / slope;
 
                     // y = intercept + slope * x
@@ -123,14 +112,19 @@ public class PredictRULProcessor extends AbstractProcessor<String, byte[]> {
                         statusCode = "W";
                     }
 
-                    // time, eqpRawid, param_rawid, param_health_rawid, status_cd, count, index, health_logic_rawid
+                    // time, eqpRawid, param_rawid, param_health_rawid, status_cd, data_count, index, specs
                     String newMsg = endTime + ","
                             + paramMaster.getEquipmentRawId() + ","
                             + paramRawid + ","
                             + fd04HealthInfo.getParamHealthRawId() + ","
                             + statusCode + ","
-                            + doubleValueList.size() + ","
-                            + index + "," //+ fd04HealthInfo.getHealthLogicRawId() + ","
+                            + dataCount + ","
+                            + index + ","
+                            + (paramMaster.getUpperAlarmSpec() == null ? "" : paramMaster.getUpperAlarmSpec()) + ","
+                            + (paramMaster.getUpperWarningSpec() == null ? "" : paramMaster.getUpperWarningSpec()) + ","
+                            + (paramMaster.getTarget() == null ? "" : paramMaster.getTarget()) + ","
+                            + (paramMaster.getLowerAlarmSpec() == null ? "" : paramMaster.getLowerAlarmSpec()) + ","
+                            + (paramMaster.getLowerWarningSpec() == null ? "" : paramMaster.getLowerWarningSpec()) + ","
                             + intercept + ","
                             + slope + ","
                             + x;
@@ -140,14 +134,19 @@ public class PredictRULProcessor extends AbstractProcessor<String, byte[]> {
                     log.debug("[{}] - logic 4 health : {}", paramKey, newMsg);
 
                 } else {
-                    log.info("[{}] - Unable to calculate RUL...", paramKey);
+                    log.debug("[{}] - Unable to calculate RUL...", paramKey);
                 }
+            } else {
+                log.debug("[{}] - No health because skip the logic 4.", paramKey);
+            }
 
-                // ==========================================================================================
-                // Logic 1 health
+            // ==========================================================================================
+            // Logic 1 health
+            // logic 1 - calculate index
+            ParameterHealthDataSet fd01HealthInfo = MasterDataCache.getInstance().getParamHealthFD01(paramRawid);
+            if (fd01HealthInfo != null && fd01HealthInfo.getApplyLogicYN().equalsIgnoreCase("Y")) {
 
-                // logic 1 - calculate index
-                ParameterHealthDataSet fd01HealthInfo = MasterDataCache.getInstance().getParamHealthFD01(paramRawid);
+                if (paramMaster.getUpperAlarmSpec() == null) return;
 
                 Double davg = Double.parseDouble(recordColumns[7]);
                 double index = davg / paramMaster.getUpperAlarmSpec();
@@ -160,23 +159,26 @@ public class PredictRULProcessor extends AbstractProcessor<String, byte[]> {
                     statusCode = "W";
                 }
 
-                // time, eqpRawid, param_rawid, param_health_rawid, status_cd, index
+                // time, eqpRawid, param_rawid, param_health_rawid, status_cd, data_count, index, specs
                 String newMsg = endTime + ","
                         + paramMaster.getEquipmentRawId() + ","
                         + paramRawid + ","
                         + fd01HealthInfo.getParamHealthRawId() + ","
                         + statusCode + ","
-                        + doubleValueList.size() + ","
-                        + index;// + "," + fd01HealthInfo.getHealthLogicRawId();
+                        + recordColumns[3] + ","
+                        + index + ","
+                        + (paramMaster.getUpperAlarmSpec() == null ? "" : paramMaster.getUpperAlarmSpec()) + ","
+                        + (paramMaster.getUpperWarningSpec() == null ? "" : paramMaster.getUpperWarningSpec()) + ","
+                        + (paramMaster.getTarget() == null ? "" : paramMaster.getTarget()) + ","
+                        + (paramMaster.getLowerAlarmSpec() == null ? "" : paramMaster.getLowerAlarmSpec()) + ","
+                        + (paramMaster.getLowerWarningSpec() == null ? "" : paramMaster.getLowerWarningSpec());
 
                 context().forward(partitionKey, newMsg.getBytes());
                 context().commit();
                 log.debug("[{}] - logic 1 health : {}", paramKey, newMsg);
-
             } else {
-                log.trace("[{}] - No health info.", paramKey);
+                log.debug("[{}] - No health because skip the logic 1.", paramKey);
             }
-
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }

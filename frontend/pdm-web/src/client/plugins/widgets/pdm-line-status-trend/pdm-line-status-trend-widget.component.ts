@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { WidgetApi, WidgetRefreshType, OnSetup } from '../../../common';
 
-import * as IDataType from './model/data-type.interface';
+import * as IData from './model/data-type.interface';
 import { LineStatusTrendComponent } from './components/line-status-trend.component';
 import { ITimePeriod, WidgetChartConditionComponent } from '../../common/widget-chart-condition/widget-chart-condition.component';
 
@@ -13,10 +13,11 @@ import { ITimePeriod, WidgetChartConditionComponent } from '../../common/widget-
 })
 export class PdmLineStatusTrendWidgetComponent extends WidgetApi implements OnInit, OnDestroy, OnSetup {
     @ViewChild('container') container: ElementRef;
+    @ViewChild('chartBody') chartBody: ElementRef;
     @ViewChild('lineStatusTrendComp') lineStatusTrendComp: LineStatusTrendComponent;
     @ViewChild('widgetCondition') widgetCondition: WidgetChartConditionComponent;
 
-    condition: IDataType.ContitionType = {
+    condition: IData.Contition = {
         fab: {
             fabId: undefined,
             fabName: undefined
@@ -65,7 +66,13 @@ export class PdmLineStatusTrendWidgetComponent extends WidgetApi implements OnIn
     onResize(e?: TransitionEvent): void {
         if ((e !== undefined && !e.isTrusted) || this._currentEl === undefined) { return; }
         if (e) {
-            this.lineStatusTrendComp.onChartResize();
+            const chartBodyEl = $(this.chartBody.nativeElement);
+            if(chartBodyEl) {
+                this.lineStatusTrendComp.onChartResize({
+                    width: chartBodyEl.width(),
+                    height: chartBodyEl.height()
+                });
+            }
         }
     }
 
@@ -116,14 +123,12 @@ export class PdmLineStatusTrendWidgetComponent extends WidgetApi implements OnIn
 
     endChartLoad(ev: any): void {
         if (ev.isLoad) {
-            if (this.isShowNoData) {
-                this.isShowNoData = false;
-            }
-            this.hideSpinner();
+
         } else if (!ev.isLoad) {
-            this.isShowNoData = true;
-            this.hideSpinner();
+
         }
+
+        this.hideSpinner();
     }
 
     private _init(): void {

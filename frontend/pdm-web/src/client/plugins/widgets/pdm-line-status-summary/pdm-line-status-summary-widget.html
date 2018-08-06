@@ -3,20 +3,11 @@
         [target]='targetName'
     ></widget-chart-condition>
 
-    <div class="chart-body div01">
+    <div class="chart-body div01" #chartBody>
         <line-status-summary #statusSummary
             [condition]="condition"
             (onSync)="onSync($event)"
             (endChartLoad)="endChartLoad($event)">
         </line-status-summary>
-
-        <div class="float-wrapper" *ngIf="isShowNoData" style="position:relative;">
-            <dl>
-                <dt>
-                    <i class="icon icon-nodata"></i>
-                </dt>
-                <dd class="message-title">Error</dd>
-            </dl>
-        </div>
     </div>
 </div>

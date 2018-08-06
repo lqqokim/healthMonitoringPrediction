@@ -1,4 +1,4 @@
-export interface ContitionType {
+export interface Contition {
     fab: Fab;
     area?: Area;
     timePeriod: {
@@ -8,11 +8,34 @@ export interface ContitionType {
 }
 
 export interface Fab {
-    fabId: string | number;
+    fabId: number;
     fabName: string;
 }
 
 export interface Area {
-    areaId: string | number;
+    areaId: number;
     areaName: string;
+}
+
+export interface TimePeriod {
+    fromDate: number;
+    toDate: number;
+}
+
+export interface RequestParam {
+    from: number;
+    to: number;
+}
+
+export interface AlarmCountTrend {
+    alarm_count: number;
+    area_id: number;
+    area_name: string;
+    failure_count: number;
+    normal_count: number;
+    offline_count: number;
+    start_time: number
+    total_count: number;
+    warning_count: number;
+    day: string;
 }

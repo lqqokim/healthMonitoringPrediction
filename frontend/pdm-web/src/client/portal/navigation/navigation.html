@@ -128,7 +128,7 @@
             <i class="icon-header-settings"></i>
         </div>
         <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dLabel">
-            <li><a href="#" (click)="$event.preventDefault(); goGlobalConfig();">PDM Configuration</a></li>
+            <!-- <li><a href="#" (click)="$event.preventDefault(); goGlobalConfig();">PDM Configuration</a></li> -->
             <li *ngIf="isAdmin()"><a href="#" (click)="$event.preventDefault(); goAppConfig();">Application Configuration</a></li>
         </ul>
     </div>

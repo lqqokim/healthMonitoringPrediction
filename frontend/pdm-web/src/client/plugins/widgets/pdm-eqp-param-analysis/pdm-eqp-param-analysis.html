@@ -1,9 +1,9 @@
 <div a3-spinner #Spinner [type]="'component'"></div>
 <div class="widget widget-pdm-eqp-param-analysis clearfix">
     <div class="node-tree">
-
-        <modeling-tree #tree (nodeClick)="nodeClick($event)" [fab]="_plantId"></modeling-tree>
+        <modeling-tree #tree (nodeClick)="nodeClick($event)" (nodeDataRes)="nodeDataRes($event)" [fab]="_plantId"></modeling-tree>
     </div>
+
     <div class="chart-row main-body">
         <div class="pdm-chart-row-head">
             <div class="header-period-group pull-left">
@@ -39,27 +39,27 @@
             </div>
 
             <!-- Metrix Chart -->
+            <div class="row-chart-header chr-pad-height">
+                <h3 class="panel-title">Eqp Parameter Matrix</h3>
+                <!-- <i class="fa fa-search" (click)="expandChart($event, chartHealth, 0)"></i> -->
+            </div>
             <div class="metrix-row-chart-group" #chartHealth onselectstart="return false;">
-                <div class="row-chart-header chr-pad-height">
-                    <h3 class="panel-title">Eqp Parameter Matrix</h3>
-                    <!-- <i class="fa fa-search" (click)="expandChart($event, chartHealth, 0)"></i> -->
-                </div>
                 <div class="metrix-row-chart-area metrix-row" *ngFor="let rowItem of rows;let i=index">
                     <div class="metrix-chart-col" *ngIf="i==0">
                         <div class="metrix-chart-col-label" *ngFor="let colItem of cols">
                             <label>{{colItem}}</label>
                         </div>
                     </div>
-                    <div class="metrix-row-chart">
+                    <div class='metrix-row-chart'  >
                         <div class="metrix-row-label">
                             <label>{{rowItem}}</label>
                         </div>
                         <div class="metrix-width-calc">
                             <!-- .metrix-warning-boder -->
-                            <div class="metrix-chart-container" (dblclick)="matrixDblClick(col_row[rowItem][colItem])" [ngClass]="{'metrix-warning':col_row[rowItem][colItem]!=undefined && col_row[rowItem][colItem].analysis!=undefined}"
+                            <div class="metrix-chart-container"  (dblclick)="matrixDblClick(col_row[rowItem][colItem])" [ngClass]="{'metrix-warning':col_row[rowItem][colItem]!=undefined && col_row[rowItem][colItem].analysis!=undefined}"
                                 *ngFor="let colItem of cols">
-                                <div class="metrix-chart" *ngIf="col_row[rowItem][colItem]!=undefined">
-                                    <a3c-bistel-chart [data]="col_row[rowItem][colItem].data"  [config]="TrendMetrixChartConfig" [eventLines]="col_row[rowItem][colItem].trendEventLines"
+                                <div class="metrix-chart" title="{{rowItem}} {{colItem}}" *ngIf="col_row[rowItem][colItem]!=undefined">
+                                    <a3c-bistel-chart [data]="col_row[rowItem][colItem].data" [config]="TrendMetrixChartConfig" [eventLines]="col_row[rowItem][colItem].trendEventLines"
                                         style="width: 100%; " class="chart-body">
                                     </a3c-bistel-chart>
                                     <div class="float-wrapper" *ngIf="col_row[rowItem][colItem].data==null">
@@ -177,8 +177,8 @@
 
                     <span class="pull-right">
 
-                        <wj-multi-select class="form-control" placeholder="Select 1X Item" title="You can select multiple 1x items" checkedMemberPath="selected" headerFormat="{count} selected"
-                            displayMemberPath="display" [itemsSource]="rpmscombo" (checkedItemsChanged)="multiComboCheckedItemsChanged($event);"
+                        <wj-multi-select class="form-control" placeholder="Select 1X Item" title="You can select multiple 1x items" checkedMemberPath="selected"
+                            headerFormat="{count} selected" displayMemberPath="display" [itemsSource]="rpmscombo" (checkedItemsChanged)="multiComboCheckedItemsChanged($event);"
                             (dblclick)="$event.stopPropagation();">
                         </wj-multi-select>
                         <button *ngIf="isShowExpandBtn" class="btn btn-default" id="wjPopup" (click)="expandChart($event, chartSpectra, 3);">

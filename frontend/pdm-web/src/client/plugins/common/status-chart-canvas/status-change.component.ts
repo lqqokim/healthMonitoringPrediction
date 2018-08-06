@@ -270,6 +270,16 @@ export class StatusChangeComponent implements OnInit, OnDestroy {
             data = this.drawData.data
         ;
 
+        // 퍼센트값이 마이너스 라면 0 전달
+        if( percentX < 0 ){
+            return 0;
+        }
+
+        // 퍼센트 값이 100% 넘어가면 최대 값 전달
+        else if( percentX > 1) {
+            return 1;
+        }
+
         for( i=0; i<len; i++ ){
             if( data[i].min <= percentX && data[i].max >= percentX ){
                 return i;
@@ -293,9 +303,7 @@ export class StatusChangeComponent implements OnInit, OnDestroy {
             currType: string = this.statusData[currIdx].type,
             currTimestamp: number = this.timePeriod.fromDate + Math.round(this.drawData.period.max * percentX)
         ;
-
         this.is_mouse_over = true;
-
 
         // 원래 보여질 내용 그리기
         this.onDraw();
@@ -327,9 +335,12 @@ export class StatusChangeComponent implements OnInit, OnDestroy {
 
             // 해당 좌표 status 날짜, 시작~끝 위치
             this.infoBoxcont.name = currType;
-            this.infoBoxcont.currTimeStart = moment(this.statusData[currIdx].start).add(-1, 'months').format('YY-MM-DD HH:mm');
-            this.infoBoxcont.currTimeEnd = moment(this.statusData[currIdx].end).add(-1, 'months').format('YY-MM-DD HH:mm');
-            this.infoBoxcont.currTime = moment(currTimestamp).add(-1, 'months').format('YY-MM-DD HH:mm');
+            // this.infoBoxcont.currTimeStart = moment(this.statusData[currIdx].start).add(-1, 'months').format('YY-MM-DD HH:mm');
+            // this.infoBoxcont.currTimeEnd = moment(this.statusData[currIdx].end).add(-1, 'months').format('YY-MM-DD HH:mm');
+            // this.infoBoxcont.currTime = moment(currTimestamp).add(-1, 'months').format('YY-MM-DD HH:mm');
+            this.infoBoxcont.currTimeStart = moment(this.statusData[currIdx].start).format('YY-MM-DD HH:mm:ss');
+            this.infoBoxcont.currTimeEnd = moment(this.statusData[currIdx].end).format('YY-MM-DD HH:mm:ss');
+            this.infoBoxcont.currTime = moment(currTimestamp).format('YY-MM-DD HH:mm:ss');
         }
     }
 

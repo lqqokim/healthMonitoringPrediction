@@ -10,7 +10,9 @@ import com.bistel.a3.portal.domain.pdm.master.AreaWithChildren;
 import com.bistel.a3.portal.domain.pdm.master.EqpWithEtc;
 import com.bistel.a3.portal.domain.pdm.master.ParamWithCommonWithRpm;
 import com.bistel.a3.portal.domain.pdm.master.PartWithParam;
+import com.bistel.a3.portal.domain.pdm.std.master.STDParamHealth;
 import com.bistel.a3.portal.service.pdm.IMasterService;
+import com.bistel.a3.portal.util.ApacheHttpClientGet;
 import com.bistel.a3.portal.util.SqlSessionUtil;
 import com.bistel.a3.portal.util.TransactionUtil;
 import org.mybatis.spring.SqlSessionTemplate;
@@ -39,6 +41,9 @@ public class MasterService implements IMasterService {
 
     @Autowired
     private CodeMapper codeMapper;
+
+    @Autowired
+    private ApacheHttpClientGet apacheHttpClientGet;
 
     //***************
     //     Area
@@ -319,8 +324,12 @@ public class MasterService implements IMasterService {
         ParamWithCommonWithRpm paramWithCommonWithRpm = new ParamWithCommonWithRpm();
         paramWithCommonWithRpm.setUserName(userName);
         paramWithCommonWithRpm.setParam_id(toParamId);
-        paramWithCommonWithRpm.setAlarm(overallSpec.getAlarm());
-        paramWithCommonWithRpm.setWarn(overallSpec.getWarn());
+        
+        if (overallSpec != null) {
+        	paramWithCommonWithRpm.setAlarm(overallSpec.getAlarm());
+        	paramWithCommonWithRpm.setWarn(overallSpec.getWarn());
+        }        
+        
         paramDataMapper.insertSpec(paramWithCommonWithRpm);
     }
 
@@ -342,7 +351,7 @@ public class MasterService implements IMasterService {
         STDParamMapper mapper = SqlSessionUtil.getMapper(sessions, fabId, STDParamMapper.class);
         return mapper.selectOne(paramId);
     }
-    public void setParam(String fabId, ParamWithCommonWithRpm param) {
+    public void setParam(String fabId, Long eqpId , ParamWithCommonWithRpm param) {
         STDParamMapper mapper = SqlSessionUtil.getMapper(sessions, fabId, STDParamMapper.class);
         PlatformTransactionManager manager = TransactionUtil.getTransactionManger(trMgrs, fabId);
         TransactionStatus status = TransactionUtil.getTransactionStatus(manager);
@@ -356,6 +365,8 @@ public class MasterService implements IMasterService {
 //                mapper.insertCommonOne(param);
                 if(param.getAlarm()!=null && param.getWarn()!=null){
                     mapper.insertSpec(param);
+                    this.updateParamHealth(fabId, eqpId, param.getParam_id()); //추후 삭제(UI 부재)
+
                 }
 
 
@@ -375,8 +386,10 @@ public class MasterService implements IMasterService {
                     Spec spec = mapper.selectSpec(param.getParam_id());
                     if(spec!=null) {
                         mapper.updateSpec(param);
+
                     }else{
                         mapper.insertSpec(param);
+                        this.updateParamHealth(fabId, eqpId, param.getParam_id()); //추후 삭제(UI 부재)
                     }
                 }
             }
@@ -385,6 +398,11 @@ public class MasterService implements IMasterService {
             manager.rollback(status);
             throw new RuntimeException(e.getMessage());
         }
+
+
+
+
+
     }
     public void removeParam(String fabId, Long eqpId, Long paramId) {
         STDParamMapper mapper = SqlSessionUtil.getMapper(sessions, fabId, STDParamMapper.class);
@@ -394,13 +412,26 @@ public class MasterService implements IMasterService {
 //            mapper.deleteCommonOne(paramId);
 //            mapper.deleteRpmOne(paramId);
             mapper.deleteOne(paramId);
+            mapper.deleteSpec(paramId);
+            this.deleteParamHealth(fabId,eqpId,paramId);
+
             manager.commit(status);
         } catch (Exception e) {
             manager.rollback(status);
             throw new RuntimeException(e.getMessage());
         }
+
+
+
+        //request to Kafka
+        STDEqpMapper eqpMapper= SqlSessionUtil.getMapper(sessions, fabId, STDEqpMapper.class);
+        EqpWithEtc eqpWithEtc=eqpMapper.selectOne(eqpId);
+        String eqp_name=eqpWithEtc.getName();
+        apacheHttpClientGet.requestReload(eqp_name);
+
     }
     public void removeParams(String fabId, Long eqpId, Long[] paramIds) {
+
         STDParamMapper mapper = SqlSessionUtil.getMapper(sessions, fabId, STDParamMapper.class);
         PlatformTransactionManager manager = TransactionUtil.getTransactionManger(trMgrs, fabId);
         TransactionStatus status = TransactionUtil.getTransactionStatus(manager);
@@ -415,9 +446,77 @@ public class MasterService implements IMasterService {
             manager.rollback(status);
             throw new RuntimeException(e.getMessage());
         }
+
+
+        //request to Kafka
+        STDEqpMapper eqpMapper= SqlSessionUtil.getMapper(sessions, fabId, STDEqpMapper.class);
+        EqpWithEtc eqpWithEtc=eqpMapper.selectOne(eqpId);
+        String eqp_name=eqpWithEtc.getName();
+        apacheHttpClientGet.requestReload(eqp_name);
+
     }
 
 
+    ///////////////////////////////////////////** 추후 삭제 ** //////////////////////////////////////////////////////////////
+    //insert Param_health_mst_pdm (UI의 부재 때문)
+    @Override
+    public void updateParamHealth(String fabId, Long eqpId, Long paramId){
+
+
+        STDEtcMapper stdEtcMapper=SqlSessionUtil.getMapper(sessions, fabId, STDEtcMapper.class);
+        List<STDParamHealth> paramHealths=stdEtcMapper.selectParamHealth(eqpId, paramId);
+
+
+        for (int i = 0; i < paramHealths.size(); i++) {
+
+            Long param_health_mst_rawid=paramHealths.get(i).getParam_health_mst_rawid();
+            Long param_mst_rawid=paramHealths.get(i).getParam_mst_rawid();
+            Long health_logic_mst_rawid=paramHealths.get(i).getHealth_logic_mst_rawid();
+            String apply_logic_yn=paramHealths.get(i).getApply_logic_yn();
+
+            stdEtcMapper.insertParamHealth(param_health_mst_rawid, param_mst_rawid, health_logic_mst_rawid, apply_logic_yn); // param_health_mst_pdm에 Insert
+            stdEtcMapper.insertParamHealthOptionTotal(param_health_mst_rawid); // param_health_option_mst_pdm 에 Insert
+            stdEtcMapper.insertParamHealthOptionSpecific(param_health_mst_rawid); // param_health_option_mst_pdm 에 Insert
+
+
+
+        }
+
+        //request to Kafka
+        STDEqpMapper eqpMapper= SqlSessionUtil.getMapper(sessions, fabId, STDEqpMapper.class);
+        EqpWithEtc eqpWithEtc=eqpMapper.selectOne(eqpId);
+        String eqp_name=eqpWithEtc.getName();
+        apacheHttpClientGet.requestReload(eqp_name);
+
+
+    }
+
+    @Override
+    public void deleteParamHealth(String fabId, Long eqpId, Long paramId){
+
+        STDEtcMapper stdEtcMapper=SqlSessionUtil.getMapper(sessions, fabId, STDEtcMapper.class);
+        List<STDParamHealth> paramHealthMstAndOptionRawId=stdEtcMapper.selectParamHealthOption(paramId);
+
+        Long optionRawId=null;
+        for (int i = 0; i < paramHealthMstAndOptionRawId.size(); i++) {
+
+            optionRawId=paramHealthMstAndOptionRawId.get(i).getParam_health_option_mst_rawid();
+            stdEtcMapper.deleteParamHealthOptionMstPdmByRawId(optionRawId);
+        }
+        Long paramHealthMstRawId=paramHealthMstAndOptionRawId.get(0).getParam_health_mst_rawid();
+        stdEtcMapper.deleteParamHealthMstPdmByRawId(paramHealthMstRawId);
+
+
+        //request to Kafka
+        STDEqpMapper eqpMapper= SqlSessionUtil.getMapper(sessions, fabId, STDEqpMapper.class);
+        EqpWithEtc eqpWithEtc=eqpMapper.selectOne(eqpId);
+        String eqp_name=eqpWithEtc.getName();
+        apacheHttpClientGet.requestReload(eqp_name);
+
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
     //***************
@@ -500,6 +599,14 @@ public class MasterService implements IMasterService {
         }else{
             mapper.update(eqpEvent);
         }
+
+        //request to Kafka
+        STDEqpMapper eqpMapper= SqlSessionUtil.getMapper(sessions, fabId, STDEqpMapper.class);
+        Long eqpId=eqpEvent.getEqpId();
+        EqpWithEtc eqpWithEtc=eqpMapper.selectOne(eqpId);
+        String eqp_name=eqpWithEtc.getName();
+        apacheHttpClientGet.requestReload(eqp_name);
+
     }
 
     @Override
@@ -513,6 +620,7 @@ public class MasterService implements IMasterService {
         STDEventMapper mapper = SqlSessionUtil.getMapper(sessions, fabId, STDEventMapper.class);
         return mapper.selectAll();
     }
+
 
 
 }

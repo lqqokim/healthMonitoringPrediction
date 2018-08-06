@@ -7,7 +7,7 @@ import { Translater, ContextMenuType, SpinnerComponent } from '../../../sdk';
 
 import { PdmCommonService } from '../../../common/service/pdm-common.service';
 import { PdmRadarService } from './model/pdm-radar.service';
-import * as pdmRadarI from './model/pdm-radar.interface';
+import * as IRadar from './model/pdm-radar.interface';
 
 @Component({
     moduleId: module.id,
@@ -21,11 +21,12 @@ export class PdmRadarWidgetComponent extends WidgetApi implements OnSetup, OnDes
     @ViewChild('componentSpinner') componentSpinner: SpinnerComponent;
     @ViewChild('AWVComponent') AWVComponent: any;
 
-    condition: pdmRadarI.RadarWidgetConfigType;
+    condition: IRadar.Condition;
 
     fabName: string;
-    fromDate: any;
-    toDate: any;
+    fromDate: string;
+    toDate: string;
+    viewTimePeriod: string = '';
 
     alarmCount: number;
     warningCount: number;
@@ -69,20 +70,18 @@ export class PdmRadarWidgetComponent extends WidgetApi implements OnSetup, OnDes
     }
 
     _setConfigInfo(): void {
-        let condition: pdmRadarI.RadarWidgetConfigType = {
-            fabId: undefined,
-            timePeriod: undefined
-        };
-
-        condition = {
+        let condition: IRadar.Condition = {
             fabId: this._props[CD.PLANT]['fabId'],
-            timePeriod: this._props[CD.TIME_PERIOD]
+            timePeriod: {
+                from: this._props[CD.TIME_PERIOD][CD.FROM],
+                to: new Date(this._props[CD.TIME_PERIOD].to).setHours(0, 0, 0, 0)
+            },
+            maxParamCount: this._props[CD.MAX_PARAM_COUNT]
         };
 
-        this.fabName = this._props[CD.PLANT]['fabName'];
-        this.fromDate = this.covertDateFormatter(this._props[CD.TIME_PERIOD]['from']);
-        this.toDate = this.covertDateFormatter(this._props[CD.TIME_PERIOD]['to']);
         this.condition = condition;
+        this.fabName = this._props[CD.PLANT]['fabName'];
+        this.viewTimePeriod = this.covertDateFormatter(condition.timePeriod);
     }
 
     onScroll(ev: any): void {
@@ -96,126 +95,127 @@ export class PdmRadarWidgetComponent extends WidgetApi implements OnSetup, OnDes
     }
 
     covertDateFormatter(timestamp): string {
-        const date = new Date(timestamp);
-        return `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`;
+        // const date = new Date(timestamp);
+        // return `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`;
+        return moment(timestamp.from).format('YYYY-MM-DD HH:mm') + ' ~ ' +
+            moment(timestamp.to).format('YYYY-MM-DD HH:mm');
     }
 
-    showContext(item: any): void {
-        if (item) {
-            let selectedItem = item.selectedItem;
-            let dsCd: any = this.getViewData('displayContext');
-            dsCd[LB.EQP_NAME] = selectedItem.name; //view config에서 설정필요
-            this._areaId = selectedItem.areaId;
-            let outCd = this.getOutCondition('config');
-            outCd[CD.PLANT] = this._props[CD.PLANT];
-            outCd[CD.AREA_ID] = this._areaId;
-            outCd[CD.EQP_ID] = selectedItem.id;
-            outCd[CD.EQP_NAME] = selectedItem.name;
+    showEqpContext(emitItem: IRadar.EqpContext): void {
+        let item = emitItem.selectedItem;
+        let event = emitItem.event;
+        let dsCd: any = this.getViewData('displayContext');
+        dsCd[LB.EQP_NAME] = item.name; //view config에서 설정필요
+        this._areaId = item.areaId;
 
-            let context: ContextMenuType = {
-                tooltip: {
-                    event: item.event
-                },
-                template: {
-                    title: this.detailsAnalysisLabel,
-                    type: ContextMenuTemplateInfo.WIDGET_BOTTOM_ACTION,
-                    data: dsCd,
-                    action: [
-                        // {
-                        //     labelI18n: 'Contour 차트',
-                        //     data: { eqpId: row.eqpId, event: ev },
-                        //     callback: (data:any) => {
-                        //         this.showContourChart(data.eqpId, data.event);
-                        //     }
-                        // },
-                        {
-                            labelI18n: this.analysisLabel,
-                            data: { eqpId: selectedItem.id, event: item.event, type: "eqp" },
-                            callback: (data: any) => {
-                                this._syncMultiVariant(data.eqpId, null, data.type);
-                            }
-                        }]
-                },
-                contextMenuAction: {
-                    invisible: true
-                },
-                outCondition: {
-                    data: outCd
-                }
-            };
-            // show context menu
-            this.showContextMenu(context);
-        } else {
+        let outCd = this.getOutCondition('config');
+        outCd[CD.PLANT] = this._props[CD.PLANT];
+        outCd[CD.AREA_ID] = item.areaId;
+        outCd[CD.EQP_ID] = item.id;
+        outCd[CD.EQP_NAME] = item.name;
 
-        }
-    }
-
-    showParamContext(item: any): void {
-        if (item) {
-            // console.log('showParamContext item', item);
-            let dsCd: any = this.getViewData('paramDisplayContext');
-            dsCd[LB.PARAM_NAME] = item.paramData.data.paramName; //view config에서 설정필요
-            this._areaId = item.selectedItem.areaId;
-            let outCd = this.getOutCondition('config');
-
-            outCd[CD.PLANT] = this._props[CD.PLANT];
-            outCd[CD.AREA_ID] = this._areaId;
-            outCd[CD.EQP_ID] = item.eqpId;
-            outCd[CD.EQP_NAME] = item.eqpName;
-            outCd[CD.PARAM_ID] = item.paramData.data.paramId;
-
-            let context: ContextMenuType = {
-                tooltip: {
-                    event: item.event
-                },
-                template: {
-                    title: this.detailsAnalysisLabel,
-                    type: ContextMenuTemplateInfo.WIDGET_BOTTOM_ACTION,
-                    data: dsCd,
-                    action: []
-                },
-                contextMenuAction: {
-                    invisible: true
-                },
-                outCondition: {
-                    data: outCd
-                }
-            };
-
-            if (item.flag) {
-                context.template.action = [
-                    {
-                        labelI18n: this.viewTrendChartLabel,
-                        data: item,
-                        callback: (item: any) => {
-                            this.AWVComponent.showTrendChartAtContext(item.type, item.eqpName, item.eqpId, item.paramData, item.index, item.flag);
-                        }
-                    },
+        let context: ContextMenuType = {
+            tooltip: {
+                event: event
+            },
+            template: {
+                title: this.detailsAnalysisLabel,
+                type: ContextMenuTemplateInfo.WIDGET_BOTTOM_ACTION,
+                data: dsCd,
+                action: [
+                    // {
+                    //     labelI18n: 'Contour 차트',
+                    //     data: { eqpId: row.eqpId, event: ev },
+                    //     callback: (data:any) => {
+                    //         this.showContourChart(data.eqpId, data.event);
+                    //     }
+                    // },
                     {
                         labelI18n: this.analysisLabel,
-                        data: { eqpId: item.eqpId, paramId: item.paramData.data.paramId, event: item.event },
+                        data: { eqpId: item.id, event: event, type: "eqp" },
                         callback: (data: any) => {
-                            this._syncMultiVariant(data.eqpId, data.paramId);
+                            this._syncMultiVariant(data.eqpId, null, data.type);
                         }
-                    }
-                ];
-            } else {
-                context.template.action = [
-                    {
-                        labelI18n: this.analysisLabel,
-                        data: { eqpId: item.eqpId, paramId: item.paramData.data.paramId, event: item.event },
-                        callback: (data: any) => {
-                            this._syncMultiVariant(data.eqpId, data.paramId);
-                        }
-                    }
-                ];
+                    }]
+            },
+            contextMenuAction: {
+                invisible: true
+            },
+            outCondition: {
+                data: outCd
             }
+        };
+        // show context menu
+        this.showContextMenu(context);
 
-            // show context menu
-            this.showContextMenu(context);
+    }
+
+    showParamContext(emitItem: IRadar.ParamContext): void {
+        let item = emitItem.selectedItem;
+        let event = emitItem.event;
+        let paramData = emitItem.paramData.data;
+
+        let dsCd: any = this.getViewData('paramDisplayContext');
+        dsCd[LB.PARAM_NAME] = emitItem.paramData.data.paramName; //view config에서 설정필요
+        this._areaId = item.areaId;
+
+        let outCd = this.getOutCondition('config');
+        outCd[CD.PLANT] = this._props[CD.PLANT];
+        outCd[CD.AREA_ID] = item.areaId
+        outCd[CD.EQP_ID] = item.id;
+        outCd[CD.EQP_NAME] = item.name;
+        outCd[CD.PARAM_ID] = emitItem.paramData.data.paramName;
+
+        let context: ContextMenuType = {
+            tooltip: {
+                event: event
+            },
+            template: {
+                title: this.detailsAnalysisLabel,
+                type: ContextMenuTemplateInfo.WIDGET_BOTTOM_ACTION,
+                data: dsCd,
+                action: []
+            },
+            contextMenuAction: {
+                invisible: true
+            },
+            outCondition: {
+                data: outCd
+            }
+        };
+
+        if (emitItem.flag) {
+            context.template.action = [
+                {
+                    labelI18n: this.viewTrendChartLabel,
+                    data: emitItem,
+                    callback: (emitItem: IRadar.ParamContext) => {
+                        this.AWVComponent.showTrendChartAtContext(emitItem);
+                    }
+                },
+                {
+                    labelI18n: this.analysisLabel,
+                    data: { eqpId: item.id, paramId: paramData.paramId, event: event },
+                    callback: (data: any) => {
+                        this._syncMultiVariant(data.eqpId, data.paramId);
+                    }
+                }
+            ];
         } else {
-
+            context.template.action = [
+                {
+                    labelI18n: this.analysisLabel,
+                    data: { eqpId: item.id, paramId: paramData.paramId, event: event },
+                    callback: (data: any) => {
+                        this._syncMultiVariant(data.eqpId, data.paramId);
+                    }
+                }
+            ];
         }
+
+        // show context menu
+        this.showContextMenu(context);
+
     }
 
     endLoading(ev: any): void {
@@ -225,10 +225,8 @@ export class PdmRadarWidgetComponent extends WidgetApi implements OnSetup, OnDes
     }
 
     countAlarmWarning(ev: any): void {
-        if (ev) {
-            this.alarmCount = ev.alarmCount;
-            this.warningCount = ev.warningCount;
-        }
+        this.alarmCount = ev.alarmCount;
+        this.warningCount = ev.warningCount;
     }
 
     onClickOutArea(): void {

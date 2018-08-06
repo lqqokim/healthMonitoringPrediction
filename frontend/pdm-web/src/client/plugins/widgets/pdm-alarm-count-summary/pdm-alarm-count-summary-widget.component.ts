@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { WidgetApi, WidgetRefreshType, OnSetup } from '../../../common';
 
-import * as IDataType from './model/data-type.interface';
+import * as IData from './model/data-type.interface';
 import { AlarmCountSummaryComponent } from './components/alarm-count-summary.component';
 import { ITimePeriod, WidgetChartConditionComponent } from '../../common/widget-chart-condition/widget-chart-condition.component';
 
@@ -13,10 +13,11 @@ import { ITimePeriod, WidgetChartConditionComponent } from '../../common/widget-
 })
 export class PdmAlarmCountSummaryWidgetComponent extends WidgetApi implements OnInit, OnSetup {
     @ViewChild('container') container: ElementRef;
+    @ViewChild('chartBody') chartBody: ElementRef;
     @ViewChild('alarmCountSummaryComp') alarmCountSummaryComp: AlarmCountSummaryComponent;
     @ViewChild('widgetCondition') widgetCondition: WidgetChartConditionComponent;
 
-    condition: IDataType.ContitionType = {
+    condition: IData.Contition = {
         fab: {
             fabId: undefined,
             fabName: undefined
@@ -61,7 +62,13 @@ export class PdmAlarmCountSummaryWidgetComponent extends WidgetApi implements On
     onResize(e?: TransitionEvent): void {
         if ((e !== undefined && !e.isTrusted) || this._currentEl === undefined) { return; }
         if (e) {
-            this.alarmCountSummaryComp.onChartResize();
+            const chartBodyEl = $(this.chartBody.nativeElement);
+            if(chartBodyEl) {
+                this.alarmCountSummaryComp.onChartResize({
+                    width: chartBodyEl.width(),
+                    height: chartBodyEl.height()
+                });
+            }
         }
     }
 
@@ -118,13 +125,12 @@ export class PdmAlarmCountSummaryWidgetComponent extends WidgetApi implements On
 
     endChartLoad(ev: any): void {
         if (ev.isLoad) {
-            if (this.isShowNoData) {
-                this.isShowNoData = false;
-            }
-            this.hideSpinner();
+          
         } else if (!ev.isLoad) {
-            this.isShowNoData = true;
+
         }
+
+        this.hideSpinner();
     }
 
     private _init(): void {

@@ -200,7 +200,7 @@ export class FabAreaEqpParamTreeComponent implements OnInit, AfterViewInit, OnCh
                             eqps.map((node: any) => {
                                 node.nodeName = node.eqpName;
                                 node.nodeId = node.eqpId;
-                                node.id = node.eqpId;
+                                node.id =areas[0].areaId+":"+ node.eqpId;
                                 node.nodeType = this.TYPES.EQP;
                                 node.iconClass = this._getImagePath(node.nodeType);
                                 node.children = [];
@@ -505,7 +505,7 @@ export class FabAreaEqpParamTreeComponent implements OnInit, AfterViewInit, OnCh
                 eqps.map((node: any) => {
                     node.nodeName = node.eqpName;
                     node.nodeId = node.eqpId;
-                    node.id = node.eqpId;
+                    node.id = this.selectedItem.areaId+":"+node.eqpId;
                     node.nodeType = this.TYPES.EQP;
                     node.iconClass = this._getImagePath(node.nodeType);
                     node.children = [];
@@ -542,7 +542,7 @@ export class FabAreaEqpParamTreeComponent implements OnInit, AfterViewInit, OnCh
                 params.map((node: any) => {
                     node.nodeName = node.paramName;
                     node.nodeId = node.paramId;
-                    node.id = node.paramId;
+                    node.id = this.selectedItem.id +":"+  node.paramId;
                     node.nodeType = this.TYPES.PARAMETER;
                     node.iconClass = this._getImagePath(node.nodeType);
                     node.name = node.paramName;
@@ -574,7 +574,7 @@ export class FabAreaEqpParamTreeComponent implements OnInit, AfterViewInit, OnCh
                 parts.map((node: any) => {
                     node.nodeName = node.name;
                     node.nodeId = node.partId;
-                    node.id = node.partId;
+                    node.id = this.selectedItem.id+":"+ node.partId;
                     node.nodeType = this.TYPES.PART;
                     node.iconClass = this._getImagePath(node.nodeType);
                     node.name = node.name;

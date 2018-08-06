@@ -129,7 +129,7 @@ export class PdmWostEqpListComponent extends WidgetApi implements OnSetup, OnDes
                 this.listData.push({
                     order: i+1,
                     equipment: row.eqp_name,
-                    score: row.score,
+                    score: Math.floor(row.score*100)/100,
                     status: []
                 });
                 for( j=0; j<row.datas.length; j++ ){

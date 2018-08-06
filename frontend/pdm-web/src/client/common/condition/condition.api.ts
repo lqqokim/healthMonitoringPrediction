@@ -20,8 +20,8 @@ export abstract class ConditionApi {
 
     preInit?(): Array<string>;
     abstract init(): void;
-    abstract config(): [ConditionType];
-    form?(): [FormConfigType];
+    abstract config(): ConditionType[];
+    form?(): FormConfigType[];
 
     private _preInit(): Promise<boolean> {
         if (!this.isPreInit) { return Promise.resolve(false); }

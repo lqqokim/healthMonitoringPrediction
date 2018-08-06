@@ -1,29 +1,17 @@
-import { Component, OnInit, OnChanges, SimpleChanges, EventEmitter, Output, Input } from '@angular/core';
+import { Component, OnInit, OnChanges, SimpleChanges, EventEmitter, Output, Input, ViewEncapsulation } from '@angular/core';
 import { PdmModelService } from './../../../../common';
-import * as IDataType from './../model/data-type.interface';
-
-export interface LineStatusTrendType {
-    alarm_count: number;
-    area_id: number;
-    area_name: string;
-    day: string;
-    failure_count: number;
-    normal_count: number;
-    offline_count: number;
-    start_time: number
-    total_count: number;
-    warning_count: number;
-}
+import * as IData from './../model/data-type.interface';
 
 @Component({
     moduleId: module.id,
     selector: 'line-status-trend',
     templateUrl: './line-status-trend.html',
-    styleUrls: ['./line-status-trend.css']
+    styleUrls: ['./line-status-trend.css'],
+    encapsulation: ViewEncapsulation.None
 })
 export class LineStatusTrendComponent implements OnInit, OnChanges {
     @Output() endChartLoad: EventEmitter<any> = new EventEmitter();
-    @Input() condition: IDataType.ContitionType;
+    @Input() condition: IData.Contition;
 
     chartId: string;
     chart: any;
@@ -36,9 +24,23 @@ export class LineStatusTrendComponent implements OnInit, OnChanges {
             let currentValue = changes[propName].currentValue;
 
             if (currentValue && propName === 'condition') {
-                const condition = currentValue;
-                this.chartId = this.guid();
-                this.getTrendData(condition);
+                const condition: IData.Contition = currentValue;
+                const fabId: number = condition.fab.fabId;
+                const areaId: number = condition.area ? condition.area.areaId : undefined;
+                const timePeriod: IData.TimePeriod = {
+                    fromDate: condition.timePeriod.fromDate,
+                    toDate: condition.timePeriod.toDate
+                };
+
+                const requestParams: IData.RequestParams = {
+                    from: timePeriod.fromDate,
+                    to: timePeriod.toDate
+                };
+
+                if (fabId && requestParams.from && requestParams.to) {
+                    this.chartId = this.guid();
+                    this.getTrendData(fabId, areaId, requestParams);
+                }
             }
         }
     }
@@ -47,23 +49,16 @@ export class LineStatusTrendComponent implements OnInit, OnChanges {
 
     }
 
-    onChartResize(): void {
+    onChartResize(size): void {
         if (this.chart) {
-            this.chart.resize();
+            this.chart.resize(size);
         }
     }
 
-    getTrendData(condition: IDataType.ContitionType): void {
-        const fabId: string | number = condition.fab.fabId;
-        const areaId: string | number = condition.area ? condition.area.areaId : undefined;
-        const params: any = {
-            from: condition.timePeriod.fromDate,
-            to: condition.timePeriod.toDate
-        };
-
+    getTrendData(fabId, areaId, params): void {
         if (areaId === undefined) {
             this._pdmModel.getLineStatusTrendAll(fabId, params)
-                .then((datas: LineStatusTrendType[]) => {
+                .then((datas: IData.LineStatusTrend[]) => {
                     console.log('getLineStatusTrendAll', datas);
                     this.setChartData(datas);
                 }).catch((err: Error) => {
@@ -75,7 +70,7 @@ export class LineStatusTrendComponent implements OnInit, OnChanges {
                 });
         } else {
             this._pdmModel.getLineStatusTrendById(fabId, areaId, params)
-                .then((datas: LineStatusTrendType[]) => {
+                .then((datas: IData.LineStatusTrend[]) => {
                     console.log('getLineStatusTrendById', datas);
                     this.setChartData(datas);
                 }).catch((err) => {
@@ -89,34 +84,30 @@ export class LineStatusTrendComponent implements OnInit, OnChanges {
     }
 
 
-    setChartData(datas: LineStatusTrendType[]): void {
-        let normals: any[] = ['normal'];
-        let warnings: any[] = ['warning'];
-        let alarms: any[] = ['alarm'];
-        let failures: any[] = ['failure'];
-        let offlines: any[] = ['offline'];
-        let axisCategories: any[] = ['x'];
+    setChartData(datas: IData.LineStatusTrend[]): void {
+        let normals: any[] = ['Normal'];
+        let warnings: any[] = ['Warning'];
+        let alarms: any[] = ['Alarm'];
+        // let failures: any[] = ['failure'];
+        let offlines: any[] = ['Offline'];
+        let axisCategories: any[] = ['date'];
         const dataLangth: number = datas.length;
 
         for (let i = 0; i < dataLangth; i++) {
-            const data: LineStatusTrendType = datas[i];
+            const data: IData.LineStatusTrend = datas[i];
 
             normals.push(data.normal_count);
             warnings.push(data.warning_count);
             alarms.push(data.alarm_count);
-            failures.push(data.failure_count);
             offlines.push(data.offline_count);
             axisCategories.push(data.day);
         }
 
-        const chartData: any[] = [axisCategories, normals, warnings, alarms, failures, offlines];
+        const chartData: any[] = [axisCategories, normals, warnings, alarms, offlines];
 
         setTimeout(() => {
             this.generateLineChart(chartData);
-            this.endChartLoad.emit({
-                isLoad: true
-            });
-        }, 500);
+        }, 300);
     }
 
     generateLineChart(chartData: any[]): void {
@@ -124,16 +115,15 @@ export class LineStatusTrendComponent implements OnInit, OnChanges {
         this.chart = c3Chart.generate({
             bindto: `#${this.chartId}`,
             data: {
-                x: 'x',
+                x: 'date',
                 // xFormat: '%Y-%m-%d', // how the date is parsed
-                // xFormat: '%Y%m%d', // 'xFormat' can be used as custom format of 'x'
+                // xFormat: '%m%d', // 'xFormat' can be used as custom format of 'x'
                 columns: chartData,
                 type: 'line',
                 colors: {
                     normal: 'green',
                     warning: 'orange',
                     alarm: 'red',
-                    failure: 'black',
                     offline: 'gray'
                 },
                 // color: (color: string, data: any): string => {
@@ -144,10 +134,33 @@ export class LineStatusTrendComponent implements OnInit, OnChanges {
                 x: {
                     type: 'timeseries',
                     tick: {
-                        format: '%Y-%m-%d'
+                        // format: '%Y-%m-%d'
+                        format: '%m-%d'
                     }
+                },
+                y: {
+                    tick: {
+                        format: function (x) {
+                            if (x != Math.floor(x)) {
+                              let tick = d3.selectAll('.c3-axis-y g.tick').filter(function() {
+                                let text = d3.select(this).select('text').text();
+                                return +text === x;
+                              }).style('opacity', 0);
+                              return '';
+                            }
+                            return x;
+                        }
+                    },
+                    label: {
+                        text: 'EQP(Count)',
+                        position: 'outer-middle'
+                    },
                 }
             }
+        });
+
+        this.endChartLoad.emit({
+            isLoad: true
         });
     }
 

@@ -76,6 +76,8 @@ public class SensorTraceTrxDao implements SensorTraceDataDao {
 
                 int totalCount = 0;
                 int batchCount = 0;
+                Timestamp ts = null;
+
                 for (ConsumerRecord<String, byte[]> record : records) {
                     //log.debug("offset={}, key={}, value={}", record.offset(), record.key(), record.value());
 
@@ -87,6 +89,12 @@ public class SensorTraceTrxDao implements SensorTraceDataDao {
 
                     List<ParameterMasterDataSet> paramData =
                             MasterDataCache.getInstance().getParamMasterDataSet().get(record.key());
+
+                    if(paramData == null) {
+                        log.debug("[{}] - parameter does not existed.", record.key());
+                        return;
+                    }
+
                     log.debug("{} - {} parameters", record.key(), paramData.size());
 
                     for (ParameterMasterDataSet param : paramData) {
@@ -94,7 +102,15 @@ public class SensorTraceTrxDao implements SensorTraceDataDao {
                         if(param.getParamParseIndex() == -1) continue;
 
                         pstmt.setLong(1, param.getParameterRawId()); //param rawid
-                        pstmt.setFloat(2, Float.parseFloat(values[param.getParamParseIndex()])); //value
+
+                        String strValue = values[param.getParamParseIndex()];
+                        if(strValue.length() <= 0){
+                            log.debug("key:{}, param:{}, index:{} - value is empty.",
+                                    record.key(), param.getParameterName(), param.getParamParseIndex());
+                            pstmt.setFloat(2, Types.FLOAT); //value
+                        } else {
+                            pstmt.setFloat(2, Float.parseFloat(strValue)); //value
+                        }
 
                         if (param.getUpperAlarmSpec() != null) {
                             pstmt.setFloat(3, param.getUpperAlarmSpec()); //upper alarm spec
@@ -131,7 +147,8 @@ public class SensorTraceTrxDao implements SensorTraceDataDao {
                         String[] nowStatusCodeAndTime = statusCodeAndTime.split(":");
                         pstmt.setString(5, nowStatusCodeAndTime[0]);
 
-                        pstmt.setTimestamp(6, getTimeStampFromString(values[0]));
+                        ts = getTimeStampFromString(values[0]);
+                        pstmt.setTimestamp(6, ts);
 
                         pstmt.setNull(7, Types.VARCHAR);
                         pstmt.setNull(8, Types.VARCHAR);
@@ -157,7 +174,8 @@ public class SensorTraceTrxDao implements SensorTraceDataDao {
                 }
 
                 conn.commit();
-                log.debug("{} records are inserted into TRACE_TRX_PDM.", totalCount);
+                String timeStamp = new SimpleDateFormat("MMdd HH:mm:ss.SSS").format(ts);
+                log.debug("[{}] - {} records are inserted into TRACE_TRX_PDM.", timeStamp, totalCount);
 
             } catch (Exception e) {
                 conn.rollback();

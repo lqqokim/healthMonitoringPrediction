@@ -50,7 +50,7 @@ declare var $: any;
 declare var qtip: any;
 
 //the-graph
-declare var TheGraph: any;
+// declare var TheGraph: any;
 
 //--------------------------------------------
 //

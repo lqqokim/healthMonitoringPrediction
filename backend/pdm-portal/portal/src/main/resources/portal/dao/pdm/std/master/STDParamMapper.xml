@@ -305,4 +305,10 @@
         <!--order by sort_order-->
     </select>
 
+    <delete id="deleteSpec">
+        delete
+        from trace_spec_mst_pdm
+        where param_mst_rawid=#{param_id}
+    </delete>
+
 </mapper>

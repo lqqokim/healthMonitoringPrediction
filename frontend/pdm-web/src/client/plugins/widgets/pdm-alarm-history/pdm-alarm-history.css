@@ -1,3 +1,3 @@
 /* info */
 .widget-pdm-alarm-history { position:relative; }
-.widget-pdm-alarm-history .chart-body { display:block; position:absolute; left:0; top:35px; bottom:0; right:0; overflow-y:auto; overflow-x:hidden; }
+.widget-pdm-alarm-history .chart-body { display:block; position:absolute; left:0; top:35px; bottom:0; right:0; overflow-y:hidden; overflow-x:hidden; }

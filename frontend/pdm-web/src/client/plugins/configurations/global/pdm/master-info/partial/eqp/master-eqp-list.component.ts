@@ -138,10 +138,18 @@ export class MasterEqpListComponent implements OnInit, OnChanges {
                 eqpName: '',
                 description: '',
                 image: '',
-                dataType: ''
+                dataType: '',
+                offline_yn: false
             };
         } else if (status === 'modify' || status === 'copy') {
             eqpData = this.selectedRowData;
+            
+            if(eqpData.offline_yn === 'N') {
+                eqpData.offline_yn = false;
+            } else if(eqpData.offline_yn === 'Y') {
+                eqpData.offline_yn = true;
+            }
+
             eqpData.copyValue = "";
         }
 
@@ -201,20 +209,27 @@ export class MasterEqpListComponent implements OnInit, OnChanges {
                 eqpData.image = '';
             }
 
+
+            if(eqpData.offline_yn === true) {
+                eqpData.offline_yn = 'Y';
+            } else if(eqpData.offline_yn === false) {
+                eqpData.offline_yn = 'N';
+            }
+
             let request: any = {
                 description: eqpData.description,
                 eqpName: eqpData.eqpName,
                 areaId: this.areaId,
                 image: eqpData.image,
                 // dataType: eqpData.dataType
-                dataType: 'STD'
+                dataType: 'STD',
+                offline_yn: eqpData.offline_yn
             };
 
             if (this.status === 'modify') {
                 request.eqpId = this.selectedRowData.eqpId;
             }
 
-            console.log('eqp request', request);
             this._updateEqp(request);
         }
     }
@@ -236,6 +251,7 @@ export class MasterEqpListComponent implements OnInit, OnChanges {
     _updateEqp(request: any): void {
         this.pdmConfigService.updateEqp(this.fabId, this.areaId, request)
             .then((res: any) => {
+                console.log('update res', res);
                 this._showModal(false);
                 if (this.status === 'create') {
                     this.notify.success("MESSAGE.USER_CONFIG.CREATE_SUCCESS");
@@ -263,7 +279,6 @@ export class MasterEqpListComponent implements OnInit, OnChanges {
                     request: params,
                     selectedRowData: this.selectedRowData
                 });
-                console.log('res');
             }).catch((err) => {
                 this.notify.error("MESSAGE.GENERAL.ERROR");
                 console.log('err', err);

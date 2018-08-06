@@ -25,19 +25,22 @@ public class RepositorySinker {
     private final String outputFaultTopic = "pdm-output-fault";
     private final String outputParamHealthTopic = "pdm-output-param-health";
     private final String outputEQPHealthTopic = "pdm-output-eqp-health";
+    private final String outputReloadTopic = "pdm-output-reload";
 
     private final String configPath;
     private final String groupId;
+    private final String servingAddress;
 
-    private ExecutorService executor = Executors.newFixedThreadPool(7);
+    private ExecutorService executor = Executors.newFixedThreadPool(8);
 
     public RepositorySinker(final String groupId, String servingAddr, String configPath) {
         this.groupId = groupId;
         this.configPath = configPath;
+        this.servingAddress = servingAddr;
 
         String targetUrl = servingAddr + "/pdm/api/master/latest/param";
         log.info("call to {}", targetUrl);
-        MasterDataUpdater.updateParameterMasterDataSet(targetUrl);
+        MasterDataUpdater.updateParameterMasterDataSet("all", targetUrl);
     }
 
     public void start() throws IOException {
@@ -67,6 +70,9 @@ public class RepositorySinker {
 
         executor.submit(new EqpHealthConsumerRunnable(
                 producerProperties, this.groupId + "-eqp-health", outputEQPHealthTopic));
+
+        executor.submit(new ReloadConsumerRunnable(
+                producerProperties, this.groupId + "-reload", outputReloadTopic, this.servingAddress));
     }
 
     public void awaitTerminationAfterShutdown() {

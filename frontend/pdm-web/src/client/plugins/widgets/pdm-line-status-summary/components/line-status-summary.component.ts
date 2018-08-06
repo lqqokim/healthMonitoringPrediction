@@ -1,19 +1,6 @@
 import { Component, OnInit, OnChanges, SimpleChanges, EventEmitter, Output, Input, ViewChild, ElementRef, ViewEncapsulation } from '@angular/core';
 import { PdmModelService } from './../../../../common';
-import * as IDataType from './../model/data-type.interface';
-
-export interface LineStatusSummaryType {
-    alarm_count: number;
-    area_id: number;
-    area_name: string;
-    end_time: number;
-    failure_count: number;
-    normal_count: number;
-    offline_count: number;
-    start_time: number
-    total_count: number;
-    warning_count: number;
-}
+import * as IData from './../model/data-type.interface';
 
 @Component({
     moduleId: module.id,
@@ -22,7 +9,7 @@ export interface LineStatusSummaryType {
     styleUrls: ['./line-status-summary.css'],
 })
 export class LineStatusSummaryComponent implements OnInit, OnChanges {
-    @Input() condition: IDataType.ContitionType;
+    @Input() condition: IData.Contition;
     @Output() endChartLoad: EventEmitter<any> = new EventEmitter();
     @Output() onSync: EventEmitter<any> = new EventEmitter();
 
@@ -35,11 +22,21 @@ export class LineStatusSummaryComponent implements OnInit, OnChanges {
 
     ngOnChanges(changes: SimpleChanges) {
         if (changes['condition'] !== null && changes['condition']['currentValue']) {
-            let condition = changes['condition']['currentValue'];
-            this.chartId = this.guid();
+            let condition: IData.Contition = changes['condition']['currentValue'];
+            const fabId: number = condition.fab.fabId;
+            const timePeriod: IData.TimePeriod = {
+                fromDate: condition.timePeriod.fromDate,
+                toDate: condition.timePeriod.toDate
+            };
 
-            if (condition.fab.fabId && condition.timePeriod.fromDate && condition.timePeriod.toDate) {
-                this.getSummaryData(condition);
+            const requestParams: IData.RequestParams = {
+                from: timePeriod.fromDate,
+                to: timePeriod.toDate
+            };
+
+            if (fabId && requestParams.from && requestParams.to) {
+                this.chartId = this.guid();
+                this.getSummaryData(fabId, requestParams);
             }
         }
     }
@@ -48,21 +45,16 @@ export class LineStatusSummaryComponent implements OnInit, OnChanges {
 
     }
 
-    onChartResize(): void {
+    onChartResize(size?): void {
+        console.log('onChartResize', size)
         if (this.chart) {
-            this.chart.resize();
+            this.chart.resize(size);
         }
     }
 
-    getSummaryData(condition: IDataType.ContitionType): void {
-        let fabId: string | number = condition.fab.fabId;
-        let params: any = {
-            from: condition.timePeriod.fromDate,
-            to: condition.timePeriod.toDate
-        }
-
+    getSummaryData(fabId, params): void {
         this._pdmModel.getLineStatusSummary(fabId, params)
-            .then((datas: LineStatusSummaryType[]) => {
+            .then((datas: IData.LineStatusSummary[]) => {
                 console.log('getLineStatusSummary', datas);
                 this.setChartData(datas);
             }).catch((err) => {
@@ -74,22 +66,20 @@ export class LineStatusSummaryComponent implements OnInit, OnChanges {
             });
     }
 
-    setChartData(datas: LineStatusSummaryType[]): void {
+    setChartData(datas: IData.LineStatusSummary[]): void {
         let normals: any[] = ['normal'];
         let warnings: any[] = ['warning'];
         let alarms: any[] = ['alarm'];
-        let failures: any[] = ['failure'];
         let offlines: any[] = ['offline'];
         let axisCategories: string[] = ['x'];
         let areas: any[] = [];
         const dataLangth: number = datas.length;
 
         for (let i = 0; i < dataLangth; i++) {
-            const data: LineStatusSummaryType = datas[i];
+            const data: IData.LineStatusSummary = datas[i];
             normals.push(data.normal_count);
             warnings.push(data.warning_count);
             alarms.push(data.alarm_count);
-            failures.push(data.failure_count);
             offlines.push(data.offline_count);
             axisCategories.push(data.area_name);
             areas.push({
@@ -98,14 +88,11 @@ export class LineStatusSummaryComponent implements OnInit, OnChanges {
             })
         }
 
-        const chartData: any[] = [axisCategories, normals, warnings, alarms, failures, offlines];
+        const chartData: any[] = [axisCategories, normals, warnings, alarms, offlines];
 
         setTimeout(() => {
             this.generateChart(chartData, axisCategories, areas);
-            this.endChartLoad.emit({
-                isLoad: true
-            });
-        }, 500);
+        }, 300);
     }
 
 
@@ -131,17 +118,15 @@ export class LineStatusSummaryComponent implements OnInit, OnChanges {
                     normal: 'Normal',
                     warning: 'Warning',
                     alarm: 'Alarm',
-                    failure: 'Failure',
                     offline: 'Offline'
                 },
                 colors: {
                     normal: 'green',
                     warning: 'orange',
                     alarm: 'red',
-                    failure: 'black',
                     offline: 'gray'
                 },
-                groups: [['normal', 'warning', 'alarm', 'failure', 'offline']],
+                groups: [['normal', 'warning', 'alarm', 'offline']],
                 order: 'asc',
                 onclick: (d: any, s) => {
                     this.onSync.emit({
@@ -159,6 +144,21 @@ export class LineStatusSummaryComponent implements OnInit, OnChanges {
                 x: {
                     type: 'category',
                     // categories: axisCategories
+                    label: {
+                        text: 'Area',
+                        position: 'outer-center'
+                    },
+                },
+                y: {
+                    min: 0,
+                    tick: {
+                        format: d3.format('d')
+                    },
+                    padding: {top: 0, bottom: 0},
+                    label: {
+                        text: 'EQP(Count)',
+                        position: 'outer-middle'
+                    },
                 }
             },
             grid: {
@@ -168,6 +168,15 @@ export class LineStatusSummaryComponent implements OnInit, OnChanges {
                 //     ]
                 // }
             },
+            // onresize: function (e) {
+            //     console.log('resize', e)
+            //     const chartEl = $(`#${this.chartId}`);
+            //     $el.css("max-height", "none");
+            // }
+        });
+
+        this.endChartLoad.emit({
+            isLoad: true
         });
     }
 

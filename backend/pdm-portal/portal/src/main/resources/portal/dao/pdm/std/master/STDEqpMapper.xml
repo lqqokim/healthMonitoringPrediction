@@ -6,7 +6,8 @@
             a.name,
             a.description,
             a.image as binary,
-            b.name as data_type
+            b.name as data_type,
+            a.offline_yn
         from eqp_mst_pdm a left outer join code_mst_pdm b
         on a.data_type_cd = b.code
         <if test="areaId != null">
@@ -232,18 +233,18 @@
         <selectKey keyProperty="eqp_id" resultType="Long" order="BEFORE">
             select seq_eqp_mst_pdm.nextval FROM DUAL
         </selectKey>
-        insert into eqp_mst_pdm(rawid, name, description,data_type_cd, area_mst_rawid,image,create_by,create_dtts,update_by,update_dtts)
+        insert into eqp_mst_pdm(rawid, name, description,data_type_cd, area_mst_rawid,image,offline_yn,create_by,create_dtts,update_by,update_dtts)
         values(#{eqp_id}, #{name,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR},#{data_type_cd,jdbcType=VARCHAR}, #{area_id, jdbcType=DOUBLE}
-        ,#{binary, jdbcType=BLOB},#{userName, jdbcType=VARCHAR},systimestamp,#{userName,jdbcType=VARCHAR},systimestamp)
+        ,#{binary, jdbcType=BLOB},#{offline_yn, jdbcType=VARCHAR},#{userName, jdbcType=VARCHAR},systimestamp,#{userName,jdbcType=VARCHAR},systimestamp)
     </insert>
 
     <insert id="insertOne" databaseId="postgresql">
         <selectKey keyProperty="eqp_id" resultType="Long" order="BEFORE">
             select nextval('seq_eqp_mst_pdm')
         </selectKey>
-        insert into eqp_mst_pdm(rawid, name, description,data_type_cd, area_mst_rawid,image,create_by,create_dtts,update_by,update_dtts)
+        insert into eqp_mst_pdm(rawid, name, description,data_type_cd, area_mst_rawid,image,offline_yn,create_by,create_dtts,update_by,update_dtts)
         values(#{eqp_id}, #{name,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR},#{data_type_cd,jdbcType=VARCHAR}, #{area_id, jdbcType=DOUBLE}
-        ,#{binary, jdbcType=BLOB},#{userName, jdbcType=VARCHAR},localtimestamp,#{userName,jdbcType=VARCHAR},localtimestamp)
+        ,#{binary, jdbcType=BLOB},#{offline_yn, jdbcType=VARCHAR},#{userName, jdbcType=VARCHAR},localtimestamp,#{userName,jdbcType=VARCHAR},localtimestamp)
     </insert>
 
     <insert id="insertEtcOne">
@@ -276,6 +277,7 @@
         set name = #{name},
             description = #{description,jdbcType=VARCHAR},
             area_mst_rawid = #{area_id},
+            offline_yn = #{offline_yn},
             update_dtts = systimestamp,
             update_by = #{userName}
             <if test="image != null">
@@ -288,6 +290,7 @@
         set name = #{name},
             description = #{description,jdbcType=VARCHAR},
             area_mst_rawid = #{area_id},
+            offline_yn = #{offline_yn},
             update_dtts = localtimestamp,
             update_by = #{userName}
             <if test="image != null">
@@ -374,11 +377,14 @@
            select
            rawid
            from area_mst_pdm
-           where CONNECT_BY_ISLEAF = 1 start with parent_rawid = 0 connect by prior rawid = parent_rawid
+           where CONNECT_BY_ISLEAF = 1 start with parent_rawid = #{area_id} connect by prior rawid = parent_rawid
+        union
+        select #{area_id} as rawid from dual
         )
         order by area_mst_rawid
     </select>
     <select id="selectEqpsByArea" resultType="com.bistel.a3.portal.domain.pdm.EqpWithArea" databaseId="postgresql">
+        <!--TODO-->
 		SELECT
 			a.rawid as eqp_id,
 			a.name,

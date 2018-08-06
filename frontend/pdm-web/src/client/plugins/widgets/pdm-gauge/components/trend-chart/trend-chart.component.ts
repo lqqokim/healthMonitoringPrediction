@@ -60,7 +60,7 @@ export class TrendChartComponent implements OnInit, OnChanges,AfterViewInit {
         
     }
     ngAfterViewInit(){
-        this.getData();
+        // this.getData();
     }
     getData(){
         if(this.paramId!=undefined && this.paramId!=""){
@@ -69,11 +69,19 @@ export class TrendChartComponent implements OnInit, OnChanges,AfterViewInit {
                 this._pdmModelService.getTrendMultipleWithRUL(this.plantId,this.areaId,this.eqpId,this.paramId,this.fromDate,this.toDate).then(result=>{
                     this.ruls= [{priod:3,day:result.day3},{priod:7,day:result.day7},{priod:14,day:result.day14}]
                     this.trendData = [result.data];     
+                    for(let i=0;i<this.trendData[0].length;i++){
+                        this.trendData[0][i][1] = this.trendData[0][i][1]/this.trendData[0][i][2];
+                    }
+
                     this.getTrendSpec();
                  })
             }else{
                 this._pdmModelService.getTrendMultiple(this.plantId,this.areaId,this.eqpId,this.paramId,this.fromDate,this.toDate).then(result=>{
                     this.trendData = [result];     
+                    for(let i=0;i<this.trendData[0].length;i++){
+                        this.trendData[0][i][1] = this.trendData[0][i][1]/this.trendData[0][i][2];
+                    }
+
                     this.getTrendSpec();
                  })
             }
@@ -82,8 +90,9 @@ export class TrendChartComponent implements OnInit, OnChanges,AfterViewInit {
     }
     getTrendSpec() {
         return this._pdmCommonService.getTrendMultipleSpecConfig(this.plantId, this.areaId, this.eqpId, this.paramId, this.fromDate, this.toDate).then((data) => {
-            let spec_alarm = data.alarm;
-            let spec_warning = data.warning;
+            // let spec_alarm = data.alarm;
+            let spec_alarm =1 ;
+            let spec_warning = data.warning/data.alarm;
             this.trendEventLines = [];
             if (spec_alarm) {
                 this.trendEventLines.push({
@@ -143,7 +152,7 @@ export class TrendChartComponent implements OnInit, OnChanges,AfterViewInit {
                         name: `${this.warningSpecLabel} (${spec_warning.toFixed(2)})`,
                         show: true, // default : false
                         value: spec_warning,
-                        color: '#fde045',
+                        color: '#FFA500',
                         width: 1,       // default : 1
                         adjust: 0,      // default : 0
                         pattern: null,  // default : null
@@ -170,7 +179,7 @@ export class TrendChartComponent implements OnInit, OnChanges,AfterViewInit {
                             position: 'n',      // default : n
                             offset: {           // default : 0, 0
                                 top: 0,
-                                left: 0
+                                left: 100
                             }
                         }
                     }
@@ -308,7 +317,7 @@ export class TrendChartComponent implements OnInit, OnChanges,AfterViewInit {
                     autoscale: true,
                     tickOptions: {
                         formatter: (pattern: any, val: number, plot: any) => {
-                            return val ? moment(val).format('YYYY-MM-DD H') : '';
+                            return val ? moment(val).format('MM-DD H') : '';
                         }
                     },
                     rendererOptions: {

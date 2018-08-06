@@ -630,4 +630,22 @@ export class ToolConditionDic {
             },
             newCondition);
     }
+
+    static max_param_count( newCondition: ConditionValueType = {} ): ConditionType {
+        return compose(
+            CD.MAX_PARAM_COUNT,
+            {
+                required: true
+            },
+            newCondition);
+    }
+
+    static spectrum_count( newCondition: ConditionValueType = {} ): ConditionType {
+        return compose(
+            CD.SPECTRUM_COUNT,
+            {
+                required: true
+            },
+            newCondition);
+    }
 }

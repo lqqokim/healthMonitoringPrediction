@@ -1,3 +1,9 @@
+/* 가상 스크롤 영역 css */
+.vscrollArea { overflow-y:auto; }
+
+/* 가상 스크롤 영역 - 자동 높이, 스크롤 처리 css */
+.vscrollArea.heightAuto { height:auto !important; position:absolute; left:0; top:0; bottom:0; right:0; }
+
 /* 테이블 태그 display:block → table 강제 변환 */
 ng-table { display:block; }
 ng-table > table { display:table; }
@@ -11,6 +17,8 @@ ng-table > table > thead > tr > th > i.pull-right { display:block; margin:0 5px;
 
 /* 테이블 셀 안쪽 input(filter) */
 ng-table > table > tbody > tr > td > input { width:100% !important; height:25px !important; }
+ng-table > table > thead > tr > th { height:30px !important; padding:0 5px !important; }
+ng-table > table > tbody > tr > td { height:30px !important; padding:0 5px !important; cursor: default; }
 
 /* bootstap.css의 float 사용으로 인한 레이아웃 틀어짐 방지 */
 .paginationArea { padding:10px 0; }

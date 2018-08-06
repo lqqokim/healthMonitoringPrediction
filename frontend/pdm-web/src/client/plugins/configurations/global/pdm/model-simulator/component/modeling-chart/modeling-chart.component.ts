@@ -1,5 +1,5 @@
 
-import {ViewEncapsulation, Component, ViewChild, ElementRef, OnInit, EventEmitter, Output, Input, OnChanges, SimpleChange, DoCheck } from '@angular/core';
+import {ViewEncapsulation, Component, ViewChild, ElementRef, OnInit, EventEmitter, Output, Input, OnChanges, SimpleChange, DoCheck ,ChangeDetectorRef} from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import { BistelChartComponent } from '../../../../../../../sdk/charts/charts/bistel-chart.component';
 
@@ -8,6 +8,7 @@ import { BistelChartComponent } from '../../../../../../../sdk/charts/charts/bis
     selector: 'modeling-chart',
     templateUrl: `modeling-chart.html`,
     styleUrls: [`modeling-chart.css`],
+    encapsulation: ViewEncapsulation.None
     
 })
 export class ModelingChartComponent implements OnInit, OnChanges, DoCheck {
@@ -106,9 +107,9 @@ export class ModelingChartComponent implements OnInit, OnChanges, DoCheck {
             stroke: true,
             strokeStyle: '#acafaa',
             // tslint:disable-next-line:max-line-length
-            // tooltipContentEditor: (str: string, seriesIndex: number, pointIndex: number, plot: any, tooltipContentProc: any, ev: Event) => {
-            //     tooltipContentProc(this.trendConfig['series'][seriesIndex].label + ': ' + moment(parseInt(str.split(',')[0])).format('YYYY/MM/DD HH:mm:ss') + ' [' + (+str.split(',')[1]).toFixed(2) + ']');
-            // },
+            tooltipContentEditor: (str: string, seriesIndex: number, pointIndex: number, plot: any, tooltipContentProc: any, ev: Event) => {
+                tooltipContentProc( moment(parseInt(str.split(',')[0])).format('YYYY/MM/DD HH:mm:ss') + ' [' + (+str.split(',')[1]).toFixed(2) + ']');
+            },
         }
     };
 
@@ -122,6 +123,7 @@ export class ModelingChartComponent implements OnInit, OnChanges, DoCheck {
             this.trendConfig.axes.xaxis['min'] = plot.axes.xaxis.min;
             this.trendConfig.axes.xaxis['max'] = plot.axes.xaxis.max;
             this.trendConfig = Object.assign({},this.trendConfig);
+            this._chRef.detectChanges();
 
         },
         jqplotUndoZoom:(ev, gridpos, datapos, plot, cursor)=>{
@@ -134,6 +136,7 @@ export class ModelingChartComponent implements OnInit, OnChanges, DoCheck {
             this.trendConfig.axes.xaxis['min'] = this.xMin;
             this.trendConfig.axes.xaxis['max'] = this.xMax;
             this.trendConfig = Object.assign({},this.trendConfig);
+            this._chRef.detectChanges();
         }
 
         
@@ -180,7 +183,7 @@ export class ModelingChartComponent implements OnInit, OnChanges, DoCheck {
 
 
 
-    constructor() { }
+    constructor(private _chRef: ChangeDetectorRef) { }
 
     ngOnInit() {
 
@@ -242,25 +245,26 @@ export class ModelingChartComponent implements OnInit, OnChanges, DoCheck {
                     }
                     this.conditionStartOperator = operator;
                     this.conditionValue = parseFloat(value);
-                }else if(element.eventTypeCd="E"){ //End는 보이는 모양이 반대라서 Operation모두 반대임 
-                    let operator = element.condition.replace('value','').trim();
-                    let value="";
-                    if(operator.substring(0,2)==">="){
-                        value = operator.substring(2);
-                        operator = "<=";
-                    }else if(operator.substring(0,2)=="<="){
-                        value = operator.substring(2);
-                        operator = ">=";
-                    }else if(operator.substring(0,1)=="<"){
-                        value = operator.substring(1);
-                        operator = ">";
-                    }else if(operator.substring(0,1)==">"){
-                        value = operator.substring(1);
-                        operator = "<";
-                    }
-                    this.conditionEndOperator = operator;
-                    this.conditionValue = parseFloat(value);
                 }
+                // }else if(element.eventTypeCd="E"){ //End는 보이는 모양이 반대라서 Operation모두 반대임 
+                //     let operator = element.condition.replace('value','').trim();
+                //     let value="";
+                //     if(operator.substring(0,2)==">="){
+                //         value = operator.substring(2);
+                //         operator = "<=";
+                //     }else if(operator.substring(0,2)=="<="){
+                //         value = operator.substring(2);
+                //         operator = ">=";
+                //     }else if(operator.substring(0,1)=="<"){
+                //         value = operator.substring(1);
+                //         operator = ">";
+                //     }else if(operator.substring(0,1)==">"){
+                //         value = operator.substring(1);
+                //         operator = "<";
+                //     }
+                //     this.conditionEndOperator = operator;
+                //     this.conditionValue = parseFloat(value);
+                // }
                 
             }
             this.onChangeOperator();
@@ -469,7 +473,7 @@ export class ModelingChartComponent implements OnInit, OnChanges, DoCheck {
         this.conditionParamId = param.paramId;
 
         // this.selectedParamId = param.paramId;
-
+        this.onChangeOperator();
         this.setStatusEventConfig();
         this.drawConditionLine(param);
 
@@ -557,8 +561,16 @@ export class ModelingChartComponent implements OnInit, OnChanges, DoCheck {
     public getParamId() {
         return this.selectedParamId;
     }
+    private getFloat(data){
+        if(data.toString().indexOf('.')>=0){
+            return data.toString();
+        }else{
+            return data.toFixed(2);
+        }
+    }
     public getConditionValue() {
-        return  parseFloat( this.conditionValue);
+        // return  parseFloat( this.conditionValue);
+        return this.getFloat(this.conditionValue);
     }
     public getConditionParamId() {
         return this.conditionParamId;

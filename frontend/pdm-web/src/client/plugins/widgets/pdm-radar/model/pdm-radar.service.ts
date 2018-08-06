@@ -2,7 +2,7 @@ import { Observable } from 'rxjs/Observable';
 import { Injectable, Component } from '@angular/core';
 import { PdmModelService } from './../../../../common';
 
-import * as pdmRadarI from './pdm-radar.interface';
+import * as IRadar from './pdm-radar.interface';
 
 @Injectable()
 export class PdmRadarService {
@@ -20,11 +20,11 @@ export class PdmRadarService {
         return this._pdmModel.getRadarTypeInfo();
     }
 
-    getRadarEqps(requestParam: pdmRadarI.RadarEqpsRequestParam): PromiseLike<any> {
+    getRadarEqps(requestParam: IRadar.RadarEqpReqParams): PromiseLike<any> {
         return this._pdmModel.getRadarEqps(requestParam);
     }
 
-    getRadarParams(requestParam: pdmRadarI.RadarParamsRequestParam): Promise<any> {
+    getRadarParams(requestParam: IRadar.RadarParamReqParams): Promise<any> {
         return this._pdmModel.getRadarParams(requestParam);
     }
 }

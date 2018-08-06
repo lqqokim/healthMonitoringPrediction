@@ -40,7 +40,7 @@ public class StatusContextProcessor extends AbstractProcessor<String, byte[]> {
 
         EventMasterDataSet event = MasterDataCache.getInstance().getEventForProcess(partitionKey);
         if (event == null) {
-            log.info("[{}] - There are no registered events.", partitionKey);
+            log.debug("[{}] - There are no registered events.", partitionKey);
             return;
         }
 
@@ -82,7 +82,7 @@ public class StatusContextProcessor extends AbstractProcessor<String, byte[]> {
             context().forward(partitionKey, recordValue.getBytes());
             context().commit();
 
-            log.trace("[{}] - forwarded. (Prev : {}, Now : {}) ", partitionKey, prevStatusInfo, nowStatusInfo);
+            log.debug("[{}] - forwarded. (Prev : {}, Now : {}) ", partitionKey, prevStatusInfo, nowStatusInfo);
 
         } catch (Exception e){
             log.error(e.getMessage(), e);

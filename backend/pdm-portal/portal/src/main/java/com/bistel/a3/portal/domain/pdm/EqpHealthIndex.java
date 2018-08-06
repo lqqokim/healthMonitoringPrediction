@@ -1,6 +1,7 @@
 package com.bistel.a3.portal.domain.pdm;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class EqpHealthIndex {
@@ -28,6 +29,11 @@ public class EqpHealthIndex {
     private Long logic3Param;
     private Long logic4Param;
 
+    private String logic1param_name;
+    private String logic2param_name;
+    private String logic3param_name;
+    private String logic4param_name;
+
     private double score;
 
     private int alarm_count;
@@ -36,6 +42,65 @@ public class EqpHealthIndex {
 
     private int health_logic_mst_rawid;
 
+    private Float upperAlarmSpec;
+    private Float upperWarningSpec;
+
+    private Date sum_dtts;
+
+    public Date getSum_dtts() {
+        return sum_dtts;
+    }
+
+    public void setSum_dtts(Date sum_dtts) {
+        this.sum_dtts = sum_dtts;
+    }
+
+    public Float getUpperAlarmSpec() {
+        return upperAlarmSpec;
+    }
+
+    public void setUpperAlarmSpec(Float upperAlarmSpec) {
+        this.upperAlarmSpec = upperAlarmSpec;
+    }
+
+    public Float getUpperWarningSpec() {
+        return upperWarningSpec;
+    }
+
+    public void setUpperWarningSpec(Float upperWarningSpec) {
+        this.upperWarningSpec = upperWarningSpec;
+    }
+    public String getLogic1param_name() {
+        return logic1param_name;
+    }
+
+    public void setLogic1param_name(String logic1param_name) {
+        this.logic1param_name = logic1param_name;
+    }
+
+    public String getLogic2param_name() {
+        return logic2param_name;
+    }
+
+    public void setLogic2param_name(String logic2param_name) {
+        this.logic2param_name = logic2param_name;
+    }
+
+    public String getLogic3param_name() {
+        return logic3param_name;
+    }
+
+    public void setLogic3param_name(String logic3param_name) {
+        this.logic3param_name = logic3param_name;
+    }
+
+    public String getLogic4param_name() {
+        return logic4param_name;
+    }
+
+    public void setLogic4param_name(String logic4param_name) {
+        this.logic4param_name = logic4param_name;
+    }
 
     public double getScore() {
         return score;

@@ -43,8 +43,12 @@ public class ParameterMasterDataSet {
     @JsonProperty("lowerAlarmSpec")
     private Float lowerAlarmSpec;
 
+//    public String toKey(){
+//        return this.areaName  + "," + this.equipmentName;
+//    }
+
     public String toKey(){
-        return this.areaName  + "," + this.equipmentName;
+        return this.equipmentName;
     }
 
     public String getAreaName() {

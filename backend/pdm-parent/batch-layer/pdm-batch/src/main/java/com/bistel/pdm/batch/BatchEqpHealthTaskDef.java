@@ -1,6 +1,7 @@
 package com.bistel.pdm.batch;
 
 import com.bistel.pdm.batch.processor.EquipmentHealthProcessor;
+import com.bistel.pdm.batch.processor.ReloadMetadataProcessor;
 import com.bistel.pdm.lambda.kafka.AbstractPipeline;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.Serdes;
@@ -59,6 +60,10 @@ public class BatchEqpHealthTaskDef extends AbstractPipeline {
                         Stores.persistentKeyValueStore("batch-equipment-health"),
                         Serdes.String(),
                         Serdes.String());
+
+        topology.addSource("input-reload", "pdm-input-reload")
+                .addProcessor("reload", ReloadMetadataProcessor::new, "input-reload")
+                .addSink("ouput-reload", this.getOutputReloadTopic(), "reload");
 
         topology.addSource("input-health", this.getRouteHealthTopic())
                 .addProcessor("eqp-health", EquipmentHealthProcessor::new, "input-health")

@@ -11,6 +11,12 @@ public class ParamHealthData {
     private Double index;
     private Long healthLogicRawId;
 
+    private Float upperAlarmSpec;
+    private Float upperWarningSpec;
+    private Float target;
+    private Float lowerAlarmSpec;
+    private Float lowerWarningSpec;
+
     public Long getRawId() {
         return rawId;
     }
@@ -68,6 +74,9 @@ public class ParamHealthData {
     }
 
     public Double getIndex() {
+        if(index.isNaN())
+            return 0D;
+
         return index;
     }
 
@@ -81,5 +90,45 @@ public class ParamHealthData {
 
     public void setHealthLogicRawId(Long healthLogicRawId) {
         this.healthLogicRawId = healthLogicRawId;
+    }
+
+    public Float getUpperAlarmSpec() {
+        return upperAlarmSpec;
+    }
+
+    public void setUpperAlarmSpec(Float upperAlarmSpec) {
+        this.upperAlarmSpec = upperAlarmSpec;
+    }
+
+    public Float getUpperWarningSpec() {
+        return upperWarningSpec;
+    }
+
+    public void setUpperWarningSpec(Float upperWarningSpec) {
+        this.upperWarningSpec = upperWarningSpec;
+    }
+
+    public Float getTarget() {
+        return target;
+    }
+
+    public void setTarget(Float target) {
+        this.target = target;
+    }
+
+    public Float getLowerAlarmSpec() {
+        return lowerAlarmSpec;
+    }
+
+    public void setLowerAlarmSpec(Float lowerAlarmSpec) {
+        this.lowerAlarmSpec = lowerAlarmSpec;
+    }
+
+    public Float getLowerWarningSpec() {
+        return lowerWarningSpec;
+    }
+
+    public void setLowerWarningSpec(Float lowerWarningSpec) {
+        this.lowerWarningSpec = lowerWarningSpec;
     }
 }

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ModelCommonService } from '../../model-common.service';
 import * as pdmI from '../../../../plugins/widgets/pdm-modeler/pdm-modeler.interface';
-import * as pdmRadarI from '../../../../plugins/widgets/pdm-radar/model/pdm-radar.interface';
+import * as IRadar from '../../../../plugins/widgets/pdm-radar/model/pdm-radar.interface';
 import { Observable } from 'rxjs';
 import { EqpEventType } from '../../../types/eqpEvent.type';
 import { start } from 'repl';
@@ -494,7 +494,7 @@ export class PdmModelService extends ModelCommonService {
 		})
 	}
 
-	getRadarEqps(param: pdmRadarI.RadarEqpsRequestParam): Promise<any> {
+	getRadarEqps(param: IRadar.RadarEqpReqParams): Promise<any> {
 		return this.GET({
 			uriPath: `pdm/fabs/${param.fabId}/radareqps`,
 			querystring: {
@@ -507,7 +507,7 @@ export class PdmModelService extends ModelCommonService {
 		});
 	}
 
-	getRadarParams(param: pdmRadarI.RadarParamsRequestParam): Promise<any> {
+	getRadarParams(param: IRadar.RadarParamReqParams): Promise<any> {
 		return this.GET({
 			uriPath: `pdm/fabs/${param.fabId}/eqps/${param.eqpId}/radar`,
 			params: {
@@ -575,6 +575,22 @@ export class PdmModelService extends ModelCommonService {
 		// 	}
 		// });
 	}
+	getSummaryData(fabId,paramId,fromDate,toDate,adHocFunctions): Observable<any> {
+		return this.rxPOST({
+			uriPath: `pdm/fabs/${fabId}/areas/0/eqps/0/params/${paramId}/summarydata?fromdate=${fromDate}&todate=${toDate}`,
+			params:
+				adHocFunctions
+			
+		})
+		// return this.GET({
+		// 	uriPath: `pdm/fabs/${fabId}/areas/0/eqps/0/params/${paramId}/eventsimulation`,
+		// 	params: {
+		// 		fromdate: fromDate,
+		// 		todate: toDate,
+		// 		condition:condition
+		// 	}
+		// });
+	}
 
 	setEqpEvent(fabId,eqpEvents:EqpEventType[]): Observable<any> {
 		return this.rxPUT({
@@ -629,7 +645,7 @@ export class PdmModelService extends ModelCommonService {
 		});
 	}
 
-	getRadarParam1s(param: pdmRadarI.RadarParamsRequestParam): Promise<any> {
+	getRadarParam1s(param: IRadar.RadarParamReqParams): Promise<any> {
 		return this.GET({
 			uriPath: `pdm/fabs/${param.fabId}/eqps/${param.eqpId}/radar`,
 			params: {
@@ -721,6 +737,13 @@ export class PdmModelService extends ModelCommonService {
 	}
 
 	// WorstEqpList
+	getWorstEqpsWithHealthIndex(fabId: string,  fromDate:number, toDate:number,numberOfWorst:number): Promise<any> {
+		return this.GET({
+			uriPath: `pdm/fabs/${fabId}/worstEqps?fromdate=${fromDate}&todate=${toDate}&numberOfWorst=${numberOfWorst}`
+		});
+	}
+
+	// WorstEqpList
 	getWorstEqpListByAreaId(fabId: string, areaId: number, fromDate:number, toDate:number): Promise<any> {
 		return this.GET({
 			uriPath: `pdm/fabs/${fabId}/areas/${areaId}/worstEquipmentListByAreaId/?fromdate=${fromDate}&todate=${toDate}`
@@ -783,12 +806,6 @@ export class PdmModelService extends ModelCommonService {
 	getEqpHealthTrendChartWithRUL(fabId: string, paramId:number, fromDate:number, toDate:number): Promise<any> {
 		return this.GET({
 			uriPath: `pdm/fabs/${fabId}/params/${paramId}/eqpHealthTrendChartWithRUL/?fromdate=${fromDate}&todate=${toDate}`
-		});
-	}
-	// eqpHealthTrendChart (Logic1 ~ 4 get paramid)
-	getEqpHealthIndexGetWorstParam(fabId: string, eqpId:number, fromDate:number, toDate:number): Promise<any> {
-		return this.GET({
-			uriPath: `pdm/fabs/${fabId}/eqps/${eqpId}/eqpHealthIndexGetWorstParam/?fromdate=${fromDate}&todate=${toDate}`
 		});
 	}
 }

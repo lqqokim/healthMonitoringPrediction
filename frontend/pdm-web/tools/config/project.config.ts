@@ -145,13 +145,13 @@ export class ProjectConfig extends SeedConfig {
             {src: `${this.APP_SRC}/sdk/libs/onepage-scroll/jquery.onepage-scroll.js`, inject: true, vendor: false},
 
             // the-graph
-            {src: `${this.APP_SRC}/sdk/libs/the-graph/react/react.js`, inject: true, vendor: false},
-            {src: `${this.APP_SRC}/sdk/libs/the-graph/react/react-dom.js`, inject: true, vendor: false},
-            {src: `${this.APP_SRC}/sdk/libs/the-graph/react/ease-component.js`, inject: true, vendor: false},
-            {src: `${this.APP_SRC}/sdk/libs/the-graph/react/react.animate.js`, inject: true, vendor: false},
-            {src: `${this.APP_SRC}/sdk/libs/the-graph/klay-noflo/klay-noflo.js`, inject: true, vendor: false},
-            {src: `${this.APP_SRC}/sdk/libs/the-graph/hammerjs/hammer.js`, inject: true, vendor: false},
-            {src: `${this.APP_SRC}/sdk/libs/the-graph/the-graph.js`, inject: true, vendor: false},
+            // {src: `${this.APP_SRC}/sdk/libs/the-graph/react/react.js`, inject: true, vendor: false},
+            // {src: `${this.APP_SRC}/sdk/libs/the-graph/react/react-dom.js`, inject: true, vendor: false},
+            // {src: `${this.APP_SRC}/sdk/libs/the-graph/react/ease-component.js`, inject: true, vendor: false},
+            // {src: `${this.APP_SRC}/sdk/libs/the-graph/react/react.animate.js`, inject: true, vendor: false},
+            // {src: `${this.APP_SRC}/sdk/libs/the-graph/klay-noflo/klay-noflo.js`, inject: true, vendor: false},
+            // {src: `${this.APP_SRC}/sdk/libs/the-graph/hammerjs/hammer.js`, inject: true, vendor: false},
+            // {src: `${this.APP_SRC}/sdk/libs/the-graph/the-graph.js`, inject: true, vendor: false},
 
             // Custom Chart libraries
             {src: `${this.APP_SRC}/sdk/charts/lib/axis.js`, inject: true, vendor: false},

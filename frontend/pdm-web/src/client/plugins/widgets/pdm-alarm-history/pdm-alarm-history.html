@@ -2,10 +2,9 @@
     <widget-chart-condition #condition [target]='targetName'></widget-chart-condition>
 
     <div class="chart-body div01" table>
-        <ng2-Table
+        <ng2-Table #tableList
             [columns]="columns"
             [data]="listData"
-            [paging]="paging"
             [totalFilter]="totalFilter"
         ></ng2-Table>
     </div>

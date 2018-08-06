@@ -28,25 +28,25 @@ public class ReloadMetadataProcessor extends AbstractProcessor<String, byte[]> {
 
         log.info("request to update master...");
 
-        String targetUrl = servingAddr + "/pdm/api/master/latest/equipment";
+        String targetUrl = servingAddr + "/pdm/api/master/latest/equipment/" + partitionKey;
         log.info("call to {}", targetUrl);
-        MasterDataUpdater.updateEqpMasterDataSet(targetUrl);
+        MasterDataUpdater.updateEqpMasterDataSet(partitionKey, targetUrl);
 
-        targetUrl = servingAddr + "/pdm/api/master/latest/param";
+        targetUrl = servingAddr + "/pdm/api/master/latest/param/" + partitionKey;
         log.info("call to {}", targetUrl);
-        MasterDataUpdater.updateParameterMasterDataSet(targetUrl);
+        MasterDataUpdater.updateParameterMasterDataSet(partitionKey, targetUrl);
 
-        targetUrl = servingAddr + "/pdm/api/master/latest/event";
+        targetUrl = servingAddr + "/pdm/api/master/latest/event/" + partitionKey;
         log.info("call to {}", targetUrl);
-        MasterDataUpdater.updateEventMasterDataSet(targetUrl);
+        MasterDataUpdater.updateEventMasterDataSet(partitionKey, targetUrl);
 
-        targetUrl = servingAddr + "/pdm/api/master/latest/spec";
-        log.info("call to {}", targetUrl);
-        MasterDataUpdater.updateParamSpecDataSet(targetUrl);
+//        targetUrl = servingAddr + "/pdm/api/master/latest/spec/" + partitionKey;
+//        log.info("call to {}", targetUrl);
+//        MasterDataUpdater.updateParamSpecDataSet(targetUrl);
 
-        targetUrl = servingAddr + "/pdm/api/master/latest/health";
+        targetUrl = servingAddr + "/pdm/api/master/latest/health/" + partitionKey;
         log.info("call to {}", targetUrl);
-        MasterDataUpdater.updateParamHealthDataSet(targetUrl);
+        MasterDataUpdater.updateParamHealthDataSet(partitionKey, targetUrl);
 
         targetUrl = servingAddr + "/pdm/api/master/latest/smtp";
         log.info("call to {}", targetUrl);
@@ -54,6 +54,7 @@ public class ReloadMetadataProcessor extends AbstractProcessor<String, byte[]> {
 
         log.info("all master data(equipment, param, event, spec, health, smtp) is reloaded.");
 
-        //log.debug("from : {}", MasterDataCache.getInstance().getMailConfigDataSet().getFromAddr());
+        context().forward(partitionKey, streamByteRecord);
+        context().commit();
     }
 }

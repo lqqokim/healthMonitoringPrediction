@@ -3,7 +3,7 @@ import { WidgetApi, WidgetRefreshType, OnSetup } from '../../../common';
 
 import { LineStatusSummaryComponent } from './components/line-status-summary.component';
 
-import * as IDataType from './model/data-type.interface';
+import * as IData from './model/data-type.interface';
 import { ITimePeriod, WidgetChartConditionComponent } from '../../common/widget-chart-condition/widget-chart-condition.component';
 
 @Component({
@@ -14,6 +14,7 @@ import { ITimePeriod, WidgetChartConditionComponent } from '../../common/widget-
 })
 export class PdmLineStatusSummaryWidgetComponent extends WidgetApi implements OnInit, OnSetup {
     @ViewChild('container') container: ElementRef;
+    @ViewChild('chartBody') chartBody: ElementRef;
     @ViewChild('statusSummary') statusSummary: LineStatusSummaryComponent;
     @ViewChild('WidgetCondition') WidgetCondition: WidgetChartConditionComponent;
 
@@ -21,11 +22,11 @@ export class PdmLineStatusSummaryWidgetComponent extends WidgetApi implements On
         fab: {
             fabId: undefined,
             fabName: undefined
-        } as IDataType.Fab,
+        } as IData.Fab,
         timePeriod: {
             toDate: undefined,
             fromDate: undefined
-        } as ITimePeriod
+        } as IData.TimePeriod
     };
 
     private readonly DEFAULT_PERIOD: number = 1;
@@ -62,7 +63,13 @@ export class PdmLineStatusSummaryWidgetComponent extends WidgetApi implements On
     onResize(e?: TransitionEvent): void {
         if ((e !== undefined && !e.isTrusted) || this._currentEl === undefined) { return; }
         if (e) {
-            this.statusSummary.onChartResize();
+            const chartBodyEl = $(this.chartBody.nativeElement);
+            if(chartBodyEl) {
+                this.statusSummary.onChartResize({
+                    width: chartBodyEl.width(),
+                    height: chartBodyEl.height()
+                });
+            }
         }
     }
 
@@ -119,13 +126,12 @@ export class PdmLineStatusSummaryWidgetComponent extends WidgetApi implements On
 
     endChartLoad(ev: any): void {
         if (ev.isLoad) {
-            if (this.isShowNoData) {
-                this.isShowNoData = false;
-            }
-            this.hideSpinner();
+         
         } else if (!ev.isLoad) {
-            this.isShowNoData = true;
+        
         }
+
+        this.hideSpinner();
     }
 
     private _init(): void {

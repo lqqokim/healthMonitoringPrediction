@@ -96,7 +96,7 @@ export class WidgetConfigHelper {
     //* 컨피그 설정
     setConfigInfo( type: string, syncData?: any ): void {
 
-        console.log( 'setConfigInfo', type, this.widget.getProp('cutoffType'), this.widget.getProp('dayPeriod'), syncData );
+        // console.log( 'setConfigInfo', type, this.widget.getProp('cutoffType'), this.widget.getProp('dayPeriod'), syncData );
 
         // 새로고침 (이전 컨피그 상태로 되돌림)
         if( type === A3_WIDGET.JUST_REFRESH ){

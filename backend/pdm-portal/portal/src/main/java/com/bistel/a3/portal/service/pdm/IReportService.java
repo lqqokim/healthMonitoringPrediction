@@ -81,4 +81,6 @@ public interface IReportService {
     Set<Long> selectExpectedAlarmWarningEqps(String fab, Date from, Date to);
 
     Object getFeatureDataWithRUL(String fabId, Long eqpId, Long paramId, Long fromdate, Long todate);
+
+    Object getHealthIndexTrend(String fabId, Long paramId, Long fromdate, Long todate);
 }

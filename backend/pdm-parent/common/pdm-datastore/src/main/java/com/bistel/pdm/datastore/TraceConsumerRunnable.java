@@ -21,7 +21,7 @@ public class TraceConsumerRunnable implements Runnable {
     private final KafkaConsumer<String, byte[]> consumer;
     private final String topicName;
 
-    private final static int PollingDurations = 1; // sec.
+    private final static int PollingDurations = 5; // sec.
 
     private SensorTraceDataDao trxDao;
 
@@ -53,7 +53,7 @@ public class TraceConsumerRunnable implements Runnable {
             if (records.count() > 0) {
                 log.debug(" polling {} records", records.count());
                 trxDao.storeRecord(records);
-                consumer.commitSync();
+                consumer.commitAsync();
                 log.info("{} records are committed.", records.count());
             }
         }

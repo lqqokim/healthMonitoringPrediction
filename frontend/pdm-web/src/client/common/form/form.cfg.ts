@@ -19,6 +19,8 @@ import { analysis_spec } from './configs/pdm/analysis-spec.cfg';
 import { analysis_spec_visible } from './configs/pdm/analysis-spec-visible.cfg';
 import { worst_top } from './configs/pdm/worst-top.cfg';
 import { monitoring } from './configs/pdm/monitoring.cfg';
+import { max_param_count } from './configs/pdm/max-param-count.cfg';
+import { spectrum_count } from './configs/pdm/spectrum-count.cfg';
 
 export const Formcfg: any = {
     Tool: {
@@ -45,6 +47,8 @@ export const Formcfg: any = {
         analysis_spec,
         analysis_spec_visible,
         worst_top,
-        monitoring
+        monitoring,
+        max_param_count,
+        spectrum_count
     }
 };

@@ -6,7 +6,7 @@
 			<ul>
 				<li num>#</li>
 				<li equi>Equipment</li>
-				<li score>Score</li>
+				<li score>Health Index</li>
 				<li status>Status Change</li>
 			</ul>
 		</div>
@@ -26,7 +26,7 @@
     <div class="condition legend">
         <ol>
             <li *ngFor="let row of drawColors">
-                <i [style.background]="row.color"></i>{{row.name}}
+                <i [style.background]="row.color"></i>{{row.name | titlecase}}
             </li>
         </ol>
     </div>

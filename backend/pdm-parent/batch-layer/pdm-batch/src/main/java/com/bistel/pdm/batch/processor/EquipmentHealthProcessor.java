@@ -30,7 +30,7 @@ public class EquipmentHealthProcessor extends AbstractProcessor<String, byte[]> 
     @Override
     public void process(String partitionKey, byte[] streamByteRecord) {
         String recordValue = new String(streamByteRecord);
-        // time, eqpRawid, param_rawid, param_health_rawid, status_cd, data_count, index
+        // time, eqpRawid, param_rawid, param_health_rawid, status_cd, data_count, index, uas, uws, target, las, lws
         String[] recordColumns = recordValue.split(SEPARATOR);
 
         try {

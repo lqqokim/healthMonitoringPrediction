@@ -1,0 +1,40 @@
+<div class="modeling-simulator-chart">
+
+    <table class="table">
+        <thead>
+            <th class="parameter sortable" (click)="sortClick('parameter')"> Parameter
+                <i class="fa fa-sort-asc" *ngIf="sort.parameter === 'asc'"></i>
+                <i class="fa fa-sort-desc" *ngIf="sort.parameter === 'desc'"></i>
+                <i class="fa fa-sort" *ngIf="sort.parameter === 'none'"></i>
+            </th>
+            <th class="adHoc sortable" (click)="sortClick('adHoc')">Function
+                <i class="fa fa-sort-asc" *ngIf="sort.adHoc === 'asc'"></i>
+                <i class="fa fa-sort-desc" *ngIf="sort.adHoc === 'desc'"></i>
+                <i class="fa fa-sort" *ngIf="sort.adHoc === 'none'"></i>
+            </th>
+            <th>Chart</th>
+        </thead>
+        <tr class="param-info" *ngFor="let param of params">
+            <td>{{param.name}}</td>
+            <td>
+                {{param.adHoc}}
+            </td>
+            <td>
+                <div class="chart-container">
+                    <a3c-bistel-chart [data]="param.datas"  [config]="trendConfig" [eventLines]="param.eventLines" [chartEvents]="eventConfig">
+                    </a3c-bistel-chart>
+                </div>
+            </td>
+        </tr>
+    </table>
+
+    <!-- <div class="col-sm-1">
+            <label>
+                {{param.name}}
+            </label>
+        </div>
+        <div class="col-sm-11  chart-container">
+            <a3c-bistel-chart [data]="param.datas" [config]="trendConfig" [eventLines]="param.eventLines" [chartEvents]="param.eventConfig">
+            </a3c-bistel-chart>
+        </div> -->
+</div>

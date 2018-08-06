@@ -37,8 +37,18 @@ public class EventMasterDataSet {
     @JsonProperty("paramParseIndex")
     private Integer paramParseIndex;
 
+    @JsonProperty("timeIntervalYn")
+    private String timeIntervalYn;
+
+    @JsonProperty("intervalTimeMs")
+    private Long intervalTimeMs;
+
+//    public String toKey(){
+//        return this.areaName  + "," + this.equipmentName;
+//    }
+
     public String toKey(){
-        return this.areaName  + "," + this.equipmentName;
+        return this.equipmentName;
     }
 
     public String getAreaName() {
@@ -119,5 +129,21 @@ public class EventMasterDataSet {
 
     public void setParamParseIndex(Integer paramParseIndex) {
         this.paramParseIndex = paramParseIndex;
+    }
+
+    public String getTimeIntervalYn() {
+        return timeIntervalYn;
+    }
+
+    public void setTimeIntervalYn(String timeIntervalYn) {
+        this.timeIntervalYn = timeIntervalYn;
+    }
+
+    public Long getIntervalTimeMs() {
+        return intervalTimeMs;
+    }
+
+    public void setIntervalTimeMs(Long intervalTimeMs) {
+        this.intervalTimeMs = intervalTimeMs;
     }
 }

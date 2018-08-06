@@ -1,21 +1,14 @@
 package com.bistel.a3.portal.service.pdm.impl.std;
 
-import com.bistel.a3.common.util.JsonUtil;
-import com.bistel.a3.portal.dao.pdm.std.report.STDReportMapper;
-import com.bistel.a3.portal.dao.pdm.std.trace.STDHealthMapper;
-import com.bistel.a3.portal.dao.pdm.ulsan.FabMapper;
-import com.bistel.a3.portal.domain.common.Code;
-import com.bistel.a3.portal.domain.pdm.BatchJobHst;
-import com.bistel.a3.portal.domain.pdm.CauseAnalysisResult;
-import com.bistel.a3.portal.domain.pdm.db.*;
-import com.bistel.a3.portal.domain.pdm.master.ParamWithCommon;
-import com.bistel.a3.portal.enums.JOB;
-import com.bistel.a3.portal.enums.JOB_STATUS;
-import com.bistel.a3.portal.enums.JOB_TYPE;
-import com.bistel.a3.portal.module.pdm.FabsComponent;
-import com.bistel.a3.portal.service.pdm.*;
-import com.bistel.a3.portal.util.SqlSessionUtil;
-import com.bistel.a3.portal.util.TransactionUtil;
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.commons.math3.stat.StatUtils;
@@ -31,13 +24,34 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 
-import java.io.IOException;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
+import com.bistel.a3.common.util.JsonUtil;
+import com.bistel.a3.portal.dao.pdm.std.report.STDReportMapper;
+import com.bistel.a3.portal.dao.pdm.std.summary.STDSummaryMapper;
+import com.bistel.a3.portal.dao.pdm.std.trace.STDHealthMapper;
+import com.bistel.a3.portal.dao.pdm.ulsan.FabMapper;
+import com.bistel.a3.portal.domain.common.Code;
+import com.bistel.a3.portal.domain.pdm.BatchJobHst;
+import com.bistel.a3.portal.domain.pdm.CauseAnalysisResult;
+import com.bistel.a3.portal.domain.pdm.ParamRULSummary;
+import com.bistel.a3.portal.domain.pdm.db.Feature;
+import com.bistel.a3.portal.domain.pdm.db.HealthDaily;
+import com.bistel.a3.portal.domain.pdm.db.HealthModel;
+import com.bistel.a3.portal.domain.pdm.db.HealthStat;
+import com.bistel.a3.portal.domain.pdm.db.MeasureTrx;
+import com.bistel.a3.portal.domain.pdm.master.ParamWithCommon;
+import com.bistel.a3.portal.domain.pdm.std.master.STDParamHealth;
+import com.bistel.a3.portal.enums.JOB;
+import com.bistel.a3.portal.enums.JOB_STATUS;
+import com.bistel.a3.portal.enums.JOB_TYPE;
+import com.bistel.a3.portal.module.pdm.FabsComponent;
+import com.bistel.a3.portal.service.pdm.IBatchTaskService;
+import com.bistel.a3.portal.service.pdm.IHealthService;
+import com.bistel.a3.portal.service.pdm.IPDMCodeService;
+import com.bistel.a3.portal.service.pdm.IReportService;
+import com.bistel.a3.portal.service.pdm.ITraceDataService;
+import com.bistel.a3.portal.service.pdm.ITraceRawDataService;
+import com.bistel.a3.portal.util.SqlSessionUtil;
+import com.bistel.a3.portal.util.TransactionUtil;
 
 @Service
 @ConditionalOnExpression("${run.standard}")
@@ -273,6 +287,8 @@ public class BatchTaskService implements IBatchTaskService {
     }
 
 
+
+
     private int printProgress(String fab, int totalCount, int iCount, Date startDate, String jobName) {
         try{
             long diff = new Date().getTime() - startDate.getTime();
@@ -351,6 +367,341 @@ public class BatchTaskService implements IBatchTaskService {
         }
     }
 
+
+    @Override
+    public void summaryHealthSTDSPC(Set<String> fabs, Date from, Date to)  {
+        for(String fab : fabs) {
+
+            PlatformTransactionManager manager = TransactionUtil.getTransactionManger(trMgrs, fab);
+            TransactionStatus status = TransactionUtil.getTransactionStatus(manager);
+
+            SimpleDateFormat dtDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+            String fromdate=dtDate.format(from);
+            String todate=dtDate.format(to);
+
+            STDSummaryMapper stdSummaryMapper=SqlSessionUtil.getMapper(sessions, fab, STDSummaryMapper.class);
+
+            try{
+                stdSummaryMapper.insertSummaryHealthSTDSPC(from,to);
+                manager.commit(status);
+            }
+            catch(Exception e)
+            {
+                manager.rollback(status);
+                Throwable ee = e.getCause();
+                logger.error("{}, {}", e, ee == null ? e.getMessage() : ee.getMessage());
+            }
+
+
+        }
+
+    }
+
+    @Override
+    public void summaryHealthDiff(Set<String> fabs, Date from, Date to)  {
+        for(String fab : fabs) {
+
+            PlatformTransactionManager manager = TransactionUtil.getTransactionManger(trMgrs, fab);
+            TransactionStatus status = TransactionUtil.getTransactionStatus(manager);
+
+            SimpleDateFormat dtDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+            String fromdate=dtDate.format(from);
+            String todate=dtDate.format(to);
+
+            STDSummaryMapper stdSummaryMapper = SqlSessionUtil.getMapper(sessions, fab, STDSummaryMapper.class);
+
+            try{
+                stdSummaryMapper.insertSummaryHealthDiff(fromdate,todate);
+                manager.commit(status);
+            }
+            catch (Exception e){
+                manager.rollback(status);
+                Throwable ee = e.getCause();
+                logger.error("{}, {}", e, ee == null ? e.getMessage() : ee.getMessage());
+            }
+
+
+        }
+
+    }
+
+
+    @Override
+    public void summaryHealthRUL(Set<String> fabs, Date from, Date to)  {
+
+//        SimpleRegression simpleRegression = new SimpleRegression();
+//
+//        for(String fab : fabs) {
+//
+//            STDSummaryMapper stdSummaryMapper = SqlSessionUtil.getMapper(sessions, fab, STDSummaryMapper.class);
+//            List<ParamRULSummary> paramRULSummaryList=stdSummaryMapper.selectRULSummary(from, to);
+//
+//            ArrayList<Long> paramRawIdList = new ArrayList<>();
+//            HashMap<Long, Double> paramScore=new HashMap<>();
+//
+//            for (int i = 0; i < paramRULSummaryList.size(); i++) {
+//                if(!paramRawIdList.contains(paramRULSummaryList.get(i).getParam_mst_rawid())){
+//
+//                    paramRawIdList.add(paramRULSummaryList.get(i).getParam_mst_rawid());
+//
+//                }
+//            }
+//
+//            for(Long rawid : paramRawIdList){
+//                for (int i = 0; i < paramRULSummaryList.size(); i++) {
+//                    Long param_mst_rawid=paramRULSummaryList.get(i).getParam_mst_rawid();
+//                    if(param_mst_rawid == rawid) {
+//                        Long lend_dtts = paramRULSummaryList.get(i).getEnd_dtts().getTime();
+//                        Double mean = paramRULSummaryList.get(i).getMean();
+//                        simpleRegression.addData(lend_dtts, mean);
+//                    }
+//                }
+//
+//                Double alarm_spec=paramRULSummaryList.get(paramRULSummaryList.size()-1).getAlarm_spec();
+//                Long lend_time=paramRULSummaryList.get(paramRULSummaryList.size()-1).getEnd_dtts().getTime();
+//                Double intercept=simpleRegression.getIntercept();
+//                Double slope=simpleRegression.getSlope();
+//                Double xValue=(alarm_spec-intercept)/slope;
+//
+//                Long remain=xValue.longValue()-lend_time;
+//                Long days=TimeUnit.DAYS.convert(remain,TimeUnit.MILLISECONDS);
+//
+//                Double score=0.0;
+//
+//                if (slope>=0.0){
+//                    score=-0.0167*days+1.5;
+//                }
+//                else{
+//                    score=0.0;
+//                }
+//
+//                paramScore.put(rawid,score);
+//
+//            }
+//
+//            System.out.println("hi");
+//
+//        }
+//
+//
+//        for(String fab : fabs) {
+//
+//            PlatformTransactionManager manager = TransactionUtil.getTransactionManger(trMgrs, fab);
+//            TransactionStatus status = TransactionUtil.getTransactionStatus(manager);
+//
+//
+//            STDSummaryMapper stdSummaryMapper = SqlSessionUtil.getMapper(sessions, fab, STDSummaryMapper.class);
+//
+//            try{
+//                stdSummaryMapper.insertSummaryHealthRUL(from,to);
+//                manager.commit(status);
+//            }
+//            catch (Exception e){
+//                manager.rollback(status);
+//                Throwable ee = e.getCause();
+//                logger.error("{}, {}", e, ee == null ? e.getMessage() : ee.getMessage());
+//            }
+//        }
+
+    }
+
+
+    @Override
+    public void deleteHealthDailySum(Set<String> fabs, Date from, Date end)  {
+
+
+
+        for(String fab : fabs) {
+
+
+            PlatformTransactionManager manager = TransactionUtil.getTransactionManger(trMgrs, fab);
+            TransactionStatus status = TransactionUtil.getTransactionStatus(manager);
+
+            STDSummaryMapper stdSummaryMapper = SqlSessionUtil.getMapper(sessions, fab, STDSummaryMapper.class);
+
+            try{
+                stdSummaryMapper.deleteSummaryHealth(from,end);
+                manager.commit(status);
+            }
+            catch (Exception e){
+                manager.rollback(status);
+                Throwable ee = e.getCause();
+                logger.error("{}, {}", e, ee == null ? e.getMessage() : ee.getMessage());
+            }
+
+        }
+
+    }
+
+    @Override
+    public void deleteEqpAlarmDailySum(Set<String> fabs, Date from, Date to) {
+        for(String fab : fabs) {
+
+            PlatformTransactionManager manager = TransactionUtil.getTransactionManger(trMgrs, fab);
+            TransactionStatus status = TransactionUtil.getTransactionStatus(manager);
+
+
+            STDSummaryMapper stdSummaryMapper = SqlSessionUtil.getMapper(sessions, fab, STDSummaryMapper.class);
+
+            try{
+                stdSummaryMapper.deleteEqpAlarmDailySum(from, to);
+                manager.commit(status);
+            }
+            catch(Exception e)
+            {
+                manager.rollback(status);
+                Throwable ee = e.getCause();
+                logger.error("{}, {}", e, ee == null ? e.getMessage() : ee.getMessage());
+            }
+
+
+
+        }
+    }
+
+    @Override
+    public void summaryEqpAlarmDaily(Set<String> fabs, Date from, Date to) {
+
+        for(String fab : fabs) {
+
+            PlatformTransactionManager manager = TransactionUtil.getTransactionManger(trMgrs, fab);
+            TransactionStatus status = TransactionUtil.getTransactionStatus(manager);
+
+            STDSummaryMapper stdSummaryMapper = SqlSessionUtil.getMapper(sessions, fab, STDSummaryMapper.class);
+
+            try{
+                stdSummaryMapper.insertEqpAlarmDailySum(from, to);
+                manager.commit(status);
+            }
+            catch (Exception e){
+                manager.rollback(status);
+                Throwable ee = e.getCause();
+                logger.error("{}, {}", e, ee == null ? e.getMessage() : ee.getMessage());
+            }
+
+
+
+        }
+
+
+    }
+
+    @Override
+    public void summaryParamHealthRUL(Set<String> fabs, Date rulFrom, Date from,Date to){
+        SimpleRegression simpleRegression=new SimpleRegression();
+
+        for(String fab : fabs) {
+
+            STDSummaryMapper stdSummaryMapper = SqlSessionUtil.getMapper(sessions, fab, STDSummaryMapper.class);
+            List<ParamRULSummary> paramRULSummaryList=stdSummaryMapper.selectRULSummary(rulFrom, to);
+
+            ArrayList<Long> paramRawIdList = new ArrayList<>();
+            HashMap<Long,List<ParamRULSummary>> paramRULSummaryHashMap = new HashMap<>();
+
+            for (int i = 0; i < paramRULSummaryList.size(); i++) {
+                if(!paramRawIdList.contains(paramRULSummaryList.get(i).getParam_mst_rawid())){
+
+                    paramRawIdList.add(paramRULSummaryList.get(i).getParam_mst_rawid());
+                }
+                if(paramRULSummaryHashMap.containsKey(paramRULSummaryList.get(i).getParam_mst_rawid())){
+                    List<ParamRULSummary> paramRULSummaries = paramRULSummaryHashMap.get(paramRULSummaryList.get(i).getParam_mst_rawid());
+                    paramRULSummaries.add(paramRULSummaryList.get(i));
+                }else{
+                    List<ParamRULSummary> paramRULSummaries = new ArrayList<>();
+                    paramRULSummaries.add(paramRULSummaryList.get(i));
+                    paramRULSummaryHashMap.put(paramRULSummaryList.get(i).getParam_mst_rawid(),paramRULSummaries);
+
+                }
+            }
+
+            for(Long rawid : paramRawIdList){
+                ParamRULSummary paramRULSummary =null;
+//                for (int i = 0; i < paramRULSummaryList.size(); i++) {
+//                    Long param_mst_rawid=paramRULSummaryList.get(i).getParam_mst_rawid();
+//                    if(param_mst_rawid.equals(rawid) ) {
+//                        paramRULSummary = paramRULSummaryList.get(i);
+//                        Long lEnd_dtts = paramRULSummary.getEnd_dtts().getTime();
+//                        Double mean = paramRULSummary.getMean();
+//                        simpleRegression.addData(lEnd_dtts, mean);
+//                    }
+//                }
+                simpleRegression = new SimpleRegression();
+                List<ParamRULSummary> paramRULSummaries = paramRULSummaryHashMap.get(rawid);
+                for (int i = 0; i < paramRULSummaries.size(); i++) {
+                    paramRULSummary = paramRULSummaries.get(i);
+                    Long lEnd_dtts = paramRULSummary.getEnd_dtts().getTime();
+                    Double mean = paramRULSummary.getMean();
+                    simpleRegression.addData(lEnd_dtts, mean);
+                }
+
+                Double alarm_spec=paramRULSummary.getAlarm_spec();
+                Long lend_time=paramRULSummary.getEnd_dtts().getTime();
+                Double intercept=simpleRegression.getIntercept();
+                Double slope=simpleRegression.getSlope();
+                Double xValue=null;
+                Long remain=null;
+                Long days=null;
+                if (slope==0){
+                    xValue=null;
+                }
+                else {
+                    xValue=(alarm_spec-intercept)/slope;
+                    remain=xValue.longValue()-lend_time;
+                    days=TimeUnit.DAYS.convert(remain,TimeUnit.MILLISECONDS);
+                }
+
+
+
+                Double score=0.0;
+
+                if (slope>0.0){
+                    score=-0.0167*days+1.5;
+                }
+                else{
+                    score=0.0;
+                }
+
+                STDParamHealth stdParamHealth=stdSummaryMapper.selectEqpIdandParamHealthMSTRawId(rawid);
+                Long eqpId=stdParamHealth.getEqp_mst_rawid();
+                Long paramHealthMstRawId=stdParamHealth.getParam_health_mst_rawid();
+
+                stdSummaryMapper.insertParamHealthRULTRX(paramHealthMstRawId, intercept, slope, xValue, from);
+
+                stdSummaryMapper.insertSummaryHealthRUL(eqpId,paramHealthMstRawId, score, from);
+//                System.out.println(rawid + ":" + score);
+            }
+
+            System.out.println("hi");
+
+        }
+    }
+
+    @Override
+    public void deleteParamHealthRUL(Set<String> fabs, Date from, Date to){
+
+        for(String fab : fabs) {
+            STDSummaryMapper stdSummaryMapper=SqlSessionUtil.getMapper(sessions, fab, STDSummaryMapper.class);
+
+
+            PlatformTransactionManager manager = TransactionUtil.getTransactionManger(trMgrs, fab);
+            TransactionStatus status = TransactionUtil.getTransactionStatus(manager);
+
+            try{
+                stdSummaryMapper.deleteParamHealthRUL(from,to);
+                manager.commit(status);
+            }
+            catch (Exception e){
+                manager.rollback(status);
+                Throwable ee = e.getCause();
+                logger.error("{}, {}", e, ee == null ? e.getMessage() : ee.getMessage());
+            }
+
+        }
+
+
+    }
 
 
 

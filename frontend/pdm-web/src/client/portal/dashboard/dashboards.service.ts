@@ -105,9 +105,22 @@ export class DashboardsService {
         myDashboards.forEach((dashboard: DashboardModel) => {
             promise = promise.then(() => {
                 return this.getWidgets(dashboard.dashboardId)
-                    .then((widgets: any) => {
-                        if (_.isArray(widgets)) {
-                            dashboard.widgets = widgets;
+                    .then((widgets: any) => {                       
+                                               
+                        if ( _.isArray(widgets) ) {
+
+                            // 해당 위젯이 존재하는 것만 추려 냄
+                            let usedWidgets: Array<any> = [], i: number;
+                            const len: number = widgets.length;
+
+                            for( i=0; i<len; i++ ){
+                                if( this.stateManager.getWidgetType(widgets[i].widgetTypeId) === undefined ){
+                                    continue;
+                                }
+                                usedWidgets.push( widgets[i] );
+                            }                            
+
+                            dashboard.widgets = usedWidgets;
                         } else {
                             dashboard.widgets = [];
                         }

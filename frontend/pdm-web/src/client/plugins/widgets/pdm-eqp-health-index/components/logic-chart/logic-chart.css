@@ -1,6 +1,36 @@
+/* 차트 보여질 영역 (RUL 메시지 포함) */
+.chartArea { position:relative; }
+
 /* 차트 기본 1개 일때 */
-logic-chart { display:flex; justify-content:center; align-items:center; height:100%; }
-logic-chart > a3c-bistel-chart { display:block; width:100%; height:100%; }
+logic-chart { display:flex; justify-content:space-between; align-items:center; height:100%; }
+logic-chart > .chartArea { display:flex; justify-content:center; align-items:center; height:100%; width:calc(100% - 150px); }
+logic-chart > .chartArea > a3c-bistel-chart { display:block; width:100%; height:100%; }
+logic-chart > .chartArea > a3c-bistel-chart:last-child { width:50%; }
+
+/* 차트 설명 */
+logic-chart > .chartDiscription { display:flex; justify-content:center; align-items:center; height:100%; width:150px; }
+
+/* 차트 설명 아이콘 */
+logic-chart > .chartDiscription > ul { width:100%; border-top:1px dotted #eee; }
+logic-chart > .chartDiscription > ul > li { position:relative; border-bottom:1px dotted #eee; padding:5px 0 5px 23px; }
+logic-chart > .chartDiscription > ul > li::before { content:''; display:block; position:absolute; height:0; width:15px; margin:auto; top:0; bottom:0; left:2px; }
+logic-chart > .chartDiscription > ul > li.trend::before { border-top:1px solid #2196f3; }
+logic-chart > .chartDiscription > ul > li.alarm::before { border-top:2px solid #fb6520; }
+logic-chart > .chartDiscription > ul > li.warning::before { border-top:2px solid #ed9622; }
+
+logic-chart > .chartDiscription > ul > li.alarm_thin::before { border-top:1px solid #fb6520; }
+logic-chart > .chartDiscription > ul > li.warning_thin::before { border-top:1px solid #ed9622; }
+
+logic-chart > .chartDiscription > ul > li.previous_avg::before { border-top:2px dotted #ff0000; }
+logic-chart > .chartDiscription > ul > li.period_avg::before { border-top:2px dotted #30adec; }
+logic-chart > .chartDiscription > ul > li.sigma::before { border-top:2px solid #8d9aa8; }
+
+logic-chart > .chartDiscription > ul > li.rul::before { border-top:2px dotted #6eba3a; }
 
 /* 차트 2개일 때 width 50% */
 logic-chart.dual > a3c-bistel-chart { width:50%; }
+
+/* rul 차트 내용이 없을 경우 전달할 내용 */
+/* .rulMsg { display:none; position:absolute; left:calc(50% + 10px); top:5px; bottom:0; right:5px; background:#333; color:#fff; font-size:24px; justify-content:center; align-items:center; } */
+.rulMsg { display:none; width:50%; height:100%; background:#333; color:#fff; font-size:24px; justify-content:center; align-items:center; }
+.rulMsg.open { display:flex; }

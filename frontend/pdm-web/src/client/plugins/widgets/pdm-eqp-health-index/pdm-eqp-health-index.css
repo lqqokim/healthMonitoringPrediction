@@ -5,3 +5,22 @@
 /* 게이지 차트 리스트 */
 .widget-pdm-eqp-health-index .guageChartList { display:flex; justify-content:space-around; align-items:center; }
 .widget-pdm-eqp-health-index .guageChartList > li { width:calc(100% /5); height:256px; margin:0 3px; border:1px solid #eee; border-radius:3px; overflow:hidden; }
+
+/* 테이블 logic1 ~ logic4(Standard, SPC, Variation, RUL) 마우스 커서 변경 */
+pdm-eqp-health-index ng2-Table table > tbody > tr > td:nth-child(4),
+pdm-eqp-health-index ng2-Table table > tbody > tr > td:nth-child(5),
+pdm-eqp-health-index ng2-Table table > tbody > tr > td:nth-child(6),
+pdm-eqp-health-index ng2-Table table > tbody > tr > td:nth-child(7) { cursor: pointer; }
+
+/* health index cell background color */
+pdm-eqp-health-index ng2-Table table > tbody > tr > td:nth-child(3) { background:rgba(209, 239, 251, 0.4); }
+
+/* 해당 테이블 피드백 종 모양 */
+pdm-eqp-health-index ng2-Table table > tbody > tr > td[feedback]::before { content:'\f0f3'; display:inline-block; margin-right:3px; font:normal normal normal 14px/1 FontAwesome; -webkit-font-smoothing:antialiased; }
+pdm-eqp-health-index ng2-Table table > tbody > tr > td[feedback=warning]::before { color:#ed9622; }
+pdm-eqp-health-index ng2-Table table > tbody > tr > td[feedback=alarm]::before { color:#f00; }
+pdm-eqp-health-index ng2-Table table > tbody > tr > td[feedback=normal]::before { color:transparent; }
+
+/* 값이 0일 경우 '-' 표기 */
+pdm-eqp-health-index ng2-Table table > tbody > tr > td[zero] { color:transparent; text-indent:-3px; }
+pdm-eqp-health-index ng2-Table table > tbody > tr > td[zero]::after { content:'-'; color:#333; }

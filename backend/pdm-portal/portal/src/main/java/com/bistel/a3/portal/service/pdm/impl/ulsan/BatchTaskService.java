@@ -274,6 +274,48 @@ public class BatchTaskService implements IBatchTaskService {
         }
     }
 
+    @Override
+    public void summaryHealthSTDSPC(Set<String> fabs, Date from, Date to) {
+
+    }
+
+    @Override
+    public void summaryHealthDiff(Set<String> fabs, Date from, Date to) {
+
+    }
+
+    @Override
+    public void summaryHealthRUL(Set<String> fabs, Date from, Date to) {
+
+    }
+
+    @Override
+    public void deleteHealthDailySum(Set<String> strings, Date start, Date end) {
+
+    }
+
+    @Override
+    public void deleteEqpAlarmDailySum(Set<String> fabs, Date from, Date to) {
+
+    }
+
+    @Override
+    public void summaryEqpAlarmDaily(Set<String> fabs, Date from, Date to) {
+
+    }
+
+    @Override
+    public void summaryParamHealthRUL(Set<String> fabs, Date rulFrom, Date from, Date to) {
+
+    }
+
+
+
+    @Override
+    public void deleteParamHealthRUL(Set<String> fabs, Date from, Date to) {
+
+    }
+
 
     private int printProgress(String fab, int totalCount, int iCount, Date startDate, String jobName) {
         try{

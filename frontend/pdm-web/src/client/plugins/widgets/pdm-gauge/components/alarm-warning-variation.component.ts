@@ -54,7 +54,7 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
     G5Datas: any;
     chartType = "";
 
-    fabId: number;
+    fabId: string;
     timePeriod: any;
 
     mouseY: any = 0;
@@ -77,7 +77,8 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
     worstTop: number;
 
     constructor(
-        private _pdmRadarService: PdmRadarService
+        private _pdmRadarService: PdmRadarService,
+        private pdmModelService: PdmModelService
     ) {
 
     }
@@ -86,6 +87,9 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
         // (<HTMLElement>document.querySelector('.container')).bind('scroll', function(){
 
         // });
+        this.alarmWarningDatas =[{},{},{},{},{}];
+        this.B5Datas = [{},{},{},{},{}];
+
     }
 
     // onscroll(ev: any) {
@@ -101,8 +105,9 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
             this.worstTop = currentValue['worstTop'];
             this._initData();
 
-            this.getRadarDatas("AW");
-            this.getRadarDatas("B5");
+            this.getRadarDatas();
+            // this.getRadarDatas("AW");
+            // this.getRadarDatas("B5");
             // this.getRadarDatas("B5");
             // this.getRadarDatas("G5");
         } else if (changes['fullScreen'] != null && changes['fullScreen']['currentValue'] != null) {
@@ -131,7 +136,7 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
         }
     }
 
-    getRadarDatas(type: string): any {
+    getRadarDatas(): any {
         let radarEqpsParam: pdmRadarI.RadarEqpsRequestParam = {
             fabId: undefined,
             params: {
@@ -147,829 +152,92 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
         radarEqpsParam.params.toDate = this.timePeriod['to'];
         radarEqpsParam.params.numberOfWorst = this.worstTop;
 
-        if (type === "AW") {
-            radarEqpsParam.params.radarType = 'AW';
-            this.getAWDatas(radarEqpsParam);
-        } else if (type === "B5") {
-            radarEqpsParam.params.radarType = 'NW';
-            this.getNWDatas(radarEqpsParam);
-        }
-        // else if (type === "B5") {
-        //     this.getB5Datas(radarEqpsParam);
-        // } else if (type === "G5") {
-        //     this.getG5Datas(radarEqpsParam);
-        // }
-    }
+        // this.alarmWarningDatas =null;
 
-    getAWDatas(req): void {
-        this._pdmRadarService.getRadarEqps(req)
-            .then((eqps: any) => {
-                let alarmWarningDatas = [];
+        this.pdmModelService.getWorstEqpsWithHealthIndex(radarEqpsParam.fabId,radarEqpsParam.params.fromDate,radarEqpsParam.params.toDate,radarEqpsParam.params.numberOfWorst)
+            .then((datas: any) => {
+                this.alarmWarningDatas =[];
+                this.B5Datas = [];
+                let alarmCount =0;
+                let warningCount =0;
+               for (let index = 0; index < datas.length; index++) {
+                   const element = datas[index];
+                   
+                   let options: any = this.getChartOption();
 
-                if (eqps.length && eqps.length > 0) {
-                    let promises = [];
-
-                    for (let i = 0; i < eqps.length; i++) {
-                        promises.push(this._getAWRadars(eqps[i]));
+                   if(element.status=="warning"){
+                    options.color = (i: number) => {
+                        // let c: string[] = ['red', 'yellow', 'olive', 'aqua', 'yellow', 'green', 'blue'];
+                        // let c: string[] = ['#eea29a', '#ffff56', 'olive', 'aqua', 'orange', 'green', 'blue'];
+                        let c: string[] = ['#eea29a', '#ffff56', 'olive', 'orange'];
+                        return c[i];
                     }
-
-                    Promise.all(promises)
-                        .then((results) => {
-                            console.log('results', results);
-                            let alarmDatas = [];
-                            let warningDatas = [];
-                            let promiseResult = [];
-
-                            for (let i = 0; i < results.length; i++) {
-                                if (results[i].chartData !== null) {
-                                    promiseResult.push(results[i]);
-                                }
-                            }
-
-                            for (let i = 0; i < promiseResult.length; i++) {
-                                if (results[i].type === "alarm") {
-                                    alarmDatas.push(promiseResult[i]);
-                                } else if (results[i].type === "warning") {
-                                    warningDatas.push(promiseResult[i]);
-                                }
-                            }
-
-                            this.alarmDatas = alarmDatas;
-                            this.countAlarmWarning.emit({
-                                alarmCount: alarmDatas.length,
-                                warningCount: warningDatas.length
-                            });
-
-                            alarmWarningDatas = alarmDatas.concat(warningDatas);
-
-                            if (alarmWarningDatas.length < 5) {
-                                const dataLength = alarmWarningDatas.length;
-
-                                for (let i = 0; i < 5 - dataLength; i++) {
-                                    alarmWarningDatas.push({ type: '', name: '', duration: '', problemreason: '', chartData: null, options: null });
-                                }
-
-                            } else if (alarmWarningDatas.length % 5 === 0 && alarmWarningDatas.length > 5) {
-
-                            } else if (alarmWarningDatas.length % 5 !== 0 && alarmWarningDatas.length > 5) {
-                                const dataLength = alarmWarningDatas.length % 5;
-
-                                for (let i = 0; i < 5 - dataLength; i++) {
-                                    alarmWarningDatas.push({ type: '', name: '', duration: '', problemreason: '', chartData: null, options: null });
-                                }
-                            }
-
-                            this.alarmWarningDatas = alarmWarningDatas;
-
-                            setTimeout(() => {
-                                this.endLoading.emit(true);
-                            }, 2500);
-                        });
-                } else if (!eqps.length) {
-                    for (let i = 0; i < 5; i++) {
-                        alarmWarningDatas.push({ type: '', name: '', duration: '', problemreason: '', chartData: null, options: null });
-                    }
-
-                    this.alarmWarningDatas = alarmWarningDatas;
-                    setTimeout(() => {
-                        this.endLoading.emit(true);
-                    }, 2500);
-                }
-            });
-    }
-
-    _getAWRadars(eqp: any): Promise<any> | any {
-        let alarmData: pdmRadarI.ChartDataType;
-        let warningData: pdmRadarI.ChartDataType;
-        let alarmWarningData: any = {};
-        let options: any = this.getChartOption();
-        let details: any = {};
-        let radarParamsParam: pdmRadarI.RadarParamsRequestParam = {
-            fabId: undefined,
-            eqpId: undefined,
-            params: {
-                fromDate: undefined,
-                toDate: undefined
-            }
-        };
-
-        radarParamsParam.fabId = this.fabId;
-        radarParamsParam.eqpId = eqp.eqpId;
-        radarParamsParam.params.fromDate = this.timePeriod['from'];
-        radarParamsParam.params.toDate = this.timePeriod['to'];
-        return this._pdmRadarService.getRadarParams(radarParamsParam)
-            .then((params: any) => {
-                if (params && params.length > 0) {
-                    // let options: any = this.getChartOption();
-                    let data: any = {};
-                    let alarms: any[] = [];
-                    let warns: any[] = [];
-                    let avgSpecs: any[] = [];
-                    let avgDailys: any[] = [];
-                    let avgWithAWs: any[] = [];
-                    let AWwithAvgs: any[] = [];
-                    let variations: any[] = [];
-                    let paramDatas: any = [];
-
-                    for (let i = 0; i < params.length; i++) {
-                        let param: any = params[i];
-
-                        alarms.push({ //경고
-                            id: param.paramId,
-                            axis: param.paramName,
-                            value: param.alarm
-                        });
-
-                        warns.push({ //주의
-                            id: param.paramId,
-                            axis: param.paramName,
-                            value: param.warn
-                        });
-
-                        avgSpecs.push({ //90일평균
-                            id: param.paramId,
-                            axis: param.paramName,
-                            value: param.avgSpec
-                        });
-
-                        avgDailys.push({ //하루평균
-                            id: param.paramId,
-                            axis: param.paramName,
-                            value: param.avgDaily
-                        });
-
-                        avgWithAWs.push({ //평균값(Warning, Alarm)
-                            id: param.paramId,
-                            axis: param.paramName,
-                            value: param.avgWithAW,
-                            data: param
-                        });
-
-                        paramDatas.push({
-                            paramId: param.paramId,
-                            paramName: param.paramName,
-                            eqpId: eqp.eqpId,
-                            eqpName: eqp.eqpName
-                        });
-
-                        AWwithAvgs.push(param.avgWithAW);//for max alarm or waring
-                        variations.push(param.variation);
-                    }
-
-                    data = {
-                        alarms: alarms,
-                        warns: warns,
-                        avgWithAWs: avgWithAWs,
-                        avgDailys: avgDailys,
-                        paramDatas: paramDatas
-                    };
-
-                    options.series = [{ fill: false, circle: false }, { fill: false, circle: false }, { fill: true, circle: false }];
-
-                    const maxAWwithAvg = Math.max(...AWwithAvgs);
-                    // let details: any = {};
-                    let maxParam;
-
-                    for (let i = 0; i < params.length; i++) {
-                        try {
-                            if (maxAWwithAvg === params[i].avgWithAW) {
-                                maxParam = params[i];
-                                details = {
-                                    maxParamName: params[i].paramName,
-                                    maxDailyAvg: this.sliceDecimal(params[i].avgDaily, 4),
-                                    maxSpecAvg: this.sliceDecimal(params[i].avgSpec, 4),
-                                    maxAvgWithAW: this.sliceDecimal(params[i].avgWithAW, 4),
-                                    maxAWwithAvg: this.sliceDecimal(maxAWwithAvg, 4)
-                                };
-
-                                options.SelectLabel = params[i].paramName;
-
-                                break;
-                            }
-                        } catch (err) {
-                            console.log(err);
-                        }
-                    }
-
-                    this.temp++;
-
-                    // if (eqp.type === "Alarm" && parseInt((this.temp % 2).toString()) === 0) {
-                    if (eqp.type === "Warning") {
-                        options.color = (i: number) => {
-                            // let c: string[] = ['red', 'yellow', 'olive', 'aqua', 'yellow', 'green', 'blue'];
-                            // let c: string[] = ['#eea29a', '#ffff56', 'olive', 'aqua', 'orange', 'green', 'blue'];
-                            let c: string[] = ['#eea29a', '#ffff56', 'olive', 'orange'];
-                            return c[i];
-                        }
-
-                        warningData = {
-                            type: 'warning',
-                            id: eqp.eqpId,
-                            name: eqp.name,
-                            problemreason: '',
-                            details: details,
-                            chartData: data,
-                            options: options
-                        };
-
-                        alarmWarningData = warningData;
-                        // } else if (eqp.type === 'Alarm' && parseInt((this.temp % 2).toString()) !== 0) {
-                    } else if (eqp.type === 'Alarm') {
+    
+                   }  else if(element.status=="alarm"){
                         options.color = (i: number) => {
                             // let c: string[] = ['#eea29a', '#ffff56', 'olive', 'aqua', 'red', 'green', 'blue'];
                             let c: string[] = ['#eea29a', '#ffff56', 'olive', 'red'];
                             return c[i];
                         }
-                        alarmData = {
-                            type: 'alarm',
-                            id: eqp.eqpId,
-                            name: eqp.name,
-                            problemreason: maxParam.classifications,
-                            details: details,
-                            chartData: data,
-                            options: options,
-                            areaId: eqp.area_id
-                        };
+                   }
 
-                        alarmWarningData = alarmData;
+                   let details = {
+                    maxParamName: element.paramName,
+                    // maxDailyAvg: this.sliceDecimal(params[i].avgDaily, 4),
+                    // maxSpecAvg: this.sliceDecimal(params[i].avgSpec, 4),
+                    // minMaxRatioVariation: minMaxRatioVariation
+                    };
+                   
+                    let chartData = {
+                        alarm: element.upperAlarmSpec,
+                        warn: element.upperWarningSpec,
+                        score: element.score,
+                        paramName:element.paramName,
+                        paramId:element.paramId,
+                        eqpName:element.eqpName,
+                        eqpId:element.eqpId
+                    };
+
+
+                   let data = {
+                    type: element.status,
+                    id: element.eqpId,
+                    name: element.eqpName,
+                    problemreason: '',
+                    details: details,
+                    chartData: chartData,
+                    options: options,
+                    areaId: element.areaId
+                    };
+                    if(element.status=="alarm" ){
+                        this.alarmWarningDatas.push(data);
+                        alarmCount++;
+
+                    }else if(element.status=="warning"){
+                        this.alarmWarningDatas.push(data);
+                        warningCount++;
+                    }else{
+                        this.B5Datas.push(data);
                     }
-
-                    return Promise.resolve(alarmWarningData);
-                } else {
-                    let data = {};
-                    if (eqp.type === 'Alarm') {
-                        data = {
-                            type: 'alarm',
-                            id: eqp.eqpId,
-                            name: eqp.name,
-                            problemreason: '',
-                            details: details,
-                            chartData: null,
-                            options: options,
-                            areaId: eqp.area_id
-                        };
-                    } else if (eqp.type === 'Warning') {
-                        data = {
-                            type: 'warning',
-                            id: eqp.eqpId,
-                            name: eqp.name,
-                            problemreason: '',
-                            details: details,
-                            chartData: null,
-                            options: options,
-                            areaId: eqp.area_id
-                        };
-                    }
-
-                    return Promise.resolve(data);;
-                }
-            });
-    }
-
-    getNWDatas(req): void {
-        // console.log('NW req', req);
-        this._pdmRadarService.getRadarEqps(req).then(
-            (eqps: any) => {
-                // console.log('NW eqps', eqps);
-                if (eqps.length && eqps.length > 0) {
-                    let promises = [];
-
-                    for (let i = 0; i < eqps.length; i++) {
-                        promises.push(this._getNWRadars(eqps[i]));
-                    }
-
-                    Promise.all(promises)
-                        .then((results) => {
-                            console.log('NW results', results);
-
-                            let promiseResult = [];
-
-                            for (let i = 0; i < results.length; i++) {
-                                if (results[i].chartData !== null) {
-                                    promiseResult.push(results[i]);
-                                }
-                            }
-
-
-                            const resultLength = promiseResult.length;
-
-                            if (resultLength && resultLength < 5) {
-                                for (let i = 0; i < 5 - resultLength; i++) {
-                                    promiseResult.push({ type: '', name: '', duration: '', problemreason: '', chartData: null, options: null, areaId: null });
-                                }
-                            }
-
-                            this.B5Datas = promiseResult;
-                            // console.log("B5Datas", results);
-                        }).catch((e) => {
-
-                        });
-                } else if (!eqps.length) {
-                    // this.endLoading.emit(true);
-                    let results = [];
-
-                    for (let i = 0; i < 5; i++) {
-                        results.push({ type: '', name: '', duration: '', problemreason: '', chartData: null, options: null, areaId: null });
-                    }
-
-                    this.B5Datas = results;
-                }
-            });
-    }
-
-    _getNWRadars(eqp: any): Promise<any> | any {
-        let NWData: any = {};
-        let options: any = this.getChartOption();
-        let details: any = {};
-        let radarParamsParam: pdmRadarI.RadarParamsRequestParam = {
-            fabId: undefined,
-            eqpId: undefined,
-            params: {
-                fromDate: undefined,
-                toDate: undefined
+                    
+                   
+               }
+               let count = this.alarmWarningDatas.length;
+               for(let i=0;i<5- count;i++){
+                   this.alarmWarningDatas.push({});
+               }
+               count = this.B5Datas.length;
+               for(let i=0;i<5-count;i++){
+                this.B5Datas.push({});
             }
-        };
 
-        radarParamsParam.fabId = this.fabId;
-        radarParamsParam.eqpId = eqp.eqpId;
-        radarParamsParam.params.fromDate = this.timePeriod['from'];
-        radarParamsParam.params.toDate = this.timePeriod['to'];
-        return this._pdmRadarService.getRadarParams(radarParamsParam).then(
-            (params: any) => {
-                // console.log('Params', params);
-                if (params && params.length > 0) {
-                    // let options: any = this.getChartOption();
-                    // let data = [];
-                    let data: any = {};
-                    let alarms = [];
-                    let warns = [];
-                    let avgSpecs = [];
-                    let avgDailys = [];
-                    let variations = [];
-                    let ratioVariations = [];
-                    let paramDatas = [];
-
-                    for (let i = 0; i < params.length; i++) {
-                        let param: any = params[i];
-
-                        alarms.push({ // 경고
-                            id: param.paramId,
-                            axis: param.paramName,
-                            value: param.alarm
-                        });
-
-                        warns.push({ // 주의
-                            id: param.paramId,
-                            axis: param.paramName,
-                            value: param.warn
-                        });
-
-                        avgSpecs.push({ // 90일평균
-                            id: param.paramId,
-                            axis: param.paramName,
-                            value: param.avgSpec
-                        });
-
-                        avgDailys.push({ // 하루평균
-                            id: param.paramId,
-                            axis: param.paramName,
-                            value: param.avgDaily,
-                            data: param
-                        });
-
-                        paramDatas.push({
-                            paramId: param.paramId,
-                            paramName: param.paramName,
-                            eqpId: eqp.eqpId,
-                            eqpName: eqp.eqpName
-                        });
-
-                        if (param.avgDaily != null && param.avgSpec != null) {
-                            ratioVariations.push(param.avgDaily - param.avgSpec); // For max variation(daily-spec)
-                        }
-
-                        variations.push(param.variation);
-
-                        // console.log(radarParamsParam.eqpId, param.paramName, param.avgDaily - param.avgSpec)
-                    }
-
-                    // data = [alarms, wanrs, avgSpecs, avgDailys];
-                    data = {
-                        alarms: alarms,
-                        warns: warns,
-                        avgSpecs: avgSpecs,
-                        avgDailys: avgDailys,
-                        paramDatas: paramDatas
-                    };
-
-                    // console.log('Data', data);
-
-                    options.series = [{ fill: false, circle: false }, { fill: false, circle: false }, { fill: true, circle: false }];
-                    options.color = (i: number) => {
-                        let c: string[] = ['#eea29a', '#ffff56', 'olive', '#ff009d', 'aqua', 'green', 'blue'];
-                        return c[i];
-                    }
-
-                    const maxRatioVariation = Math.max(...ratioVariations);
-                    // let details: any = {};
-
-                    for (let i = 0; i < params.length; i++) {
-                        try {
-                            if (maxRatioVariation === params[i].avgDaily - params[i].avgSpec) {
-                                let minMaxRatioVariation = maxRatioVariation;
-                                if (maxRatioVariation != 0) {
-                                    minMaxRatioVariation = this.sliceDecimal(maxRatioVariation, 4)
-                                }
-
-                                details = {
-                                    maxParamName: params[i].paramName,
-                                    maxDailyAvg: this.sliceDecimal(params[i].avgDaily, 4),
-                                    maxSpecAvg: this.sliceDecimal(params[i].avgSpec, 4),
-                                    minMaxRatioVariation: minMaxRatioVariation
-                                };
-
-                                options.SelectLabel = params[i].paramName;
-
-                                break;
-                            }
-                        } catch (err) {
-                            console.log(err);
-                        }
-                    }
-
-                    NWData = {
-                        type: 'B5',
-                        id: eqp.eqpId,
-                        name: eqp.name,
-                        duration: '',
-                        problemreason: '',
-                        details: details,
-                        chartData: data,
-                        options: options,
-                        labelColor: '#ff009d',
-                        areaId: eqp.area_id
-                    };
-
-                    // console.log('NW Data', NWData);
-
-                    return Promise.resolve(NWData);
-                } else {
-                    NWData = {
-                        type: 'B5',
-                        id: eqp.eqpId,
-                        name: eqp.name,
-                        duration: '',
-                        problemreason: '',
-                        details: details,
-                        chartData: null,
-                        options: options,
-                        labelColor: '#ff009d',
-                        areaId: eqp.area_id
-                    };
-
-                    return Promise.resolve(NWData);
-                }
+               this.endLoading.emit(true);
+               this.countAlarmWarning.emit({alarmCount:alarmCount,warningCount:warningCount});
             });
     }
 
-    // getB5Datas(req): void {
-    //     this._pdmRadarService.getRadarEqps(req).then(
-    //         (eqps: any) => {
-    //             if (eqps.length && eqps.length > 0) {
-    //                 let promises = [];
 
-    //                 for (let i = 0; i < eqps.length; i++) {
-    //                     promises.push(this._getB5Radars(eqps[i]));
-    //                 }
-
-    //                 Promise.all(promises)
-    //                     .then((results) => {
-    //                         const resultLength = results.length;
-
-    //                         if (resultLength && resultLength < 5) {
-    //                             for (let i = 0; i < 5 - resultLength; i++) {
-    //                                 results.push({ type: '', name: '', duration: '', problemreason: '', chartData: null, options: null, areaId: null });
-    //                             }
-    //                         }
-
-    //                         this.B5Datas = results;
-    //                         // console.log("B5Datas", results);
-    //                     }).catch((e) => {
-
-    //                     });
-    //             } else if (!eqps.length) {
-    //                 // this.endLoading.emit(true);
-    //                 let results = [];
-
-    //                 for (let i = 0; i < 5; i++) {
-    //                     results.push({ type: '', name: '', duration: '', problemreason: '', chartData: null, options: null, areaId: null });
-    //                 }
-
-    //                 this.B5Datas = results;
-    //             }
-    //         });
-    // }
-
-    // _getB5Radars(eqp: any): Promise<any> {
-    //     let B5Data: any = {};
-    //     let radarParamsParam: pdmRadarI.RadarParamsRequestParam = {
-    //         fabId: undefined,
-    //         eqpId: undefined,
-    //         params: {
-    //             fromDate: undefined,
-    //             toDate: undefined
-    //         }
-    //     };
-
-    //     radarParamsParam.fabId = this.fabId;
-    //     radarParamsParam.eqpId = eqp.eqpId;
-    //     radarParamsParam.params.fromDate = this.timePeriod['from'];
-    //     radarParamsParam.params.toDate = this.timePeriod['to'];
-    //     return this._pdmRadarService.getRadarParams(radarParamsParam).then(
-    //         (params: any) => {
-    //             let options: any = this.getChartOption();
-    //             // let data = [];
-    //             let data: any = {};
-    //             let alarms = [];
-    //             let warns = [];
-    //             let avgSpecs = [];
-    //             let avgDailys = [];
-    //             let variations = [];
-    //             let ratioVariations = [];
-    //             let paramDatas = [];
-
-    //             for (let i = 0; i < params.length; i++) {
-    //                 let param: any = params[i];
-
-    //                 alarms.push({ // 경고
-    //                     id: param.paramId,
-    //                     axis: param.paramName,
-    //                     value: param.alarm
-    //                 });
-
-    //                 warns.push({ // 주의
-    //                     id: param.paramId,
-    //                     axis: param.paramName,
-    //                     value: param.warn
-    //                 });
-
-    //                 avgSpecs.push({ // 90일평균
-    //                     id: param.paramId,
-    //                     axis: param.paramName,
-    //                     value: param.avgSpec
-    //                 });
-
-    //                 avgDailys.push({ // 하루평균
-    //                     id: param.paramId,
-    //                     axis: param.paramName,
-    //                     value: param.avgDaily,
-    //                     data: param
-    //                 });
-
-    //                 paramDatas.push({
-    //                     paramId: param.paramId,
-    //                     paramName: param.paramName,
-    //                     eqpId: eqp.eqpId,
-    //                     eqpName: eqp.eqpName
-    //                 });
-
-    //                 if (param.avgDaily != null && param.avgSpec != null) {
-    //                     ratioVariations.push(param.avgDaily - param.avgSpec); // For max variation(daily-spec)
-    //                 }
-
-    //                 variations.push(param.variation);
-
-    //                 // console.log(radarParamsParam.eqpId, param.paramName, param.avgDaily - param.avgSpec)
-    //             }
-
-    //             // data = [alarms, wanrs, avgSpecs, avgDailys];
-    //             data = {
-    //                 alarms: alarms,
-    //                 warns: warns,
-    //                 avgSpecs: avgSpecs,
-    //                 avgDailys: avgDailys,
-    //                 paramDatas: paramDatas
-    //             };
-
-    //             options.series = [{ fill: false, circle: false }, { fill: false, circle: false }, { fill: true, circle: false }];
-    //             options.color = (i: number) => {
-    //                 let c: string[] = ['#eea29a', '#ffff56', 'olive', '#ff009d', 'aqua', 'green', 'blue'];
-    //                 return c[i];
-    //             }
-
-    //             const maxRatioVariation = Math.max(...ratioVariations);
-    //             let details: any = {};
-
-    //             for (let i = 0; i < params.length; i++) {
-    //                 try {
-    //                     if (maxRatioVariation === params[i].avgDaily - params[i].avgSpec) {
-    //                         let minMaxRatioVariation = maxRatioVariation;
-    //                         if (maxRatioVariation != 0) {
-    //                             minMaxRatioVariation = this.sliceDecimal(maxRatioVariation, 4)
-    //                         }
-
-    //                         details = {
-    //                             maxParamName: params[i].paramName,
-    //                             maxDailyAvg: this.sliceDecimal(params[i].avgDaily, 4),
-    //                             maxSpecAvg: this.sliceDecimal(params[i].avgSpec, 4),
-    //                             minMaxRatioVariation: minMaxRatioVariation
-    //                         };
-
-    //                         options.SelectLabel = params[i].paramName;
-
-    //                         break;
-    //                     }
-    //                 } catch (err) {
-    //                     console.log(err);
-    //                 }
-    //             }
-
-    //             B5Data = {
-    //                 type: 'B5',
-    //                 id: eqp.eqpId,
-    //                 name: eqp.name,
-    //                 duration: '',
-    //                 problemreason: '',
-    //                 details: details,
-    //                 chartData: data,
-    //                 options: options,
-    //                 labelColor: '#ff009d',
-    //                 areaId: eqp.area_id
-    //             };
-
-    //             return Promise.resolve(B5Data);
-    //         });
-    // }
-
-    // getG5Datas(req): void {
-    //     this._pdmRadarService.getRadarEqps(req)
-    //         .then((eqps: any) => {
-    //             if (eqps.length && eqps.length > 0) {
-    //                 let promises = [];
-
-    //                 for (let i = 0; i < eqps.length; i++) {
-    //                     promises.push(this._getG5Radars(eqps[i]));
-    //                 }
-
-    //                 Promise.all(promises)
-    //                     .then((results) => {
-    //                         const resultLength = results.length;
-
-    //                         if (resultLength && resultLength < 5) {
-    //                             for (let i = 0; i < 5 - resultLength; i++) {
-    //                                 results.push({ type: '', name: '', duration: '', problemreason: '', chartData: null, options: null });
-    //                             }
-    //                         }
-
-    //                         this.G5Datas = results;
-    //                         console.log("G5Datas", results);
-    //                         setTimeout(() => {
-    //                             this.endLoading.emit(true);
-    //                         }, 1000)
-    //                     }).catch((e) => {
-
-    //                     });
-    //             } else if (!eqps.length) {
-    //                 this.endLoading.emit(true);
-    //                 let results = [];
-
-    //                 for (let i = 0; i < 5; i++) {
-    //                     results.push({ type: '', name: '', duration: '', problemreason: '', chartData: null, options: null });
-    //                 }
-
-    //                 this.G5Datas = results;
-    //             }
-    //         });
-    // }
-
-    // _getG5Radars(eqp): Promise<any> {
-    //     let G5Data: any = {};
-    //     let radarParamsParam: pdmRadarI.RadarParamsRequestParam = {
-    //         fabId: undefined,
-    //         eqpId: undefined,
-    //         params: {
-    //             fromDate: undefined,
-    //             toDate: undefined
-    //         }
-    //     };
-
-    //     radarParamsParam.fabId = this.fabId;
-    //     radarParamsParam.eqpId = eqp.eqpId;
-    //     radarParamsParam.params.fromDate = this.timePeriod['from'];
-    //     radarParamsParam.params.toDate = this.timePeriod['to'];
-    //     return this._pdmRadarService.getRadarParams(radarParamsParam).then(
-    //         (params: any) => {
-    //             let options: any = this.getChartOption();
-    //             // let data = [];
-    //             let data: any = {};
-    //             let alarms = []
-    //             let warns = [];
-    //             let avgSpecs = [];
-    //             let avgDailys = [];
-    //             let variations = [];
-    //             let ratioVariations = [];
-    //             let paramDatas = [];
-
-    //             for (let i = 0; i < params.length; i++) {
-    //                 let param: any = params[i];
-
-    //                 alarms.push({ // 경고
-    //                     id: param.paramId,
-    //                     axis: param.paramName,
-    //                     value: param.alarm
-    //                 });
-
-    //                 warns.push({ // 주의
-    //                     id: param.paramId,
-    //                     axis: param.paramName,
-    //                     value: param.warn
-    //                 });
-
-    //                 avgSpecs.push({ // 90일평균
-    //                     id: param.paramId,
-    //                     axis: param.paramName,
-    //                     value: param.avgSpec
-    //                 });
-
-    //                 avgDailys.push({ // 하루평균
-    //                     id: param.paramId,
-    //                     axis: param.paramName,
-    //                     value: param.avgDaily,
-    //                     data: param
-    //                 });
-
-    //                 paramDatas.push({
-    //                     paramId: param.paramId,
-    //                     paramName: param.paramName,
-    //                     eqpId: eqp.eqpId,
-    //                     eqpName: eqp.eqpName
-    //                 });
-
-    //                 if (param.avgDaily != null && param.avgSpec != null) {
-    //                     ratioVariations.push(param.avgDaily - param.avgSpec); // For max variation(daily-spec)
-    //                 }
-
-    //                 variations.push(param.variation);
-    //             }
-
-    //             // data = [alarms, wanrs, avgSpecs, avgDailys];
-    //             data = {
-    //                 alarms: alarms,
-    //                 warns: warns,
-    //                 avgSpecs: avgSpecs,
-    //                 avgDailys: avgDailys,
-    //                 paramDatas: paramDatas
-    //             };
-
-    //             options.series = [{ fill: false, circle: false }, { fill: false, circle: false }, { fill: true, circle: false }];
-    //             options.color = (i: number) => {
-    //                 let c: string[] = ['#eea29a', '#ffff56', 'olive', '#22b8cf', 'aqua', 'green', 'blue'];
-    //                 return c[i];
-    //             };
-
-    //             const minRatioVariation = Math.min(...ratioVariations);
-    //             let details: any = {};
-
-    //             for (let i = 0; i < params.length; i++) {
-    //                 try {
-    //                     if (params[i].avgDaily != null && params[i].avgSpec != null && minRatioVariation === params[i].avgDaily - params[i].avgSpec) {
-    //                         let minMaxRatioVariation = minRatioVariation;
-    //                         if (minMaxRatioVariation != 0) {
-    //                             minMaxRatioVariation = this.sliceDecimal(minRatioVariation, 4)
-    //                         }
-    //                         details = {
-    //                             maxParamName: params[i].paramName,
-    //                             maxDailyAvg: this.sliceDecimal(params[i].avgDaily, 4),
-    //                             maxSpecAvg: this.sliceDecimal(params[i].avgSpec, 4),
-    //                             minMaxRatioVariation: minMaxRatioVariation
-    //                         };
-
-    //                         options.SelectLabel = params[i].paramName;
-
-    //                         break;
-    //                     }
-    //                 } catch (err) {
-    //                     console.log(err);
-    //                 }
-    //             }
-
-    //             G5Data = {
-    //                 type: 'G5',
-    //                 id: eqp.eqpId,
-    //                 name: eqp.name,
-    //                 duration: '',
-    //                 problemreason: '',
-    //                 details: details,
-    //                 chartData: data,
-    //                 options: options,
-    //                 labelColor: '#6e79d2',
-    //                 areaId: eqp.area_id
-    //             };
-
-    //             return Promise.resolve(G5Data);
-    //         });
-    // }
-
+    
     getChartOption(): any {
         return {
             maxValue: 0.6,
@@ -983,36 +251,7 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
         };
     }
 
-    setDetails(variations: any[], maxVal: number, params: any): any {
-        const maxIndex = variations.indexOf(maxVal);
-        const maxParam = params[maxIndex]['paramName'];
-        const max90Avg = params[maxIndex]['avgSpec'];
-        const maxDailyAvg = params[maxIndex]['avgDaily'];
-        let details = {
-            maxVariation: this.sliceDecimal(maxVal, 4),
-            maxParam: maxParam,
-            max90Avg: this.sliceDecimal(max90Avg, 4),
-            maxDailyAvg: this.sliceDecimal(maxDailyAvg, 4),
-        };
 
-        return details;
-    }
-
-    sliceDecimal(val: number, num: number): any {
-        if (val) {
-            let split = val.toString().split('.');
-            let slice;
-            if (split.length == 2) {
-                slice = split[1].slice(0, num);
-            } else {
-                return val;
-            }
-
-            return `${split[0]}.${slice}`;
-        } else {
-            return;
-        }
-    }
 
     mouseEnter(item: any, index: number): void | any {
         if (item.chartData) {
@@ -1027,33 +266,33 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
         this.paramDatas.push(ev);
     }
 
-    onParamClick(item: pdmRadarI.ChartDataType, index: number, event: MouseEvent): void {
+    onParamClick(item: any, index: number, event: MouseEvent): void {
         if (!item.chartData && this.paramSelected) { // Open Context
             this.paramSelected = false;
             return;
         }
 
         if (item.chartData && this.paramDatas) {
-            let params: any[] = this.paramDatas;
-            let param: any = {
-                paramId: '',
-                paramName: ''
-            };
+            // let params: any[] = this.paramDatas;
+            // let param: any = {
+            //     paramId: '',
+            //     paramName: ''
+            // };
 
-            const dataLength: number = params.length;
-            for (let i: number = 0; i < dataLength; i++) {
-                if (item.type === params[i].type && item.id === params[i].eqpId) {
-                    param = {
-                        paramId: params[i].paramId,
-                        paramName: params[i].paramName,
-                        avgWithAW: params[i].avgWithAW,
-                        warn: params[i].warn,
-                        eqpId: params[i].eqpId
-                    };
+            // const dataLength: number = params.length;
+            // for (let i: number = 0; i < dataLength; i++) {
+            //     if (item.type === params[i].type && item.id === params[i].eqpId) {
+            //         param = {
+            //             paramId: params[i].paramId,
+            //             paramName: params[i].paramName,
+            //             avgWithAW: params[i].avgWithAW,
+            //             warn: params[i].warn,
+            //             eqpId: params[i].eqpId
+            //         };
 
-                    break;
-                }
-            }
+            //         break;
+            //     }
+            // }
 
             // this.isParamContext = true;
             this.paramSelected = true;
@@ -1066,24 +305,24 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
                 type: item.type,
                 eqpName: item.name,
                 eqpId: item.id,
-                paramId: param.paramId,
+                paramId: item.chartData.paramId,
                 index: index,
                 event: event,
-                paramName: param.paramName
+                paramName: item.chartData.paramName
                 // flag: isInfo
             });
 
             setTimeout(() => {
-                this.trendParamId = param.paramId;
-                this.trendEqpName = item.name;
-                this.trendParamName = param.paramName;
-                this.trendEqpId = param.eqpId;
+                this.trendParamId = item.chartData.paramId;
+                this.trendEqpName = item.chartData.eqpName;
+                this.trendParamName = item.chartData.paramName;
+                this.trendEqpId = item.chartData.eqpId;
                 this.trendPlantId = this.fabId;
                 this.trendFromDate = this.condition.timePeriod.from;
                 this.trendToDate = this.condition.timePeriod.to;
                 this.trendAreaId = null;
-                this.trendValue = param.avgWithAW;
-                this.trendSpecWarning = param.warn;
+                this.trendValue = item.chartData.score;
+                this.trendSpecWarning = item.chartData.warn;
             });
 
             this.appendTrendChartEl(item.type, index);

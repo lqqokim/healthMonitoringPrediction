@@ -386,13 +386,16 @@ export class FilterAnalysisComponent implements OnInit {
         localStorage.setItem("filter-analysis-aggregation-groupUnit", JSON.stringify(this.aggregationDatas.groupUnit));
         localStorage.setItem("filter-analysis-aggregation-groupValue", JSON.stringify(this.aggregationDatas.groupValue));
 
+        this.percentage = 0.1;
+        this.percentage = this.percentage.toFixed(0);
+        this.showProgress = true;
 
         this.pdmModelService.getEqpIdParamIdsInFilterTraceData(this.selectedFab.fabId, this.selectedEqpIds, this.selectedParameters,
             this.searchTimePeriod.from, this.searchTimePeriod.to, this.filterCriteriaDatas)
             .then((datas) => {
                 this.getFilterDatas(datas);
             }).catch((error: any) => {
-
+                this.showProgress = false;
             });
 
 
@@ -438,11 +441,11 @@ export class FilterAnalysisComponent implements OnInit {
         }
         this.totalCount = this.eqpNParamIds.length;
         this.currentCount = 1;
-        this.percentage = this.currentCount * 100 / this.totalCount;
-        this.percentage = this.percentage - (100 - this.percentage) * 0.1;
-        if (this.percentage == 100) {
-            this.percentage = 99;
-        }
+        this.percentage = (this.currentCount-1 +this.totalCount*0.01) * 100 / this.totalCount;
+        // this.percentage = this.percentage - (100 - this.percentage) * 0.1;
+        // if (this.percentage == 100) {
+        //     this.percentage = 99;
+        // }
         this.percentage = this.percentage.toFixed(0);
 
         this.showProgress = true;
@@ -511,7 +514,7 @@ export class FilterAnalysisComponent implements OnInit {
                 this.eqpIdsParamIds[this.currentCount - 1].PARAMID, this.searchTimePeriod.from, this.searchTimePeriod.to, this.filterCriteriaDatas, this.aggregationDatas)
                 .then((datas) => {
                     this.currentCount++;
-                    this.percentage = this.currentCount * 100 / this.totalCount;
+                    this.percentage = (this.currentCount-1+0.1*this.totalCount) * 100 / this.totalCount;
                     this.percentage = this.percentage.toFixed(0);
                     if (this.datas.length == 0) {
                         this.datas = datas;
@@ -555,7 +558,7 @@ export class FilterAnalysisComponent implements OnInit {
                     this.getFilterDataByEqpIdParamId();
                 }).catch((error: any) => {
                     this.currentCount++;
-                    this.percentage = this.currentCount * 100 / this.totalCount;
+                    this.percentage = (this.currentCount-1+0.1*this.totalCount) * 100 / this.totalCount;
                     this.percentage = this.percentage.toFixed(0);
                     this.getFilterDataByEqpIdParamId();
                 });
@@ -574,7 +577,8 @@ export class FilterAnalysisComponent implements OnInit {
                 paramIds, paramNames, this.searchTimePeriod.from, this.searchTimePeriod.to, this.filterCriteriaDatas, this.aggregationDatas)
                 .then((datas) => {
                     this.currentCount++;
-                    this.percentage = this.currentCount * 100 / this.totalCount;
+                    this.percentage = (this.currentCount-1+0.1) * 100 / this.totalCount;
+                    if(this.percentage>100) this.percentage = 100;
                     this.percentage = this.percentage.toFixed(0);
                     for (let i = 0; i < datas.length; i++) {
                         if (this.overalyType) {
@@ -592,12 +596,14 @@ export class FilterAnalysisComponent implements OnInit {
                     this.getFilterDataByEqpIdParamIds();
                 }).catch((error: any) => {
                     this.currentCount++;
-                    this.percentage = this.currentCount * 100 / this.totalCount;
+                    this.percentage = (this.currentCount-1+0.1*this.totalCount) * 100 / this.totalCount;
+                    if(this.percentage>100) this.percentage = 100;
                     this.percentage = this.percentage.toFixed(0);
                     this.getFilterDataByEqpIdParamIds();
                 });
         } else {
-            this.showProgress = false;
+            setTimeout(()=>{this.showProgress = false;},1000);
+            
             if(this.selectedNormalize){
                 this.clickNormalize(null);
             }

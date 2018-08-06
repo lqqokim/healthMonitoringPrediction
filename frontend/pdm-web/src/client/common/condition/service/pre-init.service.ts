@@ -35,6 +35,10 @@ export const getPreConditionFromAjax = (cd: string): Promise<PreInitConditionTyp
             return _setAnalysisSpecVisible(cd);
         case CD.MONITORING:
             return _setMonitoring(cd);
+        case CD.MAX_PARAM_COUNT:
+            return _setMaxParamCount(cd);
+        case CD.SPECTRUM_COUNT:
+            return _setSpectrumCount(cd);
         default:
             return _setDefault(cd);
     }
@@ -224,5 +228,19 @@ function _setMonitoring(cd: string): Promise<PreInitConditionType> {
                 data: monitorings.length > 0 ? monitorings[0] : null
             };
         });
+    });
+}
+
+function _setMaxParamCount(cd: string): Promise<PreInitConditionType> {
+    return Promise.resolve({
+        condition: CD.MAX_PARAM_COUNT,
+        data: 9
+    });
+}
+
+function _setSpectrumCount(cd: string): Promise<PreInitConditionType> {
+    return Promise.resolve({
+        condition: CD.SPECTRUM_COUNT,
+        data: 5
     });
 }

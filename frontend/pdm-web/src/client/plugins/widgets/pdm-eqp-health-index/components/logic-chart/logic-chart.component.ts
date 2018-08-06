@@ -15,6 +15,12 @@ export class LogicChartComponent {
     //* logic-chart 엘리먼트
     private currElem: ElementRef['nativeElement'] = undefined;
 
+    //* logic4(RUL) 메시지 오픈 용
+    private rulMsgOpen: boolean = false;
+
+    //* 보여지고 있는 로직 차트명 (logic1 ~ logic4)
+    private chartName: string = '';
+
     //* 차트 데이터
     public chartDatas: Array<Array< Array<number> >> = [[ ]];
     public chartDatas_se: Array<Array< Array<number> >> = [[ ]];
@@ -193,7 +199,7 @@ export class LogicChartComponent {
                 show: true
             }
         },
-        seriesColors:['#2196f3', '#fb6520', '#fdd25a'], // 기본, 알람, 워닝 순 컬러 지정
+        seriesColors:['#2196f3', '#fb6520', '#ed9622'], // 기본, 알람, 워닝 순 컬러 지정
         series: [
             { lineWidth:1 },
             { lineWidth:1 },
@@ -220,8 +226,8 @@ export class LogicChartComponent {
                     formatString: '%.2f'
                 },
                 numberTicks: 6,
-                min: 0,
-                max: 10
+                // min: 0,
+                // max: 10
             }
         },
         highlighter: {
@@ -238,9 +244,9 @@ export class LogicChartComponent {
             stroke: true,
             strokeStyle: '#acafaa',
             // tslint:disable-next-line:max-line-length
-            // tooltipContentEditor: (str: string, seriesIndex: number, pointIndex: number, plot: any, tooltipContentProc: any, ev: Event) => {
-            //     tooltipContentProc(this.trendConfig['series'][seriesIndex].label + ': ' + moment(parseInt(str.split(',')[0])).format('YYYY/MM/DD HH:mm:ss') + ' [' + (+str.split(',')[1]).toFixed(2) + ']');
-            // },
+            tooltipContentEditor: (str: string, seriesIndex: number, pointIndex: number, plot: any, tooltipContentProc: any, ev: Event) => {
+                tooltipContentProc( moment(parseInt(str.split(',')[0])).format('MM/DD HH:mm:ss') + ' [' + (+str.split(',')[1]).toFixed(2) + ']');
+            },
         }
     };
 
@@ -303,21 +309,30 @@ export class LogicChartComponent {
         // config 데이터 설정
         let chartConfig: any = JSON.parse(JSON.stringify(this.defaultChartConfig));
 
+        chartConfig.highlighter.tooltipContentEditor = (str: string, seriesIndex: number, pointIndex: number, plot: any, tooltipContentProc: any, ev: Event) => {
+            tooltipContentProc( moment(parseInt(str.split(',')[0])).format('YY-MM-DD HH:mm:ss') + ' [' + (+str.split(',')[1]).toFixed(2) + ']');
+        }
+
         // 날짜출력 포맷 설정
         chartConfig.axes.xaxis.tickOptions.formatter = (pattern: any, val: number, plot: any) => {
-            return val ? moment(val).format('YY-MM-DD HH:mm:ss') : '';
+            return val ? moment(val).format('MM-DD HH:mm:ss') : '';
         };
 
         // 차트 그려질 범위 (시간 from ~ to)
         chartConfig.axes.xaxis['min'] = dateFrom;
         chartConfig.axes.xaxis['max'] = dateTo;
 
-        // 최소, 최대 갑 대비 칸단 여백 ( 눈금 값이 6개 보일 경우 )
-        yMargin = (Math.round(yMax) - Math.round(yMin)) / 5;
+        // 최소, 최대 값 대비 여백 10%
+        yMargin = (yMax - yMin) * 0.1;
+
+        // 최소 최대값이 같아 여백이 없으면 최대값 기준 10%
+        if( yMargin === 0 ){
+            yMargin = yMax * 0.1;
+        }
 
         // 차트 그려질 범위 y축 (여백 추가)
-        chartConfig.axes.yaxis['min'] = Math.round( yMin - yMargin );
-        chartConfig.axes.yaxis['max'] = Math.round( yMax + yMargin );
+        chartConfig.axes.yaxis['min'] = yMin - yMargin;
+        chartConfig.axes.yaxis['max'] = yMax + yMargin;
 
         // 등록된 마지막 시간
         nowDate = reqDrawData[ i-1 ][0];
@@ -346,15 +361,12 @@ export class LogicChartComponent {
         // 차트 데이터 가공
         let tmpChartData: Array<Array<any>> = [[],[]];
         let row: IReqDataFormat_chart_logic1;
-        let i: number, len: number = reqDrawData.length;
+        let len: number = reqDrawData.length;
 
-        // 그려질 차트 데이터 가공
-        for( i=0; i<len; i++){
-            row = reqDrawData[i];
-            
-            tmpChartData[0].push([ row[0], row[2] ]);   // alarm
-            tmpChartData[1].push([ row[0], row[3] ]);   // warning
-        }
+        // 그려질 차트 데이터 가공 용
+        row = reqDrawData[len-1];
+        tmpChartData[0].push([ row[0], row[2] ]);   // alarm
+        tmpChartData[1].push([ row[0], row[3] ]);   // warning
 
         // config 데이터 설정
         let chartConfig: any = JSON.parse(JSON.stringify(this.defaultChartConfig));
@@ -384,7 +396,13 @@ export class LogicChartComponent {
     }
 
     //* 차트 데이터 설정
-    public setParam(logicType: string, chartData: any, from :number, to :number){
+    public setParam(logicType: string, chartData: any, from :number, to :number, cellValue: number ){
+
+        // rul 메시지 숨김
+        this.rulMsgOpen = false;
+
+        // 차트명 설정
+        this.chartName = logicType;
 
         let drawData: any;
 
@@ -395,7 +413,7 @@ export class LogicChartComponent {
         this.rm_eventDraw_all();
         
         // Logic1 - Standard
-        if( logicType === 'Logic1'){
+        if( logicType === 'logic1'){
             drawData = this.drawChartDataConvert( <Array<IReqDataFormat_chart_logic1>> chartData, this.eventLines );
 
             // line 속성 지정 (알람, 워닝)
@@ -403,7 +421,7 @@ export class LogicChartComponent {
             drawData.chartConfig.series[2] = { lineWidth:2, lineCap:'butt' };
         }
         // Logic2 - SPC
-        else if ( logicType === 'Logic2'){
+        else if ( logicType === 'logic2'){
             drawData = this.drawChartDataConvert( <Array<IReqDataFormat_chart_logic1>> chartData.eqpHealthTrendData, this.eventLines );
             
             // spc 영역 추가하기
@@ -425,7 +443,7 @@ export class LogicChartComponent {
             }
         }
         // Logic3 - Variation
-        else if (logicType === 'Logic3'){
+        else if (logicType === 'logic3'){
             drawData = this.drawChartDataConvert( <Array<IReqDataFormat_chart_logic1>> chartData.eqpHealthTrendData, this.eventLines );
 
             // x축 min 설정
@@ -479,93 +497,113 @@ export class LogicChartComponent {
 
         }
         // Logic4 - RUL
-        else if ( logicType === 'Logic4'){
+        else if ( logicType === 'logic4'){
             this.dualMode( true );
+
+            console.log( chartData );
+
+            // 선택 된 셀의 값이 0일 경우, rul 종료지점이 표 그려주는 todate 보다 작으면(or 데이터가 null인경우도 포함) RUL 메시지 오픈 (RUL NO DATA)
+            if( cellValue === 0 ||  chartData.rulEndTime === null || to > chartData.rulEndTime ){
+                this.rulMsgOpen = true;
+            }
 
             // (우측) 차트 그리기 RUL
             const drawData_se = this.drawChartDataConvert_RUL( <Array<IReqDataFormat_chart_logic1>> chartData.eqpHealthTrendData );
 
-            // 이벤트 라인 x축 기준 세로 그리기 (현재 시간 기준)
-            this.add_eventDraw_xLine({
-                value: to,
-                name: 'Now'
-            }, this.eventLines_se);
-
-            // 알람, 워닝 데이터 끝까지 그리기
-            const chartDataLastIdx: number = drawData_se.chartData[0].length-1;
-            const alarmY: number = drawData_se.chartData[0][chartDataLastIdx][1];
-            const warningY: number = drawData_se.chartData[1][chartDataLastIdx][1];
-
-            // 데이터 차트 색상 제거, 알람, 워닝만
-            drawData_se.chartConfig.seriesColors.splice(0, 1);
-
-            // (뒤로 그러질 차트 알람, 워닝 색상 추가)
-            drawData_se.chartConfig.seriesColors.push( drawData_se.chartConfig.seriesColors[0] );
-            drawData_se.chartConfig.seriesColors.push( drawData_se.chartConfig.seriesColors[1] );
-
-            // 뒤로 그려질 알람, 워닝 선 모양 설정
-            drawData_se.chartConfig.series.splice(0, 1);
-            drawData_se.chartConfig.series.push({lineWidth:1, linePattern:'dashed', lineCap:'butt' });
-            drawData_se.chartConfig.series.push({lineWidth:1, linePattern:'dashed', lineCap:'butt' });
-
-            // 알람
-            drawData_se.chartData.push([
-                [to, alarmY],
-                [chartData.rulEndTime, alarmY]
-            ]);
-            // 워닝
-            drawData_se.chartData.push([
-                [to, warningY],
-                [chartData.rulEndTime, warningY]
-            ]);
-
-            // 차트 그려질 범위 (시간 from ~ to)
-            drawData_se.chartConfig.axes.xaxis['min'] = to;
-            drawData_se.chartConfig.axes.xaxis['max'] = chartData.rulEndTime;
-
             // (좌측) 기본 차트 그리기
             drawData = this.drawChartDataConvert( <Array<IReqDataFormat_chart_logic1>> chartData.eqpHealthTrendData, this.eventLines );
 
-            const centerY: number = this.getSplitPostionY(
-                chartData.rulStartTime, chartData.rulStartValue,
-                chartData.rulEndTime, chartData.rulEndValue,
-                drawData.to
-            );          
+            // (좌) 날짜출력 포맷 재설정
+            drawData.chartConfig.axes.xaxis.tickOptions.formatter = (pattern: any, val: number, plot: any) => {
+                return val ? moment(val).format('YY-MM-DD HH:mm:ss') : '';
+            };
 
-            // (좌) RUL line 색상 지정
-            drawData.chartConfig.seriesColors.push('#6eba3a');
+            // RUL 그릴 데이터가 있을 경우만 그리기
+            if( !this.rulMsgOpen ){
+                
+                // 좌, 우 중간 Y축 구하기
+                const centerY: number = this.getSplitPostionY(
+                    chartData.rulStartTime, chartData.rulStartValue,
+                    chartData.rulEndTime, chartData.rulEndValue,
+                    drawData.to
+                );
+    
+                // (좌) RUL line 색상 지정
+                drawData.chartConfig.seriesColors.push('#6eba3a');
+    
+                // (좌) RUL line 그리기
+                drawData.chartData[3] = [
+                    [chartData.rulStartTime, chartData.rulStartValue],
+                    [drawData.to, centerY]
+                ];
+    
+                // (좌) RUL line 선
+                drawData.chartConfig.series.push({lineWidth:2, lineCap:'butt' });
 
-            // (좌) RUL line 그리기
-            drawData.chartData[3] = [
-                [chartData.rulStartTime, chartData.rulStartValue],
-                [drawData.to, centerY]
-            ];
+                // (우) 알람, 워닝 데이터 끝까지 그리기
+                const chartDataLastIdx: number = drawData_se.chartData[0].length-1;
+                const alarmY: number = drawData_se.chartData[0][chartDataLastIdx][1];
+                const warningY: number = drawData_se.chartData[1][chartDataLastIdx][1];
 
-            // (좌) RUL line 선
-            drawData.chartConfig.series.push({lineWidth:2, lineCap:'butt' });
+                // (우) 데이터 차트, 알람, 워닝 색상 제거
+                drawData_se.chartConfig.seriesColors.splice(0, 3);
 
-            // (우) RUL line 색상 지정
-            drawData_se.chartConfig.seriesColors.push('#6eba3a');
+                // (우) (뒤로 그러질 차트 알람, 워닝 색상 추가)
+                drawData_se.chartConfig.seriesColors.push( this.defaultChartConfig.seriesColors[1] );
+                drawData_se.chartConfig.seriesColors.push( this.defaultChartConfig.seriesColors[2] );
 
-            // (우) RUL line 그리기
-            drawData_se.chartData.push([
-                [to, centerY],
-                [chartData.rulEndTime, chartData.rulEndValue]
-            ]);
+                // (우) RUL line 색상 지정
+                drawData_se.chartConfig.seriesColors.push('#6eba3a');              
 
-            // (우) RUL line 선
-            drawData_se.chartConfig.series.push({lineWidth:2, linePattern: [2, 1], lineCap:'butt' });
+                // (우) 뒤로 그려질 알람, 워닝 선 모양 설정
+                drawData_se.chartConfig.series.splice(0, 3);
+                drawData_se.chartConfig.series.push({lineWidth:1, linePattern:'dashed', lineCap:'butt' });
+                drawData_se.chartConfig.series.push({lineWidth:1, linePattern:'dashed', lineCap:'butt' });
 
-            // (우) y축 좌측 차트와 동일하게 설정
-            drawData_se.chartConfig.axes.yaxis['min'] = drawData.chartConfig.axes.yaxis['min'];
-            drawData_se.chartConfig.axes.yaxis['max'] = drawData.chartConfig.axes.yaxis['max'];
+                // (우) RUL line 선
+                drawData_se.chartConfig.series.push({lineWidth:2, linePattern: [2, 1], lineCap:'butt' });
 
-            // (우) y축 tick 숨기기
-            drawData_se.chartConfig.axse.yaxis['tickOptions']['show'] = false;
+                // (우) dashed 라인으로 그려질 임시 데이터 알람, 워닝 제거
+                drawData_se.chartData.splice(0, 2);
 
-            // 우측 차트 그리기 처리
-            this.trendConfig_se = drawData_se.chartConfig;
-            this.chartDatas_se = drawData_se.chartData;
+                // (우) 알람 dashed 그리기
+                drawData_se.chartData.push([
+                    [drawData.to, alarmY],
+                    [chartData.rulEndTime, alarmY]
+                ]);
+                // (우) 워닝 dashed 그리기
+                drawData_se.chartData.push([
+                    [drawData.to, warningY],
+                    [chartData.rulEndTime, warningY]
+                ]);
+
+                // (우) RUL line 그리기
+                drawData_se.chartData.push([
+                    [drawData.to, centerY],
+                    [chartData.rulEndTime, chartData.rulEndValue]
+                ]);
+
+                // 이벤트 라인 x축 기준 세로 그리기 (현재 시간 기준)
+                this.add_eventDraw_xLine({
+                    value: drawData.to,
+                    name: 'Now'
+                }, this.eventLines_se);
+
+                // 차트 그려질 범위 (시간 from ~ to)
+                drawData_se.chartConfig.axes.xaxis['min'] = drawData.to;
+                drawData_se.chartConfig.axes.xaxis['max'] = chartData.rulEndTime;
+
+                // (우) y축 좌측 차트와 동일하게 설정
+                drawData_se.chartConfig.axes.yaxis['min'] = drawData.chartConfig.axes.yaxis['min'];
+                drawData_se.chartConfig.axes.yaxis['max'] = drawData.chartConfig.axes.yaxis['max'];
+
+                // (우) y축 tick 숨기기
+                drawData_se.chartConfig.axes.yaxis['tickOptions']['show'] = false;
+
+                // 우측 차트 그리기 처리
+                this.trendConfig_se = drawData_se.chartConfig;
+                this.chartDatas_se = drawData_se.chartData;
+            }
         }
 
         // config 값 재설정
@@ -577,14 +615,17 @@ export class LogicChartComponent {
 
     //* 이벤트 차트 지우기 (전부)
     public rm_eventDraw_all(): void {
-        if( this.eventLines.length == 0 ){ return; }
+        if( this.eventLines.length === 0 ){ return; }
         this.eventLines.splice(0, this.eventLines.length);
+
+        if( this.eventLines_se.length === 0 ){ return; }
+        this.eventLines_se.splice(0, this.eventLines_se.length);
     }
 
     //* 이벤트 차트 지우기 (관련 index)
-    public rm_eventDraw_once( index: number ): void {
-        if( this.eventLines.length == 0 ){ return; }
-        this.eventLines.splice(index, 1);
+    public rm_eventDraw_once( eventLines: Array<any>, index: number ): void {
+        if( eventLines.length === 0 ){ return; }
+        eventLines.splice(index, 1);
     }
 
     //* 이벤트 차트 그리기 내용 추가 (x축 area)

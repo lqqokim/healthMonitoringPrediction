@@ -493,6 +493,7 @@ export class SeedConfig {
             'crypto-js': 'node_modules/crypto-js/crypto-js.js',
             'crypto': `src/client/sdk/libs/crypto/index.js`,
             'angular-split': 'node_modules/angular-split/bundles/angular-split.umd.js',
+            'angular-plotly.js':'node_modules/angular-plotly.js/bundles/angular-plotly.js.umd.js',
             // 'localforage': `node_modules/localforage/dist/localforage.js`,
             // 'angular2-off-click': 'node_modules/angular2-off-click/dist/src/index.js',
 

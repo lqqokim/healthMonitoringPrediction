@@ -66,6 +66,7 @@
             a.name,
             min(b.alarm_dtts) as start_dtts,
             max(b.status_cd) as status,
+            case when max(b.status_cd)=256 then 'alarm' when max(b.status_cd)=128 then 'warning' end as type,
             max(b.value) as value
         from eqp_pdm a
             join eqp_alarm_trx_pdm b

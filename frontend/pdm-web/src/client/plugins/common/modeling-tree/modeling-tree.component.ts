@@ -18,6 +18,7 @@ export class ModelingTreeComponent implements OnInit, AfterViewInit, OnChanges {
     @ViewChild('componentSpinner') componentSpinner: SpinnerComponent;
     @ViewChild('tv') tv;
     @Output() nodeClick: EventEmitter<any> = new EventEmitter();
+    @Output() nodeDataRes: EventEmitter<any> = new EventEmitter();
     @Input() fab: any;
 
     selectedFab: any;
@@ -197,6 +198,8 @@ export class ModelingTreeComponent implements OnInit, AfterViewInit, OnChanges {
                         } else {
                             this.initialTreeDatas = tempTree;
                         }
+
+                        this.nodeDataRes.emit();
                     });
             }).catch((error: any) => {
 
@@ -222,6 +225,7 @@ export class ModelingTreeComponent implements OnInit, AfterViewInit, OnChanges {
 
     }
     selectNode(ev: any): Promise<any> {
+        console.log('selectNode-ev', ev);
         if (this.selectedItem != null) {
             this.selectedItem.isChecked = false;
         }

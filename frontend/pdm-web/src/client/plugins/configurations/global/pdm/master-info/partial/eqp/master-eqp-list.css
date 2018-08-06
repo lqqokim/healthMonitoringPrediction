@@ -10,3 +10,6 @@
 width: 100%;
 height: calc(100% - 80px);
 }
+
+/* 라벨안에 input radio */
+.form-group > label.radio-label { padding-top:5px; cursor:pointer; }

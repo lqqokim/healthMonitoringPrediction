@@ -44,13 +44,13 @@ public class RadarController {
                 result = reportService.getAlarmWarningEqps(fabId, from, to);
                 break;
             case G5:
-                result = reportService.getGoodFiveEqps(fabId, from, to);
+                result = reportService.getGoodFiveEqps(fabId, from, to); //90일 대비 Diff
                 break;
             case B5:
-                result = reportService.getBadFiveEqps(fabId, from, to);
+                result = reportService.getBadFiveEqps(fabId, from, to); // 90일 대비 Diff
                 break;
             case NW:
-                result = reportService.getNumberOfWorstEqps(fabId, from, to,numberOfWorst);
+                result = reportService.getNumberOfWorstEqps(fabId, from, to,numberOfWorst);// 
         }
         reportService.getDuration(fabId, result, from, to);
 

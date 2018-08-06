@@ -242,8 +242,8 @@ export class ModelSimulatorComponent implements OnInit {
         // let fabId = this.tree.selectedFab.fabId;
         let eqpEvents :EqpEventType[] =[] ;
         
-        let eqpStartEvent :EqpEventType ;
-        let eqpEndEvent :EqpEventType ;
+        let eqpStartEvent :EqpEventType  ;
+        let eqpEndEvent :EqpEventType;
 
         if(this._eventTypeEvents['S']!=null){
             eqpStartEvent = this._eventTypeEvents['S'];
@@ -253,15 +253,17 @@ export class ModelSimulatorComponent implements OnInit {
             eqpStartEvent.timeIntervalYn = this.eventType == "event"?"N":"Y";
             eqpStartEvent.intervalTimeMs = this.aggregationTime*1000*60;
         }else{
-            eqpStartEvent.eqpId = this.eqpId;
-            eqpStartEvent.condition = this.getEndCondition();
-            eqpStartEvent.eventName = "process start";
-            eqpStartEvent.eventTypeCd="S";
-            eqpStartEvent.paramId = this.modelChart.getParamId();
-            eqpStartEvent.processYn="Y";
-            eqpStartEvent.eventGroup="PROCESS_EVENT";
-            eqpStartEvent.timeIntervalYn = this.eventType == "event"?"N":"Y";
-            eqpStartEvent.intervalTimeMs = this.aggregationTime*1000*60;
+            eqpStartEvent ={
+                eqpId : this.eqpId,
+                condition : this.getEndCondition(),
+                eventName : "process start",
+                eventTypeCd:"S",
+                paramId : this.modelChart.getParamId(),
+                processYn:"Y",
+                eventGroup:"PROCESS_EVENT",
+                timeIntervalYn : this.eventType == "event"?"N":"Y",
+                intervalTimeMs : this.aggregationTime*1000*60
+            }
         }
         eqpEvents.push(eqpStartEvent);
         
@@ -273,15 +275,17 @@ export class ModelSimulatorComponent implements OnInit {
             eqpEndEvent.timeIntervalYn = this.eventType == "event"?"N":"Y";
             eqpEndEvent.intervalTimeMs = this.aggregationTime*1000*60;
         }else{
-            eqpEndEvent.eqpId = this.eqpId;
-            eqpEndEvent.condition = this.getEndCondition();
-            eqpEndEvent.eventName = "process end";
-            eqpEndEvent.eventGroup="PROCESS_EVENT";
-            eqpEndEvent.processYn="Y";
-            eqpEndEvent.eventTypeCd="E";
-            eqpEndEvent.paramId = this.modelChart.getParamId();
-            eqpEndEvent.timeIntervalYn = this.eventType == "event"?"N":"Y";
-            eqpEndEvent.intervalTimeMs = this.aggregationTime*1000*60;
+            eqpEndEvent={
+                eqpId : this.eqpId,
+                condition : this.getEndCondition(),
+                eventName : "process end",
+                eventGroup:"PROCESS_EVENT",
+                processYn:"Y",
+                eventTypeCd:"E",
+                paramId : this.modelChart.getParamId(),
+                timeIntervalYn : this.eventType == "event"?"N":"Y",
+                intervalTimeMs : this.aggregationTime*1000*60,
+            }
         }
         eqpEvents.push(eqpEndEvent);
         

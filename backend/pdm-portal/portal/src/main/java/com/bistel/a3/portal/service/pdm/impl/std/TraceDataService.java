@@ -880,21 +880,25 @@ public class TraceDataService implements ITraceDataService {
 
             if(filterTraceRequest.getFilterAggregation().isUse()) {
                 for (int k = 0; k < filterTraceRequest.getFilterAggregation().getFunctions().size(); k++) {
-                    EqpParamDatas eqpParamDatas1 = new EqpParamDatas();
-                    eqpParamDatas1.setEqpName(eqpName);
-                    String aggreParamName = paramName + "_" + filterTraceRequest.getFilterAggregation().getFunctions().get(k).toUpperCase();
-                    eqpParamDatas1.setParamName(aggreParamName);
-                    for (int j = 0; j < filterdDatas.size(); j++) {
-                        List<String> filterRowData = filterdDatas.get(j);
+                    try {
+                        EqpParamDatas eqpParamDatas1 = new EqpParamDatas();
+                        eqpParamDatas1.setEqpName(eqpName);
+                        String aggreParamName = paramName + "_" + filterTraceRequest.getFilterAggregation().getFunctions().get(k).toUpperCase();
+                        eqpParamDatas1.setParamName(aggreParamName);
+                        for (int j = 0; j < filterdDatas.size(); j++) {
+                            List<String> filterRowData = filterdDatas.get(j);
 
-                        String time = filterRowData.get(columns.get("EVENT_DTTS"));
-                        String paramValue = filterRowData.get(columns.get(aggreParamName));
-                        List<Double> timeValue = new ArrayList<>();
-                        timeValue.add(Double.valueOf(time));
-                        timeValue.add(Double.valueOf(paramValue));
-                        eqpParamDatas1.getTimesValue().add(timeValue);
+                            String time = filterRowData.get(columns.get("EVENT_DTTS"));
+                            String paramValue = filterRowData.get(columns.get(aggreParamName));
+                            List<Double> timeValue = new ArrayList<>();
+                            timeValue.add(Double.valueOf(time));
+                            timeValue.add(Double.valueOf(paramValue));
+                            eqpParamDatas1.getTimesValue().add(timeValue);
+                        }
+                        eqpParamDatas.add(eqpParamDatas1);
+                    }catch(Exception err){
+                        logger.error(err.getMessage());
                     }
-                    eqpParamDatas.add(eqpParamDatas1);
                 }
             }else{
 

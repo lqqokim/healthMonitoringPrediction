@@ -73,7 +73,6 @@ export class PdmRealTimeTrendComponent extends WidgetApi implements OnSetup, OnD
         };
 
         this.condition = condition;
-        console.log('realtime condition', this.condition);
     }
 
     progress(ev: any): void {
