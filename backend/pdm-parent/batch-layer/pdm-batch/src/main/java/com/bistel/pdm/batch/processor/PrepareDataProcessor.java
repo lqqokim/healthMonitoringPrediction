@@ -35,8 +35,8 @@ public class PrepareDataProcessor extends AbstractProcessor<String, byte[]> {
     public void init(ProcessorContext processorContext) {
         super.init(processorContext);
 
-        kvStatusContextStore = (KeyValueStore) this.context().getStateStore("speed-status-context");
-        kvCacheRefreshFlagStore = (KeyValueStore) this.context().getStateStore("speed-cache-refresh");
+        kvStatusContextStore = (KeyValueStore) this.context().getStateStore("batch-status-context");
+        kvCacheRefreshFlagStore = (KeyValueStore) this.context().getStateStore("batch-cache-refresh");
     }
 
     @Override

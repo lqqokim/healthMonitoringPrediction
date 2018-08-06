@@ -1,9 +1,7 @@
 package com.bistel.pdm.batch;
 
-import com.bistel.pdm.batch.processor.AggregateFeatureProcessor;
 import com.bistel.pdm.batch.processor.BeginProcessor;
 import com.bistel.pdm.batch.processor.CalculateHealthProcessor;
-import com.bistel.pdm.batch.processor.PrepareDataProcessor;
 import com.bistel.pdm.lambda.kafka.AbstractPipeline;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.Serdes;
@@ -24,13 +22,13 @@ import java.util.concurrent.TimeUnit;
 /**
  *
  */
-public class BatchTraceTaskDef extends AbstractPipeline {
-    private static final Logger log = LoggerFactory.getLogger(BatchTraceTaskDef.class);
+public class BatchFeatureTaskDef extends AbstractPipeline {
+    private static final Logger log = LoggerFactory.getLogger(BatchFeatureTaskDef.class);
 
     private final String applicationId;
 
-    public BatchTraceTaskDef(String applicationId, String brokers,
-                             String schemaUrl, String servingAddr) {
+    public BatchFeatureTaskDef(String applicationId, String brokers,
+                                 String schemaUrl, String servingAddr) {
 
         super(brokers, schemaUrl, servingAddr);
         this.applicationId = applicationId;
@@ -50,47 +48,31 @@ public class BatchTraceTaskDef extends AbstractPipeline {
     }
 
     private KafkaStreams processStreams() {
+
         final Topology topology = new Topology();
 
-        StoreBuilder<KeyValueStore<String, String>> statusContextStoreSupplier =
+        StoreBuilder<KeyValueStore<Long, String>> fd03WindowStoreSupplier =
                 Stores.keyValueStoreBuilder(
-                        Stores.persistentKeyValueStore("batch-status-context"),
-                        Serdes.String(),
+                        Stores.persistentKeyValueStore("batch-moving-average"),
+                        Serdes.Long(),
                         Serdes.String());
 
-        StoreBuilder<KeyValueStore<String, String>> refershFlagStoreSupplier =
-                Stores.keyValueStoreBuilder(
-                        Stores.persistentKeyValueStore("batch-cache-refresh"),
-                        Serdes.String(),
-                        Serdes.String());
-
-        StoreBuilder<WindowStore<String, Double>> summaryWindowStoreSupplier =
+        StoreBuilder<WindowStore<String, String>> fd04WindowStoreSupplier =
                 Stores.windowStoreBuilder(
-                        Stores.persistentWindowStore("batch-feature-summary",
-                                TimeUnit.DAYS.toMillis(1),
+                        Stores.persistentWindowStore("batch-fd04-feature-data",
+                                TimeUnit.DAYS.toMillis(8),
                                 24,
-                                TimeUnit.DAYS.toMillis(1),
+                                TimeUnit.DAYS.toMillis(7),
                                 true),
                         Serdes.String(),
-                        Serdes.Double());
+                        Serdes.String());
 
-        StoreBuilder<KeyValueStore<String, Long>> summaryIntervalStoreSupplier =
-                Stores.keyValueStoreBuilder(
-                        Stores.persistentKeyValueStore("batch-summary-interval"),
-                        Serdes.String(),
-                        Serdes.Long());
-
-
-        topology.addSource("input-trace", this.getInputTraceTopic())
-                .addProcessor("begin", BeginProcessor::new, "input-trace")
-                .addProcessor("prepare", PrepareDataProcessor::new, "begin")
-                .addStateStore(statusContextStoreSupplier, "prepare")
-                .addStateStore(refershFlagStoreSupplier, "prepare")
-                .addProcessor("aggregate", AggregateFeatureProcessor::new, "prepare")
-                .addStateStore(summaryWindowStoreSupplier, "aggregate")
-                .addStateStore(summaryIntervalStoreSupplier, "aggregate")
-                .addSink("output-feature", this.getOutputFeatureTopic(), "aggregate")
-                .addSink("route-feature", this.getRouteFeatureTopic(), "aggregate");
+        topology.addSource("input-feature", this.getRouteFeatureTopic())
+                .addProcessor("begin", BeginProcessor::new, "input-feature")
+                .addProcessor("health", CalculateHealthProcessor::new, "begin")
+                .addStateStore(fd03WindowStoreSupplier, "health")
+                .addStateStore(fd04WindowStoreSupplier, "health")
+                .addSink("output-health", this.getOutputParamHealthTopic(), "health");
 
         return new KafkaStreams(topology, getStreamProperties());
     }
@@ -101,7 +83,6 @@ public class BatchTraceTaskDef extends AbstractPipeline {
         // against which the application is run.
         streamsConfiguration.put(StreamsConfig.APPLICATION_ID_CONFIG, this.getApplicationId());
         //streamsConfiguration.put(StreamsConfig.CLIENT_ID_CONFIG, "pdm-batch-02");
-
         // Where to find Kafka broker(s).
         streamsConfiguration.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, this.getBroker());
 

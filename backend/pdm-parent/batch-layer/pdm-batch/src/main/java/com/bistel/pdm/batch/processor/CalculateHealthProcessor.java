@@ -51,20 +51,6 @@ public class CalculateHealthProcessor extends AbstractProcessor<String, byte[]> 
         cal.set(Calendar.SECOND, 0);
         cal.set(Calendar.MILLISECOND, 0);
 
-        Long to = cal.getTime().getTime();
-        Long from = to - TimeUnit.DAYS.toMillis(90);
-
-        String url = MasterCache.ServingAddress + "/pdm/api/feature/" + from + "/" + to;
-        List<SummarizedFeature> featureList = ServingRequestor.getParamFeatureAvgFor(url);
-        log.info("90-days summary from {} to {}. - refresh count : {}",
-                new Timestamp(from), new Timestamp(to), paramFeatureValueList.size());
-
-        for (SummarizedFeature feature : featureList) {
-            paramFeatureValueList.put(feature.getParamRawId(), feature);
-            kvMovingAvgStore.put(feature.getParamRawId(), "0,0");
-        }
-
-        // scheduler for 90 days avg.
         cal.add(Calendar.DATE, 1);
 
         //next date 00h
@@ -110,6 +96,31 @@ public class CalculateHealthProcessor extends AbstractProcessor<String, byte[]> 
 
             ParameterMasterDataSet paramInfo = getParamMasterDataWithRawId(partitionKey, paramRawid);
             if (paramInfo == null) return;
+
+            if(paramFeatureValueList.size() <= 0){
+
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(new Date());
+                cal.set(Calendar.HOUR_OF_DAY, 0);
+                cal.set(Calendar.MINUTE, 0);
+                cal.set(Calendar.SECOND, 0);
+                cal.set(Calendar.MILLISECOND, 0);
+
+                Long to = cal.getTime().getTime();
+                Long from = to - TimeUnit.DAYS.toMillis(90);
+
+                String url = MasterCache.ServingAddress + "/pdm/api/feature/" + from + "/" + to;
+                List<SummarizedFeature> featureList = ServingRequestor.getParamFeatureAvgFor(url);
+                log.info("90-days summary from {} to {}. - refresh count : {}",
+                        new Timestamp(from), new Timestamp(to), paramFeatureValueList.size());
+
+                if(featureList != null && featureList.size() > 0){
+                    for (SummarizedFeature feature : featureList) {
+                        paramFeatureValueList.put(feature.getParamRawId(), feature);
+                        kvMovingAvgStore.put(feature.getParamRawId(), "0,0");
+                    }
+                }
+            }
 
             String strParamRawid = recordColumns[2];
             String paramKey = partitionKey + ":" + paramRawid;

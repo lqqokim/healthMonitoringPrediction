@@ -108,7 +108,6 @@ public class SpeedTaskDef extends AbstractPipeline {
                 .addSink("output-event", this.getOutputEventTopic(), "event")
 
                 .addSink("output-raw", this.getInputTimewaveTopic(), "fault")
-                .addSink("route-health", this.getRouteHealthTopic(), "fault")
                 .addSink("output-fault", this.getOutputFaultTopic(), "fault")
                 .addSink("output-health", this.getOutputParamHealthTopic(), "fault")
                 .addSink("output-refresh", this.getOutputReloadTopic(), "refresh");
