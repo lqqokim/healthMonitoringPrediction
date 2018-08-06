@@ -1,21 +1,22 @@
 package com.bistel.pdm.batch.processor;
 
+import com.bistel.pdm.common.json.EventMasterDataSet;
 import com.bistel.pdm.common.json.ParameterMasterDataSet;
-import com.bistel.pdm.lambda.kafka.master.MasterDataCache;
+import com.bistel.pdm.lambda.kafka.master.MasterCache;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.kafka.streams.KeyValue;
-import org.apache.kafka.streams.kstream.Windowed;
 import org.apache.kafka.streams.processor.AbstractProcessor;
 import org.apache.kafka.streams.processor.ProcessorContext;
-import org.apache.kafka.streams.state.KeyValueIterator;
 import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.state.WindowStore;
+import org.apache.kafka.streams.state.WindowStoreIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 /**
  *
@@ -40,26 +41,26 @@ public class AggregateFeatureProcessor extends AbstractProcessor<String, byte[]>
     @Override
     public void process(String partitionKey, byte[] streamByteRecord) {
         String value = new String(streamByteRecord);
-        // time, p1, p2, p3, p4, ... pn,curr_status:time,prev_status:time
+        // time, P1, P2, P3, P4, ... Pn, now status:time, prev status:time, refresh flag
         String[] columns = value.split(SEPARATOR, -1);
 
         try {
-            String[] currStatusAndTime = columns[columns.length - 2].split(":");
-            String[] prevStatusAndTime = columns[columns.length - 1].split(":");
+            // refresh cache
+            String refreshCacheflag = columns[columns.length - 1];
 
-            List<ParameterMasterDataSet> parameterMasterDataSets =
-                    MasterDataCache.getInstance().getParamMasterDataSet().get(partitionKey);
+            String[] currStatusAndTime = columns[columns.length - 3].split(":");
+            String[] prevStatusAndTime = columns[columns.length - 2].split(":");
+
+            List<ParameterMasterDataSet> parameterMasterDataSets = MasterCache.Parameter.get(partitionKey);
 
             if (kvSummaryIntervalStore.get(partitionKey) == null) {
                 Long paramTime = Long.parseLong(currStatusAndTime[1]);
                 kvSummaryIntervalStore.put(partitionKey, paramTime);
             }
 
-            //log.debug("[{}] - ({} to {})", partitionKey, prevStatusAndTime[0], currStatusAndTime[0]);
-
             // idle -> run
             if (prevStatusAndTime[0].equalsIgnoreCase("I")
-                    && !prevStatusAndTime[0].equalsIgnoreCase(currStatusAndTime[0])) {
+                    && currStatusAndTime[0].equalsIgnoreCase("R")) {
                 Long paramTime = Long.parseLong(currStatusAndTime[1]);
                 // start event
                 kvSummaryIntervalStore.put(partitionKey, paramTime);
@@ -76,54 +77,95 @@ public class AggregateFeatureProcessor extends AbstractProcessor<String, byte[]>
                     Double dValue = Double.parseDouble(columns[param.getParamParseIndex()]);
                     kvSummaryWindowStore.put(paramKey, dValue, paramTime);
                 }
+
+                // for long-term interval on event.
+                EventMasterDataSet event = getEvent(partitionKey, "S");
+                if (event != null && event.getTimeIntervalYn().equalsIgnoreCase("Y")) {
+                    Long startTime = kvSummaryIntervalStore.get(partitionKey);
+                    Long interval = startTime + event.getIntervalTimeMs();
+
+                    if (paramTime >= interval) {
+                        log.debug("[{}] - aggregate data every {} ms between event intervals.", partitionKey, event.getIntervalTimeMs());
+
+                        String sts = new SimpleDateFormat("MMdd HH:mm:ss.SSS").format(new Timestamp(startTime));
+                        String ets = new SimpleDateFormat("MMdd HH:mm:ss.SSS").format(new Timestamp(paramTime));
+                        log.debug("[{}] - processing interval from {} to {}.", partitionKey, sts, ets);
+
+                        for (ParameterMasterDataSet paramMaster : parameterMasterDataSets) {
+                            if (paramMaster.getParamParseIndex() <= 0) continue;
+
+                            String paramKey = partitionKey + ":" + paramMaster.getParameterRawId();
+                            WindowStoreIterator<Double> storeIterator = kvSummaryWindowStore.fetch(paramKey, startTime, paramTime);
+
+                            DescriptiveStatistics stats = new DescriptiveStatistics();
+                            while (storeIterator.hasNext()) {
+                                KeyValue<Long, Double> kv = storeIterator.next();
+                                stats.addValue(kv.value);
+                            }
+                            storeIterator.close();
+
+                            String uas = paramMaster.getUpperAlarmSpec() == null ? "" : Float.toString(paramMaster.getUpperAlarmSpec());
+                            String uws = paramMaster.getUpperWarningSpec() == null ? "" : Float.toString(paramMaster.getUpperWarningSpec());
+                            String tgt = paramMaster.getTarget() == null ? "" : Float.toString(paramMaster.getTarget());
+                            String las = paramMaster.getLowerAlarmSpec() == null ? "" : Float.toString(paramMaster.getLowerAlarmSpec());
+                            String lws = paramMaster.getLowerAlarmSpec() == null ? "" : Float.toString(paramMaster.getLowerAlarmSpec());
+
+                            // startDtts, endDtts, param rawid, count, max, min, median, avg, stddev, q1, q3, spec...
+                            String msg = String.valueOf(startTime) + "," +
+                                    String.valueOf(paramTime) + "," +
+                                    paramMaster.getParameterRawId() + "," +
+                                    stats.getValues().length + "," +
+                                    stats.getMin() + "," +
+                                    stats.getMax() + "," +
+                                    stats.getPercentile(50) + "," +
+                                    stats.getMean() + "," +
+                                    stats.getStandardDeviation() + "," +
+                                    stats.getPercentile(25) + "," +
+                                    stats.getPercentile(75) + "," +
+                                    uas + "," +
+                                    uws + "," +
+                                    tgt + "," +
+                                    las + "," +
+                                    lws + "," +
+                                    refreshCacheflag;
+
+                            context().forward(partitionKey, msg.getBytes());
+                            context().commit();
+
+                            log.debug("[{}] - from : {}, end : {}, param : {} ",
+                                    partitionKey, startTime, paramTime, paramMaster.getParameterName());
+                        }
+
+                        kvSummaryIntervalStore.put(partitionKey, paramTime);
+                    }
+                }
             }
 
             // run -> idle
             if (prevStatusAndTime[0].equalsIgnoreCase("R") &&
                     currStatusAndTime[0].equalsIgnoreCase("I")) {
 
-                //end trace
-                log.info("[{}] - From now on, aggregate the data of the operating interval.", partitionKey);
+                log.debug("[{}] - aggregate data at the end of the event.", partitionKey);
 
                 Long startTime = kvSummaryIntervalStore.get(partitionKey);
                 Long endTime = Long.parseLong(prevStatusAndTime[1]);
 
-                log.debug("[{}] - processing interval from {} to {}.", partitionKey, startTime, endTime);
-
-                HashMap<String, List<Double>> paramValueList = new HashMap<>();
-
-                KeyValueIterator<Windowed<String>, Double> storeIterator = kvSummaryWindowStore.fetchAll(startTime, endTime);
-                while (storeIterator.hasNext()) {
-                    KeyValue<Windowed<String>, Double> kv = storeIterator.next();
-
-                    //log.debug("[{}] - fetch : {}", kv.key.key(), kv.value);
-
-                    if (!paramValueList.containsKey(kv.key.key())) {
-                        ArrayList<Double> arrValue = new ArrayList<>();
-                        arrValue.add(kv.value);
-                        paramValueList.put(kv.key.key(), arrValue);
-                    } else {
-                        List<Double> arrValue = paramValueList.get(kv.key.key());
-                        arrValue.add(kv.value);
-                    }
-                }
+                String sts = new SimpleDateFormat("MMdd HH:mm:ss.SSS").format(new Timestamp(startTime));
+                String ets = new SimpleDateFormat("MMdd HH:mm:ss.SSS").format(new Timestamp(endTime));
+                log.debug("[{}] - processing interval from {} to {}.", partitionKey, sts, ets);
 
                 for (ParameterMasterDataSet paramMaster : parameterMasterDataSets) {
                     if (paramMaster.getParamParseIndex() <= 0) continue;
 
                     String paramKey = partitionKey + ":" + paramMaster.getParameterRawId();
-
-                    List<Double> doubleValueList = paramValueList.get(paramKey);
-                    if(doubleValueList == null) {
-                        log.info("[{}] - Unable to aggregate...", paramKey);
-                        continue;
-                    }
-                    log.trace("[{}] - window data size : {}", paramKey, doubleValueList.size());
+                    WindowStoreIterator<Double> storeIterator = kvSummaryWindowStore.fetch(paramKey, startTime, endTime);
 
                     DescriptiveStatistics stats = new DescriptiveStatistics();
-                    for (double i : doubleValueList) {
-                        stats.addValue(i);
+                    while (storeIterator.hasNext()) {
+                        KeyValue<Long, Double> kv = storeIterator.next();
+                        stats.addValue(kv.value);
                     }
+                    storeIterator.close();
 
                     String uas = paramMaster.getUpperAlarmSpec() == null ? "" : Float.toString(paramMaster.getUpperAlarmSpec());
                     String uws = paramMaster.getUpperWarningSpec() == null ? "" : Float.toString(paramMaster.getUpperWarningSpec());
@@ -135,7 +177,7 @@ public class AggregateFeatureProcessor extends AbstractProcessor<String, byte[]>
                     String msg = String.valueOf(startTime) + "," +
                             String.valueOf(endTime) + "," +
                             paramMaster.getParameterRawId() + "," +
-                            doubleValueList.size() + "," +
+                            stats.getValues().length + "," +
                             stats.getMin() + "," +
                             stats.getMax() + "," +
                             stats.getPercentile(50) + "," +
@@ -147,7 +189,8 @@ public class AggregateFeatureProcessor extends AbstractProcessor<String, byte[]>
                             uws + "," +
                             tgt + "," +
                             las + "," +
-                            lws;
+                            lws + "," +
+                            refreshCacheflag;
 
                     context().forward(partitionKey, msg.getBytes());
                     context().commit();
@@ -156,10 +199,29 @@ public class AggregateFeatureProcessor extends AbstractProcessor<String, byte[]>
                             partitionKey, startTime, endTime, paramMaster.getParameterName());
                 }
 
-                log.info("[{}] - forward aggregated stream to route-feature, output-feature.", partitionKey);
+                // refresh cache
+                if(refreshCacheflag.equalsIgnoreCase("CRC")){
+                    // refresh master
+                    MasterCache.Equipment.refresh(partitionKey);
+                    MasterCache.Parameter.refresh(partitionKey);
+                    MasterCache.Event.refresh(partitionKey);
+                }
             }
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
+    }
+
+    private EventMasterDataSet getEvent(String key, String type) throws ExecutionException {
+        EventMasterDataSet e = null;
+        for (EventMasterDataSet event : MasterCache.Event.get(key)) {
+            if (event.getProcessYN().equalsIgnoreCase("Y")
+                    && event.getEventTypeCD().equalsIgnoreCase(type)) {
+                e = event;
+                break;
+            }
+        }
+
+        return e;
     }
 }

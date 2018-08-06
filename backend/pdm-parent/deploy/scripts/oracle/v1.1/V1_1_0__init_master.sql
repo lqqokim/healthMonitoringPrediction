@@ -5,16 +5,16 @@ insert into code_mst_pdm(rawid, code, name, category, create_by) values(seq_code
 insert into code_mst_pdm(rawid, code, name, category, create_by) values(seq_code_mst_pdm.nextval, '256', 'alarm', 'alarm_type', 'system');
 insert into code_mst_pdm(rawid, code, name, category, create_by) values(seq_code_mst_pdm.nextval, '128', 'warning', 'alarm_type', 'system');
 
-insert into code_mst_pdm(rawid, code, name, category, create_by) values(seq_code_mst_pdm.nextval, 'Velocity', 'Velocity', 'PARAM_TYPE', 'system');
-insert into code_mst_pdm(rawid, code, name, category, create_by) values(seq_code_mst_pdm.nextval, 'Acceleration', 'Acceleration', 'PARAM_TYPE', 'system');
-insert into code_mst_pdm(rawid, code, name, category, create_by) values(seq_code_mst_pdm.nextval, 'Enveloping', 'Enveloping', 'PARAM_TYPE', 'system');
-insert into code_mst_pdm(rawid, code, name, category, create_by) values(seq_code_mst_pdm.nextval, 'Rpm', 'Rpm', 'PARAM_TYPE', 'system');
-insert into code_mst_pdm(rawid, code, name, category, create_by) values(seq_code_mst_pdm.nextval, 'Summary', 'Summary', 'PARAM_TYPE', 'system');
-insert into code_mst_pdm(rawid, code, name, category, create_by) values(seq_code_mst_pdm.nextval, 'Trace', 'Trace', 'PARAM_TYPE', 'system');
+insert into code_mst_pdm(rawid, code, name, category, create_by) values(seq_code_mst_pdm.nextval, 'Velocity', 'Velocity', 'param_type', 'system');
+insert into code_mst_pdm(rawid, code, name, category, create_by) values(seq_code_mst_pdm.nextval, 'Acceleration', 'Acceleration', 'param_type', 'system');
+insert into code_mst_pdm(rawid, code, name, category, create_by) values(seq_code_mst_pdm.nextval, 'Enveloping', 'Enveloping', 'param_type', 'system');
+insert into code_mst_pdm(rawid, code, name, category, create_by) values(seq_code_mst_pdm.nextval, 'Rpm', 'Rpm', 'param_type', 'system');
+insert into code_mst_pdm(rawid, code, name, category, create_by) values(seq_code_mst_pdm.nextval, 'Summary', 'Summary', 'param_type', 'system');
+insert into code_mst_pdm(rawid, code, name, category, create_by) values(seq_code_mst_pdm.nextval, 'Trace', 'Trace', 'param_type', 'system');
 
-insert into code_mst_pdm(rawid, code, name, category, create_by) values(seq_code_mst_pdm.nextval, 'mm/s Rms', 'mm/s Rms', 'UNIT_TYPE', 'system');
-insert into code_mst_pdm(rawid, code, name, category, create_by) values(seq_code_mst_pdm.nextval, 'gE PtP', 'gE PtP', 'UNIT_TYPE', 'system');
-insert into code_mst_pdm(rawid, code, name, category, create_by) values(seq_code_mst_pdm.nextval, 'g Rms', 'g Rms', 'UNIT_TYPE', 'system');
+insert into code_mst_pdm(rawid, code, name, category, create_by) values(seq_code_mst_pdm.nextval, 'mm/s Rms', 'mm/s Rms', 'unit_type', 'system');
+insert into code_mst_pdm(rawid, code, name, category, create_by) values(seq_code_mst_pdm.nextval, 'gE PtP', 'gE PtP', 'unit_type', 'system');
+insert into code_mst_pdm(rawid, code, name, category, create_by) values(seq_code_mst_pdm.nextval, 'g Rms', 'g Rms', 'unit_type', 'system');
 
 insert into code_mst_pdm(rawid, code, name, category, create_by, default_yn) values(seq_code_mst_pdm.nextval, 'axis', '축', 'parts_type', 'system', 'Y');
 insert into code_mst_pdm(rawid, code, name, category, create_by) values(seq_code_mst_pdm.nextval, 'bearing', '베어링', 'parts_type', 'system');
@@ -32,16 +32,16 @@ insert into code_mst_pdm(rawid, code, name, category, create_by) values(seq_code
 insert into code_mst_pdm(rawid, code, name, category, create_by) values(seq_code_mst_pdm.nextval, 'rsd04', 'reserved_col4', 'reserved_column', 'system');
 insert into code_mst_pdm(rawid, code, name, category, create_by) values(seq_code_mst_pdm.nextval, 'rsd05', 'reserved_col5', 'reserved_column', 'system');
 
-insert into code_mst_pdm(rawid, code, name, category, create_by) values(seq_code_mst_pdm.nextval, 'R', 'RUN', 'STATUS', 'system');
-insert into code_mst_pdm(rawid, code, name, category, create_by) values(seq_code_mst_pdm.nextval, 'I', 'IDLE', 'STATUS', 'system');
+insert into code_mst_pdm(rawid, code, name, category, create_by) values(seq_code_mst_pdm.nextval, 'R', 'RUN', 'status', 'system');
+insert into code_mst_pdm(rawid, code, name, category, create_by) values(seq_code_mst_pdm.nextval, 'I', 'IDLE', 'status', 'system');
 
-insert into code_mst_pdm(rawid, code, name, category, create_by) values(seq_code_mst_pdm.nextval, 'W', 'WARNING', 'ALARM_TYPE', 'system');
-insert into code_mst_pdm(rawid, code, name, category, create_by) values(seq_code_mst_pdm.nextval, 'A', 'ALARM', 'ALARM_TYPE', 'system');
+insert into code_mst_pdm(rawid, code, name, category, create_by) values(seq_code_mst_pdm.nextval, 'W', 'WARNING', 'alarm_type', 'system');
+insert into code_mst_pdm(rawid, code, name, category, create_by) values(seq_code_mst_pdm.nextval, 'A', 'ALARM', 'alarm_type', 'system');
 
-insert into code_mst_pdm(rawid, code, name, category, create_by) values(seq_code_mst_pdm.nextval, 'UNB', 'UNBALANCE', 'FAULT_CLASS', 'system');
-insert into code_mst_pdm(rawid, code, name, category, create_by) values(seq_code_mst_pdm.nextval, 'MIS', 'MISALIGNMENT', 'FAULT_CLASS', 'system');
-insert into code_mst_pdm(rawid, code, name, category, create_by) values(seq_code_mst_pdm.nextval, 'BEA', 'BEARING', 'FAULT_CLASS', 'system');
-insert into code_mst_pdm(rawid, code, name, category, create_by) values(seq_code_mst_pdm.nextval, 'LUB', 'LUBRICATION', 'FAULT_CLASS', 'system');
+insert into code_mst_pdm(rawid, code, name, category, create_by) values(seq_code_mst_pdm.nextval, 'UNB', 'UNBALANCE', 'fault_class', 'system');
+insert into code_mst_pdm(rawid, code, name, category, create_by) values(seq_code_mst_pdm.nextval, 'MIS', 'MISALIGNMENT', 'fault_class', 'system');
+insert into code_mst_pdm(rawid, code, name, category, create_by) values(seq_code_mst_pdm.nextval, 'BEA', 'BEARING', 'fault_class', 'system');
+insert into code_mst_pdm(rawid, code, name, category, create_by) values(seq_code_mst_pdm.nextval, 'LUB', 'LUBRICATION', 'fault_class', 'system');
 
 commit;
 

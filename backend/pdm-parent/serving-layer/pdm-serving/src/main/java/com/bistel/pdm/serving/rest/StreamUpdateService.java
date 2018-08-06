@@ -11,11 +11,14 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Singleton;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.Properties;
 
 /**
@@ -27,7 +30,13 @@ import java.util.Properties;
 public class StreamUpdateService {
     private static final Logger log = LoggerFactory.getLogger(StreamUpdateService.class);
 
-    private final String topicName = "pdm-input-reload";
+    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+
+    private final String inputTraceTopic = "pdm-input-trace";
+    private final String inputTimewaveTopic = "pdm-input-raw";
+    private final String routeFeatureTopic = "pdm-route-feature";
+    private final String routeHealthTopic = "pdm-route-health";
+    private final String inputReloadTopic = "pdm-input-reload";
 
     private final String clientId = "serving";
     private Producer<String, byte[]> producer;
@@ -46,14 +55,19 @@ public class StreamUpdateService {
     }
 
     @GET
-    @Path("/latest/reload")
-    public Response getReload() {
+    @Path("/latest/reload/{eqpid}")
+    public Response getReload(@PathParam("eqpid") String eqpId) {
         try {
-            String msg = "http://" + HostInfo.ip + ":" + HostInfo.port;
-            producer.send(new ProducerRecord<>(topicName, "updater", msg.getBytes()));
+            Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+            String msg =  dateFormat.format(timestamp) + ",CMD-REFRESH-CACHE,http://" + HostInfo.ip + ":" + HostInfo.port;
+            producer.send(new ProducerRecord<>(inputTraceTopic, eqpId, msg.getBytes()));
+            producer.send(new ProducerRecord<>(inputTimewaveTopic, eqpId, msg.getBytes()));
+            producer.send(new ProducerRecord<>(inputReloadTopic, eqpId, msg.getBytes()));
+//            producer.send(new ProducerRecord<>(routeFeatureTopic, eqpId, msg.getBytes()));
+//            producer.send(new ProducerRecord<>(routeHealthTopic, eqpId, msg.getBytes()));
 
-            log.info("stream updated.");
-            return Response.status(Response.Status.OK).entity("").build();
+            log.info("requested to {} to update the master information.", eqpId);
+            return Response.status(Response.Status.OK).entity(eqpId).build();
 
         } catch (Exception e) {
             log.error(e.getMessage(), e);

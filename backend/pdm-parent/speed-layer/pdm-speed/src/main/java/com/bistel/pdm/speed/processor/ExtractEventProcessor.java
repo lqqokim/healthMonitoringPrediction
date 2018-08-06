@@ -1,11 +1,13 @@
 package com.bistel.pdm.speed.processor;
 
 import com.bistel.pdm.common.json.EventMasterDataSet;
-import com.bistel.pdm.lambda.kafka.master.MasterDataCache;
+import com.bistel.pdm.lambda.kafka.master.MasterCache;
 import org.apache.kafka.streams.processor.AbstractProcessor;
 import org.apache.kafka.streams.processor.ProcessorContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.ExecutionException;
 
 /**
  *
@@ -23,37 +25,60 @@ public class ExtractEventProcessor extends AbstractProcessor<String, byte[]> {
     @Override
     public void process(String partitionKey, byte[] streamByteRecord) {
         String recordValue = new String(streamByteRecord);
-        String[] recordColumns = recordValue.split(SEPARATOR);
+        // time, P1, P2, P3, P4, ... Pn, now status:time, prev status:time, refresh flag
+        String[] recordColumns = recordValue.split(SEPARATOR, -1);
 
-        // time, p1, p2, p3, p4, ... pn, status:time, prev:time
-        String statusCodeAndTime = recordColumns[recordColumns.length - 2];
-        String[] nowStatusCodeAndTime = statusCodeAndTime.split(":");
+        try {
+            String statusCodeAndTime = recordColumns[recordColumns.length - 3];
+            String[] nowStatusCodeAndTime = statusCodeAndTime.split(":");
 
-        String prevStatusAndTime = recordColumns[recordColumns.length - 1];
-        String[] prevStatusCodeAndTime = prevStatusAndTime.split(":");
+            String prevStatusAndTime = recordColumns[recordColumns.length - 2];
+            String[] prevStatusCodeAndTime = prevStatusAndTime.split(":");
 
-        // extract event
-        if (prevStatusCodeAndTime[0].equalsIgnoreCase("I")
-                && !prevStatusCodeAndTime[0].equalsIgnoreCase(nowStatusCodeAndTime[0])) {
+            // extract event
+            if (prevStatusCodeAndTime[0].equalsIgnoreCase("I")
+                    && nowStatusCodeAndTime[0].equalsIgnoreCase("R")) {
 
-            EventMasterDataSet event = MasterDataCache.getInstance().getEventByType(partitionKey, "S");
-            String eventMessage = nowStatusCodeAndTime[1] + ","
-                    + event.getEventRawId() + "," + event.getEventTypeCD();
+                // event started.
+                EventMasterDataSet event = getEvent(partitionKey, "S");
+                String eventMessage =
+                        nowStatusCodeAndTime[1] + ","
+                                + event.getEventRawId() + ","
+                                + event.getEventTypeCD();
 
-            log.debug("[{}] - process started.", partitionKey);
-            context().forward(partitionKey, eventMessage.getBytes());
-            context().commit();
+                log.info("[{}] - process started.", partitionKey);
+                context().forward(partitionKey, eventMessage.getBytes());
+                context().commit();
 
-        } else if (prevStatusCodeAndTime[0].equalsIgnoreCase("R")
-                && !prevStatusCodeAndTime[0].equalsIgnoreCase(nowStatusCodeAndTime[0])) {
+            } else if (prevStatusCodeAndTime[0].equalsIgnoreCase("R")
+                    && nowStatusCodeAndTime[0].equalsIgnoreCase("I")) {
 
-            EventMasterDataSet event = MasterDataCache.getInstance().getEventByType(partitionKey, "E");
-            String eventMessage = prevStatusCodeAndTime[1] + ","
-                    + event.getEventRawId() + "," + event.getEventTypeCD();
+                // event ended.
+                EventMasterDataSet event = getEvent(partitionKey, "E");
+                String eventMessage =
+                        prevStatusCodeAndTime[1] + ","
+                                + event.getEventRawId() + ","
+                                + event.getEventTypeCD();
 
-            log.debug("[{}] - process ended.", partitionKey);
-            context().forward(partitionKey, eventMessage.getBytes());
-            context().commit();
+                log.info("[{}] - process ended.", partitionKey);
+                context().forward(partitionKey, eventMessage.getBytes());
+                context().commit();
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
         }
+    }
+
+    private EventMasterDataSet getEvent(String key, String type) throws ExecutionException {
+        EventMasterDataSet e = null;
+        for (EventMasterDataSet event : MasterCache.Event.get(key)) {
+            if (event.getProcessYN().equalsIgnoreCase("Y")
+                    && event.getEventTypeCD().equalsIgnoreCase(type)) {
+                e = event;
+                break;
+            }
+        }
+
+        return e;
     }
 }

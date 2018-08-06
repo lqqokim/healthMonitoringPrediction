@@ -1,6 +1,6 @@
 package com.bistel.pdm.batch.processor;
 
-import com.bistel.pdm.lambda.kafka.master.MasterDataCache;
+import com.bistel.pdm.lambda.kafka.master.MasterCache;
 import org.apache.kafka.streams.processor.AbstractProcessor;
 import org.apache.kafka.streams.processor.ProcessorContext;
 import org.slf4j.Logger;
@@ -19,11 +19,15 @@ public class FilterByMasterProcessor extends AbstractProcessor<String, byte[]> {
 
     @Override
     public void process(String partitionKey, byte[] streamByteRecord) {
-        if (!MasterDataCache.getInstance().getEqpMasterDataSet().containsKey(partitionKey)) {
-            log.info("[{}] - Not existed.", partitionKey);
-        } else {
-            context().forward(partitionKey, streamByteRecord);
-            context().commit();
+        try {
+            if (MasterCache.Equipment.get(partitionKey) == null) {
+                log.info("[{}] - Not existed.", partitionKey);
+            } else {
+                context().forward(partitionKey, streamByteRecord);
+                context().commit();
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
         }
     }
 }

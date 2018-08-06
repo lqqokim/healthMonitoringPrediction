@@ -63,4 +63,44 @@ public class ParameterSpecDataDao {
 
         return resultRows;
     }
+
+    private final static String SPEC_DS_1_SQL =
+            "select " +
+                    "p.rawid, " +
+                    "t.alarm_spec, " +
+                    "t.warning_spec " +
+                    "from eqp_mst_pdm e, param_mst_pdm p, trace_spec_mst_pdm t " +
+                    "where p.rawid=t.param_mst_rawid " +
+                    "and e.rawid=p.eqp_mst_rawid" +
+                    "and e.name=? ";
+
+    public List<ParameterSpecDataSet> getParamSpecDataSet(String eqpId) throws SQLException {
+        List<ParameterSpecDataSet> resultRows = new ArrayList<>();
+
+        try (Connection conn = DataSource.getConnection()) {
+            try (PreparedStatement pst = conn.prepareStatement(SPEC_DS_1_SQL)) {
+                pst.setString(1, eqpId);
+
+                try (ResultSet rs = pst.executeQuery()) {
+                    log.debug("sql:{}", SPEC_DS_1_SQL);
+
+                    while (rs.next()) {
+                        ParameterSpecDataSet ds = new ParameterSpecDataSet();
+                        ds.setParamRawId(rs.getLong(1));
+                        ds.setUpperAlarmSpec(rs.getFloat(2));
+                        ds.setUpperWarningSpec(rs.getFloat(3));
+                        ds.setTarget(null);
+                        ds.setLowerAlarmSpec(null);
+                        ds.setLowerWarningSpec(null);
+
+                        resultRows.add(ds);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            log.error(e.getMessage(), e);
+        }
+
+        return resultRows;
+    }
 }

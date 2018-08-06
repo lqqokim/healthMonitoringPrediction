@@ -23,7 +23,7 @@ public class FeatureConsumerRunnable implements Runnable {
     private final KafkaConsumer<String, byte[]> consumer;
     private final String topicName;
 
-    private final static int PollingDurations = 1;
+    private final static int PollingDurations = 5;
 
     private FeatureDataDao trxDao;
 

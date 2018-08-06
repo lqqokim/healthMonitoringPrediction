@@ -9,10 +9,8 @@ import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Timestamp;
+import java.sql.*;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 /**
@@ -27,7 +25,6 @@ public class EqpHealthTrxDao implements HealthDataDao {
                     "values (SEQ_EQP_HEALTH_TRX_PDM.nextval,?,?,?,?,?,?) ";
 
 
-
     @Override
     public void storeRecord(ConsumerRecords<String, byte[]> records) {
         try (Connection conn = DataSource.getConnection()) {
@@ -37,23 +34,34 @@ public class EqpHealthTrxDao implements HealthDataDao {
 
                 int totalCount = 0;
                 int batchCount = 0;
+                Timestamp ts = null;
+
                 for (ConsumerRecord<String, byte[]> record : records) {
                     //log.debug("offset={}, key={}, value={}", record.offset(), record.key(), record.value());
 
                     byte[] healthData = record.value();
                     String valueString = new String(healthData);
-                    // time, eqpRawid, param_rawid, param_health_rawid, status_cd, count, index, health_logic_rawid
+                    // time, eqpRawid, param_rawid, param_health_rawid, status_cd, count, index,
                     String[] values = valueString.split(",");
 
-                    log.debug("[{}] - time : {}, eqp : {}, param : {}", record.key(),
+                    log.trace("[{}] - time : {}, eqp : {}, param : {}", record.key(),
                             values[0], values[1], values[2]);
 
+                    ts = new Timestamp(Long.parseLong(values[0]));
                     pstmt.setLong(1, Long.parseLong(values[1])); //eqp_mst_rawid
-                    pstmt.setLong(2, Long.parseLong(values[3])); //
+                    pstmt.setLong(2, Long.parseLong(values[3])); //param_health_mst_rawid
                     pstmt.setString(3, values[4]);
                     pstmt.setDouble(4, Double.parseDouble(values[5])); //data count
-                    pstmt.setDouble(5, Double.parseDouble(values[6])); //index value
-                    pstmt.setTimestamp(6, new Timestamp(Long.parseLong(values[0])));
+                    //pstmt.setDouble(5, Double.parseDouble(values[6])); //index value
+
+                    if (values[6] != null && values[6].length() > 0) {
+                        pstmt.setDouble(10, Double.parseDouble(values[6])); // score
+                    } else {
+                        pstmt.setDouble(10, 0D);
+//                        pstmt.setNull(10, Types.DOUBLE);
+                    }
+
+                    pstmt.setTimestamp(6, ts);
 
                     pstmt.addBatch();
                     //log.debug("offset = " + record.offset() + " value = " + valueString);
@@ -72,7 +80,8 @@ public class EqpHealthTrxDao implements HealthDataDao {
                     pstmt.clearBatch();
                 }
                 conn.commit();
-                log.debug("{} records are inserted into EQP_HEALTH_TRX_PDM.", totalCount);
+                String timeStamp = new SimpleDateFormat("MMdd HH:mm:ss.SSS").format(ts);
+                log.debug("[{}] - {} records are inserted into EQP_HEALTH_TRX_PDM.", timeStamp, totalCount);
 
             } catch (Exception e) {
                 conn.rollback();

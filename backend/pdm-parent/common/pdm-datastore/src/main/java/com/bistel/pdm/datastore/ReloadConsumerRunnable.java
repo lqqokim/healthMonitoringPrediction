@@ -1,10 +1,8 @@
 package com.bistel.pdm.datastore;
 
-import com.bistel.pdm.datastore.jdbc.DBType;
 import com.bistel.pdm.datastore.jdbc.DataSource;
-import com.bistel.pdm.datastore.jdbc.dao.HealthDataDao;
-import com.bistel.pdm.datastore.jdbc.dao.ora.EqpHealthTrxDao;
-import com.bistel.pdm.datastore.jdbc.dao.pg.EqpHealthTrxPostgreDao;
+import com.bistel.pdm.lambda.kafka.master.MasterCache;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.slf4j.Logger;
@@ -17,30 +15,18 @@ import java.util.concurrent.TimeUnit;
 /**
  *
  */
-public class EqpHealthConsumerRunnable implements Runnable {
-    private static final Logger log = LoggerFactory.getLogger(EqpHealthConsumerRunnable.class);
+public class ReloadConsumerRunnable implements Runnable {
+    private static final Logger log = LoggerFactory.getLogger(ReloadConsumerRunnable.class);
 
     private final KafkaConsumer<String, byte[]> consumer;
     private final String topicName;
 
-    private final static int PollingDurations = 5; // sec
+    private final static int PollingDurations = 1; // sec
 
-    private HealthDataDao trxDao;
-
-    public EqpHealthConsumerRunnable(Properties property, String groupId, String topicName) {
+    public ReloadConsumerRunnable(Properties property, String groupId, String topicName, String servingAddress) {
         this.consumer = new KafkaConsumer<>(createConsumerConfig(groupId, property));
         this.topicName = topicName;
-
-        if (DataSource.getDBType() == DBType.oracle) {
-            trxDao = new EqpHealthTrxDao();
-            log.info("loaded data object of oracle.");
-        } else if (DataSource.getDBType() == DBType.postgresql) {
-            trxDao = new EqpHealthTrxPostgreDao();
-            log.info("loaded data object of postgresql.");
-        } else {
-            trxDao = new EqpHealthTrxDao();
-            log.info("loaded data object of default(oracle).");
-        }
+        MasterCache.ServingAddress = servingAddress;
     }
 
     @Override
@@ -54,9 +40,13 @@ public class EqpHealthConsumerRunnable implements Runnable {
             ConsumerRecords<String, byte[]> records = consumer.poll(TimeUnit.SECONDS.toMillis(PollingDurations));
             if (records.count() > 0) {
                 log.debug(" polling {} records", records.count());
-                trxDao.storeRecord(records);
+
+                for (ConsumerRecord<String, byte[]> record : records) {
+                    // refresh master info.
+                    MasterCache.Parameter.refresh(record.key());
+                }
                 consumer.commitAsync();
-                log.info("{} records are committed.", records.count());
+                log.info("{} reloaded.", records.count());
             }
         }
     }

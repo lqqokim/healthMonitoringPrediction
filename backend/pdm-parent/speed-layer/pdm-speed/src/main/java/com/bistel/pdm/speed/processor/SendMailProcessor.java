@@ -1,7 +1,7 @@
 package com.bistel.pdm.speed.processor;
 
 import com.bistel.pdm.common.json.MailConfigDataSet;
-import com.bistel.pdm.lambda.kafka.master.MasterDataCache;
+import com.bistel.pdm.lambda.kafka.master.MasterCache;
 import org.apache.commons.mail.DefaultAuthenticator;
 import org.apache.commons.mail.Email;
 import org.apache.commons.mail.SimpleEmail;
@@ -11,7 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *  send alarm messages to
+ * send alarm messages to
  */
 public class SendMailProcessor extends AbstractProcessor<String, byte[]> {
     private static final Logger log = LoggerFactory.getLogger(SendMailProcessor.class);
@@ -29,7 +29,7 @@ public class SendMailProcessor extends AbstractProcessor<String, byte[]> {
         String message = new String(streamByteRecord);
 
         try {
-            MailConfigDataSet conf = MasterDataCache.getInstance().getMailConfigDataSet();
+            MailConfigDataSet conf = MasterCache.Mail.get(partitionKey);
 
             if (conf != null && conf.getFromAddr().length() > 0) {
                 Email email = new SimpleEmail();

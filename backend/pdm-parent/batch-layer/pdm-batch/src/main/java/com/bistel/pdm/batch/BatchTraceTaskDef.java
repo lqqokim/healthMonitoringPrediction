@@ -1,14 +1,15 @@
 package com.bistel.pdm.batch;
 
-import com.bistel.pdm.batch.processor.*;
+import com.bistel.pdm.batch.processor.AggregateFeatureProcessor;
+import com.bistel.pdm.batch.processor.BeginProcessor;
+import com.bistel.pdm.batch.processor.CalculateHealthProcessor;
+import com.bistel.pdm.batch.processor.PrepareDataProcessor;
 import com.bistel.pdm.lambda.kafka.AbstractPipeline;
-import com.bistel.pdm.lambda.kafka.master.MasterDataCache;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.Topology;
-import org.apache.kafka.streams.processor.ProcessorSupplier;
 import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.state.StoreBuilder;
 import org.apache.kafka.streams.state.Stores;
@@ -33,8 +34,6 @@ public class BatchTraceTaskDef extends AbstractPipeline {
 
         super(brokers, schemaUrl, servingAddr);
         this.applicationId = applicationId;
-
-        MasterDataCache.getInstance().setServingAddress(servingAddr);
     }
 
     public void start() {
@@ -59,6 +58,12 @@ public class BatchTraceTaskDef extends AbstractPipeline {
                         Serdes.String(),
                         Serdes.String());
 
+        StoreBuilder<KeyValueStore<String, String>> refershFlagStoreSupplier =
+                Stores.keyValueStoreBuilder(
+                        Stores.persistentKeyValueStore("speed-cache-refresh"),
+                        Serdes.String(),
+                        Serdes.String());
+
         StoreBuilder<WindowStore<String, Double>> summaryWindowStoreSupplier =
                 Stores.windowStoreBuilder(
                         Stores.persistentWindowStore("batch-feature-summary",
@@ -75,15 +80,11 @@ public class BatchTraceTaskDef extends AbstractPipeline {
                         Serdes.String(),
                         Serdes.Long());
 
-        StoreBuilder<WindowStore<String, Double>> fd03WindowStoreSupplier =
-                Stores.windowStoreBuilder(
-                        Stores.persistentWindowStore("batch-fd03-feature-data",
-                                TimeUnit.DAYS.toMillis(8),
-                                24,
-                                TimeUnit.DAYS.toMillis(7),
-                                true),
-                        Serdes.String(),
-                        Serdes.Double());
+        StoreBuilder<KeyValueStore<Long, String>> fd03WindowStoreSupplier =
+                Stores.keyValueStoreBuilder(
+                        Stores.persistentKeyValueStore("batch-moving-average"),
+                        Serdes.Long(),
+                        Serdes.String());
 
         StoreBuilder<WindowStore<String, String>> fd04WindowStoreSupplier =
                 Stores.windowStoreBuilder(
@@ -95,28 +96,23 @@ public class BatchTraceTaskDef extends AbstractPipeline {
                         Serdes.String(),
                         Serdes.String());
 
-        topology.addSource("input-reload", "pdm-input-reload")
-                .addProcessor("reload", ReloadMetadataProcessor::new, "input-reload");
-
         topology.addSource("input-trace", this.getInputTraceTopic())
-                .addProcessor("batch01", FilterByMasterProcessor::new, "input-trace")
-                .addProcessor("batch02", StatusContextProcessor::new, "batch01")
-                .addStateStore(statusContextStoreSupplier, "batch02")
-                .addProcessor("batch03", AggregateFeatureProcessor::new, "batch02")
-                .addStateStore(summaryWindowStoreSupplier, "batch03")
-                .addStateStore(summaryIntervalStoreSupplier, "batch03")
-                .addSink("output-feature", this.getOutputFeatureTopic(), "batch03")
-                .addSink("route-feature", this.getRouteFeatureTopic(), "batch03");
+                .addProcessor("begin", BeginProcessor::new, "input-trace")
+                .addProcessor("prepare", PrepareDataProcessor::new, "begin")
+                .addStateStore(statusContextStoreSupplier, "prepare")
+                .addStateStore(refershFlagStoreSupplier, "prepare")
+                .addProcessor("aggregate", AggregateFeatureProcessor::new, "prepare")
+                .addStateStore(summaryWindowStoreSupplier, "aggregate")
+                .addStateStore(summaryIntervalStoreSupplier, "aggregate")
+                .addSink("output-feature", this.getOutputFeatureTopic(), "aggregate")
+                .addSink("route-feature", this.getRouteFeatureTopic(), "aggregate");
 
         topology.addSource("input-feature", this.getRouteFeatureTopic())
-                .addProcessor("fd03", TrendChangeProcessor::new, "input-feature")
-                .addStateStore(fd03WindowStoreSupplier, "fd03")
-                //.addProcessor("fd04", PredictRULProcessor::new, "input-feature")
-                //.addStateStore(fd04WindowStoreSupplier, "fd04")
-                .addSink("output-health-fd03", this.getOutputParamHealthTopic(), "fd03")
-                .addSink("route-health-fd03", this.getRouteHealthTopic(), "fd03");
-        //.addSink("output-health-fd04", this.getOutputParamHealthTopic(), "fd04")
-        //.addSink("route-health-fd04", this.getRouteHealthTopic(), "fd04");
+                .addProcessor("begin", BeginProcessor::new, "input-feature")
+                .addProcessor("health", CalculateHealthProcessor::new, "begin")
+                .addStateStore(fd03WindowStoreSupplier, "health")
+                .addStateStore(fd04WindowStoreSupplier, "health")
+                .addSink("output-health", this.getOutputParamHealthTopic(), "health");
 
         return new KafkaStreams(topology, getStreamProperties());
     }

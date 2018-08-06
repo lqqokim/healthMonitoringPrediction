@@ -19,17 +19,6 @@ import java.util.List;
 public class FeatureSummaryDataDao {
     private static final Logger log = LoggerFactory.getLogger(FeatureSummaryDataDao.class);
 
-//    private final static String FEATURE_DS_SQL =
-//            "select " +
-//                    "p.rawid as param_rawid, " +
-//                    "p.name as param_name, " +
-//                    "avg(f.mean) mean, stddev(f.mean) sigma " +
-//                    "from param_mst_pdm p, param_feature_trx_pdm f " +
-//                    "where p.rawid=f.param_mst_rawid " +
-//                    "and f.end_dtts between to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS.FF') " +
-//                    "                   and to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS.FF') " +
-//                    "group by p.rawid, p.name ";
-
     private final static String FEATURE_DS_SQL =
             "select " +
                     "p.rawid as param_rawid, " +

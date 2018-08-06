@@ -49,15 +49,15 @@ public class SpeedTaskDef extends AbstractPipeline {
     private KafkaStreams processStreams() {
         final Topology topology = new Topology();
 
-//        StoreBuilder<KeyValueStore<String, Long>> alarmTimeStoreSupplier =
-//                Stores.keyValueStoreBuilder(
-//                        Stores.inMemoryKeyValueStore("alarm-time-context"),
-//                        Serdes.String(),
-//                        Serdes.Long());
-
         StoreBuilder<KeyValueStore<String, String>> statusStoreSupplier =
                 Stores.keyValueStoreBuilder(
                         Stores.persistentKeyValueStore("speed-status-context"),
+                        Serdes.String(),
+                        Serdes.String());
+
+        StoreBuilder<KeyValueStore<String, String>> refershFlagStoreSupplier =
+                Stores.keyValueStoreBuilder(
+                        Stores.persistentKeyValueStore("speed-cache-refresh"),
                         Serdes.String(),
                         Serdes.String());
 
@@ -89,26 +89,29 @@ public class SpeedTaskDef extends AbstractPipeline {
                         Serdes.String(),
                         Serdes.Integer());
 
-        topology.addSource("input-reload", "pdm-input-reload")
-                .addProcessor("reload", ReloadMetadataProcessor::new, "input-reload");
-
         topology.addSource("input-trace", this.getInputTraceTopic())
-                .addProcessor("speed01", FilterByMasterProcessor::new, "input-trace")
-                .addProcessor("speed02", MarkStatusProcessor::new, "speed01")
-                .addProcessor("speed03", ExtractEventProcessor::new, "speed02")
-                .addStateStore(statusStoreSupplier, "speed02")
-                .addProcessor("fd0102", DetectFaultProcessor::new, "speed02")
-                .addStateStore(paramValueStoreSupplier, "fd0102")
-                .addStateStore(sumIntervalStoreSupplier, "fd0102")
-                .addStateStore(alarmCountStoreSupplier, "fd0102")
-                .addStateStore(warningCountStoreSupplier, "fd0102")
-                .addProcessor("sendmail", SendMailProcessor::new, "fd0102")
-                .addSink("output-trace", this.getOutputTraceTopic(), "speed02")
-                .addSink("output-event", this.getOutputEventTopic(), "speed03")
-                .addSink("output-raw", this.getInputTimewaveTopic(), "fd0102")
-                .addSink("route-health", this.getRouteHealthTopic(), "fd0102")
-                .addSink("output-fault", this.getOutputFaultTopic(), "fd0102")
-                .addSink("output-health", this.getOutputParamHealthTopic(), "fd0102");
+                .addProcessor("begin", BeginProcessor::new, "input-trace")
+                .addProcessor("prepare", PrepareDataProcessor::new, "begin")
+                .addStateStore(statusStoreSupplier, "prepare")
+                .addStateStore(refershFlagStoreSupplier, "prepare")
+                .addProcessor("event", ExtractEventProcessor::new, "prepare")
+                .addProcessor("fault", DetectFaultProcessor::new, "prepare")
+                .addStateStore(paramValueStoreSupplier, "fault")
+                .addStateStore(sumIntervalStoreSupplier, "fault")
+                .addStateStore(alarmCountStoreSupplier, "fault")
+                .addStateStore(warningCountStoreSupplier, "fault")
+
+                .addProcessor("refresh", RefreshCacheProcessor::new, "fault")
+                .addProcessor("mail", SendMailProcessor::new, "fault")
+
+                .addSink("output-trace", this.getOutputTraceTopic(), "prepare")
+                .addSink("output-event", this.getOutputEventTopic(), "event")
+
+                .addSink("output-raw", this.getInputTimewaveTopic(), "fault")
+                .addSink("route-health", this.getRouteHealthTopic(), "fault")
+                .addSink("output-fault", this.getOutputFaultTopic(), "fault")
+                .addSink("output-health", this.getOutputParamHealthTopic(), "fault")
+                .addSink("output-refresh", this.getOutputReloadTopic(), "refresh");
 
         return new KafkaStreams(topology, getStreamProperties());
     }

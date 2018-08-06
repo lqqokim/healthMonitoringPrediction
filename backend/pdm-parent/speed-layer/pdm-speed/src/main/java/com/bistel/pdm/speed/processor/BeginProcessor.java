@@ -1,16 +1,17 @@
 package com.bistel.pdm.speed.processor;
 
-import com.bistel.pdm.lambda.kafka.master.MasterDataCache;
 import org.apache.kafka.streams.processor.AbstractProcessor;
 import org.apache.kafka.streams.processor.ProcessorContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.SimpleDateFormat;
+
 /**
- * Filter by master info.
+ * start point on speed.
  */
-public class FilterByMasterProcessor extends AbstractProcessor<String, byte[]> {
-    private static final Logger log = LoggerFactory.getLogger(FilterByMasterProcessor.class);
+public class BeginProcessor extends AbstractProcessor<String, byte[]> {
+    private static final Logger log = LoggerFactory.getLogger(BeginProcessor.class);
 
     @Override
     public void init(ProcessorContext context) {
@@ -19,11 +20,13 @@ public class FilterByMasterProcessor extends AbstractProcessor<String, byte[]> {
 
     @Override
     public void process(String partitionKey, byte[] streamByteRecord) {
-        if (!MasterDataCache.getInstance().getEqpMasterDataSet().containsKey(partitionKey)) {
-            log.info("[{}] - Not existed.", partitionKey);
-        } else {
+        try {
+            String ts = new SimpleDateFormat("MM-dd HH:mm:ss.SSS").format(context().timestamp());
+            log.debug("[{}] - time : {}, partition : {}", partitionKey, ts, context().partition());
             context().forward(partitionKey, streamByteRecord);
             context().commit();
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
         }
     }
 }

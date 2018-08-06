@@ -14,8 +14,8 @@ import java.util.List;
 /**
  *
  */
-public class ParamHealthTrxDao implements HealthDataDao {
-    private static final Logger log = LoggerFactory.getLogger(ParamHealthTrxDao.class);
+public class ParamHealthTrxPostgreDao implements HealthDataDao {
+    private static final Logger log = LoggerFactory.getLogger(ParamHealthTrxPostgreDao.class);
 
     private static final String TRX_SEQ_SQL = "select nextval from nextval('seq_param_health_trx_pdm')";
 

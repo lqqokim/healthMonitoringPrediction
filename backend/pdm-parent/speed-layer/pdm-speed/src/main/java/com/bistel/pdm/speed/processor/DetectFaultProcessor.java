@@ -3,15 +3,15 @@ package com.bistel.pdm.speed.processor;
 import com.bistel.pdm.common.collection.Pair;
 import com.bistel.pdm.common.json.ParameterHealthDataSet;
 import com.bistel.pdm.common.json.ParameterMasterDataSet;
-import com.bistel.pdm.lambda.kafka.master.MasterDataCache;
-import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import com.bistel.pdm.lambda.kafka.master.MasterCache;
+import com.bistel.pdm.speed.Function.OutOfSpecFunction;
+import com.bistel.pdm.speed.Function.SPCRuleFunction;
 import org.apache.kafka.streams.KeyValue;
-import org.apache.kafka.streams.kstream.Windowed;
 import org.apache.kafka.streams.processor.AbstractProcessor;
 import org.apache.kafka.streams.processor.ProcessorContext;
-import org.apache.kafka.streams.state.KeyValueIterator;
 import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.state.WindowStore;
+import org.apache.kafka.streams.state.WindowStoreIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,8 +19,8 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 /**
  * fault detection
@@ -36,7 +36,7 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
     private int outCount = 3;
 
     private WindowStore<String, String> kvParamValueStore;
-    private KeyValueStore<String, Long> kvIntervalStore;
+    private KeyValueStore<String, Long> kvTimeInIntervalStore;
     private KeyValueStore<String, Integer> kvAlarmCountStore;
     private KeyValueStore<String, Integer> kvWarningCountStore;
 
@@ -46,7 +46,7 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
         super.init(processorContext);
 
         kvParamValueStore = (WindowStore) context().getStateStore("speed-param-value");
-        kvIntervalStore = (KeyValueStore) context().getStateStore("speed-process-interval");
+        kvTimeInIntervalStore = (KeyValueStore) context().getStateStore("speed-process-interval");
         kvAlarmCountStore = (KeyValueStore) context().getStateStore("speed-alarm-count");
         kvWarningCountStore = (KeyValueStore) context().getStateStore("speed-warning-count");
     }
@@ -54,118 +54,177 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
     @Override
     public void process(String partitionKey, byte[] streamByteRecord) {
         String recordValue = new String(streamByteRecord);
-        // time, p1, p2, p3, p4, ... pn, status:time, prev:time
-        String[] recordColumns = recordValue.split(SEPARATOR);
-
-        List<ParameterMasterDataSet> paramData =
-                MasterDataCache.getInstance().getParamMasterDataSet().get(partitionKey);
-
-        if (paramData == null) {
-            log.debug("[{}] - There are no registered the parameter.", partitionKey);
-            return;
-        }
+        // time, P1, P2, P3, P4, ... Pn, now status:time, prev status:time, refresh flag
+        String[] recordColumns = recordValue.split(SEPARATOR, -1);
 
         try {
-            String statusCodeAndTime = recordColumns[recordColumns.length - 2];
+            List<ParameterMasterDataSet> paramList = MasterCache.Parameter.get(partitionKey);
+            if (paramList == null) return;
+
+            String statusCodeAndTime = recordColumns[recordColumns.length - 3];
             String[] nowStatusCodeAndTime = statusCodeAndTime.split(":");
 
-            String prevStatusAndTime = recordColumns[recordColumns.length - 1];
+            String prevStatusAndTime = recordColumns[recordColumns.length - 2];
             String[] prevStatusCodeAndTime = prevStatusAndTime.split(":");
 
-            if (kvIntervalStore.get(partitionKey) == null) {
-                kvIntervalStore.put(partitionKey, Long.parseLong(nowStatusCodeAndTime[1]));
+            if (kvTimeInIntervalStore.get(partitionKey) == null) {
+                kvTimeInIntervalStore.put(partitionKey, Long.parseLong(nowStatusCodeAndTime[1]));
             }
 
             // idle -> run
             if (prevStatusCodeAndTime[0].equalsIgnoreCase("I")
-                    && !prevStatusCodeAndTime[0].equalsIgnoreCase(nowStatusCodeAndTime[0])) {
+                    && nowStatusCodeAndTime[0].equalsIgnoreCase("R")) {
 
-                kvIntervalStore.put(partitionKey, Long.parseLong(nowStatusCodeAndTime[1]));
+                kvTimeInIntervalStore.put(partitionKey, Long.parseLong(nowStatusCodeAndTime[1]));
             }
 
             // processing
-            if (prevStatusCodeAndTime[0].equalsIgnoreCase("R")) {
+            if (nowStatusCodeAndTime[0].equalsIgnoreCase("R")) {
                 // check OOS
-                for (ParameterMasterDataSet paramMaster : paramData) {
-                    if (paramMaster.getParamParseIndex() <= 0) continue;
+                for (ParameterMasterDataSet paramInfo : paramList) {
+                    if (paramInfo.getParamParseIndex() <= 0) continue;
 
-                    String paramKey = partitionKey + ":" + paramMaster.getParameterRawId();
-
-                    ParameterHealthDataSet fd01HealthInfo =
-                            MasterDataCache.getInstance().getParamHealthFD01(paramMaster.getParameterRawId());
-
-                    Double paramValue = Double.parseDouble(recordColumns[paramMaster.getParamParseIndex()]);
-
+                    Double paramValue = Double.parseDouble(recordColumns[paramInfo.getParamParseIndex()]);
+                    String paramKey = partitionKey + ":" + paramInfo.getParameterRawId();
                     Long time = parseStringToTimestamp(recordColumns[0]);
                     kvParamValueStore.put(paramKey, time + "," + paramValue, time);
 
-                    if (fd01HealthInfo != null && fd01HealthInfo.getApplyLogicYN().equalsIgnoreCase("Y")) {
-                        checkOutOfSpec(paramKey, partitionKey, recordColumns, paramMaster, fd01HealthInfo, paramValue);
+                    ParameterHealthDataSet fd01Health = getParamHealth(paramInfo.getParameterRawId(), "FD_OOS");
+                    if (fd01Health != null && fd01Health.getApplyLogicYN().equalsIgnoreCase("Y")) {
+
+                        if (OutOfSpecFunction.evaluateAlarm(paramInfo, paramValue)) {
+                            // Alarm
+                            if (kvAlarmCountStore.get(paramKey) == null) {
+                                kvAlarmCountStore.put(paramKey, 1);
+                            } else {
+                                int cnt = kvAlarmCountStore.get(paramKey);
+                                kvAlarmCountStore.put(paramKey, cnt + 1);
+                            }
+
+                            String msg = OutOfSpecFunction.makeOutOfAlarmMsg(recordColumns[0], paramInfo, fd01Health, paramValue);
+                            context().forward(partitionKey, msg.getBytes(), "output-fault");
+
+                            log.debug("[{}] - alarm spec : {}, value : {}", paramKey, paramInfo.getUpperAlarmSpec(), paramValue);
+
+
+                        } else if (OutOfSpecFunction.evaluateWarning(paramInfo, paramValue)) {
+                            //warning
+                            if (kvWarningCountStore.get(paramKey) == null) {
+                                kvWarningCountStore.put(paramKey, 1);
+                            } else {
+                                int cnt = kvWarningCountStore.get(paramKey);
+                                kvWarningCountStore.put(paramKey, cnt + 1);
+                            }
+
+                            String msg = OutOfSpecFunction.makeOutOfWarningMsg(recordColumns[0], paramInfo, fd01Health, paramValue);
+                            context().forward(partitionKey, msg.getBytes(), "output-fault");
+
+                            log.debug("[{}] - warning spec : {}, value : {}", paramKey, paramInfo.getUpperWarningSpec(), paramValue);
+
+                        }
                     } else {
-                        log.trace("[{}] - No health because skip the logic 1.", paramKey);
+                        //log.debug("[{}] - No health because skip the logic 1.", paramKey);
                     }
                 }
             }
 
             // run -> idle
             if (prevStatusCodeAndTime[0].equalsIgnoreCase("R")
-                    && !prevStatusCodeAndTime[0].equalsIgnoreCase(nowStatusCodeAndTime[0])) {
+                    && nowStatusCodeAndTime[0].equalsIgnoreCase("I")) {
 
-                Long startTime = kvIntervalStore.get(partitionKey);
+                Long startTime = kvTimeInIntervalStore.get(partitionKey);
                 Long endTime = Long.parseLong(prevStatusCodeAndTime[1]);
 
-                log.debug("[{}] - processing interval from {} to {}.", partitionKey, startTime, endTime);
+//                String sts = new SimpleDateFormat("MMdd HH:mm:ss.SSS").format(new Timestamp(startTime));
+//                String ets = new SimpleDateFormat("MMdd HH:mm:ss.SSS").format(new Timestamp(endTime));
+//                log.debug("[{}] - processing interval from {} to {}.", partitionKey, sts, ets);
 
-                HashMap<String, List<String>> paramValueList = new HashMap<>();
+                for (ParameterMasterDataSet paramInfo : paramList) {
+                    if (paramInfo.getParamParseIndex() <= 0) continue;
 
-                KeyValueIterator<Windowed<String>, String> storeIterator = kvParamValueStore.fetchAll(startTime, endTime);
-                while (storeIterator.hasNext()) {
-                    KeyValue<Windowed<String>, String> kv = storeIterator.next();
+                    String paramKey = partitionKey + ":" + paramInfo.getParameterRawId();
 
-                    //log.debug("[{}] - fetch : {}", kv.key.key(), kv.value);
+                    ParameterHealthDataSet fd02Health = getParamHealth(paramInfo.getParameterRawId(), "FD_RULE_1");
+                    if (fd02Health != null && fd02Health.getApplyLogicYN().equalsIgnoreCase("Y")
+                            && paramInfo.getUpperAlarmSpec() != null) {
 
-                    if (!paramValueList.containsKey(kv.key.key())) {
-                        ArrayList<String> arrValue = new ArrayList<>();
-                        arrValue.add(kv.value);
-                        paramValueList.put(kv.key.key(), arrValue);
-                    } else {
-                        List<String> arrValue = paramValueList.get(kv.key.key());
-                        arrValue.add(kv.value);
-                    }
-                }
+                        for (Pair<String, Integer> option : getParamHealthFD02Options(paramInfo.getParameterRawId())) {
 
-                for (ParameterMasterDataSet paramMaster : paramData) {
-                    if (paramMaster.getParamParseIndex() <= 0) continue;
-
-                    String paramKey = partitionKey + ":" + paramMaster.getParameterRawId();
-
-                    ParameterHealthDataSet fd02HealthInfo =
-                            MasterDataCache.getInstance().getParamHealthFD02(paramMaster.getParameterRawId());
-
-                    if (fd02HealthInfo != null && fd02HealthInfo.getApplyLogicYN().equalsIgnoreCase("Y")) {
-                        List<String> doubleValueList = paramValueList.get(paramKey);
-                        if (doubleValueList == null) {
-                            log.debug("[{}] - Unable to check spec...", paramKey);
-                            continue;
-                        }
-                        //log.debug("[{}] - window data size : {}", paramKey, doubleValueList.size());
-
-                        for(Pair<String, Integer> option :
-                                MasterDataCache.getInstance().getParamHealthFD02Options(paramMaster.getParameterRawId())){
-
-                            if(option.getFirst().equalsIgnoreCase("M")){
-                                this.windowSize = option.getSecond();
+                            if (option != null) {
+                                if (option.getFirst().equalsIgnoreCase("M")) {
+                                    this.windowSize = option.getSecond();
+                                } else {
+                                    this.outCount = option.getSecond();
+                                }
                             } else {
-                                this.outCount = option.getSecond();
+                                log.debug("[{}] - option does not exist.", paramKey);
                             }
                         }
 
-                        // check spc rule
-                        this.evaluateRule(partitionKey, paramKey, doubleValueList, endTime, paramMaster, fd02HealthInfo);
+                        List<Double> doubleValueList = new ArrayList<>();
+                        WindowStoreIterator<String> storeIterator = kvParamValueStore.fetch(paramKey, startTime, endTime);
+                        while (storeIterator.hasNext()) {
+                            KeyValue<Long, String> kv = storeIterator.next();
+                            String[] strValue = kv.value.split(",");
+                            Double paramValue = Double.parseDouble(strValue[1]);
+                            doubleValueList.add(paramValue);
+                        }
+                        storeIterator.close();
 
+
+                        if (existAlarm(paramKey)) {
+
+                            List<Double> outValues = SPCRuleFunction.evaluateAlarm(paramInfo, doubleValueList, windowSize, outCount);
+                            if (outValues.size() > 0) {
+                                String msgRuleAlarm = SPCRuleFunction.makeOutOfRuleMsg(endTime, paramInfo, fd02Health, outValues.size(), "256");
+
+                                context().forward(partitionKey, msgRuleAlarm.getBytes(), "output-fault");
+                                log.debug("[{}] - Rule based alarm detection : {}", paramKey, outValues.size());
+
+                                // Logic 2 health with alarm
+                                Double healthScore = SPCRuleFunction.calcuateHealth(paramInfo, outValues);
+
+                                String msgHealth = SPCRuleFunction.makeHealthMsg(endTime, "A", paramInfo, fd02Health, healthScore, outValues.size());
+
+                                context().forward(partitionKey, msgHealth.getBytes(), "route-health");
+                                context().forward(partitionKey, msgHealth.getBytes(), "output-health");
+
+                                log.debug("[{}] - calculate the logic-2 health with alarm : {}", paramKey, msgHealth);
+                            }
+
+                        } else if (existWarning(paramKey)) {
+
+                            List<Double> outValues = SPCRuleFunction.evaluateWarning(paramInfo, doubleValueList, windowSize, outCount);
+                            if (outValues.size() > 0) {
+                                String msgRuleAlarm = SPCRuleFunction.makeOutOfRuleMsg(endTime, paramInfo, fd02Health, outValues.size(), "128");
+
+                                context().forward(partitionKey, msgRuleAlarm.getBytes(), "output-fault");
+                                log.debug("[{}] - Rule based warning detection : {}", paramKey, outValues.size());
+
+                                // to do : calculate health for warning.
+
+                            }
+
+                        } else {
+                            // Logic 2 health without alarm, warning - If no alarm goes off, calculate the average of the intervals.
+                            Double healthScore = SPCRuleFunction.calcuateHealth(paramInfo, doubleValueList);
+
+                            String msg = SPCRuleFunction.makeHealthMsg(endTime, "N", paramInfo, fd02Health, healthScore, doubleValueList.size());
+
+                            context().forward(partitionKey, msg.getBytes(), "route-health");
+                            context().forward(partitionKey, msg.getBytes(), "output-health");
+
+                            log.debug("[{}] - calculate the logic-2 health without alarm : {}", paramKey, msg);
+                        }
                     } else {
-                        log.trace("[{}] - No health because skip the logic 2.", paramKey);
+                        //log.debug("[{}] - No health or Spec because skip the logic 2.", paramKey);
                     }
+                }
+
+                String flag = recordColumns[recordColumns.length - 1];
+                if(flag.equalsIgnoreCase("CRC")){
+                    String msg = endTime + "," + "CRC";
+                    context().forward(partitionKey, msg.getBytes(), "refresh");
                 }
             }
         } catch (Exception e) {
@@ -183,293 +242,6 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
         return kvWarningCountStore.get(paramKey) != null && kvWarningCountStore.get(paramKey) > 0;
     }
 
-    private void checkOutOfSpec(String paramKey, String partitionKey, String[] recordColumns,
-                                ParameterMasterDataSet param, ParameterHealthDataSet healthData,
-                                Double paramValue) {
-
-        log.trace("[{}] : check the out of individual spec. - {}", paramKey, paramValue);
-        if ((param.getUpperAlarmSpec() != null && paramValue >= param.getUpperAlarmSpec())
-                || (param.getLowerAlarmSpec() != null && paramValue <= param.getLowerAlarmSpec())) {
-            // Alarm
-            if (kvAlarmCountStore.get(paramKey) == null) {
-                kvAlarmCountStore.put(paramKey, 1);
-            } else {
-                int cnt = kvAlarmCountStore.get(paramKey);
-                kvAlarmCountStore.put(paramKey, cnt + 1);
-            }
-
-            // time, param_rawid, health_rawid, value, alarm type, alarm_spec, warning_spec, fault_class
-            String sb = parseStringToTimestamp(recordColumns[0]) + "," +
-                    param.getParameterRawId() + "," +
-                    healthData.getParamHealthRawId() + ',' +
-                    paramValue + "," +
-                    "256" + "," +
-                    param.getUpperAlarmSpec() + "," +
-                    param.getUpperWarningSpec() + "," +
-                    "N/A";
-
-            // fault classifications
-            if (param.getParameterType().equalsIgnoreCase("Acceleration") ||
-                    param.getParameterType().equalsIgnoreCase("Velocity") ||
-                    param.getParameterType().equalsIgnoreCase("Enveloping")) {
-
-                log.debug("[{}] - fault classification : ", paramKey);
-
-            }
-
-            context().forward(partitionKey, sb.getBytes(), "output-fault");
-            log.debug("[{}] - ALARM (UAL:{}, LAL:{}) - {}", paramKey,
-                    param.getUpperAlarmSpec(), param.getLowerAlarmSpec(), paramValue);
-
-            //send mail
-                /*
-                    - Equipment ID: EQP01
-                    - Time: 2018.07.06 15:00:01
-                    - Alarm/Warning: Alarm
-                    - Parameter Name: Vibration
-                    - Parameter Value: 0.51
-                    - Parameter Spec: 0.40
-                    - Fault Classification : Unbalance
-                 */
-//            String mailText = "" + "\n" +
-//                    "- Equipment ID : " + paramKey + "\n" +
-//                    "- Time : " + recordColumns[0] + "\n" +
-//                    "- Alarm/Warning : Alarm" + "\n" +
-//                    "- Parameter Name : " + param.getParameterName() + "\n" +
-//                    "- Parameter Value : " + paramValue + "\n" +
-//                    "- Parameter Spec : " + param.getUpperAlarmSpec() + "\n" +
-//                    "- Fault Classification : Unbalance";
-//
-//            log.debug("[{}] - send mail");
-//            context().forward(partitionKey, mailText.getBytes(), "sendmail");
-
-//            log.debug("[{}] - collecting the raw data.");
-//            //context().forward(partitionKey, streamByteRecord, "output-raw");
-
-        } else if ((param.getUpperWarningSpec() != null && paramValue >= param.getUpperWarningSpec())
-                || (param.getLowerWarningSpec() != null && paramValue <= param.getLowerWarningSpec())) {
-            //warning
-            if (kvWarningCountStore.get(paramKey) == null) {
-                kvWarningCountStore.put(paramKey, 1);
-            } else {
-                int cnt = kvWarningCountStore.get(paramKey);
-                kvWarningCountStore.put(paramKey, cnt + 1);
-            }
-
-            // time, param_rawid, health_rawid, value, alarm type, alarm_spec, warning_spec, fault_class
-            String sb = parseStringToTimestamp(recordColumns[0]) + "," +
-                    param.getParameterRawId() + "," +
-                    healthData.getParamHealthRawId() + ',' +
-                    paramValue + "," +
-                    "128" + "," +
-                    param.getUpperAlarmSpec() + "," +
-                    param.getUpperWarningSpec() + "," +
-                    "N/A";
-
-//                    String mailText = "" + "\n" +
-//                            "- Equipment ID : " + paramKey + "\n" +
-//                            "- Time : " + recordColumns[0] + "\n" +
-//                            "- Alarm/Warning : Warning" + "\n" +
-//                            "- Parameter Name : " + param.getParameterName() + "\n" +
-//                            "- Parameter Value : " + paramValue + "\n" +
-//                            "- Parameter Spec : " + param.getUpperAlarmSpec() + "\n" +
-//                            "- Fault Classification : Unbalance";
-//
-//                    context().forward(partitionKey, mailText.getBytes(), "sendmail");
-
-            context().forward(partitionKey, sb.getBytes(), "output-fault");
-            log.debug("[{}] - WARNING (UWL:{}, LWL:{}) - {}", paramKey,
-                    param.getUpperWarningSpec(), param.getLowerWarningSpec(), paramValue);
-
-        }
-    }
-
-    private void evaluateRule(String partitionKey, String paramKey, List<String> paramValues, Long ruleTime,
-                              ParameterMasterDataSet paramMaster, ParameterHealthDataSet fd02HealthInfo) {
-
-        ArrayList<Double> specOutValue = new ArrayList<>();
-        List<Double> slidingWindow = new ArrayList<>(windowSize);
-
-        if (existAlarm(paramKey)) {
-            // alarm
-            int totalAlarmCount = 0;
-            for (int i = 0; i < paramValues.size(); i++) {
-                String[] strValue = paramValues.get(i).split(",");
-                //Long timeValue = Long.parseLong(strValue[0]);
-                Double paramValue = Double.parseDouble(strValue[1]);
-
-                if (slidingWindow.size() == windowSize) {
-                    //check alarm
-                    int alarmCount = 0;
-                    for (Double dValue : slidingWindow) {
-                        if ((paramMaster.getUpperAlarmSpec() != null && dValue >= paramMaster.getUpperAlarmSpec())
-                                || (paramMaster.getLowerAlarmSpec() != null && dValue <= paramMaster.getLowerAlarmSpec())) {
-
-                            alarmCount++;
-                            specOutValue.add(dValue);
-                        }
-                    }
-
-                    //log.debug("[{}] - window : {} ", paramKey, slidingWindow.toArray());
-
-                    if (alarmCount > outCount) {
-                        totalAlarmCount++;
-                        slidingWindow.clear();
-                    } else {
-                        // remove last one
-                        slidingWindow.remove(0);
-                    }
-                }
-                // add new value
-                slidingWindow.add(paramValue);
-            }
-
-            if (totalAlarmCount > 0) {
-                // is alarm
-                // time, param_rawid, health_rawid, value, alarm type, alarm_spec, warning_spec, fault_class
-                String sb = ruleTime + "," +
-                        paramMaster.getParameterRawId() + "," +
-                        fd02HealthInfo.getParamHealthRawId() + ',' +
-                        totalAlarmCount + "," +
-                        "256" + "," +
-                        paramMaster.getUpperAlarmSpec() + "," +
-                        paramMaster.getUpperWarningSpec() + "," +
-                        "N/A";
-
-                // fault classifications
-                if (paramMaster.getParameterType().equalsIgnoreCase("Acceleration") ||
-                        paramMaster.getParameterType().equalsIgnoreCase("Velocity") ||
-                        paramMaster.getParameterType().equalsIgnoreCase("Enveloping")) {
-
-                    log.debug("[{}] - fault classification : ", paramKey);
-
-                }
-
-                context().forward(partitionKey, sb.getBytes(), "output-fault");
-                log.debug("[{}] - ALARM by Rule - detected {} cases.", paramKey, totalAlarmCount);
-
-                // ==========================================================================================
-                // Logic 2 health with alarm
-                DescriptiveStatistics stats = new DescriptiveStatistics();
-                for (Double val : specOutValue) {
-                    stats.addValue(val);
-                }
-
-                Double index = (stats.getMean() / paramMaster.getUpperAlarmSpec());
-
-                String statusCode = "N";
-
-                if (totalAlarmCount >= 1) {
-                    statusCode = "A";
-                } else if (totalAlarmCount < 1) {
-                    statusCode = "W";
-                }
-
-                String newMsg = ruleTime + ","
-                        + paramMaster.getEquipmentRawId() + ","
-                        + paramMaster.getParameterRawId() + ","
-                        + fd02HealthInfo.getParamHealthRawId() + ','
-                        + statusCode + ","
-                        + totalAlarmCount + ","
-                        + index; //+ "," + fd02HealthInfo.getHealthLogicRawId();
-
-                context().forward(partitionKey, newMsg.getBytes(), "route-health");
-                context().forward(partitionKey, newMsg.getBytes(), "output-health");
-
-                log.debug("[{}] - logic 2 health with alarm : {}", paramKey, newMsg);
-            } else {
-                // ==========================================================================================
-                // Logic 2 health without alarm - If no alarm goes off, calculate the average of the intervals.
-
-                DescriptiveStatistics stats = new DescriptiveStatistics();
-
-                for (int i = 0; i < paramValues.size(); i++) {
-                    String[] strValue = paramValues.get(i).split(",");
-                    Double paramValue = Double.parseDouble(strValue[1]);
-
-                    stats.addValue(paramValue);
-                }
-
-                Double index = (stats.getMean() / paramMaster.getUpperAlarmSpec());
-
-                String statusCode = "N";
-
-                if (totalAlarmCount >= 1) {
-                    statusCode = "A";
-                } else if (totalAlarmCount < 1) {
-                    statusCode = "W";
-                }
-
-                String newMsg = ruleTime + ","
-                        + paramMaster.getEquipmentRawId() + ","
-                        + paramMaster.getParameterRawId() + ","
-                        + fd02HealthInfo.getParamHealthRawId() + ','
-                        + statusCode + ","
-                        + paramValues.size() + ","
-                        + index; // + "," + fd02HealthInfo.getHealthLogicRawId();
-
-                context().forward(partitionKey, newMsg.getBytes(), "route-health");
-                context().forward(partitionKey, newMsg.getBytes(), "output-health");
-
-                log.debug("[{}] - logic 2 health without alarm : {}", paramKey, newMsg);
-            }
-
-        } else if (existWarning(paramKey)) {
-            // warning
-            int totalWarningCount = 0;
-            for (int i = 0; i < paramValues.size(); i++) {
-                String[] strValue = paramValues.get(i).split(",");
-                Double paramValue = Double.parseDouble(strValue[1]);
-
-                if (slidingWindow.size() == windowSize) {
-                    //check warning
-                    int warningCount = 0;
-                    for (Double dValue : slidingWindow) {
-                        if ((paramMaster.getUpperWarningSpec() != null && dValue >= paramMaster.getUpperWarningSpec())
-                                || (paramMaster.getLowerWarningSpec() != null && dValue <= paramMaster.getLowerWarningSpec())) {
-
-                            warningCount++;
-                            specOutValue.add(dValue);
-                        }
-                    }
-
-                    if (warningCount > outCount) {
-                        totalWarningCount++;
-                        slidingWindow.clear();
-                    } else {
-                        // remove last one
-                        slidingWindow.remove(0);
-                    }
-                }
-                // add new value
-                slidingWindow.add(paramValue);
-            }
-
-            if (totalWarningCount > 0) {
-                // is alarm
-                // time, param_rawid, health_rawid, value, alarm type, alarm_spec, warning_spec, fault_class
-                String sb = ruleTime + "," +
-                        paramMaster.getParameterRawId() + "," +
-                        fd02HealthInfo.getParamHealthRawId() + ',' +
-                        totalWarningCount + "," +
-                        "128" + "," +
-                        paramMaster.getUpperAlarmSpec() + "," +
-                        paramMaster.getUpperWarningSpec() + "," +
-                        "N/A";
-
-                // to do : fault classifications
-
-                context().forward(partitionKey, sb.getBytes(), "output-fault");
-                log.debug("[{}] - WARNING by Rule - detected {} cases.", paramKey, totalWarningCount);
-
-                // to do : logic 2 for warning
-            }
-
-        } else {
-            log.debug("{} is normal.", paramKey);
-        }
-    }
-
     private static Long parseStringToTimestamp(String item) {
         Long time = 0L;
 
@@ -482,5 +254,30 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
         }
 
         return time;
+    }
+
+    private ParameterHealthDataSet getParamHealth(Long key, String code) throws ExecutionException {
+        ParameterHealthDataSet healthData = null;
+
+        for (ParameterHealthDataSet health : MasterCache.Health.get(key)) {
+            if (health.getHealthCode().equalsIgnoreCase(code)) {
+                healthData = health;
+                break;
+            }
+        }
+
+        return healthData;
+    }
+
+    public List<Pair<String, Integer>> getParamHealthFD02Options(Long key) throws ExecutionException {
+        List<Pair<String, Integer>> optionList = new ArrayList<>();
+
+        for (ParameterHealthDataSet health : MasterCache.Health.get(key)) {
+            if (health.getHealthCode().equalsIgnoreCase("FD_RULE_1")) {
+                optionList.add(new Pair<>(health.getOptionName(), health.getOptionValue()));
+            }
+        }
+
+        return optionList;
     }
 }

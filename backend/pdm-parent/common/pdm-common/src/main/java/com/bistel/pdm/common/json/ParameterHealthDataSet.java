@@ -37,6 +37,9 @@ public class ParameterHealthDataSet {
     @JsonProperty("applyLogicYN")
     private String applyLogicYN;
 
+    @JsonProperty("equipmentName")
+    private String equipmentName;
+
     public Long toKey() {
         return this.paramRawId;
     }
@@ -119,5 +122,13 @@ public class ParameterHealthDataSet {
 
     public void setApplyLogicYN(String applyLogicYN) {
         this.applyLogicYN = applyLogicYN;
+    }
+
+    public String getEquipmentName() {
+        return equipmentName;
+    }
+
+    public void setEquipmentName(String equipmentName) {
+        this.equipmentName = equipmentName;
     }
 }

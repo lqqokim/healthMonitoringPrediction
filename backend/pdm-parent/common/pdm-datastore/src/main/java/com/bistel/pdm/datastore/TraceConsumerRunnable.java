@@ -21,7 +21,7 @@ public class TraceConsumerRunnable implements Runnable {
     private final KafkaConsumer<String, byte[]> consumer;
     private final String topicName;
 
-    private final static int PollingDurations = 1; // sec.
+    private final static int PollingDurations = 5; // sec.
 
     private SensorTraceDataDao trxDao;
 

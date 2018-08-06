@@ -5,7 +5,7 @@ import com.bistel.pdm.common.json.ParameterMasterDataSet;
 import com.bistel.pdm.datastore.jdbc.DataSource;
 import com.bistel.pdm.datastore.jdbc.dao.SensorTraceDataDao;
 import com.bistel.pdm.datastore.model.SensorTraceData;
-import com.bistel.pdm.lambda.kafka.master.MasterDataCache;
+import com.bistel.pdm.lambda.kafka.master.MasterCache;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.slf4j.Logger;
@@ -76,6 +76,8 @@ public class SensorTraceTrxDao implements SensorTraceDataDao {
 
                 int totalCount = 0;
                 int batchCount = 0;
+                Timestamp ts = null;
+
                 for (ConsumerRecord<String, byte[]> record : records) {
                     //log.debug("offset={}, key={}, value={}", record.offset(), record.key(), record.value());
 
@@ -85,26 +87,29 @@ public class SensorTraceTrxDao implements SensorTraceDataDao {
                     // time, p1, p2, p3, p4, ... pn, status:time, prev:time
                     String[] values = valueString.split(",");
 
-                    List<ParameterMasterDataSet> paramData =
-                            MasterDataCache.getInstance().getParamMasterDataSet().get(record.key());
+                    List<ParameterMasterDataSet> paramData = MasterCache.Parameter.get(record.key());
+
+                    if (paramData == null) {
+                        log.debug("[{}] - parameter does not existed.", record.key());
+                        return;
+                    }
+
                     log.debug("{} - {} parameters", record.key(), paramData.size());
 
                     for (ParameterMasterDataSet param : paramData) {
 
-                        if(param.getParamParseIndex() == -1) continue;
+                        if (param.getParamParseIndex() == -1) continue;
 
                         pstmt.setLong(1, param.getParameterRawId()); //param rawid
 
                         String strValue = values[param.getParamParseIndex()];
-                        if(strValue.length() <= 0){
+                        if (strValue.length() <= 0) {
                             log.debug("key:{}, param:{}, index:{} - value is empty.",
                                     record.key(), param.getParameterName(), param.getParamParseIndex());
                             pstmt.setFloat(2, Types.FLOAT); //value
                         } else {
                             pstmt.setFloat(2, Float.parseFloat(strValue)); //value
                         }
-
-                        pstmt.setFloat(2, Float.parseFloat(strValue)); //value
 
                         if (param.getUpperAlarmSpec() != null) {
                             pstmt.setFloat(3, param.getUpperAlarmSpec()); //upper alarm spec
@@ -141,7 +146,8 @@ public class SensorTraceTrxDao implements SensorTraceDataDao {
                         String[] nowStatusCodeAndTime = statusCodeAndTime.split(":");
                         pstmt.setString(5, nowStatusCodeAndTime[0]);
 
-                        pstmt.setTimestamp(6, getTimeStampFromString(values[0]));
+                        ts = getTimeStampFromString(values[0]);
+                        pstmt.setTimestamp(6, ts);
 
                         pstmt.setNull(7, Types.VARCHAR);
                         pstmt.setNull(8, Types.VARCHAR);
@@ -167,7 +173,8 @@ public class SensorTraceTrxDao implements SensorTraceDataDao {
                 }
 
                 conn.commit();
-                log.debug("{} records are inserted into TRACE_TRX_PDM.", totalCount);
+                String timeStamp = new SimpleDateFormat("MMdd HH:mm:ss.SSS").format(ts);
+                log.debug("[{}] - {} records are inserted into TRACE_TRX_PDM.", timeStamp, totalCount);
 
             } catch (Exception e) {
                 conn.rollback();
