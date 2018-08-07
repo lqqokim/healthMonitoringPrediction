@@ -72,7 +72,7 @@ public class BatchFeatureTaskDef extends AbstractPipeline {
                 .addProcessor("health", CalculateHealthProcessor::new, "begin")
                 .addStateStore(fd03WindowStoreSupplier, "health")
                 .addStateStore(fd04WindowStoreSupplier, "health")
-                .addSink("output-health", this.getOutputParamHealthTopic(), "health");
+                .addSink("output-health", this.getOutputHealthTopic(), "health");
 
         return new KafkaStreams(topology, getStreamProperties());
     }

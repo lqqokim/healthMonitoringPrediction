@@ -27,12 +27,10 @@ public abstract class AbstractPipeline implements Closeable {
     private final String outputTimewaveTopic = "pdm-output-raw";
     private final String outputFeatureTopic = "pdm-output-feature";
     private final String outputFaultTopic = "pdm-output-fault";
-    private final String outputParamHealthTopic = "pdm-output-param-health";
-    private final String outputEQPHealthTopic = "pdm-output-eqp-health";
+    private final String outputHealthTopic = "pdm-output-health";
     private final String outputReloadTopic = "pdm-output-reload";
 
     private final String routeFeatureTopic = "pdm-route-feature";
-    private final String routeHealthTopic = "pdm-route-health";
 
     /**
      * What to do when there is no initial offset in Kafka or if the current offset does not exist any more on the server (e.g. because that data has been deleted):
@@ -57,32 +55,6 @@ public abstract class AbstractPipeline implements Closeable {
     public void reload(String servingAddr) {
         log.info("setting the serving address...");
         MasterCache.ServingAddress = servingAddr;
-
-//        String targetUrl = servingAddr + "/pdm/api/master/latest/equipment";
-//        log.info("call to {}", targetUrl);
-//        MasterDataUpdater.updateEqpMasterDataSet("all", targetUrl);
-//
-//        targetUrl = servingAddr + "/pdm/api/master/latest/param";
-//        log.info("call to {}", targetUrl);
-//        MasterDataUpdater.updateParameterMasterDataSet("all", targetUrl);
-//
-//        targetUrl = servingAddr + "/pdm/api/master/latest/event";
-//        log.info("call to {}", targetUrl);
-//        MasterDataUpdater.updateEventMasterDataSet("all", targetUrl);
-//
-////        targetUrl = servingAddr + "/pdm/api/master/latest/spec";
-////        log.info("call to {}", targetUrl);
-////        MasterDataUpdater.updateParamSpecDataSet(targetUrl);
-//
-//        targetUrl = servingAddr + "/pdm/api/master/latest/health";
-//        log.info("call to {}", targetUrl);
-//        MasterDataUpdater.updateParamHealthDataSet("all", targetUrl);
-//
-//        targetUrl = servingAddr + "/pdm/api/master/latest/smtp";
-//        log.info("call to {}", targetUrl);
-//        MasterDataUpdater.updateSmtpConfigDataSet(targetUrl);
-//
-//        log.info("all master data(equipment, param, event, spec, health, smtp) is reloaded.");
     }
 
     protected abstract String getApplicationId();
@@ -123,16 +95,8 @@ public abstract class AbstractPipeline implements Closeable {
         return routeFeatureTopic;
     }
 
-    public String getRouteHealthTopic() {
-        return routeHealthTopic;
-    }
-
-    public String getOutputParamHealthTopic() {
-        return outputParamHealthTopic;
-    }
-
-    public String getOutputEQPHealthTopic() {
-        return outputEQPHealthTopic;
+    public String getOutputHealthTopic() {
+        return outputHealthTopic;
     }
 
     public String getOutputReloadTopic() {

@@ -109,7 +109,7 @@ public class SpeedTaskDef extends AbstractPipeline {
 
                 .addSink("output-raw", this.getInputTimewaveTopic(), "fault")
                 .addSink("output-fault", this.getOutputFaultTopic(), "fault")
-                .addSink("output-health", this.getOutputParamHealthTopic(), "fault")
+                .addSink("output-health", this.getOutputHealthTopic(), "fault")
                 .addSink("output-refresh", this.getOutputReloadTopic(), "refresh");
 
         return new KafkaStreams(topology, getStreamProperties());
