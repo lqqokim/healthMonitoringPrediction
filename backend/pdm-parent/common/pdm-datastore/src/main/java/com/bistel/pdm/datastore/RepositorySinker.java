@@ -1,6 +1,5 @@
 package com.bistel.pdm.datastore;
 
-import com.bistel.pdm.lambda.kafka.master.MasterDataUpdater;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,15 +36,11 @@ public class RepositorySinker {
         this.groupId = groupId;
         this.configPath = configPath;
         this.servingAddress = servingAddr;
-
-        String targetUrl = servingAddr + "/pdm/api/master/latest/param";
-        log.info("call to {}", targetUrl);
-        MasterDataUpdater.updateParameterMasterDataSet("all", targetUrl);
     }
 
     public void start() throws IOException {
         Properties producerProperties = new Properties();
-        try(InputStream confStream = new FileInputStream(this.configPath)){
+        try (InputStream confStream = new FileInputStream(this.configPath)) {
             producerProperties.load(confStream);
             log.debug("loaded config file : {}", this.configPath);
         }

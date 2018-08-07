@@ -205,8 +205,8 @@ public class StreamingMasterDataDao {
                     "where area.rawid=eqp.area_mst_rawid " +
                     "and eqp.name=? ";
 
-    public List<EquipmentMasterDataSet> getEqpMasterDataSet(String eqpId) throws SQLException {
-        List<EquipmentMasterDataSet> resultRows = new ArrayList<>();
+    public EquipmentMasterDataSet getEqpMasterDataSet(String eqpId) throws SQLException {
+        EquipmentMasterDataSet eqpMaster = new EquipmentMasterDataSet();
 
         try (Connection conn = DataSource.getConnection()) {
             try (PreparedStatement pst = conn.prepareStatement(EQP_MASTER_DS_1_SQL)) {
@@ -216,12 +216,9 @@ public class StreamingMasterDataDao {
                     log.debug("sql:{}", EQP_MASTER_DS_1_SQL);
 
                     while (rs.next()) {
-                        EquipmentMasterDataSet eqpMaster = new EquipmentMasterDataSet();
                         eqpMaster.setAreaName(rs.getString(1));
                         eqpMaster.setEquipmentName(rs.getString(2));
                         eqpMaster.setEqpRawId(rs.getLong(3));
-
-                        resultRows.add(eqpMaster);
                     }
                 }
             } catch (SQLException e) {
@@ -231,7 +228,7 @@ public class StreamingMasterDataDao {
             log.error(e.getMessage(), e);
         }
 
-        return resultRows;
+        return eqpMaster;
     }
 
     private final static String EQP_EVENT_MASTER_DS_SQL =

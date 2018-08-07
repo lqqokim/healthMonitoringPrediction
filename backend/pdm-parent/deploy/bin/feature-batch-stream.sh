@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
-APPNAME="Batch Layer - HEALTH"
-APPPID=batch-health.pid
+APPNAME="Feature Layer - HEALTH"
+APPPID=batch-feature.pid
 APPJAR=pdm-batch-bundle-1.0-SNAPSHOT.jar
-APPOPTS="-appId health_01
--brokers 192.168.7.228:29092,192.168.7.228:39092,192.168.7.228:49092
--registryUrl http://192.168.7.228:8081
--servingAddr http://192.168.7.227:28000
--pipeline HEALTH
--log4jConf ./config/log4j-health.properties"
+APPOPTS="-appId feature_01
+-brokers 192.168.7.229:29092,192.168.7.229:39092,192.168.7.229:49092
+-registryUrl http://192.168.7.229:8081
+-servingAddr http://192.168.7.230:28000
+-pipeline FEATURE
+-log4jConf ./config/log4j-feature.properties"
 
 case $1 in
     start)

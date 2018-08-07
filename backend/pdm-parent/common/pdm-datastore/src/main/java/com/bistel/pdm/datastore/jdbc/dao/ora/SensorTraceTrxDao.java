@@ -5,7 +5,7 @@ import com.bistel.pdm.common.json.ParameterMasterDataSet;
 import com.bistel.pdm.datastore.jdbc.DataSource;
 import com.bistel.pdm.datastore.jdbc.dao.SensorTraceDataDao;
 import com.bistel.pdm.datastore.model.SensorTraceData;
-import com.bistel.pdm.lambda.kafka.master.MasterDataCache;
+import com.bistel.pdm.lambda.kafka.master.MasterCache;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.slf4j.Logger;
@@ -28,7 +28,7 @@ public class SensorTraceTrxDao implements SensorTraceDataDao {
                     "ALARM_SPEC, WARNING_SPEC, " +
                     //"UPPER_ALARM_SPEC, UPPER_WARNING_SPEC, " +
                     //"TARGET, " +
-                   //"LOWER_ALARM_SPEC, LOWER_WARNING_SPEC, " +
+                    //"LOWER_ALARM_SPEC, LOWER_WARNING_SPEC, " +
                     "STATUS_CD, " +
                     "EVENT_DTTS, " +
                     "RESERVED_COL1, RESERVED_COL2, RESERVED_COL3, RESERVED_COL4, RESERVED_COL5) " +
@@ -87,10 +87,9 @@ public class SensorTraceTrxDao implements SensorTraceDataDao {
                     // time, p1, p2, p3, p4, ... pn, status:time, prev:time
                     String[] values = valueString.split(",");
 
-                    List<ParameterMasterDataSet> paramData =
-                            MasterDataCache.getInstance().getParamMasterDataSet().get(record.key());
+                    List<ParameterMasterDataSet> paramData = MasterCache.Parameter.get(record.key());
 
-                    if(paramData == null) {
+                    if (paramData == null) {
                         log.debug("[{}] - parameter does not existed.", record.key());
                         return;
                     }
@@ -99,12 +98,12 @@ public class SensorTraceTrxDao implements SensorTraceDataDao {
 
                     for (ParameterMasterDataSet param : paramData) {
 
-                        if(param.getParamParseIndex() == -1) continue;
+                        if (param.getParamParseIndex() == -1) continue;
 
                         pstmt.setLong(1, param.getParameterRawId()); //param rawid
 
                         String strValue = values[param.getParamParseIndex()];
-                        if(strValue.length() <= 0){
+                        if (strValue.length() <= 0) {
                             log.debug("key:{}, param:{}, index:{} - value is empty.",
                                     record.key(), param.getParameterName(), param.getParamParseIndex());
                             pstmt.setFloat(2, Types.FLOAT); //value

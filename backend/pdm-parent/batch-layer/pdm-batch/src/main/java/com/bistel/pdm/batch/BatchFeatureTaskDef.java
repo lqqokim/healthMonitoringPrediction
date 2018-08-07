@@ -1,7 +1,7 @@
 package com.bistel.pdm.batch;
 
-import com.bistel.pdm.batch.processor.EquipmentHealthProcessor;
-import com.bistel.pdm.batch.processor.ReloadMetadataProcessor;
+import com.bistel.pdm.batch.processor.BeginProcessor;
+import com.bistel.pdm.batch.processor.CalculateHealthProcessor;
 import com.bistel.pdm.lambda.kafka.AbstractPipeline;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.Serdes;
@@ -11,21 +11,23 @@ import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.state.StoreBuilder;
 import org.apache.kafka.streams.state.Stores;
+import org.apache.kafka.streams.state.WindowStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 /**
  *
  */
-public class BatchEqpHealthTaskDef extends AbstractPipeline {
-    private static final Logger log = LoggerFactory.getLogger(BatchEqpHealthTaskDef.class);
+public class BatchFeatureTaskDef extends AbstractPipeline {
+    private static final Logger log = LoggerFactory.getLogger(BatchFeatureTaskDef.class);
 
     private final String applicationId;
 
-    public BatchEqpHealthTaskDef(String applicationId, String brokers,
+    public BatchFeatureTaskDef(String applicationId, String brokers,
                                  String schemaUrl, String servingAddr) {
 
         super(brokers, schemaUrl, servingAddr);
@@ -49,27 +51,28 @@ public class BatchEqpHealthTaskDef extends AbstractPipeline {
 
         final Topology topology = new Topology();
 
-        StoreBuilder<KeyValueStore<String, Integer>> paramCountStoreSupplier =
+        StoreBuilder<KeyValueStore<Long, String>> fd03WindowStoreSupplier =
                 Stores.keyValueStoreBuilder(
-                        Stores.persistentKeyValueStore("batch-param-count"),
-                        Serdes.String(),
-                        Serdes.Integer());
+                        Stores.persistentKeyValueStore("batch-moving-average"),
+                        Serdes.Long(),
+                        Serdes.String());
 
-        StoreBuilder<KeyValueStore<String, String>> eqpHealthStoreSupplier =
-                Stores.keyValueStoreBuilder(
-                        Stores.persistentKeyValueStore("batch-equipment-health"),
+        StoreBuilder<WindowStore<String, String>> fd04WindowStoreSupplier =
+                Stores.windowStoreBuilder(
+                        Stores.persistentWindowStore("batch-fd04-feature-data",
+                                TimeUnit.DAYS.toMillis(8),
+                                24,
+                                TimeUnit.DAYS.toMillis(7),
+                                true),
                         Serdes.String(),
                         Serdes.String());
 
-        topology.addSource("input-reload", "pdm-input-reload")
-                .addProcessor("reload", ReloadMetadataProcessor::new, "input-reload")
-                .addSink("ouput-reload", this.getOutputReloadTopic(), "reload");
-
-        topology.addSource("input-health", this.getRouteHealthTopic())
-                .addProcessor("eqp-health", EquipmentHealthProcessor::new, "input-health")
-                .addStateStore(paramCountStoreSupplier, "eqp-health")
-                .addStateStore(eqpHealthStoreSupplier, "eqp-health")
-                .addSink("output-eqp-health", this.getOutputEQPHealthTopic(), "eqp-health");
+        topology.addSource("input-feature", this.getRouteFeatureTopic())
+                .addProcessor("begin", BeginProcessor::new, "input-feature")
+                .addProcessor("health", CalculateHealthProcessor::new, "begin")
+                .addStateStore(fd03WindowStoreSupplier, "health")
+                .addStateStore(fd04WindowStoreSupplier, "health")
+                .addSink("output-health", this.getOutputParamHealthTopic(), "health");
 
         return new KafkaStreams(topology, getStreamProperties());
     }

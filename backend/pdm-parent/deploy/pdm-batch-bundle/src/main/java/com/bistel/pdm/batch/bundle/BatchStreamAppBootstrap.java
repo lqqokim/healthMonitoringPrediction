@@ -1,6 +1,6 @@
 package com.bistel.pdm.batch.bundle;
 
-import com.bistel.pdm.batch.BatchEqpHealthTaskDef;
+import com.bistel.pdm.batch.BatchFeatureTaskDef;
 import com.bistel.pdm.batch.BatchTimewaveTaskDef;
 import com.bistel.pdm.batch.BatchTraceTaskDef;
 import org.apache.commons.cli.*;
@@ -50,8 +50,8 @@ public final class BatchStreamAppBootstrap {
             try (BatchTimewaveTaskDef processor = new BatchTimewaveTaskDef(appId, brokers, schemaUrl, servingAddr)) {
                 processor.start();
             }
-        } else if (pipeline.equalsIgnoreCase("HEALTH")) {
-            try (BatchEqpHealthTaskDef processor = new BatchEqpHealthTaskDef(appId, brokers, schemaUrl, servingAddr)) {
+        } else if (pipeline.equalsIgnoreCase("FEATURE")) {
+            try (BatchFeatureTaskDef processor = new BatchFeatureTaskDef(appId, brokers, schemaUrl, servingAddr)) {
                 processor.start();
             }
         } else {

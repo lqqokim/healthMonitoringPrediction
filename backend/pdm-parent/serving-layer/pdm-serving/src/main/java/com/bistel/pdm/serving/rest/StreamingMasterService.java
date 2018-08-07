@@ -51,7 +51,7 @@ public class StreamingMasterService {
     public Response reloadEqp(@PathParam("eqpid") String eqpId) {
 
         StreamingMasterDataDao repository = new StreamingMasterDataDao();
-        List<EquipmentMasterDataSet> masterDataSet = null;
+        EquipmentMasterDataSet masterDataSet = null;
 
         try {
             masterDataSet = repository.getEqpMasterDataSet(eqpId);

@@ -1,6 +1,6 @@
 package com.bistel.pdm.lambda.kafka;
 
-import com.bistel.pdm.lambda.kafka.master.MasterDataUpdater;
+import com.bistel.pdm.lambda.kafka.master.MasterCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,33 +55,34 @@ public abstract class AbstractPipeline implements Closeable {
     }
 
     public void reload(String servingAddr) {
-        log.info("request to update master...");
+        log.info("setting the serving address...");
+        MasterCache.ServingAddress = servingAddr;
 
-        String targetUrl = servingAddr + "/pdm/api/master/latest/equipment";
-        log.info("call to {}", targetUrl);
-        MasterDataUpdater.updateEqpMasterDataSet("all", targetUrl);
-
-        targetUrl = servingAddr + "/pdm/api/master/latest/param";
-        log.info("call to {}", targetUrl);
-        MasterDataUpdater.updateParameterMasterDataSet("all", targetUrl);
-
-        targetUrl = servingAddr + "/pdm/api/master/latest/event";
-        log.info("call to {}", targetUrl);
-        MasterDataUpdater.updateEventMasterDataSet("all", targetUrl);
-
-//        targetUrl = servingAddr + "/pdm/api/master/latest/spec";
+//        String targetUrl = servingAddr + "/pdm/api/master/latest/equipment";
 //        log.info("call to {}", targetUrl);
-//        MasterDataUpdater.updateParamSpecDataSet(targetUrl);
-
-        targetUrl = servingAddr + "/pdm/api/master/latest/health";
-        log.info("call to {}", targetUrl);
-        MasterDataUpdater.updateParamHealthDataSet("all", targetUrl);
-
-        targetUrl = servingAddr + "/pdm/api/master/latest/smtp";
-        log.info("call to {}", targetUrl);
-        MasterDataUpdater.updateSmtpConfigDataSet(targetUrl);
-
-        log.info("all master data(equipment, param, event, spec, health, smtp) is reloaded.");
+//        MasterDataUpdater.updateEqpMasterDataSet("all", targetUrl);
+//
+//        targetUrl = servingAddr + "/pdm/api/master/latest/param";
+//        log.info("call to {}", targetUrl);
+//        MasterDataUpdater.updateParameterMasterDataSet("all", targetUrl);
+//
+//        targetUrl = servingAddr + "/pdm/api/master/latest/event";
+//        log.info("call to {}", targetUrl);
+//        MasterDataUpdater.updateEventMasterDataSet("all", targetUrl);
+//
+////        targetUrl = servingAddr + "/pdm/api/master/latest/spec";
+////        log.info("call to {}", targetUrl);
+////        MasterDataUpdater.updateParamSpecDataSet(targetUrl);
+//
+//        targetUrl = servingAddr + "/pdm/api/master/latest/health";
+//        log.info("call to {}", targetUrl);
+//        MasterDataUpdater.updateParamHealthDataSet("all", targetUrl);
+//
+//        targetUrl = servingAddr + "/pdm/api/master/latest/smtp";
+//        log.info("call to {}", targetUrl);
+//        MasterDataUpdater.updateSmtpConfigDataSet(targetUrl);
+//
+//        log.info("all master data(equipment, param, event, spec, health, smtp) is reloaded.");
     }
 
     protected abstract String getApplicationId();

@@ -1,7 +1,7 @@
 package com.bistel.pdm.datastore;
 
 import com.bistel.pdm.datastore.jdbc.DataSource;
-import com.bistel.pdm.lambda.kafka.master.MasterDataUpdater;
+import com.bistel.pdm.lambda.kafka.master.MasterCache;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -20,14 +20,13 @@ public class ReloadConsumerRunnable implements Runnable {
 
     private final KafkaConsumer<String, byte[]> consumer;
     private final String topicName;
-    private final String servingAddress;
 
-    private final static int PollingDurations = 5; // sec
+    private final static int PollingDurations = 1; // sec
 
     public ReloadConsumerRunnable(Properties property, String groupId, String topicName, String servingAddress) {
         this.consumer = new KafkaConsumer<>(createConsumerConfig(groupId, property));
         this.topicName = topicName;
-        this.servingAddress = servingAddress;
+        MasterCache.ServingAddress = servingAddress;
     }
 
     @Override
@@ -43,12 +42,11 @@ public class ReloadConsumerRunnable implements Runnable {
                 log.debug(" polling {} records", records.count());
 
                 for (ConsumerRecord<String, byte[]> record : records) {
-                    String targetUrl = this.servingAddress + "/pdm/api/master/latest/param/" + record.key();
-                    log.info("call to {}", targetUrl);
-                    MasterDataUpdater.updateParameterMasterDataSet(record.key(), targetUrl);
+                    // refresh master info.
+                    MasterCache.Parameter.refresh(record.key());
                 }
                 consumer.commitAsync();
-                log.info("{} records are committed.", records.count());
+                log.info("{} reloaded.", records.count());
             }
         }
     }
