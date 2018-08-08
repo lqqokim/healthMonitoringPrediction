@@ -37,6 +37,7 @@
         <module>support/pdm-log-connector</module>
         <module>support/pdm-datagen</module>
         <module>deploy/pdm-scheduler-bundle</module>
+        <module>support/pdm-file-connector</module>
     </modules>
 
     <name>pdm-parent</name>
