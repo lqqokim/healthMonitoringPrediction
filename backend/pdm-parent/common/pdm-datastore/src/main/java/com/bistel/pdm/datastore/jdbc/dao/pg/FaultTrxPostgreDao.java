@@ -19,10 +19,14 @@ public class FaultTrxPostgreDao implements FaultDataDao {
 
     private static final String INSERT_SQL =
             "insert into ALARM_TRX_PDM " +
-                    "(PARAM_MST_RAWID, HEALTH_LOGIC_MST_RAWID, ALARM_TYPE_CD, VALUE, " +
-                    " FAULT_CLASS, " +
-                    " ALARM_SPEC, WARNING_SPEC, " +
-                    " ALARM_DTTS) " +
+                    "(PARAM_MST_RAWID, " +
+                    "PARAM_HEALTH_MST_RAWID, " +
+                    "ALARM_TYPE_CD, " +
+                    "VALUE, " +
+                    "FAULT_CLASS, " +
+                    "ALARM_SPEC, " +
+                    "WARNING_SPEC, " +
+                    "ALARM_DTTS) " +
                     "values (?, ?, ?, ?, ?, ?, ?, ?)";
 
     @Override

@@ -3,7 +3,8 @@ package com.bistel.pdm.datastore;
 import com.bistel.pdm.datastore.jdbc.DBType;
 import com.bistel.pdm.datastore.jdbc.DataSource;
 import com.bistel.pdm.datastore.jdbc.dao.SensorTraceDataDao;
-import com.bistel.pdm.datastore.jdbc.dao.ora.SensorTraceTrxDao;
+import com.bistel.pdm.datastore.jdbc.dao.ora.TraceTrxDao;
+import com.bistel.pdm.datastore.jdbc.dao.pg.TraceTrxPostgreDao;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.slf4j.Logger;
@@ -30,13 +31,13 @@ public class TraceConsumerRunnable implements Runnable {
         this.topicName = topicName;
 
         if (DataSource.getDBType() == DBType.oracle) {
-            trxDao = new SensorTraceTrxDao();
+            trxDao = new TraceTrxDao();
             log.info("loaded data object of oracle.");
         } else if (DataSource.getDBType() == DBType.postgresql) {
-            //trxDao = new SensorTraceTrxPostgreDao();
+            trxDao = new TraceTrxPostgreDao();
             log.info("loaded data object of postgresql.");
         } else {
-            trxDao = new SensorTraceTrxDao();
+            trxDao = new TraceTrxDao();
             log.info("loaded data object of default(oracle).");
         }
     }

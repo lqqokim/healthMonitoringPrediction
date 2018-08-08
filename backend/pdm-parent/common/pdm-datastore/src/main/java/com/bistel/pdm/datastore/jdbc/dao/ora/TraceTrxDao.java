@@ -18,8 +18,8 @@ import java.util.List;
 /**
  *
  */
-public class SensorTraceTrxDao implements SensorTraceDataDao {
-    private static final Logger log = LoggerFactory.getLogger(SensorTraceTrxDao.class);
+public class TraceTrxDao implements SensorTraceDataDao {
+    private static final Logger log = LoggerFactory.getLogger(TraceTrxDao.class);
 
     private static final String TRX_SEQ_SQL = "select SEQ_TRACE_TRX_PDM.nextval from DUAL";
 
@@ -46,22 +46,23 @@ public class SensorTraceTrxDao implements SensorTraceDataDao {
                     "RESERVED_COL1, RESERVED_COL2, RESERVED_COL3, RESERVED_COL4, RESERVED_COL5) " +
                     "values (?,?,?,?,?,?,?,?,?,?,?,?)";
 
-    public SensorTraceTrxDao() {
-    }
-
     @Override
     public Long getTraceRawId() throws SQLException {
         Long trxRawId = Long.MIN_VALUE;
-        try (Connection conn = DataSource.getConnection();
-             PreparedStatement psrawid = conn.prepareStatement(TRX_SEQ_SQL)) {
 
-            ResultSet rs = psrawid.executeQuery();
-            if (rs.next()) {
-                trxRawId = rs.getLong(1);
+        try (Connection conn = DataSource.getConnection()) {
+            try (PreparedStatement psrawid = conn.prepareStatement(TRX_SEQ_SQL)) {
+
+                ResultSet rs = psrawid.executeQuery();
+                if (rs.next()) {
+                    trxRawId = rs.getLong(1);
+                }
+            } catch (SQLException e) {
+                log.error(e.getMessage(), e);
+                throw e;
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             log.error(e.getMessage(), e);
-            throw e;
         }
 
         return trxRawId;

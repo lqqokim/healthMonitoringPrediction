@@ -1,11 +1,9 @@
-package com.bistel.pdm.datastore.jdbc.dao.ora;
+package com.bistel.pdm.datastore.jdbc.dao.pg;
 
 import com.bistel.pdm.common.collection.Pair;
 import com.bistel.pdm.datastore.jdbc.DataSource;
 import com.bistel.pdm.datastore.jdbc.dao.SensorRawDataDao;
 import com.bistel.pdm.datastore.model.SensorRawData;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,23 +14,19 @@ import java.util.Map;
 /**
  *
  */
-public class SensorTraceRawTrxDao implements SensorRawDataDao {
-    private static final Logger log = LoggerFactory.getLogger(SensorTraceRawTrxDao.class);
-
-    public SensorTraceRawTrxDao() {
-
-    }
+public class TraceRawTrxPostgreDao implements SensorRawDataDao {
+    private static final Logger log = LoggerFactory.getLogger(TraceRawTrxPostgreDao.class);
 
     private static final String INSERT_SQL =
             "insert into trace_raw_trx_pdm (" +
-                    "RAWID, PARAM_MST_RAWID, TRACE_TRX_RAWID, DATA_TYPE_CD, MAX_FREQ, FREQ_COUNT, " +
+                    "PARAM_MST_RAWID, TRACE_TRX_RAWID, DATA_TYPE_CD, MAX_FREQ, FREQ_COUNT, " +
                     "RPM, SAMPLING_TIME, BINARY_DATA, EVENT_DTTS, " +
                     "RESERVED_COL1, RESERVED_COL2, RESERVED_COL3, RESERVED_COL4, RESERVED_COL5) " +
-                    "values (SEQ_TRACE_RAW_TRX_PDM.nextval,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+                    "values (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
     @Override
     public void storeRecord(Map<String, Pair<Long, SensorRawData>> records) {
-        try (Connection conn = DataSource.getConnection()){
+        try (Connection conn = DataSource.getConnection()) {
 
             conn.setAutoCommit(false);
             try (PreparedStatement pstmt = conn.prepareStatement(INSERT_SQL)) {
@@ -110,13 +104,13 @@ public class SensorTraceRawTrxDao implements SensorRawDataDao {
                 conn.commit();
                 log.debug("{} records are inserted into TRACE_RAW_TRX_PDM.", totalCount);
 
-            } catch(Exception e){
+            } catch (Exception e) {
                 conn.rollback();
                 log.error(e.getMessage(), e);
             } finally {
                 conn.setAutoCommit(true);
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
     }

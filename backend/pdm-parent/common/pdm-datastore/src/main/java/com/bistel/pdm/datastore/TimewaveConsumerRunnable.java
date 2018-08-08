@@ -5,8 +5,10 @@ import com.bistel.pdm.datastore.jdbc.DBType;
 import com.bistel.pdm.datastore.jdbc.DataSource;
 import com.bistel.pdm.datastore.jdbc.dao.SensorRawDataDao;
 import com.bistel.pdm.datastore.jdbc.dao.SensorTraceDataDao;
-import com.bistel.pdm.datastore.jdbc.dao.ora.SensorTraceRawTrxDao;
-import com.bistel.pdm.datastore.jdbc.dao.ora.SensorTraceTrxDao;
+import com.bistel.pdm.datastore.jdbc.dao.ora.TraceRawTrxDao;
+import com.bistel.pdm.datastore.jdbc.dao.ora.TraceTrxDao;
+import com.bistel.pdm.datastore.jdbc.dao.pg.TraceRawTrxPostgreDao;
+import com.bistel.pdm.datastore.jdbc.dao.pg.TraceTrxPostgreDao;
 import com.bistel.pdm.datastore.model.SensorRawData;
 import com.bistel.pdm.datastore.model.SensorTraceData;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -36,16 +38,16 @@ public class TimewaveConsumerRunnable implements Runnable {
         this.topicName = topicName;
 
         if (DataSource.getDBType() == DBType.oracle) {
-            trxRawDao = new SensorTraceRawTrxDao();
-            trxDao = new SensorTraceTrxDao();
+            trxRawDao = new TraceRawTrxDao();
+            trxDao = new TraceTrxDao();
             log.info("loaded data object of oracle.");
         } else if (DataSource.getDBType() == DBType.postgresql) {
-//            trxRawDao = new SensorTraceRawTrxPostgreDao();
-//            trxDao = new SensorTraceTrxPostgreDao();
+            trxRawDao = new TraceRawTrxPostgreDao();
+            trxDao = new TraceTrxPostgreDao();
             log.info("loaded data object of postgresql.");
         } else {
-            trxRawDao = new SensorTraceRawTrxDao();
-            trxDao = new SensorTraceTrxDao();
+            trxRawDao = new TraceRawTrxDao();
+            trxDao = new TraceTrxDao();
             log.info("loaded data object of default(oracle).");
         }
     }

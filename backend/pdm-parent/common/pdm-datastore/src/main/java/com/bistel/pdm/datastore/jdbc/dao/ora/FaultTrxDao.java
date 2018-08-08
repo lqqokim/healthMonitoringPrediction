@@ -20,9 +20,14 @@ public class FaultTrxDao implements FaultDataDao {
 
     private static final String INSERT_SQL =
             "insert into ALARM_TRX_PDM " +
-                    "(RAWID, PARAM_MST_RAWID, PARAM_HEALTH_MST_RAWID, ALARM_TYPE_CD, VALUE, " +
+                    "(RAWID, " +
+                    "PARAM_MST_RAWID, " +
+                    "PARAM_HEALTH_MST_RAWID, " +
+                    "ALARM_TYPE_CD, " +
+                    "VALUE, " +
                     " FAULT_CLASS, " +
-                    " ALARM_SPEC, WARNING_SPEC, " +
+                    " ALARM_SPEC, " +
+                    "WARNING_SPEC, " +
                     " ALARM_DTTS) " +
                     "values (seq_alarm_trx_pdm.nextval, ?, ?, ?, ?, ?, ?, ?, ?)";
 

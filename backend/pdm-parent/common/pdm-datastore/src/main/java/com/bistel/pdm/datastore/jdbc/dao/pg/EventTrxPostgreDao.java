@@ -44,7 +44,6 @@ public class EventTrxPostgreDao implements EventDataDao {
                     pstmt.setTimestamp(3, new Timestamp(Long.parseLong(values[0])));
 
                     pstmt.addBatch();
-                    //log.debug("offset = " + record.offset() + " value = " + valueString);
 
                     if (++batchCount == 100) {
                         totalCount += batchCount;

@@ -10,6 +10,8 @@ import org.slf4j.LoggerFactory;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.Timestamp;
+import java.sql.Types;
+import java.text.SimpleDateFormat;
 
 /**
  *
@@ -19,8 +21,11 @@ public class FeatureTrxPostgreDao implements FeatureDataDao {
 
     private static final String INSERT_SQL =
             "insert into param_feature_trx_pdm " +
-                    "(PARAM_MST_RAWID, BEGIN_DTTS, END_DTTS, COUNT, MIN, MAX, MEDIAN, MEAN, STDDEV, Q1, Q3) " +
-                    "values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                    "(PARAM_MST_RAWID, BEGIN_DTTS, END_DTTS, " +
+                    "COUNT, MIN, MAX, MEDIAN, MEAN, STDDEV, Q1, Q3, " +
+                    "UPPER_ALARM_SPEC, UPPER_WARNING_SPEC, TARGET, " +
+                    "LOWER_ALARM_SPEC, LOWER_WARNING_SPEC) " +
+                    "values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
     @Override
     public void storeRecord(ConsumerRecords<String, byte[]> records) {
@@ -31,10 +36,15 @@ public class FeatureTrxPostgreDao implements FeatureDataDao {
 
                 int totalCount = 0;
                 int batchCount = 0;
+                Timestamp ts = null;
+
                 for (ConsumerRecord<String, byte[]> record : records) {
                     byte[] features = record.value();
                     String valueString = new String(features);
-                    String[] values = valueString.split(",");
+                    String[] values = valueString.split(",", -1);
+
+                    log.trace("[{}] - from : {}, end : {}, param : {}", record.key(),
+                            values[0], values[1], values[2]);
 
                     // startDtts, endDtts, param rawid, count, min, max, median, avg, stddev, q1, q3
                     Long param_rawid = Long.parseLong(values[2]);
@@ -54,6 +64,39 @@ public class FeatureTrxPostgreDao implements FeatureDataDao {
                     pstmt.setFloat(10, Float.parseFloat(values[9]));
                     pstmt.setFloat(11, Float.parseFloat(values[10]));
 
+                    // SPEC
+                    if (values[11].length() > 0) {
+                        pstmt.setFloat(12, Float.parseFloat(values[11])); //upper alarm spec
+                    } else {
+                        pstmt.setNull(12, Types.FLOAT);
+                    }
+
+                    if (values[12].length() > 0) {
+                        pstmt.setFloat(13, Float.parseFloat(values[12])); //upper warning spec
+                    } else {
+                        pstmt.setNull(13, Types.FLOAT);
+                    }
+
+                    if (values[13].length() > 0) {
+                        pstmt.setFloat(14, Float.parseFloat(values[13])); //target
+                    } else {
+                        pstmt.setNull(14, Types.FLOAT);
+                    }
+
+                    if (values[14].length() > 0) {
+                        pstmt.setFloat(15, Float.parseFloat(values[14])); //lower alarm spec
+                    } else {
+                        pstmt.setNull(15, Types.FLOAT);
+                    }
+
+                    if (values[15].length() > 0) {
+                        pstmt.setFloat(16, Float.parseFloat(values[15])); //lower warning spec
+                    } else {
+                        pstmt.setNull(16, Types.FLOAT);
+                    }
+
+                    ts = endDtts;
+
                     pstmt.addBatch();
 
                     if (++batchCount == 100) {
@@ -71,7 +114,8 @@ public class FeatureTrxPostgreDao implements FeatureDataDao {
                     pstmt.clearBatch();
                 }
                 conn.commit();
-                log.debug("{} records are inserted into PARAM_FEATURE_TRX_PDM.", totalCount);
+                String timeStamp = new SimpleDateFormat("MMdd HH:mm:ss.SSS").format(ts);
+                log.debug("[{}] - {} records are inserted into PARAM_FEATURE_TRX_PDM.", timeStamp, totalCount);
 
             } catch (Exception e) {
                 conn.rollback();
