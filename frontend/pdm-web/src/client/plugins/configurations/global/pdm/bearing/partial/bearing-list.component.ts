@@ -61,11 +61,11 @@ export class BearingListComponent implements OnInit {
     _getBearings(): void {
         this.pdmConfigService.getBearings(this.selectedFab.fabId)
             .then((bearings: any) => {
-                // console.log('bearings', bearings);
                 if (bearings && bearings.length > 0) {
                     this.bearingDatas = new wjcCore.CollectionView(bearings);
                     this.selectedRowData = this.bearingDatas.items[0]; // Select first row data
                 } else {
+                    this.bearingDatas = [];
                     this.selectedRowData = {};
                 }
             }).catch((error: any) => {

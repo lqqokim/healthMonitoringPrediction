@@ -46,15 +46,19 @@ export class BearingModifyComponent implements OnInit, OnChanges {
     }
 
     ngOnChanges(changes: any): void {
-        // console.log('changes', changes);
         if (changes && changes.data) {
             this._selectedData = changes.data.currentValue;
             this._applier = this._selectedData.applier;
             this.status = this._selectedData.status;
             this.fabId = this._selectedData.fabId;
             this.fabName = this._selectedData.fabName;
-            this.bearingDatas = this._selectedData.bearingDatas.items;
             this.selectedRow = this._selectedData.data;
+
+            if (this._selectedData.bearingDatas.items) {
+                this.bearingDatas = this._selectedData.bearingDatas.items;
+            } else {
+                this.bearingDatas = [];
+            }
 
             if (this.status === 'create') {
                 this.isModify = false;
@@ -102,11 +106,16 @@ export class BearingModifyComponent implements OnInit, OnChanges {
             .subscribe((response) => {
                 if (response.type === 'APPLY') {
                     if (this.status === 'create') {
-                        if (this._checkUniqueData()) {
+                        if (!this.bearingDatas.length) {
                             this._saveBearingData();
-                        } else {
-                            this.notify.warn("PDM.NOTIFY.DUPLICATE_BEARING");
                             return;
+                        } else {
+                            if (this._checkUniqueData()) {
+                                this._saveBearingData();
+                            } else {
+                                this.notify.warn("PDM.NOTIFY.DUPLICATE_BEARING");
+                                return;
+                            }
                         }
                     } else if (this.status === 'modify') {
                         if (!this._checkUniqueData()) {// exist
