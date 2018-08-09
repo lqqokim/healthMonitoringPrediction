@@ -527,6 +527,7 @@
                     and   eqp_health.sum_dtts <![CDATA[<]]> #{end}
                     AND   score IS NOT NULL
                     AND   eqp_health.param_health_mst_rawid = param_health.rawid
+                    and   eqp.rawid=eqp_mst_rawid
                     AND   health_logic_mst_rawid = 3
                 GROUP BY
                     area_mst_rawid,
@@ -701,6 +702,7 @@
                     and   eqp_health.sum_dtts <![CDATA[<]]> #{end}
                     AND   score IS NOT NULL
                     AND   eqp_health.param_health_mst_rawid = param_health.rawid
+                    and   eqp.rawid=eqp_mst_rawid
                     AND   health_logic_mst_rawid = 3
                 GROUP BY
                     area_mst_rawid,
