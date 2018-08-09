@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, OnChanges, ViewEncapsulation, Input, Output, EventEmitter, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
-import { NgTableComponent } from '../../../../../node_modules/ng2-table';
+import { NgTableComponent } from 'ng2-table/ng2-table';
 // import { PaginationHelper } from './pagination';
 
 //* 테이블 데이터 규격 (헤더)
@@ -133,6 +133,8 @@ export class TableComponent implements AfterViewInit, OnChanges, OnDestroy {
     //* 테이블 리사이징 ** 상위 컴포넌트에서 리사이징 시 호출해야 정상 구동**
     public setResizeHeight(height?:number): void {
 
+        // console.log( 'setResizeHeight' );
+
         // 임시 스크롤 영역 높이
         let tmpAreaHeight: number = 0;
 
@@ -212,10 +214,10 @@ export class TableComponent implements AfterViewInit, OnChanges, OnDestroy {
             // 헤더 강제 설정
             const cols = this.columns.concat();
 
-            if( this.columns !== undefined ){
+            if( this.columns !== undefined && this.columns.length > 0 ){
                 this.columns.splice(0);
             }
-            if( this.config.sorting.columns !== undefined ){
+            if( this.config.sorting.columns !== undefined && this.config.sorting.columns.length > 0 ){
                 this.config.sorting.columns.splice(0);
             }
 
@@ -225,7 +227,7 @@ export class TableComponent implements AfterViewInit, OnChanges, OnDestroy {
             this.ngTable.columns = cols;
             this.ngTable['_columns'] = cols;
 
-            this.setResizeHeight();
+            // this.setResizeHeight();
 
             // 다 출력 됬다고 emit
             this.drawEndEmit( this.rows );
@@ -278,6 +280,7 @@ export class TableComponent implements AfterViewInit, OnChanges, OnDestroy {
 
     ngOnChanges(c: any){        
         if( !this.dataBindSwitch ){ return; }
+        // console.log( 'ngOnChanges', c );
         this.dataBindSwitchOn();
     }
 
@@ -386,7 +389,7 @@ export class TableComponent implements AfterViewInit, OnChanges, OnDestroy {
     //* 테이블 페이지/정렬/필터 적용 후 변경 구동함수
     public onChangeTable(config:any):any {
 
-        console.log('onChangeTable', this.ngTable);
+        // console.log('onChangeTable', this.ngTable);
         if (config.filtering) {
             Object.assign(this.config.filtering, config.filtering);
         }
