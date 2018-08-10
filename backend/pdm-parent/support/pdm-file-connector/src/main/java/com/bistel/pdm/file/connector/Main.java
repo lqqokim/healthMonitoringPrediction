@@ -188,7 +188,7 @@ public class Main {
                         }
 
                         producer.send(new ProducerRecord<>(topicName, partitionKey, sbMsg.toString().getBytes()));
-                        //log.debug("key: {}, msg: {}", partitionKey, sbMsg.toString());
+                        log.debug("key: {}, msg time: {}", partitionKey, timeStamp);
 
                         try {
                             Thread.sleep(100);

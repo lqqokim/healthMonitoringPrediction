@@ -21,7 +21,7 @@ public class ReloadConsumerRunnable implements Runnable {
     private final KafkaConsumer<String, byte[]> consumer;
     private final String topicName;
 
-    private final static int PollingDurations = 1; // sec
+    private final static int PollingDurations = 100; // milliseconds
 
     public ReloadConsumerRunnable(Properties property, String groupId, String topicName, String servingAddress) {
         this.consumer = new KafkaConsumer<>(createConsumerConfig(groupId, property));
@@ -37,7 +37,7 @@ public class ReloadConsumerRunnable implements Runnable {
         log.info("Reading topic: {}, db type: {}", topicName, DataSource.getDBType());
 
         while (true) {
-            ConsumerRecords<String, byte[]> records = consumer.poll(TimeUnit.SECONDS.toMillis(PollingDurations));
+            ConsumerRecords<String, byte[]> records = consumer.poll(TimeUnit.MILLISECONDS.toMillis(PollingDurations));
             if (records.count() > 0) {
                 log.debug(" polling {} records", records.count());
 

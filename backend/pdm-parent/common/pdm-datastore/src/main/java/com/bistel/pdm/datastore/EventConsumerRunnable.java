@@ -23,7 +23,7 @@ public class EventConsumerRunnable implements Runnable {
     private final KafkaConsumer<String, byte[]> consumer;
     private final String topicName;
 
-    private final static int PollingDurations = 5; // sec
+    private final static int PollingDurations = 100; // milliseconds
 
     private EventDataDao trxDao;
 
@@ -51,7 +51,7 @@ public class EventConsumerRunnable implements Runnable {
         log.info("Reading topic: {}, db type: {}", topicName, DataSource.getDBType());
 
         while (true) {
-            ConsumerRecords<String, byte[]> records = consumer.poll(TimeUnit.SECONDS.toMillis(PollingDurations));
+            ConsumerRecords<String, byte[]> records = consumer.poll(TimeUnit.MILLISECONDS.toMillis(PollingDurations));
             if (records.count() > 0) {
                 log.debug(" polling {} records", records.count());
                 trxDao.storeRecord(records);
