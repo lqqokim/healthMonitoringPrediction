@@ -83,7 +83,7 @@ public class TraceTrxPostgreDao implements SensorTraceDataDao {
                         return;
                     }
 
-                    log.debug("{} - {} parameters", record.key(), paramData.size());
+                    log.debug("[{}] - {} parameters", record.key(), paramData.size());
 
                     for (ParameterMasterDataSet param : paramData) {
                         if (param.getParamParseIndex() == -1) continue;
@@ -164,7 +164,9 @@ public class TraceTrxPostgreDao implements SensorTraceDataDao {
                     pstmt.clearBatch();
                 }
                 conn.commit();
-                log.debug("{} records are inserted into TRACE_TRX_PDM.", totalCount);
+
+                String timeStamp = new SimpleDateFormat("MMdd HH:mm:ss.SSS").format(ts);
+                log.debug("[{}] - {} records are inserted into TRACE_TRX_PDM.", timeStamp, totalCount);
 
             } catch (Exception e) {
                 conn.rollback();

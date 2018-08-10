@@ -95,7 +95,7 @@ public class TraceTrxDao implements SensorTraceDataDao {
                         return;
                     }
 
-                    log.debug("{} - {} parameters", record.key(), paramData.size());
+                    log.debug("[{}] - {} parameters", record.key(), paramData.size());
 
                     for (ParameterMasterDataSet param : paramData) {
 

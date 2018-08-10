@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.*;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 /**
@@ -58,8 +59,9 @@ public class ParamHealthTrxPostgreDao implements HealthDataDao {
 
                 int totalCount = 0;
                 int batchCount = 0;
+                Timestamp ts = null;
 
-                for(ParamHealthData health : records){
+                for (ParamHealthData health : records) {
                     pstmt.setLong(1, health.getRawId());
                     pstmt.setLong(2, health.getParamRawId()); //param_mst_rawid
                     pstmt.setLong(3, health.getParamHealthRawId()); //param_health_rawid
@@ -97,7 +99,8 @@ public class ParamHealthTrxPostgreDao implements HealthDataDao {
 //                        pstmt.setNull(12, Types.FLOAT);
 //                    }
 
-                    pstmt.setTimestamp(9, new Timestamp(health.getTime()));
+                    ts = new Timestamp(health.getTime());
+                    pstmt.setTimestamp(9, ts);
 
                     pstmt.addBatch();
 
@@ -115,7 +118,8 @@ public class ParamHealthTrxPostgreDao implements HealthDataDao {
                     pstmt.clearBatch();
                 }
                 conn.commit();
-                log.debug("{} records are inserted into PARAM_HEALTH_TRX_PDM.", totalCount);
+                String timeStamp = new SimpleDateFormat("MMdd HH:mm:ss.SSS").format(ts);
+                log.debug("[{}] - {} records are inserted into PARAM_HEALTH_TRX_PDM.", timeStamp, totalCount);
 
             } catch (Exception e) {
                 log.error(e.getMessage(), e);
@@ -136,7 +140,7 @@ public class ParamHealthTrxPostgreDao implements HealthDataDao {
                 int totalCount = 0;
                 int batchCount = 0;
 
-                for(ParamHealthRULData rul : records){
+                for (ParamHealthRULData rul : records) {
                     pstmt.setLong(1, rul.getParamHealthTrxRawId());
                     pstmt.setDouble(2, rul.getIntercept());
                     pstmt.setDouble(3, rul.getSlope());

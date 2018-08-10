@@ -83,6 +83,32 @@ public class CalculateHealthProcessor extends AbstractProcessor<String, byte[]> 
         }, cal.getTime(), TimeUnit.DAYS.toMillis(1));
 
         log.debug("90 days scheduler start time : {} ", cal.getTime());
+
+
+        if (paramFeatureValueList.size() <= 0) {
+
+            Calendar calOrg = Calendar.getInstance();
+            calOrg.setTime(new Date());
+            calOrg.set(Calendar.HOUR_OF_DAY, 0);
+            calOrg.set(Calendar.MINUTE, 0);
+            calOrg.set(Calendar.SECOND, 0);
+            calOrg.set(Calendar.MILLISECOND, 0);
+
+            Long to = calOrg.getTime().getTime();
+            Long from = to - TimeUnit.DAYS.toMillis(90);
+
+            String url = MasterCache.ServingAddress + "/pdm/api/feature/" + from + "/" + to;
+            List<SummarizedFeature> featureList = ServingRequestor.getParamFeatureAvgFor(url);
+            log.info("90-days summary from {} to {}. - refresh count : {}",
+                    new Timestamp(from), new Timestamp(to), paramFeatureValueList.size());
+
+            if (featureList != null && featureList.size() > 0) {
+                for (SummarizedFeature feature : featureList) {
+                    paramFeatureValueList.put(feature.getParamRawId(), feature);
+                    kvMovingAvgStore.put(feature.getParamRawId(), "0,0");
+                }
+            }
+        }
     }
 
     @Override
@@ -97,37 +123,11 @@ public class CalculateHealthProcessor extends AbstractProcessor<String, byte[]> 
             ParameterMasterDataSet paramInfo = getParamMasterDataWithRawId(partitionKey, paramRawid);
             if (paramInfo == null) return;
 
-            if (paramFeatureValueList.size() <= 0) {
-
-                Calendar cal = Calendar.getInstance();
-                cal.setTime(new Date());
-                cal.set(Calendar.HOUR_OF_DAY, 0);
-                cal.set(Calendar.MINUTE, 0);
-                cal.set(Calendar.SECOND, 0);
-                cal.set(Calendar.MILLISECOND, 0);
-
-                Long to = cal.getTime().getTime();
-                Long from = to - TimeUnit.DAYS.toMillis(90);
-
-                String url = MasterCache.ServingAddress + "/pdm/api/feature/" + from + "/" + to;
-                List<SummarizedFeature> featureList = ServingRequestor.getParamFeatureAvgFor(url);
-                log.info("90-days summary from {} to {}. - refresh count : {}",
-                        new Timestamp(from), new Timestamp(to), paramFeatureValueList.size());
-
-                if (featureList != null && featureList.size() > 0) {
-                    for (SummarizedFeature feature : featureList) {
-                        paramFeatureValueList.put(feature.getParamRawId(), feature);
-                        kvMovingAvgStore.put(feature.getParamRawId(), "0,0");
-                    }
-                }
-            }
-
             String strParamRawid = recordColumns[2];
             String paramKey = partitionKey + ":" + paramRawid;
             String refreshCacheFlag = recordColumns[recordColumns.length - 1];
 
             Long endTime = Long.parseLong(recordColumns[1]);
-
 
             // ==========================================================================================
             // Logic 3 health
