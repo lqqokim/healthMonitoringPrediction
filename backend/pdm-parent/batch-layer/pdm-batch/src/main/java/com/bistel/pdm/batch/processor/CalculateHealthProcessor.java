@@ -97,7 +97,7 @@ public class CalculateHealthProcessor extends AbstractProcessor<String, byte[]> 
             ParameterMasterDataSet paramInfo = getParamMasterDataWithRawId(partitionKey, paramRawid);
             if (paramInfo == null) return;
 
-            if(paramFeatureValueList.size() <= 0){
+            if (paramFeatureValueList.size() <= 0) {
 
                 Calendar cal = Calendar.getInstance();
                 cal.setTime(new Date());
@@ -114,7 +114,7 @@ public class CalculateHealthProcessor extends AbstractProcessor<String, byte[]> 
                 log.info("90-days summary from {} to {}. - refresh count : {}",
                         new Timestamp(from), new Timestamp(to), paramFeatureValueList.size());
 
-                if(featureList != null && featureList.size() > 0){
+                if (featureList != null && featureList.size() > 0) {
                     for (SummarizedFeature feature : featureList) {
                         paramFeatureValueList.put(feature.getParamRawId(), feature);
                         kvMovingAvgStore.put(feature.getParamRawId(), "0,0");
@@ -274,44 +274,44 @@ public class CalculateHealthProcessor extends AbstractProcessor<String, byte[]> 
                 //log.debug("[{}] - No health because skip the logic 4.", paramKey);
             }
 
-            // ==========================================================================================
-            // Logic 1 health
-            ParameterHealthDataSet fd01Health = getParamHealth(paramRawid, "FD_OOS");
-            if (fd01Health != null && fd01Health.getApplyLogicYN().equalsIgnoreCase("Y")) {
-
-                if (paramInfo.getUpperAlarmSpec() == null) return;
-
-                Double davg = Double.parseDouble(recordColumns[7]);
-                double index = davg / paramInfo.getUpperAlarmSpec();
-
-                String statusCode = "N";
-
-                if (index >= 1.0) {
-                    statusCode = "A";
-                } else if (index >= 0.8 && index < 1) {
-                    statusCode = "W";
-                }
-
-                // time, eqpRawid, param_rawid, param_health_rawid, status_cd, data_count, index, specs
-                String newMsg = endTime + ","
-                        + paramInfo.getEquipmentRawId() + ","
-                        + paramRawid + ","
-                        + fd01Health.getParamHealthRawId() + ","
-                        + statusCode + ","
-                        + recordColumns[3] + ","
-                        + index + ","
-                        + (paramInfo.getUpperAlarmSpec() == null ? "" : paramInfo.getUpperAlarmSpec()) + ","
-                        + (paramInfo.getUpperWarningSpec() == null ? "" : paramInfo.getUpperWarningSpec()) + ","
-                        + (paramInfo.getTarget() == null ? "" : paramInfo.getTarget()) + ","
-                        + (paramInfo.getLowerAlarmSpec() == null ? "" : paramInfo.getLowerAlarmSpec()) + ","
-                        + (paramInfo.getLowerWarningSpec() == null ? "" : paramInfo.getLowerWarningSpec());
-
-                context().forward(partitionKey, newMsg.getBytes());
-                context().commit();
-                log.debug("[{}] - logic 1 health : {}", paramKey, newMsg);
-            } else {
-                //log.debug("[{}] - No health because skip the logic 1.", paramKey);
-            }
+//            // ==========================================================================================
+//            // Logic 1 health
+//            ParameterHealthDataSet fd01Health = getParamHealth(paramRawid, "FD_OOS");
+//            if (fd01Health != null && fd01Health.getApplyLogicYN().equalsIgnoreCase("Y")) {
+//
+//                if (paramInfo.getUpperAlarmSpec() == null) return;
+//
+//                Double davg = Double.parseDouble(recordColumns[7]);
+//                double index = davg / paramInfo.getUpperAlarmSpec();
+//
+//                String statusCode = "N";
+//
+//                if (index >= 1.0) {
+//                    statusCode = "A";
+//                } else if (index >= 0.8 && index < 1) {
+//                    statusCode = "W";
+//                }
+//
+//                // time, eqpRawid, param_rawid, param_health_rawid, status_cd, data_count, index, specs
+//                String newMsg = endTime + ","
+//                        + paramInfo.getEquipmentRawId() + ","
+//                        + paramRawid + ","
+//                        + fd01Health.getParamHealthRawId() + ","
+//                        + statusCode + ","
+//                        + recordColumns[3] + ","
+//                        + index + ","
+//                        + (paramInfo.getUpperAlarmSpec() == null ? "" : paramInfo.getUpperAlarmSpec()) + ","
+//                        + (paramInfo.getUpperWarningSpec() == null ? "" : paramInfo.getUpperWarningSpec()) + ","
+//                        + (paramInfo.getTarget() == null ? "" : paramInfo.getTarget()) + ","
+//                        + (paramInfo.getLowerAlarmSpec() == null ? "" : paramInfo.getLowerAlarmSpec()) + ","
+//                        + (paramInfo.getLowerWarningSpec() == null ? "" : paramInfo.getLowerWarningSpec());
+//
+//                context().forward(partitionKey, newMsg.getBytes());
+//                context().commit();
+//                log.debug("[{}] - logic 1 health : {}", paramKey, newMsg);
+//            } else {
+//                //log.debug("[{}] - No health because skip the logic 1.", paramKey);
+//            }
 
 
             // refresh cache

@@ -80,8 +80,8 @@ public class Main {
         int lineCount = 0;
         int rcount = 0;
         int icount = 0;
-        int runCount = 1800;
-        int idleCount = 600;
+        int runCount = 600;  // 1 min
+        int idleCount = 300;
 
         String partitionKey = clientId;
 
@@ -98,21 +98,68 @@ public class Main {
                     // INDEX,TIME,LINE,PROCESSLINE,EQPTYPE,EQPID,UNITID,
                     //
                     // VEHICLE_CURRENT_POSITION(POINT),
-                    // REGULATOR_TEMPERATURE,FRONT_AXIS_TORQUE,REAR_AXIS_TORQUE,HOIST_AXIS_TORQUE,
-                    // SLIDE_AXIS_TORQUE,ACCUMULATED_DRIVING_DISTANCE,ACCUMULATED_DRIVING_TIME(HOUR),
-                    // ACCUMULATED_HOIST_DISTANCE(M),ACCUMULATED_HOIST_TIME(HOUR),ACCUMULATED_SLIDE_DISTANCE(M),
-                    // ACCUMULATED_SLIDE_TIME(HOUR),VEHICLE_STATUS,VEHICLE_MODE,
-                    // TRAY_DETECT(100:NOT CONTAIN200:CONTAIN),DRIVING_VELOCITY(MM/SEC),
-                    // HOIST_VELOCITY(MM/SEC),SLIDE_VELOCITY(MM/SEC),REGULATOR_INPUT_VOLTAGE(V),
-                    // REGULATOR_OUTPUT_VOLTAGE(V),FRONT_VIBRATION_DATA(G),REAR_VIBRATION_DATA(G),
-                    // LEFT_LITZ_WIRE_TEMPERATURE,RIGHT_LITZ_WIRE_TEMPERATURE,ECO_VOLTAGE(V),ECO_CURRENT(A),
-                    // ECO_TEMPERATURE,REGULATOR_OUTPUT_CURRENT(A),COMPONENT_IN,GET_ANTIDROP_OPEN,GET_SLIDE_FWD,
-                    // GET_HOIST_DOWN,GET_FORK_STRETCH,GET_FORK_UP,TRAY_ON_CHECK,GET_FORK FOLD,GET_TOP PUSHER DOWN,
-                    // GET_HOIST_UP,GET_SLIDE_HOME,GET_ANTIDROP_CLOSE,COMPONENT_OUT,PUT_ANTIDROP_OPEN,PUT_SLIDE_FWD,
-                    // PUT_HOIST_DOWN,PUT_TOP_PUSHER_UP,PUT_FORK_STRETCH,PUT_FORK_DOWN,TRAY_OFF_CHECK,PUT_FORK FOLD,
-                    // PUT_HOIST_UP,PUT_SLIDE_HOME,PUT_ANTIDROP_CLOSE,VEHICLE_MOVE,VEHICLE_STOP,FRONT_LEFT_STEER_UP,
-                    // FRONT_RIGHT_STEER_UP,REAR_RIGHT_STEER_UP,REAR_RIGHT_STEER_UP,TRANSFER_WAIT_BEFORE_START,
-                    // Z_RMS,X_RMS,TEMP,STATUS
+                    // REGULATOR_TEMPERATURE,
+                    // FRONT_AXIS_TORQUE,
+                    // REAR_AXIS_TORQUE,
+                    // HOIST_AXIS_TORQUE,
+                    // SLIDE_AXIS_TORQUE,
+                    // ACCUMULATED_DRIVING_DISTANCE,
+                    // ACCUMULATED_DRIVING_TIME(HOUR),
+                    // ACCUMULATED_HOIST_DISTANCE(M),
+                    // ACCUMULATED_HOIST_TIME(HOUR),
+                    // ACCUMULATED_SLIDE_DISTANCE(M),
+                    // ACCUMULATED_SLIDE_TIME(HOUR),
+                    // VEHICLE_STATUS,
+                    // 20: VEHICLE_MODE,
+                    // TRAY_DETECT(100:NOT CONTAIN200:CONTAIN),
+                    // DRIVING_VELOCITY(MM/SEC),
+                    // HOIST_VELOCITY(MM/SEC),
+                    // SLIDE_VELOCITY(MM/SEC),
+                    // REGULATOR_INPUT_VOLTAGE(V),
+                    // REGULATOR_OUTPUT_VOLTAGE(V),
+                    // FRONT_VIBRATION_DATA(G),
+                    // REAR_VIBRATION_DATA(G),
+                    // LEFT_LITZ_WIRE_TEMPERATURE,
+                    // 30: RIGHT_LITZ_WIRE_TEMPERATURE,
+                    // ECO_VOLTAGE(V),
+                    // ECO_CURRENT(A),
+                    // ECO_TEMPERATURE,
+                    // REGULATOR_OUTPUT_CURRENT(A),
+                    // COMPONENT_IN,
+                    // GET_ANTIDROP_OPEN,
+                    // GET_SLIDE_FWD,
+                    // GET_HOIST_DOWN,
+                    // GET_FORK_STRETCH,
+                    // GET_FORK_UP,
+                    // TRAY_ON_CHECK,
+                    // GET_FORK FOLD,
+                    // GET_TOP PUSHER DOWN,
+                    // GET_HOIST_UP,
+                    // GET_SLIDE_HOME,
+                    // GET_ANTIDROP_CLOSE,
+                    // COMPONENT_OUT,
+                    // PUT_ANTIDROP_OPEN,
+                    // PUT_SLIDE_FWD,
+                    // 50 : PUT_HOIST_DOWN,
+                    // PUT_TOP_PUSHER_UP,
+                    // PUT_FORK_STRETCH,
+                    // PUT_FORK_DOWN,
+                    // TRAY_OFF_CHECK,
+                    // PUT_FORK FOLD,
+                    // PUT_HOIST_UP,
+                    // PUT_SLIDE_HOME,
+                    // PUT_ANTIDROP_CLOSE,
+                    // VEHICLE_MOVE,
+                    // 60 : VEHICLE_STOP,
+                    // FRONT_LEFT_STEER_UP,
+                    // FRONT_RIGHT_STEER_UP,
+                    // REAR_RIGHT_STEER_UP,
+                    // REAR_RIGHT_STEER_UP,
+                    // TRANSFER_WAIT_BEFORE_START,
+                    // Z_RMS,
+                    // X_RMS,
+                    // TEMP,
+                    // STATUS
 
                     String[] column = line.split(",");
                     if (!column[0].equalsIgnoreCase("INDEX")) {
@@ -134,11 +181,11 @@ public class Main {
                             if (icount <= idleCount) {
                                 sbMsg.append("0"); //status
                             } else {
+                                sbMsg.append("0"); //status
                                 rcount = 0;
                                 icount = 0;
                             }
                         }
-
 
                         producer.send(new ProducerRecord<>(topicName, partitionKey, sbMsg.toString().getBytes()));
                         log.debug("msg: {}", sbMsg.toString());

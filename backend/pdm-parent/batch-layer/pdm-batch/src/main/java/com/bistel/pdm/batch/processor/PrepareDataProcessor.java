@@ -42,7 +42,7 @@ public class PrepareDataProcessor extends AbstractProcessor<String, byte[]> {
     @Override
     public void process(String partitionKey, byte[] streamByteRecord) {
         String recordValue = new String(streamByteRecord);
-        String[] recordColumns = recordValue.split(SEPARATOR);
+        String[] recordColumns = recordValue.split(SEPARATOR, -1);
 
         try {
             // refresh cache command
@@ -98,6 +98,7 @@ public class PrepareDataProcessor extends AbstractProcessor<String, byte[]> {
 
             }
         } catch (Exception e) {
+            log.debug("msg:{}", recordValue);
             log.error(e.getMessage(), e);
         }
     }

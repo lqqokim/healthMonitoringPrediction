@@ -144,6 +144,17 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
 
                     String paramKey = partitionKey + ":" + paramInfo.getParameterRawId();
 
+                    List<Double> doubleValueList = new ArrayList<>();
+                    WindowStoreIterator<String> storeIterator = kvParamValueStore.fetch(paramKey, startTime, endTime);
+                    while (storeIterator.hasNext()) {
+                        KeyValue<Long, String> kv = storeIterator.next();
+                        String[] strValue = kv.value.split(",");
+                        Double paramValue = Double.parseDouble(strValue[1]);
+                        doubleValueList.add(paramValue);
+                    }
+                    storeIterator.close();
+
+
                     ParameterHealthDataSet fd02Health = getParamHealth(paramInfo.getParameterRawId(), "FD_RULE_1");
                     if (fd02Health != null && fd02Health.getApplyLogicYN().equalsIgnoreCase("Y")
                             && paramInfo.getUpperAlarmSpec() != null) {
@@ -161,17 +172,6 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
                             }
                         }
 
-                        List<Double> doubleValueList = new ArrayList<>();
-                        WindowStoreIterator<String> storeIterator = kvParamValueStore.fetch(paramKey, startTime, endTime);
-                        while (storeIterator.hasNext()) {
-                            KeyValue<Long, String> kv = storeIterator.next();
-                            String[] strValue = kv.value.split(",");
-                            Double paramValue = Double.parseDouble(strValue[1]);
-                            doubleValueList.add(paramValue);
-                        }
-                        storeIterator.close();
-
-
                         if (existAlarm(paramKey)) {
 
                             List<Double> outValues = SPCRuleFunction.evaluateAlarm(paramInfo, doubleValueList, windowSize, outCount);
@@ -186,7 +186,7 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
 
                                 String msgHealth = SPCRuleFunction.makeHealthMsg(endTime, "A", paramInfo, fd02Health, healthScore, outValues.size());
 
-                                context().forward(partitionKey, msgHealth.getBytes(), "route-health");
+                                //context().forward(partitionKey, msgHealth.getBytes(), "route-health");
                                 context().forward(partitionKey, msgHealth.getBytes(), "output-health");
 
                                 log.debug("[{}] - calculate the logic-2 health with alarm : {}", paramKey, msgHealth);
@@ -211,7 +211,7 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
 
                             String msg = SPCRuleFunction.makeHealthMsg(endTime, "N", paramInfo, fd02Health, healthScore, doubleValueList.size());
 
-                            context().forward(partitionKey, msg.getBytes(), "route-health");
+                            //context().forward(partitionKey, msg.getBytes(), "route-health");
                             context().forward(partitionKey, msg.getBytes(), "output-health");
 
                             log.debug("[{}] - calculate the logic-2 health without alarm : {}", paramKey, msg);
@@ -219,10 +219,84 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
                     } else {
                         //log.debug("[{}] - No health or Spec because skip the logic 2.", paramKey);
                     }
+
+
+                    // ==========================================================================================
+                    // Logic 1 health
+                    ParameterHealthDataSet fd01Health = getParamHealth(paramInfo.getParameterRawId(), "FD_OOS");
+                    if (fd01Health != null && fd01Health.getApplyLogicYN().equalsIgnoreCase("Y")) {
+
+                        if (paramInfo.getUpperAlarmSpec() == null) return;
+
+                        double index;
+                        int dataCount = 0;
+                        if (existAlarm(paramKey)) {
+                            Double sumValue = 0D;
+                            for (Double dValue : doubleValueList) {
+                                if (dValue > paramInfo.getUpperAlarmSpec()) {
+                                    sumValue += dValue;
+                                    dataCount++;
+                                }
+                            }
+
+                            Double avg = sumValue / dataCount;
+                            index = avg / paramInfo.getUpperAlarmSpec();
+
+                        } else if (existWarning(paramKey)) {
+                            Double sumValue = 0D;
+                            for (Double dValue : doubleValueList) {
+                                if (dValue > paramInfo.getUpperWarningSpec()) {
+                                    sumValue += dValue;
+                                    dataCount++;
+                                }
+                            }
+
+                            Double avg = sumValue / dataCount;
+                            index = avg / paramInfo.getUpperAlarmSpec();
+                        } else {
+                            //normal
+                            Double sumValue = 0D;
+                            for (Double dValue : doubleValueList) {
+                                sumValue += dValue;
+                            }
+
+                            dataCount = doubleValueList.size();
+                            Double avg = sumValue / dataCount;
+                            index = avg / paramInfo.getUpperAlarmSpec();
+                        }
+
+                        String statusCode = "N";
+
+                        if (index >= 1.0) {
+                            statusCode = "A";
+                        } else if (index >= 0.8 && index < 1) {
+                            statusCode = "W";
+                        }
+
+                        // time, eqpRawid, param_rawid, param_health_rawid, status_cd, data_count, index, specs
+                        String newMsg = endTime + ","
+                                + paramInfo.getEquipmentRawId() + ","
+                                + paramInfo.getParameterRawId() + ","
+                                + fd01Health.getParamHealthRawId() + ","
+                                + statusCode + ","
+                                + dataCount + ","
+                                + index + ","
+                                + (paramInfo.getUpperAlarmSpec() == null ? "" : paramInfo.getUpperAlarmSpec()) + ","
+                                + (paramInfo.getUpperWarningSpec() == null ? "" : paramInfo.getUpperWarningSpec()) + ","
+                                + (paramInfo.getTarget() == null ? "" : paramInfo.getTarget()) + ","
+                                + (paramInfo.getLowerAlarmSpec() == null ? "" : paramInfo.getLowerAlarmSpec()) + ","
+                                + (paramInfo.getLowerWarningSpec() == null ? "" : paramInfo.getLowerWarningSpec());
+
+                        context().forward(partitionKey, newMsg.getBytes());
+                        context().commit();
+                        log.debug("[{}] - logic 1 health : {}", paramKey, newMsg);
+                    } else {
+                        //log.debug("[{}] - No health because skip the logic 1.", paramKey);
+                    }
                 }
 
                 String flag = recordColumns[recordColumns.length - 1];
-                if(flag.equalsIgnoreCase("CRC")){
+                if (flag.equalsIgnoreCase("CRC")) {
                     String msg = endTime + "," + "CRC";
                     context().forward(partitionKey, msg.getBytes(), "refresh");
                 }
