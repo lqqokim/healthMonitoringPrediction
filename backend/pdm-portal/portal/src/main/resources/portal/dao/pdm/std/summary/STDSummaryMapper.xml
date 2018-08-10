@@ -2523,35 +2523,36 @@
 		select seq_eqp_health_daily_sum_pdm.nextval, param.eqp_mst_rawid,logic1logic2.param_health_mst_rawid,  logic1logic2.score, logic1logic2.alarm_count, #{fromdate} as sum_dtts, 'SYSTEM' as create_by, systimestamp as create_dtts
 		from param_mst_pdm param,
 		(
-		select A.param_mst_rawid, A.PARAM_HEALTH_MST_RAWID,  MAX(A.SCORE) AS SCORE,  count(1) as alarm_count
-		from PARAM_HEALTH_TRX_PDM A, param_health_mst_pdm B
-		where status_cd='A'
-		AND A.PARAM_HEALTH_MST_RAWID=B.RAWID
-		AND B.HEALTH_LOGIC_MST_RAWID IN (1,2)
-		and A.create_dtts <![CDATA[>=]]> #{fromdate}
-		and A.create_dtts <![CDATA[<]]> #{todate}
-		group by A.param_mst_rawid,PARAM_HEALTH_MST_RAWID
+			select A.param_mst_rawid, A.PARAM_HEALTH_MST_RAWID,  MAX(A.SCORE) AS SCORE,  count(1) as alarm_count
+			from PARAM_HEALTH_TRX_PDM A, param_health_mst_pdm B
+			where status_cd='A'
+			AND A.PARAM_HEALTH_MST_RAWID=B.RAWID
+			AND B.HEALTH_LOGIC_MST_RAWID IN (1,2)
+			and A.create_dtts <![CDATA[>=]]> #{fromdate}
+			and A.create_dtts <![CDATA[<]]> #{todate}
+			group by A.param_mst_rawid,PARAM_HEALTH_MST_RAWID
 
-		union
+			union
 
-		SELECT PARAM_MST_RAWID, PARAM_HEALTH_MST_RAWID,  score,  0 as alarm_count FROM
-		(
-		SELECT PARAM_MST_RAWID, PARAM_HEALTH_MST_RAWID, SUM(AVG1)/SUM(DATA_COUNT) AS score,  0 as alarmcount ,MAX(STATUS) AS STATUS
-		from
-		(
-		select A.PARAM_MST_RAWID, A.PARAM_HEALTH_MST_RAWID, A.SCORE*A.DATA_COUNT AS AVG1,A.DATA_COUNT,CASE WHEN A.STATUS_CD ='A' THEN 256 WHEN A.STATUS_CD='W' THEN 128 ELSE 0 END AS STATUS
-		from PARAM_HEALTH_TRX_PDM A , param_health_mst_pdm b
-		where
-		1=1
-		AND A.PARAM_HEALTH_MST_RAWID=B.RAWID
-		AND B.HEALTH_LOGIC_MST_RAWID IN (1,2)
-		<!--status_cd!='A'-->
-		and A.create_dtts <![CDATA[>=]]> #{fromdate}
-		and A.create_dtts <![CDATA[<]]> #{todate}
-		)
-		group by PARAM_MST_RAWID, PARAM_HEALTH_MST_RAWID
-		)
-		WHERE STATUS in (0,128)
+			SELECT PARAM_MST_RAWID, PARAM_HEALTH_MST_RAWID,  score,  0 as alarm_count
+			FROM
+			(
+				SELECT PARAM_MST_RAWID, PARAM_HEALTH_MST_RAWID, SUM(AVG1)/SUM(DATA_COUNT) AS score,  0 as alarmcount ,MAX(STATUS) AS STATUS
+				from
+				(
+					select A.PARAM_MST_RAWID, A.PARAM_HEALTH_MST_RAWID, A.SCORE*A.DATA_COUNT AS AVG1,A.DATA_COUNT,CASE WHEN A.STATUS_CD ='A' THEN 256 WHEN A.STATUS_CD='W' THEN 128 ELSE 0 END AS STATUS
+					from PARAM_HEALTH_TRX_PDM A , param_health_mst_pdm b
+					where
+					1=1
+					AND A.PARAM_HEALTH_MST_RAWID=B.RAWID
+					AND B.HEALTH_LOGIC_MST_RAWID IN (1,2)
+					<!--status_cd!='A'-->
+					and A.create_dtts <![CDATA[>=]]> #{fromdate}
+					and A.create_dtts <![CDATA[<]]> #{todate}
+				)
+				group by PARAM_MST_RAWID, PARAM_HEALTH_MST_RAWID
+			)
+			WHERE STATUS in (0,128)
 		) logic1logic2
 		where 1=1
 		and logic1logic2.param_mst_rawid=param.rawid

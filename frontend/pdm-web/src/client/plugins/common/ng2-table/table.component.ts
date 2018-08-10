@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, OnChanges, ViewEncapsulation, Input, Output, EventEmitter, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
-import { NgTableComponent } from '../../../../../node_modules/ng2-table';
+import { NgTableComponent } from 'ng2-table/ng2-table';
 // import { PaginationHelper } from './pagination';
 
 //* 테이블 데이터 규격 (헤더)
