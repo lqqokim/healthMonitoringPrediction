@@ -85,7 +85,7 @@ export class PdmEqpHealthIndex extends WidgetApi implements OnSetup, OnDestroy {
     @ViewChild('modalPop') modalPop: ModalPopComponent;
     @ViewChild('logicChart') logicChart: LogicChartComponent;
 
-    public columns: Array<TableData> = [
+    private columnsDatas: Array<TableData> = [
         {title: 'Line', name: 'line' },
         {title: 'Equipment', name: 'equipment' },
         {title: 'Health Index', name: 'healthIndex' },
@@ -96,6 +96,7 @@ export class PdmEqpHealthIndex extends WidgetApi implements OnSetup, OnDestroy {
         {title: 'Alarm Count', name: 'alarmCount'},
         {title: 'Description', name: 'description'}
     ];
+    private columns: Array<TableData> = this.columnsDatas.concat();
 
     // public data:Array<any> = [
     //     {Time: '', EQP:'EQP34', Param:'Vibration1', Category:'Alarm', FaultClass: 'Unbalance', Description: ''},
@@ -163,7 +164,7 @@ export class PdmEqpHealthIndex extends WidgetApi implements OnSetup, OnDestroy {
     //* 테이블 셀 타이틀 가져오기
     getCellTile( columnName: string ): string {
         let i: number;
-        let columns: Array<TableData> = this.columns;
+        let columns: Array<TableData> = this.columnsDatas;
         const max: number = columns.length;
 
         for(i=0; i<max; i++){
@@ -178,7 +179,7 @@ export class PdmEqpHealthIndex extends WidgetApi implements OnSetup, OnDestroy {
     //* 테이블 셀 타이틀 가져오기
     getCellIdx( columnName: string ): number {
         let i: number;
-        let columns: Array<TableData> = this.columns;
+        let columns: Array<TableData> = this.columnsDatas;
         const max: number = columns.length;
 
         for(i=0; i<max; i++){
