@@ -22,16 +22,24 @@ public class StreamingMasterDataDao {
 
     private final static String PARAM_MASTER_DS_SQL =
             "select " +
-                    "area.name area_name, eqp.name as eqp_name, eqp.rawid as eqp_rawid, " +
-                    "param.name as param_name, param.parse_index, param.rawid param_id, " +
-                    "spec.alarm_spec, spec.warning_spec, " +
-                    "param.param_type_cd " +
-                    //"spec.upper_alarm_spec, spec.upper_warning_spec, spec.target, " +
-                    //"spec.lower_alarm_spec, spec.lower_warning_spec " +
-                    "from area_mst_pdm area, eqp_mst_pdm eqp, param_mst_pdm param, trace_spec_mst_pdm spec " +
-                    "where area.rawid=eqp.area_mst_rawid " +
-                    "and eqp.rawid=param.eqp_mst_rawid " +
-                    "and param.rawid=spec.param_mst_rawid(+) ";
+                    "a.name area_name, e.name as eqp_name, e.rawid as eqp_rawid, " +
+                    "p.name as param_name, p.parse_index, p.rawid param_id, " +
+                    "s.alarm_spec, s.warning_spec, p.param_type_cd " +
+                    "from area_mst_pdm a inner join eqp_mst_pdm e " +
+                    "on a.rawid=e.area_mst_rawid " +
+                    "inner join param_mst_pdm p " +
+                    "on e.rawid=p.eqp_mst_rawid " +
+                    "left outer join trace_spec_mst_pdm s " +
+                    "on p.rawid=s.param_mst_rawid ";
+
+//            "select " +
+//                    "area.name area_name, eqp.name as eqp_name, eqp.rawid as eqp_rawid, " +
+//                    "param.name as param_name, param.parse_index, param.rawid param_id, " +
+//                    "spec.alarm_spec, spec.warning_spec, param.param_type_cd " +
+//                    "from area_mst_pdm area, eqp_mst_pdm eqp, param_mst_pdm param, trace_spec_mst_pdm spec " +
+//                    "where area.rawid=eqp.area_mst_rawid " +
+//                    "and eqp.rawid=param.eqp_mst_rawid " +
+//                    "and param.rawid=spec.param_mst_rawid(+) ";
 
     public List<ParameterMasterDataSet> getParamMasterDataSet() throws SQLException {
         List<ParameterMasterDataSet> resultRows = new ArrayList<>();
@@ -92,17 +100,29 @@ public class StreamingMasterDataDao {
 
     private final static String PARAM_MASTER_DS_1_SQL =
             "select " +
-                    "area.name area_name, eqp.name as eqp_name, eqp.rawid as eqp_rawid, " +
-                    "param.name as param_name, param.parse_index, param.rawid param_id, " +
-                    "spec.alarm_spec, spec.warning_spec, " +
-                    "param.param_type_cd " +
-                    //"spec.upper_alarm_spec, spec.upper_warning_spec, spec.target, " +
-                    //"spec.lower_alarm_spec, spec.lower_warning_spec " +
-                    "from area_mst_pdm area, eqp_mst_pdm eqp, param_mst_pdm param, trace_spec_mst_pdm spec " +
-                    "where area.rawid=eqp.area_mst_rawid " +
-                    "and eqp.rawid=param.eqp_mst_rawid " +
-                    "and param.rawid=spec.param_mst_rawid(+) " +
-                    "and eqp.name=? ";
+                    "a.name area_name, e.name as eqp_name, e.rawid as eqp_rawid, " +
+                    "p.name as param_name, p.parse_index, p.rawid param_id, " +
+                    "s.alarm_spec, s.warning_spec, p.param_type_cd " +
+                    "from area_mst_pdm a inner join eqp_mst_pdm e " +
+                    "on a.rawid=e.area_mst_rawid " +
+                    "and e.name=? " +
+                    "inner join param_mst_pdm p " +
+                    "on e.rawid=p.eqp_mst_rawid " +
+                    "left outer join trace_spec_mst_pdm s " +
+                    "on p.rawid=s.param_mst_rawid ";
+
+//            "select " +
+//                    "area.name area_name, eqp.name as eqp_name, eqp.rawid as eqp_rawid, " +
+//                    "param.name as param_name, param.parse_index, param.rawid param_id, " +
+//                    "spec.alarm_spec, spec.warning_spec, " +
+//                    "param.param_type_cd " +
+//                    //"spec.upper_alarm_spec, spec.upper_warning_spec, spec.target, " +
+//                    //"spec.lower_alarm_spec, spec.lower_warning_spec " +
+//                    "from area_mst_pdm area, eqp_mst_pdm eqp, param_mst_pdm param, trace_spec_mst_pdm spec " +
+//                    "where area.rawid=eqp.area_mst_rawid " +
+//                    "and eqp.rawid=param.eqp_mst_rawid " +
+//                    "and param.rawid=spec.param_mst_rawid(+) " +
+//                    "and eqp.name=? ";
 
     public List<ParameterMasterDataSet> getParamMasterDataSet(String eqpId) throws SQLException {
         List<ParameterMasterDataSet> resultRows = new ArrayList<>();

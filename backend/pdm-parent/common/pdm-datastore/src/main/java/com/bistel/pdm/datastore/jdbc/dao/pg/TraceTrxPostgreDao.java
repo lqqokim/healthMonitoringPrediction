@@ -24,10 +24,10 @@ public class TraceTrxPostgreDao implements SensorTraceDataDao {
     private static final String TRX_SEQ_SQL = "select nextval from nextval('seq_trace_trx_pdm')";
 
     private static final String INSERT_SQL =
-            "insert into trace_trx_pdm (PARAM_MST_RAWID, VALUE, RPM, ALARM_SPEC, " +
+            "insert into trace_trx_pdm (PARAM_MST_RAWID, VALUE, ALARM_SPEC, " +
                     "WARNING_SPEC, STATUS_CD, EVENT_DTTS, RESERVED_COL1, RESERVED_COL2, " +
                     "RESERVED_COL3, RESERVED_COL4, RESERVED_COL5) " +
-                    "values (?,?,?,?,?,?,?,?,?,?,?,?)";
+                    "values (?,?,?,?,?,?,?,?,?,?,?)";
 
     private static final String INSERT_SQL_WITH_RAW =
             "insert into trace_trx_pdm (RAWID, PARAM_MST_RAWID, VALUE, RPM, ALARM_SPEC, " +
@@ -88,15 +88,19 @@ public class TraceTrxPostgreDao implements SensorTraceDataDao {
                     for (ParameterMasterDataSet param : paramData) {
                         if (param.getParamParseIndex() == -1) continue;
 
+                        //PARAM_MST_RAWID, VALUE, ALARM_SPEC, " +
+                        //                    "WARNING_SPEC, STATUS_CD, EVENT_DTTS, RESERVED_COL1, RESERVED_COL2, " +
+                        //                    "RESERVED_COL3, RESERVED_COL4, RESERVED_COL5
+
                         pstmt.setLong(1, param.getParameterRawId()); //param rawid
 
                         String strValue = values[param.getParamParseIndex()];
                         if (strValue.length() <= 0) {
                             log.debug("key:{}, param:{}, index:{} - value is empty.",
                                     record.key(), param.getParameterName(), param.getParamParseIndex());
-                            pstmt.setFloat(2, Types.FLOAT); //value
+                            pstmt.setDouble(2, Types.DOUBLE); //value
                         } else {
-                            pstmt.setFloat(2, Float.parseFloat(strValue)); //value
+                            pstmt.setDouble(2, Double.parseDouble(strValue)); //value
                         }
 
                         if (param.getUpperAlarmSpec() != null) {
@@ -142,8 +146,6 @@ public class TraceTrxPostgreDao implements SensorTraceDataDao {
                         pstmt.setNull(9, Types.VARCHAR);
                         pstmt.setNull(10, Types.VARCHAR);
                         pstmt.setNull(11, Types.VARCHAR);
-
-
                     }
 
                     pstmt.addBatch();

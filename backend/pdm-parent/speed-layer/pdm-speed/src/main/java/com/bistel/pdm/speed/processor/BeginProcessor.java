@@ -21,8 +21,8 @@ public class BeginProcessor extends AbstractProcessor<String, byte[]> {
     @Override
     public void process(String partitionKey, byte[] streamByteRecord) {
         try {
-            String ts = new SimpleDateFormat("MM-dd HH:mm:ss.SSS").format(context().timestamp());
-            log.debug("[{}] - time : {}, partition : {}", partitionKey, ts, context().partition());
+            //String ts = new SimpleDateFormat("MM-dd HH:mm:ss.SSS").format(context().timestamp());
+            //log.debug("[{}] - time : {}, partition : {}", partitionKey, ts, context().partition());
             context().forward(partitionKey, streamByteRecord);
             context().commit();
         } catch (Exception e) {
