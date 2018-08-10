@@ -17,20 +17,21 @@ public class ParamHealthDataDao {
 
     private final static String HEALTH_DS_SQL =
             "select p.rawid param_rawid, " +
-                    " h.rawid health_rawid, " +
-                    " p.name param_name, " +
-                    " l.code, " +
-                    " l.rawid as health_logic_rawid , " +
-                    " l.alarm_condition, " +
-                    " l.warning_condition, " +
-                    " o.option_name, " +
-                    " o.option_value, " +
-                    " h.apply_logic_yn " +
-                    "from param_mst_pdm p, health_logic_mst_pdm l, " +
-                    "     param_health_mst_pdm h, param_health_option_mst_pdm o " +
-                    "where p.rawid=h.param_mst_rawid " +
-                    "and l.rawid=h.health_logic_mst_rawid " +
-                    "and h.rawid=o.param_health_mst_rawid(+) ";
+                    "h.rawid health_rawid, " +
+                    "p.name param_name, " +
+                    "l.code, " +
+                    "l.rawid as health_logic_rawid, " +
+                    "l.alarm_condition, " +
+                    "l.warning_condition, " +
+                    "o.option_name, " +
+                    "o.option_value, " +
+                    "h.apply_logic_yn " +
+                    "from param_mst_pdm p inner join param_health_mst_pdm h " +
+                    "on p.rawid=h.param_mst_rawid " +
+                    "inner join health_logic_mst_pdm l " +
+                    "on l.rawid=h.health_logic_mst_rawid " +
+                    "left outer join param_health_option_mst_pdm o " +
+                    "on h.rawid=o.param_health_mst_rawid ";
 
     public List<ParameterHealthDataSet> getParamHealthDataSet() throws SQLException {
         List<ParameterHealthDataSet> resultRows = new ArrayList<>();
@@ -67,23 +68,44 @@ public class ParamHealthDataDao {
 
     private final static String HEALTH_DS_1_SQL =
             "select p.rawid param_rawid, " +
-                    " h.rawid health_rawid, " +
-                    " p.name param_name, " +
-                    " l.code, " +
-                    " l.rawid as health_logic_rawid , " +
-                    " l.alarm_condition, " +
-                    " l.warning_condition, " +
-                    " o.option_name, " +
-                    " o.option_value, " +
-                    " h.apply_logic_yn," +
-                    " e.name as eqp_name " +
-                    "from eqp_mst_pdm e, param_mst_pdm p, health_logic_mst_pdm l, " +
-                    "     param_health_mst_pdm h, param_health_option_mst_pdm o " +
-                    "where p.rawid=h.param_mst_rawid " +
-                    "and l.rawid=h.health_logic_mst_rawid " +
-                    "and h.rawid=o.param_health_mst_rawid(+) " +
-                    "and e.rawid=p.eqp_mst_rawid " +
-                    "and e.name=? ";
+                    "h.rawid health_rawid, " +
+                    "p.name param_name, " +
+                    "l.code, " +
+                    "l.rawid as health_logic_rawid, " +
+                    "l.alarm_condition, " +
+                    "l.warning_condition, " +
+                    "o.option_name, " +
+                    "o.option_value, " +
+                    "h.apply_logic_yn, " +
+                    "e.name as eqp_name " +
+                    "from eqp_mst_pdm e inner join param_mst_pdm p " +
+                    "on e.rawid=p.eqp_mst_rawid " +
+                    "and e.name=? " +
+                    "inner join param_health_mst_pdm h " +
+                    "on p.rawid=h.param_mst_rawid " +
+                    "inner join health_logic_mst_pdm l " +
+                    "on l.rawid=h.health_logic_mst_rawid " +
+                    "left outer join param_health_option_mst_pdm o " +
+                    "on h.rawid=o.param_health_mst_rawid ";
+
+//            "select p.rawid param_rawid, " +
+//                    " h.rawid health_rawid, " +
+//                    " p.name param_name, " +
+//                    " l.code, " +
+//                    " l.rawid as health_logic_rawid , " +
+//                    " l.alarm_condition, " +
+//                    " l.warning_condition, " +
+//                    " o.option_name, " +
+//                    " o.option_value, " +
+//                    " h.apply_logic_yn," +
+//                    " e.name as eqp_name " +
+//                    "from eqp_mst_pdm e, param_mst_pdm p, health_logic_mst_pdm l, " +
+//                    "     param_health_mst_pdm h, param_health_option_mst_pdm o " +
+//                    "where p.rawid=h.param_mst_rawid " +
+//                    "and l.rawid=h.health_logic_mst_rawid " +
+//                    "and h.rawid=o.param_health_mst_rawid(+) " +
+//                    "and e.rawid=p.eqp_mst_rawid " +
+//                    "and e.name=? ";
 
     public List<ParameterHealthDataSet> getParamHealthDataSet(String eqpId) throws SQLException {
         List<ParameterHealthDataSet> resultRows = new ArrayList<>();
