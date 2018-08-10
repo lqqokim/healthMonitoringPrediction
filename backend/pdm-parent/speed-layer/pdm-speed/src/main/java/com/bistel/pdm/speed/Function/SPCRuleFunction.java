@@ -24,9 +24,9 @@ public class SPCRuleFunction {
                 //check alarm
                 int alarmCount = 0;
                 for (Double dValue : slidingWindow) {
-                    if (dValue >= paramInfo.getUpperAlarmSpec()
-                            || dValue <= paramInfo.getLowerAlarmSpec()) {
-
+//                    if (dValue >= paramInfo.getUpperAlarmSpec()
+//                            || dValue <= paramInfo.getLowerAlarmSpec()) {
+                    if (dValue >= paramInfo.getUpperAlarmSpec()) {
                         alarmCount++;
                         outOfSpecValueList.add(dValue);
                     }
@@ -58,9 +58,9 @@ public class SPCRuleFunction {
                 //check alarm
                 int warningCount = 0;
                 for (Double dValue : slidingWindow) {
-                    if (dValue >= paramInfo.getUpperWarningSpec()
-                            || dValue <= paramInfo.getLowerWarningSpec()) {
-
+//                    if (dValue >= paramInfo.getUpperWarningSpec()
+//                            || dValue <= paramInfo.getLowerWarningSpec()) {
+                    if (dValue >= paramInfo.getUpperWarningSpec()) {
                         warningCount++;
                         outOfSpecValueList.add(dValue);
                     }

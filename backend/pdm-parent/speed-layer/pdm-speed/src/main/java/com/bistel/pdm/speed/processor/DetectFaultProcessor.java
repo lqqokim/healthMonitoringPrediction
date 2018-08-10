@@ -89,7 +89,7 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
                     Long time = parseStringToTimestamp(recordColumns[0]);
                     kvParamValueStore.put(paramKey, time + "," + paramValue, time);
 
-                    ParameterHealthDataSet fd01Health = getParamHealth(paramInfo.getParameterRawId(), "FD_OOS");
+                    ParameterHealthDataSet fd01Health = getParamHealth(partitionKey, paramInfo.getParameterRawId(), "FD_OOS");
                     if (fd01Health != null && fd01Health.getApplyLogicYN().equalsIgnoreCase("Y")) {
 
                         if (OutOfSpecFunction.evaluateAlarm(paramInfo, paramValue)) {
@@ -155,11 +155,11 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
                     storeIterator.close();
 
 
-                    ParameterHealthDataSet fd02Health = getParamHealth(paramInfo.getParameterRawId(), "FD_RULE_1");
+                    ParameterHealthDataSet fd02Health = getParamHealth(partitionKey, paramInfo.getParameterRawId(), "FD_RULE_1");
                     if (fd02Health != null && fd02Health.getApplyLogicYN().equalsIgnoreCase("Y")
                             && paramInfo.getUpperAlarmSpec() != null) {
 
-                        for (Pair<String, Integer> option : getParamHealthFD02Options(paramInfo.getParameterRawId())) {
+                        for (Pair<String, Integer> option : getParamHealthFD02Options(partitionKey, paramInfo.getParameterRawId())) {
 
                             if (option != null) {
                                 if (option.getFirst().equalsIgnoreCase("M")) {
@@ -223,10 +223,9 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
 
                     // ==========================================================================================
                     // Logic 1 health
-                    ParameterHealthDataSet fd01Health = getParamHealth(paramInfo.getParameterRawId(), "FD_OOS");
-                    if (fd01Health != null && fd01Health.getApplyLogicYN().equalsIgnoreCase("Y")) {
-
-                        if (paramInfo.getUpperAlarmSpec() == null) return;
+                    ParameterHealthDataSet fd01Health = getParamHealth(partitionKey, paramInfo.getParameterRawId(), "FD_OOS");
+                    if (fd01Health != null && fd01Health.getApplyLogicYN().equalsIgnoreCase("Y")
+                            && paramInfo.getUpperAlarmSpec() != null) {
 
                         double index;
                         int dataCount = 0;
@@ -330,11 +329,12 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
         return time;
     }
 
-    private ParameterHealthDataSet getParamHealth(Long key, String code) throws ExecutionException {
+    private ParameterHealthDataSet getParamHealth(String partitionKey, Long paramkey, String code) throws ExecutionException {
         ParameterHealthDataSet healthData = null;
 
-        for (ParameterHealthDataSet health : MasterCache.Health.get(key)) {
-            if (health.getHealthCode().equalsIgnoreCase(code)) {
+        List<ParameterHealthDataSet> healthList = MasterCache.Health.get(partitionKey);
+        for (ParameterHealthDataSet health : healthList) {
+            if (health.getParamRawId().equals(paramkey) && health.getHealthCode().equalsIgnoreCase(code)) {
                 healthData = health;
                 break;
             }
@@ -343,11 +343,13 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
         return healthData;
     }
 
-    public List<Pair<String, Integer>> getParamHealthFD02Options(Long key) throws ExecutionException {
+    public List<Pair<String, Integer>> getParamHealthFD02Options(String partitionKey, Long paramkey) throws ExecutionException {
         List<Pair<String, Integer>> optionList = new ArrayList<>();
 
-        for (ParameterHealthDataSet health : MasterCache.Health.get(key)) {
-            if (health.getHealthCode().equalsIgnoreCase("FD_RULE_1")) {
+        List<ParameterHealthDataSet> healthList = MasterCache.Health.get(partitionKey);
+        for (ParameterHealthDataSet health : healthList) {
+            if (health.getParamRawId().equals(paramkey)
+                    && health.getHealthCode().equalsIgnoreCase("FD_RULE_1")) {
                 optionList.add(new Pair<>(health.getOptionName(), health.getOptionValue()));
             }
         }

@@ -27,12 +27,7 @@ public class RefreshCacheProcessor extends AbstractProcessor<String, byte[]> {
             MasterCache.Equipment.refresh(partitionKey);
             MasterCache.Parameter.refresh(partitionKey);
             MasterCache.Event.refresh(partitionKey);
-
-            List<ParameterMasterDataSet> paramList = MasterCache.Parameter.get(partitionKey);
-            for (ParameterMasterDataSet param : paramList) {
-                MasterCache.Health.refresh(param.getParameterRawId());
-            }
-
+            MasterCache.Health.refresh(partitionKey);
             MasterCache.Mail.refresh(partitionKey);
         } catch (Exception e) {
             log.error(e.getMessage(), e);

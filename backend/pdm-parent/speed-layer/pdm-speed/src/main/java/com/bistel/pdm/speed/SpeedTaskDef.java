@@ -102,7 +102,7 @@ public class SpeedTaskDef extends AbstractPipeline {
                 .addStateStore(warningCountStoreSupplier, "fault")
 
                 .addProcessor("refresh", RefreshCacheProcessor::new, "fault")
-                .addProcessor("mail", SendMailProcessor::new, "fault")
+                //.addProcessor("mail", SendMailProcessor::new, "fault")
 
                 .addSink("output-trace", this.getOutputTraceTopic(), "prepare")
                 .addSink("output-event", this.getOutputEventTopic(), "event")

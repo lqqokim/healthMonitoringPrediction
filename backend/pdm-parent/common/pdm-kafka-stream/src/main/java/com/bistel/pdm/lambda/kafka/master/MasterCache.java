@@ -48,7 +48,7 @@ public class MasterCache {
                             masterDataList = mapper.readValue(body, new TypeReference<EquipmentMasterDataSet>() {
                             });
 
-                            log.info("{} reloaded.", key);
+                            log.info("{} - equipments are reloaded.", key);
                         }
                     } catch (IOException e) {
                         log.error(e.getMessage(), e);
@@ -80,12 +80,12 @@ public class MasterCache {
                         ObjectMapper mapper = new ObjectMapper();
 
                         if (body.length() <= 0) {
-                            log.info("equipment master data does not exists. message: " + body);
+                            log.info("parameter master data does not exists. message: " + body);
                         } else {
                             masterDataList = mapper.readValue(body, new TypeReference<List<ParameterMasterDataSet>>() {
                             });
 
-                            log.info("{} reloaded.", key);
+                            log.info("{} - parameter are reloaded.", key);
                         }
                     } catch (IOException e) {
                         log.error(e.getMessage(), e);
@@ -116,12 +116,12 @@ public class MasterCache {
                         ObjectMapper mapper = new ObjectMapper();
 
                         if (body.length() <= 0) {
-                            log.info("equipment master data does not exists. message: " + body);
+                            log.info("event master data does not exists. message: " + body);
                         } else {
                             masterDataList = mapper.readValue(body, new TypeReference<List<EventMasterDataSet>>() {
                             });
 
-                            log.info("{} reloaded.", key);
+                            log.info("{} - events are reloaded.", key);
                         }
                     } catch (IOException e) {
                         log.error(e.getMessage(), e);
@@ -134,12 +134,12 @@ public class MasterCache {
                 }
             });
 
-    public static LoadingCache<Long, List<ParameterHealthDataSet>> Health = CacheBuilder.newBuilder()
-            .maximumSize(100000)
+    public static LoadingCache<String, List<ParameterHealthDataSet>> Health = CacheBuilder.newBuilder()
+            .maximumSize(10000000)
             .expireAfterAccess(24, TimeUnit.HOURS)
-            .build(new CacheLoader<Long, List<ParameterHealthDataSet>>() {
+            .build(new CacheLoader<String, List<ParameterHealthDataSet>>() {
                 @Override
-                public List<ParameterHealthDataSet> load(Long key) throws IOException {
+                public List<ParameterHealthDataSet> load(String key) throws IOException {
                     String targetUrl = ServingAddress + "/pdm/api/master/latest/health/" + key + "";
 
                     List<ParameterHealthDataSet> masterDataList = new ArrayList<>();
@@ -152,12 +152,12 @@ public class MasterCache {
                         ObjectMapper mapper = new ObjectMapper();
 
                         if (body.length() <= 0) {
-                            log.info("equipment master data does not exists. message: " + body);
+                            log.info("health master data does not exists. message: " + body);
                         } else {
                             masterDataList = mapper.readValue(body, new TypeReference<List<ParameterHealthDataSet>>() {
                             });
 
-                            log.info("{} reloaded.", key);
+                            log.info("{} - health are reloaded.", key);
                         }
                     } catch (IOException e) {
                         log.error(e.getMessage(), e);
@@ -188,7 +188,7 @@ public class MasterCache {
                         ObjectMapper mapper = new ObjectMapper();
 
                         if (body.length() <= 0) {
-                            log.info("equipment master data does not exists. message: " + body);
+                            log.info("mail info. does not exists. message: " + body);
                         } else {
                             masterDataList = mapper.readValue(body, new TypeReference<MailConfigDataSet>() {
                             });

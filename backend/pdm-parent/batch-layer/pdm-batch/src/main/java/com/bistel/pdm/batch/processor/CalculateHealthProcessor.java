@@ -131,61 +131,64 @@ public class CalculateHealthProcessor extends AbstractProcessor<String, byte[]> 
 
             // ==========================================================================================
             // Logic 3 health
-            ParameterHealthDataSet fd03Health = getParamHealth(paramRawid, "FD_CHANGE_RATE");
+            ParameterHealthDataSet fd03Health = getParamHealth(partitionKey, paramRawid, "FD_CHANGE_RATE");
             if (fd03Health != null && fd03Health.getApplyLogicYN().equalsIgnoreCase("Y")) {
 
-                Integer count = Integer.parseInt(recordColumns[3]);
-                Double dValue = Double.parseDouble(recordColumns[7]) * count; //avg * count
+                if(paramFeatureValueList.get(paramRawid) != null) {
 
-                if (kvMovingAvgStore.get(paramRawid) == null) {
-                    kvMovingAvgStore.put(paramRawid, dValue + ",1");
-                } else {
-                    String val = kvMovingAvgStore.get(paramRawid);
-                    String[] vv = val.split(",");
-                    int n = Integer.parseInt(vv[1]) + 1;
-                    Double ma = dValue + Double.parseDouble(vv[0]);
-                    kvMovingAvgStore.put(paramRawid, ma + "," + n);
+                    Integer count = Integer.parseInt(recordColumns[3]);
+                    Double dValue = Double.parseDouble(recordColumns[7]) * count; //avg * count
 
-                    Double mean = null;
-                    Double sigma = null;
-
-                    SummarizedFeature feature = paramFeatureValueList.get(paramRawid);
-                    mean = feature.getMean();
-                    sigma = feature.getSigma();
-
-                    Double index = 0D;
-                    if (mean == null || sigma == null) {
-                        log.debug("[{}] - Historical data does not exist.", paramKey);
+                    if (kvMovingAvgStore.get(paramRawid) == null) {
+                        kvMovingAvgStore.put(paramRawid, dValue + ",1");
                     } else {
-                        //logic 3 - calculate index
-                        index = ((ma / n) - mean) / sigma;
+                        String val = kvMovingAvgStore.get(paramRawid);
+                        String[] vv = val.split(",");
+                        int n = Integer.parseInt(vv[1]) + 1;
+                        Double ma = dValue + Double.parseDouble(vv[0]);
+                        kvMovingAvgStore.put(paramRawid, ma + "," + n);
+
+                        Double mean = null;
+                        Double sigma = null;
+
+                        SummarizedFeature feature = paramFeatureValueList.get(paramRawid);
+                        mean = feature.getMean();
+                        sigma = feature.getSigma();
+
+                        Double index = 0D;
+                        if (mean == null || sigma == null) {
+                            log.debug("[{}] - Historical data does not exist.", paramKey);
+                        } else {
+                            //logic 3 - calculate index
+                            index = ((ma / n) - mean) / sigma;
+                        }
+
+                        String statusCode = "N";
+
+                        if (index >= 1) {
+                            statusCode = "A";
+                        } else if (index >= 0.5 && index < 1) {
+                            statusCode = "W";
+                        }
+
+                        // time, eqpRawid, param_rawid, param_health_rawid, status_cd, data_count, index, specs
+                        String newMsg = endTime + ","
+                                + paramInfo.getEquipmentRawId() + ","
+                                + paramRawid + ","
+                                + fd03Health.getParamHealthRawId() + ","
+                                + statusCode + ","
+                                + count + ","
+                                + index + ","
+                                + (paramInfo.getUpperAlarmSpec() == null ? "" : paramInfo.getUpperAlarmSpec()) + ","
+                                + (paramInfo.getUpperWarningSpec() == null ? "" : paramInfo.getUpperWarningSpec()) + ","
+                                + (paramInfo.getTarget() == null ? "" : paramInfo.getTarget()) + ","
+                                + (paramInfo.getLowerAlarmSpec() == null ? "" : paramInfo.getLowerAlarmSpec()) + ","
+                                + (paramInfo.getLowerWarningSpec() == null ? "" : paramInfo.getLowerWarningSpec());
+
+                        context().forward(partitionKey, newMsg.getBytes());
+                        context().commit();
+                        log.debug("[{}] - logic 3 health : {}", paramKey, newMsg);
                     }
-
-                    String statusCode = "N";
-
-                    if (index >= 1) {
-                        statusCode = "A";
-                    } else if (index >= 0.5 && index < 1) {
-                        statusCode = "W";
-                    }
-
-                    // time, eqpRawid, param_rawid, param_health_rawid, status_cd, data_count, index, specs
-                    String newMsg = endTime + ","
-                            + paramInfo.getEquipmentRawId() + ","
-                            + paramRawid + ","
-                            + fd03Health.getParamHealthRawId() + ","
-                            + statusCode + ","
-                            + count + ","
-                            + index + ","
-                            + (paramInfo.getUpperAlarmSpec() == null ? "" : paramInfo.getUpperAlarmSpec()) + ","
-                            + (paramInfo.getUpperWarningSpec() == null ? "" : paramInfo.getUpperWarningSpec()) + ","
-                            + (paramInfo.getTarget() == null ? "" : paramInfo.getTarget()) + ","
-                            + (paramInfo.getLowerAlarmSpec() == null ? "" : paramInfo.getLowerAlarmSpec()) + ","
-                            + (paramInfo.getLowerWarningSpec() == null ? "" : paramInfo.getLowerWarningSpec());
-
-                    context().forward(partitionKey, newMsg.getBytes());
-                    context().commit();
-                    log.debug("[{}] - logic 3 health : {}", paramKey, newMsg);
                 }
             } else {
                 //log.debug("[{}] - No health because skip the logic 3.", paramKey);
@@ -194,10 +197,9 @@ public class CalculateHealthProcessor extends AbstractProcessor<String, byte[]> 
 
             // ==========================================================================================
             // Logic 4 health
-            ParameterHealthDataSet fd04Health = getParamHealth(paramRawid, "FP_RUL");
-            if (fd04Health != null && fd04Health.getApplyLogicYN().equalsIgnoreCase("Y")) {
-
-                if (paramInfo.getUpperAlarmSpec() == null) return;
+            ParameterHealthDataSet fd04Health = getParamHealth(partitionKey, paramRawid, "FP_RUL");
+            if (fd04Health != null && fd04Health.getApplyLogicYN().equalsIgnoreCase("Y")
+                    && paramInfo.getUpperAlarmSpec() != null) {
 
                 Long startTime = endTime - TimeUnit.DAYS.toMillis(7);
                 Double dValue = Double.parseDouble(recordColumns[7]);
@@ -320,12 +322,7 @@ public class CalculateHealthProcessor extends AbstractProcessor<String, byte[]> 
                 MasterCache.Equipment.refresh(partitionKey);
                 MasterCache.Parameter.refresh(partitionKey);
                 MasterCache.Event.refresh(partitionKey);
-
-                List<ParameterMasterDataSet> cacheParamList = MasterCache.Parameter.get(partitionKey);
-                for (ParameterMasterDataSet param : cacheParamList) {
-                    MasterCache.Health.refresh(param.getParameterRawId());
-                }
-
+                MasterCache.Health.refresh(partitionKey);
                 MasterCache.Mail.refresh(partitionKey);
             }
         } catch (Exception e) {
@@ -347,11 +344,12 @@ public class CalculateHealthProcessor extends AbstractProcessor<String, byte[]> 
         return param;
     }
 
-    private ParameterHealthDataSet getParamHealth(Long key, String code) throws ExecutionException {
+    private ParameterHealthDataSet getParamHealth(String partitionKey, Long paramKey, String code) throws ExecutionException {
         ParameterHealthDataSet healthData = null;
 
-        for (ParameterHealthDataSet health : MasterCache.Health.get(key)) {
-            if (health.getHealthCode().equalsIgnoreCase(code)) {
+        List<ParameterHealthDataSet> healthList = MasterCache.Health.get(partitionKey);
+        for (ParameterHealthDataSet health : healthList) {
+            if (health.getParamRawId().equals(paramKey) && health.getHealthCode().equalsIgnoreCase(code)) {
                 healthData = health;
                 break;
             }
