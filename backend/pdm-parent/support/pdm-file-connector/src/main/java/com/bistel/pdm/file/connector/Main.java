@@ -12,6 +12,7 @@ import java.io.*;
 import java.net.InetAddress;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Properties;
 
 /**
@@ -31,8 +32,6 @@ public class Main {
 
     private static final Options options = new Options();
 
-    private Producer<String, byte[]> producer;
-
     public static void main(String args[]) {
 
         CommandLine commandLine = parseCommandLine(args);
@@ -46,13 +45,13 @@ public class Main {
         String destTopicPrefix = commandLine.getOptionValue(TOPIC_PREFIX);
         String configPath = commandLine.getOptionValue(PROP_KAFKA_CONF);
         String logPath = commandLine.getOptionValue(LOG_PATH);
-        String topicName = destTopicPrefix + "_trace";
+        String topicName = destTopicPrefix + "-trace";
 
-        try{
+        try {
             Properties logProperties = new Properties();
             logProperties.load(new FileInputStream(logPath));
             PropertyConfigurator.configure(logProperties);
-        } catch (Exception e){
+        } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
 
@@ -70,29 +69,31 @@ public class Main {
         Producer<String, byte[]> producer = new KafkaProducer<>(producerProperties);
 
 
+        log.debug("topic : {}", topicName);
+        log.debug("client id : {}", clientId);
+
+
         File folder = new File(watchDir);
         File[] listOfFiles = folder.listFiles();
+        Arrays.sort(listOfFiles);
 
         int lineCount = 0;
         int rcount = 0;
         int icount = 0;
         int runCount = 1800;
         int idleCount = 600;
-        FileInputStream fis;
-        BufferedReader br = null;
-        try {
 
-            String partitionKey = clientId;
+        String partitionKey = clientId;
 
-            for (File file : listOfFiles) {
-                fis = new FileInputStream(file.getAbsoluteFile());
-                br = new BufferedReader(new InputStreamReader(fis));
+        for (File file : listOfFiles) {
+            log.debug("file : {}", file.getPath());
 
-                String line = null;
-                while ((line = br.readLine()) != null) {
+            try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+                for (String line; (line = br.readLine()) != null; ) {
+                    // process the line.
                     lineCount++;
-                    rcount ++;
-                    icount ++;
+                    rcount++;
+                    icount++;
 
                     // INDEX,TIME,LINE,PROCESSLINE,EQPTYPE,EQPID,UNITID,
                     //
@@ -114,49 +115,46 @@ public class Main {
                     // Z_RMS,X_RMS,TEMP,STATUS
 
                     String[] column = line.split(",");
+                    if (!column[0].equalsIgnoreCase("INDEX")) {
 
-                    if(column[0].equalsIgnoreCase("INDEX")) return;
+                        StringBuilder sbMsg = new StringBuilder();
 
-                    StringBuilder sbMsg = new StringBuilder();
+                        Timestamp ts = new Timestamp(System.currentTimeMillis());
+                        String timeStamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(ts);
+                        sbMsg.append(timeStamp).append(",");
 
-                    Timestamp ts = new Timestamp(System.currentTimeMillis());
-                    String timeStamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(ts);
-                    sbMsg.append(timeStamp).append(",");
+                        for (int i = 7; i < 69; i++) {
+                            sbMsg.append(column[i]).append(",");
+                        }
 
-                    for (int i = 7; i < 70; i++) {
-                        sbMsg.append(column[i]).append(",");
-                    }
-
-                    if(rcount <= runCount){
-                        sbMsg.append("1"); //status
-                        icount = 0;
-                    } else {
-                        if(icount <= idleCount){
-                            sbMsg.append("0"); //status
-                        } else {
-                            rcount = 0;
+                        if (rcount <= runCount) {
+                            sbMsg.append("1"); //status
                             icount = 0;
+                        } else {
+                            if (icount <= idleCount) {
+                                sbMsg.append("0"); //status
+                            } else {
+                                rcount = 0;
+                                icount = 0;
+                            }
+                        }
+
+
+                        producer.send(new ProducerRecord<>(topicName, partitionKey, sbMsg.toString().getBytes()));
+                        log.debug("msg: {}", sbMsg.toString());
+
+                        try {
+                            Thread.sleep(100);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
                         }
                     }
-
-                    producer.send(new ProducerRecord<>(topicName, partitionKey, sbMsg.toString().getBytes()));
-
-                    try {
-                        Thread.sleep(100);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
                 }
-
+                // line is not visible here.
                 log.debug("lines : {}", lineCount);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                br.close();
-            } catch (IOException e) {
-                e.printStackTrace();
+
+            } catch (Exception e) {
+                log.error(e.getMessage(), e);
             }
         }
     }
