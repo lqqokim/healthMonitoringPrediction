@@ -2,12 +2,15 @@ package com.bistel.pdm.datastore;
 
 import com.bistel.pdm.datastore.jdbc.DataSource;
 import com.bistel.pdm.lambda.kafka.master.MasterCache;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.Collections;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
@@ -23,8 +26,9 @@ public class ReloadConsumerRunnable implements Runnable {
 
     private final static int PollingDurations = 100; // milliseconds
 
-    public ReloadConsumerRunnable(Properties property, String groupId, String topicName, String servingAddress) {
-        this.consumer = new KafkaConsumer<>(createConsumerConfig(groupId, property));
+    public ReloadConsumerRunnable(String configPath, String groupId, String topicName, String servingAddress) {
+
+        this.consumer = new KafkaConsumer<>(createConsumerConfig(groupId, configPath));
         this.topicName = topicName;
         MasterCache.ServingAddress = servingAddress;
     }
@@ -51,24 +55,19 @@ public class ReloadConsumerRunnable implements Runnable {
         }
     }
 
-    private Properties createConsumerConfig(String groupId, Properties prop) {
-        Properties props = new Properties();
-        props.put("bootstrap.servers", prop.getProperty("bootstrap.servers"));
+    private Properties createConsumerConfig(String groupId, String configPath) {
+        Properties prop = new Properties();
 
-        if (groupId.length() <= 0) {
-            props.put("group.id", prop.getProperty("group.id"));
-        } else {
-            props.put("group.id", groupId);
+        try (InputStream confStream = new FileInputStream(configPath)) {
+            prop.load(confStream);
+            log.debug("loaded config file : {}", configPath);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
         }
 
-        props.put("auto.commit.enable", prop.getProperty("enable.auto.commit"));
-        props.put("auto.offset.reset", prop.getProperty("auto.offset.reset"));
-        props.put("key.deserializer", prop.getProperty("key.deserializer"));
-        props.put("value.deserializer", prop.getProperty("value.deserializer"));
+        //update group.id
+        prop.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
 
-//        props.put("schema.registry.url", prop.getProperty(""));
-//        props.put("specific.avro.reader", prop.getProperty(""));
-
-        return props;
+        return prop;
     }
 }

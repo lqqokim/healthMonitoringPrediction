@@ -7,12 +7,15 @@ import com.bistel.pdm.datastore.jdbc.dao.ora.ParamHealthTrxDao;
 import com.bistel.pdm.datastore.jdbc.dao.pg.ParamHealthTrxPostgreDao;
 import com.bistel.pdm.datastore.model.ParamHealthData;
 import com.bistel.pdm.datastore.model.ParamHealthRULData;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -32,8 +35,9 @@ public class ParamHealthConsumerRunnable implements Runnable {
 
     private HealthDataDao trxDao;
 
-    public ParamHealthConsumerRunnable(Properties property, String groupId, String topicName) {
-        this.consumer = new KafkaConsumer<>(createConsumerConfig(groupId, property));
+    public ParamHealthConsumerRunnable(String configPath, String groupId, String topicName) {
+        
+        this.consumer = new KafkaConsumer<>(createConsumerConfig(groupId, configPath));
         this.topicName = topicName;
 
         if (DataSource.getDBType() == DBType.oracle) {
@@ -87,23 +91,23 @@ public class ParamHealthConsumerRunnable implements Runnable {
                         data.setIndex(Double.parseDouble(values[6]));
 
                         //spec
-                        if(values[7].length() > 0){
+                        if (values[7].length() > 0) {
                             data.setUpperAlarmSpec(Float.parseFloat(values[7]));
                         }
 
-                        if(values[8].length() > 0){
+                        if (values[8].length() > 0) {
                             data.setUpperWarningSpec(Float.parseFloat(values[8]));
                         }
 
-                        if(values[9].length() > 0){
+                        if (values[9].length() > 0) {
                             data.setTarget(Float.parseFloat(values[9]));
                         }
 
-                        if(values[10].length() > 0){
+                        if (values[10].length() > 0) {
                             data.setLowerAlarmSpec(Float.parseFloat(values[10]));
                         }
 
-                        if(values[11].length() > 0){
+                        if (values[11].length() > 0) {
                             data.setLowerWarningSpec(Float.parseFloat(values[11]));
                         }
 
@@ -128,7 +132,7 @@ public class ParamHealthConsumerRunnable implements Runnable {
                         trxDao.storeHealthRUL(rulList);
                     }
 
-                    consumer.commitAsync();
+                    consumer.commitSync();
                     log.info("{} records are committed.", records.count());
                 }
             }
@@ -137,24 +141,19 @@ public class ParamHealthConsumerRunnable implements Runnable {
         }
     }
 
-    private Properties createConsumerConfig(String groupId, Properties prop) {
-        Properties props = new Properties();
-        props.put("bootstrap.servers", prop.getProperty("bootstrap.servers"));
+    private Properties createConsumerConfig(String groupId, String configPath) {
+        Properties prop = new Properties();
 
-        if (groupId.length() <= 0) {
-            props.put("group.id", prop.getProperty("group.id"));
-        } else {
-            props.put("group.id", groupId);
+        try (InputStream confStream = new FileInputStream(configPath)) {
+            prop.load(confStream);
+            log.debug("loaded config file : {}", configPath);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
         }
 
-        props.put("auto.commit.enable", prop.getProperty("enable.auto.commit"));
-        props.put("auto.offset.reset", prop.getProperty("auto.offset.reset"));
-        props.put("key.deserializer", prop.getProperty("key.deserializer"));
-        props.put("value.deserializer", prop.getProperty("value.deserializer"));
+        //update group.id
+        prop.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
 
-//        props.put("schema.registry.url", prop.getProperty(""));
-//        props.put("specific.avro.reader", prop.getProperty(""));
-
-        return props;
+        return prop;
     }
 }

@@ -3,13 +3,13 @@ package com.bistel.pdm.datastore.jdbc.dao.pg;
 import com.bistel.pdm.datastore.jdbc.DataSource;
 import com.bistel.pdm.datastore.jdbc.dao.FaultDataDao;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.Timestamp;
+import java.util.List;
 
 /**
  *
@@ -30,14 +30,13 @@ public class FaultTrxPostgreDao implements FaultDataDao {
                     "values (?, ?, ?, ?, ?, ?, ?, ?)";
 
     @Override
-    public void storeRecord(ConsumerRecords<String, byte[]> records) {
+    public void storeRecords(List<ConsumerRecord<String, byte[]>> records) {
         try (Connection conn = DataSource.getConnection()) {
 
             conn.setAutoCommit(false);
             try (PreparedStatement pstmt = conn.prepareStatement(INSERT_SQL)) {
 
                 int totalCount = 0;
-                int batchCount = 0;
                 for (ConsumerRecord<String, byte[]> record : records) {
                     byte[] features = record.value();
                     String valueString = new String(features);
@@ -59,21 +58,10 @@ public class FaultTrxPostgreDao implements FaultDataDao {
                     pstmt.setTimestamp(8, timestamp);
 
                     pstmt.addBatch();
-
-                    if (++batchCount == 100) {
-                        totalCount += batchCount;
-                        pstmt.executeBatch();
-                        pstmt.clearBatch();
-                        batchCount = 0;
-                    }
+                    ++totalCount;
                 }
 
-                if (batchCount > 0) {
-                    totalCount += batchCount;
-                    pstmt.executeBatch();
-                    pstmt.clearBatch();
-                }
-
+                pstmt.executeBatch();
                 conn.commit();
                 log.debug("{} records are inserted into ALARM_TRX_PDM.", totalCount);
 

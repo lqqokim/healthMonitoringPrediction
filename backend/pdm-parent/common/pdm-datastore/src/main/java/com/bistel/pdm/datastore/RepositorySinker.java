@@ -3,10 +3,7 @@ package com.bistel.pdm.datastore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -16,14 +13,6 @@ import java.util.concurrent.TimeUnit;
  */
 public class RepositorySinker {
     private static final Logger log = LoggerFactory.getLogger(RepositorySinker.class);
-
-    private final String outputEventTopic = "pdm-output-event";
-    private final String outputTraceTopic = "pdm-output-trace";
-    private final String outputTimewaveTopic = "pdm-output-raw";
-    private final String outputFeatureTopic = "pdm-output-feature";
-    private final String outputFaultTopic = "pdm-output-fault";
-    private final String outputParamHealthTopic = "pdm-output-health";
-    private final String outputReloadTopic = "pdm-output-reload";
 
     private final String configPath;
     private final String groupId;
@@ -38,32 +27,34 @@ public class RepositorySinker {
     }
 
     public void start() throws IOException {
-        Properties producerProperties = new Properties();
-        try (InputStream confStream = new FileInputStream(this.configPath)) {
-            producerProperties.load(confStream);
-            log.debug("loaded config file : {}", this.configPath);
-        }
+        final String outputEventTopic = "pdm-output-event";
+        final String outputTraceTopic = "pdm-output-trace";
+        final String outputTimewaveTopic = "pdm-output-raw";
+        final String outputFeatureTopic = "pdm-output-feature";
+        final String outputFaultTopic = "pdm-output-fault";
+        final String outputParamHealthTopic = "pdm-output-health";
+        final String outputReloadTopic = "pdm-output-reload";
 
         executor.submit(new TimewaveConsumerRunnable(
-                producerProperties, this.groupId + "-raw", outputTimewaveTopic));
+                this.configPath, this.groupId + "-raw", outputTimewaveTopic));
 
         executor.submit(new TraceConsumerRunnable(
-                producerProperties, this.groupId + "-trace", outputTraceTopic));
+                this.configPath, this.groupId + "-trace", outputTraceTopic));
 
         executor.submit(new FeatureConsumerRunnable(
-                producerProperties, this.groupId + "-feature", outputFeatureTopic));
+                this.configPath, this.groupId + "-feature", outputFeatureTopic));
 
         executor.submit(new FaultConsumerRunnable(
-                producerProperties, this.groupId + "-fault", outputFaultTopic));
+                this.configPath, this.groupId + "-fault", outputFaultTopic));
 
         executor.submit(new EventConsumerRunnable(
-                producerProperties, this.groupId + "-event", outputEventTopic));
+                this.configPath, this.groupId + "-event", outputEventTopic));
 
         executor.submit(new ParamHealthConsumerRunnable(
-                producerProperties, this.groupId + "-param-health", outputParamHealthTopic));
+                this.configPath, this.groupId + "-param-health", outputParamHealthTopic));
 
         executor.submit(new ReloadConsumerRunnable(
-                producerProperties, this.groupId + "-reload", outputReloadTopic, this.servingAddress));
+                this.configPath, this.groupId + "-reload", outputReloadTopic, this.servingAddress));
     }
 
     public void awaitTerminationAfterShutdown() {

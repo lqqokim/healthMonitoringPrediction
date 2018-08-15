@@ -7,7 +7,6 @@ import com.bistel.pdm.datastore.jdbc.dao.SensorTraceDataDao;
 import com.bistel.pdm.datastore.model.SensorTraceData;
 import com.bistel.pdm.lambda.kafka.master.MasterCache;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,14 +68,13 @@ public class TraceTrxDao implements SensorTraceDataDao {
     }
 
     @Override
-    public void storeRecord(ConsumerRecords<String, byte[]> records) {
+    public void storeRecords(List<ConsumerRecord<String, byte[]>> records) {
         try (Connection conn = DataSource.getConnection()) {
             conn.setAutoCommit(false);
 
             try (PreparedStatement pstmt = conn.prepareStatement(INSERT_SQL)) {
 
                 int totalCount = 0;
-                int batchCount = 0;
                 Timestamp ts = null;
 
                 for (ConsumerRecord<String, byte[]> record : records) {
@@ -157,22 +155,12 @@ public class TraceTrxDao implements SensorTraceDataDao {
                         pstmt.setNull(11, Types.VARCHAR);
 
                         pstmt.addBatch();
+                        ++totalCount;
 
-                        if (++batchCount == 100) {
-                            totalCount += batchCount;
-                            pstmt.executeBatch();
-                            pstmt.clearBatch();
-                            batchCount = 0;
-                        }
                     }
                 }
 
-                if (batchCount > 0) {
-                    totalCount += batchCount;
-                    pstmt.executeBatch();
-                    pstmt.clearBatch();
-                }
-
+                pstmt.executeBatch();
                 conn.commit();
                 String timeStamp = new SimpleDateFormat("MMdd HH:mm:ss.SSS").format(ts);
                 log.debug("[{}] - {} records are inserted into TRACE_TRX_PDM.", timeStamp, totalCount);
@@ -183,7 +171,6 @@ public class TraceTrxDao implements SensorTraceDataDao {
             } finally {
                 conn.setAutoCommit(true);
             }
-
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }

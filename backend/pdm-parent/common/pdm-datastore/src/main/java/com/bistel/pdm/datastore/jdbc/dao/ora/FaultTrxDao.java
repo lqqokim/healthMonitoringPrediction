@@ -11,6 +11,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.util.List;
 
 /**
  *
@@ -32,14 +33,13 @@ public class FaultTrxDao implements FaultDataDao {
                     "values (seq_alarm_trx_pdm.nextval, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     @Override
-    public void storeRecord(ConsumerRecords<String, byte[]> records) {
+    public void storeRecords(List<ConsumerRecord<String, byte[]>> records) {
         try (Connection conn = DataSource.getConnection()) {
 
             conn.setAutoCommit(false);
             try (PreparedStatement pstmt = conn.prepareStatement(INSERT_SQL)) {
 
                 int totalCount = 0;
-                int batchCount = 0;
                 for (ConsumerRecord<String, byte[]> record : records) {
                     byte[] features = record.value();
                     String valueString = new String(features);
@@ -61,21 +61,10 @@ public class FaultTrxDao implements FaultDataDao {
                     pstmt.setTimestamp(8, timestamp);
 
                     pstmt.addBatch();
-
-                    if (++batchCount == 100) {
-                        totalCount += batchCount;
-                        pstmt.executeBatch();
-                        pstmt.clearBatch();
-                        batchCount = 0;
-                    }
+                    ++totalCount;
                 }
 
-                if (batchCount > 0) {
-                    totalCount += batchCount;
-                    pstmt.executeBatch();
-                    pstmt.clearBatch();
-                }
-
+                pstmt.executeBatch();
                 conn.commit();
                 log.debug("{} records are inserted into ALARM_TRX_PDM.", totalCount);
 

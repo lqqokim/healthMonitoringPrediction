@@ -11,12 +11,15 @@ import com.bistel.pdm.datastore.jdbc.dao.pg.TraceRawTrxPostgreDao;
 import com.bistel.pdm.datastore.jdbc.dao.pg.TraceTrxPostgreDao;
 import com.bistel.pdm.datastore.model.SensorRawData;
 import com.bistel.pdm.datastore.model.SensorTraceData;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -33,8 +36,9 @@ public class TimewaveConsumerRunnable implements Runnable {
     private SensorTraceDataDao trxDao;
     private SensorRawDataDao trxRawDao;
 
-    public TimewaveConsumerRunnable(Properties property, String groupId, String topicName) {
-        this.consumer = new KafkaConsumer<>(createConsumerConfig(groupId, property));
+    public TimewaveConsumerRunnable(String configPath, String groupId, String topicName) {
+
+        this.consumer = new KafkaConsumer<>(createConsumerConfig(groupId, configPath));
         this.topicName = topicName;
 
         if (DataSource.getDBType() == DBType.oracle) {
@@ -108,7 +112,7 @@ public class TimewaveConsumerRunnable implements Runnable {
                 if (traceRow.size() > 0) {
                     trxDao.storeRecord(traceRow);
                     trxRawDao.storeRecord(rawRow);
-                    consumer.commitAsync();
+                    consumer.commitSync();
                     log.info("{} records are committed.", records.count());
                 }
             } catch (Exception e) {
@@ -365,24 +369,42 @@ public class TimewaveConsumerRunnable implements Runnable {
         traceRow.add(new Pair<>(rawId, std));
     }
 
-    private Properties createConsumerConfig(String groupId, Properties prop) {
-        Properties props = new Properties();
-        props.put("bootstrap.servers", prop.getProperty("bootstrap.servers"));
+    private Properties createConsumerConfig(String groupId, String configPath) {
+        Properties prop = new Properties();
 
-        if (groupId.length() <= 0) {
-            props.put("group.id", prop.getProperty("group.id"));
-        } else {
-            props.put("group.id", groupId);
+        try (InputStream confStream = new FileInputStream(configPath)) {
+            prop.load(confStream);
+            log.debug("loaded config file : {}", configPath);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
         }
 
-        props.put("auto.commit.enable", prop.getProperty("enable.auto.commit"));
-        props.put("auto.offset.reset", prop.getProperty("auto.offset.reset"));
-        props.put("key.deserializer", prop.getProperty("key.deserializer"));
-        props.put("value.deserializer", prop.getProperty("value.deserializer"));
+        //update group.id
+        prop.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
 
-//        props.put("schema.registry.url", prop.getProperty(""));
-//        props.put("specific.avro.reader", prop.getProperty(""));
-
-        return props;
+        return prop;
     }
+
+//    private Properties createConsumerConfig(String groupId, Properties prop) {
+//        Properties props = new Properties();
+//        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, prop.getProperty("bootstrap.servers")); //bootstrap.servers
+//
+//        if (groupId.length() <= 0) {
+//            props.put(ConsumerConfig.GROUP_ID_CONFIG, prop.getProperty("group.id"));
+//        } else {
+//            props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId); //group.id
+//        }
+//
+//        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, prop.getProperty("enable.auto.commit"));
+//        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, prop.getProperty("auto.offset.reset"));
+//        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, prop.getProperty("key.deserializer"));
+//        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, prop.getProperty("value.deserializer"));
+//        props.put(ConsumerConfig.CONNECTIONS_MAX_IDLE_MS_CONFIG, prop.getProperty("connections.max.idle.ms"));
+//        props.put(ConsumerConfig.FETCH_MIN_BYTES_CONFIG, prop.getProperty("fetch.min.bytes"));
+//        props.put(ConsumerConfig.HEARTBEAT_INTERVAL_MS_CONFIG, prop.getProperty("heartbeat.interval.ms"));
+//        props.put(ConsumerConfig.MAX_PARTITION_FETCH_BYTES_CONFIG, prop.getProperty("max.partition.fetch.bytes"));
+//        props.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, prop.getProperty("session.timeout.ms"));
+//
+//        return props;
+//    }
 }
