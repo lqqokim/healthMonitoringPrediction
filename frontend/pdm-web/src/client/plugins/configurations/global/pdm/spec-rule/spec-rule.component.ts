@@ -1,7 +1,11 @@
 //Angular
 import { Component, OnInit, OnDestroy } from '@angular/core';
 
-//MI Service
+//MIP
+import { ModalAction, ModalRequester, RequestType } from '../../../../../common';
+import { NotifyService, Translater } from '../../../../../sdk';
+
+//Service
 import { PdmModelService } from './../../../../../common/model/app/pdm/pdm-model.service';
 import { PdmConfigService } from './../model/pdm-config.service';
 
@@ -48,7 +52,11 @@ export class SpecRuleComponent implements OnInit, OnDestroy {
 
     constructor(
         private _pdmConfigService: PdmConfigService,
-        private _pdmModelService: PdmModelService) {
+        private _pdmModelService: PdmModelService,
+        private modalAction: ModalAction,
+        private requester: ModalRequester,
+        private notify: NotifyService,
+        private translater: Translater) {
 
     }
 
@@ -137,18 +145,38 @@ export class SpecRuleComponent implements OnInit, OnDestroy {
     controlRule(status: string): void {
         console.log('controlRule', status);
         if (status === this.STATUS.DELETE) {
-            this._pdmConfigService.deleteModelRule(this.selectedPlant.fabId, this.selectedModel.model_name, this.selectedRule.rule_id)
-                .then((res) => {
-                    console.log('deleteRule res', res);
-                }).catch((err) => {
-
-                });
+            this.openDeletePopup();
         } else {
-            this.openControlModal(status);
+            this.openEditModal(status);
         }
     }
 
-    openControlModal(status: string): void {
+    openDeletePopup(): void {
+        this.modalAction.showConfirmDelete({
+            info: {
+                title: this.selectedRule.rule_name,
+                confirmMessage: this.translater.get("MESSAGE.PDM.MANAGEMENT.REMOVE_ITEM", { itemName: this.selectedRule.rule_name })['value']
+            },
+            requester: this.requester
+        });
+
+        this.requester.getObservable().subscribe((response: RequestType) => {
+            if (response.type === 'OK' && response.data) {
+                // this.deleteRule();
+            }
+        });
+    }
+
+    deleteRule(): void {
+        this._pdmConfigService.deleteModelRule(this.selectedPlant.fabId, this.selectedModel.model_name, this.selectedRule.rule_id)
+            .then((res) => {
+                console.log('deleteRule res', res);
+            }).catch((err) => {
+
+            });
+    }
+
+    openEditModal(status: string): void {
         if (status === this.STATUS.CREATE) {
             let ruleFormData: IRule.FormData = {
                 rule_name: '',

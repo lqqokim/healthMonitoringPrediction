@@ -26,15 +26,7 @@
     <div class="pdm-master-body relative">
         <div class="pdm-master-wrapper" *ngIf="selectedItem">
             <div class="master-list">
-                <div class="top-list" [ngClass]="{'top-remove': !isShowArea}">
-                    <!-- <div class="float-wrapper" *ngIf="selectedItem.nodeType === 'area' && selectedNode.level === 3" style="position:relative;">
-                        <dl>
-                            <dt>
-                                <i class="icon icon-nodata"></i>
-                            </dt>
-                            <dd class="message-title">Area can only be registered up to 4 depths.</dd>
-                        </dl>
-                    </div> -->
+                <div class="top-list" [ngClass]="{'top-remove': !isShowArea}" [style.height]="nodeType === 'eqp' ? '33%' : '51%'">
                     <area-list *ngIf="nodeType === 'area' && isShowArea"
                         [datas]="areaData" 
                         (updateItem)="initWjTree($event)">
@@ -46,7 +38,7 @@
                     </parameter-list>
                 </div>
 
-                <div class="bottom-list" [ngClass]="{'bottom-full': !isShowArea}">
+                <div class="bottom-list" [ngClass]="{'bottom-full': !isShowArea}" [style.height]="nodeType === 'eqp' ? '33%' : '51%'">
                     <eqp-list *ngIf="nodeType === 'area'" 
                         [datas]="eqpData" 
                         (updateItem)="initWjTree($event)">
@@ -55,6 +47,11 @@
                         [datas]="partData" 
                         (updateItem)="initWjTree($event)">
                     </part-list>
+                </div>
+
+                <div class="spec-list" *ngIf="nodeType === 'eqp'">
+                    <!-- <spec-rule></spec-rule> -->
+                    <span class="title"> Spec Rule List</span>
                 </div>
             </div>
         </div>

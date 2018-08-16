@@ -35,14 +35,20 @@
     width: 100%;
 }
 .master-info .pdm-master-body .top-list{
-    height: 51%;
+    /* height: 51%; */
     width: 100%;
 }
 
 .master-info .pdm-master-body .bottom-list{
-    height: 51%;
+    /* height: 51%; */
     width: 100%;
 }
+
+.master-info .pdm-master-body .spec-list{
+    height: 33%;
+    width: 100%;
+}
+
 .master-info .pdm-config-header{
     width: 100%;
     padding: 3px 0px 8px;

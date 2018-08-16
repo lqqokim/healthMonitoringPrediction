@@ -18,6 +18,9 @@ import { MasterParamModifyComponent } from './partial/parameter/master-parameter
 import { MasterPartModifyComponent } from './partial/part/master-part-modify.component';
 
 import { MasterEqpCopyComponent } from './partial/eqp/master-eqp-copy.component';
+import { SpecRuleModule } from './../spec-rule/spec-rule.module';
+import { SpecRuleComponent } from './../spec-rule/spec-rule.component';
+
 
 // import { NgTree } from 'ng.tree';
 
@@ -27,7 +30,8 @@ import { MasterEqpCopyComponent } from './partial/eqp/master-eqp-copy.component'
     imports: [
         BISTEL_SDKModule,
         A3_CommonModule,
-        WjNavModule
+        WjNavModule,
+        // SpecRuleModule
         
     ],
     declarations: [
@@ -45,6 +49,7 @@ import { MasterEqpCopyComponent } from './partial/eqp/master-eqp-copy.component'
         MasterPartModifyComponent,
 
         MasterEqpCopyComponent,
+        SpecRuleComponent
         
         // NgTree
         
