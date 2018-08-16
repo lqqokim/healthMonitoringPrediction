@@ -69,6 +69,12 @@ export class ConfigurationMenuService {
                         description: 'Pdm Bearing',
                         menus: <any>[]
                     },
+                    {
+                        menuId: 'pdmSpecRule',
+                        name: 'Spec Rule',
+                        description: 'Pdm Spec Rule',
+                        menus: <any>[]
+                    },
                     // {
                     //     menuId: 'pdmCategory',
                     //     name: 'Category',

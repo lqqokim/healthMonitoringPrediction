@@ -243,14 +243,14 @@ export class PdmConfigService extends ModelCommonService {
         });
     }
 
-    createCode(fabId ,params): Promise<any> {
+    createCode(fabId, params): Promise<any> {
         return this.POST({
             uriPath: `pdm/fabs/${fabId}/std/codes`,
             params: params
         });
     }
 
-    updateCode(fabId, rawId ,params): Promise<any> {
+    updateCode(fabId, rawId, params): Promise<any> {
         return this.PUT({
             uriPath: `pdm/fabs/${fabId}/std/codes/rawId/${rawId}`,
             params: params
@@ -274,6 +274,99 @@ export class PdmConfigService extends ModelCommonService {
         return this.PUT({
             uriPath: `pdm/fabs/${fabId}/std/codes/ordering`,
             params: params
+        });
+    }
+
+    //Model Spec Rule
+    getModels(fabId: number): Promise<any> {
+        return this.GET({
+            uriPath: `pdm/fabs/${fabId}/models`
+        });
+    }
+
+    getModelRules(fabId: number, model: string): Promise<any> {
+        return this.GET({
+            uriPath: `pdm/fabs/${fabId}/models/${model}`
+        });
+    }
+
+    getParamsByModelRule(fabId: number, model: string, ruleId: number): Promise<any> {
+        return this.GET({
+            uriPath: `pdm/fabs/${fabId}/models/${model}/specs/${ruleId}`
+        });
+    }
+
+    getModelRulesAndParams(fabId: number, model: string, ruleId: number): Promise<any> {
+        return this.GET({
+            uriPath: `pdm/fabs/${fabId}/models/${model}/${ruleId}`
+        });
+    }
+
+    updateModelRule(fabId: number, params): Promise<any> {
+        return this.PUT({
+            uriPath: `pdm/fabs/${fabId}/models`,
+            params: {
+                rule_id: params.ruld_id,
+                rule_name: params.rule_name,
+                condition: params.condition,
+                expression: params.expression,
+                parameter: params.parameter
+            }
+        });
+    }
+
+    deleteModelRule(fabId: number, model: string, ruleId: number): Promise<any> {
+        return this.DELETE({
+            uriPath: `pdm/fabs/${fabId}/models/${model}/${ruleId}`
+        });
+    }
+
+    //EQP Spec Rule
+    getEQPRules(fabId: number, eqpId: number): Promise<any> {
+        return this.GET({
+            uriPath: `pdm/fabs/${fabId}/eqps/${eqpId}/conditions`
+        });
+    }
+
+    getParamsByEQPRule(fabId: number, eqpId: number, ruleId: number): Promise<any> {
+        return this.GET({
+            uriPath: `pdm/fabs/${fabId}/eqps/${eqpId}/conditions/${ruleId}/specs`
+        });
+    }
+
+    getEQPRulesAndParams(fabId: number, eqpId: number, ruleId: number): Promise<any> {
+        return this.GET({
+            uriPath: `pdm/fabs/${fabId}/eqps/${eqpId}/conditions/${ruleId}`
+        })
+    }
+
+    createEQPRule(fabId: number, eqpId: number, params): Promise<any> {
+        return this.PUT({
+            uriPath: `pdm/fabs/${fabId}/eqps/${eqpId}/conditions`,
+            params: {
+                rule_id: null,
+                rule_name: params.rule_name,
+                condition: params.condition,
+                expression: params.expression,
+                order: params.order,
+                use_yn: params.use_yn,
+                parameter: params.parameter
+            }
+        });
+    }
+
+    updateEQPRule(fabId: number, eqpId: number, params): Promise<any> {
+        return this.PUT({
+            uriPath: `pdm/fabs/${fabId}/eqps/${eqpId}/conditions`,
+            params: {
+                rule_id: params.rule_id,
+                rule_name: params.rule_name,
+                condition: params.condition,
+                expression: params.expression,
+                order: params.order,
+                use_yn: params.use_yn,
+                parameter: params.parameter
+            }
         });
     }
 }

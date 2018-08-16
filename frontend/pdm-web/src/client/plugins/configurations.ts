@@ -28,6 +28,7 @@ import { CodeModule } from './configurations/global/pdm/code/code-list.module';
 import { FilterAnalysisModule } from './configurations/global/pdm/filter-analysis/filter-analysis.module';
 import { FabMonitoringModule } from './configurations/global/pdm/fabmonitoring/fabmonitoring.module';
 import { CategoryModule } from './configurations/global/pdm/category/category-list.module';
+import { SpecRuleModule } from './configurations/global/pdm/spec-rule/spec-rule.module';
 
 import { ModelSimulatorModule }  from './configurations/global/pdm/model-simulator/model-simulator.module';
 import { EquipmentParameterTrendModule  } from './configurations/global/pdm/equipment-parameter-trend/equipment-parameter-trend.module';
@@ -100,7 +101,8 @@ export const getConfigurationClassInfo = (menuId: string): any => {
             return ModelSimulatorModule;
         case 'pdmSummaryTrend':
             return SummaryTrendModule;
-
+        case 'pdmSpecRule':
+            return SpecRuleModule;
             
         case 'pdmEqupmentParameterTrend':
             return EquipmentParameterTrendModule;
