@@ -2,7 +2,7 @@
 APPNAME="Feature Layer - HEALTH"
 APPPID=batch-feature.pid
 APPJAR=pdm-batch-bundle-1.0-SNAPSHOT.jar
-APPOPTS="-appId feature_01
+APPOPTS="-appId pdm-batch-feature-v1.1.0
 -brokers 192.168.7.229:29092,192.168.7.229:39092,192.168.7.229:49092
 -registryUrl http://192.168.7.229:8081
 -servingAddr http://192.168.7.230:28000

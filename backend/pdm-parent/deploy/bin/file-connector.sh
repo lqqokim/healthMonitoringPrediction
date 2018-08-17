@@ -2,10 +2,10 @@
 APPNAME="File Connector Layer"
 APPPID=connector.pid
 APPJAR=pdm-file-connector-1.0-SNAPSHOT.jar
-APPOPTS=" -brokers 192.168.7.228:29092,192.168.7.228:39092,192.168.7.228:49092
--watchDir ./data/
--clientId file-connector-1
+APPOPTS=" -watchDir ./data/
+-clientId EQP$2
 -topicPrefix pdm-input
+-partition $2
 -kafkaConf ./config/producer.properties
 -log4jConf ./config/log4j.properties"
 

@@ -73,8 +73,7 @@ public class PrepareDataProcessor extends AbstractProcessor<String, byte[]> {
                         context().forward(partitionKey, recordValue.getBytes());
                         context().commit();
 
-
-                        log.debug("[{}] - out msg time : {}", partitionKey, recordColumns[0]);
+                        log.trace("[{}] - out msg time : {}", partitionKey, recordColumns[0]);
                         break;
                     }
                 }

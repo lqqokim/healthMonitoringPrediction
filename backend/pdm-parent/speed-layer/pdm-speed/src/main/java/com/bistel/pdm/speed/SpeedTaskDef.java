@@ -1,6 +1,7 @@
 package com.bistel.pdm.speed;
 
 import com.bistel.pdm.lambda.kafka.AbstractPipeline;
+import com.bistel.pdm.lambda.kafka.partitioner.CustomStreamPartitioner;
 import com.bistel.pdm.speed.processor.*;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.Serdes;
@@ -89,6 +90,9 @@ public class SpeedTaskDef extends AbstractPipeline {
                         Serdes.String(),
                         Serdes.Integer());
 
+
+        CustomStreamPartitioner partitioner = new CustomStreamPartitioner();
+
         topology.addSource("input-trace", this.getInputTraceTopic())
                 .addProcessor("begin", BeginProcessor::new, "input-trace")
                 .addProcessor("prepare", PrepareDataProcessor::new, "begin")
@@ -104,7 +108,7 @@ public class SpeedTaskDef extends AbstractPipeline {
                 .addProcessor("refresh", RefreshCacheProcessor::new, "fault")
                 //.addProcessor("mail", SendMailProcessor::new, "fault")
 
-                .addSink("output-trace", this.getOutputTraceTopic(), "prepare")
+                .addSink("output-trace", this.getOutputTraceTopic(), partitioner, "prepare")
                 .addSink("output-event", this.getOutputEventTopic(), "event")
 
                 .addSink("output-raw", this.getInputTimewaveTopic(), "fault")
@@ -116,26 +120,34 @@ public class SpeedTaskDef extends AbstractPipeline {
     }
 
     private Properties getStreamProperties() {
-        Properties streamsConfiguration = new Properties();
+        Properties streamProps = new Properties();
         // Give the Streams application a unique name. The name must be unique in the Kafka cluster
         // against which the application is run.
-        streamsConfiguration.put(StreamsConfig.APPLICATION_ID_CONFIG, this.applicationId);
-        //streamsConfiguration.put(StreamsConfig.CLIENT_ID_CONFIG, "pdm-batch-02");
+        streamProps.put(StreamsConfig.APPLICATION_ID_CONFIG, this.applicationId);
+
+        // An ID string to pass to the server when making requests.
+        // (This setting is passed to the consumer/producer clients used internally by Kafka Streams.)
+        //streamsConfiguration.put(StreamsConfig.CLIENT_ID_CONFIG, "pdm-client-speed-1");
+
         // Where to find Kafka broker(s).
-        streamsConfiguration.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, this.getBroker());
+        streamProps.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, this.getBroker());
 
         //streamsConfiguration.put(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, this.getSchemaRegistryUrl());
 
         // Specify default (de)serializers for record keys and for record values.
-        streamsConfiguration.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
-        streamsConfiguration.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.ByteArray().getClass().getName());
+        streamProps.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
+        streamProps.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.ByteArray().getClass().getName());
 
-        streamsConfiguration.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, AUTO_OFFSET_RESET_CONFIG);
+        streamProps.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, AUTO_OFFSET_RESET_CONFIG);
 
-        streamsConfiguration.put(StreamsConfig.PROCESSING_GUARANTEE_CONFIG, StreamsConfig.EXACTLY_ONCE);
-        streamsConfiguration.put(StreamsConfig.STATE_DIR_CONFIG, stateDir);
+        streamProps.put(StreamsConfig.PROCESSING_GUARANTEE_CONFIG, StreamsConfig.EXACTLY_ONCE);
 
-        return streamsConfiguration;
+        // The number of threads to execute stream processing. default is 1.
+        streamProps.put(StreamsConfig.NUM_STREAM_THREADS_CONFIG, 1);
+
+        streamProps.put(StreamsConfig.STATE_DIR_CONFIG, stateDir);
+
+        return streamProps;
     }
 
     @Override

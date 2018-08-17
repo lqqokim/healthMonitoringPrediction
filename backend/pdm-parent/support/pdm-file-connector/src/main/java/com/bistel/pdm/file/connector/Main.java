@@ -1,18 +1,21 @@
 package com.bistel.pdm.file.connector;
 
+import com.bistel.pdm.lambda.kafka.master.MasterCache;
+import com.bistel.pdm.lambda.kafka.partitioner.CustomStreamPartitioner;
 import org.apache.commons.cli.*;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.PartitionInfo;
 import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.net.InetAddress;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -21,26 +24,21 @@ import java.util.Properties;
 public class Main {
     private final static Logger log = LoggerFactory.getLogger(Main.class);
 
-    private static final String BROKER_NAME = "brokers";
     private static final String TOPIC_PREFIX = "topicPrefix";
     private static final String WATCH_DIR = "watchDir";
     private static final String CLIENT_ID = "clientId";
+    private static final String PARTITION = "partition";
     private static final String PROP_KAFKA_CONF = "kafkaConf";
     private static final String LOG_PATH = "log4jConf";
-
-    private static final String hostName = getHostname();
 
     private static final Options options = new Options();
 
     public static void main(String args[]) {
 
         CommandLine commandLine = parseCommandLine(args);
-        String host = commandLine.getOptionValue(BROKER_NAME);
-        if (host == null || host.isEmpty()) {
-            host = hostName;
-        }
 
         String watchDir = commandLine.getOptionValue(WATCH_DIR);
+        String partition = commandLine.getOptionValue(PARTITION);
         String clientId = commandLine.getOptionValue(CLIENT_ID);
         String destTopicPrefix = commandLine.getOptionValue(TOPIC_PREFIX);
         String configPath = commandLine.getOptionValue(PROP_KAFKA_CONF);
@@ -59,13 +57,11 @@ public class Main {
 
         try (InputStream propStream = new FileInputStream(configPath)) {
             producerProperties.load(propStream);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
         }
 
-        producerProperties.put("client.id", clientId);
+        producerProperties.replace("client.id", clientId);
         Producer<String, byte[]> producer = new KafkaProducer<>(producerProperties);
 
 
@@ -83,7 +79,7 @@ public class Main {
         int runCount = 600;  // 1 min
         int idleCount = 300;
 
-        String partitionKey = clientId;
+        MasterCache.ServingAddress = "http://192.168.0.102:28000";
 
         for (File file : listOfFiles) {
             log.debug("file : {}", file.getPath());
@@ -187,8 +183,14 @@ public class Main {
                             }
                         }
 
-                        producer.send(new ProducerRecord<>(topicName, partitionKey, sbMsg.toString().getBytes()));
-                        log.debug("key: {}, msg time: {}", partitionKey, timeStamp);
+                        List<PartitionInfo> partitions = producer.partitionsFor(topicName);
+                        CustomStreamPartitioner csp = new CustomStreamPartitioner();
+                        int partitionNum = csp.partition(clientId, sbMsg.toString().getBytes(), partitions.size());
+
+                        producer.send(new ProducerRecord<>(topicName, partitionNum,
+                                clientId, sbMsg.toString().getBytes()));
+
+                        log.debug("key: {}, msg time: {}", clientId, timeStamp);
 
                         try {
                             Thread.sleep(100);
@@ -207,16 +209,16 @@ public class Main {
     }
 
     private static CommandLine parseCommandLine(String[] args) {
-        Option host = new Option(BROKER_NAME, true, "kafka broker");
         Option topicPrefix = new Option(TOPIC_PREFIX, true, "kafka topic for input messages");
         Option watchDir = new Option(WATCH_DIR, true, "directory to monitor");
         Option clientId = new Option(CLIENT_ID, true, "client id");
         Option config = new Option(PROP_KAFKA_CONF, true, "kafka config path");
         Option logConfig = new Option(LOG_PATH, true, "log config path");
+        Option partition = new Option(PARTITION, true, "partition number");
 
-        options.addOption(host).addOption(topicPrefix)
+        options.addOption(topicPrefix)
                 .addOption(watchDir).addOption(clientId)
-                .addOption(config).addOption(logConfig);
+                .addOption(partition).addOption(config).addOption(logConfig);
 
         if (args.length < 6) {
             printUsageAndExit();
@@ -234,22 +236,22 @@ public class Main {
 
     private static void printUsageAndExit() {
         HelpFormatter formatter = new HelpFormatter();
-        formatter.printHelp("log connector", options);
+        formatter.printHelp("file connector", options);
         System.exit(1);
     }
 
-    public static String getHostname() {
-        String hostName;
-        try {
-            hostName = InetAddress.getLocalHost().getHostName();
-            int firstDotPos = hostName.indexOf('.');
-            if (firstDotPos > 0) {
-                hostName = hostName.substring(0, firstDotPos);
-            }
-        } catch (Exception e) {
-            // fall back to env var.
-            hostName = System.getenv("HOSTNAME");
-        }
-        return hostName;
-    }
+//    public static String getHostname() {
+//        String hostName;
+//        try {
+//            hostName = InetAddress.getLocalHost().getHostName();
+//            int firstDotPos = hostName.indexOf('.');
+//            if (firstDotPos > 0) {
+//                hostName = hostName.substring(0, firstDotPos);
+//            }
+//        } catch (Exception e) {
+//            // fall back to env var.
+//            hostName = System.getenv("HOSTNAME");
+//        }
+//        return hostName;
+//    }
 }

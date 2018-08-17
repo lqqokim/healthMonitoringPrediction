@@ -48,11 +48,6 @@ public abstract class AbstractPipeline implements Closeable {
         this.broker = brokers;
         this.schemaRegistryUrl = schemaUrl;
 
-        // reload master
-        this.reload(servingAddr);
-    }
-
-    public void reload(String servingAddr) {
         log.info("setting the serving address...");
         MasterCache.ServingAddress = servingAddr;
     }

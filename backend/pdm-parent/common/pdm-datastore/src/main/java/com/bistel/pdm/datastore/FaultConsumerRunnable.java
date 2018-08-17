@@ -34,9 +34,11 @@ public class FaultConsumerRunnable implements Runnable {
     private FaultDataDao trxDao;
 
     public FaultConsumerRunnable(String configPath, String groupId, String topicName) {
-        
+
         this.consumer = new KafkaConsumer<>(createConsumerConfig(groupId, configPath));
         this.topicName = topicName;
+
+        log.debug("{} - group id : {}", groupId, this.getClass().getName());
 
         if (DataSource.getDBType() == DBType.oracle) {
             trxDao = new FaultTrxDao();
@@ -57,7 +59,7 @@ public class FaultConsumerRunnable implements Runnable {
         consumer.subscribe(Collections.singletonList(topicName));
         log.info("Reading topic: {}, db type: {}", topicName, DataSource.getDBType());
 
-        final int minBatchSize = 200;
+        final int minBatchSize = 2;
         List<ConsumerRecord<String, byte[]>> buffer = new ArrayList<>();
 
         while (true) {
@@ -69,8 +71,8 @@ public class FaultConsumerRunnable implements Runnable {
             if (buffer.size() >= minBatchSize) {
                 trxDao.storeRecords(buffer);
                 consumer.commitSync();
-                buffer.clear();
                 log.info("{} records are committed.", buffer.size());
+                buffer.clear();
             }
         }
     }
@@ -86,7 +88,7 @@ public class FaultConsumerRunnable implements Runnable {
         }
 
         //update group.id
-        prop.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
+        prop.replace(ConsumerConfig.GROUP_ID_CONFIG, groupId);
 
         return prop;
     }

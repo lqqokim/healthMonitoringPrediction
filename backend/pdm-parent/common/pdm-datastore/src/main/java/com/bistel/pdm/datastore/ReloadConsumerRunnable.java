@@ -31,6 +31,8 @@ public class ReloadConsumerRunnable implements Runnable {
         this.consumer = new KafkaConsumer<>(createConsumerConfig(groupId, configPath));
         this.topicName = topicName;
         MasterCache.ServingAddress = servingAddress;
+
+        log.debug("{} - group id : {}", groupId, this.getClass().getName());
     }
 
     @Override
@@ -66,7 +68,7 @@ public class ReloadConsumerRunnable implements Runnable {
         }
 
         //update group.id
-        prop.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
+        prop.replace(ConsumerConfig.GROUP_ID_CONFIG, groupId);
 
         return prop;
     }

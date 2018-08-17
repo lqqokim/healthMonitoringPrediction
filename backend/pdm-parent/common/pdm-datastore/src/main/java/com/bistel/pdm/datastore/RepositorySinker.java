@@ -51,7 +51,7 @@ public class RepositorySinker {
                 this.configPath, this.groupId + "-event", outputEventTopic));
 
         executor.submit(new ParamHealthConsumerRunnable(
-                this.configPath, this.groupId + "-param-health", outputParamHealthTopic));
+                this.configPath, this.groupId + "-health", outputParamHealthTopic));
 
         executor.submit(new ReloadConsumerRunnable(
                 this.configPath, this.groupId + "-reload", outputReloadTopic, this.servingAddress));

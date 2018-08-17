@@ -36,9 +36,11 @@ public class ParamHealthConsumerRunnable implements Runnable {
     private HealthDataDao trxDao;
 
     public ParamHealthConsumerRunnable(String configPath, String groupId, String topicName) {
-        
+
         this.consumer = new KafkaConsumer<>(createConsumerConfig(groupId, configPath));
         this.topicName = topicName;
+
+        log.debug("{} - group id : {}", groupId, this.getClass().getName());
 
         if (DataSource.getDBType() == DBType.oracle) {
             trxDao = new ParamHealthTrxDao();
@@ -152,7 +154,7 @@ public class ParamHealthConsumerRunnable implements Runnable {
         }
 
         //update group.id
-        prop.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
+        prop.replace(ConsumerConfig.GROUP_ID_CONFIG, groupId);
 
         return prop;
     }

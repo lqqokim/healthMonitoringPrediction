@@ -41,6 +41,8 @@ public class TimewaveConsumerRunnable implements Runnable {
         this.consumer = new KafkaConsumer<>(createConsumerConfig(groupId, configPath));
         this.topicName = topicName;
 
+        log.debug("{} - group id : {}", groupId, this.getClass().getName());
+
         if (DataSource.getDBType() == DBType.oracle) {
             trxRawDao = new TraceRawTrxDao();
             trxDao = new TraceTrxDao();
@@ -380,7 +382,7 @@ public class TimewaveConsumerRunnable implements Runnable {
         }
 
         //update group.id
-        prop.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
+        prop.replace(ConsumerConfig.GROUP_ID_CONFIG, groupId);
 
         return prop;
     }

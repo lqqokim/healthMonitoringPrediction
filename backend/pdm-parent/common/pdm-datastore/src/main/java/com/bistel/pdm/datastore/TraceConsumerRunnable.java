@@ -37,6 +37,8 @@ public class TraceConsumerRunnable implements Runnable {
         this.consumer = new KafkaConsumer<>(createConsumerConfig(groupId, configPath));
         this.topicName = topicName;
 
+        log.debug("{} - group id : {}", groupId, this.getClass().getName());
+
         if (DataSource.getDBType() == DBType.oracle) {
             trxDao = new TraceTrxDao();
             log.info("loaded data object of oracle.");
@@ -56,20 +58,24 @@ public class TraceConsumerRunnable implements Runnable {
         consumer.subscribe(Collections.singletonList(topicName));
         log.info("Reading topic: {}, db type: {}", topicName, DataSource.getDBType());
 
-        final int minBatchSize = 200;
+        final int minBatchSize = 20;
         List<ConsumerRecord<String, byte[]>> buffer = new ArrayList<>();
 
         while (true) {
             ConsumerRecords<String, byte[]> records = consumer.poll(TimeUnit.MILLISECONDS.toMillis(PollingDurations));
+
             for (ConsumerRecord<String, byte[]> record : records) {
                 buffer.add(record);
+
+//                log.debug("topic = {}, partition = {}, offset = {}, key = {}",
+//                        record.topic(), record.partition(), record.offset(), record.key());
             }
 
             if (buffer.size() >= minBatchSize) {
                 trxDao.storeRecords(buffer);
                 consumer.commitSync();
-                buffer.clear();
                 log.info("{} records are committed.", buffer.size());
+                buffer.clear();
             }
         }
     }
@@ -85,7 +91,7 @@ public class TraceConsumerRunnable implements Runnable {
         }
 
         //update group.id
-        prop.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
+        prop.replace(ConsumerConfig.GROUP_ID_CONFIG, groupId);
 
         return prop;
     }

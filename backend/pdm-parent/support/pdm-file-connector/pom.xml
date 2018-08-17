@@ -56,6 +56,14 @@
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.bistel</groupId>
+            <artifactId>pdm-kafka-stream</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.bistel</groupId>
+            <artifactId>pdm-kafka-stream</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

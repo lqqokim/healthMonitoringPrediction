@@ -144,10 +144,10 @@ public class TraceTrxPostgreDao implements SensorTraceDataDao {
                         pstmt.setNull(9, Types.VARCHAR);
                         pstmt.setNull(10, Types.VARCHAR);
                         pstmt.setNull(11, Types.VARCHAR);
-                    }
 
-                    pstmt.addBatch();
-                    ++totalCount;
+                        pstmt.addBatch();
+                        ++totalCount;
+                    }
                 }
 
                 pstmt.executeBatch();

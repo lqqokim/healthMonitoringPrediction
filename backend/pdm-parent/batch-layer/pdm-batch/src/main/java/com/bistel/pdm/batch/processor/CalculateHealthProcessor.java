@@ -72,13 +72,14 @@ public class CalculateHealthProcessor extends AbstractProcessor<String, byte[]> 
                 //String url = "http://10.50.21.240:28000/pdm/api/feature/" + from + "/" + to;
                 String url = MasterCache.ServingAddress + "/pdm/api/feature/" + from + "/" + to;
                 List<SummarizedFeature> featureList = ServingRequestor.getParamFeatureAvgFor(url);
-                log.info("90-days summary from {} to {}. - refresh count : {}",
-                        new Timestamp(from), new Timestamp(to), paramFeatureValueList.size());
 
                 for (SummarizedFeature feature : featureList) {
                     paramFeatureValueList.put(feature.getParamRawId(), feature);
                     kvMovingAvgStore.put(feature.getParamRawId(), "0,0");
                 }
+                log.info("schd : 90-days summary from {} to {}. - refresh count : {}",
+                        new Timestamp(from), new Timestamp(to), paramFeatureValueList.size());
+
             }
         }, cal.getTime(), TimeUnit.DAYS.toMillis(1));
 
@@ -99,15 +100,16 @@ public class CalculateHealthProcessor extends AbstractProcessor<String, byte[]> 
 
             String url = MasterCache.ServingAddress + "/pdm/api/feature/" + from + "/" + to;
             List<SummarizedFeature> featureList = ServingRequestor.getParamFeatureAvgFor(url);
-            log.info("90-days summary from {} to {}. - refresh count : {}",
-                    new Timestamp(from), new Timestamp(to), paramFeatureValueList.size());
 
             if (featureList != null && featureList.size() > 0) {
                 for (SummarizedFeature feature : featureList) {
                     paramFeatureValueList.put(feature.getParamRawId(), feature);
-                    kvMovingAvgStore.put(feature.getParamRawId(), "0,0");
+                    //kvMovingAvgStore.put(feature.getParamRawId(), "0,0");
                 }
             }
+
+            log.info("init : 90-days summary from {} to {}. - refresh count : {}",
+                    new Timestamp(from), new Timestamp(to), paramFeatureValueList.size());
         }
     }
 
