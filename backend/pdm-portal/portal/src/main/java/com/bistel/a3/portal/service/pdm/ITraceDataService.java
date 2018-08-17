@@ -3,6 +3,7 @@ package com.bistel.a3.portal.service.pdm;
 import com.bistel.a3.portal.domain.common.FilterCriteriaData;
 import com.bistel.a3.portal.domain.common.FilterTraceRequest;
 import com.bistel.a3.portal.domain.common.HeadDatas;
+import com.bistel.a3.portal.domain.pdm.AnalysisCondition;
 import com.bistel.a3.portal.domain.pdm.CauseAnalysisResult;
 import com.bistel.a3.portal.domain.pdm.EqpParamDatas;
 import com.bistel.a3.portal.domain.pdm.ManualClassification;
@@ -53,4 +54,6 @@ public interface ITraceDataService {
     Object getEventSimulationByConditionValue(String fabId,Long paramId,Long fromdate,Long todate,Long conditionParamId,String startCondition,String endCondition,String eventType,List<String> adHocFunctions,Integer adHocTime);
 
     Object getFeatureData(String fabId, Long paramId, Long fromdate, Long todate);
+
+	List<EqpParamDatas> getAnalysisData(String fabId, Date fromDate, Date toDate, AnalysisCondition analysisCondition);
 }

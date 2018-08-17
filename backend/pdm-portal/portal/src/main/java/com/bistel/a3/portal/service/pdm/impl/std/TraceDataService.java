@@ -10,6 +10,7 @@ import com.bistel.a3.portal.dao.pdm.std.trace.STDTraceRawDataMapper;
 import com.bistel.a3.portal.domain.common.*;
 import com.bistel.a3.portal.domain.pdm.*;
 import com.bistel.a3.portal.domain.pdm.db.*;
+import com.bistel.a3.portal.domain.pdm.enums.AnalysisType;
 import com.bistel.a3.portal.domain.pdm.enums.EuType;
 import com.bistel.a3.portal.domain.pdm.enums.ParamType;
 import com.bistel.a3.portal.domain.pdm.enums.PartType;
@@ -18,6 +19,9 @@ import com.bistel.a3.portal.module.pdm.RpmDataComponent;
 import com.bistel.a3.portal.service.pdm.ITraceDataService;
 import com.bistel.a3.portal.util.SqlSessionUtil;
 import com.bistel.a3.portal.util.pdm.Outlier;
+
+import ch.qos.logback.core.net.SyslogOutputStream;
+
 import org.apache.commons.math3.stat.StatUtils;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.slf4j.Logger;
@@ -1115,5 +1119,99 @@ public class TraceDataService implements ITraceDataService {
 
         return result;
     }
+
+
+	@Override
+	public List<EqpParamDatas> getAnalysisData(String fabId, Date fromDate, Date toDate, AnalysisCondition analysisCondition) {
+		
+		STDTraceDataMapper mapper = SqlSessionUtil.getMapper(sessions, fabId, STDTraceDataMapper.class);
+		
+		List<HashMap<String, Object>> selectAnalysisData = mapper.selectAnalysisData(fromDate, toDate, analysisCondition);
+		
+		Pivot pivot = new Pivot();
+        List<List<String>> results=null;
+        try {
+            if(selectAnalysisData.size()==0){
+                return new ArrayList<>();
+            }
+            results = pivot.getPivotDataByTimeWithAllColumn(selectAnalysisData, "EVENT_DTTS", "PARAMETER_NAME");
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        HashMap<String,Integer> columns = new HashMap<>();
+        for (int i = 0; i < results.get(0).size(); i++) {
+            columns.put(results.get(0).get(i),i);
+        }
+		
+        System.out.println(columns);
+        
+        AnalysisDatas analysisDatasTop = new AnalysisDatas();
+        for (int i = 1; i < results.size(); i++) {
+        	AnalysisDatas analysisDatas = analysisDatasTop;
+        	AnalysisData analysisData = null;
+        	List<AnalysisParamGroup> returnDatas = analysisCondition.getY_category();
+        	for (int j = 0; j < returnDatas.size(); j++) {
+        		AnalysisParamGroup analysisParamGroup = returnDatas.get(j);
+        		if (analysisDatas.getDatas().containsKey(analysisParamGroup.getParam_name())) {
+        			analysisData = analysisDatas.getDatas().get(analysisParamGroup.getParam_name());
+        		} else {
+        			if(analysisData==null) {
+        				analysisData = new AnalysisData(analysisParamGroup.getParam_name(), AnalysisType.y_category, new AnalysisDatas());
+        				analysisDatas.getDatas().put(analysisParamGroup.getParam_name(), analysisData);
+        			}else {
+        				AnalysisDatas analysisDatas2=analysisData.getValues();
+        				analysisData =  new AnalysisData(analysisParamGroup.getParam_name(), AnalysisType.y_category, new AnalysisDatas());
+        				analysisDatas2.getDatas().put(analysisParamGroup.getParam_name(), analysisData);
+        			}
+        		}
+        	}
+
+        	returnDatas = analysisCondition.getX_category();
+        	for (int j = 0; j < returnDatas.size(); j++) {
+        		AnalysisParamGroup analysisParamGroup = returnDatas.get(j);
+        		if (analysisDatas.getDatas().containsKey(analysisParamGroup.getParam_name())) {
+        			analysisData = analysisDatas.getDatas().get(analysisParamGroup.getParam_name());
+        		} else {
+        			if(analysisData==null) {
+        				analysisData = new AnalysisData(analysisParamGroup.getParam_name(), AnalysisType.x_category, new AnalysisDatas());
+        				analysisDatas.getDatas().put(analysisParamGroup.getParam_name(), analysisData);
+        			}else {
+        				AnalysisDatas analysisDatas2=analysisData.getValues();
+        				analysisData =  new AnalysisData(analysisParamGroup.getParam_name(), AnalysisType.x_category, new AnalysisDatas());
+        				analysisDatas2.getDatas().put(analysisParamGroup.getParam_name(), analysisData);
+        			}
+        		}
+        	}
+        	List<Object> datas = new ArrayList<>();
+        	returnDatas = analysisCondition.getX();
+        	for (int j = 0; j < returnDatas.size(); j++) {
+        		AnalysisParamGroup analysisParamGroup = returnDatas.get(j);
+        		datas.add( results.get(i).get(columns.get( analysisParamGroup.getParam_name())));
+        		
+        	}
+        	returnDatas = analysisCondition.getY();
+        	for (int j = 0; j < returnDatas.size(); j++) {
+        		AnalysisParamGroup analysisParamGroup = returnDatas.get(j);
+        		datas.add( results.get(i).get(columns.get( analysisParamGroup.getParam_name())));
+        		
+        	}
+        	
+        	returnDatas = analysisCondition.getY2();
+        	for (int j = 0; j < returnDatas.size(); j++) {
+        		AnalysisParamGroup analysisParamGroup = returnDatas.get(j);
+        		datas.add( results.get(i).get(columns.get( analysisParamGroup.getParam_name())));
+        		
+        	}
+    
+        	
+		}
+        
+        
+        
+        
+        
+		
+		return null;
+	}
 
 }

@@ -937,7 +937,446 @@
 
     </select>
 
-   
+    <select id="selectAnalysisData" resultType="java.util.HashMap">
+		SELECT
+		<if test="analysisCondition.isGroupBy==true">
+			<foreach collection="analysisCondition.x_category" item="item1" separator=",">
+				<choose>
+					<when test="item1.param_name == 'DATE'">
+						<if test="item1.group_name == 'MONTH'">
+							TO_CHAR(EVENT_DTTS, 'yyyy-MM')
+						</if>
+	
+						<if test="item1.group_name == 'DAY'">
+							TO_CHAR(EVENT_DTTS, 'yyyy-MM-dd')
+						</if>
+	
+						<if test="item1.group_name == 'HOUR'">
+							TO_CHAR(EVENT_DTTS, 'yyyy-MM-dd HH24:') || '00:00'
+						</if>
+	
+						<if test="item1.group_name == 'MINUTES'">
+							TO_CHAR(EVENT_DTTS, 'yyyy-MM-dd HH24:') || TRIM (TO_CHAR (ROUND (TO_NUMBER (TO_CHAR(EVENT_DTTS, 'MI'))), '00')) || ':00'
+						</if>
+					</when>
+					<when test="item1.param_name == 'AREA_NAME'">
+						AMP.NAME AS AREA_NAME
+					</when>
+					<when test="item1.param_name == 'EQP_NAME'">
+						EMP.NAME AS EQP_NAME
+					</when>
+					<otherwise>
+						#{item1.param_name}
+					</otherwise>
+				</choose>
+			</foreach>
+	
+			<foreach collection="analysisCondition.y_category"
+				item="item1" separator=",">
+				<choose>
+					<when test="item1.param_name == 'DATE'">
+						<if test="item1.group_name == 'MONTH'">
+							TO_CHAR(EVENT_DTTS, 'yyyy-MM')
+						</if>
+	
+						<if test="item1.group_name == 'DAY'">
+							TO_CHAR(EVENT_DTTS, 'yyyy-MM-dd')
+						</if>
+	
+						<if test="item1.group_name == 'HOUR'">
+							TO_CHAR(EVENT_DTTS, 'yyyy-MM-dd HH24:') || '00:00'
+						</if>
+	
+						<if test="item1.group_name == 'MINUTES'">
+							TO_CHAR(EVENT_DTTS, 'yyyy-MM-dd HH24:') || TRIM (TO_CHAR (ROUND (TO_NUMBER (TO_CHAR(EVENT_DTTS, 'MI'))), '00')) || ':00'
+						</if>
+					</when>
+					<when test="item1.param_name == 'AREA_NAME'">
+						AMP.NAME AS AREA_NAME
+					</when>
+					<when test="item1.param_name == 'EQP_NAME'">
+						EMP.NAME AS EQP_NAME
+					</when>
+					<otherwise>
+						#{item1.param_name}
+					</otherwise>
+				</choose>
+			</foreach>
+	
+			<foreach collection="analysisCondition.x" item="item1"
+				separator=",">
+				<choose>
+					<when test="item1.param_name == 'DATE'">
+						<if test="item1.group_name == 'MONTH'">
+							TO_CHAR(EVENT_DTTS, 'yyyy-MM')
+						</if>
+	
+						<if test="item1.group_name == 'DAY'">
+							TO_CHAR(EVENT_DTTS, 'yyyy-MM-dd')
+						</if>
+	
+						<if test="item1.group_name == 'HOUR'">
+							TO_CHAR(EVENT_DTTS, 'yyyy-MM-dd HH24:') || '00:00'
+						</if>
+	
+						<if test="item1.group_name == 'MINUTES'">
+							TO_CHAR(EVENT_DTTS, 'yyyy-MM-dd HH24:') || TRIM (TO_CHAR (ROUND (TO_NUMBER (TO_CHAR(EVENT_DTTS, 'MI'))), '00')) || ':00'
+						</if>
+					</when>
+					<when test="item1.param_name == 'AREA_NAME'">
+						AMP.NAME AS AREA_NAME
+					</when>
+					<when test="item1.param_name == 'EQP_NAME'">
+						EMP.NAME AS EQP_NAME
+					</when>
+					<otherwise>
+						#{item1.param_name}
+					</otherwise>
+				</choose>
+			</foreach>
+	
+			<foreach collection="analysisCondition.y" item="item1"
+				separator=",">
+				<if test="item1.param_name != 'DATE'">
+					<if test="item1.group_name == 'SUM'">
+						SUM(#{item1.param_name})
+					</if>
+					<if test="item1.group_name == 'MIN'">
+						MIN(#{item1.param_name})
+					</if>
+					<if test="item1.group_name == 'MAX'">
+						MAX(#{item1.param_name})
+					</if>
+					<if test="item1.group_name == 'COUNT'">
+						COUNT(#{item1.param_name})
+					</if>
+					<if test="item1.group_name == 'AVG'">
+						AVG(#{item1.param_name})
+					</if>
+				</if>
+				<if test="item1.param_name == 'DATE'">
+					<if test="item1.group_name == 'MONTH'">
+						TO_CHAR(EVENT_DTTS, 'yyyy-MM')
+					</if>
+	
+					<if test="item1.group_name == 'DAY'">
+						TO_CHAR(EVENT_DTTS, 'yyyy-MM-dd')
+					</if>
+	
+					<if test="item1.group_name == 'HOUR'">
+						TO_CHAR(EVENT_DTTS, 'yyyy-MM-dd HH24:') || '00:00'
+					</if>
+	
+					<if test="item1.group_name == 'MINUTES'">
+						TO_CHAR(EVENT_DTTS, 'yyyy-MM-dd HH24:') || TRIM (TO_CHAR (ROUND (TO_NUMBER (TO_CHAR(EVENT_DTTS, 'MI'))), '00')) || ':00'
+					</if>
+				</if>
+			</foreach>
+	
+			<foreach collection="analysisCondition.y2" item="item1" separator=",">
+				<if test="item1.param_name != 'DATE'">
+					<if test="item1.group_name == 'SUM'">
+						SUM(#{item1.param_name})
+					</if>
+					<if test="item1.group_name == 'MIN'">
+						MIN(#{item1.param_name})
+					</if>
+					<if test="item1.group_name == 'MAX'">
+						MAX(#{item1.param_name})
+					</if>
+					<if test="item1.group_name == 'COUNT'">
+						COUNT(#{item1.param_name})
+					</if>
+					<if test="item1.group_name == 'AVG'">
+						AVG(#{item1.param_name})
+					</if>
+				</if>
+				<if test="item1.param_name == 'DATE'">
+					<if test="item1.group_name == 'MONTH'">
+						TO_CHAR(EVENT_DTTS, 'yyyy-MM')
+					</if>
+	
+					<if test="item1.group_name == 'DAY'">
+						TO_CHAR(EVENT_DTTS, 'yyyy-MM-dd')
+					</if>
+	
+					<if test="item1.group_name == 'HOUR'">
+						TO_CHAR(EVENT_DTTS, 'yyyy-MM-dd HH24:') || '00:00'
+					</if>
+	
+					<if test="item1.group_name == 'MINUTES'">
+						TO_CHAR(EVENT_DTTS, 'yyyy-MM-dd HH24:') || TRIM (TO_CHAR (ROUND (TO_NUMBER (TO_CHAR
+						(EVENT_DTTS, 'MI'))), '00')) || ':00'
+					</if>
+				</if>
+			</foreach>
+		</if>
+		
+		<if test="analysisCondition.isGroupBy==false">
+			
+			<!-- DATE, String -->
+			<foreach collection="analysisCondition.x_category"	item="item1" separator=",">
+				<choose>
+					<when test="item1.param_name == 'DATE'">
+						TTP.EVENT_DTTS
+					</when>
+					<when test="item1.param_name == 'AREA_NAME'">
+						AMP.NAME AS AREA_NAME
+					</when>
+					<when test="item1.param_name == 'EQP_NAME'">
+						EMP.NAME AS EQP_NAME
+					</when>
+					<otherwise>
+						#{item1.param_name}
+					</otherwise>
+				</choose>
+			</foreach>
+			<if test="analysisCondition.x_category.size() > 0">
+			,
+			</if>
+			
+			<foreach collection="analysisCondition.y_category" item="item1" separator=",">
+				<choose>
+					<when test="item1.param_name == 'DATE'">
+						TTP.EVENT_DTTS
+					</when>
+					<when test="item1.param_name == 'AREA_NAME'">
+						AMP.NAME AS AREA_NAME
+					</when>
+					<when test="item1.param_name == 'EQP_NAME'">
+						EMP.NAME AS EQP_NAME
+					</when>
+					<otherwise>
+						#{item1.param_name}
+					</otherwise>
+				</choose>
+			</foreach>
+			<if test="analysisCondition.y_category.size() > 0">
+			,
+			</if>
+			
+			<foreach collection="analysisCondition.x" item="item1" separator=",">
+				<choose>
+					<when test="item1.param_name == 'DATE'">
+						TTP.EVENT_DTTS AS EVENT_DTTS
+					</when>
+					<when test="item1.param_name == 'AREA_NAME'">
+						AMP.NAME AS AREA_NAME
+					</when>
+					<when test="item1.param_name == 'EQP_NAME'">
+						EMP.NAME AS EQP_NAME
+					</when>
+					<otherwise>
+						#{item1.param_name}
+					</otherwise>
+				</choose>
+			</foreach>
+			<if test="analysisCondition.x.size() > 0">
+			,
+			</if>
+			
+			<foreach collection="analysisCondition.y" item="item1" separator=",">
+				<choose>
+					<when test="item1.param_name == 'DATE'">
+						TTP.EVENT_DTTS
+					</when>
+					<when test="item1.param_name == 'AREA_NAME'">
+						AMP.NAME AS AREA_NAME
+					</when>
+					<when test="item1.param_name == 'EQP_NAME'">
+						EMP.NAME AS EQP_NAME
+					</when>
+					<otherwise>
+						PMP.NAME AS PARAMETER_NAME
+					</otherwise>
+				</choose>
+			</foreach>
+			<if test="analysisCondition.y.size() > 0">
+			,
+			</if>
+			
+			<foreach collection="analysisCondition.y2" item="item1" separator=",">
+				<choose>
+					<when test="item1.param_name == 'DATE'">
+						TTP.EVENT_DTTS
+					</when>
+					<when test="item1.param_name == 'AREA_NAME'">
+						AMP.NAME AS AREA_NAME
+					</when>
+					<when test="item1.param_name == 'EQP_NAME'">
+						EMP.NAME AS EQP_NAME
+					</when>
+					<otherwise>
+						#{item1.param_name}
+					</otherwise>
+				</choose>
+			</foreach>
+			<if test="analysisCondition.y2.size() > 0">
+			,
+			</if>
+			TTP.VALUE AS VALUE
+		</if>
+			<!-- 
+	  		AMP.NAME AS AREA_NAME,
+	        EMP.NAME AS EQP_NAME,
+	        TO_CHAR (EVENT_DTTS, 'yyyy-MM-dd HH24:') || '00:00' AS EVENT_DAY,
+	        TO_CHAR (EVENT_DTTS, 'yyyy-MM-dd ') || TRIM (TO_CHAR (ROUND (TO_NUMBER (TO_CHAR (EVENT_DTTS, 'HH24')) / 1 - 0.4), '00')) || ':00:00'  AS EVENT_HOUR,
+	        PMP.RAWID AS PARAMETER_ID,
+	        PMP.NAME AS PARAMETER_NAME,
+	        SUM (TTP.VALUE) AS SUM_VALUE,
+	        AVG (TTP.VALUE) AS AVG_VALUE
+	        -->
+	  	FROM TRACE_TRX_PDM TTP,
+	         PARAM_MST_PDM PMP,
+	         EQP_MST_PDM EMP,
+	         AREA_MST_PDM AMP
+	  	WHERE  TTP.PARAM_MST_RAWID = PMP.RAWID
+	         AND PMP.EQP_MST_RAWID = EMP.RAWID
+	         AND EMP.AREA_MST_RAWID = AMP.RAWID
+	         AND TTP.EVENT_DTTS <![CDATA[>=]]> #{fromDate}
+	         AND TTP.EVENT_DTTS <![CDATA[<]]> #{toDate}
+	         <if test="analysisCondition.parameters.size() > 0">
+	         	AND PMP.NAME IN
+	            <foreach collection="analysisCondition.parameters" item="item1" separator="," open="(" close=")">
+	            	<if test="item1.param_name != 'DATE'">
+		            	#{item1.param_name}
+	                </if>
+	        	</foreach>	         
+	         </if>
+			
+	<if test="analysisCondition.isGroupBy==true">
+		GROUP BY
+			<!-- DATE, String -->
+            <foreach collection="analysisCondition.x_category" item="item1" separator=",">
+            	<if test="item1.param_name != 'DATE'">
+	            	#{item1.param_name}
+                </if>
+            	<if test="item1.param_name == 'DATE'">
+	            	<if test="item1.group_name == 'MONTH'">
+	            		 TO_CHAR(EVENT_DTTS, 'yyyy-MM')
+	             	</if>
+	            	
+	            	<if test="item1.group_name == 'DAY'">
+	            		 TO_CHAR(EVENT_DTTS, 'yyyy-MM-dd')
+	             	</if>
+	            	
+	            	<if test="item1.group_name == 'HOUR'">
+	            		 TO_CHAR(EVENT_DTTS, 'yyyy-MM-dd HH24:') || '00:00'
+	             	</if>
+	            	
+	            	<if test="item1.group_name == 'MINUTES'">
+	            		 TO_CHAR(EVENT_DTTS, 'yyyy-MM-dd HH24:') || TRIM (TO_CHAR (ROUND (TO_NUMBER (TO_CHAR (EVENT_DTTS, 'MI'))), '00')) || ':00'
+	             	</if>
+				</if>
+        	</foreach>
+        	
+            <foreach collection="analysisCondition.y_category" item="item1" separator=",">
+            	<if test="item1.param_name != 'DATE'">
+	            	#{item1.param_name}
+                </if>
+            	<if test="item1.param_name == 'DATE'">
+	            	<if test="item1.group_name == 'MONTH'">
+	            		 TO_CHAR(EVENT_DTTS, 'yyyy-MM')
+	             	</if>
+	            	
+	            	<if test="item1.group_name == 'DAY'">
+	            		 TO_CHAR(EVENT_DTTS, 'yyyy-MM-dd')
+	             	</if>
+	            	
+	            	<if test="item1.group_name == 'HOUR'">
+	            		 TO_CHAR(EVENT_DTTS, 'yyyy-MM-dd HH24:') || '00:00'
+	             	</if>
+	            	
+	            	<if test="item1.group_name == 'MINUTES'">
+	            		 TO_CHAR(EVENT_DTTS, 'yyyy-MM-dd HH24:') || TRIM (TO_CHAR (ROUND (TO_NUMBER (TO_CHAR (EVENT_DTTS, 'MI'))), '00')) || ':00'
+	             	</if>
+				</if>
+        	</foreach>
+
+            <foreach collection="analysisCondition.x" item="item1" separator=",">
+            	<if test="item1.param_name != 'DATE'">
+	            	#{item1.param_name}
+                </if>
+            	<if test="item1.param_name == 'DATE'">
+	            	<if test="item1.group_name == 'MONTH'">
+	            		 TO_CHAR(EVENT_DTTS, 'yyyy-MM')
+	             	</if>
+	            	
+	            	<if test="item1.group_name == 'DAY'">
+	            		 TO_CHAR(EVENT_DTTS, 'yyyy-MM-dd')
+	             	</if>
+	            	
+	            	<if test="item1.group_name == 'HOUR'">
+	            		 TO_CHAR(EVENT_DTTS, 'yyyy-MM-dd HH24:') || '00:00'
+	             	</if>
+	            	
+	            	<if test="item1.group_name == 'MINUTES'">
+	            		 TO_CHAR(EVENT_DTTS, 'yyyy-MM-dd HH24:') || TRIM (TO_CHAR (ROUND (TO_NUMBER (TO_CHAR (EVENT_DTTS, 'MI'))), '00')) || ':00'
+	             	</if>
+				</if>
+        	</foreach>
+        	
+            <foreach collection="analysisCondition.y" item="item1" separator=",">
+            	<if test="item1.param_name != 'DATE'">
+	            	#{item1.param_name}
+                </if>
+            	<if test="item1.param_name == 'DATE'">
+	            	<if test="item1.group_name == 'MONTH'">
+	            		 TO_CHAR(EVENT_DTTS, 'yyyy-MM')
+	             	</if>
+	            	
+	            	<if test="item1.group_name == 'DAY'">
+	            		 TO_CHAR(EVENT_DTTS, 'yyyy-MM-dd')
+	             	</if>
+	            	
+	            	<if test="item1.group_name == 'HOUR'">
+	            		 TO_CHAR(EVENT_DTTS, 'yyyy-MM-dd HH24:') || '00:00'
+	             	</if>
+	            	
+	            	<if test="item1.group_name == 'MINUTES'">
+	            		 TO_CHAR(EVENT_DTTS, 'yyyy-MM-dd HH24:') || TRIM (TO_CHAR (ROUND (TO_NUMBER (TO_CHAR (EVENT_DTTS, 'MI'))), '00')) || ':00'
+	             	</if>
+				</if>
+        	</foreach>
+        	
+            <foreach collection="analysisCondition.y2" item="item1" separator=",">
+            	<if test="item1.param_name != 'DATE'">
+	            	#{item1.param_name}
+                </if>
+            	<if test="item1.param_name == 'DATE'">
+	            	<if test="item1.group_name == 'MONTH'">
+	            		 TO_CHAR(EVENT_DTTS, 'yyyy-MM')
+	             	</if>
+	            	
+	            	<if test="item1.group_name == 'DAY'">
+	            		 TO_CHAR(EVENT_DTTS, 'yyyy-MM-dd')
+	             	</if>
+	            	
+	            	<if test="item1.group_name == 'HOUR'">
+	            		 TO_CHAR(EVENT_DTTS, 'yyyy-MM-dd HH24:') || '00:00'
+	             	</if>
+	            	
+	            	<if test="item1.group_name == 'MINUTES'">
+	            		 TO_CHAR(EVENT_DTTS, 'yyyy-MM-dd HH24:') || TRIM (TO_CHAR (ROUND (TO_NUMBER (TO_CHAR (EVENT_DTTS, 'MI'))), '00')) || ':00'
+	             	</if>
+				</if>
+        	</foreach>
+        </if>
+        	<!-- 
+			 AMP.NAME,
+	         EMP.NAME,
+	         TO_CHAR (EVENT_DTTS, 'yyyy-MM-dd HH24:') || '00:00',
+	         TO_CHAR (EVENT_DTTS, 'yyyy-MM-dd ') || TRIM (TO_CHAR (ROUND (TO_NUMBER (TO_CHAR (EVENT_DTTS, 'HH24')) / 1 - 0.4), '00')) || ':00:00',
+	         PMP.RAWID,
+	         PMP.NAME
+	         
+	ORDER BY AMP.NAME,
+	         EMP.NAME,
+	         TO_CHAR (EVENT_DTTS, 'yyyy-MM-dd HH24:') || '00:00',
+	         TO_CHAR (EVENT_DTTS, 'yyyy-MM-dd ') || TRIM (TO_CHAR (ROUND (TO_NUMBER (TO_CHAR (EVENT_DTTS, 'HH24')) / 1 - 0.4), '00')) || ':00:00',
+	         PMP.RAWID
+	         -->
+    </select>
 
 
 
