@@ -28,7 +28,6 @@
         <module>serving-layer/pdm-serving</module>
         <module>batch-layer/pdm-batch</module>
         <module>speed-layer/pdm-speed</module>
-        <module>store-layer/pdm-datastore</module>
         <module>web/pdm-web</module>
         <module>web/pdm-scheduler</module>
         <module>deploy/pdm-serving-bundle</module>
