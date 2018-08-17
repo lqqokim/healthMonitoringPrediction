@@ -123,11 +123,11 @@ public class Pivot {
         return retValues;
 
     }
-    public List<List<String>> getPivotDataByTimeWithAllColumn(List<HashMap<String,Object>> datas,String timeColumn,String pivotColumn) throws ParseException{
+    public List<List<String>> getPivotDataByTimeWithAllColumn(List<HashMap<String,Object>> datas,List<String> keyColumns,String pivotColumn) throws ParseException{
         pivotDatas = new HashMap<String, HashMap<String, Object>>();
         List<String> keys = new ArrayList<String>();
         for( String key: datas.get(0).keySet()) {
-        	if(!key.equals(timeColumn)&& !key.equals(pivotColumn)&&!key.equals("VALUE")) {
+        	if(keyColumns.indexOf(key)<0 && !key.equals(pivotColumn)&&!key.equals("VALUE")) {
         		keys.add(key);	
         	}
         }
@@ -140,28 +140,38 @@ public class Pivot {
         
         for(HashMap data: datas) {
         	try {
-				String keyData = data.get(timeColumn).toString();
+				String keyData ="";
+				for(int i=0;i<keyColumns.size();i++){
+					keyData +="_"+data.get(keyColumns.get(i)).toString();
+				}
 
-				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-				Date date = sdf.parse(keyData);
-				long millisecond = date.getTime();
+//				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//				Date date = sdf.parse(keyData);
+//				long millisecond = date.getTime();
 
 
 				String preFix = data.get(pivotColumn).toString();
 				if (pivotDatas.containsKey(keyData)) { //Pivot에 TimeData가 있으면
 					HashMap<String, Object> row = pivotDatas.get(keyData);
-					if (row.containsKey(preFix )) { //PreFix에 FieldName붙인 값이 있나
+					if (row.containsKey(preFix )) {
 						row = new HashMap<String, Object>(); //같은 Time의 데이타가 존재 하기 때문에 새로운 Row로 추가
-						row.put(timeColumn, millisecond);
+						row.put(keyData, keyData);
 						for (int i = 0; i < keys.size(); i++) {
 							String key = keys.get(i);
 							row.put( key, data.get(key));
 						}
+						for (int i = 0; i < keyColumns.size(); i++) {
+							String key = keyColumns.get(i);
+							if (!fields.containsKey(key))
+								fields.put(key, key);
+							row.put(key, data.get(key));
+						}
+
 						row.put(preFix, data.get("VALUE"));
 						pivotDatas.put(keyData, row);
 
 					} else {  //PreFix에 FieldName붙인 값이  없으면 추가
-						row.put(timeColumn, millisecond);
+						row.put(keyData,keyData);
 						for (int i = 0; i < keys.size(); i++) {
 							String key = keys.get(i);
 							String newHead =  key;
@@ -170,17 +180,30 @@ public class Pivot {
 						}
 						fields.put(preFix, preFix);
 						row.put(preFix, data.get("VALUE"));
+						for (int i = 0; i < keyColumns.size(); i++) {
+							String key = keyColumns.get(i);
+							if (!fields.containsKey(key))
+								fields.put(key, key);
+							row.put(key, data.get(key));
+						}
 						pivotDatas.put(keyData, row);
 					}
 				} else {
 					HashMap<String, Object> row = new HashMap<String, Object>();
-					row.put(timeColumn, millisecond);
+					row.put(keyData, keyData);
 					for (int i = 0; i < keys.size(); i++) {
 						String key = keys.get(i);
-						String newHead =  key;
-						if (!fields.containsKey(newHead))
-							fields.put(newHead, newHead);
-						row.put(newHead, data.get(key));
+//						String newHead =  key;
+						if (!fields.containsKey(key))
+							fields.put(key, key);
+						row.put(key, data.get(key));
+					}
+					for (int i = 0; i < keyColumns.size(); i++) {
+						String key = keyColumns.get(i);
+//						String newHead =  key;
+						if (!fields.containsKey(key))
+							fields.put(key, key);
+						row.put(key, data.get(key));
 					}
 					if (!fields.containsKey(preFix))
 						fields.put(preFix, preFix);
@@ -198,8 +221,8 @@ public class Pivot {
         for( String key: fields.keySet()) {
        		sortFields.add(key);	
         }
-        java.util.Collections.sort(sortFields);
-        sortFields.add(0, timeColumn);
+//        java.util.Collections.sort(sortFields);
+//        sortFields.add(0, timeColumn);
         
         //Sort by time
         List<String> timeFieldDatas = new ArrayList<String>(pivotDatas.keySet());

@@ -1134,7 +1134,18 @@ public class TraceDataService implements ITraceDataService {
             if(selectAnalysisData.size()==0){
                 return new AnalysisData();
             }
-            results = pivot.getPivotDataByTimeWithAllColumn(selectAnalysisData, "DATE_TIME", "PARAMETER_NAME");
+            List<String> keyColumns = new ArrayList<>();
+
+            for (int j = 0; j < analysisCondition.getX().size(); j++) {
+                AnalysisParamGroup analysisParamGroup = analysisCondition.getX().get(j);
+                String paramName = analysisParamGroup.getParam_name();
+                if(analysisParamGroup.getGroup_name().length()>0){
+                    paramName += "_"+analysisParamGroup.getGroup_name();
+                }
+                keyColumns.add(paramName);
+            }
+
+            results = pivot.getPivotDataByTimeWithAllColumn(selectAnalysisData, keyColumns, "PARAMETER_NAME");
         } catch (ParseException e) {
             e.printStackTrace();
         }
