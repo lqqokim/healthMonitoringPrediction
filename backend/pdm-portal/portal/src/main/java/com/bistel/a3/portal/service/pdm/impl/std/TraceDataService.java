@@ -1181,13 +1181,9 @@ public class TraceDataService implements ITraceDataService {
                             analysisData1.setType(AnalysisType.y_category);
                             analysisData1.setParam_name(analysisParamGroup.getParam_name());
                             analysisData1.setName(value);
-                            if(analysisDataLocal==null){
-                                analysisDataLocal = analysisData1;
-                                analysisData.addChildren(analysisDataLocal);
-                            }else{
-                                analysisDataLocal.addChildren(analysisData1);
-                                analysisDataLocal = analysisData1;
-                            }
+                            
+                            analysisDataLocal = analysisData1;
+                            analysisData.addChildren(analysisDataLocal);
                         }
                     }else{
                         AnalysisData analysisData1 = new AnalysisData();
@@ -1214,20 +1210,16 @@ public class TraceDataService implements ITraceDataService {
                             analysisDataLocal = analysisData.getChildrendKey().get(value);
                         }else{
                             AnalysisData analysisData1 = new AnalysisData();
-                            analysisData1.setType(AnalysisType.y_category);
+                            analysisData1.setType(AnalysisType.x_category);
                             analysisData1.setParam_name(analysisParamGroup.getParam_name());
                             analysisData1.setName(value);
-                            if(analysisDataLocal==null){
-                                analysisDataLocal = analysisData1;
-                                analysisData.addChildren(analysisDataLocal);
-                            }else{
-                                analysisDataLocal.addChildren(analysisData1);
-                                analysisDataLocal = analysisData1;
-                            }
+                            
+                            analysisDataLocal = analysisData1;
+                            analysisData.addChildren(analysisDataLocal);
                         }
                     }else{
                         AnalysisData analysisData1 = new AnalysisData();
-                        analysisData1.setType(AnalysisType.y_category);
+                        analysisData1.setType(AnalysisType.x_category);
                         analysisData1.setParam_name(analysisParamGroup.getParam_name());
                         analysisData1.setName(value);
 

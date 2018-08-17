@@ -1127,7 +1127,7 @@
 						EMP.NAME AS EQP_NAME
 					</when>
 					<otherwise>
-						#{item1.param_name}
+						11
 					</otherwise>
 				</choose>
 			</foreach>
@@ -1147,7 +1147,7 @@
 						EMP.NAME AS EQP_NAME
 					</when>
 					<otherwise>
-						#{item1.param_name}
+						11
 					</otherwise>
 				</choose>
 			</foreach>
@@ -1167,7 +1167,7 @@
 						EMP.NAME AS EQP_NAME
 					</when>
 					<otherwise>
-						#{item1.param_name}
+						11
 					</otherwise>
 				</choose>
 			</foreach>
@@ -1187,7 +1187,7 @@
 						EMP.NAME AS EQP_NAME
 					</when>
 					<otherwise>
-						PMP.NAME AS PARAMETER_NAME
+						11
 					</otherwise>
 				</choose>
 			</foreach>
@@ -1207,13 +1207,14 @@
 						EMP.NAME AS EQP_NAME
 					</when>
 					<otherwise>
-						#{item1.param_name}
+						11
 					</otherwise>
 				</choose>
 			</foreach>
 			<if test="analysisCondition.y2.size() > 0">
 			,
-			</if>
+			</if>			
+			PMP.NAME AS PARAMETER_NAME,
 			TTP.VALUE AS VALUE
 		</if>
 			<!-- 
