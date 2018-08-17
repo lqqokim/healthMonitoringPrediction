@@ -1,4 +1,4 @@
-package com.bistel.pdm.lambda.kafka.expression.exception;
+package com.bistel.pdm.expression.exception;
 
 public class RuleSyntaxException extends RuntimeException {
 

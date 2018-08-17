@@ -21,25 +21,32 @@ public class StreamingMasterDataDao {
     private static final Logger log = LoggerFactory.getLogger(StreamingMasterDataDao.class);
 
     private final static String PARAM_MASTER_DS_SQL =
-            "select " +
-                    "a.name area_name, e.name as eqp_name, e.rawid as eqp_rawid, " +
-                    "p.name as param_name, p.parse_index, p.rawid param_id, " +
-                    "s.alarm_spec, s.warning_spec, p.param_type_cd " +
+            "select a.name area_name, e.name eqp_name, e.rawid eqp_rawid, " +
+                    "    p.name param_name, p.parse_index, p.rawid param_id, p.param_type_cd, " +
+                    "    c.condition_name, c.expression, c.expression_value, l.use_yn, " +
+                    "    s.spec_type, s.upper_alarm_spec, s.upper_warning_spec " +
                     "from area_mst_pdm a inner join eqp_mst_pdm e " +
                     "on a.rawid=e.area_mst_rawid " +
                     "inner join param_mst_pdm p " +
                     "on e.rawid=p.eqp_mst_rawid " +
-                    "left outer join trace_spec_mst_pdm s " +
-                    "on p.rawid=s.param_mst_rawid ";
+                    "inner join eqp_spec_link_mst_pdm l " +
+                    "on e.rawid=l.eqp_mst_rawid " +
+                    "inner join conditional_spec_mst_pdm c " +
+                    "on c.rawid=l.conditional_spec_mst_rawid " +
+                    "left outer join param_spec_mst_pdm s " +
+                    "on l.rawid=s.eqp_spec_link_mst_rawid " +
+                    "and p.rawid=s.param_mst_rawid ";
 
 //            "select " +
-//                    "area.name area_name, eqp.name as eqp_name, eqp.rawid as eqp_rawid, " +
-//                    "param.name as param_name, param.parse_index, param.rawid param_id, " +
-//                    "spec.alarm_spec, spec.warning_spec, param.param_type_cd " +
-//                    "from area_mst_pdm area, eqp_mst_pdm eqp, param_mst_pdm param, trace_spec_mst_pdm spec " +
-//                    "where area.rawid=eqp.area_mst_rawid " +
-//                    "and eqp.rawid=param.eqp_mst_rawid " +
-//                    "and param.rawid=spec.param_mst_rawid(+) ";
+//                    "a.name area_name, e.name as eqp_name, e.rawid as eqp_rawid, " +
+//                    "p.name as param_name, p.parse_index, p.rawid param_id, " +
+//                    "s.alarm_spec, s.warning_spec, p.param_type_cd " +
+//                    "from area_mst_pdm a inner join eqp_mst_pdm e " +
+//                    "on a.rawid=e.area_mst_rawid " +
+//                    "inner join param_mst_pdm p " +
+//                    "on e.rawid=p.eqp_mst_rawid " +
+//                    "left outer join trace_spec_mst_pdm s " +
+//                    "on p.rawid=s.param_mst_rawid ";
 
     public List<ParameterMasterDataSet> getParamMasterDataSet() throws SQLException {
         List<ParameterMasterDataSet> resultRows = new ArrayList<>();
@@ -58,33 +65,38 @@ public class StreamingMasterDataDao {
                     ds.setParameterName(rs.getString(4));
                     ds.setParamParseIndex(rs.getInt(5));
                     ds.setParameterRawId(rs.getLong(6));
-                    ds.setParameterType(rs.getString(9));
+                    ds.setParameterType(rs.getString(7));
+                    ds.setConditionName(rs.getString(8));
+                    ds.setExpression(rs.getString(9));
+                    ds.setExpressionValue(rs.getString(10));
+                    ds.setUseYn(rs.getString(11));
+                    ds.setSpecType(rs.getString(12));
 
-                    Float uas = rs.getFloat(7);
+                    Float uas = rs.getFloat(13);
                     if (rs.wasNull()) {
                         uas = null;
                     }
                     ds.setUpperAlarmSpec(uas);
 
-                    Float uws = rs.getFloat(8);
+                    Float uws = rs.getFloat(14);
                     if (rs.wasNull()) {
                         uws = null;
                     }
                     ds.setUpperWarningSpec(uws);
 
-//                    Float t = rs.getFloat(8);
+//                    Float t = rs.getFloat(15);
 //                    if(rs.wasNull()){
 //                        t = null;
 //                    }
 //                    ds.setTarget(t);
 //
-//                    Float las = rs.getFloat(9);
+//                    Float las = rs.getFloat(16);
 //                    if(rs.wasNull()){
 //                        las = null;
 //                    }
 //                    ds.setLowerAlarmSpec(las);
 //
-//                    Float lws = rs.getFloat(10);
+//                    Float lws = rs.getFloat(17);
 //                    if(rs.wasNull()){
 //                        lws = null;
 //                    }
@@ -99,30 +111,34 @@ public class StreamingMasterDataDao {
 
 
     private final static String PARAM_MASTER_DS_1_SQL =
-            "select " +
-                    "a.name area_name, e.name as eqp_name, e.rawid as eqp_rawid, " +
-                    "p.name as param_name, p.parse_index, p.rawid param_id, " +
-                    "s.alarm_spec, s.warning_spec, p.param_type_cd " +
+            "select a.name area_name, e.name eqp_name, e.rawid eqp_rawid, " +
+                    "    p.name param_name, p.parse_index, p.rawid param_id, p.param_type_cd, " +
+                    "    c.condition_name, c.expression, c.expression_value, l.use_yn, " +
+                    "    s.spec_type, s.upper_alarm_spec, s.upper_warning_spec " +
                     "from area_mst_pdm a inner join eqp_mst_pdm e " +
                     "on a.rawid=e.area_mst_rawid " +
                     "and e.name=? " +
                     "inner join param_mst_pdm p " +
                     "on e.rawid=p.eqp_mst_rawid " +
-                    "left outer join trace_spec_mst_pdm s " +
-                    "on p.rawid=s.param_mst_rawid ";
+                    "inner join eqp_spec_link_mst_pdm l " +
+                    "on e.rawid=l.eqp_mst_rawid " +
+                    "inner join conditional_spec_mst_pdm c " +
+                    "on c.rawid=l.conditional_spec_mst_rawid " +
+                    "left outer join param_spec_mst_pdm s " +
+                    "on l.rawid=s.eqp_spec_link_mst_rawid " +
+                    "and p.rawid=s.param_mst_rawid ";
 
 //            "select " +
-//                    "area.name area_name, eqp.name as eqp_name, eqp.rawid as eqp_rawid, " +
-//                    "param.name as param_name, param.parse_index, param.rawid param_id, " +
-//                    "spec.alarm_spec, spec.warning_spec, " +
-//                    "param.param_type_cd " +
-//                    //"spec.upper_alarm_spec, spec.upper_warning_spec, spec.target, " +
-//                    //"spec.lower_alarm_spec, spec.lower_warning_spec " +
-//                    "from area_mst_pdm area, eqp_mst_pdm eqp, param_mst_pdm param, trace_spec_mst_pdm spec " +
-//                    "where area.rawid=eqp.area_mst_rawid " +
-//                    "and eqp.rawid=param.eqp_mst_rawid " +
-//                    "and param.rawid=spec.param_mst_rawid(+) " +
-//                    "and eqp.name=? ";
+//                    "a.name area_name, e.name as eqp_name, e.rawid as eqp_rawid, " +
+//                    "p.name as param_name, p.parse_index, p.rawid param_id, " +
+//                    "s.alarm_spec, s.warning_spec, p.param_type_cd " +
+//                    "from area_mst_pdm a inner join eqp_mst_pdm e " +
+//                    "on a.rawid=e.area_mst_rawid " +
+//                    "and e.name=? " +
+//                    "inner join param_mst_pdm p " +
+//                    "on e.rawid=p.eqp_mst_rawid " +
+//                    "left outer join trace_spec_mst_pdm s " +
+//                    "on p.rawid=s.param_mst_rawid ";
 
     public List<ParameterMasterDataSet> getParamMasterDataSet(String eqpId) throws SQLException {
         List<ParameterMasterDataSet> resultRows = new ArrayList<>();
@@ -142,33 +158,38 @@ public class StreamingMasterDataDao {
                         ds.setParameterName(rs.getString(4));
                         ds.setParamParseIndex(rs.getInt(5));
                         ds.setParameterRawId(rs.getLong(6));
-                        ds.setParameterType(rs.getString(9));
+                        ds.setParameterType(rs.getString(7));
+                        ds.setConditionName(rs.getString(8));
+                        ds.setExpression(rs.getString(9));
+                        ds.setExpressionValue(rs.getString(10));
+                        ds.setUseYn(rs.getString(11));
+                        ds.setSpecType(rs.getString(12));
 
-                        Float uas = rs.getFloat(7);
+                        Float uas = rs.getFloat(13);
                         if (rs.wasNull()) {
                             uas = null;
                         }
                         ds.setUpperAlarmSpec(uas);
 
-                        Float uws = rs.getFloat(8);
+                        Float uws = rs.getFloat(14);
                         if (rs.wasNull()) {
                             uws = null;
                         }
                         ds.setUpperWarningSpec(uws);
 
-//                    Float t = rs.getFloat(8);
+//                    Float t = rs.getFloat(15);
 //                    if(rs.wasNull()){
 //                        t = null;
 //                    }
 //                    ds.setTarget(t);
 //
-//                    Float las = rs.getFloat(9);
+//                    Float las = rs.getFloat(16);
 //                    if(rs.wasNull()){
 //                        las = null;
 //                    }
 //                    ds.setLowerAlarmSpec(las);
 //
-//                    Float lws = rs.getFloat(10);
+//                    Float lws = rs.getFloat(17);
 //                    if(rs.wasNull()){
 //                        lws = null;
 //                    }

@@ -1,6 +1,10 @@
-package com.bistel.pdm.lambda.kafka.expression;
+package com.bistel.pdm.expression;
 
-import com.bistel.pdm.lambda.kafka.expression.listener.*;
+import com.bistel.pdm.expression.listener.PrimaryListener;
+import com.bistel.pdm.expression.listener.RelationalListener;
+import com.bistel.pdm.expression.listener.RuleErrorListener;
+import com.bistel.pdm.lambda.kafka.expression.RuleLexer;
+import com.bistel.pdm.lambda.kafka.expression.RuleParser;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 
@@ -44,7 +48,7 @@ public class RuleEvaluator {
         parser.addParseListener(new PrimaryListener(primaryExpressions, ruleVariables));
         //parser.addParseListener(new NotListener(primaryExpressions));
         parser.addParseListener(new RelationalListener(primaryExpressions));
-       // parser.addParseListener(new EqualityListener(primaryExpressions));
+        // parser.addParseListener(new EqualityListener(primaryExpressions));
         //parser.addParseListener(new LogicalAndListener(primaryExpressions));
         //parser.addParseListener(new LogicalOrListener(primaryExpressions));
 

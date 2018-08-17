@@ -1,6 +1,6 @@
-package com.bistel.pdm.lambda.kafka.expression;
+package com.bistel.pdm.expression;
 
-import com.bistel.pdm.lambda.kafka.expression.exception.MissingRuleVariableException;
+import com.bistel.pdm.expression.exception.MissingRuleVariableException;
 
 import java.util.HashMap;
 import java.util.Map;

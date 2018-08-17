@@ -28,6 +28,24 @@ public class ParameterMasterDataSet {
     @JsonProperty("parameterType")
     private String parameterType;
 
+    @JsonProperty("conditionName")
+    private String conditionName;
+
+    @JsonProperty("expression")
+    private String expression;
+
+    @JsonProperty("expressionValue")
+    private String expressionValue;
+
+    @JsonProperty("useYn")
+    private String useYn;
+
+    @JsonProperty("specType")
+    private String specType;
+
+    @JsonProperty("dataType")
+    private String dataType;
+
     @JsonProperty("upperWarningSpec")
     private Float upperWarningSpec;
 
@@ -107,6 +125,54 @@ public class ParameterMasterDataSet {
         this.parameterType = parameterType;
     }
 
+    public String getConditionName() {
+        return conditionName;
+    }
+
+    public void setConditionName(String conditionName) {
+        this.conditionName = conditionName;
+    }
+
+    public String getExpression() {
+        return expression;
+    }
+
+    public void setExpression(String expression) {
+        this.expression = expression;
+    }
+
+    public String getExpressionValue() {
+        return expressionValue;
+    }
+
+    public void setExpressionValue(String expressionValue) {
+        this.expressionValue = expressionValue;
+    }
+
+    public String getUseYn() {
+        return useYn;
+    }
+
+    public void setUseYn(String useYn) {
+        this.useYn = useYn;
+    }
+
+    public String getSpecType() {
+        return specType;
+    }
+
+    public void setSpecType(String specType) {
+        this.specType = specType;
+    }
+
+    public String getDataType() {
+        return dataType;
+    }
+
+    public void setDataType(String dataType) {
+        this.dataType = dataType;
+    }
+
     public Float getUpperWarningSpec() {
         return upperWarningSpec;
     }
@@ -146,4 +212,5 @@ public class ParameterMasterDataSet {
     public void setLowerAlarmSpec(Float lowerAlarmSpec) {
         this.lowerAlarmSpec = lowerAlarmSpec;
     }
+
 }

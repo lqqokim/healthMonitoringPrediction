@@ -1,6 +1,6 @@
-package com.bistel.pdm.lambda.kafka.expression.listener;
+package com.bistel.pdm.expression.listener;
 
-import com.bistel.pdm.lambda.kafka.expression.PrimaryExpressions;
+import com.bistel.pdm.expression.PrimaryExpressions;
 import com.bistel.pdm.lambda.kafka.expression.RuleBaseListener;
 import com.bistel.pdm.lambda.kafka.expression.RuleParser;
 

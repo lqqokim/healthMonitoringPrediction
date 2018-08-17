@@ -1,6 +1,6 @@
-package com.bistel.pdm.lambda.kafka.expression.listener;
+package com.bistel.pdm.expression.listener;
 
-import com.bistel.pdm.lambda.kafka.expression.exception.RuleSyntaxException;
+import com.bistel.pdm.expression.exception.RuleSyntaxException;
 import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
