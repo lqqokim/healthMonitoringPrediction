@@ -696,7 +696,7 @@ public class TraceDataService implements com.bistel.a3.portal.service.pdm.ITrace
 
 
 	@Override
-	public List<EqpParamDatas> getAnalysisData(String fabId, Date fromDate, Date toDate,
+	public AnalysisData getAnalysisData(String fabId, Date fromDate, Date toDate,
 			AnalysisCondition analysisCondition) {
 		// TODO Auto-generated method stub
 		return null;

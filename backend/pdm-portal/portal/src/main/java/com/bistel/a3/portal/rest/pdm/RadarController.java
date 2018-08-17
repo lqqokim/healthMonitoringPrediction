@@ -4,6 +4,7 @@ import com.bistel.a3.portal.domain.common.FilterCriteriaData;
 import com.bistel.a3.portal.domain.common.FilterTraceRequest;
 import com.bistel.a3.portal.domain.common.HeadDatas;
 import com.bistel.a3.portal.domain.pdm.AnalysisCondition;
+import com.bistel.a3.portal.domain.pdm.AnalysisData;
 import com.bistel.a3.portal.domain.pdm.EqpParamDatas;
 import com.bistel.a3.portal.domain.pdm.EqpStatusData;
 import com.bistel.a3.portal.domain.pdm.db.STDTraceTrx;
@@ -112,8 +113,8 @@ public class RadarController {
     
     
     @RequestMapping(method = RequestMethod.POST, value ="analysisData")
-    public List<EqpParamDatas> getAnalysisData(@PathVariable("fabId") String fabId,
-                                                  @RequestParam("fromDate") Long fromDate, @RequestParam("toDate") Long toDate
+    public AnalysisData getAnalysisData(@PathVariable("fabId") String fabId,
+                                        @RequestParam("fromDate") Long fromDate, @RequestParam("toDate") Long toDate
                                                   , @RequestBody AnalysisCondition bodyData
                                                   )
     {

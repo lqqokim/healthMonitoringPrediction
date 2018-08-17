@@ -3,11 +3,7 @@ package com.bistel.a3.portal.service.pdm;
 import com.bistel.a3.portal.domain.common.FilterCriteriaData;
 import com.bistel.a3.portal.domain.common.FilterTraceRequest;
 import com.bistel.a3.portal.domain.common.HeadDatas;
-import com.bistel.a3.portal.domain.pdm.AnalysisCondition;
-import com.bistel.a3.portal.domain.pdm.CauseAnalysisResult;
-import com.bistel.a3.portal.domain.pdm.EqpParamDatas;
-import com.bistel.a3.portal.domain.pdm.ManualClassification;
-import com.bistel.a3.portal.domain.pdm.RpmWithPart;
+import com.bistel.a3.portal.domain.pdm.*;
 import com.bistel.a3.portal.domain.pdm.db.MeasureTrx;
 import com.bistel.a3.portal.domain.pdm.db.STDTraceTrx;
 import com.bistel.a3.portal.domain.pdm.master.ParamWithCommon;
@@ -55,5 +51,5 @@ public interface ITraceDataService {
 
     Object getFeatureData(String fabId, Long paramId, Long fromdate, Long todate);
 
-	List<EqpParamDatas> getAnalysisData(String fabId, Date fromDate, Date toDate, AnalysisCondition analysisCondition);
+    AnalysisData getAnalysisData(String fabId, Date fromDate, Date toDate, AnalysisCondition analysisCondition);
 }

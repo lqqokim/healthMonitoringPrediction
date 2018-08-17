@@ -1122,7 +1122,7 @@ public class TraceDataService implements ITraceDataService {
 
 
 	@Override
-	public List<EqpParamDatas> getAnalysisData(String fabId, Date fromDate, Date toDate, AnalysisCondition analysisCondition) {
+	public AnalysisData getAnalysisData(String fabId, Date fromDate, Date toDate, AnalysisCondition analysisCondition) {
 		
 		STDTraceDataMapper mapper = SqlSessionUtil.getMapper(sessions, fabId, STDTraceDataMapper.class);
 		
@@ -1132,9 +1132,9 @@ public class TraceDataService implements ITraceDataService {
         List<List<String>> results=null;
         try {
             if(selectAnalysisData.size()==0){
-                return new ArrayList<>();
+                return new AnalysisData();
             }
-            results = pivot.getPivotDataByTimeWithAllColumn(selectAnalysisData, "EVENT_DTTS", "PARAMETER_NAME");
+            results = pivot.getPivotDataByTimeWithAllColumn(selectAnalysisData, "DATE_TIME", "PARAMETER_NAME");
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -1144,74 +1144,133 @@ public class TraceDataService implements ITraceDataService {
         }
 		
         System.out.println(columns);
-        
-        AnalysisDatas analysisDatasTop = new AnalysisDatas();
-        for (int i = 1; i < results.size(); i++) {
-        	AnalysisDatas analysisDatas = analysisDatasTop;
-        	AnalysisData analysisData = null;
-        	List<AnalysisParamGroup> returnDatas = analysisCondition.getY_category();
-        	for (int j = 0; j < returnDatas.size(); j++) {
-        		AnalysisParamGroup analysisParamGroup = returnDatas.get(j);
-        		if (analysisDatas.getDatas().containsKey(analysisParamGroup.getParam_name())) {
-        			analysisData = analysisDatas.getDatas().get(analysisParamGroup.getParam_name());
-        		} else {
-        			if(analysisData==null) {
-        				analysisData = new AnalysisData(analysisParamGroup.getParam_name(), AnalysisType.y_category, new AnalysisDatas());
-        				analysisDatas.getDatas().put(analysisParamGroup.getParam_name(), analysisData);
-        			}else {
-        				AnalysisDatas analysisDatas2=analysisData.getValues();
-        				analysisData =  new AnalysisData(analysisParamGroup.getParam_name(), AnalysisType.y_category, new AnalysisDatas());
-        				analysisDatas2.getDatas().put(analysisParamGroup.getParam_name(), analysisData);
-        			}
-        		}
-        	}
 
-        	returnDatas = analysisCondition.getX_category();
+
+        AnalysisData analysisData = new AnalysisData();
+
+        analysisData.setParam_name("root");
+        analysisData.setType( AnalysisType.root);
+
+        for (int i = 1; i < results.size(); i++) {
+
+            AnalysisData analysisDataLocal = null;
+
+            List<AnalysisParamGroup> returnDatas = analysisCondition.getY_category();
         	for (int j = 0; j < returnDatas.size(); j++) {
-        		AnalysisParamGroup analysisParamGroup = returnDatas.get(j);
-        		if (analysisDatas.getDatas().containsKey(analysisParamGroup.getParam_name())) {
-        			analysisData = analysisDatas.getDatas().get(analysisParamGroup.getParam_name());
-        		} else {
-        			if(analysisData==null) {
-        				analysisData = new AnalysisData(analysisParamGroup.getParam_name(), AnalysisType.x_category, new AnalysisDatas());
-        				analysisDatas.getDatas().put(analysisParamGroup.getParam_name(), analysisData);
-        			}else {
-        				AnalysisDatas analysisDatas2=analysisData.getValues();
-        				analysisData =  new AnalysisData(analysisParamGroup.getParam_name(), AnalysisType.x_category, new AnalysisDatas());
-        				analysisDatas2.getDatas().put(analysisParamGroup.getParam_name(), analysisData);
-        			}
-        		}
-        	}
-        	List<Object> datas = new ArrayList<>();
-        	returnDatas = analysisCondition.getX();
-        	for (int j = 0; j < returnDatas.size(); j++) {
-        		AnalysisParamGroup analysisParamGroup = returnDatas.get(j);
-        		datas.add( results.get(i).get(columns.get( analysisParamGroup.getParam_name())));
-        		
-        	}
-        	returnDatas = analysisCondition.getY();
-        	for (int j = 0; j < returnDatas.size(); j++) {
-        		AnalysisParamGroup analysisParamGroup = returnDatas.get(j);
-        		datas.add( results.get(i).get(columns.get( analysisParamGroup.getParam_name())));
-        		
-        	}
-        	
-        	returnDatas = analysisCondition.getY2();
-        	for (int j = 0; j < returnDatas.size(); j++) {
-        		AnalysisParamGroup analysisParamGroup = returnDatas.get(j);
-        		datas.add( results.get(i).get(columns.get( analysisParamGroup.getParam_name())));
-        		
-        	}
-    
-        	
-		}
-        
-        
-        
-        
-        
-		
-		return null;
+                AnalysisParamGroup analysisParamGroup = returnDatas.get(j);
+                String value = results.get(i).get(columns.get(analysisParamGroup.getParam_name()));
+                if(analysisDataLocal!=null && analysisDataLocal.getChildrendKey().containsKey(value)){
+                    analysisDataLocal = analysisDataLocal.getChildrendKey().get(value);
+                }else{
+                    if(analysisDataLocal==null){
+                        if(analysisData.getChildrendKey().containsKey(value)){
+                            analysisDataLocal = analysisData.getChildrendKey().get(value);
+                        }else{
+                            AnalysisData analysisData1 = new AnalysisData();
+                            analysisData1.setType(AnalysisType.y_category);
+                            analysisData1.setParam_name(analysisParamGroup.getParam_name());
+                            analysisData1.setName(value);
+                            if(analysisDataLocal==null){
+                                analysisDataLocal = analysisData1;
+                                analysisData.addChildren(analysisDataLocal);
+                            }else{
+                                analysisDataLocal.addChildren(analysisData1);
+                                analysisDataLocal = analysisData1;
+                            }
+                        }
+                    }else{
+                        AnalysisData analysisData1 = new AnalysisData();
+                        analysisData1.setType(AnalysisType.y_category);
+                        analysisData1.setParam_name(analysisParamGroup.getParam_name());
+                        analysisData1.setName(value);
+
+                        analysisDataLocal.addChildren(analysisData1);
+                        analysisDataLocal = analysisData1;
+
+                    }
+                }
+            }
+
+            returnDatas = analysisCondition.getX_category();
+            for (int j = 0; j < returnDatas.size(); j++) {
+                AnalysisParamGroup analysisParamGroup = returnDatas.get(j);
+                String value = results.get(i).get(columns.get(analysisParamGroup.getParam_name()));
+                if(analysisDataLocal!=null && analysisDataLocal.getChildrendKey().containsKey(value)){
+                    analysisDataLocal = analysisDataLocal.getChildrendKey().get(value);
+                }else{
+                    if(analysisDataLocal==null){
+                        if(analysisData.getChildrendKey().containsKey(value)){
+                            analysisDataLocal = analysisData.getChildrendKey().get(value);
+                        }else{
+                            AnalysisData analysisData1 = new AnalysisData();
+                            analysisData1.setType(AnalysisType.y_category);
+                            analysisData1.setParam_name(analysisParamGroup.getParam_name());
+                            analysisData1.setName(value);
+                            if(analysisDataLocal==null){
+                                analysisDataLocal = analysisData1;
+                                analysisData.addChildren(analysisDataLocal);
+                            }else{
+                                analysisDataLocal.addChildren(analysisData1);
+                                analysisDataLocal = analysisData1;
+                            }
+                        }
+                    }else{
+                        AnalysisData analysisData1 = new AnalysisData();
+                        analysisData1.setType(AnalysisType.y_category);
+                        analysisData1.setParam_name(analysisParamGroup.getParam_name());
+                        analysisData1.setName(value);
+
+                        analysisDataLocal.addChildren(analysisData1);
+                        analysisDataLocal = analysisData1;
+
+                    }
+                }
+            }
+            List<Object> data = new ArrayList<>();
+            returnDatas = analysisCondition.getX();
+            for (int j = 0; j < returnDatas.size(); j++) {
+                AnalysisParamGroup analysisParamGroup = returnDatas.get(j);
+                String paramName = analysisParamGroup.getParam_name();
+                if(analysisParamGroup.getGroup_name().length()>0){
+                    paramName +="_"+analysisParamGroup.getGroup_name();
+                }
+
+                data.add(results.get(i).get(columns.get(paramName)));
+
+            }
+            returnDatas = analysisCondition.getY();
+            for (int j = 0; j < returnDatas.size(); j++) {
+                AnalysisParamGroup analysisParamGroup = returnDatas.get(j);
+                String paramName = analysisParamGroup.getParam_name();
+                if(analysisParamGroup.getGroup_name().length()>0){
+                    paramName +="_"+analysisParamGroup.getGroup_name();
+                }
+
+                data.add(results.get(i).get(columns.get(paramName)));
+
+
+            }
+            returnDatas = analysisCondition.getY2();
+            for (int j = 0; j < returnDatas.size(); j++) {
+                AnalysisParamGroup analysisParamGroup = returnDatas.get(j);
+                String paramName = analysisParamGroup.getParam_name();
+                if(analysisParamGroup.getGroup_name().length()>0){
+                    paramName +="_"+analysisParamGroup.getGroup_name();
+                }
+
+                data.add(results.get(i).get(columns.get(paramName)));
+
+            }
+
+            if(analysisDataLocal!=null ){
+                analysisDataLocal.getValues().add(data);
+            }else{
+                analysisData.getValues().add(data);
+            }
+
+        }
+
+		return analysisData;
 	}
 
 }

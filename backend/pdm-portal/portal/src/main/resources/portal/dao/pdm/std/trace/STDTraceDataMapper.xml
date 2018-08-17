@@ -942,7 +942,7 @@
 		<if test="analysisCondition.isGroupBy==true">
 			<foreach collection="analysisCondition.x_category" item="item1" separator=",">
 				<choose>
-					<when test="item1.param_name == 'DATE'">
+					<when test="item1.param_name == 'DATE_TIME'">
 						<if test="item1.group_name == 'MONTH'">
 							TO_CHAR(EVENT_DTTS, 'yyyy-MM')
 						</if>
@@ -974,7 +974,7 @@
 			<foreach collection="analysisCondition.y_category"
 				item="item1" separator=",">
 				<choose>
-					<when test="item1.param_name == 'DATE'">
+					<when test="item1.param_name == 'DATE_TIME'">
 						<if test="item1.group_name == 'MONTH'">
 							TO_CHAR(EVENT_DTTS, 'yyyy-MM')
 						</if>
@@ -1006,7 +1006,7 @@
 			<foreach collection="analysisCondition.x" item="item1"
 				separator=",">
 				<choose>
-					<when test="item1.param_name == 'DATE'">
+					<when test="item1.param_name == 'DATE_TIME'">
 						<if test="item1.group_name == 'MONTH'">
 							TO_CHAR(EVENT_DTTS, 'yyyy-MM')
 						</if>
@@ -1037,7 +1037,7 @@
 	
 			<foreach collection="analysisCondition.y" item="item1"
 				separator=",">
-				<if test="item1.param_name != 'DATE'">
+				<if test="item1.param_name != 'DATE_TIME'">
 					<if test="item1.group_name == 'SUM'">
 						SUM(#{item1.param_name})
 					</if>
@@ -1054,7 +1054,7 @@
 						AVG(#{item1.param_name})
 					</if>
 				</if>
-				<if test="item1.param_name == 'DATE'">
+				<if test="item1.param_name == 'DATE_TIME'">
 					<if test="item1.group_name == 'MONTH'">
 						TO_CHAR(EVENT_DTTS, 'yyyy-MM')
 					</if>
@@ -1074,7 +1074,7 @@
 			</foreach>
 	
 			<foreach collection="analysisCondition.y2" item="item1" separator=",">
-				<if test="item1.param_name != 'DATE'">
+				<if test="item1.param_name != 'DATE_TIME'">
 					<if test="item1.group_name == 'SUM'">
 						SUM(#{item1.param_name})
 					</if>
@@ -1091,7 +1091,7 @@
 						AVG(#{item1.param_name})
 					</if>
 				</if>
-				<if test="item1.param_name == 'DATE'">
+				<if test="item1.param_name == 'DATE_TIME'">
 					<if test="item1.group_name == 'MONTH'">
 						TO_CHAR(EVENT_DTTS, 'yyyy-MM')
 					</if>
@@ -1117,8 +1117,8 @@
 			<!-- DATE, String -->
 			<foreach collection="analysisCondition.x_category"	item="item1" separator=",">
 				<choose>
-					<when test="item1.param_name == 'DATE'">
-						TTP.EVENT_DTTS
+					<when test="item1.param_name == 'DATE_TIME'">
+						TTP.EVENT_DTTS AS DATE_TIME
 					</when>
 					<when test="item1.param_name == 'AREA_NAME'">
 						AMP.NAME AS AREA_NAME
@@ -1137,8 +1137,8 @@
 			
 			<foreach collection="analysisCondition.y_category" item="item1" separator=",">
 				<choose>
-					<when test="item1.param_name == 'DATE'">
-						TTP.EVENT_DTTS
+					<when test="item1.param_name == 'DATE_TIME'">
+						TTP.EVENT_DTTS AS DATE_TIME
 					</when>
 					<when test="item1.param_name == 'AREA_NAME'">
 						AMP.NAME AS AREA_NAME
@@ -1157,8 +1157,8 @@
 			
 			<foreach collection="analysisCondition.x" item="item1" separator=",">
 				<choose>
-					<when test="item1.param_name == 'DATE'">
-						TTP.EVENT_DTTS AS EVENT_DTTS
+					<when test="item1.param_name == 'DATE_TIME'">
+						TTP.EVENT_DTTS  AS DATE_TIME
 					</when>
 					<when test="item1.param_name == 'AREA_NAME'">
 						AMP.NAME AS AREA_NAME
@@ -1177,8 +1177,8 @@
 			
 			<foreach collection="analysisCondition.y" item="item1" separator=",">
 				<choose>
-					<when test="item1.param_name == 'DATE'">
-						TTP.EVENT_DTTS
+					<when test="item1.param_name == 'DATE_TIME'">
+						TTP.EVENT_DTTS AS DATE_TIME
 					</when>
 					<when test="item1.param_name == 'AREA_NAME'">
 						AMP.NAME AS AREA_NAME
@@ -1197,8 +1197,8 @@
 			
 			<foreach collection="analysisCondition.y2" item="item1" separator=",">
 				<choose>
-					<when test="item1.param_name == 'DATE'">
-						TTP.EVENT_DTTS
+					<when test="item1.param_name == 'DATE_TIME'">
+						TTP.EVENT_DTTS AS DATE_TIME
 					</when>
 					<when test="item1.param_name == 'AREA_NAME'">
 						AMP.NAME AS AREA_NAME
