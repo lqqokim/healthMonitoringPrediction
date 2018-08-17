@@ -1145,7 +1145,7 @@ public class TraceDataService implements ITraceDataService {
                 keyColumns.add(paramName);
             }
 
-            results = pivot.getPivotDataByTimeWithAllColumn(selectAnalysisData, keyColumns, "PARAMETER_NAME");
+            results = pivot.getPivotDataByTimeWithAllColumn(selectAnalysisData, "EVENT_DTTS", "PARAMETER_NAME");
         } catch (ParseException e) {
             e.printStackTrace();
         }

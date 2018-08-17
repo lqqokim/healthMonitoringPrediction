@@ -1215,6 +1215,7 @@
 			,
 			</if>			
 			PMP.NAME AS PARAMETER_NAME,
+            TTP.EVENT_DTTS AS EVENT_DTTS,
 			TTP.VALUE AS VALUE
 		</if>
 			<!-- 
