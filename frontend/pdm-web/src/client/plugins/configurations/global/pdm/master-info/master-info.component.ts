@@ -126,8 +126,9 @@ export class MasterInfoComponent implements OnInit, AfterViewInit {
 
     selectNode(ev: any): void {
         try {
+            console.log('selectNode', ev);
             const nodeType = ev.treeview.nodeType;
-            
+
             if (nodeType === this.TYPES.AREA || nodeType === this.TYPES.EQP) {
                 if (!this.isShowArea) {
                     this.isShowArea = true;
@@ -328,12 +329,28 @@ export class MasterInfoComponent implements OnInit, AfterViewInit {
                     node.isChecked = false;
                 });
 
+                /*
+                    TODO: Call getModels api
+                */
+                const models: Array<{ model_name: string }> = [
+                    {
+                        model_name: 'model1'
+                    },
+                    {
+                        model_name: 'model2'
+                    },
+                    {
+                        model_name: 'model3'
+                    }
+                ];
+
                 this.nodeType = this.TYPES.AREA;
                 this.eqpData = {
                     eqps: eqps,
                     fabId: this.selectedFab.fabId,
                     areaId: this.selectedItem.areaId,
-                    areaName: this.selectedItem.areaName
+                    areaName: this.selectedItem.areaName,
+                    models: models
                 };
 
                 if (areas) {

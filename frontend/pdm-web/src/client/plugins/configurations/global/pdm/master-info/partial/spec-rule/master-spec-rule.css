@@ -1,0 +1,55 @@
+.spec-rule-container {
+    height: 100%;
+    width: 100%;
+}
+
+.spec-rule-header .fab-selector {
+    width:200px;
+    display: inline-block;
+}
+
+.spec-rule-header .model-seletor {
+    width:200px;
+    display: inline-block;
+}
+
+.spec-rule-content .rule-list {
+    width: calc(100% / 2 - 10px);
+    display: inline-block;
+    float: left;
+}
+
+.spec-rule-content .parameter-list {
+    width: calc(100% / 2 - 10px);
+    display: inline-block;
+    margin-left: 15px;
+}
+
+.modal-body.spec-rule-modal-body .condition {
+    
+}
+
+.modal-body.spec-rule-modal-body .condition table{
+    width: 100%;
+}
+
+.modal-body.spec-rule-modal-body .condition table td{
+    padding-right: 15px;
+}
+
+.modal-body.spec-rule-modal-body .condition table .param-name,
+.modal-body.spec-rule-modal-body .condition table .param-operand,
+.modal-body.spec-rule-modal-body .condition table .param-value, 
+.modal-body.spec-rule-modal-body .condition table .remove{
+    padding-right: 10px;
+}
+.modal-body.spec-rule-modal-body .condition table tr:last-child td{
+    padding-right: 0;
+}
+
+/* #ruleModal .modal-dialog .modal-body .parameter-list{
+    width: 100%;
+    margin-top: 20px;
+} */
+
+

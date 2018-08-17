@@ -16,11 +16,9 @@ import { MasterAreaModifyComponent } from './partial/area/master-area-modify.com
 import { MasterEqpModifyComponent } from './partial/eqp/master-eqp-modify.component';
 import { MasterParamModifyComponent } from './partial/parameter/master-parameter-modify.component';
 import { MasterPartModifyComponent } from './partial/part/master-part-modify.component';
+import { MasterSpecRuleComponent } from './partial/spec-rule/master-spec-rule.component';
 
 import { MasterEqpCopyComponent } from './partial/eqp/master-eqp-copy.component';
-import { SpecRuleModule } from './../spec-rule/spec-rule.module';
-import { SpecRuleComponent } from './../spec-rule/spec-rule.component';
-
 
 // import { NgTree } from 'ng.tree';
 
@@ -31,7 +29,6 @@ import { SpecRuleComponent } from './../spec-rule/spec-rule.component';
         BISTEL_SDKModule,
         A3_CommonModule,
         WjNavModule,
-        // SpecRuleModule
         
     ],
     declarations: [
@@ -47,10 +44,9 @@ import { SpecRuleComponent } from './../spec-rule/spec-rule.component';
         MasterEqpModifyComponent,
         MasterParamModifyComponent,
         MasterPartModifyComponent,
+        MasterSpecRuleComponent,
 
         MasterEqpCopyComponent,
-        SpecRuleComponent
-        
         // NgTree
         
     ],
