@@ -1,6 +1,6 @@
 package com.bistel.pdm.speed.processor;
 
-import com.bistel.pdm.common.json.EventMasterDataSet;
+import com.bistel.pdm.data.stream.EventMaster;
 import com.bistel.pdm.expression.RuleEvaluator;
 import com.bistel.pdm.expression.RuleVariables;
 import com.bistel.pdm.lambda.kafka.master.MasterCache;
@@ -57,10 +57,10 @@ public class PrepareDataProcessor extends AbstractProcessor<String, byte[]> {
 
             Long msgTimeStamp = parseStringToTimestamp(recordColumns[0]);
 
-            List<EventMasterDataSet> eventList = MasterCache.Event.get(partitionKey);
+            List<EventMaster> eventList = MasterCache.Event.get(partitionKey);
             if (eventList != null && eventList.size() > 0) {
 
-                for (EventMasterDataSet event : eventList) {
+                for (EventMaster event : eventList) {
                     // for process interval
                     if (event.getProcessYN().equalsIgnoreCase("Y")) {
                         double paramValue = Double.parseDouble(recordColumns[event.getParamParseIndex()]);
@@ -104,7 +104,7 @@ public class PrepareDataProcessor extends AbstractProcessor<String, byte[]> {
         }
     }
 
-    private String appendStatusContext(String partitionKey, Long msgTimeStamp, EventMasterDataSet event, double paramValue) {
+    private String appendStatusContext(String partitionKey, Long msgTimeStamp, EventMaster event, double paramValue) {
         String statusContext;
 
         String nowStatusCode = "I";
@@ -167,10 +167,16 @@ public class PrepareDataProcessor extends AbstractProcessor<String, byte[]> {
 
     private void refreshMasterCache(String partitionKey) throws ExecutionException {
         // refresh master info.
-        MasterCache.Equipment.refresh(partitionKey);
-        MasterCache.Parameter.refresh(partitionKey);
-        MasterCache.Event.refresh(partitionKey);
-        MasterCache.Health.refresh(partitionKey);
-        MasterCache.Mail.refresh(partitionKey);
+        try {
+            MasterCache.Equipment.refresh(partitionKey);
+            MasterCache.ParameterWithSpec.refresh(partitionKey);
+            MasterCache.EquipmentCondition.refresh(partitionKey);
+            MasterCache.ExprParameter.refresh(partitionKey);
+            MasterCache.Event.refresh(partitionKey);
+            MasterCache.Health.refresh(partitionKey);
+            MasterCache.Mail.refresh(partitionKey);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
     }
 }

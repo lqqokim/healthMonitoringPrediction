@@ -1,6 +1,5 @@
 package com.bistel.pdm.speed.processor;
 
-import com.bistel.pdm.common.json.ParameterMasterDataSet;
 import com.bistel.pdm.lambda.kafka.master.MasterCache;
 import org.apache.kafka.streams.processor.AbstractProcessor;
 import org.apache.kafka.streams.processor.ProcessorContext;
@@ -25,7 +24,9 @@ public class RefreshCacheProcessor extends AbstractProcessor<String, byte[]> {
         try {
             // refresh master info.
             MasterCache.Equipment.refresh(partitionKey);
-            MasterCache.Parameter.refresh(partitionKey);
+            MasterCache.ParameterWithSpec.refresh(partitionKey);
+            MasterCache.EquipmentCondition.refresh(partitionKey);
+            MasterCache.ExprParameter.refresh(partitionKey);
             MasterCache.Event.refresh(partitionKey);
             MasterCache.Health.refresh(partitionKey);
             MasterCache.Mail.refresh(partitionKey);

@@ -1,7 +1,8 @@
 package com.bistel.pdm.datastore.jdbc.dao.oracle;
 
 import com.bistel.pdm.common.collection.Pair;
-import com.bistel.pdm.common.json.ParameterMasterDataSet;
+import com.bistel.pdm.data.stream.ParameterMaster;
+import com.bistel.pdm.data.stream.ParameterWithSpecMaster;
 import com.bistel.pdm.datastore.jdbc.DataSource;
 import com.bistel.pdm.datastore.jdbc.dao.SensorTraceDataDao;
 import com.bistel.pdm.datastore.model.SensorTraceData;
@@ -86,7 +87,7 @@ public class TraceTrxDao implements SensorTraceDataDao {
                     // time, p1, p2, p3, p4, ... pn, status:time, prev:time
                     String[] values = valueString.split(",");
 
-                    List<ParameterMasterDataSet> paramData = MasterCache.Parameter.get(record.key());
+                    List<ParameterWithSpecMaster> paramData = MasterCache.ParameterWithSpec.get(record.key());
 
                     if (paramData == null) {
                         log.debug("[{}] - parameter does not existed.", record.key());
@@ -95,29 +96,29 @@ public class TraceTrxDao implements SensorTraceDataDao {
 
                     log.debug("[{}] - {} parameters", record.key(), paramData.size());
 
-                    for (ParameterMasterDataSet param : paramData) {
+                    for (ParameterWithSpecMaster paramInfo : paramData) {
 
-                        if (param.getParamParseIndex() == -1) continue;
+                        if (paramInfo.getParamParseIndex() == -1) continue;
 
-                        pstmt.setLong(1, param.getParameterRawId()); //param rawid
+                        pstmt.setLong(1, paramInfo.getParameterRawId()); //param rawid
 
-                        String strValue = values[param.getParamParseIndex()];
+                        String strValue = values[paramInfo.getParamParseIndex()];
                         if (strValue.length() <= 0) {
                             log.debug("key:{}, param:{}, index:{} - value is empty.",
-                                    record.key(), param.getParameterName(), param.getParamParseIndex());
+                                    record.key(), paramInfo.getParameterName(), paramInfo.getParamParseIndex());
                             pstmt.setFloat(2, Types.FLOAT); //value
                         } else {
                             pstmt.setFloat(2, Float.parseFloat(strValue)); //value
                         }
 
-                        if (param.getUpperAlarmSpec() != null) {
-                            pstmt.setFloat(3, param.getUpperAlarmSpec()); //upper alarm spec
+                        if (paramInfo.getUpperAlarmSpec() != null) {
+                            pstmt.setFloat(3, paramInfo.getUpperAlarmSpec()); //upper alarm spec
                         } else {
                             pstmt.setNull(3, Types.FLOAT);
                         }
 
-                        if (param.getUpperWarningSpec() != null) {
-                            pstmt.setFloat(4, param.getUpperWarningSpec()); //upper warning spec
+                        if (paramInfo.getUpperWarningSpec() != null) {
+                            pstmt.setFloat(4, paramInfo.getUpperWarningSpec()); //upper warning spec
                         } else {
                             pstmt.setNull(4, Types.FLOAT);
                         }

@@ -1,6 +1,6 @@
 package com.bistel.pdm.batch.processor;
 
-import com.bistel.pdm.common.json.ParameterMasterDataSet;
+import com.bistel.pdm.data.stream.ParameterWithSpecMaster;
 import com.bistel.pdm.lambda.kafka.master.MasterCache;
 import org.apache.kafka.streams.processor.AbstractProcessor;
 import org.apache.kafka.streams.processor.ProcessorContext;
@@ -51,8 +51,8 @@ public class TransformTimewaveProcessor extends AbstractProcessor<String, byte[]
                 log.info("all master data of {} is reloaded.", partitionKey);
             } else {
 
-                List<ParameterMasterDataSet> parameterMasterDataSets = MasterCache.Parameter.get(partitionKey);
-                for (ParameterMasterDataSet param : parameterMasterDataSets) {
+                List<ParameterWithSpecMaster> parameterMasterDataSets = MasterCache.ParameterWithSpec.get(partitionKey);
+                for (ParameterWithSpecMaster param : parameterMasterDataSets) {
 
                     if (param.getParamParseIndex() == -1) continue;
 
@@ -142,6 +142,6 @@ public class TransformTimewaveProcessor extends AbstractProcessor<String, byte[]
     private void refreshMasterCache(String partitionKey) throws ExecutionException {
         // refresh master info.
         MasterCache.Equipment.refresh(partitionKey);
-        MasterCache.Parameter.refresh(partitionKey);
+        MasterCache.ParameterWithSpec.refresh(partitionKey);
     }
 }

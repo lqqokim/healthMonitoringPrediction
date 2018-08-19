@@ -49,7 +49,7 @@ public class ReloadConsumerRunnable implements Runnable {
 
                 for (ConsumerRecord<String, byte[]> record : records) {
                     // refresh master info.
-                    MasterCache.Parameter.refresh(record.key());
+                    MasterCache.ParameterWithSpec.refresh(record.key());
                 }
                 consumer.commitAsync();
                 log.info("{} reloaded.", records.count());

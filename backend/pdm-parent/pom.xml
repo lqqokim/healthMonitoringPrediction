@@ -39,6 +39,7 @@
         <module>support/pdm-log-connector</module>
         <module>support/pdm-datagen</module>
         <module>support/pdm-file-connector</module>
+        <module>common/pdm-data</module>
 
     </modules>
 
@@ -563,6 +564,11 @@
             <dependency>
                 <groupId>com.bistel</groupId>
                 <artifactId>pdm-expression</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.bistel</groupId>
+                <artifactId>pdm-data</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

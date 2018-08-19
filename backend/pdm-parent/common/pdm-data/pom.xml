@@ -10,7 +10,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>pdm-speed</artifactId>
+    <artifactId>pdm-data</artifactId>
     <packaging>jar</packaging>
 
     <properties>
@@ -24,38 +24,48 @@
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
+
         <dependency>
-            <groupId>com.bistel</groupId>
-            <artifactId>pdm-kafka-stream</artifactId>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.bistel</groupId>
-            <artifactId>pdm-expression</artifactId>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.bistel</groupId>
-            <artifactId>pdm-data</artifactId>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.confluent</groupId>
-            <artifactId>kafka-streams-avro-serde</artifactId>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-math3</artifactId>
+            <groupId>com.typesafe</groupId>
+            <artifactId>config</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-email</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.kafka</groupId>
-            <artifactId>kafka-streams-test-utils</artifactId>
-            <scope>test</scope>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
         </dependency>
     </dependencies>
 
     <build>
+        <!--<resources>-->
+        <!--<resource>-->
+        <!--<directory>src/main/resources</directory>-->
+        <!--<excludes>-->
+        <!--<exclude>**/*.conf</exclude>-->
+        <!--</excludes>-->
+        <!--</resource>-->
+        <!--</resources>-->
+
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

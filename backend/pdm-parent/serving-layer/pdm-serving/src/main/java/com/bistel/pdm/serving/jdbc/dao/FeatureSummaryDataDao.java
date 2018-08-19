@@ -1,6 +1,6 @@
 package com.bistel.pdm.serving.jdbc.dao;
 
-import com.bistel.pdm.common.json.SummarizedFeature;
+import com.bistel.pdm.data.stream.SummarizedFeatureData;
 import com.bistel.pdm.serving.jdbc.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,8 +31,8 @@ public class FeatureSummaryDataDao {
                     "                     and to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS.FF') " +
                     "group by p.rawid, p.name ";
 
-    public List<SummarizedFeature> getParamAverage(String from, String to) throws SQLException {
-        List<SummarizedFeature> paramFeatureValueList = new ArrayList<>();
+    public List<SummarizedFeatureData> getParamAverage(String from, String to) throws SQLException {
+        List<SummarizedFeatureData> paramFeatureValueList = new ArrayList<>();
 
         try (Connection conn = DataSource.getConnection()) {
             try (PreparedStatement pst = conn.prepareStatement(FEATURE_DS_SQL)) {
@@ -45,7 +45,7 @@ public class FeatureSummaryDataDao {
 
                 while (rs.next()) {
                     // param_rawid, average, sigma
-                    SummarizedFeature sf = new SummarizedFeature();
+                    SummarizedFeatureData sf = new SummarizedFeatureData();
                     sf.setParamRawId(rs.getLong(1));
                     sf.setMean(rs.getDouble(3));
                     sf.setSigma(rs.getDouble(4));

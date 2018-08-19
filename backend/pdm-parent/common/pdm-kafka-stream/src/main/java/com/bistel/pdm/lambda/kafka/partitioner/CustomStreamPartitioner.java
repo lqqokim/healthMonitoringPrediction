@@ -1,6 +1,6 @@
 package com.bistel.pdm.lambda.kafka.partitioner;
 
-import com.bistel.pdm.common.json.EquipmentMasterDataSet;
+import com.bistel.pdm.data.stream.EquipmentMaster;
 import com.bistel.pdm.lambda.kafka.master.MasterCache;
 import org.apache.kafka.streams.processor.StreamPartitioner;
 import org.slf4j.Logger;
@@ -16,7 +16,7 @@ public class CustomStreamPartitioner implements StreamPartitioner<String, byte[]
         int partition = 0;
 
         try {
-            EquipmentMasterDataSet master = MasterCache.Equipment.get(key);
+            EquipmentMaster master = MasterCache.Equipment.get(key);
             partition = master.getEqpRawId().intValue() % numPartitions;
 
         } catch (ExecutionException e) {

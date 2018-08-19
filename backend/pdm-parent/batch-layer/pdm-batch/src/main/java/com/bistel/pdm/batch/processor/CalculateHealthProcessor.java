@@ -1,9 +1,9 @@
 package com.bistel.pdm.batch.processor;
 
 import com.bistel.pdm.batch.util.ServingRequestor;
-import com.bistel.pdm.common.json.ParameterHealthDataSet;
-import com.bistel.pdm.common.json.ParameterMasterDataSet;
-import com.bistel.pdm.common.json.SummarizedFeature;
+import com.bistel.pdm.data.stream.ParameterHealthMaster;
+import com.bistel.pdm.data.stream.ParameterWithSpecMaster;
+import com.bistel.pdm.data.stream.SummarizedFeatureData;
 import com.bistel.pdm.lambda.kafka.master.MasterCache;
 import org.apache.commons.math3.stat.regression.SimpleRegression;
 import org.apache.kafka.streams.KeyValue;
@@ -34,7 +34,7 @@ public class CalculateHealthProcessor extends AbstractProcessor<String, byte[]> 
 
     private final Timer timer = new Timer();
 
-    private final static ConcurrentHashMap<Long, SummarizedFeature> paramFeatureValueList = new ConcurrentHashMap<>();
+    private final static ConcurrentHashMap<Long, SummarizedFeatureData> paramFeatureValueList = new ConcurrentHashMap<>();
 
     @Override
     @SuppressWarnings("unchecked")
@@ -71,9 +71,9 @@ public class CalculateHealthProcessor extends AbstractProcessor<String, byte[]> 
                 paramFeatureValueList.clear();
                 //String url = "http://10.50.21.240:28000/pdm/api/feature/" + from + "/" + to;
                 String url = MasterCache.ServingAddress + "/pdm/api/feature/" + from + "/" + to;
-                List<SummarizedFeature> featureList = ServingRequestor.getParamFeatureAvgFor(url);
+                List<SummarizedFeatureData> featureList = ServingRequestor.getParamFeatureAvgFor(url);
 
-                for (SummarizedFeature feature : featureList) {
+                for (SummarizedFeatureData feature : featureList) {
                     paramFeatureValueList.put(feature.getParamRawId(), feature);
                     kvMovingAvgStore.put(feature.getParamRawId(), "0,0");
                 }
@@ -99,10 +99,10 @@ public class CalculateHealthProcessor extends AbstractProcessor<String, byte[]> 
             Long from = to - TimeUnit.DAYS.toMillis(90);
 
             String url = MasterCache.ServingAddress + "/pdm/api/feature/" + from + "/" + to;
-            List<SummarizedFeature> featureList = ServingRequestor.getParamFeatureAvgFor(url);
+            List<SummarizedFeatureData> featureList = ServingRequestor.getParamFeatureAvgFor(url);
 
             if (featureList != null && featureList.size() > 0) {
-                for (SummarizedFeature feature : featureList) {
+                for (SummarizedFeatureData feature : featureList) {
                     paramFeatureValueList.put(feature.getParamRawId(), feature);
                     //kvMovingAvgStore.put(feature.getParamRawId(), "0,0");
                 }
@@ -122,7 +122,7 @@ public class CalculateHealthProcessor extends AbstractProcessor<String, byte[]> 
         try {
             Long paramRawid = Long.parseLong(recordColumns[2]);
 
-            ParameterMasterDataSet paramInfo = getParamMasterDataWithRawId(partitionKey, paramRawid);
+            ParameterWithSpecMaster paramInfo = getParamMasterDataWithRawId(partitionKey, paramRawid);
             if (paramInfo == null) return;
 
             String strParamRawid = recordColumns[2];
@@ -133,7 +133,7 @@ public class CalculateHealthProcessor extends AbstractProcessor<String, byte[]> 
 
             // ==========================================================================================
             // Logic 3 health
-            ParameterHealthDataSet fd03Health = getParamHealth(partitionKey, paramRawid, "FD_CHANGE_RATE");
+            ParameterHealthMaster fd03Health = getParamHealth(partitionKey, paramRawid, "FD_CHANGE_RATE");
             if (fd03Health != null && fd03Health.getApplyLogicYN().equalsIgnoreCase("Y")) {
 
                 if(paramFeatureValueList.get(paramRawid) != null) {
@@ -153,7 +153,7 @@ public class CalculateHealthProcessor extends AbstractProcessor<String, byte[]> 
                         Double mean = null;
                         Double sigma = null;
 
-                        SummarizedFeature feature = paramFeatureValueList.get(paramRawid);
+                        SummarizedFeatureData feature = paramFeatureValueList.get(paramRawid);
                         mean = feature.getMean();
                         sigma = feature.getSigma();
 
@@ -199,7 +199,7 @@ public class CalculateHealthProcessor extends AbstractProcessor<String, byte[]> 
 
             // ==========================================================================================
             // Logic 4 health
-            ParameterHealthDataSet fd04Health = getParamHealth(partitionKey, paramRawid, "FP_RUL");
+            ParameterHealthMaster fd04Health = getParamHealth(partitionKey, paramRawid, "FP_RUL");
             if (fd04Health != null && fd04Health.getApplyLogicYN().equalsIgnoreCase("Y")
                     && paramInfo.getUpperAlarmSpec() != null) {
 
@@ -322,7 +322,9 @@ public class CalculateHealthProcessor extends AbstractProcessor<String, byte[]> 
             if (refreshCacheFlag.equalsIgnoreCase("CRC")) {
 
                 MasterCache.Equipment.refresh(partitionKey);
-                MasterCache.Parameter.refresh(partitionKey);
+                MasterCache.ParameterWithSpec.refresh(partitionKey);
+                MasterCache.EquipmentCondition.refresh(partitionKey);
+                MasterCache.ExprParameter.refresh(partitionKey);
                 MasterCache.Event.refresh(partitionKey);
                 MasterCache.Health.refresh(partitionKey);
                 MasterCache.Mail.refresh(partitionKey);
@@ -332,11 +334,11 @@ public class CalculateHealthProcessor extends AbstractProcessor<String, byte[]> 
         }
     }
 
-    private ParameterMasterDataSet getParamMasterDataWithRawId(String key, Long rawId) throws ExecutionException {
-        ParameterMasterDataSet param = null;
+    private ParameterWithSpecMaster getParamMasterDataWithRawId(String key, Long rawId) throws ExecutionException {
+        ParameterWithSpecMaster param = null;
 
-        List<ParameterMasterDataSet> paramList = MasterCache.Parameter.get(key);
-        for (ParameterMasterDataSet p : paramList) {
+        List<ParameterWithSpecMaster> paramList = MasterCache.ParameterWithSpec.get(key);
+        for (ParameterWithSpecMaster p : paramList) {
             if (p.getParameterRawId().equals(rawId)) {
                 param = p;
                 break;
@@ -346,11 +348,11 @@ public class CalculateHealthProcessor extends AbstractProcessor<String, byte[]> 
         return param;
     }
 
-    private ParameterHealthDataSet getParamHealth(String partitionKey, Long paramKey, String code) throws ExecutionException {
-        ParameterHealthDataSet healthData = null;
+    private ParameterHealthMaster getParamHealth(String partitionKey, Long paramKey, String code) throws ExecutionException {
+        ParameterHealthMaster healthData = null;
 
-        List<ParameterHealthDataSet> healthList = MasterCache.Health.get(partitionKey);
-        for (ParameterHealthDataSet health : healthList) {
+        List<ParameterHealthMaster> healthList = MasterCache.Health.get(partitionKey);
+        for (ParameterHealthMaster health : healthList) {
             if (health.getParamRawId().equals(paramKey) && health.getHealthCode().equalsIgnoreCase(code)) {
                 healthData = health;
                 break;

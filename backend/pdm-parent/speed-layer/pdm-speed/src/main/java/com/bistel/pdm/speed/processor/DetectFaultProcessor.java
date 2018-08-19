@@ -1,9 +1,10 @@
 package com.bistel.pdm.speed.processor;
 
 import com.bistel.pdm.common.collection.Pair;
-import com.bistel.pdm.common.json.ParameterHealthDataSet;
-import com.bistel.pdm.common.json.ParameterMasterDataSet;
+import com.bistel.pdm.data.stream.ParameterHealthMaster;
+import com.bistel.pdm.data.stream.ParameterWithSpecMaster;
 import com.bistel.pdm.lambda.kafka.master.MasterCache;
+import com.bistel.pdm.speed.Function.ConditionSpecFunction;
 import com.bistel.pdm.speed.Function.OutOfSpecFunction;
 import com.bistel.pdm.speed.Function.SPCRuleFunction;
 import org.apache.kafka.streams.KeyValue;
@@ -58,7 +59,7 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
         String[] recordColumns = recordValue.split(SEPARATOR, -1);
 
         try {
-            List<ParameterMasterDataSet> paramList = MasterCache.Parameter.get(partitionKey);
+            List<ParameterWithSpecMaster> paramList = MasterCache.ParameterWithSpec.get(partitionKey);
             if (paramList == null) return;
 
             String statusCodeAndTime = recordColumns[recordColumns.length - 3];
@@ -80,52 +81,59 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
 
             // processing
             if (nowStatusCodeAndTime[0].equalsIgnoreCase("R")) {
-                // check OOS
-                for (ParameterMasterDataSet paramInfo : paramList) {
-                    if (paramInfo.getParamParseIndex() <= 0) continue;
 
-                    Double paramValue = Double.parseDouble(recordColumns[paramInfo.getParamParseIndex()]);
-                    String paramKey = partitionKey + ":" + paramInfo.getParameterRawId();
-                    Long time = parseStringToTimestamp(recordColumns[0]);
-                    kvParamValueStore.put(paramKey, time + "," + paramValue, time);
+                // exam conditional spec.
+                String conditionName = ConditionSpecFunction.evaluateCondition(partitionKey, recordColumns);
+                if (conditionName.length() > 0) {
+                    // check OOS
+                    for (ParameterWithSpecMaster paramInfo : paramList) {
+                        if (paramInfo.getParamParseIndex() <= 0) continue;
 
-                    ParameterHealthDataSet fd01Health = getParamHealth(partitionKey, paramInfo.getParameterRawId(), "FD_OOS");
-                    if (fd01Health != null && fd01Health.getApplyLogicYN().equalsIgnoreCase("Y")) {
+                        if (conditionName.equalsIgnoreCase(paramInfo.getConditionName())) {
+                            Double paramValue = Double.parseDouble(recordColumns[paramInfo.getParamParseIndex()]);
+                            String paramKey = partitionKey + ":" + paramInfo.getParameterRawId();
+                            Long time = parseStringToTimestamp(recordColumns[0]);
+                            kvParamValueStore.put(paramKey, time + "," + paramValue, time);
 
-                        if (OutOfSpecFunction.evaluateAlarm(paramInfo, paramValue)) {
-                            // Alarm
-                            if (kvAlarmCountStore.get(paramKey) == null) {
-                                kvAlarmCountStore.put(paramKey, 1);
+                            ParameterHealthMaster fd01Health = getParamHealth(partitionKey, paramInfo.getParameterRawId(), "FD_OOS");
+                            if (fd01Health != null && fd01Health.getApplyLogicYN().equalsIgnoreCase("Y")) {
+
+                                if (OutOfSpecFunction.evaluateAlarm(paramInfo, paramValue)) {
+                                    // Alarm
+                                    if (kvAlarmCountStore.get(paramKey) == null) {
+                                        kvAlarmCountStore.put(paramKey, 1);
+                                    } else {
+                                        int cnt = kvAlarmCountStore.get(paramKey);
+                                        kvAlarmCountStore.put(paramKey, cnt + 1);
+                                    }
+
+                                    String msg = OutOfSpecFunction.makeOutOfAlarmMsg(recordColumns[0], paramInfo, fd01Health, paramValue);
+                                    context().forward(partitionKey, msg.getBytes(), "output-fault");
+
+                                    log.debug("[{}] - alarm spec : {}, value : {}", paramKey, paramInfo.getUpperAlarmSpec(), paramValue);
+
+
+                                } else if (OutOfSpecFunction.evaluateWarning(paramInfo, paramValue)) {
+                                    //warning
+                                    if (kvWarningCountStore.get(paramKey) == null) {
+                                        kvWarningCountStore.put(paramKey, 1);
+                                    } else {
+                                        int cnt = kvWarningCountStore.get(paramKey);
+                                        kvWarningCountStore.put(paramKey, cnt + 1);
+                                    }
+
+                                    String msg = OutOfSpecFunction.makeOutOfWarningMsg(recordColumns[0], paramInfo, fd01Health, paramValue);
+                                    context().forward(partitionKey, msg.getBytes(), "output-fault");
+
+                                    log.debug("[{}] - warning spec : {}, value : {}", paramKey, paramInfo.getUpperWarningSpec(), paramValue);
+
+                                }
                             } else {
-                                int cnt = kvAlarmCountStore.get(paramKey);
-                                kvAlarmCountStore.put(paramKey, cnt + 1);
+                                //log.debug("[{}] - No health because skip the logic 1.", paramKey);
                             }
-
-                            String msg = OutOfSpecFunction.makeOutOfAlarmMsg(recordColumns[0], paramInfo, fd01Health, paramValue);
-                            context().forward(partitionKey, msg.getBytes(), "output-fault");
-
-                            log.debug("[{}] - alarm spec : {}, value : {}", paramKey, paramInfo.getUpperAlarmSpec(), paramValue);
-
-
-                        } else if (OutOfSpecFunction.evaluateWarning(paramInfo, paramValue)) {
-                            //warning
-                            if (kvWarningCountStore.get(paramKey) == null) {
-                                kvWarningCountStore.put(paramKey, 1);
-                            } else {
-                                int cnt = kvWarningCountStore.get(paramKey);
-                                kvWarningCountStore.put(paramKey, cnt + 1);
-                            }
-
-                            String msg = OutOfSpecFunction.makeOutOfWarningMsg(recordColumns[0], paramInfo, fd01Health, paramValue);
-                            context().forward(partitionKey, msg.getBytes(), "output-fault");
-
-                            log.debug("[{}] - warning spec : {}, value : {}", paramKey, paramInfo.getUpperWarningSpec(), paramValue);
-
                         }
-                    } else {
-                        //log.debug("[{}] - No health because skip the logic 1.", paramKey);
                     }
-                }
+                } // end of conditional spec.
             }
 
             // run -> idle
@@ -139,7 +147,8 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
 //                String ets = new SimpleDateFormat("MMdd HH:mm:ss.SSS").format(new Timestamp(endTime));
 //                log.debug("[{}] - processing interval from {} to {}.", partitionKey, sts, ets);
 
-                for (ParameterMasterDataSet paramInfo : paramList) {
+
+                for (ParameterWithSpecMaster paramInfo : paramList) {
                     if (paramInfo.getParamParseIndex() <= 0) continue;
 
                     String paramKey = partitionKey + ":" + paramInfo.getParameterRawId();
@@ -155,7 +164,7 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
                     storeIterator.close();
 
 
-                    ParameterHealthDataSet fd02Health = getParamHealth(partitionKey, paramInfo.getParameterRawId(), "FD_RULE_1");
+                    ParameterHealthMaster fd02Health = getParamHealth(partitionKey, paramInfo.getParameterRawId(), "FD_RULE_1");
                     if (fd02Health != null && fd02Health.getApplyLogicYN().equalsIgnoreCase("Y")
                             && paramInfo.getUpperAlarmSpec() != null) {
 
@@ -223,7 +232,7 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
 
                     // ==========================================================================================
                     // Logic 1 health
-                    ParameterHealthDataSet fd01Health = getParamHealth(partitionKey, paramInfo.getParameterRawId(), "FD_OOS");
+                    ParameterHealthMaster fd01Health = getParamHealth(partitionKey, paramInfo.getParameterRawId(), "FD_OOS");
                     if (fd01Health != null && fd01Health.getApplyLogicYN().equalsIgnoreCase("Y")
                             && paramInfo.getUpperAlarmSpec() != null) {
 
@@ -329,11 +338,11 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
         return time;
     }
 
-    private ParameterHealthDataSet getParamHealth(String partitionKey, Long paramkey, String code) throws ExecutionException {
-        ParameterHealthDataSet healthData = null;
+    private ParameterHealthMaster getParamHealth(String partitionKey, Long paramkey, String code) throws ExecutionException {
+        ParameterHealthMaster healthData = null;
 
-        List<ParameterHealthDataSet> healthList = MasterCache.Health.get(partitionKey);
-        for (ParameterHealthDataSet health : healthList) {
+        List<ParameterHealthMaster> healthList = MasterCache.Health.get(partitionKey);
+        for (ParameterHealthMaster health : healthList) {
             if (health.getParamRawId().equals(paramkey) && health.getHealthCode().equalsIgnoreCase(code)) {
                 healthData = health;
                 break;
@@ -346,8 +355,8 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
     public List<Pair<String, Integer>> getParamHealthFD02Options(String partitionKey, Long paramkey) throws ExecutionException {
         List<Pair<String, Integer>> optionList = new ArrayList<>();
 
-        List<ParameterHealthDataSet> healthList = MasterCache.Health.get(partitionKey);
-        for (ParameterHealthDataSet health : healthList) {
+        List<ParameterHealthMaster> healthList = MasterCache.Health.get(partitionKey);
+        for (ParameterHealthMaster health : healthList) {
             if (health.getParamRawId().equals(paramkey)
                     && health.getHealthCode().equalsIgnoreCase("FD_RULE_1")) {
                 optionList.add(new Pair<>(health.getOptionName(), health.getOptionValue()));

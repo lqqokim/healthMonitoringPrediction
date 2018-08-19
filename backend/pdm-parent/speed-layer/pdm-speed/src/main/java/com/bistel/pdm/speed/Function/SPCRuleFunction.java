@@ -1,7 +1,7 @@
 package com.bistel.pdm.speed.Function;
 
-import com.bistel.pdm.common.json.ParameterHealthDataSet;
-import com.bistel.pdm.common.json.ParameterMasterDataSet;
+import com.bistel.pdm.data.stream.ParameterHealthMaster;
+import com.bistel.pdm.data.stream.ParameterWithSpecMaster;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,7 +12,7 @@ import java.util.List;
 public class SPCRuleFunction {
     private static final Logger log = LoggerFactory.getLogger(OutOfSpecFunction.class);
 
-    public static List<Double> evaluateAlarm(ParameterMasterDataSet paramInfo, List<Double> paramValues,
+    public static List<Double> evaluateAlarm(ParameterWithSpecMaster paramInfo, List<Double> paramValues,
                                              int windowSize, int outCount) {
         ArrayList<Double> outOfSpecValueList = new ArrayList<>();
         List<Double> slidingWindow = new ArrayList<>(windowSize);
@@ -24,8 +24,7 @@ public class SPCRuleFunction {
                 //check alarm
                 int alarmCount = 0;
                 for (Double dValue : slidingWindow) {
-//                    if (dValue >= paramInfo.getUpperAlarmSpec()
-//                            || dValue <= paramInfo.getLowerAlarmSpec()) {
+//                    if (dValue >= paramInfo.getUpperAlarmSpec() || dValue <= paramInfo.getLowerAlarmSpec()) {
                     if (dValue >= paramInfo.getUpperAlarmSpec()) {
                         alarmCount++;
                         outOfSpecValueList.add(dValue);
@@ -46,7 +45,7 @@ public class SPCRuleFunction {
         return outOfSpecValueList;
     }
 
-    public static List<Double> evaluateWarning(ParameterMasterDataSet paramInfo, List<Double> paramValues,
+    public static List<Double> evaluateWarning(ParameterWithSpecMaster paramInfo, List<Double> paramValues,
                                                int windowSize, int outCount) {
         ArrayList<Double> outOfSpecValueList = new ArrayList<>();
         List<Double> slidingWindow = new ArrayList<>(windowSize);
@@ -58,8 +57,7 @@ public class SPCRuleFunction {
                 //check alarm
                 int warningCount = 0;
                 for (Double dValue : slidingWindow) {
-//                    if (dValue >= paramInfo.getUpperWarningSpec()
-//                            || dValue <= paramInfo.getLowerWarningSpec()) {
+//                    if (dValue >= paramInfo.getUpperWarningSpec() || dValue <= paramInfo.getLowerWarningSpec()) {
                     if (dValue >= paramInfo.getUpperWarningSpec()) {
                         warningCount++;
                         outOfSpecValueList.add(dValue);
@@ -80,7 +78,7 @@ public class SPCRuleFunction {
         return outOfSpecValueList;
     }
 
-    public static Double calcuateHealth(ParameterMasterDataSet paramInfo, List<Double> outOfSpecValueList) {
+    public static Double calcuateHealth(ParameterWithSpecMaster paramInfo, List<Double> outOfSpecValueList) {
         // Logic 2 health with alarm
         DescriptiveStatistics stats = new DescriptiveStatistics();
         for (Double val : outOfSpecValueList) {
@@ -90,8 +88,8 @@ public class SPCRuleFunction {
         return (stats.getMean() / paramInfo.getUpperAlarmSpec());
     }
 
-    public static String makeOutOfRuleMsg(Long longTime, ParameterMasterDataSet paramInfo,
-                                          ParameterHealthDataSet healthInfo, int outCount, String alarmTypeCode) {
+    public static String makeOutOfRuleMsg(Long longTime, ParameterWithSpecMaster paramInfo,
+                                          ParameterHealthMaster healthInfo, int outCount, String alarmTypeCode) {
 
         // time, param_rawid, health_rawid, value, alarm type, alarm_spec, warning_spec, fault_class
         return longTime + "," +
@@ -104,8 +102,8 @@ public class SPCRuleFunction {
                 "N/A";
     }
 
-    public static String makeHealthMsg(Long longTime, String statusCode, ParameterMasterDataSet paramInfo,
-                                       ParameterHealthDataSet healthInfo, Double index, int alarmCount) {
+    public static String makeHealthMsg(Long longTime, String statusCode, ParameterWithSpecMaster paramInfo,
+                                       ParameterHealthMaster healthInfo, Double index, int alarmCount) {
         String newMsg = longTime + ","
                 + paramInfo.getEquipmentRawId() + ","
                 + paramInfo.getParameterRawId() + ","

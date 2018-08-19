@@ -1,7 +1,7 @@
 package com.bistel.pdm.speed.Function;
 
-import com.bistel.pdm.common.json.ParameterHealthDataSet;
-import com.bistel.pdm.common.json.ParameterMasterDataSet;
+import com.bistel.pdm.data.stream.ParameterHealthMaster;
+import com.bistel.pdm.data.stream.ParameterWithSpecMaster;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +17,7 @@ public class OutOfSpecFunction {
 
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
-    public static boolean evaluateAlarm(ParameterMasterDataSet param, Double paramValue) {
+    public static boolean evaluateAlarm(ParameterWithSpecMaster param, Double paramValue) {
         boolean isAlarm = false;
         if ((param.getUpperAlarmSpec() != null && paramValue >= param.getUpperAlarmSpec())
                 || (param.getLowerAlarmSpec() != null && paramValue <= param.getLowerAlarmSpec())) {
@@ -28,7 +28,7 @@ public class OutOfSpecFunction {
         return isAlarm;
     }
 
-    public static boolean evaluateWarning(ParameterMasterDataSet param, Double paramValue) {
+    public static boolean evaluateWarning(ParameterWithSpecMaster param, Double paramValue) {
         boolean isWarning = false;
         if ((param.getUpperAlarmSpec() != null && paramValue >= param.getUpperAlarmSpec())
                 || (param.getLowerAlarmSpec() != null && paramValue <= param.getLowerAlarmSpec())) {
@@ -39,8 +39,8 @@ public class OutOfSpecFunction {
         return isWarning;
     }
 
-    public static String makeOutOfAlarmMsg(String longTime, ParameterMasterDataSet param,
-                                           ParameterHealthDataSet healthData, Double paramValue) {
+    public static String makeOutOfAlarmMsg(String longTime, ParameterWithSpecMaster param,
+                                           ParameterHealthMaster healthData, Double paramValue) {
 
         //log.trace("[{}] : check the out of individual spec. - {}", paramKey, paramValue);
 
@@ -84,8 +84,8 @@ public class OutOfSpecFunction {
     }
 
 
-    public static String makeOutOfWarningMsg(String longTime, ParameterMasterDataSet param,
-                                             ParameterHealthDataSet healthData, Double paramValue) {
+    public static String makeOutOfWarningMsg(String longTime, ParameterWithSpecMaster param,
+                                             ParameterHealthMaster healthData, Double paramValue) {
 
         // time, param_rawid, health_rawid, value, alarm type, alarm_spec, warning_spec, fault_class
         String sbMsg = parseStringToTimestamp(longTime) + "," +

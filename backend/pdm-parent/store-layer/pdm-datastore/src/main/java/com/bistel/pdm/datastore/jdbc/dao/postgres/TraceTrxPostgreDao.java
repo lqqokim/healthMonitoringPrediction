@@ -1,7 +1,7 @@
 package com.bistel.pdm.datastore.jdbc.dao.postgres;
 
 import com.bistel.pdm.common.collection.Pair;
-import com.bistel.pdm.common.json.ParameterMasterDataSet;
+import com.bistel.pdm.data.stream.ParameterWithSpecMaster;
 import com.bistel.pdm.datastore.jdbc.DataSource;
 import com.bistel.pdm.datastore.jdbc.dao.SensorTraceDataDao;
 import com.bistel.pdm.datastore.model.SensorTraceData;
@@ -74,7 +74,7 @@ public class TraceTrxPostgreDao implements SensorTraceDataDao {
                     // time, p1, p2, p3, p4, ... pn, status:time, prev:time
                     String[] values = valueString.split(",");
 
-                    List<ParameterMasterDataSet> paramData = MasterCache.Parameter.get(record.key());
+                    List<ParameterWithSpecMaster> paramData = MasterCache.ParameterWithSpec.get(record.key());
 
                     if (paramData == null) {
                         log.debug("[{}] - parameter does not existed.", record.key());
@@ -83,7 +83,7 @@ public class TraceTrxPostgreDao implements SensorTraceDataDao {
 
                     log.debug("[{}] - {} parameters", record.key(), paramData.size());
 
-                    for (ParameterMasterDataSet param : paramData) {
+                    for (ParameterWithSpecMaster param : paramData) {
                         if (param.getParamParseIndex() == -1) continue;
 
                         //PARAM_MST_RAWID, VALUE, ALARM_SPEC, " +

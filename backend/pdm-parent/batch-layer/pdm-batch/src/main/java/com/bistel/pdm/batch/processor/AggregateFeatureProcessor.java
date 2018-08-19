@@ -1,7 +1,7 @@
 package com.bistel.pdm.batch.processor;
 
-import com.bistel.pdm.common.json.EventMasterDataSet;
-import com.bistel.pdm.common.json.ParameterMasterDataSet;
+import com.bistel.pdm.data.stream.EventMaster;
+import com.bistel.pdm.data.stream.ParameterWithSpecMaster;
 import com.bistel.pdm.lambda.kafka.master.MasterCache;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.kafka.streams.KeyValue;
@@ -51,7 +51,7 @@ public class AggregateFeatureProcessor extends AbstractProcessor<String, byte[]>
             String[] currStatusAndTime = columns[columns.length - 3].split(":");
             String[] prevStatusAndTime = columns[columns.length - 2].split(":");
 
-            List<ParameterMasterDataSet> parameterMasterDataSets = MasterCache.Parameter.get(partitionKey);
+            List<ParameterWithSpecMaster> parameterMasterDataSets = MasterCache.ParameterWithSpec.get(partitionKey);
 
             if (kvSummaryIntervalStore.get(partitionKey) == null) {
                 Long paramTime = Long.parseLong(currStatusAndTime[1]);
@@ -70,7 +70,7 @@ public class AggregateFeatureProcessor extends AbstractProcessor<String, byte[]>
             if (currStatusAndTime[0].equalsIgnoreCase("R")) {
                 Long paramTime = Long.parseLong(currStatusAndTime[1]);
 
-                for (ParameterMasterDataSet param : parameterMasterDataSets) {
+                for (ParameterWithSpecMaster param : parameterMasterDataSets) {
                     if (param.getParamParseIndex() <= 0) continue;
 
                     String paramKey = partitionKey + ":" + param.getParameterRawId();
@@ -79,7 +79,7 @@ public class AggregateFeatureProcessor extends AbstractProcessor<String, byte[]>
                 }
 
                 // for long-term interval on event.
-                EventMasterDataSet event = getEvent(partitionKey, "S");
+                EventMaster event = getEvent(partitionKey, "S");
                 if (event != null && event.getTimeIntervalYn().equalsIgnoreCase("Y")) {
                     Long startTime = kvSummaryIntervalStore.get(partitionKey);
                     Long interval = startTime + event.getIntervalTimeMs();
@@ -91,7 +91,7 @@ public class AggregateFeatureProcessor extends AbstractProcessor<String, byte[]>
                         String ets = new SimpleDateFormat("MMdd HH:mm:ss.SSS").format(new Timestamp(paramTime));
                         log.debug("[{}] - processing interval from {} to {}.", partitionKey, sts, ets);
 
-                        for (ParameterMasterDataSet paramMaster : parameterMasterDataSets) {
+                        for (ParameterWithSpecMaster paramMaster : parameterMasterDataSets) {
                             if (paramMaster.getParamParseIndex() <= 0) continue;
 
                             String paramKey = partitionKey + ":" + paramMaster.getParameterRawId();
@@ -154,7 +154,7 @@ public class AggregateFeatureProcessor extends AbstractProcessor<String, byte[]>
                 String ets = new SimpleDateFormat("MMdd HH:mm:ss.SSS").format(new Timestamp(endTime));
                 log.debug("[{}] - processing interval from {} to {}.", partitionKey, sts, ets);
 
-                for (ParameterMasterDataSet paramMaster : parameterMasterDataSets) {
+                for (ParameterWithSpecMaster paramMaster : parameterMasterDataSets) {
                     if (paramMaster.getParamParseIndex() <= 0) continue;
 
                     String paramKey = partitionKey + ":" + paramMaster.getParameterRawId();
@@ -200,10 +200,11 @@ public class AggregateFeatureProcessor extends AbstractProcessor<String, byte[]>
                 }
 
                 // refresh cache
-                if(refreshCacheflag.equalsIgnoreCase("CRC")){
+                if (refreshCacheflag.equalsIgnoreCase("CRC")) {
                     // refresh master
                     MasterCache.Equipment.refresh(partitionKey);
-                    MasterCache.Parameter.refresh(partitionKey);
+                    //MasterCache.Parameter.refresh(partitionKey);
+                    MasterCache.ParameterWithSpec.refresh(partitionKey);
                     MasterCache.Event.refresh(partitionKey);
                 }
             }
@@ -212,9 +213,9 @@ public class AggregateFeatureProcessor extends AbstractProcessor<String, byte[]>
         }
     }
 
-    private EventMasterDataSet getEvent(String key, String type) throws ExecutionException {
-        EventMasterDataSet e = null;
-        for (EventMasterDataSet event : MasterCache.Event.get(key)) {
+    private EventMaster getEvent(String key, String type) throws ExecutionException {
+        EventMaster e = null;
+        for (EventMaster event : MasterCache.Event.get(key)) {
             if (event.getProcessYN().equalsIgnoreCase("Y")
                     && event.getEventTypeCD().equalsIgnoreCase(type)) {
                 e = event;

@@ -1,6 +1,6 @@
 package com.bistel.pdm.serving.jdbc.dao;
 
-import com.bistel.pdm.common.json.FeatureDataSet;
+import com.bistel.pdm.data.stream.FeatureMaster;
 import com.bistel.pdm.serving.jdbc.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,8 +25,8 @@ public class ParamFeatureDataDao {
                     "from param_mst_pdm p, param_feature_mst_pdm f " +
                     "where p.rawid=f.param_mst_rawid ";
 
-    public List<FeatureDataSet> getAllFeatures() throws SQLException {
-        List<FeatureDataSet> resultRows = new ArrayList<>();
+    public List<FeatureMaster> getAllFeatures() throws SQLException {
+        List<FeatureMaster> resultRows = new ArrayList<>();
 
         try (Connection conn = DataSource.getConnection();
              PreparedStatement pst = conn.prepareStatement(FEATURE_DS_SQL);
@@ -35,7 +35,7 @@ public class ParamFeatureDataDao {
             log.debug("sql:{}", FEATURE_DS_SQL);
 
             while (rs.next()) {
-                FeatureDataSet ds = new FeatureDataSet();
+                FeatureMaster ds = new FeatureMaster();
                 ds.setParamRawId(rs.getLong(1));
                 ds.setFeatureRawId(rs.getLong(2));
                 ds.setParamName(rs.getString(3));

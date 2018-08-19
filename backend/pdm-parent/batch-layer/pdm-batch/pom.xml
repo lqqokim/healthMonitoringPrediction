@@ -33,6 +33,10 @@
             <artifactId>pdm-expression</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.bistel</groupId>
+            <artifactId>pdm-data</artifactId>
+        </dependency>
+        <dependency>
             <groupId>io.confluent</groupId>
             <artifactId>kafka-streams-avro-serde</artifactId>
         </dependency>

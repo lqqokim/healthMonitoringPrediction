@@ -59,6 +59,10 @@
             <groupId>org.apache.avro</groupId>
             <artifactId>avro</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.bistel</groupId>
+            <artifactId>pdm-data</artifactId>
+        </dependency>
 
         <!--<dependency>-->
             <!--<groupId>com.mysema.querydsl</groupId>-->
