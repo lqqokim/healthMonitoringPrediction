@@ -82,8 +82,8 @@ public class StreamingMasterService {
     }
 
     @GET
-    @Path("/latest/param")
-    public Response reloadParamAll() {
+    @Path("/latest/param/{eqpid}")
+    public Response reloadParam() {
         StreamingMasterDataDao repository = new StreamingMasterDataDao();
         List<ParameterMaster> masterDataSet = null;
 

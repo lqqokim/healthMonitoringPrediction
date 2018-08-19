@@ -19,32 +19,12 @@ public class StreamingMasterDataDao {
     private static final Logger log = LoggerFactory.getLogger(StreamingMasterDataDao.class);
 
     private final static String PARAM_MASTER_DS_SQL =
-            "select a.name area_name, e.name eqp_name, e.rawid eqp_rawid, " +
-                    "    p.name param_name, p.parse_index, p.rawid param_id, p.param_type_cd, " +
-                    "    c.condition_name, c.expression, c.expression_value, l.use_yn, " +
-                    "    s.spec_type, s.upper_alarm_spec, s.upper_warning_spec " +
-                    "from area_mst_pdm a inner join eqp_mst_pdm e " +
-                    "on a.rawid=e.area_mst_rawid " +
+            "select e.rawid eqp_rawid, e.name eqp_name, e.model_name, " +
+                    "p.rawid param_rawid, p.name param_name, p.param_type_cd, p.parse_index " +
+                    "from eqp_mst_pdm e " +
                     "inner join param_mst_pdm p " +
                     "on e.rawid=p.eqp_mst_rawid " +
-                    "inner join eqp_spec_link_mst_pdm l " +
-                    "on e.rawid=l.eqp_mst_rawid " +
-                    "inner join conditional_spec_mst_pdm c " +
-                    "on c.rawid=l.conditional_spec_mst_rawid " +
-                    "left outer join param_spec_mst_pdm s " +
-                    "on l.rawid=s.eqp_spec_link_mst_rawid " +
-                    "and p.rawid=s.param_mst_rawid ";
-
-//            "select " +
-//                    "a.name area_name, e.name as eqp_name, e.rawid as eqp_rawid, " +
-//                    "p.name as param_name, p.parse_index, p.rawid param_id, " +
-//                    "s.alarm_spec, s.warning_spec, p.param_type_cd " +
-//                    "from area_mst_pdm a inner join eqp_mst_pdm e " +
-//                    "on a.rawid=e.area_mst_rawid " +
-//                    "inner join param_mst_pdm p " +
-//                    "on e.rawid=p.eqp_mst_rawid " +
-//                    "left outer join trace_spec_mst_pdm s " +
-//                    "on p.rawid=s.param_mst_rawid ";
+                    "where e.name=? ";
 
     public List<ParameterMaster> getParamMasterDataSet() throws SQLException {
         List<ParameterMaster> resultRows = new ArrayList<>();
@@ -57,48 +37,13 @@ public class StreamingMasterDataDao {
             try (ResultSet rs = pst.executeQuery();) {
                 while (rs.next()) {
                     ParameterMaster ds = new ParameterMaster();
-                    ds.setAreaName(rs.getString(1));
+                    ds.setEquipmentRawId(rs.getLong(1));
                     ds.setEquipmentName(rs.getString(2));
-                    ds.setEquipmentRawId(rs.getLong(3));
-                    ds.setParameterName(rs.getString(4));
-                    ds.setParamParseIndex(rs.getInt(5));
-                    ds.setParameterRawId(rs.getLong(6));
-                    ds.setParameterType(rs.getString(7));
-                    ds.setConditionName(rs.getString(8));
-                    ds.setExpression(rs.getString(9));
-                    ds.setExpressionValue(rs.getString(10));
-                    ds.setUseYn(rs.getString(11));
-                    ds.setSpecType(rs.getString(12));
-
-                    Float uas = rs.getFloat(13);
-                    if (rs.wasNull()) {
-                        uas = null;
-                    }
-                    ds.setUpperAlarmSpec(uas);
-
-                    Float uws = rs.getFloat(14);
-                    if (rs.wasNull()) {
-                        uws = null;
-                    }
-                    ds.setUpperWarningSpec(uws);
-
-//                    Float t = rs.getFloat(15);
-//                    if(rs.wasNull()){
-//                        t = null;
-//                    }
-//                    ds.setTarget(t);
-//
-//                    Float las = rs.getFloat(16);
-//                    if(rs.wasNull()){
-//                        las = null;
-//                    }
-//                    ds.setLowerAlarmSpec(las);
-//
-//                    Float lws = rs.getFloat(17);
-//                    if(rs.wasNull()){
-//                        lws = null;
-//                    }
-//                    ds.setLowerWarningSpec(lws);
+                    ds.setModelName(rs.getString(3));
+                    ds.setParameterRawId(rs.getLong(4));
+                    ds.setParameterName(rs.getString(5));
+                    ds.setParameterType(rs.getString(6));
+                    ds.setParamParseIndex(rs.getInt(7));
 
                     resultRows.add(ds);
                 }

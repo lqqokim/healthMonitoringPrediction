@@ -153,12 +153,12 @@ public class MasterCache {
                         ObjectMapper mapper = new ObjectMapper();
 
                         if (body.length() <= 0) {
-                            log.info("parameter master data does not exists. message: " + body);
+                            log.info("parameter master with spec data does not exists. message: " + body);
                         } else {
                             masterDataList = mapper.readValue(body, new TypeReference<List<ParameterWithSpecMaster>>() {
                             });
 
-                            log.info("{} - parameter are reloaded.", key);
+                            log.info("{} - parameter with spec are reloaded.", key);
                         }
                     } catch (IOException e) {
                         log.error(e.getMessage(), e);

@@ -7,9 +7,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public class ParameterMaster {
 
-    @JsonProperty("areaName")
-    private String areaName;
-
     @JsonProperty("equipmentName")
     private String equipmentName;
 
@@ -18,6 +15,9 @@ public class ParameterMaster {
 
     @JsonProperty("parameterName")
     private String parameterName;
+
+    @JsonProperty("modelName")
+    private String modelName;
 
     @JsonProperty("paramParseIndex")
     private Integer paramParseIndex;
@@ -28,53 +28,19 @@ public class ParameterMaster {
     @JsonProperty("parameterType")
     private String parameterType;
 
-    @JsonProperty("conditionName")
-    private String conditionName;
-
-    @JsonProperty("expression")
-    private String expression;
-
-    @JsonProperty("expressionValue")
-    private String expressionValue;
-
-    @JsonProperty("useYn")
-    private String useYn;
-
-    @JsonProperty("specType")
-    private String specType;
-
     @JsonProperty("dataType")
     private String dataType;
-
-    @JsonProperty("upperWarningSpec")
-    private Float upperWarningSpec;
-
-    @JsonProperty("upperAlarmSpec")
-    private Float upperAlarmSpec;
-
-    @JsonProperty("target")
-    private Float target;
-
-    @JsonProperty("lowerWarningSpec")
-    private Float lowerWarningSpec;
-
-    @JsonProperty("lowerAlarmSpec")
-    private Float lowerAlarmSpec;
-
-//    public String toKey(){
-//        return this.areaName  + "," + this.equipmentName;
-//    }
 
     public String toKey() {
         return this.equipmentName;
     }
 
-    public String getAreaName() {
-        return areaName;
+    public String getEquipmentName() {
+        return equipmentName;
     }
 
-    public void setAreaName(String areaName) {
-        this.areaName = areaName;
+    public void setEquipmentName(String equipmentName) {
+        this.equipmentName = equipmentName;
     }
 
     public Long getEquipmentRawId() {
@@ -85,20 +51,20 @@ public class ParameterMaster {
         this.equipmentRawId = equipmentRawId;
     }
 
-    public String getEquipmentName() {
-        return equipmentName;
-    }
-
-    public void setEquipmentName(String eqpName) {
-        this.equipmentName = eqpName;
-    }
-
     public String getParameterName() {
         return parameterName;
     }
 
-    public void setParameterName(String paramName) {
-        this.parameterName = paramName;
+    public void setParameterName(String parameterName) {
+        this.parameterName = parameterName;
+    }
+
+    public String getModelName() {
+        return modelName;
+    }
+
+    public void setModelName(String modelName) {
+        this.modelName = modelName;
     }
 
     public Integer getParamParseIndex() {
@@ -113,8 +79,8 @@ public class ParameterMaster {
         return parameterRawId;
     }
 
-    public void setParameterRawId(Long paramRawId) {
-        this.parameterRawId = paramRawId;
+    public void setParameterRawId(Long parameterRawId) {
+        this.parameterRawId = parameterRawId;
     }
 
     public String getParameterType() {
@@ -125,91 +91,11 @@ public class ParameterMaster {
         this.parameterType = parameterType;
     }
 
-    public String getConditionName() {
-        return conditionName;
-    }
-
-    public void setConditionName(String conditionName) {
-        this.conditionName = conditionName;
-    }
-
-    public String getExpression() {
-        return expression;
-    }
-
-    public void setExpression(String expression) {
-        this.expression = expression;
-    }
-
-    public String getExpressionValue() {
-        return expressionValue;
-    }
-
-    public void setExpressionValue(String expressionValue) {
-        this.expressionValue = expressionValue;
-    }
-
-    public String getUseYn() {
-        return useYn;
-    }
-
-    public void setUseYn(String useYn) {
-        this.useYn = useYn;
-    }
-
-    public String getSpecType() {
-        return specType;
-    }
-
-    public void setSpecType(String specType) {
-        this.specType = specType;
-    }
-
     public String getDataType() {
         return dataType;
     }
 
     public void setDataType(String dataType) {
         this.dataType = dataType;
-    }
-
-    public Float getUpperWarningSpec() {
-        return upperWarningSpec;
-    }
-
-    public void setUpperWarningSpec(Float upperWarningSpec) {
-        this.upperWarningSpec = upperWarningSpec;
-    }
-
-    public Float getUpperAlarmSpec() {
-        return upperAlarmSpec;
-    }
-
-    public void setUpperAlarmSpec(Float upperAlarmSpec) {
-        this.upperAlarmSpec = upperAlarmSpec;
-    }
-
-    public Float getTarget() {
-        return target;
-    }
-
-    public void setTarget(Float target) {
-        this.target = target;
-    }
-
-    public Float getLowerWarningSpec() {
-        return lowerWarningSpec;
-    }
-
-    public void setLowerWarningSpec(Float lowerWarningSpec) {
-        this.lowerWarningSpec = lowerWarningSpec;
-    }
-
-    public Float getLowerAlarmSpec() {
-        return lowerAlarmSpec;
-    }
-
-    public void setLowerAlarmSpec(Float lowerAlarmSpec) {
-        this.lowerAlarmSpec = lowerAlarmSpec;
     }
 }
