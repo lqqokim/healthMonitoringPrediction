@@ -15,6 +15,7 @@ import { PdmEqpHealthIndex } from './pdm-eqp-health-index.component';
 import { ModalPopComponent } from './components/modal-popup/modal-pop.component';
 import { PluginCommonModule } from '../../common/plugins.common.module';
 import { LogicChartComponent } from './components/logic-chart/logic-chart.component';
+import { TrendChartComponent } from './components/trend-chart/trend-chart.component';
 
 @NgModule({
     imports: [
@@ -25,12 +26,14 @@ import { LogicChartComponent } from './components/logic-chart/logic-chart.compon
     declarations: [
         PdmEqpHealthIndex,
         ModalPopComponent,
-        LogicChartComponent
+        LogicChartComponent,
+        TrendChartComponent
     ],
     exports: [
         PdmEqpHealthIndex,
         ModalPopComponent,
-        LogicChartComponent
+        LogicChartComponent,
+        TrendChartComponent
     ],
     schemas: [ CUSTOM_ELEMENTS_SCHEMA ]
 })

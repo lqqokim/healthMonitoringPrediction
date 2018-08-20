@@ -131,10 +131,27 @@ export class PdmEqpHealthIndex extends WidgetApi implements OnSetup, OnDestroy {
 
     // 모달 팝업 타이틀
     private modalPopTitle: string = '';
+    private modalPopType: string = 'logicChart';    // logicChart, trendChart 2개 타입
 
     // 리사이즈 용    
     private currElem: ElementRef['nativeElement'] = undefined;
     private widgetElem: ElementRef['nativeElement'] = undefined;
+
+    // 트랜드 차트용
+    private
+        chartType: string = '';                 // 'alarm';
+        trendPlantId: string = '';              // 'fab1';
+        trendAreaId: (number|null) = null;  
+        trendEqpId: number = undefined;         // 21;
+    
+        trendParamId: number = undefined;       // 1111;
+        trendFromDate: number = undefined;      // 1532962800000;
+        trendToDate: number = undefined;        // 1534690800000;
+        trendEqpName: string = '';              // 'TOHS03';
+        trendParamName: string = '';            // 'Z_RMS';
+    
+        trendValue: number = undefined;         // 3.044918;
+        trendSpecWarning: number = undefined;   // 0.8;
 
     constructor(
         private _service: PdmEqpHealthIndexService,
@@ -194,10 +211,34 @@ export class PdmEqpHealthIndex extends WidgetApi implements OnSetup, OnDestroy {
     //* 셀 클릭 정보
     cellClick(data: TableCellInfo): void {
         // 컬럼 name
-        const columnName = data.column;
+        let columnName = data.column;
+        let chartType: string = undefined;
 
-        // 로직1~4 에 해당하는게 아니면 건너 뜀
-        if( !(columnName === 'logic1' || columnName === 'logic2' || columnName === 'logic3' || columnName === 'logic4') ){ return; }
+        // console.log( 'cellClick-data', data );
+
+        // 로직1~4 에 해당 (LogicChart)
+        if( (columnName === 'logic1' || columnName === 'logic2' || columnName === 'logic3' || columnName === 'logic4') ){ chartType='logicChart'; }
+
+        // Health Index 해당 (TrendChart 용)
+        // if( columnName === 'healthIndex' ){ chartType='trendChart'; }
+
+        // Health Index 해당 (LogicChart 용)
+        if( columnName === 'healthIndex' ){
+            chartType='logicChart';
+
+            let i: number = 1;
+            while( i <= 4 ){
+                const keyName = `logic${i}`;
+                if( data.row.hasOwnProperty(keyName) && <number>data.row[keyName] === <number>data.row['healthIndex'] ){
+                    columnName = keyName;
+                    break;
+                }
+                i++;
+            }
+        }
+
+        // 차트 타입이 없다면 건너 뜀
+        if( chartType === undefined ){ return; }
 
         // 해당 Logic1~4 param id, name 얻어오기
         const logicParamID: number = <number>data.row[ columnName+'Param' ];
@@ -219,11 +260,71 @@ export class PdmEqpHealthIndex extends WidgetApi implements OnSetup, OnDestroy {
         // 타이틀 설정
         this.modalPopTitle = `${eqpName} ${logicParamName} - ${cellName} (${cellValue})`;
 
+        // Health Index 해당 (LogicChart 용)
+        if( data.column === 'healthIndex' ){
+            this.modalPopTitle = `Health Index - ${this.modalPopTitle}`;
+        }
+        // console.log('data.column', data.column);
+
         // console.log( 'cellClick', data );
         // console.log( 'cellValue', cellValue, typeof cellValue );
 
-        //* 차트 데이터 불러오기
-        this.getChartData( logicParamID, <string>columnName, cellValue );
+        // 모달팝업 타입
+        this.modalPopType = chartType;
+
+        //* 차트 데이터 불러오기 (LogicChart)
+        if( chartType === 'logicChart' ){
+            this.getChartData( logicParamID, <string>columnName, cellValue );
+        }
+        //* 차트 데이터 불러오기 (TrendChart)
+        else if( chartType === 'trendChart' ){
+
+            // health index 관련 logic 번호 찾아내기
+            let healthIndexTarget: string = undefined;
+            let i: number = 1;
+            while( i <= 4 ){
+                const keyName = `logic${i}`;
+                if( data.row.hasOwnProperty(keyName) && <number>data.row[keyName] === <number>data.row['healthIndex'] ){
+                    healthIndexTarget = keyName;
+                    break;
+                }
+                i++;
+            }
+
+            // health index 관련 logic이 없을 경우 처리 x
+            if( healthIndexTarget === undefined ){ return; }
+
+            // 트랜드 차트 그려질 데이터 세팅
+            this.trendEqpId = <number>data.row['eqp_id'];
+            this.trendEqpName = eqpName;
+
+            this.trendParamId = <number>data.row[`${healthIndexTarget}Param`];
+            this.trendParamName = <string>data.row[`${healthIndexTarget}param_name`];
+            this.trendValue = <number>data.row[healthIndexTarget];
+            this.trendSpecWarning = <number>data.row['upperAlarmSpec'];
+
+            this.trendPlantId = this.fabId;
+            this.trendAreaId = (this.areaId === undefined) ? null : this.areaId;
+
+            this.trendFromDate = this.timePeriod.fromDate;
+            this.trendToDate = this.timePeriod.toDate;
+
+            // console.log('healthIndexTarget', healthIndexTarget);
+            // console.log('this.chartType', this.chartType );
+            // console.log('this.trendParamId', this.trendParamId );
+            // console.log('this.trendEqpName', this.trendEqpName );
+            // console.log('this.trendParamName', this.trendParamName );
+            // console.log('this.trendEqpId', this.trendEqpId);
+            // console.log('this.trendPlantId', this.trendPlantId);
+            // console.log('this.trendFromDate', this.trendFromDate);
+            // console.log('this.trendToDate', this.trendToDate);
+            // console.log('this.trendAreaId', this.trendAreaId);
+            // console.log('this.trendValue', this.trendValue);
+            // console.log('this.trendSpecWarning', this.trendSpecWarning);
+
+            // 팝업창 띄우기
+            this.modalPop.open();
+        }
     }
 
     //* APPLY_CONFIG_REFRESH-config 설정 값, JUST_REFRESH-현 위젯 새로고침, SYNC_INCONDITION_REFRESH-위젯 Sync
@@ -252,7 +353,7 @@ export class PdmEqpHealthIndex extends WidgetApi implements OnSetup, OnDestroy {
     }
 
     //* 데이터 가져오기
-    getData( configData: IConfigData ){
+    getData( configData: IConfigData ): void {
         // 헬퍼를 통해 넘어온 값 설정
         this.fabId = configData.fabId;
         this.targetName = configData.targetName;

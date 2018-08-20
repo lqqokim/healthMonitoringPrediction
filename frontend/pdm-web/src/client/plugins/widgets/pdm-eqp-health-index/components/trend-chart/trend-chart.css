@@ -1,0 +1,9 @@
+/* info */
+trend-chart > .healthIndex-layer { width:auto !important; }
+trend-chart > .healthIndex-layer > .info { padding:5px 10px; background:#ddd; }
+trend-chart > .healthIndex-layer > .info > dl { display:flex; justify-content:flex-start; align-items:center; margin:0; }
+trend-chart > .healthIndex-layer > .info > dl > dt { margin-right:5px; }
+trend-chart > .healthIndex-layer > .info > dl > dd { margin-right:15px; }
+
+/* 차트 */
+trend-chart > .healthIndex-layer > .chart { position:absolute; left:10px; top:0; right:0; bottom:10px; }

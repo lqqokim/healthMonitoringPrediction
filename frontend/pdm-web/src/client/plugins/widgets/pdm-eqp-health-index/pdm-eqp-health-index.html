@@ -17,6 +17,24 @@
         #modalPop
         [title]="modalPopTitle"
     >
-        <logic-chart #logicChart></logic-chart>
+        <logic-chart #logicChart *ngIf="modalPopType === 'logicChart'"></logic-chart>
+
+        <trend-chart
+            *ngIf="modalPopType === 'trendChart' && trendParamId && chartType"
+
+            [type]="chartType"
+            [plantId]="trendPlantId"
+            [areaId]="trendAreaId"
+            [eqpId]="trendEqpId"
+        
+            [paramId]="trendParamId"
+            [fromDate]="trendFromDate"
+            [toDate]="trendToDate"
+            [eqpName]="trendEqpName"
+            [paramName]="trendParamName"
+        
+            [value]="trendValue"
+            [warning]="trendSpecWarning"
+        ></trend-chart>
     </modal-pop>
 </div>
