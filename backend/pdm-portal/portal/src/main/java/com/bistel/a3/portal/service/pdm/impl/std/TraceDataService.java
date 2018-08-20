@@ -42,6 +42,8 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import static com.bistel.a3.portal.domain.pdm.enums.FaultFreqsType.*;
 
@@ -1125,7 +1127,10 @@ public class TraceDataService implements ITraceDataService {
 	public AnalysisData getAnalysisData(String fabId, Date fromDate, Date toDate, AnalysisCondition analysisCondition) {
 		
 		STDTraceDataMapper mapper = SqlSessionUtil.getMapper(sessions, fabId, STDTraceDataMapper.class);
-		
+
+		Boolean isGroupBy = analysisCondition.getIsGroupBy();
+		analysisCondition.setIsGroupBy(false);
+
 		List<HashMap<String, Object>> selectAnalysisData = mapper.selectAnalysisData(fromDate, toDate, analysisCondition);
 		
 		Pivot pivot = new Pivot();
@@ -1134,18 +1139,23 @@ public class TraceDataService implements ITraceDataService {
             if(selectAnalysisData.size()==0){
                 return new AnalysisData();
             }
-            List<String> keyColumns = new ArrayList<>();
-
-            for (int j = 0; j < analysisCondition.getX().size(); j++) {
-                AnalysisParamGroup analysisParamGroup = analysisCondition.getX().get(j);
-                String paramName = analysisParamGroup.getParam_name();
-                if(analysisParamGroup.getGroup_name().length()>0){
-                    paramName += "_"+analysisParamGroup.getGroup_name();
-                }
-                keyColumns.add(paramName);
-            }
+//            List<String> keyColumns = new ArrayList<>();
+//
+//            for (int j = 0; j < analysisCondition.getX().size(); j++) {
+//                AnalysisParamGroup analysisParamGroup = analysisCondition.getX().get(j);
+//                String paramName = analysisParamGroup.getParam_name();
+////                if(analysisParamGroup.getGroup_name().length()>0){
+////                    paramName += "_"+analysisParamGroup.getGroup_name();
+////                }
+//                keyColumns.add(paramName);
+//            }
 
             results = pivot.getPivotDataByTimeWithAllColumn(selectAnalysisData, "EVENT_DTTS", "PARAMETER_NAME");
+
+            if(isGroupBy){
+                results = getGroupByData(results,analysisCondition);
+            }
+
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -1275,5 +1285,173 @@ public class TraceDataService implements ITraceDataService {
 
 		return analysisData;
 	}
+
+    private List<List<String>> getGroupByData(List<List<String>> results, AnalysisCondition analysisCondition) {
+        String keyDelimeter = "_@";
+        Map<String,Integer> columnIndex = new HashMap<>();
+        for(int i=0;i<results.get(0).size();i++){
+            columnIndex.put(results.get(0).get(i),i);
+
+        }
+        for(int ixCondition=0;ixCondition<analysisCondition.getX().size();ixCondition++) {
+            AnalysisParamGroup analysisParamGroup = analysisCondition.getX().get(ixCondition);
+            columnIndex.put(analysisParamGroup.getParam_name()+"_"+analysisParamGroup.getGroup_name(),columnIndex.size());
+        }
+        Map<String,List<List<String>>> groupDatas = new HashMap<>();
+        for(int iDataRow=1;iDataRow<results.size();iDataRow++){
+            List<String> rowData = results.get(iDataRow);
+            String key = "";
+
+            if(analysisCondition.getY_category().size()>0 && analysisCondition.getX_category().size()>0){
+                for(int iyCategory=0;iyCategory<analysisCondition.getY_category().size();iyCategory++){
+                    String yCValue = rowData.get(columnIndex.get(analysisCondition.getY_category().get(iyCategory).getParam_name()));
+                    key +=keyDelimeter + analysisCondition.getY_category().get(iyCategory).getParam_name()+"="+yCValue;
+                    for(int ixCategory=0;ixCategory<analysisCondition.getX_category().size();ixCategory++){
+                        String xCValue = rowData.get(columnIndex.get(analysisCondition.getX_category().get(ixCategory).getParam_name()));
+                        key +=keyDelimeter + analysisCondition.getX_category().get(ixCategory).getParam_name()+"="+xCValue;
+                        key = getGroupByData(analysisCondition, columnIndex, rowData, key,keyDelimeter);
+                    }
+                }
+            }else if(analysisCondition.getY_category().size()>0 ){
+                for(int ixCategory=0;ixCategory<analysisCondition.getX_category().size();ixCategory++){
+                    String xCValue = rowData.get(columnIndex.get(analysisCondition.getX_category().get(ixCategory).getParam_name()));
+                    key +=keyDelimeter + analysisCondition.getX_category().get(ixCategory).getParam_name()+"="+xCValue;
+                    key = getGroupByData(analysisCondition, columnIndex, rowData, key,keyDelimeter);
+                }
+            }else if(analysisCondition.getX_category().size()>0){
+                for(int iyCategory=0;iyCategory<analysisCondition.getY_category().size();iyCategory++){
+                    String yCValue = rowData.get(columnIndex.get(analysisCondition.getY_category().get(iyCategory).getParam_name()));
+                    key +=keyDelimeter + analysisCondition.getY_category().get(iyCategory).getParam_name()+"="+yCValue;
+                    key = getGroupByData(analysisCondition, columnIndex, rowData, key,keyDelimeter);
+                }
+
+            }else{
+                key = getGroupByData(analysisCondition, columnIndex, rowData, key,keyDelimeter);
+            }
+
+
+            key = key.substring(keyDelimeter.length());
+
+            if(groupDatas.containsKey(key)){
+                groupDatas.get(key).add(rowData);
+            }else{
+                List<List<String>>  datas = new ArrayList<>();
+                datas.add(rowData);
+                groupDatas.put(key,datas);
+            }
+
+        }
+        List<List<String>> retValue = new ArrayList<>();
+        boolean isFirst = true;
+        List<String> heads = new ArrayList<>();
+        for(String key:groupDatas.keySet()){
+            List<List<String>> datas = groupDatas.get(key);
+            Double value = 0d;
+            List<String> rowData = new ArrayList<>();
+
+            String[] keyItems = key.split(keyDelimeter);
+            for(int i=0;i<keyItems.length;i++){
+                String[] keyValue = keyItems[i].split("=");
+                rowData.add(keyValue[1]);
+                if(isFirst){
+                    heads.add(keyValue[0]);
+                }
+            }
+
+
+            for(int iY=0;iY<analysisCondition.getY().size();iY++){
+//                String fieldName = analysisCondition.getY().get(iY).getParam_name()+"_"+analysisCondition.getY().get(iY).getGroup_name();
+                int index = columnIndex.get(analysisCondition.getY().get(iY).getParam_name());
+                final Comparator<List<String>> comp = (p1, p2) -> Double.compare( Double.parseDouble(p1.get(index)), Double.parseDouble(p2.get(index)));
+                if(analysisCondition.getY().get(iY).getGroup_name().equals("AVG")){
+                    value = datas.stream().collect(Collectors.averagingDouble(p-> Double.parseDouble(p.get(index))));
+                }else if(analysisCondition.getY().get(iY).getGroup_name().equals("MAX")){
+                    value = Double.parseDouble(datas.stream().max(comp).get().get(index));
+                }else if(analysisCondition.getY().get(iY).getGroup_name().equals("MIN")){
+                    value = Double.parseDouble(datas.stream().min(comp).get().get(index));
+                }else if(analysisCondition.getY().get(iY).getGroup_name().equals("SUM")){
+                    value = datas.stream().mapToDouble(p->Double.parseDouble(p.get(index))).sum();
+                }else if(analysisCondition.getY().get(iY).getGroup_name().equals("COUNT")){
+                    value =datas.size() *1.0;
+                }
+                if(isFirst){
+                    heads.add(analysisCondition.getY().get(iY).getParam_name()+"_"+analysisCondition.getY().get(iY).getGroup_name());
+                }
+                rowData.add(value.toString());
+            }
+            for(int iY=0;iY<analysisCondition.getY2().size();iY++){
+//                String fieldName = analysisCondition.getY().get(iY).getParam_name()+"_"+analysisCondition.getY().get(iY).getGroup_name();
+                int index = columnIndex.get(analysisCondition.getY2().get(iY).getParam_name());
+                final Comparator<List<String>> comp = (p1, p2) -> Double.compare( Double.parseDouble(p1.get(index)), Double.parseDouble(p2.get(index)));
+                if(analysisCondition.getY().get(iY).getGroup_name().equals("AVG")){
+                    value = datas.stream().collect(Collectors.averagingDouble(p-> Double.parseDouble(p.get(index))));
+                }else if(analysisCondition.getY().get(iY).getGroup_name().equals("MAX")){
+                    value = Double.parseDouble(datas.stream().max(comp).get().get(index));
+                }else if(analysisCondition.getY().get(iY).getGroup_name().equals("MIN")){
+                    value = Double.parseDouble(datas.stream().min(comp).get().get(index));
+                }else if(analysisCondition.getY().get(iY).getGroup_name().equals("SUM")){
+                    value = datas.stream().mapToDouble(p->Double.parseDouble(p.get(index))).sum();
+                }else if(analysisCondition.getY().get(iY).getGroup_name().equals("COUNT")){
+                    value =datas.size() *1.0;
+                }
+                if(isFirst){
+                    heads.add(analysisCondition.getY2().get(iY).getParam_name()+"_"+analysisCondition.getY2().get(iY).getGroup_name());
+                }
+                rowData.add(value.toString());
+            }
+            if(isFirst){
+                retValue.add(heads);
+            }
+            retValue.add(rowData);
+            isFirst = false;
+        }
+
+        return retValue;
+    }
+
+    private String getGroupByData(AnalysisCondition analysisCondition, Map<String, Integer> columnIndex, List<String> rowData, String key,String keyDelimeter) {
+        for(int ixCondition=0;ixCondition<analysisCondition.getX().size();ixCondition++){
+            AnalysisParamGroup analysisParamGroup = analysisCondition.getX().get(ixCondition);
+            String value = rowData.get(columnIndex.get(analysisParamGroup.getParam_name()));
+            if(analysisParamGroup.getParam_name().equals("DATE_TIME")){
+
+                SimpleDateFormat transFormatString = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+                try {
+                    if(analysisParamGroup.getGroup_name().equals("MINUTES")){
+                        SimpleDateFormat transFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+                        Date to = transFormat.parse(value);
+
+                        String toString = transFormat.format(to);
+                        key += keyDelimeter+ analysisParamGroup.getParam_name()+"_"+analysisParamGroup.getGroup_name()+"=" + toString;
+
+                    }else if(analysisParamGroup.getGroup_name().equals("HOUR")){
+                        SimpleDateFormat transFormat = new SimpleDateFormat("yyyy-MM-dd HH");
+                        Date to = transFormat.parse(value);
+                        String toString = transFormat.format(to);
+                        key += keyDelimeter+ analysisParamGroup.getParam_name()+"_"+analysisParamGroup.getGroup_name()+"=" + toString;
+
+                    }else if(analysisParamGroup.getGroup_name().equals("DAY")){
+                        SimpleDateFormat transFormat = new SimpleDateFormat("yyyy-MM-dd");
+                        Date to = transFormat.parse(value);
+                        String toString = transFormat.format(to);
+                        key += keyDelimeter+ analysisParamGroup.getParam_name()+"_"+analysisParamGroup.getGroup_name()+"=" + toString;
+
+                    }else if(analysisParamGroup.getGroup_name().equals("MONTH")){
+                        SimpleDateFormat transFormat = new SimpleDateFormat("yyyy-MM");
+                        Date to = transFormat.parse(value);
+                        String toString = transFormat.format(to);
+                        key += keyDelimeter+ analysisParamGroup.getParam_name()+"_"+analysisParamGroup.getGroup_name()+"=" + toString;
+                    }
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }else {
+                key += keyDelimeter+ analysisParamGroup.getParam_name()+"_"+analysisParamGroup.getGroup_name()+"=" + value;
+            }
+            rowData.add(value);
+        }
+        return key;
+    }
 
 }
