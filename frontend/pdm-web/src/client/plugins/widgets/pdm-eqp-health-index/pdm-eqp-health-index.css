@@ -6,7 +6,8 @@
 .widget-pdm-eqp-health-index .guageChartList { display:flex; justify-content:space-around; align-items:center; }
 .widget-pdm-eqp-health-index .guageChartList > li { width:calc(100% /5); height:256px; margin:0 3px; border:1px solid #eee; border-radius:3px; overflow:hidden; }
 
-/* 테이블 logic1 ~ logic4(Standard, SPC, Variation, RUL) 마우스 커서 변경 */
+/* 테이블 HealthIndex, logic1 ~ logic4(Standard, SPC, Variation, RUL) 마우스 커서 변경 */
+pdm-eqp-health-index ng2-Table table > tbody > tr > td:nth-child(3),
 pdm-eqp-health-index ng2-Table table > tbody > tr > td:nth-child(4),
 pdm-eqp-health-index ng2-Table table > tbody > tr > td:nth-child(5),
 pdm-eqp-health-index ng2-Table table > tbody > tr > td:nth-child(6),

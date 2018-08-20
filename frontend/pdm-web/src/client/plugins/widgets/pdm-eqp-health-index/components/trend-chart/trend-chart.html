@@ -1,0 +1,30 @@
+<div class="healthIndex-layer">
+    <!-- <a3c-bistel-chart #trendChartPlot [data]="trendData" [config]="trendConfig" [eventLines]="trendEventLines" [chartEvents]="trendEventConfig"
+        style="width: 100%;" class="chart-body"> -->
+    <div class="info">
+        <dl>
+            <dt>EQP</dt>
+            <dd>{{eqpName}}</dd>
+            <dt>PARAM</dt>
+            <dd>{{paramName}}</dd>
+            <dt>VALUE</dt>
+            <dd>{{value}}</dd>
+        </dl>
+    </div>
+    <div class="chart">
+        <a3c-bistel-chart #trendChartPlot 
+            [data]="trendData" 
+            [config]="trendConfig" 
+            [eventLines]="trendEventLines" 
+            style="width: 100%;" class="chart-body">
+        </a3c-bistel-chart>
+    </div>
+    <div class="float-wrapper" *ngIf="!trendData.length">
+        <dl>
+            <dt>
+                <div class="a3-spinner-data"></div>
+            </dt>
+            <dd class="message-title">Loading ...</dd>
+        </dl>
+    </div>
+</div>
