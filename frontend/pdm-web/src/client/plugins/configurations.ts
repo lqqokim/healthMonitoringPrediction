@@ -25,6 +25,7 @@ import { JobHistoryConfigModule } from './configurations/global/manual/job-histo
 import { LogSqlParseModule } from './configurations/global/manual/log-sql-parse/log-sql-parse.module';
 import { MasterInfoModule } from './configurations/global/pdm/master-info/master-info.module';
 import { CodeModule } from './configurations/global/pdm/code/code-list.module';
+import { AnalysisToolModule } from './configurations/global/pdm/analysis-tool/analysis-tool.module';
 import { FilterAnalysisModule } from './configurations/global/pdm/filter-analysis/filter-analysis.module';
 import { FabMonitoringModule } from './configurations/global/pdm/fabmonitoring/fabmonitoring.module';
 import { CategoryModule } from './configurations/global/pdm/category/category-list.module';
@@ -92,14 +93,16 @@ export const getConfigurationClassInfo = (menuId: string): any => {
             return CategoryModule;
         case 'pdmCode':
             return CodeModule;
-        case 'pdmFilterAnalysis':
-            return FilterAnalysisModule;
+        case 'pdmAnalysisTool':
+            return AnalysisToolModule;
         case 'pdmFabMonitoring':
             return FabMonitoringModule;
         case 'pdmModelSimulator':
             return ModelSimulatorModule;
         case 'pdmSummaryTrend':
             return SummaryTrendModule;
+        case 'pdmFilterAnalysis':
+            return FilterAnalysisModule;
 
             
         case 'pdmEqupmentParameterTrend':

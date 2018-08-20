@@ -1,0 +1,13 @@
+<!-- 타이틀 출력 -->
+<div
+    [ngClass]="{'fi-title':true, 'fold':folding}"
+    [style.background]='bgcolor'
+    (click)='titleClick($event)'
+>
+    {{title}}
+</div>
+
+<!-- 본문 출력 -->
+<div [ngClass]="{'fi-cont':true, 'fold':folding}">
+    <ng-content></ng-content>
+</div>

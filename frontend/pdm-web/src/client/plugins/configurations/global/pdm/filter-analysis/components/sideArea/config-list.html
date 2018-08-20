@@ -1,0 +1,26 @@
+<ul>
+    <li *ngFor='let row of data; let idx = index'>
+        <!-- 이름 -->
+        <b>{{row.name}}</b>
+
+        <!-- 체크박스 타입 (boolean) -->
+        <div class='i_chkArea' *ngIf="row.dataType === 'boolean'">
+            <input type='checkbox' id='chk_{{idx}}'>
+            <label for='chk_{{idx}}' (click)='onCheckboxClick($event, idx)'></label>
+        </div>
+
+        <!-- 셀렉트 타입 (select) -->
+        <div class='i_select' *ngIf="row.dataType === 'select'" (click)='onSelectAreaClick($event)'>
+            <!-- 셀렉트 선택 값 -->
+            <strong>{{row.value}}</strong>
+            <ol>
+                <!-- 셀렉트 메뉴 항목 -->
+                <li
+                    *ngFor='let itemName of row.items; let itemIdx = index'
+                    class="{{row.value === itemName ? 'selected' : ''}}"
+                    (click)='onSelectListClick($event, row, itemName)'
+                >{{itemName}}</li>
+            </ol>
+        </div>
+    </li>
+</ul>

@@ -1,0 +1,15 @@
+<div type='single' *ngIf="itemType === 'single'">
+    <button class='closeButton' (click)='onCloseBtn($event, value)'></button>
+    <span>{{value}}</span>
+</div>
+
+<div type='select' *ngIf="itemType === 'select'">
+    <button class='closeButton' (click)='onCloseBtn($event, value)'></button>
+    <span>{{value}}</span>
+    <div>
+        <span>{{selectedItemValue}}</span>
+        <ul>
+            <li *ngFor='let name of itemList' [ngClass]='{selected:name===selectedItemValue}' (click)='onItemListClick($event, name)'>{{name}}</li>
+        </ul>
+    </div>
+</div>

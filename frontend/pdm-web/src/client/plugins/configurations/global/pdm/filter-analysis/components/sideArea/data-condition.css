@@ -1,0 +1,17 @@
+/* data condition 본문 안쪽 여백 */
+data-condition > div { padding:10px; }
+
+/* from ~ to 사이 간격 */
+data-condition > div > .a3-from-to > div:last-child { padding-top:10px; }
+
+/* label 윗 여백 */
+data-condition > div > label { padding-top:10px; }
+data-condition > div > div[sbox] > div { padding-top:10px; }
+
+/* 그룹 중간 라인 */
+data-condition > div > div[sbox] { border-top:1px solid #eee; margin-top:12px; }
+
+/* 버튼 */
+data-condition > div > .btnGetDataInfo { width:100%; margin-top:15px; background:#fff; border:1px solid #0082D8; border-radius:5px; height:30px; display:flex; justify-content:center; align-items:center; font-size:14px; color:#0082D8; transition:background 0.2s ease-in-out; }
+data-condition > div > .btnGetDataInfo:hover { background:#0082D8; color:#fff; }
+

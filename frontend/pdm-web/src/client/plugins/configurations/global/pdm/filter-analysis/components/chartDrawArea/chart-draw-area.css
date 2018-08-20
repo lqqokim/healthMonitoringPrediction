@@ -1,0 +1,20 @@
+chart-draw-area > table { width:100%; }
+
+/* 테이블 헤더 */
+chart-draw-area > table > thead > tr > th { border-top:2px solid #333; background:#eee; height:30px; text-align:center; vertical-align:middle; font-size:14px; font-weight:normal; border-bottom:1px solid #ccc; border-left:1px solid #ccc; }
+chart-draw-area > table > thead > tr > th:first-child { border-left:0; }
+
+/* 테이블 본문 */
+chart-draw-area > table > tbody > tr > td { background:#fff; border-bottom:1px solid #ccc; border-left:1px solid #ccc; padding:10px; }
+chart-draw-area > table > tbody > tr > td:first-child { border-left:0; }
+
+/* 테이블 본문 - x축 카테고리 포함 차트 */
+chart-draw-area > table > tbody > tr > td > dl { display:table; margin:0 -10px; padding:0; width:calc(100% + 20px) !important; }
+chart-draw-area > table > tbody > tr > td > dl > dt { display:table-cell; border-bottom:1px solid #ccc; border-right:1px solid #ccc; padding:10px; }
+chart-draw-area > table > tbody > tr > td > dl > dd { display:table-cell; border-bottom:1px solid #ccc; padding:10px; }
+
+chart-draw-area > table > tbody > tr > td > dl:first-child { margin-top:-10px; }
+chart-draw-area > table > tbody > tr > td > dl:last-child { margin-bottom:-10px; }
+
+chart-draw-area > table > tbody > tr > td > dl:last-child > dt { border-bottom:0; }
+chart-draw-area > table > tbody > tr > td > dl:last-child > dd { border-bottom:0; }

@@ -1,0 +1,34 @@
+<table>
+    <!-- 테이블 헤더 -->
+    <thead>
+        <tr>
+            <ng-container *ngFor="let val of tableDrawDataY">
+                <th>category</th>
+                <th>result</th>
+            </ng-container>
+        </tr>
+    </thead>
+
+    <!-- 테이블 본문 -->
+    <tbody>
+        <tr *ngFor="let item of tableDrawDataITEM; let itemIdx = index">
+            <ng-container *ngFor="let y of tableDrawDataY; let yIdx = index">
+                <td>{{yIdx}}-{{itemIdx}}</td>
+                <td>
+                    <!-- x축 카테고리 0개 (:차트 단독) -->
+                    <ng-container *ngIf="tableDrawData.x === 0">
+                        {{tableDrawData.x}}-차트
+                    </ng-container>
+
+                    <!-- x축 카테고리 1개 이상 (x축 카테고리 와 차트) -->
+                    <ng-container *ngIf="tableDrawData.x >= 1">
+                        <dl *ngFor="let x of tableDrawDataX; let xIdx = index">
+                            <dt>{{xIdx}}</dt>
+                            <dd>차트</dd>
+                        </dl>
+                    </ng-container>
+                </td>
+            </ng-container>
+        </tr>
+    </tbody>
+</table>

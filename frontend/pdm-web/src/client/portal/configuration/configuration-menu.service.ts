@@ -88,6 +88,12 @@ export class ConfigurationMenuService {
                         menus: <any>[]
                     },
                     {
+                        menuId: 'pdmAnalysisTool',
+                        name: 'Analysis Tool',
+                        description: 'Pdm Analysis Tool',
+                        menus: <any>[]
+                    },
+                    {
                         menuId: 'pdmFabMonitoring',
                         name: 'Fab Monitoring',
                         description: 'Pdm Fab Monitoring',
