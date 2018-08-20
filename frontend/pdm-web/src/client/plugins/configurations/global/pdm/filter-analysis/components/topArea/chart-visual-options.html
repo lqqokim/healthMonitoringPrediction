@@ -1,0 +1,70 @@
+<div type='category'>
+    <dl (dragover)="onDragover($event)" (drop)="onDrop($event, 'category', 'x', categoryDataX)">
+        <dt>Category X</dt>
+        <dd>
+            <chart-visual-options-item
+                itemType='single'
+                *ngFor="let val of categoryDataX"
+                [value]='val'
+                (onClose)='onCategoryItemDelete(categoryDataX, $event)'
+            ></chart-visual-options-item>
+        </dd>
+    </dl>
+    <dl (dragover)="onDragover($event)" (drop)="onDrop($event, 'category', 'y', categoryDataY)">
+        <dt>Category Y</dt>
+        <dd>
+            <chart-visual-options-item
+                itemType='single'
+                *ngFor="let val of categoryDataY"
+                [value]='val'
+                (onClose)='onCategoryItemDelete(categoryDataY, $event)'
+            ></chart-visual-options-item>
+        </dd>
+    </dl>
+</div>
+
+<div type='chartData'>
+    <dl (dragover)="onDragover($event)" (drop)="onDrop($event, 'chartData', 'x', chartDataX)">
+        <dt>X</dt>
+        <dd>
+            <chart-visual-options-item
+                itemType='select'
+                *ngFor="let row of chartDataX"
+                [value]='row.name'
+                [itemList]='chartDataTypeX'
+                (onItemSelect)='onItemSelectChartDataX($event)'
+                (onClose)='onChartDataItemDelete(chartDataX, $event)'
+            ></chart-visual-options-item>
+        </dd>
+    </dl>
+    <dl (dragover)="onDragover($event)" (drop)="onDrop($event, 'chartData', 'y', chartDataY)">
+        <dt>Y</dt>
+        <dd>
+            <chart-visual-options-item
+                itemType='select'
+                *ngFor="let row of chartDataY; let idx = index"
+                [value]='row.name'
+                [itemList]='chartDataTypeY[chartDataTypeXSelected]'
+                [selectedItemValue]='row.selected'
+                (onItemSelect)='onItemSelectChartDataY(chartDataY, idx, $event)'
+                (onClose)='onChartDataItemDelete(chartDataY, $event)'
+            ></chart-visual-options-item>
+        </dd>
+    </dl>
+    <dl (dragover)="onDragover($event)" (drop)="onDrop($event, 'chartData', 'y', chartDataY2)">
+        <dt>Y2</dt>
+        <dd>
+            <chart-visual-options-item
+                itemType='select'
+                *ngFor="let row of chartDataY2; let idx = index"
+                [value]='row.name'
+                [itemList]='chartDataTypeY[chartDataTypeXSelected]'
+                [selectedItemValue]='row.selected'
+                (onItemSelect)='onItemSelectChartDataY(chartDataY2, idx, $event)'
+                (onClose)='onChartDataItemDelete(chartDataY2, $event)'
+            ></chart-visual-options-item>
+        </dd>
+    </dl>
+</div>
+
+<button (click)='drawChart($event)'>Draw Chart</button>

@@ -6,14 +6,14 @@ import { BISTEL_SDKModule } from '../../../../../sdk/sdk.module';
 import { FabMonitoringComponent } from './fabmonitoring.component';
 import { FabEditorComponent } from './component/fab-editor/fab-editor.component';
 import { Draggable } from './component/draggable/draggable.component';
-import { FilterAnalysisModule } from '../../pdm/filter-analysis/filter-analysis.module';
+import { AnalysisToolModule } from '../../pdm/analysis-tool/analysis-tool.module';
 import { BarchartComponent } from './component/barchart/barchart.component';
 
 @NgModule({
     imports: [
         BISTEL_SDKModule,
         A3_CommonModule,
-        FilterAnalysisModule
+        AnalysisToolModule
     ],
     declarations: [
         FabMonitoringComponent,

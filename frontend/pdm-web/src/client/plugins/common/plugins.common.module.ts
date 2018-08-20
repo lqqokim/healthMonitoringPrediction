@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { A3_CommonModule } from '../../common/common.module';
 import { BISTEL_SDKModule } from '../../sdk/sdk.module';
 
-import { TreeModule } from 'ng2-tree';
+// import { TreeModule } from 'ng2-tree';
 import { Ng2TableModule } from 'ng2-table/ng2-table';
 
 import { ModelingTreeComponent } from '../common/modeling-tree/modeling-tree.component';

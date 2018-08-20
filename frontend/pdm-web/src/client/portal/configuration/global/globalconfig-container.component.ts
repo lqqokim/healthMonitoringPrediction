@@ -58,7 +58,7 @@ export class GlobalConfigContainerComponent implements OnInit, OnDestroy {
         });
     }
 
-     private _findMenu(applicationId: any, menuId: any) {
+    private _findMenu(applicationId: any, menuId: any) {
         if (!this.applications || this.applications.length === 0) {
             return;
         }

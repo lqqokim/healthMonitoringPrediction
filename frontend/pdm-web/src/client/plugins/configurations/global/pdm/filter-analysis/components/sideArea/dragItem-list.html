@@ -1,0 +1,10 @@
+<ul>
+    <li 
+        *ngFor='let row of data'
+        draggable='true'
+        (dragstart)='onDragStart($event, row)'
+        (dragend)='onDragEnd($event)'
+    >
+        <b>{{row.name}}</b>
+    </li>
+</ul>
