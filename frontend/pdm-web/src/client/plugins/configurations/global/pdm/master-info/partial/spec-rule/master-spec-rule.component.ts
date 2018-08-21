@@ -38,6 +38,8 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
     selectedRule: IRule.Rule;
     ruleFormData: IRule.FormData;
 
+    isRuleUse: boolean = false;
+
     protected readonly STATUS: IRule.Status = { CREATE: 'create', MODIFY: 'modify', DELETE: 'delete' };
     protected readonly operands: IRule.Operand[] = [
         { display: '=', value: 'equal' },
@@ -111,7 +113,8 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
         //     });
 
         this.rules = DATA.RULES;
-        this.selectedRule = this.rules[0];
+        console.log('rules', this.rules);
+        // this.selectedRule = this.rules[0];
         this.getParams();
     }
 
@@ -139,6 +142,10 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
     changeSelectedModel(model: IRule.Model): void {
         this.selectedModel = model;
         this.getRules();
+    }
+
+    changeRuleUse(isUse: boolean): void {
+        console.log('changeRuleUse', isUse);
     }
 
     selectRow(grid: wjcGrid.FlexGrid): void {
@@ -183,6 +190,7 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
     openEditModal(status: string): void {
         if (status === this.STATUS.CREATE) {
             let ruleFormData: IRule.FormData = {
+                model_name: this.selectedModel.model_name,
                 rule_name: '',
                 condition: [{
                     param_name: '',
@@ -195,6 +203,7 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
             this.ruleFormData = ruleFormData;
         } else if (status === this.STATUS.MODIFY) {
             let ruleFormData: IRule.FormData = {
+                model_name: this.selectedModel.model_name,
                 rule_name: this.selectedRule.rule_name,
                 condition: [],
                 parameter: this.parametersByRule

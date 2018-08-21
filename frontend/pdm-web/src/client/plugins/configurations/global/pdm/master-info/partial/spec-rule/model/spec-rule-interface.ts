@@ -21,6 +21,7 @@ export interface RuleReqParams extends Rule{
 }
 
 export interface FormData {
+    model_name: string;
     rule_name: string;
     condition: Condition[];
     parameter: Parameter[];

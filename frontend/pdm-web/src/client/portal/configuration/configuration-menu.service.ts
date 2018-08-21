@@ -71,8 +71,8 @@ export class ConfigurationMenuService {
                     },
                     {
                         menuId: 'pdmSpecRule',
-                        name: 'Spec Rule',
-                        description: 'Pdm Spec Rule',
+                        name: 'Model Spec Rule',
+                        description: 'Pdm Model Spec Rule',
                         menus: <any>[]
                     },
                     // {
