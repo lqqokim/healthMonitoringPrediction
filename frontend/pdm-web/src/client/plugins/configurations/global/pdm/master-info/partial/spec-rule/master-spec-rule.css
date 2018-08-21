@@ -2,24 +2,32 @@
     height: 100%;
     width: 100%;
 }
-
-.spec-rule-header .fab-selector {
+.spec-rule-container .spec-rule-header{
+    padding-bottom: 8px;
+}
+.spec-rule-container .spec-rule-header .btn-group{
+    padding-right: 8px;
+}
+.spec-rule-container .spec-rule-header .btn-default{
+    margin-left: 5px;
+}
+.spec-rule-container .spec-rule-header .fab-selector {
     width:200px;
     display: inline-block;
 }
 
-.spec-rule-header .model-seletor {
+.spec-rule-container .spec-rule-header .model-seletor {
     width:200px;
     display: inline-block;
 }
 
-.spec-rule-content .rule-list {
+.spec-rule-container .spec-rule-content .rule-list {
     width: calc(100% / 2 - 10px);
     display: inline-block;
     float: left;
 }
 
-.spec-rule-content .parameter-list {
+.spec-rule-container .spec-rule-content .parameter-list {
     width: calc(100% / 2 - 10px);
     display: inline-block;
     margin-left: 15px;

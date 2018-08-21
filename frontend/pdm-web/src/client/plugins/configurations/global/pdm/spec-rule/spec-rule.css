@@ -1,6 +1,10 @@
 .spec-rule-container {
+    padding: 10px;
     height: 100%;
     width: 100%;
+}
+.spec-rule-container .spec-rule-header{
+    padding-bottom: 10px; 
 }
 
 .spec-rule-header .fab-selector {
@@ -47,9 +51,15 @@
     padding-right: 0;
 }
 
-/* #ruleModal .modal-dialog .modal-body .parameter-list{
-    width: 100%;
-    margin-top: 20px;
-} */
-
+.spec-rule-container .fab-selector > label,
+.spec-rule-container .model-seletor > label{
+    display: inline-block;
+}
+.spec-rule-container .form-control{
+    width: 150px;
+    display: inline-block;
+}
+.spec-rule-container .btn-group > .btn-default{
+    margin-right: 5px; 
+}
 
