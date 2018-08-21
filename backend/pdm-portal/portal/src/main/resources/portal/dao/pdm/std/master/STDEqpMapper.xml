@@ -7,7 +7,8 @@
             a.description,
             a.image as binary,
             b.name as data_type,
-            a.offline_yn
+            a.offline_yn,
+            a.model_name
         from eqp_mst_pdm a left outer join code_mst_pdm b
         on a.data_type_cd = b.code
         <if test="areaId != null">
@@ -233,9 +234,9 @@
         <selectKey keyProperty="eqp_id" resultType="Long" order="BEFORE">
             select seq_eqp_mst_pdm.nextval FROM DUAL
         </selectKey>
-        insert into eqp_mst_pdm(rawid, name, description,data_type_cd, area_mst_rawid,image,offline_yn,create_by,create_dtts,update_by,update_dtts)
+        insert into eqp_mst_pdm(rawid, name, description,data_type_cd, area_mst_rawid,image,offline_yn,create_by,create_dtts,update_by,update_dtts, model_name)
         values(#{eqp_id}, #{name,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR},#{data_type_cd,jdbcType=VARCHAR}, #{area_id, jdbcType=DOUBLE}
-        ,#{binary, jdbcType=BLOB},#{offline_yn, jdbcType=VARCHAR},#{userName, jdbcType=VARCHAR},systimestamp,#{userName,jdbcType=VARCHAR},systimestamp)
+        ,#{binary, jdbcType=BLOB},#{offline_yn, jdbcType=VARCHAR},#{userName, jdbcType=VARCHAR},systimestamp,#{userName,jdbcType=VARCHAR},systimestamp, #{model_name, jdbcType=VARCHAR})
     </insert>
 
     <insert id="insertOne" databaseId="postgresql">
@@ -279,8 +280,9 @@
             area_mst_rawid = #{area_id},
             offline_yn = #{offline_yn},
             update_dtts = systimestamp,
-            update_by = #{userName}
-            <if test="image != null">
+            update_by = #{userName},
+            model_name= #{model_name}
+        <if test="image != null">
                 ,image = #{binary,jdbcType=VARCHAR}
             </if>
         where rawid = #{eqp_id}

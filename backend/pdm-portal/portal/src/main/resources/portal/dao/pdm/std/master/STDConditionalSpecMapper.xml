@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bistel.a3.portal.dao.pdm.std.master.STDConditionalSpecMapper">
+
+    <select id="selectModelList" resultType="com.bistel.a3.portal.domain.pdm.std.master.STDEqp">
+        select distinct model_name from eqp_mst_pdm
+    </select>
+
+    <select id="selectConditionsByModel" resultType="com.bistel.a3.portal.domain.pdm.std.master.STDConditionalSpec">
+        select rawid as rule_id, condition_name as rule_name, expression, expression_value ,condition
+        from conditional_spec_mst_pdm
+        where model_name= #{model}
+    </select>
+
+    <select id="selectParamSpec" resultType="com.bistel.a3.portal.domain.pdm.std.master.STDConditionalSpec">
+        select  p.rawid param_id ,m.rawid model_param_spec_mst_rawid, param_name, upper_alarm_spec, upper_warning_spec
+        from model_param_spec_mst_pdm m, conditional_spec_mst_pdm c, EQP_SPEC_LINK_MST_PDM l, param_mst_pdm p
+        where c.rawid=m.conditional_spec_mst_rawid
+        and c.rawid=l.conditional_spec_mst_rawid
+        and l.eqp_mst_rawid=p.eqp_mst_rawid
+        and c.model_name=#{model}
+        and c.condition_name=#{rule}
+    </select>
+
+    <select id="selectParamListByModelName" resultType="com.bistel.a3.portal.domain.pdm.std.master.STDConditionalSpec">
+        select  p.rawid param_id ,m.rawid model_param_spec_mst_rawid, param_name, upper_alarm_spec, upper_warning_spec
+        from model_param_spec_mst_pdm m, conditional_spec_mst_pdm c, EQP_SPEC_LINK_MST_PDM l, param_mst_pdm p
+        where c.rawid=m.conditional_spec_mst_rawid
+        and c.rawid=l.conditional_spec_mst_rawid
+        and l.eqp_mst_rawid=p.eqp_mst_rawid
+        and c.model_name=#{model}
+    </select>
+
+
+
+    <insert id="insertConditionalSpec"  databaseId="oracle">
+        insert into CONDITIONAL_SPEC_MST_PDM(rawid, model_name, condition_name, expression, condition, description, create_by, create_dtts, update_by, update_dtts, expression_value)
+        values(seq_conditional_spec_mst_pdm.nextval, #{model_name}, #{rule_name}, #{expression}, #{condition}, #{description,jdbcType=VARCHAR}, #{userName}, SYSTIMESTAMP, #{userName}, SYSTIMESTAMP)
+    </insert>
+
+
+    <update id="updateConditionalSpec" databaseId="oracle">
+        update CONDITIONAL_SPEC_MST_PDM
+        set
+        model_name=#{model_name},
+        condition_name=#{rule_name},
+        expression=#{expression},
+        condition=#{condition},
+        description = #{description,jdbcType=VARCHAR},
+        update_dtts = systimestamp,
+        update_by = #{userName}
+        where rawid = #{rule_id}
+    </update>
+
+    <select id="selectConditionalSpecRawId" resultType="com.bistel.a3.portal.domain.pdm.std.master.STDConditionalSpec">
+        select rawid as rule_id
+        from CONDITIONAL_SPEC_MST_PDM
+        where model_name=#{model_name}
+        and condition_name=#{rule_name}
+    </select>
+
+
+    <insert id="insertModelParamSpec" databaseId="oracle">
+        insert into model_param_spec_mst_pdm (rawid, conditional_spec_mst_rawid, model_name, param_name, upper_alarm_spec, upper_warning_spec, target, lower_alarm_spec, lower_warning_spec, description, create_by, create_dtts, update_by, update_dtts )
+        values(seq_model_param_spec_mst_pdm.nextval, #{rule_id},#{model_name},#{param_name},#{upper_alarm_spec}, #{upper_warning_spec}, #{target}, #{lower_alarm_spec}, #{lower_warning_spec}, #{description}, #{userName}, systimestamp, #{userName}, systimestamp )
+    </insert>
+
+    <update id="updateModelParamSpec" databaseId="oracle">
+        update CONDITIONAL_SPEC_MST_PDM
+        set
+        model_name=#{model_name},
+        param_name=#{param_name},
+        upper_alarm_spec=#{upper_alarm_spec},
+        upper_warning_spec=#{upper_warning_spec},
+        target = #{target,jdbcType=FLOAT},
+        lower_alarm_spec=#{lower_alarm_spec,jdbcType=FLOAT },
+        lower_warning_spec=#{lower_warning_spec, jdbcType=FLOAT},
+        description=#{description}
+        update_dtts = systimestamp,
+        update_by = #{userName}
+        where rawid = #{model_param_spec_mst_rawid}
+    </update>
+
+
+    <select id="selectConditionsByModelAndRule" resultType="com.bistel.a3.portal.domain.pdm.std.master.STDConditionalSpec">
+        select c.rawid rule_id, c.condition_name rule_name, c.condition, c.expression, c.expression_value,p.rawid as param_id, m.param_name, m.upper_alarm_spec, m.upper_warning_spec
+        from model_param_spec_mst_pdm m, conditional_spec_mst_pdm c, EQP_SPEC_LINK_MST_PDM l, param_mst_pdm p
+        where c.rawid=m.conditional_spec_mst_rawid
+        and c.rawid=l.conditional_spec_mst_rawid
+        and l.eqp_mst_rawid=p.eqp_mst_rawid
+        and c.model_name=#{model}
+        and c.condition_name=#{rule}
+    </select>
+
+    <select id="selectConditionsByEqpId" resultType="com.bistel.a3.portal.domain.pdm.std.master.STDConditionalSpec">
+        select c.rawid as rule_id, c.condition_name as rule_name, c.condition , c.expression, c.expression_value ,s.ordering, s.use_yn
+        from eqp_mst_pdm e, eqp_spec_link_mst_pdm s, CONDITIONAL_SPEC_MST_PDM c
+        where e.rawid=s.eqp_mst_rawid
+        and c.rawid=s.CONDITIONAL_SPEC_MST_RAWID
+        and e.rawid=#{eqpId}
+
+    </select>
+
+
+    <select id="selectParamSpecByeqpIdAndRule" resultType="com.bistel.a3.portal.domain.pdm.std.master.STDConditionalSpec">
+        select p.rawid as param_id, p.name as param_name, s.spec_type, s.upper_alarm_spec, s.upper_warning_spec, s.use_yn
+        from eqp_mst_pdm e, eqp_spec_link_mst_pdm l, CONDITIONAL_SPEC_MST_PDM c, param_spec_mst_pdm s, param_mst_pdm p
+        where e.rawid=l.eqp_mst_rawid
+        and c.rawid=l.CONDITIONAL_SPEC_MST_RAWID
+        and l.rawid=s.eqp_spec_link_mst_rawid
+        and p.rawid=s.param_mst_rawid
+        and e.rawid=#{eqpId}
+        and c.condition_name=#{rule}
+    </select>
+
+
+
+
+
+
+
+
+
+
+</mapper>

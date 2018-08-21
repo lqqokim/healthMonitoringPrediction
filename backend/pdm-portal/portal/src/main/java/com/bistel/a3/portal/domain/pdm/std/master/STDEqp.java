@@ -12,6 +12,24 @@ public class STDEqp {
     private String user_name;
     private String area_name;
     private String data_type_name;
+    private String offline_yn;
+    private String model_name;
+
+    public String getOffline_yn() {
+        return offline_yn;
+    }
+
+    public void setOffline_yn(String offline_yn) {
+        this.offline_yn = offline_yn;
+    }
+
+    public String getModel_name() {
+        return model_name;
+    }
+
+    public void setModel_name(String model_name) {
+        this.model_name = model_name;
+    }
 
     public String getArea_name() {
         return area_name;

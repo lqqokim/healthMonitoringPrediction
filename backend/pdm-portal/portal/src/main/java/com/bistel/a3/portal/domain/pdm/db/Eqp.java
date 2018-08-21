@@ -18,6 +18,15 @@ public class Eqp {
     private String data_type_cd;
     private String userName;
     private String offline_yn;
+    private String model_name;
+
+    public String getModel_name() {
+        return model_name;
+    }
+
+    public void setModel_name(String model_name) {
+        this.model_name = model_name;
+    }
 
     public String getOffline_yn() {
         return offline_yn;

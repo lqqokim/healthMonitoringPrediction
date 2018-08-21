@@ -10,11 +10,17 @@ import com.bistel.a3.portal.domain.pdm.master.AreaWithChildren;
 import com.bistel.a3.portal.domain.pdm.master.EqpWithEtc;
 import com.bistel.a3.portal.domain.pdm.master.ParamWithCommonWithRpm;
 import com.bistel.a3.portal.domain.pdm.master.PartWithParam;
+import com.bistel.a3.portal.domain.pdm.std.master.STDConditionalSpec;
+import com.bistel.a3.portal.domain.pdm.std.master.STDEqp;
 import com.bistel.a3.portal.domain.pdm.std.master.STDParamHealth;
 import com.bistel.a3.portal.service.pdm.IMasterService;
 import com.bistel.a3.portal.util.ApacheHttpClientGet;
 import com.bistel.a3.portal.util.SqlSessionUtil;
 import com.bistel.a3.portal.util.TransactionUtil;
+
+import net.bitnine.agensgraph.deps.org.json.simple.JSONObject;
+import net.bitnine.agensgraph.deps.org.json.simple.parser.JSONParser;
+import org.codehaus.jackson.map.util.JSONPObject;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
@@ -22,6 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -70,6 +77,7 @@ public class MasterService implements IMasterService {
         STDAreaMapper mapper = SqlSessionUtil.getMapper(sessions, fabId, STDAreaMapper.class);
         return mapper.selectOne(areaId);
     }
+
     public void setArea(String fabId, Area area) {
         STDAreaMapper mapper = SqlSessionUtil.getMapper(sessions, fabId, STDAreaMapper.class);
         if(area.getArea_id() == null) {
@@ -619,6 +627,196 @@ public class MasterService implements IMasterService {
     public List<EqpEvent> getEqpEventAll(String fabId) {
         STDEventMapper mapper = SqlSessionUtil.getMapper(sessions, fabId, STDEventMapper.class);
         return mapper.selectAll();
+    }
+
+
+    //*********************************************
+    //      Conditional Spec Model Management
+    //*********************************************
+    @Override
+    public List<STDEqp> getModels(String fabId) {
+
+        STDConditionalSpecMapper conditionalSpecMapper=SqlSessionUtil.getMapper(sessions, fabId, STDConditionalSpecMapper.class);
+
+        return conditionalSpecMapper.selectModelList();
+    }
+
+    @Override
+    public List<STDConditionalSpec> getConditionsByModel(String fabId, String model) {
+
+        STDConditionalSpecMapper conditionalSpecMapper=SqlSessionUtil.getMapper(sessions, fabId, STDConditionalSpecMapper.class);
+
+        List<STDConditionalSpec> conditionsList=conditionalSpecMapper.selectConditionsByModel(model);
+
+
+//        STDConditionalSpec conditionalSpec=new STDConditionalSpec();
+
+//        JSONParser jsonParser=null;
+//
+//        String condition=null;
+//        for(int i=0; i<conditionsList.size(); i++){
+//            condition=conditionsList.get(i).getCondition();
+//            condition="{\"condition\":[{\"param_name\":\"ADP Speed\", \"operand\":\">=\", \"param_value\":50},{\"param_name\":\"Roots1 W\", \"operand\":\">\", \"param_value\":1000}]}";
+//            condition="[{param_name:\"ADP Speed\", operand:\">=\", param_value:50},{param_name:\"Roots1 W\", operand:\">\", param_value:1000}]";
+
+//            condition="{\"param_name\":\"ADP Speed\", \"operand\":\">=\", \"param_value\":50},{\"param_name\":\"Roots1 W\", \"operand\":\">\", \"param_value\":1000}";
+//            String[] conditionArray=condition.split("}");
+//
+//            jsonParser=new JSONParser();
+//            try {
+//                JSONObject jsonObject=(JSONObject) jsonParser.parse(condition);
+//
+//                conditionsList.get(i).setConditionsJSON(jsonObject);
+//            } catch (net.bitnine.agensgraph.deps.org.json.simple.parser.ParseException e) {
+//                e.printStackTrace();
+//            }
+//            System.out.println("Hi");
+//        }
+
+//        String expression=null;
+//        String expressionValue=null;
+//        for(int i=0; i<conditionsList.size(); i++){
+//            expression=conditionsList.get(i).getExpression();
+//            expressionValue=conditionsList.get(i).getExpression_value();
+//            String[] expressionValueArray=expressionValue.split(",");
+//            int expressionArguSize=expressionValueArray.length;
+//
+//            for (int j = 0; j < expressionArguSize; j++) {
+//                int idx=expression.indexOf("p"+i);
+//            }
+//
+//        }
+
+        String expressionValue=null;
+        for (int i = 0; i < conditionsList.size(); i++) {
+
+            expressionValue=conditionsList.get(i).getExpression_value();
+            conditionsList.get(i).setExpression_values(expressionValue.split(","));
+
+        }
+
+        return conditionsList;
+    }
+
+    @Override
+    public List<STDConditionalSpec> getSpecByRule(String fabId, String model, String rule) {
+
+        STDConditionalSpecMapper conditionalSpecMapper=SqlSessionUtil.getMapper(sessions, fabId, STDConditionalSpecMapper.class);
+
+        return conditionalSpecMapper.selectParamSpec(model, rule);
+    }
+
+    @Override
+    public List<STDConditionalSpec> getConditionsByModelAndRule(String fabId, String model, String rule) {
+
+        STDConditionalSpecMapper conditionalSpecMapper=SqlSessionUtil.getMapper(sessions, fabId, STDConditionalSpecMapper.class);
+
+        return conditionalSpecMapper.selectConditionsByModelAndRule(model, rule);
+
+    }
+
+
+    //*********************************************
+    //      Conditional Spec Model Management
+    //*********************************************
+
+    @Override
+    public List<STDConditionalSpec> getConditionsByEqpId(String fabId, Long eqpId) {
+
+        STDConditionalSpecMapper conditionalSpecMapper=SqlSessionUtil.getMapper(sessions, fabId, STDConditionalSpecMapper.class);
+
+        return conditionalSpecMapper.selectConditionsByEqpId(eqpId);
+
+    }
+
+    @Override
+    public List<STDConditionalSpec> getSpecByEqpIdAndRule(String fabId, Long eqpId, String rule) {
+
+        STDConditionalSpecMapper conditionalSpecMapper=SqlSessionUtil.getMapper(sessions, fabId, STDConditionalSpecMapper.class);
+
+        return conditionalSpecMapper.selectParamSpecByeqpIdAndRule(eqpId, rule);
+
+    }
+
+    @Override
+    public List<STDConditionalSpec> getAllParametersByModel(String fabId, String model) {
+        STDConditionalSpecMapper conditionalSpecMapper=SqlSessionUtil.getMapper(sessions, fabId, STDConditionalSpecMapper.class);
+
+        return conditionalSpecMapper.selectParamListByModelName(model);
+    }
+
+    @Override
+    public List<STDConditionalSpec> setModel(String fabId, STDConditionalSpec model) {
+
+        STDConditionalSpecMapper conditionalSpecMapper=SqlSessionUtil.getMapper(sessions, fabId, STDConditionalSpecMapper.class);
+
+        String userName=model.getUserName();
+        Long ruleId=model.getRule_id();
+        String modelName=model.getModel_name();
+        String ruleName=model.getRule_name();
+        String condition=model.getCondition();
+        String expression=model.getExpression();
+        String description=model.getDescription();
+
+        List<STDConditionalSpec> parameter=model.getParameter();
+        Long param_id=null;
+        String param_name=null;
+        Double upper_alarm_spec=null;
+        Double upper_warning_spec=null;
+        Double target=null;
+        Double lower_alarm_spec=null;
+        Double lower_warning_spec=null;
+        String paramDescription=null;
+        Long model_param_spec_mst_rawid=null;
+
+        if(ruleId==null){
+            //create
+            //expression분리 해야댐
+            conditionalSpecMapper.insertConditionalSpec(modelName,ruleName,expression,condition,description,userName);
+
+            ruleId=conditionalSpecMapper.selectConditionalSpecRawId(modelName,ruleName);
+
+            for (int i = 0; i < parameter.size(); i++) {
+                param_name=parameter.get(i).getParam_name();
+                param_id=parameter.get(i).getParam_id();
+                upper_alarm_spec=parameter.get(i).getUpper_alarm_spec();
+                upper_warning_spec=parameter.get(i).getUpper_warning_spec();
+                target=parameter.get(i).getTarget();
+                lower_alarm_spec=parameter.get(i).getLower_alarm_spec();
+                lower_warning_spec=parameter.get(i).getLower_warning_spec();
+                paramDescription=parameter.get(i).getDescription();
+
+                conditionalSpecMapper.insertModelParamSpec(ruleId, modelName, param_name,upper_alarm_spec, upper_warning_spec,target,
+                        lower_alarm_spec,lower_warning_spec, paramDescription,userName);
+
+            }
+
+        }
+        else{
+            //update
+            conditionalSpecMapper.updateConditionalSpec(ruleId,modelName,ruleName,expression,condition,description,userName);
+
+            for (int i = 0; i < parameter.size(); i++) {
+
+
+                model_param_spec_mst_rawid=parameter.get(i).getModel_param_spec_mst_rawid();
+                param_name=parameter.get(i).getParam_name();
+                param_id=parameter.get(i).getParam_id();
+                upper_alarm_spec=parameter.get(i).getUpper_alarm_spec();
+                upper_warning_spec=parameter.get(i).getUpper_warning_spec();
+                target=parameter.get(i).getTarget();
+                lower_alarm_spec=parameter.get(i).getLower_alarm_spec();
+                lower_warning_spec=parameter.get(i).getLower_warning_spec();
+                paramDescription=parameter.get(i).getDescription();
+
+                conditionalSpecMapper.updateModelParamSpec(modelName,param_name,upper_alarm_spec,upper_warning_spec,target,lower_alarm_spec,lower_warning_spec, paramDescription, userName, model_param_spec_mst_rawid);
+
+
+            }
+
+        }
+
+        return null;
     }
 
 

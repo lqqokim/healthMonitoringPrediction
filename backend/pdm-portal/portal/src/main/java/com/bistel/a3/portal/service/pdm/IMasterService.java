@@ -7,6 +7,8 @@ import com.bistel.a3.portal.domain.pdm.master.AreaWithChildren;
 import com.bistel.a3.portal.domain.pdm.master.EqpWithEtc;
 import com.bistel.a3.portal.domain.pdm.master.ParamWithCommonWithRpm;
 import com.bistel.a3.portal.domain.pdm.master.PartWithParam;
+import com.bistel.a3.portal.domain.pdm.std.master.STDConditionalSpec;
+import com.bistel.a3.portal.domain.pdm.std.master.STDEqp;
 
 import java.util.List;
 
@@ -101,5 +103,29 @@ public interface IMasterService {
     void setEpqEvent(String fabId,EqpEvent eqpEvent);
     List<EqpEvent> getEqpEvents(String fabId,Long eqpId);
     List<EqpEvent> getEqpEventAll(String fabId);
+
+
+    //***************************************************
+    //   Conditional Spec Model Management
+    //***************************************************
+    List<STDEqp> getModels(String fabId);
+
+    List<STDConditionalSpec> getConditionsByModel(String fabId, String model);
+
+    List<STDConditionalSpec> getSpecByRule(String fabId, String model, String rule);
+
+    List<STDConditionalSpec> getConditionsByModelAndRule(String fabId, String model, String rule);
+
+    //*********************************************
+    //      Conditional Spec EQP Management
+    //*********************************************
+
+    List<STDConditionalSpec> getConditionsByEqpId(String fabId, Long eqpId);
+
+    List<STDConditionalSpec> getSpecByEqpIdAndRule(String fabId, Long eqpId, String rule);
+
+    List<STDConditionalSpec> getAllParametersByModel(String fabId, String model);
+
+    List<STDConditionalSpec> setModel(String fabId, STDConditionalSpec model);
 
 }

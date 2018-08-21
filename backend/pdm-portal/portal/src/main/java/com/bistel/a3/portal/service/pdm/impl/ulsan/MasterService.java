@@ -7,6 +7,8 @@ import com.bistel.a3.portal.domain.common.Code;
 import com.bistel.a3.portal.domain.pdm.EqpWithArea;
 import com.bistel.a3.portal.domain.pdm.db.*;
 import com.bistel.a3.portal.domain.pdm.master.*;
+import com.bistel.a3.portal.domain.pdm.std.master.STDConditionalSpec;
+import com.bistel.a3.portal.domain.pdm.std.master.STDEqp;
 import com.bistel.a3.portal.service.pdm.IMasterService;
 import com.bistel.a3.portal.util.SqlSessionUtil;
 import com.bistel.a3.portal.util.TransactionUtil;
@@ -397,6 +399,47 @@ public class MasterService implements IMasterService {
     public List<EqpEvent> getEqpEventAll(String fabId) {
         return null;
     }
+
+    @Override
+    public List<STDEqp> getModels(String fabId) {
+        return null;
+    }
+
+    @Override
+    public List<STDConditionalSpec> getConditionsByModel(String fabId, String model) {
+        return null;
+    }
+
+    @Override
+    public List<STDConditionalSpec> getSpecByRule(String fabId, String model, String rule) {
+        return null;
+    }
+
+    @Override
+    public List<STDConditionalSpec> getConditionsByModelAndRule(String fabId, String model, String rule) {
+        return null;
+    }
+
+    @Override
+    public List<STDConditionalSpec> getConditionsByEqpId(String fabId, Long eqpId) {
+        return null;
+    }
+
+    @Override
+    public List<STDConditionalSpec> getSpecByEqpIdAndRule(String fabId, Long eqpId, String rule) {
+        return null;
+    }
+
+    @Override
+    public List<STDConditionalSpec> getAllParametersByModel(String fabId, String model) {
+        return null;
+    }
+
+    @Override
+    public List<STDConditionalSpec> setModel(String fabId, STDConditionalSpec model) {
+        return null;
+    }
+
 
     @Override
     public void eqpCopy(String userName,String fabId, Long fromEqpId, List<String> toEqpNames) {
