@@ -52,6 +52,7 @@ public class PrepareDataProcessor extends AbstractProcessor<String, byte[]> {
             // filter by master
             if (MasterCache.Equipment.get(partitionKey) == null) {
                 log.debug("[{}] - Not existed.", partitionKey);
+                context().commit();
                 return;
             }
 
@@ -71,8 +72,6 @@ public class PrepareDataProcessor extends AbstractProcessor<String, byte[]> {
                         recordValue = recordValue + "," + statusContext;
                         context().forward(partitionKey, recordValue.getBytes());
                         context().commit();
-
-                        log.trace("[{}] - out msg time : {}", partitionKey, recordColumns[0]);
                         break;
                     }
                 }

@@ -20,14 +20,17 @@ public class ConditionSpecFunction {
     public static String evaluateCondition(String partitionKey, String[] record)
             throws ExecutionException {
 
-        String conditionName = "DEFAULT";
+        String conditionName = "";
         RuleVariables ruleVariables = new RuleVariables();
 
         List<ConditionalSpecMaster> eqpConditions = MasterCache.EquipmentCondition.get(partitionKey);
         Map<String, Integer> exprMap = MasterCache.ExprParameter.get(partitionKey);
 
         for (ConditionalSpecMaster cs : eqpConditions) {
-            if(cs.getConditionName().equalsIgnoreCase("DEFAULT")) break;
+            if(cs.getExpression() == null || cs.getExpression().length() <= 0) {
+                conditionName = "DEFAULT";
+                break;
+            }
 
             String[] params = cs.getExpressionValue().split(",");
             for (int i = 1; i <= params.length; i++) {

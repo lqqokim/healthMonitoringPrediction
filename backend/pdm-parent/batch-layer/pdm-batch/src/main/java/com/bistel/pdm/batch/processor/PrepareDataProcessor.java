@@ -52,6 +52,7 @@ public class PrepareDataProcessor extends AbstractProcessor<String, byte[]> {
             // filter by master
             if (MasterCache.Equipment.get(partitionKey) == null) {
                 log.debug("[{}] - Not existed.", partitionKey);
+                context().commit();
                 return;
             }
 
@@ -59,7 +60,6 @@ public class PrepareDataProcessor extends AbstractProcessor<String, byte[]> {
 
             List<EventMaster> eventList = MasterCache.Event.get(partitionKey);
             if (eventList != null && eventList.size() > 0) {
-
                 for (EventMaster event : eventList) {
                     // for process interval
                     if (event.getProcessYN().equalsIgnoreCase("Y")) {

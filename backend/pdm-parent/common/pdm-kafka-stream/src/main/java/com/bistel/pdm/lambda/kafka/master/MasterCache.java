@@ -99,41 +99,41 @@ public class MasterCache {
                 }
             });
 
-//    public static LoadingCache<String, List<ParameterMaster>> Parameter = CacheBuilder.newBuilder()
-//            .maximumSize(100000)
-//            .expireAfterAccess(24, TimeUnit.HOURS)
-//            .build(new CacheLoader<String, List<ParameterMaster>>() {
-//                @Override
-//                public List<ParameterMaster> load(String key) throws IOException {
-//                    String targetUrl = ServingAddress + "/pdm/api/master/latest/param/" + key + "";
-//
-//                    List<ParameterMaster> masterDataList = new ArrayList<>();
-//
-//                    ResteasyClient client = new ResteasyClientBuilder().build();
-//                    Response response = client.target(targetUrl).request().get();
-//                    String body = response.readEntity(String.class);
-//
-//                    try {
-//                        ObjectMapper mapper = new ObjectMapper();
-//
-//                        if (body.length() <= 0) {
-//                            log.info("parameter master data does not exists. message: " + body);
-//                        } else {
-//                            masterDataList = mapper.readValue(body, new TypeReference<List<ParameterMaster>>() {
-//                            });
-//
-//                            log.info("{} - parameter are reloaded.", key);
-//                        }
-//                    } catch (IOException e) {
-//                        log.error(e.getMessage(), e);
-//                    } finally {
-//                        response.close();
-//                        client.close();
-//                    }
-//
-//                    return masterDataList;
-//                }
-//            });
+    public static LoadingCache<String, List<ParameterMaster>> Parameter = CacheBuilder.newBuilder()
+            .maximumSize(100000)
+            .expireAfterAccess(24, TimeUnit.HOURS)
+            .build(new CacheLoader<String, List<ParameterMaster>>() {
+                @Override
+                public List<ParameterMaster> load(String key) throws IOException {
+                    String targetUrl = ServingAddress + "/pdm/api/master/latest/param/" + key + "";
+
+                    List<ParameterMaster> masterDataList = new ArrayList<>();
+
+                    ResteasyClient client = new ResteasyClientBuilder().build();
+                    Response response = client.target(targetUrl).request().get();
+                    String body = response.readEntity(String.class);
+
+                    try {
+                        ObjectMapper mapper = new ObjectMapper();
+
+                        if (body.length() <= 0) {
+                            log.info("parameter master data does not exists. message: " + body);
+                        } else {
+                            masterDataList = mapper.readValue(body, new TypeReference<List<ParameterMaster>>() {
+                            });
+
+                            log.info("{} - parameter are reloaded.", key);
+                        }
+                    } catch (IOException e) {
+                        log.error(e.getMessage(), e);
+                    } finally {
+                        response.close();
+                        client.close();
+                    }
+
+                    return masterDataList;
+                }
+            });
 
     public static LoadingCache<String, List<ParameterWithSpecMaster>> ParameterWithSpec = CacheBuilder.newBuilder()
             .maximumSize(100000)

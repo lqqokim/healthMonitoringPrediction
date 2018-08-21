@@ -24,8 +24,10 @@ public class FilterByMasterProcessor extends AbstractProcessor<String, byte[]> {
                 log.info("[{}] - Not existed.", partitionKey);
             } else {
                 context().forward(partitionKey, streamByteRecord);
-                context().commit();
             }
+
+            context().commit();
+
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
