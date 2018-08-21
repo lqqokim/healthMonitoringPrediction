@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
 /**
  *
@@ -17,32 +16,36 @@ import java.util.concurrent.ExecutionException;
 public class ConditionSpecFunction {
     private static final Logger log = LoggerFactory.getLogger(ConditionSpecFunction.class);
 
-    public static String evaluateCondition(String partitionKey, String[] record)
-            throws ExecutionException {
+    public static String evaluateCondition(String partitionKey, String[] record) {
 
         String conditionName = "";
-        RuleVariables ruleVariables = new RuleVariables();
 
-        List<ConditionalSpecMaster> eqpConditions = MasterCache.EquipmentCondition.get(partitionKey);
-        Map<String, Integer> exprMap = MasterCache.ExprParameter.get(partitionKey);
+        try {
+            RuleVariables ruleVariables = new RuleVariables();
 
-        for (ConditionalSpecMaster cs : eqpConditions) {
-            if(cs.getExpression() == null || cs.getExpression().length() <= 0) {
-                conditionName = "DEFAULT";
-                break;
+            List<ConditionalSpecMaster> eqpConditions = MasterCache.EquipmentCondition.get(partitionKey);
+            Map<String, Integer> exprMap = MasterCache.ExprParameter.get(partitionKey);
+
+            for (ConditionalSpecMaster cs : eqpConditions) {
+                if(cs.getExpression() == null || cs.getExpression().length() <= 0) {
+                    conditionName = "DEFAULT";
+                    break;
+                }
+
+                String[] params = cs.getExpressionValue().split(",");
+                for (int i = 1; i <= params.length; i++) {
+                    Integer index = exprMap.get(params[i - 1]);
+                    ruleVariables.putValue("p" + i, Double.parseDouble(record[index]));
+                }
+
+                RuleEvaluator ruleEvaluator = new RuleEvaluator(ruleVariables);
+                if (ruleEvaluator.evaluate(cs.getExpression())) {
+                    conditionName = cs.getConditionName();
+                    break;
+                }
             }
-
-            String[] params = cs.getExpressionValue().split(",");
-            for (int i = 1; i <= params.length; i++) {
-                Integer index = exprMap.get(params[i - 1]);
-                ruleVariables.putValue("p" + i, Double.parseDouble(record[index]));
-            }
-
-            RuleEvaluator ruleEvaluator = new RuleEvaluator(ruleVariables);
-            if (ruleEvaluator.evaluate(cs.getExpression())) {
-                conditionName = cs.getConditionName();
-                break;
-            }
+        } catch (Exception e){
+            log.error(e.getMessage(), e);
         }
 
         return conditionName;
