@@ -8,10 +8,15 @@
     EQP List</span>
 
 <div class="master-info-path-bottom">
-    <wj-flex-grid #WijmoGridInstance [itemsSource]="eqpDatas" [selectionMode]="'Row'" [isReadOnly]="true" [headersVisibility]="'Column'"
+    <wj-flex-grid #WijmoGridInstance 
+        [itemsSource]="eqpDatas" 
+        [selectionMode]="'Row'" 
+        [isReadOnly]="true" 
+        [headersVisibility]="'Column'"
         (selectionChanged)="selectedRow(WijmoGridInstance, $event)">
-        <wj-flex-grid-column [width]="'*'" [header]="'Name'" [binding]="'eqpName'" [align]="'center'"></wj-flex-grid-column>
         <wj-flex-grid-column [width]="'*'" [header]="'Area'" [binding]="'areaName'" [align]="'center'"></wj-flex-grid-column>
+        <wj-flex-grid-column [width]="'*'" [header]="'Name'" [binding]="'eqpName'" [align]="'center'"></wj-flex-grid-column>
+        <wj-flex-grid-column [width]="'*'" [header]="'Model'" [binding]="'model_name'" [align]="'center'"></wj-flex-grid-column>
         <wj-flex-grid-column [width]="'0.3*'" [header]="'Image'" [binding]="'image'" [align]="'center'">
             <ng-template wjFlexGridCellTemplate [cellType]="'Cell'" let-row="row" let-item="item">
                 <!-- <button (click)="imageRegister($evnet)" [disabled]="!item.image">
@@ -53,8 +58,22 @@
                                         EQP Name is required!
                                     </div>
                                 </div>
-
                             </div>
+
+                            <div class="form-group a3-input-group">
+                                <label class="control-label">Model Name
+                                    <span class="a3-asterisk">*</span>
+                                </label>
+                                
+                                <input type="checkbox" (click)="isDirectInput = !isDirectInput; changeDirectInput(isDirectInput, eqpData.model_name);" [checked]="isDirectInput"/>Direct Input
+                                
+                                <select *ngIf="!isDirectInput" class="form-control" [(ngModel)]="eqpData.model_name" name="modelSelect" required #modelSelect="ngModel">
+                                    <option *ngFor="let model of models" [ngValue]="model.model_name">{{model.model_name}}</option>
+                                </select>
+    
+                                <input *ngIf="isDirectInput" type="text" class="form-control" [(ngModel)]="eqpData.model_name" name="eqpModel" required #eqpModel="ngModel">
+                            </div>
+
                             <div class="form-group a3-input-group">
                                 <label class="control-label">Description</label>
                                 <input type="text" class="form-control" [(ngModel)]="eqpData.description" name="description">

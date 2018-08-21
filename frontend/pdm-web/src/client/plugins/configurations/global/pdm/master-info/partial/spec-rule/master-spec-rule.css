@@ -2,15 +2,15 @@
     height: 100%;
     width: 100%;
 }
-.spec-rule-container .spec-rule-header{
+/* .spec-rule-container .spec-rule-header{
     padding-bottom: 8px;
-}
-.spec-rule-container .spec-rule-header .btn-group{
+} */
+/* .spec-rule-container .spec-rule-header .btn-group{
     padding-right: 8px;
-}
-.spec-rule-container .spec-rule-header .btn-default{
+} */
+/* .spec-rule-container .spec-rule-header .btn-default{
     margin-left: 5px;
-}
+} */
 .spec-rule-container .spec-rule-header .fab-selector {
     width:200px;
     display: inline-block;
@@ -26,15 +26,18 @@
     display: inline-block;
     float: left;
 }
+.spec-rule-container .spec-rule-content .rule-list .btn-group,
+.spec-rule-container .spec-rule-content .parameter-list .btn-group {
+    padding-bottom: 8px;
+}
+.spec-rule-container .spec-rule-content .rule-list .btn-group .btn-default {
+    margin-left: 8px;
+}
 
 .spec-rule-container .spec-rule-content .parameter-list {
     width: calc(100% / 2 - 10px);
     display: inline-block;
     margin-left: 15px;
-}
-
-.modal-body.spec-rule-modal-body .condition {
-    
 }
 
 .modal-body.spec-rule-modal-body .condition table{

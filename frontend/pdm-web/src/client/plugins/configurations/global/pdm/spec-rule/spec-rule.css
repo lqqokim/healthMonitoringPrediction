@@ -51,6 +51,11 @@
     padding-right: 0;
 }
 
+.modal-body.spec-rule-modal-body .parameter-list wj-flex-grid {
+    width: 100%;
+    height: 300px;
+}
+
 .spec-rule-container .fab-selector > label,
 .spec-rule-container .model-seletor > label{
     display: inline-block;

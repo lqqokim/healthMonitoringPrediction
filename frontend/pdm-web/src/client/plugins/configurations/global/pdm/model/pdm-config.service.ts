@@ -290,10 +290,16 @@ export class PdmConfigService extends ModelCommonService {
         });
     }
 
-    getParamsByModelRule(fabId: number, model: string, ruleId: number): Promise<any> {
+    getParamsByModelRule(fabId: number, model: string, ruleId: any): Promise<any> {
         return this.GET({
             uriPath: `pdm/fabs/${fabId}/models/${model}/specs/${ruleId}`
         });
+    }
+
+    getAllParamsByModel(fabId: number, model: string): Promise<any> {
+        return this.GET({
+            uriPath: `service/pdm/fabs/${fabId}/models/${model}/paramList`
+        })
     }
 
     getModelRulesAndParams(fabId: number, model: string, ruleId: number): Promise<any> {

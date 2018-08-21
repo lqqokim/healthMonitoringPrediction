@@ -9,15 +9,15 @@
 <div class="master-info-path-top">
   <wj-flex-grid #WijmoGridInstance [itemsSource]="paramDatas" [allowDragging]="'None'" [isReadOnly]="true" [selectionMode]="'Row'"
     [headersVisibility]="'Column'" (selectionChanged)="selectedRow(WijmoGridInstance, $event)">
-    <wj-flex-grid-column [width]="'*'" [header]="'Name'" [binding]="'paramName'" [align]="'center'"></wj-flex-grid-column>
     <wj-flex-grid-column [width]="'*'" [header]="'EQP'" [binding]="'eqpName'" [align]="'center'"></wj-flex-grid-column>
+    <wj-flex-grid-column [width]="'*'" [header]="'Name'" [binding]="'paramName'" [align]="'center'"></wj-flex-grid-column>
     <wj-flex-grid-column [width]="'*'" [header]="'Parameter Type'" [binding]="'param_type_name'" [align]="'center'"></wj-flex-grid-column>
     <wj-flex-grid-column [width]="'*'" [header]="'Parts'" [binding]="'parts_name'" [align]="'center'"></wj-flex-grid-column>
     <wj-flex-grid-column [width]="'*'" [header]="'Unit'" [binding]="'unit_name'" [align]="'center'"></wj-flex-grid-column>
     <!-- <wj-flex-grid-column [width]="'*'" [header]="'EU Type'" [binding]="'euType'" [align]="'center'"></wj-flex-grid-column> -->
     <!-- <wj-flex-grid-column [width]="'*'" [header]="'RPM'" [binding]="'rpm'" [align]="'center'"></wj-flex-grid-column> -->
-    <wj-flex-grid-column [width]="'*'" [header]="'Alarm'" [binding]="'alarm'" [align]="'center'"></wj-flex-grid-column>
-    <wj-flex-grid-column [width]="'*'" [header]="'Warning'" [binding]="'warning'" [align]="'center'"></wj-flex-grid-column>
+    <!-- <wj-flex-grid-column [width]="'*'" [header]="'Alarm'" [binding]="'alarm'" [align]="'center'"></wj-flex-grid-column>
+    <wj-flex-grid-column [width]="'*'" [header]="'Warning'" [binding]="'warning'" [align]="'center'"></wj-flex-grid-column> -->
   </wj-flex-grid>
 </div>
 
