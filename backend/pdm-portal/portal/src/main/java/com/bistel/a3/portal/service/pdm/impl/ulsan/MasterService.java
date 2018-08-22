@@ -445,6 +445,11 @@ public class MasterService implements IMasterService {
 
     }
 
+    @Override
+    public void setEqpRule(String fabId, Long eqpId ,List<STDConditionalSpec> eqpRuleList) {
+
+    }
+
 
     @Override
     public void eqpCopy(String userName,String fabId, Long fromEqpId, List<String> toEqpNames) {

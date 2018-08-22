@@ -90,6 +90,13 @@
         values(seq_model_param_spec_mst_pdm.nextval, #{rule_id},#{model_name},#{param_name},#{upper_alarm_spec,jdbcType=FLOAT}, #{upper_warning_spec,jdbcType=FLOAT}, #{target,jdbcType=FLOAT}, #{lower_alarm_spec,jdbcType=FLOAT}, #{lower_warning_spec,jdbcType=FLOAT}, #{description,jdbcType=VARCHAR}, #{userName}, systimestamp, #{userName}, systimestamp )
     </insert>
 
+    <select id="selectCheckModelParam" resultType="Long">
+        select count(1)
+        from model_param_spec_mst_pdm
+        where conditional_spec_mst_rawid=#{rule_id}
+        and param_name=#{param_name}
+    </select>
+
     <update id="updateModelParamSpec" databaseId="oracle">
         update model_param_spec_mst_pdm
         set
@@ -131,7 +138,7 @@
 
     <select id="selectConditionsByEqpId" resultType="com.bistel.a3.portal.domain.pdm.std.master.STDConditionalSpec">
         SELECT * FROM (
-        select MODEL_SPEC.RAWID RULE_ID, MODEL_SPEC.MODEL_NAME,MODEL_SPEC.CONDITION,MODEL_SPEC.CONDITION_NAME
+        select MODEL_SPEC.RAWID RULE_ID,MODEL_SPEC.CONDITION_NAME AS RULE_NAME, MODEL_SPEC.MODEL_NAME,MODEL_SPEC.CONDITION,MODEL_SPEC.CONDITION_NAME
         from CONDITIONAL_SPEC_MST_PDM MODEL_SPEC
         where model_name=
         (
@@ -149,6 +156,19 @@
 
     </select>
 
+
+
+    <insert id="insertEqpSpecLink" databaseId="oracle">
+        insert into eqp_spec_link_mst_pdm(rawid, eqp_mst_rawid, conditional_spec_mst_rawid, ordering, use_yn, description, create_by, create_dtts, update_by, update_dtts)
+        values(seq_eqp_spec_link_mst_pdm.nextval, #{eqp_id}, #{rule_id}, #{ordering,jdbcType=NUMERIC}, #{use_yn,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, #{userName}, systimestamp, #{userName}, systimestamp)
+    </insert>
+
+    <delete id="deleteEqpSpecLink" databaseId="oracle">
+        delete
+        from eqp_spec_link_mst_pdm
+        where eqp_mst_rawid= #{eqp_id}
+        and conditional_spec_mst_rawid =#{rule_id}
+    </delete>
 
     <select id="selectParamSpecByeqpIdAndRule" resultType="com.bistel.a3.portal.domain.pdm.std.master.STDConditionalSpec">
         select p.rawid as param_id, p.name as param_name, s.spec_type, s.upper_alarm_spec, s.upper_warning_spec, s.use_yn

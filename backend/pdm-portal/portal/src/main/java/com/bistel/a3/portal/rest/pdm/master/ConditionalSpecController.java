@@ -81,10 +81,12 @@ public class ConditionalSpecController {
     }
 
     @RequestMapping(value="eqps/{eqpId}/setEqpRule", method = RequestMethod.PUT)
-    public void setEqpRule(Principal user, @PathVariable String fabId, @RequestBody STDConditionalSpec eqpRuleList) {
+    public void setEqpRule(Principal user, @PathVariable String fabId, @PathVariable Long eqpId,  @RequestBody List<STDConditionalSpec> eqpRuleList) {
 
-        eqpRuleList.setUserName(user.getName());
-        service.setModel(fabId, eqpRuleList);
+        for (int i = 0; i < eqpRuleList.size(); i++) {
+            eqpRuleList.get(i).setUserName(user.getName());
+        }
+        service.setEqpRule(fabId, eqpId,eqpRuleList);
 
     }
 

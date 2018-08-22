@@ -18,7 +18,7 @@ public class STDConditionalSpec {
     private String expression_value;
     private String[] expression_values;
     private String description;
-    private Integer ordering;
+    private Long ordering;
 
     private Long param_id;
     private String param_name;
@@ -32,9 +32,18 @@ public class STDConditionalSpec {
     private boolean used_yn;
 
     private String userName;
+    private Long eqp_id;
 
     List<STDConditionalSpec> parameter;
 
+
+    public Long getEqp_id() {
+        return eqp_id;
+    }
+
+    public void setEqp_id(Long eqp_id) {
+        this.eqp_id = eqp_id;
+    }
 
     public Long getEqp_spec_link_mst_rawid() {
         return eqp_spec_link_mst_rawid;
@@ -52,11 +61,11 @@ public class STDConditionalSpec {
         this.used_yn = used_yn;
     }
 
-    public Integer getOrdering() {
+    public Long getOrdering() {
         return ordering;
     }
 
-    public void setOrdering(Integer ordering) {
+    public void setOrdering(Long ordering) {
         this.ordering = ordering;
     }
 

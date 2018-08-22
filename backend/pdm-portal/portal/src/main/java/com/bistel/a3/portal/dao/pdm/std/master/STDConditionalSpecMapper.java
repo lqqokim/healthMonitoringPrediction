@@ -32,6 +32,8 @@ public interface STDConditionalSpecMapper {
 
     Long selectConditionalSpecRawId(@Param("model_name") String model_name, @Param("rule_name") String rule_name);
 
+    Long selectCheckModelParam(@Param("rule_id") Long rule_id, @Param("param_name") String param_name);
+
     void insertModelParamSpec(@Param("rule_id") Long rule_id,@Param("model_name") String model_name,@Param("param_name") String param_name,
                               @Param("upper_alarm_spec") Double upper_alarm_spec, @Param("upper_warning_spec") Double upper_warning_spec,
                               @Param("target") Double target, @Param("lower_alarm_spec") Double lower_alarm_spec, @Param("lower_warning_spec") Double lower_warning_spec,
@@ -46,4 +48,10 @@ public interface STDConditionalSpecMapper {
     void deleteModelParamSpec(@Param("rule_id") Long rule_id);
 
     void deleteConditionalSpec(@Param("rule_id") Long rule_id);
+
+    void insertEqpSpecLink(@Param("eqp_id") Long eqp_id, @Param("rule_id") Long rule_id, @Param("ordering") Long ordering,
+                           @Param("use_yn") String use_yn, @Param("description") String description, @Param("userName") String userName);
+
+    void deleteEqpSpecLink(@Param("eqp_id") Long eqp_id, @Param("rule_id") Long rule_id );
+
 }
