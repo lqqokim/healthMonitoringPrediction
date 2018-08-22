@@ -699,11 +699,11 @@ public class MasterService implements IMasterService {
     }
 
     @Override
-    public List<STDConditionalSpec> getSpecByRule(String fabId, String model, String rule) {
+    public List<STDConditionalSpec> getSpecByRule(String fabId, String model, Long ruleId) {
 
         STDConditionalSpecMapper conditionalSpecMapper=SqlSessionUtil.getMapper(sessions, fabId, STDConditionalSpecMapper.class);
 
-        return conditionalSpecMapper.selectParamSpec(model, rule);
+        return conditionalSpecMapper.selectParamSpec(model, ruleId);
     }
 
     @Override
@@ -717,7 +717,7 @@ public class MasterService implements IMasterService {
 
 
     //*********************************************
-    //      Conditional Spec Model Management
+    //      Conditional Spec Eqp Management
     //*********************************************
 
     @Override
@@ -746,7 +746,7 @@ public class MasterService implements IMasterService {
     }
 
     @Override
-    public List<STDConditionalSpec> setModel(String fabId, STDConditionalSpec model) {
+    public void setModel(String fabId, STDConditionalSpec model) {
 
         STDConditionalSpecMapper conditionalSpecMapper=SqlSessionUtil.getMapper(sessions, fabId, STDConditionalSpecMapper.class);
 
@@ -757,6 +757,7 @@ public class MasterService implements IMasterService {
         String condition=model.getCondition();
         String expression=model.getExpression();
         String description=model.getDescription();
+        String expression_value=model.getExpression_value();
 
         List<STDConditionalSpec> parameter=model.getParameter();
         Long param_id=null;
@@ -772,7 +773,7 @@ public class MasterService implements IMasterService {
         if(ruleId==null){
             //create
             //expression분리 해야댐
-            conditionalSpecMapper.insertConditionalSpec(modelName,ruleName,expression,condition,description,userName);
+            conditionalSpecMapper.insertConditionalSpec(modelName,ruleName,expression,condition,description,userName,expression_value);
 
             ruleId=conditionalSpecMapper.selectConditionalSpecRawId(modelName,ruleName);
 
@@ -787,8 +788,7 @@ public class MasterService implements IMasterService {
                 paramDescription=parameter.get(i).getDescription();
 
                 conditionalSpecMapper.insertModelParamSpec(ruleId, modelName, param_name,upper_alarm_spec, upper_warning_spec,target,
-                        lower_alarm_spec,lower_warning_spec, paramDescription,userName);
-
+                                                            lower_alarm_spec,lower_warning_spec, paramDescription,userName);
             }
 
         }
@@ -810,13 +810,11 @@ public class MasterService implements IMasterService {
                 paramDescription=parameter.get(i).getDescription();
 
                 conditionalSpecMapper.updateModelParamSpec(modelName,param_name,upper_alarm_spec,upper_warning_spec,target,lower_alarm_spec,lower_warning_spec, paramDescription, userName, model_param_spec_mst_rawid);
-
-
             }
 
         }
 
-        return null;
+
     }
 
 

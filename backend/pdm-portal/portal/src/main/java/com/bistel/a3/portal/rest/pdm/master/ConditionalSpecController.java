@@ -31,7 +31,7 @@ public class ConditionalSpecController {
     }
     //4
     @RequestMapping(value="models/{model}/specs/{rule}",method = RequestMethod.GET)
-    public Object getSpecByRule(@PathVariable String fabId, @PathVariable String model, @PathVariable String rule) {
+    public Object getSpecByRule(@PathVariable String fabId, @PathVariable String model, @PathVariable Long rule) {
         return service.getSpecByRule(fabId, model, rule);
     }
     //5
@@ -41,11 +41,13 @@ public class ConditionalSpecController {
     }
 
     //6
-    @RequestMapping(value="models",method = RequestMethod.PUT)
-    public Object setModel(Principal user, @PathVariable String fabId, @RequestBody STDConditionalSpec model) {
+    @RequestMapping(value="models/setModel", method = RequestMethod.PUT)
+    public void setModel(Principal user, @PathVariable String fabId, @RequestBody STDConditionalSpec model) {
         model.setUserName(user.getName());
-        return service.setModel(fabId, model);
+        service.setModel(fabId, model);
     }
+
+
 
 
     @RequestMapping(value="models/{model}/{rule}",method = RequestMethod.GET)

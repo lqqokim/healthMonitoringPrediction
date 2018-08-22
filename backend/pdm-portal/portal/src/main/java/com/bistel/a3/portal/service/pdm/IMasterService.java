@@ -112,7 +112,7 @@ public interface IMasterService {
 
     List<STDConditionalSpec> getConditionsByModel(String fabId, String model);
 
-    List<STDConditionalSpec> getSpecByRule(String fabId, String model, String rule);
+    List<STDConditionalSpec> getSpecByRule(String fabId, String model, Long rule);
 
     List<STDConditionalSpec> getConditionsByModelAndRule(String fabId, String model, String rule);
 
@@ -126,6 +126,6 @@ public interface IMasterService {
 
     List<STDConditionalSpec> getAllParametersByModel(String fabId, String model);
 
-    List<STDConditionalSpec> setModel(String fabId, STDConditionalSpec model);
+    void setModel(String fabId, STDConditionalSpec model);
 
 }

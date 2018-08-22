@@ -16,7 +16,7 @@ public interface STDConditionalSpecMapper {
 
     List<STDConditionalSpec> selectConditionsByModel( @Param("model") String model);
 
-    List<STDConditionalSpec> selectParamSpec(@Param("model") String model, @Param("rule") String rule);
+    List<STDConditionalSpec> selectParamSpec(@Param("model") String model, @Param("rule_id") Long rule_id);
 
     List<STDConditionalSpec> selectConditionsByModelAndRule(@Param("model") String model, @Param("rule") String rule);
 
@@ -26,7 +26,7 @@ public interface STDConditionalSpecMapper {
 
     List<STDConditionalSpec> selectParamListByModelName(@Param("model") String model);
 
-    void insertConditionalSpec(@Param("model_name") String model_name, @Param("rule_name") String rule_name, @Param("expression") String expression, @Param("condition") String condition, @Param("description") String description, @Param("userName") String userName);
+    void insertConditionalSpec(@Param("model_name") String model_name, @Param("rule_name") String rule_name, @Param("expression") String expression, @Param("condition") String condition, @Param("description") String description, @Param("userName") String userName, @Param("expression_value") String expression_value);
 
     void updateConditionalSpec(@Param("rule_id") Long rule_id,@Param("model_name") String model_name, @Param("rule_name") String rule_name, @Param("expression") String expression, @Param("condition") String condition, @Param("description") String description, @Param("userName") String userName);
 

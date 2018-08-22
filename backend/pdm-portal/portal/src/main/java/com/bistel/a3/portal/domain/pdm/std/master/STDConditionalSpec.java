@@ -17,7 +17,7 @@ public class STDConditionalSpec {
     private String expression_value;
     private String[] expression_values;
     private String description;
-
+    private Integer ordering;
 
     private Long param_id;
     private String param_name;
@@ -29,13 +29,21 @@ public class STDConditionalSpec {
     private Double lower_warning_spec;
     private Double target;
 
-    private Integer orering;
+
     private String use_yn;
 
     private String userName;
 
     List<STDConditionalSpec> parameter;
 
+
+    public Integer getOrdering() {
+        return ordering;
+    }
+
+    public void setOrdering(Integer ordering) {
+        this.ordering = ordering;
+    }
 
     public String[] getExpression_values() {
         return expression_values;
@@ -201,13 +209,7 @@ public class STDConditionalSpec {
         this.upper_warning_spec = upper_warning_spec;
     }
 
-    public Integer getOrering() {
-        return orering;
-    }
 
-    public void setOrering(Integer orering) {
-        this.orering = orering;
-    }
 
     public String getUse_yn() {
         return use_yn;
