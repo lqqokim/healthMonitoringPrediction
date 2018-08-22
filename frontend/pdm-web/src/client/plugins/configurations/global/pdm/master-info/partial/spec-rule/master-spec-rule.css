@@ -54,6 +54,6 @@
 .modal-body.spec-rule-modal-body .condition table .remove{
     padding: 10px 10px 0 0;
 }
-.modal-body.spec-rule-modal-body .condition tr td:last-child{
+ .condition tr td:last-child{
     padding-right: 0;
 }

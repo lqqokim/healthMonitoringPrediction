@@ -50,7 +50,9 @@
 .modal-body.spec-rule-modal-body .condition tr td:last-child{
     padding-right: 0;
 }
-
+.modal-body.spec-rule-modal-body .condition tr{
+    position: relative;
+}
 .modal-body.spec-rule-modal-body .parameter-list wj-flex-grid {
     width: 100%;
     height: 300px;
@@ -67,4 +69,34 @@
 .spec-rule-container .btn-group > .btn-default{
     margin-right: 5px; 
 }
-
+.modal-body.spec-rule-modal-body .condition tr > .param-value{
+    padding-right: 25px;
+}
+.modal-body.spec-rule-modal-body .condition .glyphicon-plus{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    color: #2196f3;
+    background: #fafafa;
+    padding: 10px;
+    transition: background 0.2s ease-in-out;
+}
+.modal-body.spec-rule-modal-body .condition .glyphicon-plus:hover{
+    color: #fff;
+    background: #2196f3;
+}
+.modal-body.spec-rule-modal-body .condition .glyphicon-minus {
+    position: relative;
+    top: 2px;
+    width: 40px;
+    height: 25px;
+    text-align: center;
+    line-height: 2;
+    cursor: pointer;
+}
+.modal-body.spec-rule-modal-body .condition .glyphicon-minus:hover
+{
+    color: #fff;
+    background: #f00;
+}
