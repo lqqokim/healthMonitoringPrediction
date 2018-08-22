@@ -703,7 +703,10 @@ public class MasterService implements IMasterService {
 
         STDConditionalSpecMapper conditionalSpecMapper=SqlSessionUtil.getMapper(sessions, fabId, STDConditionalSpecMapper.class);
 
-        return conditionalSpecMapper.selectParamSpec(model, ruleId);
+
+            return conditionalSpecMapper.selectParamSpec(model, ruleId);
+
+
     }
 
     @Override
@@ -772,7 +775,7 @@ public class MasterService implements IMasterService {
 
         if(ruleId==null){
             //create
-            //expression분리 해야댐
+
             conditionalSpecMapper.insertConditionalSpec(modelName,ruleName,expression,condition,description,userName,expression_value);
 
             ruleId=conditionalSpecMapper.selectConditionalSpecRawId(modelName,ruleName);

@@ -32,8 +32,18 @@ public class ConditionalSpecController {
     //4
     @RequestMapping(value="models/{model}/specs/{rule}",method = RequestMethod.GET)
     public Object getSpecByRule(@PathVariable String fabId, @PathVariable String model, @PathVariable Long rule) {
+
         return service.getSpecByRule(fabId, model, rule);
+
     }
+    @RequestMapping(value="models/{model}/specs",method = RequestMethod.GET)
+    public Object getSpec(@PathVariable String fabId, @PathVariable String model) {
+
+        Long rule=0L;
+        return service.getSpecByRule(fabId, model, rule);
+
+    }
+
     //5
     @RequestMapping(value="models/{model}/paramList",method = RequestMethod.GET)
     public Object getAllParametersByModel(@PathVariable String fabId, @PathVariable String model) {
