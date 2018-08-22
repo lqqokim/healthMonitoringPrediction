@@ -23,21 +23,24 @@
         <module>common/pdm-kafka-stream</module>
         <module>common/pdm-spark-stream</module>
         <module>common/pdm-kafka-utils</module>
-        <module>common/pdm-datastore</module>
+        <module>common/pdm-expression</module>
         <module>common/pdm-kafka-test</module>
         <module>serving-layer/pdm-serving</module>
         <module>batch-layer/pdm-batch</module>
         <module>speed-layer/pdm-speed</module>
+        <module>store-layer/pdm-datastore</module>
         <module>web/pdm-web</module>
         <module>web/pdm-scheduler</module>
         <module>deploy/pdm-serving-bundle</module>
         <module>deploy/pdm-speed-bundle</module>
         <module>deploy/pdm-batch-bundle</module>
         <module>deploy/pdm-datastore-bundle</module>
+        <module>deploy/pdm-scheduler-bundle</module>
         <module>support/pdm-log-connector</module>
         <module>support/pdm-datagen</module>
-        <module>deploy/pdm-scheduler-bundle</module>
         <module>support/pdm-file-connector</module>
+        <module>common/pdm-data</module>
+
     </modules>
 
     <name>pdm-parent</name>
@@ -556,6 +559,16 @@
             <dependency>
                 <groupId>com.bistel</groupId>
                 <artifactId>pdm-scheduler</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.bistel</groupId>
+                <artifactId>pdm-expression</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.bistel</groupId>
+                <artifactId>pdm-data</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

@@ -1,6 +1,6 @@
 package com.bistel.pdm.serving.rest;
 
-import com.bistel.pdm.common.json.*;
+import com.bistel.pdm.data.stream.*;
 import com.bistel.pdm.serving.Exception.Message;
 import com.bistel.pdm.serving.jdbc.dao.AlarmMailConfigDataDao;
 import com.bistel.pdm.serving.jdbc.dao.ParamHealthDataDao;
@@ -33,7 +33,7 @@ public class StreamingMasterService {
     public Response reloadEqpAll() {
 
         StreamingMasterDataDao repository = new StreamingMasterDataDao();
-        List<EquipmentMasterDataSet> masterDataSet = null;
+        List<EquipmentMaster> masterDataSet = null;
 
         try {
             masterDataSet = repository.getEqpMasterDataSet();
@@ -51,7 +51,7 @@ public class StreamingMasterService {
     public Response reloadEqp(@PathParam("eqpid") String eqpId) {
 
         StreamingMasterDataDao repository = new StreamingMasterDataDao();
-        EquipmentMasterDataSet masterDataSet = null;
+        EquipmentMaster masterDataSet = null;
 
         try {
             masterDataSet = repository.getEqpMasterDataSet(eqpId);
@@ -65,14 +65,14 @@ public class StreamingMasterService {
     }
 
     @GET
-    @Path("/latest/param")
-    public Response reloadParamAll() {
+    @Path("/latest/equipment/condspec/{eqpid}")
+    public Response reloadConditionalSpec(@PathParam("eqpid") String eqpId) {
         StreamingMasterDataDao repository = new StreamingMasterDataDao();
-        List<ParameterMasterDataSet> masterDataSet = null;
+        List<ConditionalSpecMaster> masterDataSet = null;
 
         try {
-            masterDataSet = repository.getParamMasterDataSet();
-            log.info("Provides the latest parameter master info. count={}", masterDataSet.size());
+            masterDataSet = repository.getConditionalSpecMasterDataSet(eqpId);
+            log.info("Provides the latest conditional spec. master info. count={}", masterDataSet.size());
             return Response.status(Response.Status.OK).entity(masterDataSet).build();
 
         } catch (SQLException e) {
@@ -85,7 +85,7 @@ public class StreamingMasterService {
     @Path("/latest/param/{eqpid}")
     public Response reloadParam(@PathParam("eqpid") String eqpId) {
         StreamingMasterDataDao repository = new StreamingMasterDataDao();
-        List<ParameterMasterDataSet> masterDataSet = null;
+        List<ParameterMaster> masterDataSet = null;
 
         try {
             masterDataSet = repository.getParamMasterDataSet(eqpId);
@@ -99,10 +99,44 @@ public class StreamingMasterService {
     }
 
     @GET
+    @Path("/latest/paramspec/{eqpid}")
+    public Response reloadParamWithSpec(@PathParam("eqpid") String eqpId) {
+        StreamingMasterDataDao repository = new StreamingMasterDataDao();
+        List<ParameterWithSpecMaster> masterDataSet = null;
+
+        try {
+            masterDataSet = repository.getParamWithSpecMasterDataSet(eqpId);
+            log.info("Provides the latest parameter master info. count={}", masterDataSet.size());
+            return Response.status(Response.Status.OK).entity(masterDataSet).build();
+
+        } catch (SQLException e) {
+            log.error(e.getMessage(), e);
+            return Response.status(Response.Status.NOT_FOUND).entity(new Message(e.getMessage())).build();
+        }
+    }
+
+    @GET
+    @Path("/latest/param/expr/{eqpid}")
+    public Response reloadExprParam(@PathParam("eqpid") String eqpId) {
+        StreamingMasterDataDao repository = new StreamingMasterDataDao();
+        List<ExpressionParamMaster> masterDataSet = null;
+
+        try {
+            masterDataSet = repository.getExprParamMasterDataSet(eqpId);
+            log.info("Provides the latest expr parameter master info. count={}", masterDataSet.size());
+            return Response.status(Response.Status.OK).entity(masterDataSet).build();
+
+        } catch (SQLException e) {
+            log.error(e.getMessage(), e);
+            return Response.status(Response.Status.NOT_FOUND).entity(new Message(e.getMessage())).build();
+        }
+    }
+
+    @GET
     @Path("/latest/event")
     public Response reloadEventAll() {
         StreamingMasterDataDao repository = new StreamingMasterDataDao();
-        List<EventMasterDataSet> masterDataSet = null;
+        List<EventMaster> masterDataSet = null;
 
         try {
             masterDataSet = repository.getEventMasterDataSet();
@@ -119,7 +153,7 @@ public class StreamingMasterService {
     @Path("/latest/event/{eqpid}")
     public Response reloadEvent(@PathParam("eqpid") String eqpId) {
         StreamingMasterDataDao repository = new StreamingMasterDataDao();
-        List<EventMasterDataSet> masterDataSet = null;
+        List<EventMaster> masterDataSet = null;
 
         try {
             masterDataSet = repository.getEventMasterDataSet(eqpId);
@@ -132,46 +166,46 @@ public class StreamingMasterService {
         }
     }
 
-    @GET
-    @Path("/latest/spec")
-    public Response reloadSpecAll() {
-        ParameterSpecDataDao repository = new ParameterSpecDataDao();
-        List<ParameterSpecDataSet> paramSpecDataSet = null;
+//    @GET
+//    @Path("/latest/spec")
+//    public Response reloadSpecAll() {
+//        ParameterSpecDataDao repository = new ParameterSpecDataDao();
+//        List<ParameterWithSpecMaster> paramSpecDataSet = null;
+//
+//        try {
+//            paramSpecDataSet = repository.getParamSpecDataSet();
+//            log.info("Provides the latest parameter spec info. count={}", paramSpecDataSet.size());
+//            return Response.status(Response.Status.OK).entity(paramSpecDataSet).build();
+//
+//        } catch (SQLException e) {
+//            log.error(e.getMessage(), e);
+//            return Response.status(Response.Status.NOT_FOUND).entity(new Message(e.getMessage())).build();
+//        }
+//    }
 
-        try {
-            paramSpecDataSet = repository.getParamSpecDataSet();
-            log.info("Provides the latest parameter spec info. count={}", paramSpecDataSet.size());
-            return Response.status(Response.Status.OK).entity(paramSpecDataSet).build();
-
-        } catch (SQLException e) {
-            log.error(e.getMessage(), e);
-            return Response.status(Response.Status.NOT_FOUND).entity(new Message(e.getMessage())).build();
-        }
-    }
-
-    @GET
-    @Path("/latest/spec/{eqpid}")
-    public Response reloadSpec(@PathParam("eqpid") String eqpId) {
-        ParameterSpecDataDao repository = new ParameterSpecDataDao();
-        List<ParameterSpecDataSet> paramSpecDataSet = null;
-
-        try {
-            paramSpecDataSet = repository.getParamSpecDataSet(eqpId);
-            log.info("Provides the latest parameter spec info. count={}", paramSpecDataSet.size());
-            return Response.status(Response.Status.OK).entity(paramSpecDataSet).build();
-
-        } catch (SQLException e) {
-            log.error(e.getMessage(), e);
-            return Response.status(Response.Status.NOT_FOUND).entity(new Message(e.getMessage())).build();
-        }
-    }
+//    @GET
+//    @Path("/latest/spec/{eqpid}")
+//    public Response reloadSpec(@PathParam("eqpid") String eqpId) {
+//        ParameterSpecDataDao repository = new ParameterSpecDataDao();
+//        List<ParameterWithSpecMaster> paramSpecDataSet = null;
+//
+//        try {
+//            paramSpecDataSet = repository.getParamSpecDataSet(eqpId);
+//            log.info("Provides the latest parameter spec info. count={}", paramSpecDataSet.size());
+//            return Response.status(Response.Status.OK).entity(paramSpecDataSet).build();
+//
+//        } catch (SQLException e) {
+//            log.error(e.getMessage(), e);
+//            return Response.status(Response.Status.NOT_FOUND).entity(new Message(e.getMessage())).build();
+//        }
+//    }
 
     @GET
     @Path("/latest/health")
     public Response reloadParamHealthAll() {
 
         ParamHealthDataDao repository = new ParamHealthDataDao();
-        List<ParameterHealthDataSet> healthDataSet = null;
+        List<ParameterHealthMaster> healthDataSet = null;
 
         try {
             healthDataSet = repository.getParamHealthDataSet();
@@ -189,7 +223,7 @@ public class StreamingMasterService {
     public Response reloadParamHealth(@PathParam("eqpid") String eqpId) {
 
         ParamHealthDataDao repository = new ParamHealthDataDao();
-        List<ParameterHealthDataSet> healthDataSet = null;
+        List<ParameterHealthMaster> healthDataSet = null;
 
         try {
             healthDataSet = repository.getParamHealthDataSet(eqpId);
@@ -207,7 +241,7 @@ public class StreamingMasterService {
     public Response reloadMailConfig() {
 
         AlarmMailConfigDataDao repository = new AlarmMailConfigDataDao();
-        MailConfigDataSet ds = null;
+        MailConfigMaster ds = null;
 
         try {
             ds = repository.getMailConfigDataSet();

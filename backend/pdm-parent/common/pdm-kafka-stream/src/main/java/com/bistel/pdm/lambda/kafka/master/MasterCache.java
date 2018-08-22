@@ -1,6 +1,6 @@
 package com.bistel.pdm.lambda.kafka.master;
 
-import com.bistel.pdm.common.json.*;
+import com.bistel.pdm.data.stream.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.cache.CacheBuilder;
@@ -14,7 +14,9 @@ import org.slf4j.LoggerFactory;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -25,15 +27,15 @@ public class MasterCache {
 
     public static String ServingAddress = "localhost";
 
-    public static LoadingCache<String, EquipmentMasterDataSet> Equipment = CacheBuilder.newBuilder()
+    public static LoadingCache<String, EquipmentMaster> Equipment = CacheBuilder.newBuilder()
             .maximumSize(50000)
             .expireAfterAccess(24, TimeUnit.HOURS)
-            .build(new CacheLoader<String, EquipmentMasterDataSet>() {
+            .build(new CacheLoader<String, EquipmentMaster>() {
                 @Override
-                public EquipmentMasterDataSet load(String key) throws IOException {
+                public EquipmentMaster load(String key) throws IOException {
                     String targetUrl = ServingAddress + "/pdm/api/master/latest/equipment/" + key + "";
 
-                    EquipmentMasterDataSet masterDataList = null;
+                    EquipmentMaster masterDataList = null;
 
                     ResteasyClient client = new ResteasyClientBuilder().build();
                     Response response = client.target(targetUrl).request().get();
@@ -45,7 +47,7 @@ public class MasterCache {
                         if (body.length() <= 0) {
                             log.info("equipment master data does not exists. message: " + body);
                         } else {
-                            masterDataList = mapper.readValue(body, new TypeReference<EquipmentMasterDataSet>() {
+                            masterDataList = mapper.readValue(body, new TypeReference<EquipmentMaster>() {
                             });
 
                             log.info("{} - equipments are reloaded.", key);
@@ -61,16 +63,51 @@ public class MasterCache {
                 }
             });
 
-
-    public static LoadingCache<String, List<ParameterMasterDataSet>> Parameter = CacheBuilder.newBuilder()
-            .maximumSize(100000)
+    public static LoadingCache<String, List<ConditionalSpecMaster>> EquipmentCondition = CacheBuilder.newBuilder()
+            .maximumSize(50000)
             .expireAfterAccess(24, TimeUnit.HOURS)
-            .build(new CacheLoader<String, List<ParameterMasterDataSet>>() {
+            .build(new CacheLoader<String, List<ConditionalSpecMaster>>() {
                 @Override
-                public List<ParameterMasterDataSet> load(String key) throws IOException {
+                public List<ConditionalSpecMaster> load(String key) throws IOException {
+                    String targetUrl = ServingAddress + "/pdm/api/master/latest/equipment/condspec/" + key + "";
+
+                    List<ConditionalSpecMaster> masterDataList = null;
+
+                    ResteasyClient client = new ResteasyClientBuilder().build();
+                    Response response = client.target(targetUrl).request().get();
+                    String body = response.readEntity(String.class);
+
+                    try {
+                        ObjectMapper mapper = new ObjectMapper();
+
+                        if (body.length() <= 0) {
+                            log.info("equipment master data does not exists. message: " + body);
+                        } else {
+                            masterDataList = mapper.readValue(body, new TypeReference<List<ConditionalSpecMaster>>() {
+                            });
+
+                            log.info("{} - equipments are reloaded.", key);
+                        }
+                    } catch (IOException e) {
+                        log.error(e.getMessage(), e);
+                    } finally {
+                        response.close();
+                        client.close();
+                    }
+
+                    return masterDataList;
+                }
+            });
+
+    public static LoadingCache<String, List<ParameterMaster>> Parameter = CacheBuilder.newBuilder()
+            .maximumSize(50000)
+            .expireAfterAccess(24, TimeUnit.HOURS)
+            .build(new CacheLoader<String, List<ParameterMaster>>() {
+                @Override
+                public List<ParameterMaster> load(String key) throws IOException {
                     String targetUrl = ServingAddress + "/pdm/api/master/latest/param/" + key + "";
 
-                    List<ParameterMasterDataSet> masterDataList = new ArrayList<>();
+                    List<ParameterMaster> masterDataList = new ArrayList<>();
 
                     ResteasyClient client = new ResteasyClientBuilder().build();
                     Response response = client.target(targetUrl).request().get();
@@ -82,7 +119,7 @@ public class MasterCache {
                         if (body.length() <= 0) {
                             log.info("parameter master data does not exists. message: " + body);
                         } else {
-                            masterDataList = mapper.readValue(body, new TypeReference<List<ParameterMasterDataSet>>() {
+                            masterDataList = mapper.readValue(body, new TypeReference<List<ParameterMaster>>() {
                             });
 
                             log.info("{} - parameter are reloaded.", key);
@@ -98,15 +135,51 @@ public class MasterCache {
                 }
             });
 
-    public static LoadingCache<String, List<EventMasterDataSet>> Event = CacheBuilder.newBuilder()
+    public static LoadingCache<String, List<ParameterWithSpecMaster>> ParameterWithSpec = CacheBuilder.newBuilder()
             .maximumSize(100000)
             .expireAfterAccess(24, TimeUnit.HOURS)
-            .build(new CacheLoader<String, List<EventMasterDataSet>>() {
+            .build(new CacheLoader<String, List<ParameterWithSpecMaster>>() {
                 @Override
-                public List<EventMasterDataSet> load(String key) throws IOException {
+                public List<ParameterWithSpecMaster> load(String key) throws IOException {
+                    String targetUrl = ServingAddress + "/pdm/api/master/latest/paramspec/" + key + "";
+
+                    List<ParameterWithSpecMaster> masterDataList = new ArrayList<>();
+
+                    ResteasyClient client = new ResteasyClientBuilder().build();
+                    Response response = client.target(targetUrl).request().get();
+                    String body = response.readEntity(String.class);
+
+                    try {
+                        ObjectMapper mapper = new ObjectMapper();
+
+                        if (body.length() <= 0) {
+                            log.info("parameter master with spec data does not exists. message: " + body);
+                        } else {
+                            masterDataList = mapper.readValue(body, new TypeReference<List<ParameterWithSpecMaster>>() {
+                            });
+
+                            log.info("{} - parameter with spec are reloaded.", key);
+                        }
+                    } catch (IOException e) {
+                        log.error(e.getMessage(), e);
+                    } finally {
+                        response.close();
+                        client.close();
+                    }
+
+                    return masterDataList;
+                }
+            });
+
+    public static LoadingCache<String, List<EventMaster>> Event = CacheBuilder.newBuilder()
+            .maximumSize(100000)
+            .expireAfterAccess(24, TimeUnit.HOURS)
+            .build(new CacheLoader<String, List<EventMaster>>() {
+                @Override
+                public List<EventMaster> load(String key) throws IOException {
                     String targetUrl = ServingAddress + "/pdm/api/master/latest/event/" + key + "";
 
-                    List<EventMasterDataSet> masterDataList = new ArrayList<>();
+                    List<EventMaster> masterDataList = new ArrayList<>();
 
                     ResteasyClient client = new ResteasyClientBuilder().build();
                     Response response = client.target(targetUrl).request().get();
@@ -118,7 +191,7 @@ public class MasterCache {
                         if (body.length() <= 0) {
                             log.info("event master data does not exists. message: " + body);
                         } else {
-                            masterDataList = mapper.readValue(body, new TypeReference<List<EventMasterDataSet>>() {
+                            masterDataList = mapper.readValue(body, new TypeReference<List<EventMaster>>() {
                             });
 
                             log.info("{} - events are reloaded.", key);
@@ -134,15 +207,15 @@ public class MasterCache {
                 }
             });
 
-    public static LoadingCache<String, List<ParameterHealthDataSet>> Health = CacheBuilder.newBuilder()
+    public static LoadingCache<String, List<ParameterHealthMaster>> Health = CacheBuilder.newBuilder()
             .maximumSize(10000000)
             .expireAfterAccess(24, TimeUnit.HOURS)
-            .build(new CacheLoader<String, List<ParameterHealthDataSet>>() {
+            .build(new CacheLoader<String, List<ParameterHealthMaster>>() {
                 @Override
-                public List<ParameterHealthDataSet> load(String key) throws IOException {
+                public List<ParameterHealthMaster> load(String key) throws IOException {
                     String targetUrl = ServingAddress + "/pdm/api/master/latest/health/" + key + "";
 
-                    List<ParameterHealthDataSet> masterDataList = new ArrayList<>();
+                    List<ParameterHealthMaster> masterDataList = new ArrayList<>();
 
                     ResteasyClient client = new ResteasyClientBuilder().build();
                     Response response = client.target(targetUrl).request().get();
@@ -154,7 +227,7 @@ public class MasterCache {
                         if (body.length() <= 0) {
                             log.info("health master data does not exists. message: " + body);
                         } else {
-                            masterDataList = mapper.readValue(body, new TypeReference<List<ParameterHealthDataSet>>() {
+                            masterDataList = mapper.readValue(body, new TypeReference<List<ParameterHealthMaster>>() {
                             });
 
                             log.info("{} - health are reloaded.", key);
@@ -170,15 +243,15 @@ public class MasterCache {
                 }
             });
 
-    public static LoadingCache<String, MailConfigDataSet> Mail = CacheBuilder.newBuilder()
+    public static LoadingCache<String, MailConfigMaster> Mail = CacheBuilder.newBuilder()
             .maximumSize(100000)
             .expireAfterAccess(24, TimeUnit.HOURS)
-            .build(new CacheLoader<String, MailConfigDataSet>() {
+            .build(new CacheLoader<String, MailConfigMaster>() {
                 @Override
-                public MailConfigDataSet load(String key) throws IOException {
+                public MailConfigMaster load(String key) throws IOException {
                     String targetUrl = ServingAddress + "/pdm/api/master/latest/smtp/" + key + "";
 
-                    MailConfigDataSet masterDataList = null;
+                    MailConfigMaster masterDataList = null;
 
                     ResteasyClient client = new ResteasyClientBuilder().build();
                     Response response = client.target(targetUrl).request().get();
@@ -190,7 +263,7 @@ public class MasterCache {
                         if (body.length() <= 0) {
                             log.info("mail info. does not exists. message: " + body);
                         } else {
-                            masterDataList = mapper.readValue(body, new TypeReference<MailConfigDataSet>() {
+                            masterDataList = mapper.readValue(body, new TypeReference<MailConfigMaster>() {
                             });
 
                             log.info("{} reloaded.", key);
@@ -203,6 +276,47 @@ public class MasterCache {
                     }
 
                     return masterDataList;
+                }
+            });
+
+    public static LoadingCache<String, Map<String, Integer>> ExprParameter = CacheBuilder.newBuilder()
+            .maximumSize(100000)
+            .expireAfterAccess(24, TimeUnit.HOURS)
+            .build(new CacheLoader<String, Map<String, Integer>>() {
+                @Override
+                public Map<String, Integer> load(String key) throws IOException {
+                    String targetUrl = ServingAddress + "/pdm/api/master/latest/param/expr/" + key + "";
+
+                    List<ExpressionParamMaster> masterDataList = new ArrayList<>();
+                    Map<String, Integer> exprMap = new HashMap<>();
+
+                    ResteasyClient client = new ResteasyClientBuilder().build();
+                    Response response = client.target(targetUrl).request().get();
+                    String body = response.readEntity(String.class);
+
+                    try {
+                        ObjectMapper mapper = new ObjectMapper();
+
+                        if (body.length() <= 0) {
+                            log.info("expr. parameter master does not exists. message: " + body);
+                        } else {
+                            masterDataList = mapper.readValue(body, new TypeReference<List<ExpressionParamMaster>>() {
+                            });
+
+                            for (ExpressionParamMaster expr : masterDataList) {
+                                exprMap.put(expr.getParameterName(), expr.getParamParseIndex());
+                            }
+
+                            log.info("{} - expr. parameter are reloaded.", key);
+                        }
+                    } catch (IOException e) {
+                        log.error(e.getMessage(), e);
+                    } finally {
+                        response.close();
+                        client.close();
+                    }
+
+                    return exprMap;
                 }
             });
 }

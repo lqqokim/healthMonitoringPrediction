@@ -1,6 +1,6 @@
 package com.bistel.pdm.serving.rest;
 
-import com.bistel.pdm.common.json.SummarizedFeature;
+import com.bistel.pdm.data.stream.SummarizedFeatureData;
 import com.bistel.pdm.serving.Exception.Message;
 import com.bistel.pdm.serving.jdbc.dao.FeatureSummaryDataDao;
 import org.slf4j.Logger;
@@ -38,7 +38,7 @@ public class SummaryService {
             String fromTime = convertTime(from);
             String endTime = convertTime(to);
 
-            List<SummarizedFeature> paramFeatureValueList = repository.getParamAverage(fromTime, endTime);
+            List<SummarizedFeatureData> paramFeatureValueList = repository.getParamAverage(fromTime, endTime);
 
             log.info("Provides the summarized features. count={}", paramFeatureValueList.size());
             return Response.status(Response.Status.OK).entity(paramFeatureValueList).build();

@@ -4,6 +4,7 @@ import com.bistel.pdm.connector.io.DirectoryWatcher;
 import com.bistel.pdm.connector.io.TailerFactory;
 import com.bistel.pdm.connector.io.TailerThreadManager;
 import com.bistel.pdm.connector.log.Listener.PfeifferLogTailerListener;
+import com.bistel.pdm.lambda.kafka.master.MasterCache;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.slf4j.Logger;
@@ -43,6 +44,8 @@ public class LogMonitor extends Thread {
         this.topicPrefixName = topicPrefixName;
 
         this.tailerThreadManager = getTailerThreadManager(producerProperties);
+
+        MasterCache.ServingAddress = "http://192.168.7.230:28000";
     }
 
     public void run() {

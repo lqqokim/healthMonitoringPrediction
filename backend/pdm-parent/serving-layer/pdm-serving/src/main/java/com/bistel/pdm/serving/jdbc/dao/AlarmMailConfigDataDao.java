@@ -1,6 +1,6 @@
 package com.bistel.pdm.serving.jdbc.dao;
 
-import com.bistel.pdm.common.json.MailConfigDataSet;
+import com.bistel.pdm.data.stream.MailConfigMaster;
 import com.bistel.pdm.serving.jdbc.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,8 +16,8 @@ public class AlarmMailConfigDataDao {
     private final static String SMTP_CFG_SQL =
             "select host, port, user_id, password, ssl, from_addr, to_addr from alarm_smtp_cfg_pdm ";
 
-    public MailConfigDataSet getMailConfigDataSet() throws SQLException {
-        MailConfigDataSet ds = new MailConfigDataSet();
+    public MailConfigMaster getMailConfigDataSet() throws SQLException {
+        MailConfigMaster ds = new MailConfigMaster();
 
         try (Connection conn = DataSource.getConnection();
              PreparedStatement pst = conn.prepareStatement(SMTP_CFG_SQL);

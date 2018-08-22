@@ -1,8 +1,6 @@
 package com.bistel.pdm.serving.jdbc.dao;
 
-import com.bistel.pdm.common.json.EquipmentMasterDataSet;
-import com.bistel.pdm.common.json.EventMasterDataSet;
-import com.bistel.pdm.common.json.ParameterMasterDataSet;
+import com.bistel.pdm.data.stream.*;
 import com.bistel.pdm.serving.jdbc.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 /**
  *
@@ -21,111 +20,76 @@ public class StreamingMasterDataDao {
     private static final Logger log = LoggerFactory.getLogger(StreamingMasterDataDao.class);
 
     private final static String PARAM_MASTER_DS_SQL =
-            "select " +
-                    "a.name area_name, e.name as eqp_name, e.rawid as eqp_rawid, " +
-                    "p.name as param_name, p.parse_index, p.rawid param_id, " +
-                    "s.alarm_spec, s.warning_spec, p.param_type_cd " +
-                    "from area_mst_pdm a inner join eqp_mst_pdm e " +
-                    "on a.rawid=e.area_mst_rawid " +
+            "select e.rawid eqp_rawid, e.name eqp_name, e.model_name, " +
+                    "p.rawid param_rawid, p.name param_name, p.param_type_cd, p.parse_index " +
+                    "from eqp_mst_pdm e " +
                     "inner join param_mst_pdm p " +
                     "on e.rawid=p.eqp_mst_rawid " +
-                    "left outer join trace_spec_mst_pdm s " +
-                    "on p.rawid=s.param_mst_rawid ";
+                    "where e.name=? ";
 
-//            "select " +
-//                    "area.name area_name, eqp.name as eqp_name, eqp.rawid as eqp_rawid, " +
-//                    "param.name as param_name, param.parse_index, param.rawid param_id, " +
-//                    "spec.alarm_spec, spec.warning_spec, param.param_type_cd " +
-//                    "from area_mst_pdm area, eqp_mst_pdm eqp, param_mst_pdm param, trace_spec_mst_pdm spec " +
-//                    "where area.rawid=eqp.area_mst_rawid " +
-//                    "and eqp.rawid=param.eqp_mst_rawid " +
-//                    "and param.rawid=spec.param_mst_rawid(+) ";
+    public List<ParameterMaster> getParamMasterDataSet(String eqpId) throws SQLException {
+        List<ParameterMaster> resultRows = new ArrayList<>();
 
-    public List<ParameterMasterDataSet> getParamMasterDataSet() throws SQLException {
-        List<ParameterMasterDataSet> resultRows = new ArrayList<>();
+        try (Connection conn = DataSource.getConnection()) {
+            try (PreparedStatement pst = conn.prepareStatement(PARAM_MASTER_DS_SQL)) {
+                pst.setString(1, eqpId);
 
-        try (Connection conn = DataSource.getConnection();
-             PreparedStatement pst = conn.prepareStatement(PARAM_MASTER_DS_SQL)) {
+                log.debug("sql:{}", PARAM_MASTER_DS_SQL);
 
-            log.debug("sql:{}", PARAM_MASTER_DS_SQL);
+                try (ResultSet rs = pst.executeQuery();) {
+                    while (rs.next()) {
+                        ParameterMaster ds = new ParameterMaster();
+                        ds.setEquipmentRawId(rs.getLong(1));
+                        ds.setEquipmentName(rs.getString(2));
+                        ds.setModelName(rs.getString(3));
+                        ds.setParameterRawId(rs.getLong(4));
+                        ds.setParameterName(rs.getString(5));
+                        ds.setParameterType(rs.getString(6));
+                        ds.setParamParseIndex(rs.getInt(7));
 
-            try (ResultSet rs = pst.executeQuery();) {
-                while (rs.next()) {
-                    ParameterMasterDataSet ds = new ParameterMasterDataSet();
-                    ds.setAreaName(rs.getString(1));
-                    ds.setEquipmentName(rs.getString(2));
-                    ds.setEquipmentRawId(rs.getLong(3));
-                    ds.setParameterName(rs.getString(4));
-                    ds.setParamParseIndex(rs.getInt(5));
-                    ds.setParameterRawId(rs.getLong(6));
-                    ds.setParameterType(rs.getString(9));
-
-                    Float uas = rs.getFloat(7);
-                    if (rs.wasNull()) {
-                        uas = null;
+                        resultRows.add(ds);
                     }
-                    ds.setUpperAlarmSpec(uas);
-
-                    Float uws = rs.getFloat(8);
-                    if (rs.wasNull()) {
-                        uws = null;
-                    }
-                    ds.setUpperWarningSpec(uws);
-
-//                    Float t = rs.getFloat(8);
-//                    if(rs.wasNull()){
-//                        t = null;
-//                    }
-//                    ds.setTarget(t);
-//
-//                    Float las = rs.getFloat(9);
-//                    if(rs.wasNull()){
-//                        las = null;
-//                    }
-//                    ds.setLowerAlarmSpec(las);
-//
-//                    Float lws = rs.getFloat(10);
-//                    if(rs.wasNull()){
-//                        lws = null;
-//                    }
-//                    ds.setLowerWarningSpec(lws);
-
-                    resultRows.add(ds);
                 }
             }
+        } catch (Exception e){
+            log.error(e.getMessage(), e);
         }
         return resultRows;
     }
 
 
     private final static String PARAM_MASTER_DS_1_SQL =
-            "select " +
-                    "a.name area_name, e.name as eqp_name, e.rawid as eqp_rawid, " +
-                    "p.name as param_name, p.parse_index, p.rawid param_id, " +
-                    "s.alarm_spec, s.warning_spec, p.param_type_cd " +
+            "select a.name area_name, e.name eqp_name, e.rawid eqp_rawid, " +
+                    "    p.name param_name, p.parse_index, p.rawid param_id, p.param_type_cd, " +
+                    "    c.condition_name, c.expression, c.expression_value, l.use_yn, " +
+                    "    s.spec_type, s.upper_alarm_spec, s.upper_warning_spec " +
                     "from area_mst_pdm a inner join eqp_mst_pdm e " +
                     "on a.rawid=e.area_mst_rawid " +
                     "and e.name=? " +
                     "inner join param_mst_pdm p " +
                     "on e.rawid=p.eqp_mst_rawid " +
-                    "left outer join trace_spec_mst_pdm s " +
-                    "on p.rawid=s.param_mst_rawid ";
+                    "inner join eqp_spec_link_mst_pdm l " +
+                    "on e.rawid=l.eqp_mst_rawid " +
+                    "inner join conditional_spec_mst_pdm c " +
+                    "on c.rawid=l.conditional_spec_mst_rawid " +
+                    "left outer join param_spec_mst_pdm s " +
+                    "on l.rawid=s.eqp_spec_link_mst_rawid " +
+                    "and p.rawid=s.param_mst_rawid ";
 
 //            "select " +
-//                    "area.name area_name, eqp.name as eqp_name, eqp.rawid as eqp_rawid, " +
-//                    "param.name as param_name, param.parse_index, param.rawid param_id, " +
-//                    "spec.alarm_spec, spec.warning_spec, " +
-//                    "param.param_type_cd " +
-//                    //"spec.upper_alarm_spec, spec.upper_warning_spec, spec.target, " +
-//                    //"spec.lower_alarm_spec, spec.lower_warning_spec " +
-//                    "from area_mst_pdm area, eqp_mst_pdm eqp, param_mst_pdm param, trace_spec_mst_pdm spec " +
-//                    "where area.rawid=eqp.area_mst_rawid " +
-//                    "and eqp.rawid=param.eqp_mst_rawid " +
-//                    "and param.rawid=spec.param_mst_rawid(+) " +
-//                    "and eqp.name=? ";
+//                    "a.name area_name, e.name as eqp_name, e.rawid as eqp_rawid, " +
+//                    "p.name as param_name, p.parse_index, p.rawid param_id, " +
+//                    "s.alarm_spec, s.warning_spec, p.param_type_cd " +
+//                    "from area_mst_pdm a inner join eqp_mst_pdm e " +
+//                    "on a.rawid=e.area_mst_rawid " +
+//                    "and e.name=? " +
+//                    "inner join param_mst_pdm p " +
+//                    "on e.rawid=p.eqp_mst_rawid " +
+//                    "left outer join trace_spec_mst_pdm s " +
+//                    "on p.rawid=s.param_mst_rawid ";
 
-    public List<ParameterMasterDataSet> getParamMasterDataSet(String eqpId) throws SQLException {
-        List<ParameterMasterDataSet> resultRows = new ArrayList<>();
+    public List<ParameterWithSpecMaster> getParamWithSpecMasterDataSet(String eqpId) throws SQLException {
+        List<ParameterWithSpecMaster> resultRows = new ArrayList<>();
 
         try (Connection conn = DataSource.getConnection()) {
             try (PreparedStatement pst = conn.prepareStatement(PARAM_MASTER_DS_1_SQL)) {
@@ -135,40 +99,45 @@ public class StreamingMasterDataDao {
 
                 try (ResultSet rs = pst.executeQuery()) {
                     while (rs.next()) {
-                        ParameterMasterDataSet ds = new ParameterMasterDataSet();
+                        ParameterWithSpecMaster ds = new ParameterWithSpecMaster();
                         ds.setAreaName(rs.getString(1));
                         ds.setEquipmentName(rs.getString(2));
                         ds.setEquipmentRawId(rs.getLong(3));
                         ds.setParameterName(rs.getString(4));
                         ds.setParamParseIndex(rs.getInt(5));
                         ds.setParameterRawId(rs.getLong(6));
-                        ds.setParameterType(rs.getString(9));
+                        ds.setParameterType(rs.getString(7));
+                        ds.setConditionName(rs.getString(8));
+                        ds.setExpression(rs.getString(9));
+                        ds.setExpressionValue(rs.getString(10));
+                        ds.setUseYn(rs.getString(11));
+                        ds.setSpecType(rs.getString(12));
 
-                        Float uas = rs.getFloat(7);
+                        Float uas = rs.getFloat(13);
                         if (rs.wasNull()) {
                             uas = null;
                         }
                         ds.setUpperAlarmSpec(uas);
 
-                        Float uws = rs.getFloat(8);
+                        Float uws = rs.getFloat(14);
                         if (rs.wasNull()) {
                             uws = null;
                         }
                         ds.setUpperWarningSpec(uws);
 
-//                    Float t = rs.getFloat(8);
+//                    Float t = rs.getFloat(15);
 //                    if(rs.wasNull()){
 //                        t = null;
 //                    }
 //                    ds.setTarget(t);
 //
-//                    Float las = rs.getFloat(9);
+//                    Float las = rs.getFloat(16);
 //                    if(rs.wasNull()){
 //                        las = null;
 //                    }
 //                    ds.setLowerAlarmSpec(las);
 //
-//                    Float lws = rs.getFloat(10);
+//                    Float lws = rs.getFloat(17);
 //                    if(rs.wasNull()){
 //                        lws = null;
 //                    }
@@ -193,8 +162,8 @@ public class StreamingMasterDataDao {
                     "where area.rawid=eqp.area_mst_rawid " +
                     "";
 
-    public List<EquipmentMasterDataSet> getEqpMasterDataSet() throws SQLException {
-        List<EquipmentMasterDataSet> resultRows = new ArrayList<>();
+    public List<EquipmentMaster> getEqpMasterDataSet() throws SQLException {
+        List<EquipmentMaster> resultRows = new ArrayList<>();
 
         try (Connection conn = DataSource.getConnection();
              PreparedStatement pst = conn.prepareStatement(EQP_MASTER_DS_SQL);
@@ -203,7 +172,7 @@ public class StreamingMasterDataDao {
             log.debug("sql:{}", EQP_MASTER_DS_SQL);
 
             while (rs.next()) {
-                EquipmentMasterDataSet ds = new EquipmentMasterDataSet();
+                EquipmentMaster ds = new EquipmentMaster();
                 ds.setAreaName(rs.getString(1));
                 ds.setEquipmentName(rs.getString(2));
                 ds.setEqpRawId(rs.getLong(3));
@@ -225,8 +194,8 @@ public class StreamingMasterDataDao {
                     "where area.rawid=eqp.area_mst_rawid " +
                     "and eqp.name=? ";
 
-    public EquipmentMasterDataSet getEqpMasterDataSet(String eqpId) throws SQLException {
-        EquipmentMasterDataSet eqpMaster = new EquipmentMasterDataSet();
+    public EquipmentMaster getEqpMasterDataSet(String eqpId) throws SQLException {
+        EquipmentMaster eqpMaster = new EquipmentMaster();
 
         try (Connection conn = DataSource.getConnection()) {
             try (PreparedStatement pst = conn.prepareStatement(EQP_MASTER_DS_1_SQL)) {
@@ -272,8 +241,8 @@ public class StreamingMasterDataDao {
                     "and eqp.rawid=event.eqp_mst_rawid " +
                     " ";
 
-    public List<EventMasterDataSet> getEventMasterDataSet() throws SQLException {
-        List<EventMasterDataSet> resultRows = new ArrayList<>();
+    public List<EventMaster> getEventMasterDataSet() throws SQLException {
+        List<EventMaster> resultRows = new ArrayList<>();
 
         try (Connection conn = DataSource.getConnection();
              PreparedStatement pst = conn.prepareStatement(EQP_EVENT_MASTER_DS_SQL);
@@ -282,7 +251,7 @@ public class StreamingMasterDataDao {
             log.debug("sql:{}", EQP_EVENT_MASTER_DS_SQL);
 
             while (rs.next()) {
-                EventMasterDataSet ds = new EventMasterDataSet();
+                EventMaster ds = new EventMaster();
                 ds.setAreaName(rs.getString(1));
                 ds.setEquipmentName(rs.getString(2));
                 ds.setEqpRawId(rs.getLong(3));
@@ -327,8 +296,8 @@ public class StreamingMasterDataDao {
                     "and eqp.rawid=event.eqp_mst_rawid " +
                     "and eqp.name=? ";
 
-    public List<EventMasterDataSet> getEventMasterDataSet(String eqpId) throws SQLException {
-        List<EventMasterDataSet> resultRows = new ArrayList<>();
+    public List<EventMaster> getEventMasterDataSet(String eqpId) throws SQLException {
+        List<EventMaster> resultRows = new ArrayList<>();
 
         try (Connection conn = DataSource.getConnection()) {
             try (PreparedStatement pst = conn.prepareStatement(EQP_EVENT_MASTER_DS_1_SQL)) {
@@ -338,7 +307,7 @@ public class StreamingMasterDataDao {
                     log.debug("sql:{}", EQP_EVENT_MASTER_DS_1_SQL);
 
                     while (rs.next()) {
-                        EventMasterDataSet ds = new EventMasterDataSet();
+                        EventMaster ds = new EventMaster();
                         ds.setAreaName(rs.getString(1));
                         ds.setEquipmentName(rs.getString(2));
                         ds.setEqpRawId(rs.getLong(3));
@@ -351,6 +320,87 @@ public class StreamingMasterDataDao {
                         ds.setParamParseIndex(rs.getInt(10));
                         ds.setTimeIntervalYn(rs.getString(11));
                         ds.setIntervalTimeMs(rs.getLong(12));
+
+                        resultRows.add(ds);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            log.error(e.getMessage(), e);
+        }
+
+        return resultRows;
+    }
+
+    private final static String EQP_EXPR_PARAM_MASTER_DS_SQL =
+            "select e.rawid eqp_rawid, e.name eqp_name, p.name param_name, p.parse_index " +
+                    "from eqp_mst_pdm e " +
+                    "inner join param_mst_pdm p " +
+                    "on e.rawid=p.eqp_mst_rawid " +
+                    "inner join ( " +
+                    "select regexp_substr(expression_value,'[^,]+', 1, level) param_name from conditional_spec_mst_pdm " +
+                    "connect by regexp_substr(expression_value, '[^,]+', 1, level) is not null " +
+                    ") cs " +
+                    "on cs.param_name=p.name " +
+                    "where e.name=? ";
+
+    public List<ExpressionParamMaster> getExprParamMasterDataSet(String eqpId) throws SQLException {
+        List<ExpressionParamMaster> resultRows = new ArrayList<>();
+
+        try (Connection conn = DataSource.getConnection()) {
+            try (PreparedStatement pst = conn.prepareStatement(EQP_EXPR_PARAM_MASTER_DS_SQL)) {
+                pst.setString(1, eqpId);
+
+                try (ResultSet rs = pst.executeQuery()) {
+                    log.debug("sql:{}", EQP_EXPR_PARAM_MASTER_DS_SQL);
+
+                    while (rs.next()) {
+                        ExpressionParamMaster ds = new ExpressionParamMaster();
+                        ds.setEquipmentRawId(rs.getLong(1));
+                        ds.setEqpName(rs.getString(2));
+                        ds.setParameterName(rs.getString(3));
+                        ds.setParamParseIndex(rs.getInt(4));
+
+                        resultRows.add(ds);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            log.error(e.getMessage(), e);
+        }
+
+        return resultRows;
+    }
+
+    private final static String EQP_CONDITIONAL_SPEC_MASTER_DS_SQL =
+            "select e.rawid eqp_mst_rawid, e.name as eqp_name, s.condition_name, " +
+                    "    s.expression, s.expression_value, l.use_yn, l.ordering " +
+                    "from eqp_mst_pdm e " +
+                    "inner join eqp_spec_link_mst_pdm l " +
+                    "on e.rawid=l.eqp_mst_rawid " +
+                    "inner join conditional_spec_mst_pdm s " +
+                    "on s.rawid=l.conditional_spec_mst_rawid " +
+                    "where e.name=? and l.use_yn='Y' " +
+                    "order by l.ordering ";
+
+    public List<ConditionalSpecMaster> getConditionalSpecMasterDataSet(String eqpId) throws SQLException {
+        List<ConditionalSpecMaster> resultRows = new ArrayList<>();
+
+        try (Connection conn = DataSource.getConnection()) {
+            try (PreparedStatement pst = conn.prepareStatement(EQP_CONDITIONAL_SPEC_MASTER_DS_SQL)) {
+                pst.setString(1, eqpId);
+
+                try (ResultSet rs = pst.executeQuery()) {
+                    log.debug("sql:{}", EQP_CONDITIONAL_SPEC_MASTER_DS_SQL);
+
+                    while (rs.next()) {
+                        ConditionalSpecMaster ds = new ConditionalSpecMaster();
+                        ds.setEqpRawId(rs.getLong(1));
+                        ds.setEqpName(rs.getString(2));
+                        ds.setConditionName(rs.getString(3));
+                        ds.setExpression(rs.getString(4));
+                        ds.setExpressionValue(rs.getString(5));
+                        ds.setOrdering(rs.getInt(7));
 
                         resultRows.add(ds);
                     }

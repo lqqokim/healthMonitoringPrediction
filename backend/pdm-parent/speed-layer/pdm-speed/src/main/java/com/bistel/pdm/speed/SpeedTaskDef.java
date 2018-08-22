@@ -62,9 +62,9 @@ public class SpeedTaskDef extends AbstractPipeline {
                         Serdes.String(),
                         Serdes.String());
 
-        StoreBuilder<WindowStore<String, String>> paramValueStoreSupplier =
+        StoreBuilder<WindowStore<String, String>> normalizedParamValueStoreSupplier =
                 Stores.windowStoreBuilder(
-                        Stores.persistentWindowStore("speed-param-value",
+                        Stores.persistentWindowStore("speed-normalized-value",
                                 TimeUnit.DAYS.toMillis(1),
                                 24,
                                 TimeUnit.HOURS.toMillis(1),
@@ -78,17 +78,18 @@ public class SpeedTaskDef extends AbstractPipeline {
                         Serdes.String(),
                         Serdes.Long());
 
-        StoreBuilder<KeyValueStore<String, Integer>> alarmCountStoreSupplier =
-                Stores.keyValueStoreBuilder(
-                        Stores.persistentKeyValueStore("speed-alarm-count"),
-                        Serdes.String(),
-                        Serdes.Integer());
+//        StoreBuilder<KeyValueStore<String, Integer>> alarmCountStoreSupplier =
+//                Stores.keyValueStoreBuilder(
+//                        Stores.persistentKeyValueStore("speed-alarm-count"),
+//                        Serdes.String(),
+//                        Serdes.Integer());
+//
+//        StoreBuilder<KeyValueStore<String, Integer>> warningCountStoreSupplier =
+//                Stores.keyValueStoreBuilder(
+//                        Stores.persistentKeyValueStore("speed-warning-count"),
+//                        Serdes.String(),
+//                        Serdes.Integer());
 
-        StoreBuilder<KeyValueStore<String, Integer>> warningCountStoreSupplier =
-                Stores.keyValueStoreBuilder(
-                        Stores.persistentKeyValueStore("speed-warning-count"),
-                        Serdes.String(),
-                        Serdes.Integer());
 
 
         CustomStreamPartitioner partitioner = new CustomStreamPartitioner();
@@ -100,10 +101,10 @@ public class SpeedTaskDef extends AbstractPipeline {
                 .addStateStore(refershFlagStoreSupplier, "prepare")
                 .addProcessor("event", ExtractEventProcessor::new, "prepare")
                 .addProcessor("fault", DetectFaultProcessor::new, "prepare")
-                .addStateStore(paramValueStoreSupplier, "fault")
+                .addStateStore(normalizedParamValueStoreSupplier, "fault")
                 .addStateStore(sumIntervalStoreSupplier, "fault")
-                .addStateStore(alarmCountStoreSupplier, "fault")
-                .addStateStore(warningCountStoreSupplier, "fault")
+//                .addStateStore(alarmCountStoreSupplier, "fault")
+//                .addStateStore(warningCountStoreSupplier, "fault")
 
                 .addProcessor("refresh", RefreshCacheProcessor::new, "fault")
                 //.addProcessor("mail", SendMailProcessor::new, "fault")

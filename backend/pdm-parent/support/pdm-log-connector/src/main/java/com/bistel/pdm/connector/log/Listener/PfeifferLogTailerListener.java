@@ -1,13 +1,16 @@
 package com.bistel.pdm.connector.log.Listener;
 
+import com.bistel.pdm.lambda.kafka.partitioner.CustomStreamPartitioner;
 import org.apache.commons.io.input.TailerListenerAdapter;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.PartitionInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.util.List;
 
 /**
  *
@@ -32,6 +35,7 @@ public class PfeifferLogTailerListener extends TailerListenerAdapter {
     }
 
     public void handle(final String line) {
+
         if (line.length() <= 0) return;
 
         String[] columns = line.split("/");
@@ -78,8 +82,22 @@ public class PfeifferLogTailerListener extends TailerListenerAdapter {
                 + columns[16].trim() + "," + columns[17].trim() + ","
                 + columns[18].trim() + "," + columns[19].trim() + ","
                 + columns[20].trim();
-        rmsProducer.send(new ProducerRecord<>(topicName, partitionKey, msg.getBytes()));
-        log.info("send {}", msg);
+
+        log.debug("[{}] - {}", partitionKey, msg);
+
+        try {
+            List<PartitionInfo> partitions = rmsProducer.partitionsFor(topicName);
+            CustomStreamPartitioner csp = new CustomStreamPartitioner();
+            int partitionNum = csp.partition(partitionKey, msg.getBytes(), partitions.size());
+
+            log.debug("partition Number : {}", partitionNum);
+            rmsProducer.send(new ProducerRecord<>(topicName, partitionNum,
+                    partitionKey, msg.getBytes()));
+
+            log.info("send {}", msg);
+        } catch (Exception e){
+            log.error(e.getMessage(), e);
+        }
 
         try {
             Thread.sleep(100);

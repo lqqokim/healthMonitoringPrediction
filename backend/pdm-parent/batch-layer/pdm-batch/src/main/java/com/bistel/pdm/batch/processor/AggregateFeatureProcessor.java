@@ -1,7 +1,8 @@
 package com.bistel.pdm.batch.processor;
 
-import com.bistel.pdm.common.json.EventMasterDataSet;
-import com.bistel.pdm.common.json.ParameterMasterDataSet;
+import com.bistel.pdm.batch.function.ConditionSpecFunction;
+import com.bistel.pdm.data.stream.EventMaster;
+import com.bistel.pdm.data.stream.ParameterWithSpecMaster;
 import com.bistel.pdm.lambda.kafka.master.MasterCache;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.kafka.streams.KeyValue;
@@ -16,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -28,6 +30,8 @@ public class AggregateFeatureProcessor extends AbstractProcessor<String, byte[]>
 
     private WindowStore<String, Double> kvSummaryWindowStore;
     private KeyValueStore<String, Long> kvSummaryIntervalStore;
+
+    private final ConcurrentHashMap<String, String> conditionMap = new ConcurrentHashMap<>();
 
     @Override
     @SuppressWarnings("unchecked")
@@ -51,7 +55,7 @@ public class AggregateFeatureProcessor extends AbstractProcessor<String, byte[]>
             String[] currStatusAndTime = columns[columns.length - 3].split(":");
             String[] prevStatusAndTime = columns[columns.length - 2].split(":");
 
-            List<ParameterMasterDataSet> parameterMasterDataSets = MasterCache.Parameter.get(partitionKey);
+            List<ParameterWithSpecMaster> parameterMasterDataSets = MasterCache.ParameterWithSpec.get(partitionKey);
 
             if (kvSummaryIntervalStore.get(partitionKey) == null) {
                 Long paramTime = Long.parseLong(currStatusAndTime[1]);
@@ -70,32 +74,117 @@ public class AggregateFeatureProcessor extends AbstractProcessor<String, byte[]>
             if (currStatusAndTime[0].equalsIgnoreCase("R")) {
                 Long paramTime = Long.parseLong(currStatusAndTime[1]);
 
-                for (ParameterMasterDataSet param : parameterMasterDataSets) {
-                    if (param.getParamParseIndex() <= 0) continue;
+                // check conditional spec.
+                String conditionName = ConditionSpecFunction.evaluateCondition(partitionKey, columns);
 
-                    String paramKey = partitionKey + ":" + param.getParameterRawId();
-                    Double dValue = Double.parseDouble(columns[param.getParamParseIndex()]);
-                    kvSummaryWindowStore.put(paramKey, dValue, paramTime);
+                if (conditionName.length() > 0) {
+                    conditionMap.put(partitionKey, conditionName);
+
+                    for (ParameterWithSpecMaster paramInfo : parameterMasterDataSets) {
+                        if (paramInfo.getParamParseIndex() <= 0) continue;
+
+                        if (conditionName.equalsIgnoreCase(paramInfo.getConditionName())) {
+                            if (paramInfo.getUpperAlarmSpec() == null) continue;
+
+                            String paramKey = partitionKey + ":" + paramInfo.getParameterRawId();
+                            Double dValue = Double.parseDouble(columns[paramInfo.getParamParseIndex()]);
+                            kvSummaryWindowStore.put(paramKey, dValue, paramTime);
+                        }
+                    }
+
+                    // for long-term interval on event.
+                    EventMaster event = getEvent(partitionKey, "S");
+                    if (event != null && event.getTimeIntervalYn().equalsIgnoreCase("Y")) {
+                        Long startTime = kvSummaryIntervalStore.get(partitionKey);
+                        Long interval = startTime + event.getIntervalTimeMs();
+
+                        if (paramTime >= interval) {
+                            log.debug("[{}] - aggregate data every {} ms between event intervals.", partitionKey, event.getIntervalTimeMs());
+
+                            String sts = new SimpleDateFormat("MMdd HH:mm:ss.SSS").format(new Timestamp(startTime));
+                            String ets = new SimpleDateFormat("MMdd HH:mm:ss.SSS").format(new Timestamp(paramTime));
+                            log.debug("[{}] - processing interval from {} to {}.", partitionKey, sts, ets);
+
+                            for (ParameterWithSpecMaster paramMaster : parameterMasterDataSets) {
+                                if (paramMaster.getParamParseIndex() <= 0) continue;
+
+                                if (conditionName.equalsIgnoreCase(paramMaster.getConditionName())) {
+                                    if (paramMaster.getUpperAlarmSpec() == null) continue;
+
+                                    String paramKey = partitionKey + ":" + paramMaster.getParameterRawId();
+                                    WindowStoreIterator<Double> storeIterator = kvSummaryWindowStore.fetch(paramKey, startTime, paramTime);
+
+                                    DescriptiveStatistics stats = new DescriptiveStatistics();
+                                    while (storeIterator.hasNext()) {
+                                        KeyValue<Long, Double> kv = storeIterator.next();
+                                        stats.addValue(kv.value);
+                                    }
+                                    storeIterator.close();
+
+                                    String uas = paramMaster.getUpperAlarmSpec() == null ? "" : Float.toString(paramMaster.getUpperAlarmSpec());
+                                    String uws = paramMaster.getUpperWarningSpec() == null ? "" : Float.toString(paramMaster.getUpperWarningSpec());
+                                    String tgt = paramMaster.getTarget() == null ? "" : Float.toString(paramMaster.getTarget());
+                                    String las = paramMaster.getLowerAlarmSpec() == null ? "" : Float.toString(paramMaster.getLowerAlarmSpec());
+                                    String lws = paramMaster.getLowerAlarmSpec() == null ? "" : Float.toString(paramMaster.getLowerAlarmSpec());
+
+                                    // startDtts, endDtts, param rawid, count, max, min, median, avg, stddev, q1, q3, spec...
+                                    String msg = String.valueOf(startTime) + "," +
+                                            String.valueOf(paramTime) + "," +
+                                            paramMaster.getParameterRawId() + "," +
+                                            stats.getValues().length + "," +
+                                            stats.getMin() + "," +
+                                            stats.getMax() + "," +
+                                            stats.getPercentile(50) + "," +
+                                            stats.getMean() + "," +
+                                            stats.getStandardDeviation() + "," +
+                                            stats.getPercentile(25) + "," +
+                                            stats.getPercentile(75) + "," +
+                                            uas + "," +
+                                            uws + "," +
+                                            tgt + "," +
+                                            las + "," +
+                                            lws + "," +
+                                            refreshCacheflag;
+
+                                    context().forward(partitionKey, msg.getBytes());
+                                    context().commit();
+
+                                    log.debug("[{}] - from : {}, end : {}, param : {} ",
+                                            partitionKey, startTime, paramTime, paramMaster.getParameterName());
+
+                                }
+                            }
+                            kvSummaryIntervalStore.put(partitionKey, paramTime);
+                        }
+                    }
                 }
+            }
 
-                // for long-term interval on event.
-                EventMasterDataSet event = getEvent(partitionKey, "S");
-                if (event != null && event.getTimeIntervalYn().equalsIgnoreCase("Y")) {
-                    Long startTime = kvSummaryIntervalStore.get(partitionKey);
-                    Long interval = startTime + event.getIntervalTimeMs();
+            // run -> idle
+            if (prevStatusAndTime[0].equalsIgnoreCase("R") &&
+                    currStatusAndTime[0].equalsIgnoreCase("I")) {
 
-                    if (paramTime >= interval) {
-                        log.debug("[{}] - aggregate data every {} ms between event intervals.", partitionKey, event.getIntervalTimeMs());
+                log.debug("[{}] - aggregate data at the end of the event.", partitionKey);
 
-                        String sts = new SimpleDateFormat("MMdd HH:mm:ss.SSS").format(new Timestamp(startTime));
-                        String ets = new SimpleDateFormat("MMdd HH:mm:ss.SSS").format(new Timestamp(paramTime));
-                        log.debug("[{}] - processing interval from {} to {}.", partitionKey, sts, ets);
+                Long startTime = kvSummaryIntervalStore.get(partitionKey);
+                Long endTime = Long.parseLong(prevStatusAndTime[1]);
 
-                        for (ParameterMasterDataSet paramMaster : parameterMasterDataSets) {
-                            if (paramMaster.getParamParseIndex() <= 0) continue;
+                String sts = new SimpleDateFormat("MMdd HH:mm:ss.SSS").format(new Timestamp(startTime));
+                String ets = new SimpleDateFormat("MMdd HH:mm:ss.SSS").format(new Timestamp(endTime));
+                log.debug("[{}] - processing interval from {} to {}.", partitionKey, sts, ets);
+
+                // check conditional spec.
+                String conditionName = conditionMap.get(partitionKey);
+                if (conditionName != null && conditionName.length() > 0) {
+
+                    for (ParameterWithSpecMaster paramMaster : parameterMasterDataSets) {
+                        if (paramMaster.getParamParseIndex() <= 0) continue;
+
+                        if (conditionName.equalsIgnoreCase(paramMaster.getConditionName())) {
+                            if (paramMaster.getUpperAlarmSpec() == null) continue;
 
                             String paramKey = partitionKey + ":" + paramMaster.getParameterRawId();
-                            WindowStoreIterator<Double> storeIterator = kvSummaryWindowStore.fetch(paramKey, startTime, paramTime);
+                            WindowStoreIterator<Double> storeIterator = kvSummaryWindowStore.fetch(paramKey, startTime, endTime);
 
                             DescriptiveStatistics stats = new DescriptiveStatistics();
                             while (storeIterator.hasNext()) {
@@ -112,7 +201,7 @@ public class AggregateFeatureProcessor extends AbstractProcessor<String, byte[]>
 
                             // startDtts, endDtts, param rawid, count, max, min, median, avg, stddev, q1, q3, spec...
                             String msg = String.valueOf(startTime) + "," +
-                                    String.valueOf(paramTime) + "," +
+                                    String.valueOf(endTime) + "," +
                                     paramMaster.getParameterRawId() + "," +
                                     stats.getValues().length + "," +
                                     stats.getMin() + "," +
@@ -133,77 +222,19 @@ public class AggregateFeatureProcessor extends AbstractProcessor<String, byte[]>
                             context().commit();
 
                             log.debug("[{}] - from : {}, end : {}, param : {} ",
-                                    partitionKey, startTime, paramTime, paramMaster.getParameterName());
+                                    partitionKey, startTime, endTime, paramMaster.getParameterName());
                         }
-
-                        kvSummaryIntervalStore.put(partitionKey, paramTime);
                     }
-                }
-            }
-
-            // run -> idle
-            if (prevStatusAndTime[0].equalsIgnoreCase("R") &&
-                    currStatusAndTime[0].equalsIgnoreCase("I")) {
-
-                log.debug("[{}] - aggregate data at the end of the event.", partitionKey);
-
-                Long startTime = kvSummaryIntervalStore.get(partitionKey);
-                Long endTime = Long.parseLong(prevStatusAndTime[1]);
-
-                String sts = new SimpleDateFormat("MMdd HH:mm:ss.SSS").format(new Timestamp(startTime));
-                String ets = new SimpleDateFormat("MMdd HH:mm:ss.SSS").format(new Timestamp(endTime));
-                log.debug("[{}] - processing interval from {} to {}.", partitionKey, sts, ets);
-
-                for (ParameterMasterDataSet paramMaster : parameterMasterDataSets) {
-                    if (paramMaster.getParamParseIndex() <= 0) continue;
-
-                    String paramKey = partitionKey + ":" + paramMaster.getParameterRawId();
-                    WindowStoreIterator<Double> storeIterator = kvSummaryWindowStore.fetch(paramKey, startTime, endTime);
-
-                    DescriptiveStatistics stats = new DescriptiveStatistics();
-                    while (storeIterator.hasNext()) {
-                        KeyValue<Long, Double> kv = storeIterator.next();
-                        stats.addValue(kv.value);
-                    }
-                    storeIterator.close();
-
-                    String uas = paramMaster.getUpperAlarmSpec() == null ? "" : Float.toString(paramMaster.getUpperAlarmSpec());
-                    String uws = paramMaster.getUpperWarningSpec() == null ? "" : Float.toString(paramMaster.getUpperWarningSpec());
-                    String tgt = paramMaster.getTarget() == null ? "" : Float.toString(paramMaster.getTarget());
-                    String las = paramMaster.getLowerAlarmSpec() == null ? "" : Float.toString(paramMaster.getLowerAlarmSpec());
-                    String lws = paramMaster.getLowerAlarmSpec() == null ? "" : Float.toString(paramMaster.getLowerAlarmSpec());
-
-                    // startDtts, endDtts, param rawid, count, max, min, median, avg, stddev, q1, q3, spec...
-                    String msg = String.valueOf(startTime) + "," +
-                            String.valueOf(endTime) + "," +
-                            paramMaster.getParameterRawId() + "," +
-                            stats.getValues().length + "," +
-                            stats.getMin() + "," +
-                            stats.getMax() + "," +
-                            stats.getPercentile(50) + "," +
-                            stats.getMean() + "," +
-                            stats.getStandardDeviation() + "," +
-                            stats.getPercentile(25) + "," +
-                            stats.getPercentile(75) + "," +
-                            uas + "," +
-                            uws + "," +
-                            tgt + "," +
-                            las + "," +
-                            lws + "," +
-                            refreshCacheflag;
-
-                    context().forward(partitionKey, msg.getBytes());
-                    context().commit();
-
-                    log.debug("[{}] - from : {}, end : {}, param : {} ",
-                            partitionKey, startTime, endTime, paramMaster.getParameterName());
                 }
 
                 // refresh cache
-                if(refreshCacheflag.equalsIgnoreCase("CRC")){
+                if (refreshCacheflag.equalsIgnoreCase("CRC")) {
                     // refresh master
                     MasterCache.Equipment.refresh(partitionKey);
                     MasterCache.Parameter.refresh(partitionKey);
+                    MasterCache.ParameterWithSpec.refresh(partitionKey);
+                    MasterCache.EquipmentCondition.refresh(partitionKey);
+                    MasterCache.ExprParameter.refresh(partitionKey);
                     MasterCache.Event.refresh(partitionKey);
                 }
             }
@@ -212,9 +243,9 @@ public class AggregateFeatureProcessor extends AbstractProcessor<String, byte[]>
         }
     }
 
-    private EventMasterDataSet getEvent(String key, String type) throws ExecutionException {
-        EventMasterDataSet e = null;
-        for (EventMasterDataSet event : MasterCache.Event.get(key)) {
+    private EventMaster getEvent(String key, String type) throws ExecutionException {
+        EventMaster e = null;
+        for (EventMaster event : MasterCache.Event.get(key)) {
             if (event.getProcessYN().equalsIgnoreCase("Y")
                     && event.getEventTypeCD().equalsIgnoreCase(type)) {
                 e = event;

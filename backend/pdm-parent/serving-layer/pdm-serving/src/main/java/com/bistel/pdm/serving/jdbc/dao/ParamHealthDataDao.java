@@ -1,6 +1,6 @@
 package com.bistel.pdm.serving.jdbc.dao;
 
-import com.bistel.pdm.common.json.ParameterHealthDataSet;
+import com.bistel.pdm.data.stream.ParameterHealthMaster;
 import com.bistel.pdm.serving.jdbc.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,8 +33,8 @@ public class ParamHealthDataDao {
                     "left outer join param_health_option_mst_pdm o " +
                     "on h.rawid=o.param_health_mst_rawid ";
 
-    public List<ParameterHealthDataSet> getParamHealthDataSet() throws SQLException {
-        List<ParameterHealthDataSet> resultRows = new ArrayList<>();
+    public List<ParameterHealthMaster> getParamHealthDataSet() throws SQLException {
+        List<ParameterHealthMaster> resultRows = new ArrayList<>();
 
         try (Connection conn = DataSource.getConnection();
              PreparedStatement pst = conn.prepareStatement(HEALTH_DS_SQL);
@@ -43,7 +43,7 @@ public class ParamHealthDataDao {
             log.debug("sql:{}", HEALTH_DS_SQL);
 
             while (rs.next()) {
-                ParameterHealthDataSet ds = new ParameterHealthDataSet();
+                ParameterHealthMaster ds = new ParameterHealthMaster();
                 ds.setParamRawId(rs.getLong(1));
                 ds.setParamHealthRawId(rs.getLong(2));
                 ds.setParameterName(rs.getString(3));
@@ -107,8 +107,8 @@ public class ParamHealthDataDao {
 //                    "and e.rawid=p.eqp_mst_rawid " +
 //                    "and e.name=? ";
 
-    public List<ParameterHealthDataSet> getParamHealthDataSet(String eqpId) throws SQLException {
-        List<ParameterHealthDataSet> resultRows = new ArrayList<>();
+    public List<ParameterHealthMaster> getParamHealthDataSet(String eqpId) throws SQLException {
+        List<ParameterHealthMaster> resultRows = new ArrayList<>();
 
         try (Connection conn = DataSource.getConnection()) {
             try (PreparedStatement pst = conn.prepareStatement(HEALTH_DS_1_SQL)) {
@@ -118,7 +118,7 @@ public class ParamHealthDataDao {
                     log.debug("sql:{}", HEALTH_DS_1_SQL);
 
                     while (rs.next()) {
-                        ParameterHealthDataSet ds = new ParameterHealthDataSet();
+                        ParameterHealthMaster ds = new ParameterHealthMaster();
                         ds.setParamRawId(rs.getLong(1));
                         ds.setParamHealthRawId(rs.getLong(2));
                         ds.setParameterName(rs.getString(3));

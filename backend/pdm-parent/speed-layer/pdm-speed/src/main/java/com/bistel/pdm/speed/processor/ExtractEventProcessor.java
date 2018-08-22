@@ -1,6 +1,6 @@
 package com.bistel.pdm.speed.processor;
 
-import com.bistel.pdm.common.json.EventMasterDataSet;
+import com.bistel.pdm.data.stream.EventMaster;
 import com.bistel.pdm.lambda.kafka.master.MasterCache;
 import org.apache.kafka.streams.processor.AbstractProcessor;
 import org.apache.kafka.streams.processor.ProcessorContext;
@@ -40,7 +40,7 @@ public class ExtractEventProcessor extends AbstractProcessor<String, byte[]> {
                     && nowStatusCodeAndTime[0].equalsIgnoreCase("R")) {
 
                 // event started.
-                EventMasterDataSet event = getEvent(partitionKey, "S");
+                EventMaster event = getEvent(partitionKey, "S");
                 String eventMessage =
                         nowStatusCodeAndTime[1] + ","
                                 + event.getEventRawId() + ","
@@ -54,7 +54,7 @@ public class ExtractEventProcessor extends AbstractProcessor<String, byte[]> {
                     && nowStatusCodeAndTime[0].equalsIgnoreCase("I")) {
 
                 // event ended.
-                EventMasterDataSet event = getEvent(partitionKey, "E");
+                EventMaster event = getEvent(partitionKey, "E");
                 String eventMessage =
                         prevStatusCodeAndTime[1] + ","
                                 + event.getEventRawId() + ","
@@ -69,9 +69,9 @@ public class ExtractEventProcessor extends AbstractProcessor<String, byte[]> {
         }
     }
 
-    private EventMasterDataSet getEvent(String key, String type) throws ExecutionException {
-        EventMasterDataSet e = null;
-        for (EventMasterDataSet event : MasterCache.Event.get(key)) {
+    private EventMaster getEvent(String key, String type) throws ExecutionException {
+        EventMaster e = null;
+        for (EventMaster event : MasterCache.Event.get(key)) {
             if (event.getProcessYN().equalsIgnoreCase("Y")
                     && event.getEventTypeCD().equalsIgnoreCase(type)) {
                 e = event;

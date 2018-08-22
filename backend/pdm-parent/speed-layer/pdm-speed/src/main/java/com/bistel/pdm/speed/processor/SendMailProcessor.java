@@ -1,6 +1,6 @@
 package com.bistel.pdm.speed.processor;
 
-import com.bistel.pdm.common.json.MailConfigDataSet;
+import com.bistel.pdm.data.stream.MailConfigMaster;
 import com.bistel.pdm.lambda.kafka.master.MasterCache;
 import org.apache.commons.mail.DefaultAuthenticator;
 import org.apache.commons.mail.Email;
@@ -29,7 +29,7 @@ public class SendMailProcessor extends AbstractProcessor<String, byte[]> {
         String message = new String(streamByteRecord);
 
         try {
-            MailConfigDataSet conf = MasterCache.Mail.get(partitionKey);
+            MailConfigMaster conf = MasterCache.Mail.get(partitionKey);
 
             if (conf != null && conf.getFromAddr().length() > 0) {
                 Email email = new SimpleEmail();
