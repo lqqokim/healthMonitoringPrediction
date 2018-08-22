@@ -69,7 +69,7 @@ public class StreamingMasterDataDao {
                     "inner join param_mst_pdm p " +
                     "on e.rawid=p.eqp_mst_rawid " +
                     "inner join eqp_spec_link_mst_pdm l " +
-                    "on e.rawid=l.eqp_mst_rawid " +
+                    "on e.rawid=l.eqp_mst_rawid and l.use_yn='Y' " +
                     "inner join conditional_spec_mst_pdm c " +
                     "on c.rawid=l.conditional_spec_mst_rawid " +
                     "left outer join param_spec_mst_pdm s " +
