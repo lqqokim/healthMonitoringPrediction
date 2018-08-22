@@ -11,6 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 /**
  *
@@ -26,28 +27,32 @@ public class StreamingMasterDataDao {
                     "on e.rawid=p.eqp_mst_rawid " +
                     "where e.name=? ";
 
-    public List<ParameterMaster> getParamMasterDataSet() throws SQLException {
+    public List<ParameterMaster> getParamMasterDataSet(String eqpId) throws SQLException {
         List<ParameterMaster> resultRows = new ArrayList<>();
 
-        try (Connection conn = DataSource.getConnection();
-             PreparedStatement pst = conn.prepareStatement(PARAM_MASTER_DS_SQL)) {
+        try (Connection conn = DataSource.getConnection()) {
+            try (PreparedStatement pst = conn.prepareStatement(PARAM_MASTER_DS_SQL)) {
+                pst.setString(1, eqpId);
 
-            log.debug("sql:{}", PARAM_MASTER_DS_SQL);
+                log.debug("sql:{}", PARAM_MASTER_DS_SQL);
 
-            try (ResultSet rs = pst.executeQuery();) {
-                while (rs.next()) {
-                    ParameterMaster ds = new ParameterMaster();
-                    ds.setEquipmentRawId(rs.getLong(1));
-                    ds.setEquipmentName(rs.getString(2));
-                    ds.setModelName(rs.getString(3));
-                    ds.setParameterRawId(rs.getLong(4));
-                    ds.setParameterName(rs.getString(5));
-                    ds.setParameterType(rs.getString(6));
-                    ds.setParamParseIndex(rs.getInt(7));
+                try (ResultSet rs = pst.executeQuery();) {
+                    while (rs.next()) {
+                        ParameterMaster ds = new ParameterMaster();
+                        ds.setEquipmentRawId(rs.getLong(1));
+                        ds.setEquipmentName(rs.getString(2));
+                        ds.setModelName(rs.getString(3));
+                        ds.setParameterRawId(rs.getLong(4));
+                        ds.setParameterName(rs.getString(5));
+                        ds.setParameterType(rs.getString(6));
+                        ds.setParamParseIndex(rs.getInt(7));
 
-                    resultRows.add(ds);
+                        resultRows.add(ds);
+                    }
                 }
             }
+        } catch (Exception e){
+            log.error(e.getMessage(), e);
         }
         return resultRows;
     }

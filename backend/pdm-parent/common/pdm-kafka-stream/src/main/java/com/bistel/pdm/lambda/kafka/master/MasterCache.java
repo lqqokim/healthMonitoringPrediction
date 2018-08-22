@@ -83,7 +83,7 @@ public class MasterCache {
                         if (body.length() <= 0) {
                             log.info("equipment master data does not exists. message: " + body);
                         } else {
-                            masterDataList = mapper.readValue(body, new TypeReference<ConditionalSpecMaster>() {
+                            masterDataList = mapper.readValue(body, new TypeReference<List<ConditionalSpecMaster>>() {
                             });
 
                             log.info("{} - equipments are reloaded.", key);
@@ -100,7 +100,7 @@ public class MasterCache {
             });
 
     public static LoadingCache<String, List<ParameterMaster>> Parameter = CacheBuilder.newBuilder()
-            .maximumSize(100000)
+            .maximumSize(50000)
             .expireAfterAccess(24, TimeUnit.HOURS)
             .build(new CacheLoader<String, List<ParameterMaster>>() {
                 @Override

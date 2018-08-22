@@ -294,32 +294,4 @@ public class CalculateHealthProcessor extends AbstractProcessor<String, byte[]> 
             log.error(e.getMessage(), e);
         }
     }
-
-//    private ParameterWithSpecMaster getParamMasterDataWithRawId(String key, Long rawId) throws ExecutionException {
-//        ParameterWithSpecMaster param = null;
-//
-//        List<ParameterWithSpecMaster> paramList = MasterCache.ParameterWithSpec.get(key);
-//        for (ParameterWithSpecMaster p : paramList) {
-//            if (p.getParameterRawId().equals(rawId)) {
-//                param = p;
-//                break;
-//            }
-//        }
-//
-//        return param;
-//    }
-//
-//    private ParameterHealthMaster getParamHealth(String partitionKey, Long paramKey, String code) throws ExecutionException {
-//        ParameterHealthMaster healthData = null;
-//
-//        List<ParameterHealthMaster> healthList = MasterCache.Health.get(partitionKey);
-//        for (ParameterHealthMaster health : healthList) {
-//            if (health.getParamRawId().equals(paramKey) && health.getHealthCode().equalsIgnoreCase(code)) {
-//                healthData = health;
-//                break;
-//            }
-//        }
-//
-//        return healthData;
-//    }
 }

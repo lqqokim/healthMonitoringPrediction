@@ -83,12 +83,12 @@ public class StreamingMasterService {
 
     @GET
     @Path("/latest/param/{eqpid}")
-    public Response reloadParam() {
+    public Response reloadParam(@PathParam("eqpid") String eqpId) {
         StreamingMasterDataDao repository = new StreamingMasterDataDao();
         List<ParameterMaster> masterDataSet = null;
 
         try {
-            masterDataSet = repository.getParamMasterDataSet();
+            masterDataSet = repository.getParamMasterDataSet(eqpId);
             log.info("Provides the latest parameter master info. count={}", masterDataSet.size());
             return Response.status(Response.Status.OK).entity(masterDataSet).build();
 
