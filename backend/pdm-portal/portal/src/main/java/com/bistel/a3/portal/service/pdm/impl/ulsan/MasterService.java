@@ -436,7 +436,12 @@ public class MasterService implements IMasterService {
     }
 
     @Override
-    public void setModel(String fabId, STDConditionalSpec model) {
+    public void setModel(String fabId, List<STDConditionalSpec> model) {
+
+    }
+
+    @Override
+    public void deleteModel(String fabId, Long rule) {
 
     }
 

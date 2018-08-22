@@ -28,14 +28,20 @@ public class STDConditionalSpec {
     private Double lower_alarm_spec;
     private Double lower_warning_spec;
     private Double target;
-
-
-    private String use_yn;
+    private boolean used_yn;
 
     private String userName;
 
     List<STDConditionalSpec> parameter;
 
+
+    public boolean isUsed_yn() {
+        return used_yn;
+    }
+
+    public void setUsed_yn(boolean used_yn) {
+        this.used_yn = used_yn;
+    }
 
     public Integer getOrdering() {
         return ordering;
@@ -211,12 +217,5 @@ public class STDConditionalSpec {
 
 
 
-    public String getUse_yn() {
-        return use_yn;
-    }
-
-    public void setUse_yn(String use_yn) {
-        this.use_yn = use_yn;
-    }
 }
 

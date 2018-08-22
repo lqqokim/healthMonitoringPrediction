@@ -126,6 +126,7 @@ public interface IMasterService {
 
     List<STDConditionalSpec> getAllParametersByModel(String fabId, String model);
 
-    void setModel(String fabId, STDConditionalSpec model);
+    void setModel(String fabId, List<STDConditionalSpec> model);
 
+    void deleteModel(String fabId, Long rule);
 }

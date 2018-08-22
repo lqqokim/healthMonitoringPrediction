@@ -749,77 +749,111 @@ public class MasterService implements IMasterService {
     }
 
     @Override
-    public void setModel(String fabId, STDConditionalSpec model) {
+    public void setModel(String fabId, List<STDConditionalSpec> model) {
 
         STDConditionalSpecMapper conditionalSpecMapper=SqlSessionUtil.getMapper(sessions, fabId, STDConditionalSpecMapper.class);
 
-        String userName=model.getUserName();
-        Long ruleId=model.getRule_id();
-        String modelName=model.getModel_name();
-        String ruleName=model.getRule_name();
-        String condition=model.getCondition();
-        String expression=model.getExpression();
-        String description=model.getDescription();
-        String expression_value=model.getExpression_value();
 
-        List<STDConditionalSpec> parameter=model.getParameter();
-        Long param_id=null;
-        String param_name=null;
-        Double upper_alarm_spec=null;
-        Double upper_warning_spec=null;
-        Double target=null;
-        Double lower_alarm_spec=null;
-        Double lower_warning_spec=null;
-        String paramDescription=null;
-        Long model_param_spec_mst_rawid=null;
+        String userName=null;
+        Long ruleId=null;
+        String ruleName=null;
+        String modelName=null;
+        String condition=null;
+        String expression=null;
+        String description=null;
+        String expression_value=null;
 
-        if(ruleId==null){
-            //create
+        for (int i = 0; i < model.size(); i++) {
+            userName=model.get(i).getUserName();
+            ruleId=model.get(i).getRule_id();
+            ruleName=model.get(i).getRule_name();
+            modelName=model.get(i).getModel_name();
+            condition=model.get(i).getCondition();
+            expression=model.get(i).getExpression();
+            expression_value=model.get(i).getExpression_value();
 
-            conditionalSpecMapper.insertConditionalSpec(modelName,ruleName,expression,condition,description,userName,expression_value);
+            List<STDConditionalSpec> parameter=model.get(i).getParameter();
 
-            ruleId=conditionalSpecMapper.selectConditionalSpecRawId(modelName,ruleName);
+            String param_name=null;
+            Double upper_alarm_spec=null;
+            Double upper_warning_spec=null;
+            Double target=null;
+            Double lower_alarm_spec=null;
+            Double lower_warning_spec=null;
+            String paramDescription=null;
+            Long model_param_spec_mst_rawid=null;
+            boolean used_yn=false;
 
-            for (int i = 0; i < parameter.size(); i++) {
-                param_name=parameter.get(i).getParam_name();
-                param_id=parameter.get(i).getParam_id();
-                upper_alarm_spec=parameter.get(i).getUpper_alarm_spec();
-                upper_warning_spec=parameter.get(i).getUpper_warning_spec();
-                target=parameter.get(i).getTarget();
-                lower_alarm_spec=parameter.get(i).getLower_alarm_spec();
-                lower_warning_spec=parameter.get(i).getLower_warning_spec();
-                paramDescription=parameter.get(i).getDescription();
+            if (ruleId==null) //create
+            {
+                conditionalSpecMapper.insertConditionalSpec(modelName,ruleName,expression,condition,description,userName,expression_value);
 
-                conditionalSpecMapper.insertModelParamSpec(ruleId, modelName, param_name,upper_alarm_spec, upper_warning_spec,target,
-                                                            lower_alarm_spec,lower_warning_spec, paramDescription,userName);
+                ruleId=conditionalSpecMapper.selectConditionalSpecRawId(modelName,ruleName);
+
+                for (int j = 0; j < parameter.size(); j++) {
+                    param_name=parameter.get(j).getParam_name();
+                    upper_alarm_spec=parameter.get(j).getUpper_alarm_spec();
+                    upper_warning_spec=parameter.get(j).getUpper_warning_spec();
+                    target=parameter.get(j).getTarget();
+                    lower_alarm_spec=parameter.get(j).getLower_alarm_spec();
+                    lower_warning_spec=parameter.get(j).getLower_warning_spec();
+                    paramDescription=parameter.get(j).getDescription();
+                    used_yn=parameter.get(j).isUsed_yn();
+
+                    if (used_yn==true) //used가 체크되면 Insert into Model_param_spec_mst_pdm
+                    {
+                        conditionalSpecMapper.insertModelParamSpec(ruleId, modelName, param_name,upper_alarm_spec, upper_warning_spec,target,
+                                lower_alarm_spec,lower_warning_spec, paramDescription,userName);
+                    }
+
+                }
+
+            }
+            else //updatae
+            {
+                conditionalSpecMapper.updateConditionalSpec(ruleId,modelName,ruleName,expression,condition,description,userName);
+
+                for (int j = 0; j < parameter.size(); j++) {
+
+
+                    model_param_spec_mst_rawid=parameter.get(j).getModel_param_spec_mst_rawid();
+                    param_name=parameter.get(j).getParam_name();
+                    upper_alarm_spec=parameter.get(j).getUpper_alarm_spec();
+                    upper_warning_spec=parameter.get(j).getUpper_warning_spec();
+                    target=parameter.get(j).getTarget();
+                    lower_alarm_spec=parameter.get(j).getLower_alarm_spec();
+                    lower_warning_spec=parameter.get(j).getLower_warning_spec();
+                    paramDescription=parameter.get(j).getDescription();
+                    used_yn=parameter.get(j).isUsed_yn();
+
+                    if (used_yn==true) //used가 체크되면 Insert into Model_param_spec_mst_pdm
+                    {
+                        conditionalSpecMapper.updateModelParamSpec(modelName,param_name,upper_alarm_spec,upper_warning_spec,target,lower_alarm_spec,lower_warning_spec, paramDescription, userName, model_param_spec_mst_rawid);
+                    }
+                    else //used가 false이면 delete Model_param_spec_mst_pdm
+                    {
+                        conditionalSpecMapper.deleteModelParamSpec(model_param_spec_mst_rawid);
+                    }
+
+                }
             }
 
-        }
-        else{
-            //update
-            conditionalSpecMapper.updateConditionalSpec(ruleId,modelName,ruleName,expression,condition,description,userName);
-
-            for (int i = 0; i < parameter.size(); i++) {
-
-
-                model_param_spec_mst_rawid=parameter.get(i).getModel_param_spec_mst_rawid();
-                param_name=parameter.get(i).getParam_name();
-                param_id=parameter.get(i).getParam_id();
-                upper_alarm_spec=parameter.get(i).getUpper_alarm_spec();
-                upper_warning_spec=parameter.get(i).getUpper_warning_spec();
-                target=parameter.get(i).getTarget();
-                lower_alarm_spec=parameter.get(i).getLower_alarm_spec();
-                lower_warning_spec=parameter.get(i).getLower_warning_spec();
-                paramDescription=parameter.get(i).getDescription();
-
-                conditionalSpecMapper.updateModelParamSpec(modelName,param_name,upper_alarm_spec,upper_warning_spec,target,lower_alarm_spec,lower_warning_spec, paramDescription, userName, model_param_spec_mst_rawid);
-            }
 
         }
 
 
     }
 
+    @Override
+    public void deleteModel(String fabId, Long rule) {
+
+        STDConditionalSpecMapper conditionalSpecMapper=SqlSessionUtil.getMapper(sessions, fabId, STDConditionalSpecMapper.class);
+
+        conditionalSpecMapper.deleteModelParamSpec(rule); //delete Model_Param_Spec_Mst_Pdm
+        conditionalSpecMapper.deleteConditionalSpec(rule); // delete Conditional_Spec_Mst_Pdm
+
+
+    }
 
 
 }

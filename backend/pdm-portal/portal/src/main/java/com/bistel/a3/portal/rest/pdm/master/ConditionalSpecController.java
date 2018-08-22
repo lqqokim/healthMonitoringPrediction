@@ -52,11 +52,20 @@ public class ConditionalSpecController {
 
     //6
     @RequestMapping(value="models/setModel", method = RequestMethod.PUT)
-    public void setModel(Principal user, @PathVariable String fabId, @RequestBody STDConditionalSpec model) {
-        model.setUserName(user.getName());
+    public void setModel(Principal user, @PathVariable String fabId, @RequestBody List<STDConditionalSpec> model) {
+
+        for (int i = 0; i < model.size(); i++) {
+            model.get(i).setUserName(user.getName());
+        }
+
         service.setModel(fabId, model);
     }
 
+    @RequestMapping(value="models/rule/{rule}/deleteModel", method = RequestMethod.DELETE)
+    public void deleteModel(Principal user, @PathVariable String fabId,  @PathVariable Long rule) {
+
+        service.deleteModel(fabId, rule);
+    }
 
 
 

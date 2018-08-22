@@ -43,6 +43,7 @@ public interface STDConditionalSpecMapper {
                               @Param("description") String description, @Param("userName") String userName,
                               @Param("model_param_spec_mst_rawid") Long model_param_spec_mst_rawid);
 
+    void deleteModelParamSpec(@Param("rule_id") Long rule_id);
 
-
+    void deleteConditionalSpec(@Param("rule_id") Long rule_id);
 }
