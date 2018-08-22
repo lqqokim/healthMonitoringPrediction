@@ -52,12 +52,9 @@ public class ConditionalSpecController {
 
     //6
     @RequestMapping(value="models/setModel", method = RequestMethod.PUT)
-    public void setModel(Principal user, @PathVariable String fabId, @RequestBody List<STDConditionalSpec> model) {
+    public void setModel(Principal user, @PathVariable String fabId, @RequestBody STDConditionalSpec model) {
 
-        for (int i = 0; i < model.size(); i++) {
-            model.get(i).setUserName(user.getName());
-        }
-
+        model.setUserName(user.getName());
         service.setModel(fabId, model);
     }
 
@@ -83,8 +80,16 @@ public class ConditionalSpecController {
         return service.getConditionsByEqpId(fabId, eqpId);
     }
 
+    @RequestMapping(value="eqps/{eqpId}/setEqpRule", method = RequestMethod.PUT)
+    public void setEqpRule(Principal user, @PathVariable String fabId, @RequestBody STDConditionalSpec eqpRuleList) {
+
+        eqpRuleList.setUserName(user.getName());
+        service.setModel(fabId, eqpRuleList);
+
+    }
+
     @RequestMapping(value="/eqps/{eqpId}/conditions/{rule}/specs",method = RequestMethod.GET)
-    public Object getSpecByEqpIdAndRule(@PathVariable String fabId, @PathVariable Long eqpId, @PathVariable String rule) {
+    public Object getSpecByEqpIdAndRule(@PathVariable String fabId, @PathVariable Long eqpId, @PathVariable Long rule) {
         return service.getSpecByEqpIdAndRule(fabId, eqpId, rule);
     }
 

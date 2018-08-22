@@ -122,11 +122,11 @@ public interface IMasterService {
 
     List<STDConditionalSpec> getConditionsByEqpId(String fabId, Long eqpId);
 
-    List<STDConditionalSpec> getSpecByEqpIdAndRule(String fabId, Long eqpId, String rule);
+    List<STDConditionalSpec> getSpecByEqpIdAndRule(String fabId, Long eqpId, Long rule);
 
     List<STDConditionalSpec> getAllParametersByModel(String fabId, String model);
 
-    void setModel(String fabId, List<STDConditionalSpec> model);
+    void setModel(String fabId, STDConditionalSpec model);
 
     void deleteModel(String fabId, Long rule);
 }

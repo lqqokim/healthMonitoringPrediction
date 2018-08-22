@@ -426,7 +426,7 @@ public class MasterService implements IMasterService {
     }
 
     @Override
-    public List<STDConditionalSpec> getSpecByEqpIdAndRule(String fabId, Long eqpId, String rule) {
+    public List<STDConditionalSpec> getSpecByEqpIdAndRule(String fabId, Long eqpId, Long rule) {
         return null;
     }
 
@@ -436,7 +436,7 @@ public class MasterService implements IMasterService {
     }
 
     @Override
-    public void setModel(String fabId, List<STDConditionalSpec> model) {
+    public void setModel(String fabId, STDConditionalSpec model) {
 
     }
 
