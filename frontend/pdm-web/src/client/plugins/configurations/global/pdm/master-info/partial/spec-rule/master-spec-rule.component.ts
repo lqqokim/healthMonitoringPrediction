@@ -1,5 +1,5 @@
 //Angular
-import { Component, OnInit, OnDestroy, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, OnInit, OnDestroy, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
 
 //MIP
 import { ModalAction, ModalRequester, RequestType } from '../../../../../../../common';
@@ -27,6 +27,7 @@ import { NgForm } from '@angular/forms';
     providers: [PdmConfigService, PdmModelService]
 })
 export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
+    @ViewChild('RuleGrid') RuleGrid: wjcGrid.FlexGrid;
 
     plants: IRule.Plant[];
     models: IRule.Model[];
@@ -39,6 +40,7 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
     ruleFormData: IRule.FormData;
 
     isRuleUse: boolean = false;
+    isEditGird: boolean = false;
 
     protected readonly STATUS: IRule.Status = { CREATE: 'create', MODIFY: 'modify', DELETE: 'delete' };
     protected readonly operands: IRule.Operand[] = [
@@ -111,10 +113,10 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
         //     }).catch((err) => {
 
         //     });
-
+        // this.rules = new wjcCore.CollectionView(this.dataSvc.getData(100));
         this.rules = DATA.RULES;
         console.log('rules', this.rules);
-        // this.selectedRule = this.rules[0];
+        this.selectedRule = this.rules[0];
         this.getParams();
     }
 
@@ -149,8 +151,22 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     selectRow(grid: wjcGrid.FlexGrid): void {
+        this.RuleGrid.collectionView.refresh();
         this.selectedRule = grid.selectedItems[0];
         console.log('selectRow', this.selectedRule)
+    }
+
+    editRuleGrid(isEdit: boolean): void {
+        this.RuleGrid.collectionView.refresh();
+        console.log('editRuleGrid', isEdit);
+    }
+
+    cancelEditRule(isEdit: boolean): void {
+        console.log('cancelEditRule', isEdit);
+    }
+
+    saveEditRule(): void {
+
     }
 
     controlRule(status: string): void {

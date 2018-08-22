@@ -7,6 +7,8 @@ import { PdmModelService } from './../../../../../common/model/app/pdm/pdm-model
 import { PdmConfigService } from './../model/pdm-config.service';
 import { SpinnerComponent } from './../../../../../sdk';
 
+import * as IEqp from './partial/eqp/model/eqp-interface';
+
 @Component({
     moduleId: module.id,
     selector: 'master-info',
@@ -329,28 +331,12 @@ export class MasterInfoComponent implements OnInit, AfterViewInit {
                     node.isChecked = false;
                 });
 
-                /*
-                    TODO: Call getModels api
-                */
-                const models: Array<{ model_name: string }> = [
-                    {
-                        model_name: 'model1'
-                    },
-                    {
-                        model_name: 'model2'
-                    },
-                    {
-                        model_name: 'model3'
-                    }
-                ];
-
                 this.nodeType = this.TYPES.AREA;
                 this.eqpData = {
                     eqps: eqps,
                     fabId: this.selectedFab.fabId,
                     areaId: this.selectedItem.areaId,
                     areaName: this.selectedItem.areaName,
-                    models: models
                 };
 
                 if (areas) {

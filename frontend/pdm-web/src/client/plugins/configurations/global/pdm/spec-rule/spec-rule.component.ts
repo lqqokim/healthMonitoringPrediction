@@ -1,5 +1,5 @@
 //Angular
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 
 //MIP
 import { ModalAction, ModalRequester, RequestType } from '../../../../../common';
@@ -27,17 +27,21 @@ import { NgForm } from '@angular/forms';
     providers: [PdmConfigService, PdmModelService]
 })
 export class SpecRuleComponent implements OnInit, OnDestroy {
+    @ViewChild('wjRuleGrid') wjRuleGrid: wjcGrid.FlexGrid;
 
     plants: IRule.Plant[];
     models: IRule.Model[];
     rules: IRule.Rule[];
-    parametersByRule: IRule.Parameter[];
+    paramsBySelectedRule: IRule.Parameter[];
+
+    paramsByModelEqp: IRule.Parameter[];
 
     selectedPlant: IRule.Plant;
     selectedModel: IRule.Model;
     selectedRule: IRule.Rule;
     ruleFormData: IRule.FormData;
 
+    protected readonly DEFAULT_NAME: string = 'Default';
     protected readonly STATUS: IRule.Status = { CREATE: 'create', MODIFY: 'modify', DELETE: 'delete' };
     protected readonly operands: IRule.Operand[] = [
         { display: '=', value: 'equal' },
@@ -62,69 +66,85 @@ export class SpecRuleComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.getPlants();
-        this.getAllPrametersByModelEQP();
-    }
-
-    getAllPrametersByModelEQP(): void {
-
     }
 
     getPlants(): void {
         this._pdmModelService.getPlants()
             .then((plants: IRule.Plant[]) => {
-                if (!this.selectedPlant) this.selectedPlant = plants[0];
-                this.plants = plants;
-                this.getModels();
+                if (plants && plants.length) {
+                    this.plants = plants;
+                    this.selectedPlant = plants[0];
+                    this.getModels();
+                }
             }).catch((err) => {
 
             });
     }
 
     getModels(): void {
-        // this._pdmConfigService.getModels(this.selectedPlant.fabId)
-        //     .then((models: IRule.Model[]) => {
-        //         if(!this.selectedModel) this.selectedModel = models[0];
-        //         this.models = models;
-        //         this.getRules();
-        //     }).catch((err) => {
+        this._pdmConfigService.getModels(this.selectedPlant.fabId)
+            .then((models: IRule.Model[]) => {
+                console.log('getModels', models);
+                if (models && models.length) {
+                    this.models = models;
+                    this.selectedModel = models[0];
+                    this.getRules();
+                }
+            }).catch((err) => {
 
-        //     });
+            });
+    }
 
-        this.models = DATA.MODELS;
-        this.selectedModel = this.models[0];
-        this.getRules();
+    getAllParamsByModel(): void {
+        this._pdmConfigService.getAllParamsByModel(this.selectedPlant.fabId, this.selectedModel.model_name)
+            .then((params: IRule.Parameter[]) => {
+                console.log('getAllParamsByModel', params);
+            }).catch((err) => {
+
+            });
     }
 
     getRules(): void {
-        //api call
-        // this._pdmConfigService.getModelRules(this.selectedPlant.fabId, this.selectedModel.model_name)
-        //     .then((rules: IRule.Rule[]) => {
-        //         if(!this.selectedRule) this.selectedRule = rules[0];
-        //         this.rules = rules;
-        //         this.getParams();
-        //     }).catch((err) => {
+        this._pdmConfigService.getModelRules(this.selectedPlant.fabId, this.selectedModel.model_name)
+            .then((rules: IRule.Rule[]) => {
+                console.log('getRules', rules);
+                rules.map((rule: IRule.Rule) => {
+                    const splitExpression: string[] = rule.expression.split('AND');
+                    const expressionValues: string[] = rule.expression_values;
 
-        //     });
+                    for(let i = 0; i < splitExpression.length; i++ ) {
+                        splitExpression[i] = splitExpression[i].replace(`p${i + 1}`, expressionValues[i]);
+                    }
 
-        this.rules = DATA.RULES;
-        this.selectedRule = this.rules[0];
-        this.getParams();
+                    rule.expression = splitExpression.join().replace(',', 'AND');
+                });
+
+                console.log('rules', rules);
+                this.rules = rules;
+                rules ? this.selectFirstRule() : this.getAllParamsByModel();
+            }).catch((err) => {
+
+            });
     }
 
-    getParams(): void {
-        //api call
-        // this._pdmConfigService.getParamsByModelRule(this.selectedPlant.fabId, this.selectedModel.model_name, this.selectedRule.rule_id)
-        //     .then((parameters: IRule.Parameter[]) => {
-        //         this.parameters = parameters;
-        //     }).catch((err) => {
+    selectFirstRule(): void {
+        this.selectedRule = this.wjRuleGrid.itemsSource[0];
+        this.getParamsByRule();
+    }
 
-        //     });
-        for (let i = 0; i < DATA.PARAMETERS.length; i++) {
-            let param_name = DATA.PARAMETERS[i].param_name;
-            param_name = param_name.toLowerCase();
-        }
+    getParamsByRule(): void { // rule을 클릭해서 가져오는 parameter
+        const ruleId = this.selectedRule.rule_id;
+        this._pdmConfigService.getParamsByModelRule(this.selectedPlant.fabId, this.selectedModel.model_name, 'PUMP_RULE_1')
+            .then((params: IRule.Parameter[]) => {
+                console.log('getParamsByRule', params);
+                // params.map((param: IRule.Parameter) => {
+                //     param.param_name = param.param_name.toLowerCase();
+                // });
 
-        this.parametersByRule = DATA.PARAMETERS;
+                this.paramsBySelectedRule = params;
+            }).catch((err) => {
+
+            });
     }
 
     changeSelectedPlant(plant: IRule.Plant): void {
@@ -137,13 +157,12 @@ export class SpecRuleComponent implements OnInit, OnDestroy {
         this.getRules();
     }
 
-    selectRow(grid: wjcGrid.FlexGrid): void {
+    selectRule(grid: wjcGrid.FlexGrid): void {
         this.selectedRule = grid.selectedItems[0];
-        console.log('selectRow', this.selectedRule)
+        this.getParamsByRule();
     }
 
     controlRule(status: string): void {
-        console.log('controlRule', status);
         if (status === this.STATUS.DELETE) {
             this.openDeletePopup();
         } else {
@@ -179,26 +198,31 @@ export class SpecRuleComponent implements OnInit, OnDestroy {
     openEditModal(status: string): void {
         if (status === this.STATUS.CREATE) {
             let ruleFormData: IRule.FormData = {
-                rule_name: '',
+                model_name: this.selectedModel.model_name,
+                rule_name: this.rules.length ? '' : this.DEFAULT_NAME,
                 condition: [{
                     param_name: '',
                     operand: '',
                     param_value: null
                 }],
-                parameter: this.parametersByRule
+                parameter: this.paramsBySelectedRule
             };
 
             this.ruleFormData = ruleFormData;
         } else if (status === this.STATUS.MODIFY) {
             let ruleFormData: IRule.FormData = {
+                model_name: this.selectedModel.model_name,
                 rule_name: this.selectedRule.rule_name,
                 condition: [],
-                parameter: this.parametersByRule
+                parameter: this.paramsBySelectedRule
             };
 
-            this.selectedRule.condition.map((condition: IRule.Condition, index: number) => {
+            const conditionsStr: string = this.selectedRule.condition.replace(new RegExp(/\\/g), '');
+            console.log('conditionsStr', conditionsStr);
+            const conditions: IRule.Condition[] = JSON.parse(conditionsStr);
+            conditions.map((condition: IRule.Condition) => {
                 ruleFormData.condition.push({
-                    param_name: condition.param_name.toLowerCase(),
+                    param_name: condition.param_name,
                     operand: condition.operand,
                     param_value: condition.param_value
                 });

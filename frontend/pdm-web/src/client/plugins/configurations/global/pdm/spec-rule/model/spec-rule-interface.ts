@@ -10,8 +10,9 @@ export interface Model {
 export interface Rule {
     rule_id: number;
     rule_name: string;
-    condition: Condition[];
+    condition: string;
     expression: string;
+    expression_values: string[];
 }
 
 export interface RuleReqParams extends Rule{
@@ -19,6 +20,7 @@ export interface RuleReqParams extends Rule{
 }
 
 export interface FormData {
+    model_name: string;
     rule_name: string;
     condition: Condition[];
     parameter: Parameter[];
@@ -31,10 +33,28 @@ export interface Condition {
 }
 
 export interface Parameter {
-    param_id: number;
-    param_name: string;
-    alarm_spec: number;
-    warning_spec: number;
+    model_param_spec_mst_rawid: number,
+    rule_id: number,
+    model_name: string,
+    rule_name: string,
+    condition: string,
+    expression: string,
+    expression_value: string,
+    expression_values: string,
+    description: string,
+    param_id: number,
+    param_name: string,
+    param_value: number,
+    operand: string,
+    upper_alarm_spec: number,
+    upper_warning_spec: number,
+    lower_alarm_spec: number,
+    lower_warning_spec: number,
+    target?: any,
+    orering?: number,
+    use_yn: boolean,
+    userName?: string,
+    parameter?: any
 }
 
 export interface Operand {

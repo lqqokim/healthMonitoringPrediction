@@ -1062,7 +1062,7 @@
 					<if test="item1.group_name == 'COUNT'">
 						COUNT(value) AS ${item1.param_name}_COUNT
 					</if>
-					<if test="item1.group_name == 'AVG'">
+					<if test="item1.group_name == 'MEAN'">
 						AVG(value) AS ${item1.param_name}_AVG
 					</if>
 				</if>

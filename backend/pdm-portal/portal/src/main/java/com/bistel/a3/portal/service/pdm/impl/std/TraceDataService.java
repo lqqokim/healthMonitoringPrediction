@@ -1363,7 +1363,7 @@ public class TraceDataService implements ITraceDataService {
 //                String fieldName = analysisCondition.getY().get(iY).getParam_name()+"_"+analysisCondition.getY().get(iY).getGroup_name();
                 int index = columnIndex.get(analysisCondition.getY().get(iY).getParam_name());
                 final Comparator<List<String>> comp = (p1, p2) -> Double.compare( Double.parseDouble(p1.get(index)), Double.parseDouble(p2.get(index)));
-                if(analysisCondition.getY().get(iY).getGroup_name().equals("AVG")){
+                if(analysisCondition.getY().get(iY).getGroup_name().equals("MEAN")){
                     value = datas.stream().collect(Collectors.averagingDouble(p-> Double.parseDouble(p.get(index))));
                 }else if(analysisCondition.getY().get(iY).getGroup_name().equals("MAX")){
                     value = Double.parseDouble(datas.stream().max(comp).get().get(index));
@@ -1383,7 +1383,7 @@ public class TraceDataService implements ITraceDataService {
 //                String fieldName = analysisCondition.getY().get(iY).getParam_name()+"_"+analysisCondition.getY().get(iY).getGroup_name();
                 int index = columnIndex.get(analysisCondition.getY2().get(iY).getParam_name());
                 final Comparator<List<String>> comp = (p1, p2) -> Double.compare( Double.parseDouble(p1.get(index)), Double.parseDouble(p2.get(index)));
-                if(analysisCondition.getY().get(iY).getGroup_name().equals("AVG")){
+                if(analysisCondition.getY().get(iY).getGroup_name().equals("MEAN")){
                     value = datas.stream().collect(Collectors.averagingDouble(p-> Double.parseDouble(p.get(index))));
                 }else if(analysisCondition.getY().get(iY).getGroup_name().equals("MAX")){
                     value = Double.parseDouble(datas.stream().max(comp).get().get(index));

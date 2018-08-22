@@ -18,6 +18,7 @@ public class AnalysisData {
 	public Map<String, AnalysisData> getChildrendKey() {
 		return childrendKey;
 	}
+	
 	public String getParam_name() {
 		return param_name;
 	}
@@ -62,6 +63,7 @@ public class AnalysisData {
 			this.childrendKey.put(key.param_name,key);
 		}
 	}
+	
 	public void addChildren(AnalysisData analysisData){
 		this.children.add(analysisData);
 		this.childrendKey.put(analysisData.getName(),analysisData);

@@ -1,6 +1,7 @@
 import { EqpListComponent } from './../../../eqp/partial/eqp-list.component';
 //Angular
 import { Component, OnInit, OnChanges, ViewEncapsulation, ViewChild, ElementRef, Input, EventEmitter, Output } from '@angular/core';
+import { DomSanitizer } from '@angular/platform-browser';
 
 //MIP
 import { ModalAction, ModalRequester, RequestType } from '../../../../../../../common';
@@ -14,9 +15,8 @@ import * as wjcNav from 'wijmo/wijmo.nav';
 import * as wjcCore from 'wijmo/wijmo';
 import * as wjcGrid from 'wijmo/wijmo.grid';
 
-import { DomSanitizer } from '@angular/platform-browser';
-
-
+//interface
+import * as IEqp from './model/eqp-interface';
 
 @Component({
     moduleId: module.id,
@@ -48,6 +48,8 @@ export class MasterEqpListComponent implements OnInit, OnChanges {
     base64Image: any;
     changeImage: boolean;
 
+    models: IEqp.Model[];
+    isDirectInput: boolean = false;
 
     constructor(
         private modalAction: ModalAction,
@@ -72,18 +74,29 @@ export class MasterEqpListComponent implements OnInit, OnChanges {
             eqpDatas.map((eqp) => {
                 eqp.areaName = currentValue.areaName;
             });
+
             this.eqpDatas = eqpDatas;
             this.fabId = currentValue.fabId;
             this.areaId = currentValue.areaId;
             this.areaName = currentValue.areaName;
+            this.getModels();
 
-            if (this.eqpDatas.length === 0) {
+            if (!this.eqpDatas.length) {
                 this.btnDisabled = true;
             } else {
                 this.btnDisabled = false;
                 this._firstSelectedData();
             }
         }
+    }
+
+    getModels(): void {
+        this.pdmConfigService.getModels(this.fabId)
+            .then((models: IEqp.Model[]) => {
+                this.models = models;
+            }).catch((err) => {
+
+            });
     }
 
     _firstSelectedData(): void {
@@ -136,6 +149,7 @@ export class MasterEqpListComponent implements OnInit, OnChanges {
             eqpData = {
                 areaName: this.areaName,
                 eqpName: '',
+                model_name: '',
                 description: '',
                 image: '',
                 dataType: '',
@@ -143,10 +157,10 @@ export class MasterEqpListComponent implements OnInit, OnChanges {
             };
         } else if (status === 'modify' || status === 'copy') {
             eqpData = this.selectedRowData;
-            
-            if(eqpData.offline_yn === 'N') {
+
+            if (eqpData.offline_yn === 'N') {
                 eqpData.offline_yn = false;
-            } else if(eqpData.offline_yn === 'Y') {
+            } else if (eqpData.offline_yn === 'Y') {
                 eqpData.offline_yn = true;
             }
 
@@ -210,15 +224,17 @@ export class MasterEqpListComponent implements OnInit, OnChanges {
             }
 
 
-            if(eqpData.offline_yn === true) {
+            if (eqpData.offline_yn === true) {
                 eqpData.offline_yn = 'Y';
-            } else if(eqpData.offline_yn === false) {
+            } else if (eqpData.offline_yn === false) {
                 eqpData.offline_yn = 'N';
             }
+
 
             let request: any = {
                 description: eqpData.description,
                 eqpName: eqpData.eqpName,
+                model_name: eqpData.model_name,
                 areaId: this.areaId,
                 image: eqpData.image,
                 // dataType: eqpData.dataType
@@ -230,7 +246,20 @@ export class MasterEqpListComponent implements OnInit, OnChanges {
                 request.eqpId = this.selectedRowData.eqpId;
             }
 
+            if (this.isDirectInput) {
+                this.isDirectInput = false;
+            }
+
+            console.log('eqp req', request);
             this._updateEqp(request);
+        }
+    }
+
+    changeDirectInput(isDirectInput: boolean, modelName: string): void {
+        if (isDirectInput) {
+            if (modelName.length) {
+                this.eqpData.modelName = null;
+            }
         }
     }
 
@@ -289,7 +318,7 @@ export class MasterEqpListComponent implements OnInit, OnChanges {
 
     }
 
-    _showModal(isShow): void {
+    _showModal(isShow: boolean): void {
         if (isShow) {
             this.modalTitle = this._firstCharUpper(this.status);
             $('#eqpModal').modal({
@@ -297,6 +326,12 @@ export class MasterEqpListComponent implements OnInit, OnChanges {
                 show: true
             });
         } else {
+            if (this.isDirectInput) {
+                this.isDirectInput = false;
+            }
+
+            this.eqpForm.form.reset();
+
             $('#eqpModal').modal('hide');
         }
     }

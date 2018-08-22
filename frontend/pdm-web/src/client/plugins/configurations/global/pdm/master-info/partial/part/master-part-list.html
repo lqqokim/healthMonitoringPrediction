@@ -9,8 +9,8 @@
 <div class="master-info-path-bottom">
   <wj-flex-grid #WijmoGridInstance [itemsSource]="partDatas" [selectionMode]="'Row'" [isReadOnly]="true" [headersVisibility]="'Column'"
     (selectionChanged)="selectedRow(WijmoGridInstance, $event)">
-    <wj-flex-grid-column [width]="'*'" [header]="'Name'" [binding]="'name'" [align]="'center'"></wj-flex-grid-column>
     <wj-flex-grid-column [width]="'*'" [header]="'EQP'" [binding]="'eqpName'" [align]="'center'"></wj-flex-grid-column>
+    <wj-flex-grid-column [width]="'*'" [header]="'Name'" [binding]="'name'" [align]="'center'"></wj-flex-grid-column>
     <!-- <wj-flex-grid-column [width]="'*'" [header]="'Parameter'" [binding]="'paramName'" [align]="'center'"></wj-flex-grid-column> -->
     <wj-flex-grid-column [width]="'*'" [header]="'Bearing'" [binding]="'bearing'" [align]="'center'"></wj-flex-grid-column>
     <wj-flex-grid-column [width]="'*'" [header]="'Ratio'" [binding]="'ratio'" [align]="'center'"></wj-flex-grid-column>

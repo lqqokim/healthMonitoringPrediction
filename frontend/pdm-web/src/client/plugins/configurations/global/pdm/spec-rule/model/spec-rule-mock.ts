@@ -15,7 +15,7 @@ export const MODELS: IRule.Model[] = [
     }
 ];
 
-export const RULES: IRule.Rule[] = [
+export const RULES: any = [
     {
         "rule_id": 21300,
         "rule_name": "TOHS_7001",
@@ -54,7 +54,7 @@ export const RULES: IRule.Rule[] = [
     }
 ];
 
-export const PARAMETERS: IRule.Parameter[] = [
+export const PARAMETERS: any = [
     {
         "param_id": 132231,
         "param_name": "barcode",
