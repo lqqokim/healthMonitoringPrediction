@@ -72,6 +72,7 @@
 
 <!-- Modal -->
 <div class="modal fade" id="ruleModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-backdrop fade in"></div>
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -94,8 +95,8 @@
                             <!-- <input type="checkbox" (click)="isRuleUse = !isRuleUse; changeRuleUse(isRuleUse);" [checked]="isRuleUse" />Rule Use -->
                         </div>
 
-                        <div class="condition">
-                            <label>Condition</label>
+                        <div class="form-group a3-input-group condition">
+                            <label class="control-label">Condition</label>
                             <table>
                                 <thead>
                                     <th class='filter_fieldname'>Paramter</th>
@@ -124,8 +125,8 @@
                             </table>
                         </div>
 
-                        <div class="parameter-list">
-                            <label>Parameter List</label>
+                        <div class="form-group a3-input-group parameter-list">
+                            <label class="control-label">Parameter List</label>
                             <wj-flex-grid #WijmoGridInstance 
                                 [itemsSource]="ruleFormData.parameter"
                                 [selectionMode]="'Row'" 
