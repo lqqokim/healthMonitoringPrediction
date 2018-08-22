@@ -8,6 +8,7 @@ public class STDConditionalSpec {
 
 
     private Long model_param_spec_mst_rawid;
+    private Long eqp_spec_link_mst_rawid;
 
     private Long rule_id;
     private String model_name;
@@ -34,6 +35,14 @@ public class STDConditionalSpec {
 
     List<STDConditionalSpec> parameter;
 
+
+    public Long getEqp_spec_link_mst_rawid() {
+        return eqp_spec_link_mst_rawid;
+    }
+
+    public void setEqp_spec_link_mst_rawid(Long eqp_spec_link_mst_rawid) {
+        this.eqp_spec_link_mst_rawid = eqp_spec_link_mst_rawid;
+    }
 
     public boolean isUsed_yn() {
         return used_yn;

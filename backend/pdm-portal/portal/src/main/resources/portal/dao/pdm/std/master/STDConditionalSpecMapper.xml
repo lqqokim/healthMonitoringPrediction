@@ -130,11 +130,22 @@
     </select>
 
     <select id="selectConditionsByEqpId" resultType="com.bistel.a3.portal.domain.pdm.std.master.STDConditionalSpec">
-        select c.rawid as rule_id, c.condition_name as rule_name, c.condition , c.expression, c.expression_value ,s.ordering, s.use_yn
-        from eqp_mst_pdm e, eqp_spec_link_mst_pdm s, CONDITIONAL_SPEC_MST_PDM c
-        where e.rawid=s.eqp_mst_rawid
-        and c.rawid=s.CONDITIONAL_SPEC_MST_RAWID
-        and e.rawid=#{eqpId}
+        SELECT * FROM (
+        select MODEL_SPEC.RAWID RULE_ID, MODEL_SPEC.MODEL_NAME,MODEL_SPEC.CONDITION,MODEL_SPEC.CONDITION_NAME
+        from CONDITIONAL_SPEC_MST_PDM MODEL_SPEC
+        where model_name=
+        (
+            SELECT MODEL_NAME
+            FROM EQP_MST_PDM
+            WHERE RAWID=#{eqpId}
+        )
+        ) A,
+        (
+            SELECT SPEC.CONDITIONAL_SPEC_MST_RAWID , SPEC.RAWID EQP_SPEC_LINK_MST_RAWID
+            FROM EQP_SPEC_LINK_MST_PDM SPEC
+            WHERE EQP_MST_RAWID=#{eqpId}
+        )B
+        WHERE A.RULE_ID = B.CONDITIONAL_SPEC_MST_RAWID(+)
 
     </select>
 

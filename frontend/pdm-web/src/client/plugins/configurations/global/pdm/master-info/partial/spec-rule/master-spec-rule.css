@@ -52,15 +52,8 @@
 .modal-body.spec-rule-modal-body .condition table .param-operand,
 .modal-body.spec-rule-modal-body .condition table .param-value, 
 .modal-body.spec-rule-modal-body .condition table .remove{
-    padding-right: 10px;
+    padding: 10px 10px 0 0;
 }
-.modal-body.spec-rule-modal-body .condition table tr:last-child td{
+ .condition tr td:last-child{
     padding-right: 0;
 }
-
-/* #ruleModal .modal-dialog .modal-body .parameter-list{
-    width: 100%;
-    margin-top: 20px;
-} */
-
-

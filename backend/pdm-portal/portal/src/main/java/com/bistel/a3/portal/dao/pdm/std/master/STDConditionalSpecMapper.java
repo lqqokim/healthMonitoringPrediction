@@ -22,7 +22,7 @@ public interface STDConditionalSpecMapper {
 
     List<STDConditionalSpec> selectConditionsByEqpId(@Param("eqpId") Long eqpId);
 
-    List<STDConditionalSpec> selectParamSpecByeqpIdAndRule(@Param("eqpId") Long eqpId, @Param("rule") String rule);
+    List<STDConditionalSpec> selectParamSpecByeqpIdAndRule(@Param("eqpId") Long eqpId, @Param("rule_id") Long rule_id);
 
     List<STDConditionalSpec> selectParamListByModelName(@Param("model") String model);
 
