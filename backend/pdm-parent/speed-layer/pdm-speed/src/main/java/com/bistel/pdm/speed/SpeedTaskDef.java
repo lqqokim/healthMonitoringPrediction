@@ -62,7 +62,7 @@ public class SpeedTaskDef extends AbstractPipeline {
                         Serdes.String(),
                         Serdes.String());
 
-        StoreBuilder<WindowStore<String, String>> normalizedParamValueStoreSupplier =
+        StoreBuilder<WindowStore<String, Double>> normalizedParamValueStoreSupplier =
                 Stores.windowStoreBuilder(
                         Stores.persistentWindowStore("speed-normalized-value",
                                 TimeUnit.DAYS.toMillis(1),
@@ -70,7 +70,7 @@ public class SpeedTaskDef extends AbstractPipeline {
                                 TimeUnit.HOURS.toMillis(1),
                                 true),
                         Serdes.String(),
-                        Serdes.String());
+                        Serdes.Double());
 
         StoreBuilder<KeyValueStore<String, Long>> sumIntervalStoreSupplier =
                 Stores.keyValueStoreBuilder(

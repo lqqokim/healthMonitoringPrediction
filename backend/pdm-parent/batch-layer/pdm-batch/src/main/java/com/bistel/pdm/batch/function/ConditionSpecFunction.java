@@ -32,16 +32,18 @@ public class ConditionSpecFunction {
                     break;
                 }
 
-                String[] params = cs.getExpressionValue().split(",");
-                for (int i = 1; i <= params.length; i++) {
-                    Integer index = exprMap.get(params[i - 1]);
-                    ruleVariables.putValue("p" + i, Double.parseDouble(record[index]));
-                }
+                if(cs.getExpressionValue() != null){
+                    String[] params = cs.getExpressionValue().split(",");
+                    for (int i = 1; i <= params.length; i++) {
+                        Integer index = exprMap.get(params[i - 1]);
+                        ruleVariables.putValue("p" + i, Double.parseDouble(record[index]));
+                    }
 
-                RuleEvaluator ruleEvaluator = new RuleEvaluator(ruleVariables);
-                if (ruleEvaluator.evaluate(cs.getExpression())) {
-                    conditionName = cs.getConditionName();
-                    break;
+                    RuleEvaluator ruleEvaluator = new RuleEvaluator(ruleVariables);
+                    if (ruleEvaluator.evaluate(cs.getExpression())) {
+                        conditionName = cs.getConditionName();
+                        break;
+                    }
                 }
             }
         } catch (Exception e) {
