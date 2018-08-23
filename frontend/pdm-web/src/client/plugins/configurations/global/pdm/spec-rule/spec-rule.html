@@ -24,20 +24,20 @@
     </div>
     <div class="spec-rule-content">
         <div class="rule-list">
-            <wj-flex-grid #wjRuleGrid 
+            <wj-flex-grid #RuleGrid 
                 [itemsSource]="rules" 
                 [allowDragging]="'None'" 
                 [isReadOnly]="true" 
                 [selectionMode]="'Row'" 
                 [headersVisibility]="'Column'"
-                (selectionChanged)="selectRule(wjRuleGrid)">
+                (selectionChanged)="selectRule(RuleGrid)">
                 <!-- <wj-flex-grid-filter #filter></wj-flex-grid-filter> -->
                 <wj-flex-grid-column [width]="'*'" [header]="'Rule Name'" [binding]="'rule_name'" [align]="'center'"></wj-flex-grid-column>
                 <wj-flex-grid-column [width]="'*'" [header]="'Condition'" [binding]="'expression'" [align]="'center'"></wj-flex-grid-column>
             </wj-flex-grid>
         </div>
         <div class="parameter-list">
-            <wj-flex-grid 
+            <wj-flex-grid
                 [itemsSource]="paramsBySelectedRule"
                 [allowDragging]="'None'" 
                 [isReadOnly]="true"
@@ -76,10 +76,15 @@
                             <label class="control-label">Rule Name
                                 <span class="a3-asterisk">*</span>
                             </label>
-                            <input type="text" class="form-control" name="ruleName" [(ngModel)]="ruleFormData.rule_name" [disabled]="ruleFormData.rule_name === DEFAULT_NAME">
+                            <input type="text" class="form-control" id="ruleName" name="ruleName" [(ngModel)]="ruleFormData.rule_name" #ruleName="ngModel" required [disabled]="!rules?.length">
+                            <!-- <div *ngIf="ruleName.errors && (ruleName.dirty || ruleName.touched)" class="alert alert-danger">
+                                <div *ngIf="ruleName.errors.required">
+                                    Rule Name is required!
+                                </div>
+                            </div> -->
                         </div>
 
-                        <div class="form-group a3-input-group condition" *ngIf="ruleFormData.rule_name !== DEFAULT_NAME">
+                        <div *ngIf="ruleFormData.condition" class="form-group a3-input-group condition">
                             <label class="control-label">Condition</label>
                             <table>
                                 <thead>
@@ -91,17 +96,33 @@
                                 <tbody>
                                     <tr *ngFor="let condition of ruleFormData.condition;let i=index">
                                         <td class="param-name">
-                                            <select class='form-control' name="paramName{{i}}" [(ngModel)]="condition.param_name">
-                                                <option *ngFor="let parameter of paramsBySelectedRule" [ngValue]="parameter.param_name">{{parameter.param_name}}</option>
+                                                <!-- <select class='form-control' id="paramName{{i}}" name="paramName{{i}}" [ngClass]="{'has-error': !valid}" [(ngModel)]="condition.param_name" #paramName="ngModel" required> -->
+                                            <select class='form-control' id="paramName{{i}}" name="paramName{{i}}" [(ngModel)]="condition.param_name" #paramName="ngModel" required>
+                                                <option *ngFor="let parameter of editParameters" [ngValue]="parameter.param_name">{{parameter.param_name}}</option>
                                             </select>
+                                            <!-- <div *ngIf="paramName.errors && (paramName.dirty || paramName.touched)" class="alert alert-danger">
+                                                <div *ngIf="paramName.errors.required">
+                                                    Parameter Name is required!
+                                                </div>
+                                            </div> -->
                                         </td>
                                         <td class="param-operand">
-                                            <select id="field{{i}}" class='form-control' name="operand{{i}}" [(ngModel)]="condition.operand">
+                                            <select class='form-control' id="operand{{i}}" name="operand{{i}}" [(ngModel)]="condition.operand" #operand="ngModel" required>
                                                 <option *ngFor="let operand of operands" [ngValue]="operand.display">{{operand.display}}</option>
                                             </select>
+                                            <!-- <div *ngIf="operand.errors && (operand.dirty || operand.touched)" class="alert alert-danger">
+                                                <div *ngIf="operand.errors.required">
+                                                    Operand is required!
+                                                </div>
+                                            </div> -->
                                         </td>
                                         <td class="param-value">
-                                            <input type='text' class='form-control' name="value{{i}}" [(ngModel)]="condition.param_value" required #value{{i}}="ngModel">
+                                            <input type='text' class='form-control' id="value{{i}}" name="value{{i}}" [(ngModel)]="condition.param_value" #value="ngModel" required>
+                                            <!-- <div *ngIf="value.errors && (value.dirty || value.touched)" class="alert alert-danger">
+                                                <div *ngIf="value.errors.required">
+                                                    Value is required!
+                                                </div>
+                                            </div> -->
                                         </td>
                                         <td *ngIf="i !== 0" class="remove">
                                             <span (click)="removeCondition(i)" class="glyphicon glyphicon-minus rollover" aria-hidden="true"></span>
@@ -119,14 +140,14 @@
                         </div>
                         <div class="form-group a3-input-group parameter-list" *ngIf="ruleFormData.parameter">
                             <label class="control-label">Parameter List</label>
-                            <wj-flex-grid #WijmoGridInstance 
-                                [itemsSource]="ruleFormData.parameter" 
+                            <wj-flex-grid #ParamGrid
+                                [itemsSource]="editParameters" 
                                 [selectionMode]="'Row'" 
                                 [headersVisibility]="'Column'">
                                 <!-- <wj-flex-grid-filter #filter></wj-flex-grid-filter> -->
                                 <wj-flex-grid-column [width]="'*'" [header]="'Parameter'" [binding]="'param_name'" [isReadOnly]="true"></wj-flex-grid-column>
-                                <wj-flex-grid-column [width]="'*'" [header]="'Alarm'" [binding]="'upper_alarm_spec'"></wj-flex-grid-column>
-                                <wj-flex-grid-column [width]="'*'" [header]="'Warning'" [binding]="'upper_warning_spec'"></wj-flex-grid-column>
+                                <wj-flex-grid-column [width]="'*'" [header]="'Alarm'" [binding]="'upper_alarm_spec'" [dataType]="'Number'"></wj-flex-grid-column>
+                                <wj-flex-grid-column [width]="'*'" [header]="'Warning'" [binding]="'upper_warning_spec'" [dataType]="'Number'"></wj-flex-grid-column>
                                 <wj-flex-grid-column [width]="'*'" [header]="'Used'" [binding]="'used_yn'"></wj-flex-grid-column>
                             </wj-flex-grid>
                         </div>
@@ -135,7 +156,8 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal" (click)="RuleForm.form.reset(); closeModal();">Close</button>
-                    <button type="button" class="btn btn-primary" [disabled]="!RuleForm.form.valid" (click)="saveRule(RuleForm)">Apply</button>
+                    <button *ngIf="rules?.length" type="button" class="btn btn-primary" [disabled]="!RuleForm.form.valid" (click)="saveRule(RuleForm)">Apply</button>
+                    <button *ngIf="!rules?.length" type="button" class="btn btn-primary" (click)="saveRule(RuleForm)">Apply</button>
                 </div>
             </form>
 

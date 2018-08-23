@@ -648,7 +648,6 @@ public class MasterService implements IMasterService {
 
         List<STDConditionalSpec> conditionsList=conditionalSpecMapper.selectConditionsByModel(model);
 
-
 //        STDConditionalSpec conditionalSpec=new STDConditionalSpec();
 
 //        JSONParser jsonParser=null;
@@ -687,11 +686,20 @@ public class MasterService implements IMasterService {
 //
 //        }
 
-        String expressionValue=null;
+        String expressionValue="";
+        String[] expression_values=null;
         for (int i = 0; i < conditionsList.size(); i++) {
 
             expressionValue=conditionsList.get(i).getExpression_value();
-            conditionsList.get(i).setExpression_values(expressionValue.split(","));
+            if (expressionValue==null)
+            {
+                conditionsList.get(i).setExpression_values(expression_values);
+            }
+            else if(!expressionValue.equals(null))
+            {
+                conditionsList.get(i).setExpression_values(expressionValue.split(","));
+            }
+
 
         }
 
@@ -738,7 +746,6 @@ public class MasterService implements IMasterService {
         STDConditionalSpecMapper conditionalSpecMapper=SqlSessionUtil.getMapper(sessions, fabId, STDConditionalSpecMapper.class);
 
         return conditionalSpecMapper.selectParamSpecByeqpIdAndRule(eqpId, rule);
-
     }
 
     @Override
@@ -752,8 +759,6 @@ public class MasterService implements IMasterService {
     public void setModel(String fabId, STDConditionalSpec model) {
 
         STDConditionalSpecMapper conditionalSpecMapper=SqlSessionUtil.getMapper(sessions, fabId, STDConditionalSpecMapper.class);
-
-
 
         String userName=model.getUserName();
         Long ruleId=model.getRule_id();
@@ -794,7 +799,7 @@ public class MasterService implements IMasterService {
 
                 if (used_yn==true) //used가 체크되면 Insert into Model_param_spec_mst_pdm
                 {
-                    conditionalSpecMapper.insertModelParamSpec(ruleId, modelName, param_name,upper_alarm_spec, upper_warning_spec,target,
+                    conditionalSpecMapper.insertModelParamSpec(ruleId,  param_name, upper_alarm_spec, upper_warning_spec,target,
                             lower_alarm_spec,lower_warning_spec, paramDescription,userName);
                 }
 
@@ -803,7 +808,7 @@ public class MasterService implements IMasterService {
         }
         else //updatae
         {
-            conditionalSpecMapper.updateConditionalSpec(ruleId,modelName,ruleName,expression,condition,description,userName);
+            conditionalSpecMapper.updateConditionalSpec(ruleId,modelName,ruleName,expression,condition,description,userName, expression_value);
 
             for (int j = 0; j < parameter.size(); j++) {
 
@@ -817,12 +822,28 @@ public class MasterService implements IMasterService {
                 lower_warning_spec=parameter.get(j).getLower_warning_spec();
                 paramDescription=parameter.get(j).getDescription();
                 used_yn=parameter.get(j).isUsed_yn();
+                Long checkParam=0L;
 
                 if (used_yn==true) //used가 체크되면 Insert into Model_param_spec_mst_pdm
                 {
-                    conditionalSpecMapper.updateModelParamSpec(modelName,param_name,upper_alarm_spec,upper_warning_spec,target,lower_alarm_spec,lower_warning_spec, paramDescription, userName, model_param_spec_mst_rawid);
+                    //Model_param_spec_mst_pdm에 paramName이 있는지 없는지 체크
+                    //없으면 insert 있으면 update
+                    // Insert into Model_param_spec_mst_pdm
+                    // update model_param_spec_mst_pdm
+                    //conditionalSpecMapper.updateModelParamSpec(modelName,param_name,upper_alarm_spec,upper_warning_spec,target,lower_alarm_spec,lower_warning_spec, paramDescription, userName, model_param_spec_mst_rawid);
+
+                    checkParam=conditionalSpecMapper.selectCheckModelParam(ruleId,param_name);
+                    if (checkParam<1){//used_Yn이 treu일때
+                        conditionalSpecMapper.insertModelParamSpec(ruleId, param_name, upper_alarm_spec, upper_warning_spec,target, lower_alarm_spec,
+                                lower_warning_spec,paramDescription,userName);
+                    }
+                    else{//스펙만 바뀔때
+                        conditionalSpecMapper.updateModelParamSpec(param_name,upper_alarm_spec,upper_warning_spec,target,lower_alarm_spec,lower_warning_spec, paramDescription, userName, model_param_spec_mst_rawid);
+
+                    }
+
                 }
-                else //used가 false이면 delete Model_param_spec_mst_pdm
+                else if (used_yn==false && model_param_spec_mst_rawid!=null) //used가 false이면 delete Model_param_spec_mst_pdm
                 {
                     conditionalSpecMapper.deleteModelParamSpec(model_param_spec_mst_rawid);
                 }
@@ -841,8 +862,108 @@ public class MasterService implements IMasterService {
         conditionalSpecMapper.deleteModelParamSpec(rule); //delete Model_Param_Spec_Mst_Pdm
         conditionalSpecMapper.deleteConditionalSpec(rule); // delete Conditional_Spec_Mst_Pdm
 
+    }
+
+    @Override
+    public void setEqpRule(String fabId, Long eqpId ,List<STDConditionalSpec> eqpRuleList) {
+
+        STDConditionalSpecMapper conditionalSpecMapper=SqlSessionUtil.getMapper(sessions, fabId, STDConditionalSpecMapper.class);
+
+        Long rule_id=null;
+        Long ordering=null;
+        String use_yn=null;
+        String description=null;
+        String userName=null;
+        Long eqp_spec_link_mst_rawid=null;
+
+        boolean used_yn=false;
+
+        for (int i = 0; i < eqpRuleList.size(); i++) {
+
+            rule_id=eqpRuleList.get(i).getModel_param_spec_mst_rawid();
+            ordering=eqpRuleList.get(i).getOrdering();
+            userName=eqpRuleList.get(i).getUserName();
+            used_yn=eqpRuleList.get(i).isUsed_yn();
+            eqp_spec_link_mst_rawid=eqpRuleList.get(i).getEqp_spec_link_mst_rawid();
+
+            if (used_yn==true)
+            {
+                //eqp_spec_link_mst_pdm에 있는지 없는지 체크 후에 Insert
+                //used tured인 경우
+                //1. eqp_spec_link_mst_pdm에 insert
+                //2. 해당 해당 파라미터들 param_spec_mst_pdm에 insert
+
+                //1.
+                conditionalSpecMapper.insertEqpSpecLink(eqpId, rule_id, ordering,  description, userName);
+
+                List<STDConditionalSpec> modelParam=conditionalSpecMapper.selectAppliedEqpParamListByeqpIdAndRule(eqpId,rule_id);
+
+                Long param_id=null;
+                String spec_type="MODEL";
+                Double upper_alarm_spec=null;
+                Double upper_warning_spec=null;
+                Double target=null;
+                Double lower_alarm_spec=null;
+                Double lower_warning_spec=null;
+                String modelParamDescription=null;
+
+                for (int j = 0; j < modelParam.size(); j++) {
+
+                    param_id=modelParam.get(i).getParam_id();
+                    upper_alarm_spec=modelParam.get(i).getUpper_alarm_spec();
+                    upper_warning_spec=modelParam.get(i).getUpper_warning_spec();
+
+                    conditionalSpecMapper.insertParamSpec(param_id,eqp_spec_link_mst_rawid,spec_type,upper_alarm_spec,upper_warning_spec,
+                            target,lower_alarm_spec,lower_warning_spec,modelParamDescription,userName);
+                }
+
+
+            }
+            else
+            {
+                //1. param_spec_mst_pdm삭제
+                //2. eqp_spec_mst_link_pdm 삭제
+                conditionalSpecMapper.deleteParamSpec(eqp_spec_link_mst_rawid);
+                conditionalSpecMapper.deleteEqpSpecLink(eqpId,rule_id);
+            }
+
+        }
 
     }
 
+    @Override
+    public void setEqpParamSpec(String fabId, List<STDConditionalSpec> eqpParamSpecList) {
+
+        STDConditionalSpecMapper conditionalSpecMapper=SqlSessionUtil.getMapper(sessions, fabId, STDConditionalSpecMapper.class);
+
+
+        //1. Spec 변경시 Param_spec_mst_pdm에 Insert
+        //2.
+        Long param_id=null;
+        Long eqp_spec_link_mst_rawid=null;
+        String spec_type="EQP";
+        Double eqp_upper_alarm_spec=null;
+        Double eqp_upper_warning_spec=null;
+        Double target=null;
+        Double eqp_lower_alarm_spec=null;
+        Double eqp_lower_warning_spec=null;
+        String description=null;
+        String userName=null;
+
+
+        for (int i = 0; i < eqpParamSpecList.size(); i++) {
+
+            param_id=eqpParamSpecList.get(i).getParam_id();
+            eqp_spec_link_mst_rawid=eqpParamSpecList.get(i).getEqp_spec_link_mst_rawid();
+            eqp_upper_alarm_spec=eqpParamSpecList.get(i).getEqp_upper_alarm_spec();
+            eqp_upper_warning_spec=eqpParamSpecList.get(i).getEqp_upper_warning_spec();
+            eqp_lower_alarm_spec=eqpParamSpecList.get(i).getEqp_lower_alarm_spec();
+            eqp_lower_warning_spec=eqpParamSpecList.get(i).getEqp_lower_warning_spec();
+
+            conditionalSpecMapper.updateParamSpec(spec_type, eqp_upper_alarm_spec, eqp_upper_warning_spec, eqp_lower_alarm_spec, eqp_lower_warning_spec,
+                    param_id, eqp_spec_link_mst_rawid);
+        }
+
+    }
 
 }

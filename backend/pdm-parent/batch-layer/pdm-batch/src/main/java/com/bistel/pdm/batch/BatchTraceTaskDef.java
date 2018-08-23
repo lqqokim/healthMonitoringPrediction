@@ -89,8 +89,8 @@ public class BatchTraceTaskDef extends AbstractPipeline {
                 .addProcessor("aggregate", AggregateFeatureProcessor::new, "prepare")
                 .addStateStore(summaryWindowStoreSupplier, "aggregate")
                 .addStateStore(summaryIntervalStoreSupplier, "aggregate")
-                .addSink("output-feature", this.getOutputFeatureTopic(), "aggregate")
-                .addSink("route-feature", this.getRouteFeatureTopic(), "aggregate");
+                .addSink("output-feature", this.getOutputFeatureTopic(), "aggregate");
+                //.addSink("route-feature", this.getRouteFeatureTopic(), "aggregate");
 
         return new KafkaStreams(topology, getStreamProperties());
     }

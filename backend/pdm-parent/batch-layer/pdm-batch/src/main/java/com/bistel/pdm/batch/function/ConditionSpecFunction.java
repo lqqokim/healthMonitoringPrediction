@@ -24,7 +24,7 @@ public class ConditionSpecFunction {
             RuleVariables ruleVariables = new RuleVariables();
 
             List<ConditionalSpecMaster> eqpConditions = MasterCache.EquipmentCondition.get(partitionKey);
-            Map<String, Integer> exprMap = MasterCache.ExprParameter.get(partitionKey);
+            Map<String, Map<String, Integer>> exprMap = MasterCache.ExprParameter.get(partitionKey);
 
             for (ConditionalSpecMaster cs : eqpConditions) {
                 if (cs.getExpression() == null || cs.getExpression().length() <= 0) {
@@ -32,16 +32,19 @@ public class ConditionSpecFunction {
                     break;
                 }
 
-                String[] params = cs.getExpressionValue().split(",");
-                for (int i = 1; i <= params.length; i++) {
-                    Integer index = exprMap.get(params[i - 1]);
-                    ruleVariables.putValue("p" + i, Double.parseDouble(record[index]));
-                }
+                Map<String, Integer> expr = exprMap.get(cs.getRuleName());
+                if(expr.size() > 0) {
+                    String[] params = cs.getExpressionValue().split(",");
+                    for (int i = 1; i <= params.length; i++) {
+                        Integer index = expr.get(params[i - 1]);
+                        ruleVariables.putValue("p" + i, Double.parseDouble(record[index]));
+                    }
 
-                RuleEvaluator ruleEvaluator = new RuleEvaluator(ruleVariables);
-                if (ruleEvaluator.evaluate(cs.getExpression())) {
-                    conditionName = cs.getConditionName();
-                    break;
+                    RuleEvaluator ruleEvaluator = new RuleEvaluator(ruleVariables);
+                    if (ruleEvaluator.evaluate(cs.getExpression())) {
+                        conditionName = cs.getRuleName();
+                        break;
+                    }
                 }
             }
         } catch (Exception e) {

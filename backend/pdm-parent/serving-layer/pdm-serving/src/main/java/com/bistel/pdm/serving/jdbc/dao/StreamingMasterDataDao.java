@@ -11,7 +11,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 /**
  *
@@ -51,7 +50,7 @@ public class StreamingMasterDataDao {
                     }
                 }
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
         return resultRows;
@@ -61,7 +60,7 @@ public class StreamingMasterDataDao {
     private final static String PARAM_MASTER_DS_1_SQL =
             "select a.name area_name, e.name eqp_name, e.rawid eqp_rawid, " +
                     "    p.name param_name, p.parse_index, p.rawid param_id, p.param_type_cd, " +
-                    "    c.condition_name, c.expression, c.expression_value, l.use_yn, " +
+                    "    c.rule_name, c.expression, c.expression_value, " +
                     "    s.spec_type, s.upper_alarm_spec, s.upper_warning_spec " +
                     "from area_mst_pdm a inner join eqp_mst_pdm e " +
                     "on a.rawid=e.area_mst_rawid " +
@@ -107,37 +106,36 @@ public class StreamingMasterDataDao {
                         ds.setParamParseIndex(rs.getInt(5));
                         ds.setParameterRawId(rs.getLong(6));
                         ds.setParameterType(rs.getString(7));
-                        ds.setConditionName(rs.getString(8));
+                        ds.setRuleName(rs.getString(8));
                         ds.setExpression(rs.getString(9));
                         ds.setExpressionValue(rs.getString(10));
-                        ds.setUseYn(rs.getString(11));
-                        ds.setSpecType(rs.getString(12));
+                        ds.setSpecType(rs.getString(11));
 
-                        Float uas = rs.getFloat(13);
+                        Float uas = rs.getFloat(12);
                         if (rs.wasNull()) {
                             uas = null;
                         }
                         ds.setUpperAlarmSpec(uas);
 
-                        Float uws = rs.getFloat(14);
+                        Float uws = rs.getFloat(13);
                         if (rs.wasNull()) {
                             uws = null;
                         }
                         ds.setUpperWarningSpec(uws);
 
-//                    Float t = rs.getFloat(15);
+//                    Float t = rs.getFloat(14);
 //                    if(rs.wasNull()){
 //                        t = null;
 //                    }
 //                    ds.setTarget(t);
 //
-//                    Float las = rs.getFloat(16);
+//                    Float las = rs.getFloat(15);
 //                    if(rs.wasNull()){
 //                        las = null;
 //                    }
 //                    ds.setLowerAlarmSpec(las);
 //
-//                    Float lws = rs.getFloat(17);
+//                    Float lws = rs.getFloat(16);
 //                    if(rs.wasNull()){
 //                        lws = null;
 //                    }
@@ -333,12 +331,17 @@ public class StreamingMasterDataDao {
     }
 
     private final static String EQP_EXPR_PARAM_MASTER_DS_SQL =
-            "select e.rawid eqp_rawid, e.name eqp_name, p.name param_name, p.parse_index " +
+            "select distinct e.rawid eqp_rawid, e.name eqp_name, cs.rule_name, p.name param_name, p.parse_index " +
                     "from eqp_mst_pdm e " +
                     "inner join param_mst_pdm p " +
                     "on e.rawid=p.eqp_mst_rawid " +
                     "inner join ( " +
-                    "select regexp_substr(expression_value,'[^,]+', 1, level) param_name from conditional_spec_mst_pdm " +
+                    "select s.rule_name, regexp_substr(expression_value,'[^,]+', 1, level) param_name " +
+                    "from conditional_spec_mst_pdm s " +
+                    "inner join eqp_spec_link_mst_pdm l " +
+                    "on s.rawid=l.conditional_spec_mst_rawid " +
+                    "inner join eqp_mst_pdm e " +
+                    "on e.rawid=l.eqp_mst_rawid " +
                     "connect by regexp_substr(expression_value, '[^,]+', 1, level) is not null " +
                     ") cs " +
                     "on cs.param_name=p.name " +
@@ -358,8 +361,9 @@ public class StreamingMasterDataDao {
                         ExpressionParamMaster ds = new ExpressionParamMaster();
                         ds.setEquipmentRawId(rs.getLong(1));
                         ds.setEqpName(rs.getString(2));
-                        ds.setParameterName(rs.getString(3));
-                        ds.setParamParseIndex(rs.getInt(4));
+                        ds.setRuleName(rs.getString(3));
+                        ds.setParameterName(rs.getString(4));
+                        ds.setParamParseIndex(rs.getInt(5));
 
                         resultRows.add(ds);
                     }
@@ -373,14 +377,14 @@ public class StreamingMasterDataDao {
     }
 
     private final static String EQP_CONDITIONAL_SPEC_MASTER_DS_SQL =
-            "select e.rawid eqp_mst_rawid, e.name as eqp_name, s.condition_name, " +
-                    "    s.expression, s.expression_value, l.use_yn, l.ordering " +
+            "select e.rawid eqp_mst_rawid, e.name as eqp_name, s.rule_name, " +
+                    "    s.expression, s.expression_value, l.ordering " +
                     "from eqp_mst_pdm e " +
                     "inner join eqp_spec_link_mst_pdm l " +
                     "on e.rawid=l.eqp_mst_rawid " +
                     "inner join conditional_spec_mst_pdm s " +
                     "on s.rawid=l.conditional_spec_mst_rawid " +
-                    "where e.name=? and l.use_yn='Y' " +
+                    "where e.name=? " +
                     "order by l.ordering ";
 
     public List<ConditionalSpecMaster> getConditionalSpecMasterDataSet(String eqpId) throws SQLException {
@@ -397,10 +401,10 @@ public class StreamingMasterDataDao {
                         ConditionalSpecMaster ds = new ConditionalSpecMaster();
                         ds.setEqpRawId(rs.getLong(1));
                         ds.setEqpName(rs.getString(2));
-                        ds.setConditionName(rs.getString(3));
+                        ds.setRuleName(rs.getString(3));
                         ds.setExpression(rs.getString(4));
                         ds.setExpressionValue(rs.getString(5));
-                        ds.setOrdering(rs.getInt(7));
+                        ds.setOrdering(rs.getInt(6));
 
                         resultRows.add(ds);
                     }

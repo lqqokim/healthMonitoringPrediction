@@ -62,7 +62,7 @@ public class SpeedTaskDef extends AbstractPipeline {
                         Serdes.String(),
                         Serdes.String());
 
-        StoreBuilder<WindowStore<String, String>> normalizedParamValueStoreSupplier =
+        StoreBuilder<WindowStore<String, Double>> normalizedParamValueStoreSupplier =
                 Stores.windowStoreBuilder(
                         Stores.persistentWindowStore("speed-normalized-value",
                                 TimeUnit.DAYS.toMillis(1),
@@ -70,27 +70,13 @@ public class SpeedTaskDef extends AbstractPipeline {
                                 TimeUnit.HOURS.toMillis(1),
                                 true),
                         Serdes.String(),
-                        Serdes.String());
+                        Serdes.Double());
 
         StoreBuilder<KeyValueStore<String, Long>> sumIntervalStoreSupplier =
                 Stores.keyValueStoreBuilder(
                         Stores.persistentKeyValueStore("speed-process-interval"),
                         Serdes.String(),
                         Serdes.Long());
-
-//        StoreBuilder<KeyValueStore<String, Integer>> alarmCountStoreSupplier =
-//                Stores.keyValueStoreBuilder(
-//                        Stores.persistentKeyValueStore("speed-alarm-count"),
-//                        Serdes.String(),
-//                        Serdes.Integer());
-//
-//        StoreBuilder<KeyValueStore<String, Integer>> warningCountStoreSupplier =
-//                Stores.keyValueStoreBuilder(
-//                        Stores.persistentKeyValueStore("speed-warning-count"),
-//                        Serdes.String(),
-//                        Serdes.Integer());
-
-
 
         CustomStreamPartitioner partitioner = new CustomStreamPartitioner();
 
@@ -99,23 +85,22 @@ public class SpeedTaskDef extends AbstractPipeline {
                 .addProcessor("prepare", PrepareDataProcessor::new, "begin")
                 .addStateStore(statusStoreSupplier, "prepare")
                 .addStateStore(refershFlagStoreSupplier, "prepare")
+
                 .addProcessor("event", ExtractEventProcessor::new, "prepare")
                 .addProcessor("fault", DetectFaultProcessor::new, "prepare")
                 .addStateStore(normalizedParamValueStoreSupplier, "fault")
                 .addStateStore(sumIntervalStoreSupplier, "fault")
-//                .addStateStore(alarmCountStoreSupplier, "fault")
-//                .addStateStore(warningCountStoreSupplier, "fault")
 
                 .addProcessor("refresh", RefreshCacheProcessor::new, "fault")
                 //.addProcessor("mail", SendMailProcessor::new, "fault")
 
-                .addSink("output-trace", this.getOutputTraceTopic(), partitioner, "prepare")
-                .addSink("output-event", this.getOutputEventTopic(), "event")
+                .addSink("output-trace", this.getOutputTraceTopic(), partitioner, "fault")
+                .addSink("output-event", this.getOutputEventTopic(), partitioner, "event")
 
-                .addSink("output-raw", this.getInputTimewaveTopic(), "fault")
-                .addSink("output-fault", this.getOutputFaultTopic(), "fault")
-                .addSink("output-health", this.getOutputHealthTopic(), "fault")
-                .addSink("output-refresh", this.getOutputReloadTopic(), "refresh");
+                .addSink("output-raw", this.getInputTimewaveTopic(), partitioner, "fault")
+                .addSink("output-fault", this.getOutputFaultTopic(), partitioner, "fault")
+                .addSink("output-health", this.getOutputHealthTopic(), partitioner, "fault")
+                .addSink("output-refresh", this.getOutputReloadTopic(), partitioner, "refresh");
 
         return new KafkaStreams(topology, getStreamProperties());
     }

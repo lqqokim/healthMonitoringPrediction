@@ -2434,7 +2434,7 @@
 		select *
 		from
 			(
-					select a.previous_date, a.period_avg, a.previous_avg, a.score, a.sigma, b.param_mst_rawid as param_id, b.name as param_name
+					select a.previous_date, a.period_avg, a.previous_avg, max(a.score) over() as score, a.sigma, b.param_mst_rawid as param_id, b.name as param_name
 					from
 					(
 						select param_health_mst_rawid,previous_date, today_avg as period_avg , previous_avg, score, sigma
@@ -2460,11 +2460,11 @@
 				and a.param_health_mst_rawid=b.param_health_mst_rawid
 			)
 		where param_id=#{param_id}
-
+		and rownum = 1
 	</select>
 
     <select id="selectRUL" resultType="com.bistel.a3.portal.domain.pdm.EqpHealthRUL">
-        select c.rawid as param_id, c.name as param_name, a.intercept, a.slope, a.xvalue, a.create_dtts
+        select c.rawid as param_id, c.name as param_name, a.intercept, a.slope, max(a.xvalue) over() as xvalue, a.create_dtts
         from PARAM_HEALTH_RUL_TRX_PDM a,param_health_mst_pdm b, PARAM_MST_PDM c
         where 1=1
         and a.create_dtts <![CDATA[>=]]> #{fromdate}
@@ -2472,6 +2472,7 @@
         and a.param_health_mst_rawid=b.rawid
         and b.param_mst_rawid=c.rawid
         and b.param_mst_rawid= #{param_id}
+        and rownum = 1
     </select>
 
     <select id="selectEqpHealthAlarmCount" resultType="com.bistel.a3.portal.domain.pdm.EqpHealthIndex">

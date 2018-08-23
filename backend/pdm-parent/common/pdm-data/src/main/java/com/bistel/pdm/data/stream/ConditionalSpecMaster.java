@@ -13,8 +13,8 @@ public class ConditionalSpecMaster {
     @JsonProperty("eqpName")
     private String eqpName;
 
-    @JsonProperty("conditionName")
-    private String conditionName;
+    @JsonProperty("ruleName")
+    private String ruleName;
 
     @JsonProperty("expression")
     private String expression;
@@ -44,12 +44,12 @@ public class ConditionalSpecMaster {
         this.eqpName = eqpName;
     }
 
-    public String getConditionName() {
-        return conditionName;
+    public String getRuleName() {
+        return ruleName;
     }
 
-    public void setConditionName(String conditionName) {
-        this.conditionName = conditionName;
+    public void setRuleName(String ruleName) {
+        this.ruleName = ruleName;
     }
 
     public String getExpression() {

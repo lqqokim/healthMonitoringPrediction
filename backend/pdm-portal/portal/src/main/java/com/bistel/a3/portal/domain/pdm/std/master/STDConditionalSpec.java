@@ -18,7 +18,7 @@ public class STDConditionalSpec {
     private String expression_value;
     private String[] expression_values;
     private String description;
-    private Integer ordering;
+    private Long ordering;
 
     private Long param_id;
     private String param_name;
@@ -26,15 +26,33 @@ public class STDConditionalSpec {
     private String operand;
     private Double upper_alarm_spec;
     private Double upper_warning_spec;
+    private Double model_upper_alarm_spec;
+    private Double model_upper_warning_spec;
+    private Double eqp_upper_alarm_spec;
+    private Double eqp_upper_warning_spec;
     private Double lower_alarm_spec;
     private Double lower_warning_spec;
+    private Double model_lower_alarm_spec;
+    private Double model_lower_warning_spec;
+    private Double eqp_lower_alarm_spec;
+    private Double eqp_lower_warning_spec;
+    private String type;
     private Double target;
     private boolean used_yn;
 
     private String userName;
+    private Long eqp_id;
 
     List<STDConditionalSpec> parameter;
 
+
+    public Long getEqp_id() {
+        return eqp_id;
+    }
+
+    public void setEqp_id(Long eqp_id) {
+        this.eqp_id = eqp_id;
+    }
 
     public Long getEqp_spec_link_mst_rawid() {
         return eqp_spec_link_mst_rawid;
@@ -52,11 +70,11 @@ public class STDConditionalSpec {
         this.used_yn = used_yn;
     }
 
-    public Integer getOrdering() {
+    public Long getOrdering() {
         return ordering;
     }
 
-    public void setOrdering(Integer ordering) {
+    public void setOrdering(Long ordering) {
         this.ordering = ordering;
     }
 
@@ -224,7 +242,76 @@ public class STDConditionalSpec {
         this.upper_warning_spec = upper_warning_spec;
     }
 
+    public Double getModel_upper_alarm_spec() {
+        return model_upper_alarm_spec;
+    }
 
+    public void setModel_upper_alarm_spec(Double model_upper_alarm_spec) {
+        this.model_upper_alarm_spec = model_upper_alarm_spec;
+    }
 
+    public Double getModel_upper_warning_spec() {
+        return model_upper_warning_spec;
+    }
+
+    public void setModel_upper_warning_spec(Double model_upper_warning_spec) {
+        this.model_upper_warning_spec = model_upper_warning_spec;
+    }
+
+    public Double getEqp_upper_alarm_spec() {
+        return eqp_upper_alarm_spec;
+    }
+
+    public void setEqp_upper_alarm_spec(Double eqp_upper_alarm_spec) {
+        this.eqp_upper_alarm_spec = eqp_upper_alarm_spec;
+    }
+
+    public Double getEqp_upper_warning_spec() {
+        return eqp_upper_warning_spec;
+    }
+
+    public void setEqp_upper_warning_spec(Double eqp_upper_warning_spec) {
+        this.eqp_upper_warning_spec = eqp_upper_warning_spec;
+    }
+
+    public Double getModel_lower_alarm_spec() {
+        return model_lower_alarm_spec;
+    }
+
+    public void setModel_lower_alarm_spec(Double model_lower_alarm_spec) {
+        this.model_lower_alarm_spec = model_lower_alarm_spec;
+    }
+
+    public Double getModel_lower_warning_spec() {
+        return model_lower_warning_spec;
+    }
+
+    public void setModel_lower_warning_spec(Double model_lower_warning_spec) {
+        this.model_lower_warning_spec = model_lower_warning_spec;
+    }
+
+    public Double getEqp_lower_alarm_spec() {
+        return eqp_lower_alarm_spec;
+    }
+
+    public void setEqp_lower_alarm_spec(Double eqp_lower_alarm_spec) {
+        this.eqp_lower_alarm_spec = eqp_lower_alarm_spec;
+    }
+
+    public Double getEqp_lower_warning_spec() {
+        return eqp_lower_warning_spec;
+    }
+
+    public void setEqp_lower_warning_spec(Double eqp_lower_warning_spec) {
+        this.eqp_lower_warning_spec = eqp_lower_warning_spec;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
 }
 

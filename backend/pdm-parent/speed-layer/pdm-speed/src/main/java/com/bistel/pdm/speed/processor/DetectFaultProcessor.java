@@ -31,14 +31,10 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
 
     private final static String SEPARATOR = ",";
 
-   //private WindowStore<String, String> kvParamValueStore;
     private KeyValueStore<String, Long> kvTimeInIntervalStore;
     private WindowStore<String, Double> kvNormalizedParamValueStore;
 
-//    private KeyValueStore<String, Integer> kvAlarmCountStore;
-//    private KeyValueStore<String, Integer> kvWarningCountStore;
-
-    private final ConcurrentHashMap<String, String> conditionMap = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, String> conditionRuleMap = new ConcurrentHashMap<>();
 
     private IndividualDetection individualDetection = new IndividualDetection();
     private RuleBasedDetection ruleBasedDetection = new RuleBasedDetection();
@@ -48,28 +44,24 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
     public void init(ProcessorContext processorContext) {
         super.init(processorContext);
 
-        //kvParamValueStore = (WindowStore) context().getStateStore("speed-param-value");
         kvTimeInIntervalStore = (KeyValueStore) context().getStateStore("speed-process-interval");
         kvNormalizedParamValueStore = (WindowStore) context().getStateStore("speed-normalized-value");
-
-//        kvAlarmCountStore = (KeyValueStore) context().getStateStore("speed-alarm-count");
-//        kvWarningCountStore = (KeyValueStore) context().getStateStore("speed-warning-count");
     }
 
     @Override
     public void process(String partitionKey, byte[] streamByteRecord) {
         String recordValue = new String(streamByteRecord);
-        // time, P1, P2, P3, P4, ... Pn, now status:time, prev status:time, refresh flag
+        // time, P1, P2, P3, P4, ... Pn, now status:time, prev status:time, groupid, refresh flag
         String[] recordColumns = recordValue.split(SEPARATOR, -1);
 
         try {
             List<ParameterWithSpecMaster> paramList = MasterCache.ParameterWithSpec.get(partitionKey);
             if (paramList == null) return;
 
-            String statusCodeAndTime = recordColumns[recordColumns.length - 3];
+            String statusCodeAndTime = recordColumns[recordColumns.length - 4];
             String[] nowStatusCodeAndTime = statusCodeAndTime.split(":");
 
-            String prevStatusAndTime = recordColumns[recordColumns.length - 2];
+            String prevStatusAndTime = recordColumns[recordColumns.length - 3];
             String[] prevStatusCodeAndTime = prevStatusAndTime.split(":");
 
             if (kvTimeInIntervalStore.get(partitionKey) == null) {
@@ -87,22 +79,28 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
             if (nowStatusCodeAndTime[0].equalsIgnoreCase("R")) {
 
                 // check conditional spec.
-                String conditionName = ConditionSpecFunction.evaluateCondition(partitionKey, recordColumns);
+                String ruleName = ConditionSpecFunction.evaluateCondition(partitionKey, recordColumns);
 
-                if (conditionName.length() > 0) {
-                    conditionMap.put(partitionKey, conditionName);
+                if (ruleName.length() > 0) {
+                    conditionRuleMap.put(partitionKey, ruleName);
+
+                    // time, P1, P2, P3, P4, ... Pn, now status:time, prev status:time, groupid, refresh flag
+                    String newRecord = recordValue + "," + ruleName;
+                    context().forward(partitionKey, newRecord.getBytes(), "output-trace");
 
                     // check OOS
                     for (ParameterWithSpecMaster paramInfo : paramList) {
                         if (paramInfo.getParamParseIndex() <= 0) continue;
 
-                        if (conditionName.equalsIgnoreCase(paramInfo.getConditionName())) {
+                        if (ruleName.equalsIgnoreCase(paramInfo.getRuleName())) {
                             if(paramInfo.getUpperAlarmSpec() == null) continue;
 
                             Double paramValue = Double.parseDouble(recordColumns[paramInfo.getParamParseIndex()]);
                             String paramKey = partitionKey + ":" + paramInfo.getParameterRawId();
                             Long time = parseStringToTimestamp(recordColumns[0]);
-                            kvNormalizedParamValueStore.put(paramKey, paramValue/paramInfo.getUpperAlarmSpec(), time);
+                            Double healthIndex = paramValue/paramInfo.getUpperAlarmSpec();
+
+                            kvNormalizedParamValueStore.put(paramKey, healthIndex, time);
 
                             // fault detection
                             String msg = individualDetection.detect(partitionKey, paramKey, paramInfo,
@@ -110,10 +108,19 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
 
                             if (msg.length() > 0) {
                                 context().forward(partitionKey, msg.getBytes(), "output-fault");
+                                log.debug("[{}] - IND FAULT:{}", partitionKey, msg);
                             }
                         }
                     }
+                } else {
+                    // time, P1, P2, P3, P4, ... Pn, now status:time, prev status:time, groupid, refresh flag
+                    String newRecord = recordValue + "," + "NA";
+                    context().forward(partitionKey, newRecord.getBytes(), "output-trace");
                 }
+            } else {
+                // time, P1, P2, P3, P4, ... Pn, now status:time, prev status:time, groupid, refresh flag
+                String newRecord = recordValue + "," + "NA";
+                context().forward(partitionKey, newRecord.getBytes(), "output-trace");
             }
 
             // run -> idle
@@ -127,13 +134,13 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
 //                String ets = new SimpleDateFormat("MMdd HH:mm:ss.SSS").format(new Timestamp(endTime));
 //                log.debug("[{}] - processing interval from {} to {}.", partitionKey, sts, ets);
 
-                String conditionName = conditionMap.get(partitionKey);
-                if(conditionName != null && conditionName.length() > 0) {
+                String ruleName = conditionRuleMap.get(partitionKey);
+                if(ruleName != null && ruleName.length() > 0) {
 
                     for (ParameterWithSpecMaster paramInfo : paramList) {
                         if (paramInfo.getParamParseIndex() <= 0) continue;
 
-                        if (conditionName.equalsIgnoreCase(paramInfo.getConditionName())) {
+                        if (ruleName.equalsIgnoreCase(paramInfo.getRuleName())) {
                             if(paramInfo.getUpperAlarmSpec() == null) continue;
 
                             String paramKey = partitionKey + ":" + paramInfo.getParameterRawId();
@@ -153,6 +160,7 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
                             String msgIndHealth = individualDetection.calculate(partitionKey, paramKey, paramInfo, endTime, normalizedValueList);
 
                             if (msgIndHealth.length() > 0) {
+                                msgIndHealth = msgIndHealth + "," + recordColumns[recordColumns.length - 2]; // with group
                                 context().forward(partitionKey, msgIndHealth.getBytes());
                                 log.debug("[{}] - logic 1 health : {}", paramKey, msgIndHealth);
                             }
@@ -164,11 +172,13 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
                             String msgRuleAlarm = ruleBasedDetection.getOutOfSpecMsg();
                             if (msgRuleAlarm.length() > 0) {
                                 context().forward(partitionKey, msgRuleAlarm.getBytes(), "output-fault");
+                                log.debug("[{}] - RULE FAULT:{}", partitionKey, msgRuleAlarm);
                             }
 
                             // Logic 2 health
                             String msgRuleHealth = ruleBasedDetection.getHealthMsg();
                             if (msgRuleHealth.length() > 0) {
+                                msgRuleHealth = msgRuleHealth + "," + recordColumns[recordColumns.length - 2]; // with group
                                 context().forward(partitionKey, msgRuleHealth.getBytes(), "output-health");
                                 log.debug("[{}] - logic 2 health : {}", paramKey, msgRuleHealth);
                             }
@@ -183,6 +193,7 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
                 if (flag.equalsIgnoreCase("CRC")) {
                     String msg = endTime + "," + "CRC";
                     context().forward(partitionKey, msg.getBytes(), "refresh");
+                    log.debug("[{}] - cache refreshed.", partitionKey);
                 }
             }
         } catch (Exception e) {

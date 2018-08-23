@@ -95,7 +95,7 @@ export const getConfigurationClassInfo = (menuId: string): any => {
         case 'pdmCode':
             return CodeModule;
         case 'pdmAnalysisTool':
-            return AnalysisToolModule;
+            return FilterAnalysisModule;
         case 'pdmFabMonitoring':
             return FabMonitoringModule;
         case 'pdmModelSimulator':
@@ -105,7 +105,7 @@ export const getConfigurationClassInfo = (menuId: string): any => {
         case 'pdmSpecRule':
             return SpecRuleModule;
         case 'pdmFilterAnalysis':
-            return FilterAnalysisModule;
+            return AnalysisToolModule;
 
             
         case 'pdmEqupmentParameterTrend':
