@@ -13,6 +13,9 @@ public class ExpressionParamMaster {
     @JsonProperty("eqpName")
     private String eqpName;
 
+    @JsonProperty("ruleName")
+    private String ruleName;
+
     @JsonProperty("parameterName")
     private String parameterName;
 
@@ -66,4 +69,11 @@ public class ExpressionParamMaster {
         this.parameterRawId = paramRawId;
     }
 
+    public String getRuleName() {
+        return ruleName;
+    }
+
+    public void setRuleName(String ruleName) {
+        this.ruleName = ruleName;
+    }
 }

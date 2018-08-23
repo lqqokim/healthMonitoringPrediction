@@ -21,9 +21,9 @@ public class ParamHealthTrxDao implements HealthDataDao {
 
     private static final String INSERT_SQL =
             "insert into param_health_trx_pdm " +
-                    "(RAWID, PARAM_MST_RAWID, PARAM_HEALTH_MST_RAWID, STATUS_CD, DATA_COUNT, SCORE, " +
+                    "(RAWID, PARAM_MST_RAWID, PARAM_HEALTH_MST_RAWID, STATUS_CD, DATA_COUNT, SCORE, MESSAGE_GROUP, " +
                     " UPPER_ALARM_SPEC, UPPER_WARNING_SPEC, CREATE_DTTS) " +
-                    "values (?,?,?,?,?,?,?,?,?) ";
+                    "values (?,?,?,?,?,?,?,?,?,?) ";
 
     private static final String INSERT_RUL_SQL =
             "insert into param_health_rul_trx_pdm " +
@@ -66,17 +66,18 @@ public class ParamHealthTrxDao implements HealthDataDao {
                     pstmt.setString(4, health.getStatus());
                     pstmt.setDouble(5, health.getDataCount()); //data count
                     pstmt.setDouble(6, health.getIndex()); //index score
+                    pstmt.setString(7, health.getMessageGroup()); // message group
 
                     if (health.getUpperAlarmSpec() != null) {
-                        pstmt.setFloat(7, health.getUpperAlarmSpec()); //upper alarm spec
+                        pstmt.setFloat(8, health.getUpperAlarmSpec()); //upper alarm spec
                     } else {
-                        pstmt.setNull(7, Types.FLOAT);
+                        pstmt.setNull(8, Types.FLOAT);
                     }
 
                     if (health.getUpperWarningSpec() != null) {
-                        pstmt.setFloat(8, health.getUpperWarningSpec()); //upper warning spec
+                        pstmt.setFloat(9, health.getUpperWarningSpec()); //upper warning spec
                     } else {
-                        pstmt.setNull(8, Types.FLOAT);
+                        pstmt.setNull(9, Types.FLOAT);
                     }
 
 //                    if (health.getTarget() != null) {
@@ -97,7 +98,7 @@ public class ParamHealthTrxDao implements HealthDataDao {
 //                        pstmt.setNull(12, Types.FLOAT);
 //                    }
 
-                    pstmt.setTimestamp(9, new Timestamp(health.getTime()));
+                    pstmt.setTimestamp(10, new Timestamp(health.getTime()));
 
                     pstmt.addBatch();
 

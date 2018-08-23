@@ -51,27 +51,9 @@ public class BatchFeatureTaskDef extends AbstractPipeline {
 
         final Topology topology = new Topology();
 
-//        StoreBuilder<KeyValueStore<Long, String>> fd03WindowStoreSupplier =
-//                Stores.keyValueStoreBuilder(
-//                        Stores.persistentKeyValueStore("batch-moving-average"),
-//                        Serdes.Long(),
-//                        Serdes.String());
-//
-//        StoreBuilder<WindowStore<String, String>> fd04WindowStoreSupplier =
-//                Stores.windowStoreBuilder(
-//                        Stores.persistentWindowStore("batch-fd04-feature-data",
-//                                TimeUnit.DAYS.toMillis(8),
-//                                24,
-//                                TimeUnit.DAYS.toMillis(7),
-//                                true),
-//                        Serdes.String(),
-//                        Serdes.String());
-
         topology.addSource("input-feature", this.getRouteFeatureTopic())
                 .addProcessor("begin", BeginProcessor::new, "input-feature")
                 .addProcessor("health", CalculateHealthProcessor::new, "begin")
-                //.addStateStore(fd03WindowStoreSupplier, "health")
-                //.addStateStore(fd04WindowStoreSupplier, "health")
                 .addSink("output-health", this.getOutputHealthTopic(), "health");
 
         return new KafkaStreams(topology, getStreamProperties());

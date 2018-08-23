@@ -23,9 +23,10 @@ public class FeatureTrxDao implements FeatureDataDao {
             "insert into param_feature_trx_pdm " +
                     "(RAWID, PARAM_MST_RAWID, BEGIN_DTTS, END_DTTS, " +
                     "COUNT, MIN, MAX, MEDIAN, MEAN, STDDEV, Q1, Q3, " +
+                    "MESSAGE_GROUP, " +
                     "UPPER_ALARM_SPEC, UPPER_WARNING_SPEC, TARGET, " +
                     "LOWER_ALARM_SPEC, LOWER_WARNING_SPEC) " +
-                    "values (seq_param_feature_trx_pdm.nextval,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+                    "values (seq_param_feature_trx_pdm.nextval,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
     @Override
     public void storeRecords(List<ConsumerRecord<String, byte[]>> records) {
@@ -45,7 +46,7 @@ public class FeatureTrxDao implements FeatureDataDao {
                     log.trace("[{}] - from : {}, end : {}, param : {}", record.key(),
                             values[0], values[1], values[2]);
 
-                    // startDtts, endDtts, param rawid, count, min, max, median, avg, stddev, q1, q3
+                    // startDtts, endDtts, param rawid, count, max, min, median, avg, stddev, q1, q3, group, specs, refresh cmd
                     Long param_rawid = Long.parseLong(values[2]);
                     Timestamp beginDtts = new Timestamp(Long.parseLong(values[0]));
                     Timestamp endDtts = new Timestamp(Long.parseLong(values[1]));
@@ -63,35 +64,37 @@ public class FeatureTrxDao implements FeatureDataDao {
                     pstmt.setFloat(10, Float.parseFloat(values[9]));
                     pstmt.setFloat(11, Float.parseFloat(values[10]));
 
-                    // SPEC
-                    if (values[11].length() > 0) {
-                        pstmt.setFloat(12, Float.parseFloat(values[11])); //upper alarm spec
-                    } else {
-                        pstmt.setNull(12, Types.FLOAT);
-                    }
+                    pstmt.setString(12, values[11]);
 
+                    // SPEC
                     if (values[12].length() > 0) {
-                        pstmt.setFloat(13, Float.parseFloat(values[12])); //upper warning spec
+                        pstmt.setFloat(13, Float.parseFloat(values[12])); //upper alarm spec
                     } else {
                         pstmt.setNull(13, Types.FLOAT);
                     }
 
                     if (values[13].length() > 0) {
-                        pstmt.setFloat(14, Float.parseFloat(values[13])); //target
+                        pstmt.setFloat(14, Float.parseFloat(values[13])); //upper warning spec
                     } else {
                         pstmt.setNull(14, Types.FLOAT);
                     }
 
                     if (values[14].length() > 0) {
-                        pstmt.setFloat(15, Float.parseFloat(values[14])); //lower alarm spec
+                        pstmt.setFloat(15, Float.parseFloat(values[14])); //target
                     } else {
                         pstmt.setNull(15, Types.FLOAT);
                     }
 
                     if (values[15].length() > 0) {
-                        pstmt.setFloat(16, Float.parseFloat(values[15])); //lower warning spec
+                        pstmt.setFloat(16, Float.parseFloat(values[15])); //lower alarm spec
                     } else {
                         pstmt.setNull(16, Types.FLOAT);
+                    }
+
+                    if (values[16].length() > 0) {
+                        pstmt.setFloat(17, Float.parseFloat(values[16])); //lower warning spec
+                    } else {
+                        pstmt.setNull(17, Types.FLOAT);
                     }
 
                     ts = endDtts;

@@ -17,6 +17,8 @@ public class ParamHealthData {
     private Float lowerAlarmSpec;
     private Float lowerWarningSpec;
 
+    private String messageGroup;
+
     public Long getRawId() {
         return rawId;
     }
@@ -130,5 +132,13 @@ public class ParamHealthData {
 
     public void setLowerWarningSpec(Float lowerWarningSpec) {
         this.lowerWarningSpec = lowerWarningSpec;
+    }
+
+    public String getMessageGroup() {
+        return messageGroup;
+    }
+
+    public void setMessageGroup(String messageGroup) {
+        this.messageGroup = messageGroup;
     }
 }
