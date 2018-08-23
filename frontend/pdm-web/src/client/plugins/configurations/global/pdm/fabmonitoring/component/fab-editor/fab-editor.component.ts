@@ -14,7 +14,7 @@ import { elementDef } from '@angular/core/src/view';
 })
 export class FabEditorComponent implements OnInit, OnChanges, AfterViewInit{
 
-    @Input() fabInfo:FabInfo=new FabInfo();
+    @Input() fabInfo:any=new FabInfo();
     @Input() mode="editor";
     @ViewChild("fabcanvas") fabcanvas:ElementRef;
     @ViewChild("property") property:ElementRef;
@@ -42,6 +42,10 @@ export class FabEditorComponent implements OnInit, OnChanges, AfterViewInit{
     locationSeq = 0;
 
     isSimulationStop = true;
+
+
+    locations = [];
+    locationKeys = {};
 
     constructor(){ }
 
@@ -237,7 +241,6 @@ export class FabEditorComponent implements OnInit, OnChanges, AfterViewInit{
     // }
 
 
-    locations = [];
     simulationStop(){
         this.isSimulationStop = true;
         this.fabCanvas_elem_destroy();
@@ -250,7 +253,7 @@ export class FabEditorComponent implements OnInit, OnChanges, AfterViewInit{
         for(let i=0;i<this.fabInfo.datas.length;i++){
             this.locations.push(this.fabInfo.datas[i].name);
         }
-        this.moveaction();
+        // this.moveaction();
         this.locationStatusAction();
         
         this.simulation();
@@ -261,7 +264,7 @@ export class FabEditorComponent implements OnInit, OnChanges, AfterViewInit{
             this.clearAction();
            return;
         }
-        this.moveaction();
+        // this.moveaction();
         this.locationStatusAction();
         // setInterval(()=>{
             setTimeout(()=>{
@@ -270,6 +273,15 @@ export class FabEditorComponent implements OnInit, OnChanges, AfterViewInit{
                 this.simulation();                
         },5000);
 
+    }
+    initLayout(){
+        this.locations =[];
+        this.isSimulationStop = false;
+        if(this.fabInfo==null) return ;
+        for(let i=0;i<this.fabInfo.datas.length;i++){
+            this.locations.push(this.fabInfo.datas[i].name);
+            this.locationKeys[this.fabInfo.datas[i].name] = this.fabInfo.datas[i];
+        }
     }
     moveaction(){
         let count = this.fabInfo.datas.length;
@@ -290,7 +302,7 @@ export class FabEditorComponent implements OnInit, OnChanges, AfterViewInit{
 
         for(let i=0;i<count;i++){
             const index =Math.floor(Math.random() * 3); 
-            const speed = Math.floor(Math.random()*100);
+            const displayvalue = Math.floor(Math.random()*100)+" km";
             const warning_spec = 0.8 + this.randomRange(-100,100)/1000;
             const alarm_spec = 1;
             const maxvalue = 1.3;
@@ -304,9 +316,36 @@ export class FabEditorComponent implements OnInit, OnChanges, AfterViewInit{
             }
             let info = "Param: param"+i.toString()+'\n'+'Value:'+value+'\n'+ "Status: "+this.statusNames[index] +'\n'+"Location: "+this.locations[i];
 
-            this.setLocationAction(this.locations[i],this.statusNames[index],speed ,info,warning_spec,alarm_spec,value,maxvalue);
+            this.setLocationAction(this.locations[i],this.statusNames[index],displayvalue ,info,warning_spec,alarm_spec,value,maxvalue);
                 
         }
+    }
+    getLocationStatusSimul(){
+        let count = this.fabInfo.datas.length;
+
+        let locations=[];
+        for(let i=0;i<count;i++){
+            const index =Math.floor(Math.random() * 3); 
+            const displayvalue = Math.floor(Math.random()*100)+" km";
+            const warning_spec = 0.8 + this.randomRange(-100,100)/1000;
+            const alarm_spec = 1;
+            const maxvalue = 1.3;
+            let value = 0;
+            if(this.statusNames[index]=="alarm"){
+                value = this.randomRange(100,130)/100;
+            }else if(this.statusNames[index]=="warning"){
+                value = this.randomRange(warning_spec*100,99)/100;
+            }else{
+                value = this.randomRange(100,(warning_spec-0.01)*100)/100;
+            }
+            let info = "Param: param"+i.toString()+'\n'+'Value:'+value+'\n'+ "Status: "+this.statusNames[index] +'\n'+"Location: "+this.locations[i];
+
+            // this.setLocationAction(this.locations[i],this.statusNames[index],displayvalue ,info,warning_spec,alarm_spec,value,maxvalue);
+
+            locations.push({locationName:this.locations[i],status:this.statusNames[index],displayvalue:displayvalue,info:info,warning_spec:warning_spec,alarm_spec:alarm_spec,value:value,maxvalue:maxvalue});
+        }
+        return locations;
+
     }
     randomRange(min,max) {
         return  Math.floor((Math.random() * (max - min + 1)) + min );
@@ -335,17 +374,27 @@ export class FabEditorComponent implements OnInit, OnChanges, AfterViewInit{
         }
         
     }
-    public setLocationAction(locationName,status,speed,info,warning_spec,alarm_spec,value,maxvalue){
+    public setLocationActions(locations){
+        for(let i=0;i<locations.length;i++){
+            let locationInfo = locations[i];
+            this.setLocationAction(locationInfo.locationName,locationInfo.status,locationInfo.displayvalue,locationInfo.info,
+                locationInfo.warning_spec,locationInfo.alarm_spec,locationInfo.value,locationInfo.maxvalue);
+        }
+
+    }
+    public setLocationAction(locationName,status,displayvalue,info,warning_spec,alarm_spec,value,maxvalue){
+        if(this.locationKeys[locationName]==null) return ;
+        
         if(this.locationActionsKey[locationName]){
             this.locationActionsKey[locationName].name ="loc_"+ locationName;
             this.locationActionsKey[locationName].locationName = locationName;
             this.locationActionsKey[locationName].status = status;
-            this.locationActionsKey[locationName].speed = speed;
+            this.locationActionsKey[locationName].displayvalue = displayvalue;
             this.locationActionsKey[locationName].info = info;
             this.locationActionsKey[locationName].data = {warning:warning_spec,alarm:alarm_spec,value:value,maxvalue:maxvalue};
 
         }else{
-            this.locationActions.push({locationName:locationName,status:status,speed:speed,info:info});
+            this.locationActions.push({locationName:locationName,status:status,displayvalue:displayvalue,info:info});
             this.locationActionsKey[locationName] = this.locationActions[this.locationActions.length-1];
         }        
     }

@@ -28,17 +28,14 @@ public class ParameterWithSpecMaster {
     @JsonProperty("parameterType")
     private String parameterType;
 
-    @JsonProperty("conditionName")
-    private String conditionName;
+    @JsonProperty("ruleName")
+    private String ruleName;
 
     @JsonProperty("expression")
     private String expression;
 
     @JsonProperty("expressionValue")
     private String expressionValue;
-
-    @JsonProperty("useYn")
-    private String useYn;
 
     @JsonProperty("specType")
     private String specType;
@@ -125,12 +122,12 @@ public class ParameterWithSpecMaster {
         this.parameterType = parameterType;
     }
 
-    public String getConditionName() {
-        return conditionName;
+    public String getRuleName() {
+        return ruleName;
     }
 
-    public void setConditionName(String conditionName) {
-        this.conditionName = conditionName;
+    public void setRuleName(String ruleName) {
+        this.ruleName = ruleName;
     }
 
     public String getExpression() {
@@ -147,14 +144,6 @@ public class ParameterWithSpecMaster {
 
     public void setExpressionValue(String expressionValue) {
         this.expressionValue = expressionValue;
-    }
-
-    public String getUseYn() {
-        return useYn;
-    }
-
-    public void setUseYn(String useYn) {
-        this.useYn = useYn;
     }
 
     public String getSpecType() {

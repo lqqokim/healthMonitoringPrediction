@@ -186,6 +186,11 @@ public class SummaryDataService implements ISummaryDataService {
 
 
     }
+    @Override
+    public List<FabMonitoringInfo> getFabMonitoringInfo(String fabId,String param_name,Date fromdate, Date todate){
+        STDSummaryMapper stdSummaryMapper= SqlSessionUtil.getMapper(sessions, fabId, STDSummaryMapper.class);
+        return stdSummaryMapper.selectFabMonitoring(param_name,fromdate,todate);
+    }
 
     @Override
     public List<WorstEquipmentList> worstEquipmentList(String fabId, Long areaId,Long eqpId, Date fromdate, Date todate) {

@@ -23,6 +23,8 @@ public interface ISummaryDataService {
 
     List<WorstEquipmentList> worstEquipmentList(String fabId, Long areaId ,Long eqpId, Date fromdate, Date todate);
 
+    List<FabMonitoringInfo> getFabMonitoringInfo(String fabId,String param_name,Date fromdate, Date todate);
+
     List<EqpHealthIndex> eqpHealthIndex(String fabId, Long areaId, Date from, Date to);
 
     EqpStatisticsData eqpHealthTrendChartWithAVG(String fabId,Date previous, Date from, Date to, Long paramId, List<List<Object>> eqpHealthTrendData, List<List<Object>> eqpHealthTraceData);

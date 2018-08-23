@@ -279,16 +279,16 @@ public class MasterCache {
                 }
             });
 
-    public static LoadingCache<String, Map<String, Integer>> ExprParameter = CacheBuilder.newBuilder()
+    public static LoadingCache<String, Map<String, Map<String, Integer>>> ExprParameter = CacheBuilder.newBuilder()
             .maximumSize(100000)
             .expireAfterAccess(24, TimeUnit.HOURS)
-            .build(new CacheLoader<String, Map<String, Integer>>() {
+            .build(new CacheLoader<String, Map<String, Map<String, Integer>>>() {
                 @Override
-                public Map<String, Integer> load(String key) throws IOException {
+                public Map<String, Map<String, Integer>> load(String key) throws IOException {
                     String targetUrl = ServingAddress + "/pdm/api/master/latest/param/expr/" + key + "";
 
-                    List<ExpressionParamMaster> masterDataList = new ArrayList<>();
-                    Map<String, Integer> exprMap = new HashMap<>();
+                    List<ExpressionParamMaster> masterDataList;
+                    Map<String, Map<String, Integer>> exprMap = new HashMap<>();
 
                     ResteasyClient client = new ResteasyClientBuilder().build();
                     Response response = client.target(targetUrl).request().get();
@@ -304,7 +304,14 @@ public class MasterCache {
                             });
 
                             for (ExpressionParamMaster expr : masterDataList) {
-                                exprMap.put(expr.getParameterName(), expr.getParamParseIndex());
+                                if(!exprMap.containsKey(expr.getRuleName())){
+                                    Map<String, Integer> map = new HashMap<>();
+                                    map.put(expr.getParameterName(), expr.getParamParseIndex());
+                                    exprMap.put(expr.getRuleName(), map);
+                                } else {
+                                    Map<String, Integer> map = exprMap.get(expr.getRuleName());
+                                    map.put(expr.getParameterName(), expr.getParamParseIndex());
+                                }
                             }
 
                             log.info("{} - expr. parameter are reloaded.", key);

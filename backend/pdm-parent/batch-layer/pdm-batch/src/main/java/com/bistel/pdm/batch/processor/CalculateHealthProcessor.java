@@ -22,9 +22,6 @@ public class CalculateHealthProcessor extends AbstractProcessor<String, byte[]> 
 
     private final static String SEPARATOR = ",";
 
-    //private KeyValueStore<Long, String> kvMovingAvgStore;
-    //private WindowStore<String, String> kvFeatureDataStore;
-
     private final Timer timer = new Timer();
 
     private final AverageVariation averageVariation = new AverageVariation();
@@ -35,9 +32,6 @@ public class CalculateHealthProcessor extends AbstractProcessor<String, byte[]> 
     @SuppressWarnings("unchecked")
     public void init(ProcessorContext processorContext) {
         super.init(processorContext);
-
-        //kvMovingAvgStore = (KeyValueStore) context().getStateStore("batch-moving-average");
-        //kvFeatureDataStore = (WindowStore) this.context().getStateStore("batch-fd04-feature-data");
 
         Calendar cal = Calendar.getInstance();
         cal.setTime(new Date());
@@ -111,7 +105,7 @@ public class CalculateHealthProcessor extends AbstractProcessor<String, byte[]> 
     @Override
     public void process(String partitionKey, byte[] streamByteRecord) {
         String recordValue = new String(streamByteRecord);
-        // startDtts, endDtts, param rawid, count, max, min, median, avg, stddev, q1, q3, refresh_cache
+        // startDtts, endDtts, param rawid, count, max, min, median, avg, stddev, q1, q3, group, specs, refresh cmd
         final String[] recordColumns = recordValue.split(SEPARATOR, -1);
 
         try {
@@ -125,6 +119,7 @@ public class CalculateHealthProcessor extends AbstractProcessor<String, byte[]> 
                 String msg = averageVariation.calculate(partitionKey, paramKey, recordColumns, feature, endTime);
 
                 if (msg.length() > 0) {
+                    msg = msg + "," + recordColumns[recordColumns.length - 3]; // with group
                     context().forward(partitionKey, msg.getBytes());
                     context().commit();
                     log.debug("[{}] - logic 3 health : {}", paramKey, msg);

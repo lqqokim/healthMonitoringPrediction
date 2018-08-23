@@ -30,6 +30,8 @@ public class IndividualDetection {
         ParameterHealthMaster fd01Health = getParamHealth(partitionKey, paramInfo.getParameterRawId(), "FD_OOS");
         if (fd01Health != null && fd01Health.getApplyLogicYN().equalsIgnoreCase("Y")) {
 
+            //log.debug("[{}] - value:{}, alarm:{}, warning:{}", partitionKey, paramValue, paramInfo.getUpperAlarmSpec(), paramInfo.getUpperWarningSpec());
+
             if (evaluateAlarm(paramInfo, paramValue)) {
                 // Alarm
                 if (alarmCountMap.get(paramKey) == null) {
@@ -53,7 +55,7 @@ public class IndividualDetection {
                 msg = makeOutOfWarningMsg(time, paramInfo, fd01Health, paramValue);
             }
         } else {
-            //log.debug("[{}] - No health because skip the logic 1.", paramKey);
+            log.debug("[{}] - Skip the logic 1.", paramKey);
         }
 
         return msg;

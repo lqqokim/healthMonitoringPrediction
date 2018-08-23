@@ -2,7 +2,9 @@
     height: 100%;
     width: 100%;
 }
-
+.condition .control-label{
+    position: fixed;
+}
 /* .spec-rule-container .spec-rule-header{
     padding-bottom: 8px;
 } */

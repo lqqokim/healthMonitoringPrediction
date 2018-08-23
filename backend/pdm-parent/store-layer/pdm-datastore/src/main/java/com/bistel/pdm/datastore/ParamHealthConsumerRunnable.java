@@ -74,7 +74,7 @@ public class ParamHealthConsumerRunnable implements Runnable {
                         byte[] healthData = record.value();
                         String valueString = new String(healthData);
 
-                        // time, eqpRawid, param_rawid, param_health_rawid, status_cd, data_count, index, specs
+                        // time, eqpRawid, param_rawid, param_health_rawid, status_cd, data_count, index, specs, group
                         String[] values = valueString.split(",", -1);
 
                         log.trace("[{}] - time : {}, eqp : {}, param : {}, health : {}", record.key(),
@@ -113,26 +113,31 @@ public class ParamHealthConsumerRunnable implements Runnable {
                             data.setLowerWarningSpec(Float.parseFloat(values[11]));
                         }
 
+                        // message group
+                        if(values[12].length() > 0){
+                            data.setMessageGroup(values[12]);
+                        }
+
                         dataList.add(data);
 
-                        if (values.length > 12) {
-                            //rule based
-                            ParamHealthRULData rule = new ParamHealthRULData();
-                            rule.setParamHealthTrxRawId(rawId);
-                            rule.setIntercept(Double.parseDouble(values[12]));
-                            rule.setSlope(Double.parseDouble(values[13]));
-                            rule.setX(Double.parseDouble(values[14]));
-                            rule.setTime(Long.parseLong(values[0]));
-
-                            rulList.add(rule);
-                        }
+//                        if (values.length > 12) {
+//                            //rule based
+//                            ParamHealthRULData rule = new ParamHealthRULData();
+//                            rule.setParamHealthTrxRawId(rawId);
+//                            rule.setIntercept(Double.parseDouble(values[12]));
+//                            rule.setSlope(Double.parseDouble(values[13]));
+//                            rule.setX(Double.parseDouble(values[14]));
+//                            rule.setTime(Long.parseLong(values[0]));
+//
+//                            rulList.add(rule);
+//                        }
                     }
 
                     trxDao.storeHealth(dataList);
 
-                    if (rulList.size() > 0) {
-                        trxDao.storeHealthRUL(rulList);
-                    }
+//                    if (rulList.size() > 0) {
+//                        trxDao.storeHealthRUL(rulList);
+//                    }
 
                     consumer.commitSync();
                     log.info("{} records are committed.", records.count());

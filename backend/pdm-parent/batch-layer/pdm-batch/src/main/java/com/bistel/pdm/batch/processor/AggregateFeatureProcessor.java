@@ -31,7 +31,7 @@ public class AggregateFeatureProcessor extends AbstractProcessor<String, byte[]>
     private WindowStore<String, Double> kvSummaryWindowStore;
     private KeyValueStore<String, Long> kvSummaryIntervalStore;
 
-    private final ConcurrentHashMap<String, String> conditionMap = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, String> conditionRuleMap = new ConcurrentHashMap<>();
 
     @Override
     @SuppressWarnings("unchecked")
@@ -45,15 +45,14 @@ public class AggregateFeatureProcessor extends AbstractProcessor<String, byte[]>
     @Override
     public void process(String partitionKey, byte[] streamByteRecord) {
         String value = new String(streamByteRecord);
-        // time, P1, P2, P3, P4, ... Pn, now status:time, prev status:time, refresh flag
+        // time, P1, P2, P3, P4, ... Pn, now status:time, prev status:time, groupid, refresh flag
         String[] columns = value.split(SEPARATOR, -1);
 
         try {
-            // refresh cache
+            String[] currStatusAndTime = columns[columns.length - 4].split(":");
+            String[] prevStatusAndTime = columns[columns.length - 3].split(":");
+            String msgGroup = columns[columns.length - 2];
             String refreshCacheflag = columns[columns.length - 1];
-
-            String[] currStatusAndTime = columns[columns.length - 3].split(":");
-            String[] prevStatusAndTime = columns[columns.length - 2].split(":");
 
             List<ParameterWithSpecMaster> parameterMasterDataSets = MasterCache.ParameterWithSpec.get(partitionKey);
 
@@ -75,20 +74,23 @@ public class AggregateFeatureProcessor extends AbstractProcessor<String, byte[]>
                 Long paramTime = Long.parseLong(currStatusAndTime[1]);
 
                 // check conditional spec.
-                String conditionName = ConditionSpecFunction.evaluateCondition(partitionKey, columns);
+                String ruleName = ConditionSpecFunction.evaluateCondition(partitionKey, columns);
 
-                if (conditionName.length() > 0) {
-                    conditionMap.put(partitionKey, conditionName);
+                //log.debug("[{}] - rule:{}", partitionKey, ruleName);
+
+                if (ruleName.length() > 0) {
+                    conditionRuleMap.put(partitionKey, ruleName);
 
                     for (ParameterWithSpecMaster paramInfo : parameterMasterDataSets) {
                         if (paramInfo.getParamParseIndex() <= 0) continue;
 
-                        if (conditionName.equalsIgnoreCase(paramInfo.getConditionName())) {
+                        if (ruleName.equalsIgnoreCase(paramInfo.getRuleName())) {
                             if (paramInfo.getUpperAlarmSpec() == null) continue;
 
                             String paramKey = partitionKey + ":" + paramInfo.getParameterRawId();
                             Double dValue = Double.parseDouble(columns[paramInfo.getParamParseIndex()]);
                             kvSummaryWindowStore.put(paramKey, dValue, paramTime);
+                            //log.debug("[{}] - put the value {}", partitionKey, dValue);
                         }
                     }
 
@@ -108,7 +110,7 @@ public class AggregateFeatureProcessor extends AbstractProcessor<String, byte[]>
                             for (ParameterWithSpecMaster paramMaster : parameterMasterDataSets) {
                                 if (paramMaster.getParamParseIndex() <= 0) continue;
 
-                                if (conditionName.equalsIgnoreCase(paramMaster.getConditionName())) {
+                                if (ruleName.equalsIgnoreCase(paramMaster.getRuleName())) {
                                     if (paramMaster.getUpperAlarmSpec() == null) continue;
 
                                     String paramKey = partitionKey + ":" + paramMaster.getParameterRawId();
@@ -127,7 +129,7 @@ public class AggregateFeatureProcessor extends AbstractProcessor<String, byte[]>
                                     String las = paramMaster.getLowerAlarmSpec() == null ? "" : Float.toString(paramMaster.getLowerAlarmSpec());
                                     String lws = paramMaster.getLowerAlarmSpec() == null ? "" : Float.toString(paramMaster.getLowerAlarmSpec());
 
-                                    // startDtts, endDtts, param rawid, count, max, min, median, avg, stddev, q1, q3, spec...
+                                    // startDtts, endDtts, param rawid, count, max, min, median, avg, stddev, q1, q3, group, specs, refresh cmd
                                     String msg = String.valueOf(startTime) + "," +
                                             String.valueOf(paramTime) + "," +
                                             paramMaster.getParameterRawId() + "," +
@@ -139,6 +141,7 @@ public class AggregateFeatureProcessor extends AbstractProcessor<String, byte[]>
                                             stats.getStandardDeviation() + "," +
                                             stats.getPercentile(25) + "," +
                                             stats.getPercentile(75) + "," +
+                                            msgGroup + "," +
                                             uas + "," +
                                             uws + "," +
                                             tgt + "," +
@@ -174,13 +177,15 @@ public class AggregateFeatureProcessor extends AbstractProcessor<String, byte[]>
                 log.debug("[{}] - processing interval from {} to {}.", partitionKey, sts, ets);
 
                 // check conditional spec.
-                String conditionName = conditionMap.get(partitionKey);
-                if (conditionName != null && conditionName.length() > 0) {
+                String ruleName = conditionRuleMap.get(partitionKey);
+                log.debug("[{}] - rule : {}", partitionKey, ruleName);
+
+                if (ruleName != null && ruleName.length() > 0) {
 
                     for (ParameterWithSpecMaster paramMaster : parameterMasterDataSets) {
                         if (paramMaster.getParamParseIndex() <= 0) continue;
 
-                        if (conditionName.equalsIgnoreCase(paramMaster.getConditionName())) {
+                        if (ruleName.equalsIgnoreCase(paramMaster.getRuleName())) {
                             if (paramMaster.getUpperAlarmSpec() == null) continue;
 
                             String paramKey = partitionKey + ":" + paramMaster.getParameterRawId();
@@ -199,7 +204,7 @@ public class AggregateFeatureProcessor extends AbstractProcessor<String, byte[]>
                             String las = paramMaster.getLowerAlarmSpec() == null ? "" : Float.toString(paramMaster.getLowerAlarmSpec());
                             String lws = paramMaster.getLowerAlarmSpec() == null ? "" : Float.toString(paramMaster.getLowerAlarmSpec());
 
-                            // startDtts, endDtts, param rawid, count, max, min, median, avg, stddev, q1, q3, spec...
+                            // startDtts, endDtts, param rawid, count, max, min, median, avg, stddev, q1, q3, group, specs, refresh cmd
                             String msg = String.valueOf(startTime) + "," +
                                     String.valueOf(endTime) + "," +
                                     paramMaster.getParameterRawId() + "," +
@@ -211,6 +216,7 @@ public class AggregateFeatureProcessor extends AbstractProcessor<String, byte[]>
                                     stats.getStandardDeviation() + "," +
                                     stats.getPercentile(25) + "," +
                                     stats.getPercentile(75) + "," +
+                                    msgGroup + "," +
                                     uas + "," +
                                     uws + "," +
                                     tgt + "," +

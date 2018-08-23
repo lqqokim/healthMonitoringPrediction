@@ -2265,6 +2265,66 @@
 		order by area_id, eqp_id, eqp_name, param_id, param_name, health_logic_id, code
 
 	</select>
+	<select id="selectFabMonitoring" resultType="com.bistel.a3.portal.domain.pdm.FabMonitoringInfo">
+		
+		SELECT
+			barcode as locationName,status_cd as status,round(displayvalue,2)||' '||unit_cd as displayvalue,'PARAM_NAME:'||NAME||' VALUES:'||round(displayvalue,2)||' '||unit_cd as info,
+			0.8 as warning_spec,1 as alarm_spec,round(score,2) as value,1.3 as maxvalue
+		FROM
+		(
+			SELECT BARCODE,PARAM.NAME,avg(value) as displayvalue,max(param.unit_cd) as unit_cd
+			FROM
+				PARAM_MST_PDM param,
+				(
+					SELECT trx_data.*,a.value as barcode from trace_trx_pdm trx_data,
+						(
+						SELECT trx.*
+						FROM trace_trx_pdm trx,param_mst_pdm param
+						WHERE trx.event_dtts <![CDATA[>=]]> #{fromdate}
+							and trx.event_dtts <![CDATA[<]]> #{todate}
+							and param.name='BARCODE'
+							AND PARAM.RAWID = TRX.PARAM_MST_RAWID
+						) a
+					WHERE
+						a.event_dtts = trx_data.event_dtts
+				
+				) b
+			WHERE
+				param.name =#{param_name}
+				and B.param_mst_rawid = param.rawid
+			GROUP BY BARCODE,PARAM.NAME
+			ORDER BY BARCODE
+		) avg_value,
+		
+		(
+			SELECT value,param_mst_rawid,max(score) as score,max(status_cd1) as status_cd
+			FROM
+			(
+				SELECT b.*  ,trx.value as value ,case when b.status_cd ='A' then 256 when b.status_cd='W' then 128 else 0 end as status_cd1
+				FROM trace_trx_pdm trx,param_mst_pdm param,
+				(
+					SELECT trx.*
+					FROM PARAM_HEALTH_TRX_PDM trx,param_mst_pdm param,param_health_mst_pdm health
+					WHERE
+						trx.create_dtts <![CDATA[>=]]> #{fromdate}
+						and trx.create_dtts  <![CDATA[<]]> #{todate}
+						and param.name =#{param_name}
+						and param.rawid = trx.param_mst_rawid
+						and trx.param_health_mst_rawid  = health.rawid
+						and health.param_mst_rawid = param.rawid
+						and health.health_logic_mst_rawid = 2
+					ORDER BY trx.create_dtts
+				)b
+				WHERE trx.event_dtts = b.create_dtts
+					and trx.param_mst_rawid = param.rawid
+					and param.name='BARCODE'
+			)
+			GROUP BY value ,param_mst_rawid
+		) score
+		WHERE avg_value.barcode = score.value
+		ORDER BY locationname
+
+	</select>
 
 
     <select id="selectEqpHealthIndexByAreaId" resultType="com.bistel.a3.portal.domain.pdm.EqpHealthIndex">

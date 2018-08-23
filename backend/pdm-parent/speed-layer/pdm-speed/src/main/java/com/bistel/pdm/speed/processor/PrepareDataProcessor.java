@@ -14,6 +14,7 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -28,6 +29,8 @@ public class PrepareDataProcessor extends AbstractProcessor<String, byte[]> {
     private KeyValueStore<String, String> kvCacheRefreshFlagStore;
 
     private final static String SEPARATOR = ",";
+
+    private final ConcurrentHashMap<String, String> messageGroupMap = new ConcurrentHashMap<>();
 
     @Override
     @SuppressWarnings("unchecked")
@@ -68,10 +71,11 @@ public class PrepareDataProcessor extends AbstractProcessor<String, byte[]> {
 
                         String statusContext = appendStatusContext(partitionKey, msgTimeStamp, event, paramValue);
 
-                        // time, P1, P2, P3, P4, ... Pn, now status:time, prev status:time, refresh flag
+                        // time, P1, P2, P3, P4, ... Pn, now status:time, prev status:time, groupid, refresh flag
                         recordValue = recordValue + "," + statusContext;
                         context().forward(partitionKey, recordValue.getBytes());
                         context().commit();
+                        //log.debug("[{}] - {}", partitionKey, recordValue);
                         break;
                     }
                 }
@@ -87,10 +91,10 @@ public class PrepareDataProcessor extends AbstractProcessor<String, byte[]> {
                 // No event registered.
                 String statusCode = "I";
                 String statusCodeAndTime = statusCode + ":" + msgTimeStamp;
-                String statusContext = statusCodeAndTime + "," + statusCodeAndTime + ",";
+                String statusContext = statusCodeAndTime + "," + statusCodeAndTime;
 
-                // time, P1, P2, P3, P4, ... Pn, now status:time, prev status:time, refresh flag
-                recordValue = recordValue + "," + statusContext;
+                // time, P1, P2, P3, P4, ... Pn, now status:time, prev status:time, groupid, refresh flag
+                recordValue = recordValue + "," + statusContext + "," + "idle" + ",";
                 context().forward(partitionKey, recordValue.getBytes());
                 context().commit();
 
@@ -104,7 +108,7 @@ public class PrepareDataProcessor extends AbstractProcessor<String, byte[]> {
     }
 
     private String appendStatusContext(String partitionKey, Long msgTimeStamp, EventMaster event, double paramValue) {
-        String statusContext;
+        String extendMessage;
 
         String nowStatusCode = "I";
         RuleVariables ruleVariables = new RuleVariables();
@@ -128,26 +132,51 @@ public class PrepareDataProcessor extends AbstractProcessor<String, byte[]> {
         }
 
         kvStatusContextStore.put(partitionKey, statusCodeAndTime);
-        statusContext = statusCodeAndTime + "," + prevStatusAndTime + ",";
+        extendMessage = statusCodeAndTime + "," + prevStatusAndTime + ",";
 
 
         // append cache refresh flag.
         String[] prevStatusCodeAndTime = prevStatusAndTime.split(":");
         String prevStatusCode = prevStatusCodeAndTime[0];
 
+        // process start
         if (nowStatusCode.equalsIgnoreCase("R")
                 && prevStatusCode.equalsIgnoreCase("I")) {
+
+            // define group id
+            String msgGroup = msgTimeStamp.toString();
+            messageGroupMap.put(partitionKey, msgGroup);
+
+            extendMessage = extendMessage + msgGroup + ",";
+        }
+
+        if (nowStatusCode.equalsIgnoreCase("R")){
+            String msgGroup = messageGroupMap.get(partitionKey);
+            // define group id
+            extendMessage = extendMessage + msgGroup + ",";
+        }
+
+        // idle
+        if (nowStatusCode.equalsIgnoreCase("I")) {
+
+            if(prevStatusCode.equalsIgnoreCase("R")){
+                String msgGroup = messageGroupMap.get(partitionKey);
+                // define group id
+                extendMessage = extendMessage + msgGroup + ",";
+            } else {
+                extendMessage = extendMessage + "idle" + ",";
+            }
 
             if (kvCacheRefreshFlagStore.get(partitionKey) != null &&
                     kvCacheRefreshFlagStore.get(partitionKey).equalsIgnoreCase("Y")) {
 
-                statusContext = statusContext + "CRC"; //CMD-REFRESH-CACHE
+                extendMessage = extendMessage + "," + "CRC"; //CMD-REFRESH-CACHE
                 kvCacheRefreshFlagStore.put(partitionKey, "N");
                 log.debug("[{}] - append cache-refresh flag.", partitionKey);
             }
         }
 
-        return statusContext;
+        return extendMessage;
     }
 
     private static Long parseStringToTimestamp(String item) {

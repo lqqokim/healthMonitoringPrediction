@@ -61,6 +61,8 @@ public class RuleBasedDetection {
                 healthMsg = makeHealthMsg(longTime, "N", paramInfo, fd02Health, healthScore, paramHealthValues.size());
                 outOfSpecMsg = "";
             }
+        } else {
+            log.debug("[{}] - Skip the logic 2.", paramKey);
         }
     }
 
