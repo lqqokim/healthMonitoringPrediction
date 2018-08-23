@@ -39,7 +39,7 @@
         from model_param_spec_mst_pdm m, conditional_spec_mst_pdm c
         where 1=1
         and m.CONDITIONAL_SPEC_MST_RAWID=c.rawid
-        and c..model_name=#{model}
+        and c.model_name=#{model}
         and c.rawid=#{rule_id}
         )b
         where a.param_name = b.param_name(+)
