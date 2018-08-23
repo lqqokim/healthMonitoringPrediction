@@ -3,8 +3,8 @@
     height: 100%;
     width: 100%;
 }
-.spec-rule-modal-body .control-label{
-    font-size: 13px;
+.condition .control-label{
+    position: fixed;
 }
 .spec-rule-container .spec-rule-header{
     padding-bottom: 10px; 
@@ -33,7 +33,7 @@
 }
 
 .modal-body.spec-rule-modal-body .condition{
-    max-height: 275px;
+    max-height: 235px;
     overflow-y: auto;
 }
 .modal-body.spec-rule-modal-body .condition table{
@@ -76,7 +76,7 @@
     padding:0 30px;
     content: '';
 }
-.modal-body.spec-rule-modal-body .condition .glyphicon-plus{
+.modal-body.spec-rule-modal-body .a3-input-group .glyphicon-plus{
     display: flex;
     margin-top: 10px;
     justify-content: center;
@@ -87,7 +87,7 @@
     padding: 10px;
     transition: background 0.2s ease-in-out;
 }
-.modal-body.spec-rule-modal-body .condition .glyphicon-plus:hover{
+.modal-body.spec-rule-modal-body .a3-input-group .glyphicon-plus:hover{
     color: #fff;
     background: #2196f3;
 }
