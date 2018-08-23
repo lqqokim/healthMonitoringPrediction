@@ -808,4 +808,27 @@ export class PdmModelService extends ModelCommonService {
 			uriPath: `pdm/fabs/${fabId}/params/${paramId}/eqpHealthTrendChartWithRUL/?fromdate=${fromDate}&todate=${toDate}`
 		});
 	}
+
+	// Analysis Tool
+	getAnalysisToolData(fabId: string, fromDate:number, toDate:number, postParams: any): Promise<any> {
+
+		// postParams 참고 용
+		interface SendItemType {
+			param_name: string;
+			group_name: string;
+		};
+		
+		interface PostParamType {
+			x_category: Array<SendItemType>;
+			y_category: Array<SendItemType>;
+			x: Array<SendItemType>;
+			y: Array<SendItemType>;
+			y2: Array<SendItemType>;
+		};
+
+		return this.POST({
+			uriPath: `pdm/fabs/${fabId}/analysisData?fromDate=${fromDate}&toDate=${toDate}`,
+			params: <PostParamType>postParams
+		});
+	}
 }

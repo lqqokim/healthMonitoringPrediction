@@ -48,9 +48,9 @@ export class SpecRuleComponent implements OnInit, OnDestroy {
     editParameters: IRule.ParameterResponse[];
     tempParameters: IRule.ParameterResponse[]; // wijmo grid item 수정 취소 시, rollback을 위한 copy parameters
 
-    protected readonly DEFAULT_NAME: string = 'DEFAULT';
-    protected readonly STATUS: IRule.Status = { CREATE: 'create', MODIFY: 'modify', DELETE: 'delete' };
-    protected readonly operands: IRule.Operand[] = [
+    readonly DEFAULT_NAME: string = 'DEFAULT';
+    readonly STATUS: IRule.Status = { CREATE: 'create', MODIFY: 'modify', DELETE: 'delete' };
+    readonly operands: IRule.Operand[] = [
         { display: '=', value: 'equal' },
         { display: '<', value: 'lessthan' },
         { display: '>', value: 'greaterthan' },
@@ -223,6 +223,8 @@ export class SpecRuleComponent implements OnInit, OnDestroy {
         this._pdmConfigService.deleteModelRule(this.selectedPlant.fabId, this.selectedRule.rule_id)
             .then((res) => {
                 console.log('deleteRule res', res);
+                this.getParamsByModel();
+                this.getRules();
             }).catch((err) => {
                 console.log(err);
             });
@@ -231,16 +233,26 @@ export class SpecRuleComponent implements OnInit, OnDestroy {
     //수정, 등록시에 호출
     openEditModal(status: string): void {
         let ruleFormData: IRule.FormData;
+        const rules: IRule.Rule[] = this.rules;
         this.status = status;
 
         //Create: Model로 가져온 Parameter를 Modal에 나타낸다.
         if (status === this.STATUS.CREATE) {
-            ruleFormData = {
-                model_name: this.selectedModel.model_name,
-                rule_name: this.rules && this.rules.length ? '' : this.DEFAULT_NAME,
-                condition: [{ param_name: '', operand: '', param_value: null }],
-                parameter: this.paramsByselectedModel
-            };
+            if (rules && rules.length) {
+                ruleFormData = {
+                    model_name: this.selectedModel.model_name,
+                    rule_name: '',
+                    condition: [{ param_name: '', operand: '', param_value: null }],
+                    parameter: this.paramsByselectedModel
+                };
+            } else {
+                ruleFormData = {//'DEFAULT' Rule은 Form에서 보여주면 안되기 때문에 Condition 필드 제거
+                    model_name: this.selectedModel.model_name,
+                    rule_name: this.DEFAULT_NAME,
+                    parameter: this.paramsByselectedModel
+                };
+            }
+
             //Modify: 선택된 Rule에 대한 Parameter를 Modal에 나타낸다.
         } else if (status === this.STATUS.MODIFY) {
             ruleFormData = {
@@ -273,17 +285,17 @@ export class SpecRuleComponent implements OnInit, OnDestroy {
 
     //Modal창에서 Save를 누르면 호출
     saveRule(ruleForm: NgForm): void {
-        console.log('ruleFormData', this.ruleFormData);
         let ruleFormData = this.ruleFormData;
+        console.log('ruleFormData', this.ruleFormData);
 
-        //Rule update를 위한 Request Param
+        //Rule update를 위한 Request Param, default는 condition, expression, expression_value가 null이다
         let ruleRequest: IRule.RuleRequest = {
             rule_id: this.status === this.STATUS.CREATE ? null : this.selectedRule.rule_id,
             rule_name: ruleFormData.rule_name,
             model_name: this.selectedModel.model_name,
-            condition: this.conditionToString(ruleFormData.condition),
-            expression: this.conditionToExpression(ruleFormData.condition),
-            expression_value: this.conditionToExpressionValue(ruleFormData.condition),
+            condition: ruleFormData.condition ? this.conditionToString(ruleFormData.condition) : null,
+            expression: ruleFormData.condition ? this.conditionToExpression(ruleFormData.condition) : null,
+            expression_value: ruleFormData.condition ? this.conditionToExpressionValue(ruleFormData.condition) : null,
             parameter: this.setRuleRequestParameters(this.editParameters)
         };
 
@@ -297,6 +309,8 @@ export class SpecRuleComponent implements OnInit, OnDestroy {
         this._pdmConfigService.updateModelRule(this.selectedPlant.fabId, params)
             .then((res) => {
                 console.log('updateRule res', res);
+                this.getParamsByModel();
+                this.getRules();
             }).catch((err) => {
                 console.log(err);
             });
@@ -368,6 +382,8 @@ export class SpecRuleComponent implements OnInit, OnDestroy {
         // this.filterCriteriaDatas.push({ operator: 'AND', fieldName: '-none-', functionName: 'count', condition: 'equal', value: '' });
     }
 
+
+
     removeCondition(index: number): void {
         this.ruleFormData.condition.splice(index, 1);
     }
@@ -394,6 +410,6 @@ export class SpecRuleComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy() {
-
+        console.log('spec ngOnDestroy');
     }
 }

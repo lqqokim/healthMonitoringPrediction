@@ -56,7 +56,7 @@ export interface RuleRequest {
 export interface FormData {
     model_name: string;
     rule_name: string;
-    condition: Condition[];
+    condition?: Condition[];//because DEFAULT form
     parameter: Array<Parameter>;
 }
 

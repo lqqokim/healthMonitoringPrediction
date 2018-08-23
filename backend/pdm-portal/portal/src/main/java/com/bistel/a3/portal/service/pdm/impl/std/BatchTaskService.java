@@ -673,7 +673,7 @@ public class BatchTaskService implements IBatchTaskService {
 //                System.out.println(rawid + ":" + score);
             }
 
-            System.out.println("hi");
+//            System.out.println("hi");
 
         }
     }

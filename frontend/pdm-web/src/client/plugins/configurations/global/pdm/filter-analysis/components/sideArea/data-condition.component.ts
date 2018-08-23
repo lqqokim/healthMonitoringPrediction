@@ -1,7 +1,7 @@
 /*
     data-condition
 */
-import { Component, OnInit, ViewEncapsulation, Input, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation, Input, ViewChild, ElementRef, Output, EventEmitter } from '@angular/core';
 import { PdmModelService } from '../../../../../../../common';
 import { PdmConfigService } from '../../../model/pdm-config.service';
 
@@ -59,6 +59,12 @@ export interface parameterItem {
     checked: boolean;
 };
 
+// output emit
+export interface OnParameterData {
+    timePeriod: TimePeriod;                 // 검색할 시간
+    selectedParameters: Array<string>;      // 선택된 파라메터
+};
+
 @Component({
     moduleId: module.id,
     selector: 'data-condition',
@@ -71,6 +77,7 @@ export class DataConditionComponent implements OnInit {
 
     // 설정 데이터
     // @Input() data: Array<DragItemListData>;
+    @Output() onParameter = new EventEmitter<OnParameterData>();
 
     //* 1분 미리 계산
     private readonly oneMinute: number = (1000 * 60); 
@@ -118,6 +125,9 @@ export class DataConditionComponent implements OnInit {
         private pdmModelService: PdmModelService,
         private pdmConfigService: PdmConfigService
     ){
+        this.searchTimePeriod.to = new Date().getTime();
+        this.changeSelectedPeriod( null );
+
         const period: (number | null) = this.getLocalStorage('period');
 
         if( period !== null ){
@@ -195,8 +205,6 @@ export class DataConditionComponent implements OnInit {
         this.pdmModelService
             .getParamNameByEqpIds(this.selectedFab.fabId, this.selectedEqpIds)
             .then((params: Array<string>) => {
-                // console.log('params', params);
-
                 this.parameters.splice(0);
                 
                 let i: number;
@@ -216,6 +224,12 @@ export class DataConditionComponent implements OnInit {
 
     //* [searchTimePeriod] From ~ To 값 변경 시 사용 값
     fromToChange(time: TimePeriod): void {
+        // console.log(
+        //     moment(time.from).format('YYYY-MM-DD HH:mm'),
+        //     moment(time.to).format('YYYY-MM-DD HH:mm'),
+        //     time,
+        //     this.searchTimePeriod
+        // );
         this.searchTimePeriod = time;
     }
 
@@ -264,22 +278,31 @@ export class DataConditionComponent implements OnInit {
 
     //* Parameter 멀티 셀렉트 값 변경 이벤트
     onChangeParameter(e: Array<parameterItem>): void {
-        // console.log(e);
 
         this.selectedParameters.splice(0);
 
+        // 실제 선택된 이름만 필터
         let i: number;
         const len: number = e.length;
         for( i=0; i<len; i++ ){
+            if( !e[i].checked ){ continue; }
             this.selectedParameters.push( e[i].paramName );
         }
 
         // 선택 된 멀티 Eqp 데이터 값 설정
         this.selectedParameterDatas = e;
+
+        // 선택된 값 전달
+        this.onParameter.emit({
+            timePeriod: this.searchTimePeriod,
+            selectedParameters: this.selectedParameters
+        });
+
+        this.clickGetDataInfo();
     }
 
     //* Get Data Info 버튼 클릭 이벤트
-    clickGetDataInfo(e?: MouseEvent | undefined): void {
+    clickGetDataInfo(): void {
 
         // 선택된 period 값 local저장소에 저장
         this.setLocalStorage('period', this.selectedPeriod, false);

@@ -48,13 +48,13 @@ export class ChartVisualOptionsComponent implements OnInit {
     private categoryDataY: Array<string> = [];
 
     //* 차트 데이터 타입 (X 전용)
-    private chartDataTypeX: Array<string> = ['Normal', 'Group'];
+    private chartDataTypeX: Array<string> = ['NORMAL', 'GROUP'];
     private chartDataTypeXSelected: string = this.chartDataTypeX[0];
 
     //* 차트 데이터 타입
-    private chartDataTypeY: {Normal: Array<string>, Group: Array<string> } = {
-        Normal: ['Normal'],
-        Group: ['Group', 'Mean', 'Min', 'Max', 'Sum']
+    private chartDataTypeY: {NORMAL: Array<string>, GROUP: Array<string> } = {
+        NORMAL: ['NORMAL'],
+        GROUP: ['GROUP', 'MEAN', 'MIN', 'MAX', 'SUM']
     };
 
     //* chart X, Y, Y2

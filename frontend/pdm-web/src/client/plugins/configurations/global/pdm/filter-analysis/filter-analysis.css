@@ -2,13 +2,16 @@
 filter-analysis { position:relative; display:block; height:100%; }
 
 /* (왼쪽) 사이드 영역 */
-filter-analysis > .sideArea { position:absolute; left:0; top:0; bottom:0; width:260px; background:#f3f3f3; border-right:1px solid #ddd; overflow-y:auto; }
+filter-analysis > .sideArea { position:absolute; left:0; top:0; bottom:0; width:280px; background:#f3f3f3; border-right:1px solid #ddd; overflow-y:auto; }
+
+/* (왼쪽) 사이드 영역 - 스크롤 부분 */
+filter-analysis > .sideArea > .scrollView { display:block; position:absolute; left:0; right:0; top:0; bottom:80px; overflow-x:hidden; overflow-y:auto; }
 
 /* (왼쪽) 사이드 영역 - 설정 부분 */
 filter-analysis > .sideArea > config-list { display:block; position:absolute; left:0; right:0; bottom:0; }
 
 /* 상단 영역 */
-filter-analysis > .topArea { display:block; position:absolute; left:260px; top:0; right:0; height:125px; }
+filter-analysis > .topArea { display:block; position:absolute; left:280px; top:0; right:0; height:125px; }
 
 /* 테이블 영역 */
-filter-analysis > .chartDrawArea { display:block; position:absolute; left:260px; top:125px; right:0; bottom:0; padding:10px; background:#fafafa; overflow-y:auto; }
+filter-analysis > .chartDrawArea { display:block; position:absolute; left:280px; top:125px; right:0; bottom:0; padding:10px; background:#fafafa; overflow:auto; }

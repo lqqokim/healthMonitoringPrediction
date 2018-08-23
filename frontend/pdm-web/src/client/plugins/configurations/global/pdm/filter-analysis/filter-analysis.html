@@ -1,19 +1,25 @@
 <!-- 왼쪽 사이드 영역 -->
 <div class='sideArea'>
-    <!-- Conditions -->
-    <folding-items bgcolor='#0082D8' title='Data Conditions' [folding]='true'>
-        <data-condition></data-condition>
-    </folding-items>
+    <div class='scrollView'>
+        <!-- Conditions -->
+        <folding-items bgcolor='#0082D8' title='Data Conditions' [folding]='folding.dataConditions'>
+            <data-condition (onParameter)='onParameter($event)'></data-condition>
+        </folding-items>
 
-    <!-- Dimensions -->
-    <folding-items bgcolor='#00D887' title='Dimensions' [folding]='false'>
-        <dragItem-list [data]='dimensions'></dragItem-list>
-    </folding-items>
+        <!-- Dimensions -->
+        <div (dragover)="onDragover($event)" (drop)="onDrop($event, 'dimensions')">
+            <folding-items bgcolor='#00D887' title='Dimensions' [folding]='folding.dimensions'>
+                <dragItem-list #dragItemDimensions itemDataKeyName='dimensions'></dragItem-list>
+            </folding-items>
+        </div>
 
-    <!-- Measures -->
-    <folding-items bgcolor='#00D887' title='Measures' [folding]='false'>
-        <dragItem-list [data]='measuires'></dragItem-list>
-    </folding-items>
+        <!-- Measures -->
+        <div (dragover)="onDragover($event)" (drop)="onDrop($event, 'measures')">
+            <folding-items bgcolor='#00D887' title='Measures' [folding]='folding.measures'>
+                <dragItem-list #dragItemMeasures itemDataKeyName='measures'></dragItem-list>
+            </folding-items>
+        </div>
+    </div>
 
     <!-- 설정 -->
     <config-list [data]='configData'></config-list>
@@ -26,5 +32,5 @@
 
 <!-- 차트 그려질 영역 -->
 <div class='chartDrawArea'>
-    <chart-draw-area></chart-draw-area>
+    <chart-draw-area #chartDrawArea></chart-draw-area>
 </div>
