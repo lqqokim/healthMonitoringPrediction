@@ -170,19 +170,31 @@
     </delete>
 
     <select id="selectParamSpecByeqpIdAndRule" resultType="com.bistel.a3.portal.domain.pdm.std.master.STDConditionalSpec">
-        select p.rawid as param_id, p.name as param_name, s.spec_type, s.upper_alarm_spec, s.upper_warning_spec, s.use_yn
-        from eqp_mst_pdm e, eqp_spec_link_mst_pdm l, CONDITIONAL_SPEC_MST_PDM c, param_spec_mst_pdm s, param_mst_pdm p
-        where e.rawid=l.eqp_mst_rawid
-        and c.rawid=l.CONDITIONAL_SPEC_MST_RAWID
-        and l.rawid=s.eqp_spec_link_mst_rawid
-        and p.rawid=s.param_mst_rawid
-        and e.rawid=#{eqpId}
-        and c.rule_name=#{rule}
+        SELECT PARAM_NAME, a.upper_alarm_spec as model_upper_alarm_spec, a.upper_warning_spec as model_upper_warning_spec,
+        b.upper_alarm_spec as eqp_upper_alarm_spec, b.upper_warning_spec as eqp_upper_warning_spec,
+        CASE WHEN B.NAME IS NOT NULL THEN 'EQP' WHEN b.name is null then 'MODEL' END AS TYPE
+        FROM
+        (
+            SELECT model_param.PARAM_NAME,model_param.UPPER_ALARM_SPEC, model_param.UPPER_WARNING_SPEC
+            FROM CONDITIONAL_SPEC_MST_PDM model, MODEL_PARAM_SPEC_MST_PDM model_param
+            WHERE 1=1
+            AND model.RAWID = model_param.CONDITIONAL_SPEC_MST_RAWID
+            and model.MODEL_NAME=
+            (
+                SELECT MODEL_NAME
+                FROM EQP_MST_PDM
+                WHERE RAWID=#{eqpId}
+            )
+            AND model.RAWID=#{rule_id}
+        ) A,
+        (
+            SELECT PARAM.NAME, param_spec.UPPER_ALARM_SPEC, param_spec.UPPER_WARNING_SPEC, param_spec.spec_type
+            FROM PARAM_SPEC_MST_PDM param_spec, PARAM_MST_PDM PARAM
+            WHERE EQP_SPEC_LINK_MST_RAWID = #{rule_id}
+            AND param_spec.PARAM_MST_RAWID = PARAM.RAWID
+        )B
+        WHERE A.PARAM_NAME = B.NAME(+)
     </select>
-
-
-
-
 
 
 

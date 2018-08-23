@@ -26,8 +26,17 @@ public class STDConditionalSpec {
     private String operand;
     private Double upper_alarm_spec;
     private Double upper_warning_spec;
+    private Double model_upper_alarm_spec;
+    private Double model_upper_warning_spec;
+    private Double eqp_upper_alarm_spec;
+    private Double eqp_upper_warning_spec;
     private Double lower_alarm_spec;
     private Double lower_warning_spec;
+    private Double model_lower_alarm_spec;
+    private Double model_lower_warning_spec;
+    private Double eqp_lower_alarm_spec;
+    private Double eqp_lower_warning_spec;
+    private String type;
     private Double target;
     private boolean used_yn;
 
@@ -233,7 +242,76 @@ public class STDConditionalSpec {
         this.upper_warning_spec = upper_warning_spec;
     }
 
+    public Double getModel_upper_alarm_spec() {
+        return model_upper_alarm_spec;
+    }
 
+    public void setModel_upper_alarm_spec(Double model_upper_alarm_spec) {
+        this.model_upper_alarm_spec = model_upper_alarm_spec;
+    }
 
+    public Double getModel_upper_warning_spec() {
+        return model_upper_warning_spec;
+    }
+
+    public void setModel_upper_warning_spec(Double model_upper_warning_spec) {
+        this.model_upper_warning_spec = model_upper_warning_spec;
+    }
+
+    public Double getEqp_upper_alarm_spec() {
+        return eqp_upper_alarm_spec;
+    }
+
+    public void setEqp_upper_alarm_spec(Double eqp_upper_alarm_spec) {
+        this.eqp_upper_alarm_spec = eqp_upper_alarm_spec;
+    }
+
+    public Double getEqp_upper_warning_spec() {
+        return eqp_upper_warning_spec;
+    }
+
+    public void setEqp_upper_warning_spec(Double eqp_upper_warning_spec) {
+        this.eqp_upper_warning_spec = eqp_upper_warning_spec;
+    }
+
+    public Double getModel_lower_alarm_spec() {
+        return model_lower_alarm_spec;
+    }
+
+    public void setModel_lower_alarm_spec(Double model_lower_alarm_spec) {
+        this.model_lower_alarm_spec = model_lower_alarm_spec;
+    }
+
+    public Double getModel_lower_warning_spec() {
+        return model_lower_warning_spec;
+    }
+
+    public void setModel_lower_warning_spec(Double model_lower_warning_spec) {
+        this.model_lower_warning_spec = model_lower_warning_spec;
+    }
+
+    public Double getEqp_lower_alarm_spec() {
+        return eqp_lower_alarm_spec;
+    }
+
+    public void setEqp_lower_alarm_spec(Double eqp_lower_alarm_spec) {
+        this.eqp_lower_alarm_spec = eqp_lower_alarm_spec;
+    }
+
+    public Double getEqp_lower_warning_spec() {
+        return eqp_lower_warning_spec;
+    }
+
+    public void setEqp_lower_warning_spec(Double eqp_lower_warning_spec) {
+        this.eqp_lower_warning_spec = eqp_lower_warning_spec;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
 }
 

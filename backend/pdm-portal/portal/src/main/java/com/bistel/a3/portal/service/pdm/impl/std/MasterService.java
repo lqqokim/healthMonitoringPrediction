@@ -747,7 +747,6 @@ public class MasterService implements IMasterService {
         STDConditionalSpecMapper conditionalSpecMapper=SqlSessionUtil.getMapper(sessions, fabId, STDConditionalSpecMapper.class);
 
         return conditionalSpecMapper.selectParamSpecByeqpIdAndRule(eqpId, rule);
-
     }
 
     @Override
