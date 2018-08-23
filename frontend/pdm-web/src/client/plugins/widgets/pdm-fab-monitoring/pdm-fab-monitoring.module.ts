@@ -16,12 +16,15 @@ import { PdmFabMonitoringComponent } from './pdm-fab-monitoring.component';
 import { FabMonitoringModule } from '../../configurations/global/pdm/fabmonitoring/fabmonitoring.module';
 
 // import { FabEditorComponent } from '../../configurations/global/pdm/fabmonitoring/component/fab-editor/fab-editor.component';
+import { PluginCommonModule } from '../../common/plugins.common.module';
 
 @NgModule({
     imports: [
         A3_CommonModule,
         BISTEL_SDKModule,
-        FabMonitoringModule
+        FabMonitoringModule,
+        PluginCommonModule 
+        
     ],
     declarations: [
         PdmFabMonitoringComponent,

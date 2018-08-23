@@ -1,1 +1,13 @@
-<fab-editor [fabInfo]="selectedMonitoring"  [mode]="run" #fabMonitoring></fab-editor>
+<div class="fab-monitoring">
+    <div class="select-param">
+            <div class="a3-from-to" [from]="searchTimePeriod?.from" [to]="searchTimePeriod?.to" [format]="'yyyy/MM/dd hh:mm:ss'" (changedFromTo)="fromToChange($event)"></div>
+            <div class="eqp-tree">
+                <fab-area-eqp-param-tree singleSelect="true" (changeParamSelection)="nodeClick($event)" #tree2></fab-area-eqp-param-tree>
+            </div>
+            <button class="btn btn-primary"  (click)="getMonitoringInfo()">Get Monitoring Info</button>
+        </div>
+    <div class="fab-view">
+            <fab-editor [fabInfo]="selectedMonitoring"  [mode]="run" #fabMonitoring></fab-editor>
+    </div>
+</div>
+

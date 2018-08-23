@@ -23,6 +23,12 @@ export class PdmFabMonitoringComponent extends WidgetApi implements OnInit, OnSe
     selectedMonitoring:FabInfo=new FabInfo();
     @ViewChild("fabMonitoring") fabMonitoring:FabEditorComponent;
 
+
+    searchTimePeriod = {
+        from: null,
+        to: null
+    }
+
     constructor() {
         super();
     }
@@ -33,7 +39,10 @@ export class PdmFabMonitoringComponent extends WidgetApi implements OnInit, OnSe
     }
 
     ngOnInit() {
-
+        let fromDate = new Date();
+        fromDate.setHours(fromDate.getHours() - 3);
+        this.searchTimePeriod.from = fromDate.getTime();
+        this.searchTimePeriod.to = new Date().getTime();
     }
 
     refresh({ type, data }: WidgetRefreshType) {
@@ -52,7 +61,7 @@ export class PdmFabMonitoringComponent extends WidgetApi implements OnInit, OnSe
         if(this.selectedMonitoring==null) return;
         
         setTimeout(()=>{
-            this.fabMonitoring.simulationStart()},500);
+            this.fabMonitoring.initLayout()},500);
         this.hideSpinner();
     }
 
@@ -64,6 +73,19 @@ export class PdmFabMonitoringComponent extends WidgetApi implements OnInit, OnSe
 
     ngOnDestroy() {
 
+    }
+    fromToChange(data: any) {
+        this.searchTimePeriod = data;
+    }
+    getMonitoringInfo(){
+        let locationDatas = this.fabMonitoring.getLocationStatusSimul();
+        this.fabMonitoring.setLocationActions(locationDatas);
+        setTimeout(()=>{
+            this.fabMonitoring.setLocationActions(locationDatas);
+        });
+        setTimeout(()=>{
+            this.fabMonitoring.setLocationActions(locationDatas);
+        },500);
     }
 }
 

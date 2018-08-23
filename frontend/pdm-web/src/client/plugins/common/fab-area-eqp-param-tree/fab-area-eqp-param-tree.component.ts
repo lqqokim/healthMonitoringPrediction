@@ -17,6 +17,7 @@ import { SpinnerComponent } from './../../../sdk';
 export class FabAreaEqpParamTreeComponent implements OnInit, AfterViewInit, OnChanges {
     @ViewChild('componentSpinner') componentSpinner: SpinnerComponent;
     @ViewChild('tv') tv;
+    @Input() singleSelect = false;
     @Output() nodeClick: EventEmitter<any> = new EventEmitter();
     @Output() changeParamSelection: EventEmitter<any> = new EventEmitter();
     @Input() fab: any;
@@ -273,7 +274,7 @@ export class FabAreaEqpParamTreeComponent implements OnInit, AfterViewInit, OnCh
             if(this.selectedItem.nodeType=="eqp" || this.selectedItem.nodeType=="parameter"){
                 this.selectedItem.isChecked = !this.selectedItem.isChecked;
                 if(this.selectedItem.isChecked){
-                    if(this.selectedItem.nodeType=="parameter"){
+                    if(this.selectedItem.nodeType=="parameter" && !this.singleSelect){
                         this.clearCheck(this.tv.getRootNode(),this.selectedItem.parentnode.id);
                     }else{
                         this.clearCheck(this.tv.getRootNode(),this.selectedItem.id);
