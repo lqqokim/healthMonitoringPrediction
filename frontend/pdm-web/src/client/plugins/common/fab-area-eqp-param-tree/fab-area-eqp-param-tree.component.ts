@@ -281,7 +281,12 @@ export class FabAreaEqpParamTreeComponent implements OnInit, AfterViewInit, OnCh
                     }
                     
                 }
-                this.changeChecked(this.selectedItem,this.selectedItem.isChecked);
+                if(!this.singleSelect){
+                    this.changeChecked(this.selectedItem,this.selectedItem.isChecked);
+                }else if(this.selectedItem.nodeType=="eqp"){
+                    this.selectedItem.isChecked = false;
+                }
+                
             }
             this.changeParamSelection.emit([this.selectedItem]);
         }

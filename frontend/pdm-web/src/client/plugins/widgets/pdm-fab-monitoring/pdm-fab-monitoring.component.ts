@@ -8,7 +8,11 @@ import { Translater, ContextMenuType, SpinnerComponent } from '../../../sdk';
 import { FabInfo } from '../../configurations/global/pdm/fabmonitoring/component/fab-editor/fabInfo';
 import { FabEditorComponent } from '../../configurations/global/pdm/fabmonitoring/component/fab-editor/fab-editor.component';
 
-// import { FabEditorComponent } from '../../configurations/global/pdm/fabmonitoring/component/fab-editor/fab-editor.component';
+import { PdmModelService } from '../../../common/model/app/pdm/pdm-model.service';
+
+// import { FabAreaEqpParamTreeComponent } from '../../../../../../common/fab-area-eqp-param-tree/fab-area-eqp-param-tree.component';
+import { FabAreaEqpParamTreeComponent } from '../../../plugins/common/fab-area-eqp-param-tree/fab-area-eqp-param-tree.component';
+
 
 @Component({
     moduleId: module.id,
@@ -22,6 +26,7 @@ export class PdmFabMonitoringComponent extends WidgetApi implements OnInit, OnSe
     private _props: any;
     selectedMonitoring:FabInfo=new FabInfo();
     @ViewChild("fabMonitoring") fabMonitoring:FabEditorComponent;
+    @ViewChild('tree') tree: FabAreaEqpParamTreeComponent;
 
 
     searchTimePeriod = {
@@ -29,7 +34,7 @@ export class PdmFabMonitoringComponent extends WidgetApi implements OnInit, OnSe
         to: null
     }
 
-    constructor() {
+    constructor(private _pdmSvc: PdmModelService) {
         super();
     }
 
@@ -78,14 +83,48 @@ export class PdmFabMonitoringComponent extends WidgetApi implements OnInit, OnSe
         this.searchTimePeriod = data;
     }
     getMonitoringInfo(){
-        let locationDatas = this.fabMonitoring.getLocationStatusSimul();
-        this.fabMonitoring.setLocationActions(locationDatas);
-        setTimeout(()=>{
+        this.showSpinner();
+        let fabId = this.tree.selectedFab.fabId;
+        // let conditionParamId = this.modelChart.getConditionParamId();
+        let node = this.tree.getSelectedNodes();
+        let param_name ="";
+        for (let index = 0; index < node.length; index++) {
+            const element = node[index];
+            if (element.nodeType == 'parameter') {
+                param_name = element.name;
+                break;
+            }
+
+        }
+
+
+        this._pdmSvc.getFabMonitoring(fabId,this.searchTimePeriod.from,this.searchTimePeriod.to,param_name).then((datas)=>{
+            this.hideSpinner();
+            if(datas.length==0){
+                this.fabMonitoring.clearLocationAction();
+                return;
+            }
+            let locationDatas = datas;
             this.fabMonitoring.setLocationActions(locationDatas);
-        });
-        setTimeout(()=>{
-            this.fabMonitoring.setLocationActions(locationDatas);
-        },500);
+            setTimeout(()=>{
+                this.fabMonitoring.setLocationActions(locationDatas);
+            });
+            setTimeout(()=>{
+                this.fabMonitoring.setLocationActions(locationDatas);
+            },500);            
+        }).catch((err)=>{
+            this.hideSpinner();
+            alert(err);
+        })
+
+        // let locationDatas = this.fabMonitoring.getLocationStatusSimul();
+        // this.fabMonitoring.setLocationActions(locationDatas);
+        // setTimeout(()=>{
+        //     this.fabMonitoring.setLocationActions(locationDatas);
+        // });
+        // setTimeout(()=>{
+        //     this.fabMonitoring.setLocationActions(locationDatas);
+        // },500);
     }
 }
 

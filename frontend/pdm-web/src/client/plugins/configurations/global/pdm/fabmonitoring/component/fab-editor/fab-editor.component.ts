@@ -43,6 +43,10 @@ export class FabEditorComponent implements OnInit, OnChanges, AfterViewInit{
 
     isSimulationStop = true;
 
+
+    locations = [];
+    locationKeys = {};
+
     constructor(){ }
 
     // fabCanvas 셀렉터 퍼포먼스 up (10 ~ 100배 select speed up)
@@ -237,7 +241,6 @@ export class FabEditorComponent implements OnInit, OnChanges, AfterViewInit{
     // }
 
 
-    locations = [];
     simulationStop(){
         this.isSimulationStop = true;
         this.fabCanvas_elem_destroy();
@@ -277,6 +280,7 @@ export class FabEditorComponent implements OnInit, OnChanges, AfterViewInit{
         if(this.fabInfo==null) return ;
         for(let i=0;i<this.fabInfo.datas.length;i++){
             this.locations.push(this.fabInfo.datas[i].name);
+            this.locationKeys[this.fabInfo.datas[i].name] = this.fabInfo.datas[i];
         }
     }
     moveaction(){
@@ -379,6 +383,8 @@ export class FabEditorComponent implements OnInit, OnChanges, AfterViewInit{
 
     }
     public setLocationAction(locationName,status,displayvalue,info,warning_spec,alarm_spec,value,maxvalue){
+        if(this.locationKeys[locationName]==null) return ;
+        
         if(this.locationActionsKey[locationName]){
             this.locationActionsKey[locationName].name ="loc_"+ locationName;
             this.locationActionsKey[locationName].locationName = locationName;

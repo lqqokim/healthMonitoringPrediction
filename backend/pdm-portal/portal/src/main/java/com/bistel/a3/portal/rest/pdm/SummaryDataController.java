@@ -102,6 +102,19 @@ public class SummaryDataController {
             return summaryDataService.getAlarmHistory(fabId, areaId,eqpId, from, to);
 
     }
+    @RequestMapping("/fabmonitoring")
+    public Object getFabMonitoring(@PathVariable("fabId") String fabId,
+                                   @RequestParam("param_name") String param_name,
+                                  @RequestParam("fromdate") Long fromdate,
+                                  @RequestParam("todate") Long todate) {
+
+
+        Date from = new Date(fromdate);
+        Date to = new Date(todate);
+
+        return summaryDataService.getFabMonitoringInfo(fabId,param_name, from, to);
+
+    }
 
     @RequestMapping("/areas/{areaId}/alarmHistoryByAreaId")
     public Object alarmHistory(@PathVariable("fabId") String fabId,

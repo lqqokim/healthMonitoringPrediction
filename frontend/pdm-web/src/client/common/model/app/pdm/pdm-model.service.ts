@@ -80,7 +80,16 @@ export class PdmModelService extends ModelCommonService {
 			}
 		});
 	}
-
+	getFabMonitoring(plantId,  from, to,param_name) {
+		return this.GET({
+			uriPath: `pdm/fabs/${plantId}/fabmonitoring`,
+			querystring: {
+				fromdate: from,
+				todate: to,
+				param_name:param_name
+			}
+		});
+	}
 	getParamStatus(plantId, areaId, eqpId, from, to) {
 		return this.GET({
 			uriPath: `pdm/fabs/${plantId}/areas/${areaId}/eqps/${eqpId}/paramstatus`,
