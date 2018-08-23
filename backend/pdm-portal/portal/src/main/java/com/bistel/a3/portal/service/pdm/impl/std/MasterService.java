@@ -648,7 +648,7 @@ public class MasterService implements IMasterService {
 
         List<STDConditionalSpec> conditionsList=conditionalSpecMapper.selectConditionsByModel(model);
 
-
+        System.out.println("Hi");
 //        STDConditionalSpec conditionalSpec=new STDConditionalSpec();
 
 //        JSONParser jsonParser=null;
@@ -687,11 +687,20 @@ public class MasterService implements IMasterService {
 //
 //        }
 
-        String expressionValue=null;
+        String expressionValue="";
+        String[] expression_values=null;
         for (int i = 0; i < conditionsList.size(); i++) {
 
             expressionValue=conditionsList.get(i).getExpression_value();
-            conditionsList.get(i).setExpression_values(expressionValue.split(","));
+            if (expressionValue==null)
+            {
+                conditionsList.get(i).setExpression_values(expression_values);
+            }
+            else if(!expressionValue.equals(null))
+            {
+                conditionsList.get(i).setExpression_values(expressionValue.split(","));
+            }
+
 
         }
 
@@ -792,7 +801,7 @@ public class MasterService implements IMasterService {
 
                 if (used_yn==true) //used가 체크되면 Insert into Model_param_spec_mst_pdm
                 {
-                    conditionalSpecMapper.insertModelParamSpec(ruleId, modelName, param_name,upper_alarm_spec, upper_warning_spec,target,
+                    conditionalSpecMapper.insertModelParamSpec(ruleId,  param_name,upper_alarm_spec, upper_warning_spec,target,
                             lower_alarm_spec,lower_warning_spec, paramDescription,userName);
                 }
 
@@ -826,7 +835,7 @@ public class MasterService implements IMasterService {
 
                     checkParam=conditionalSpecMapper.selectCheckModelParam(ruleId,param_name);
                     if (checkParam<1){
-                        conditionalSpecMapper.insertModelParamSpec(ruleId,modelName, param_name, upper_alarm_spec, upper_warning_spec,target, lower_alarm_spec,
+                        conditionalSpecMapper.insertModelParamSpec(ruleId, param_name, upper_alarm_spec, upper_warning_spec,target, lower_alarm_spec,
                                 lower_warning_spec,paramDescription,userName);
                     }
 
@@ -877,7 +886,7 @@ public class MasterService implements IMasterService {
             if (used_yn==true)
             {
                 //eqp_spec_link_mst_pdm에 있는지 없는지 체크 후에 Insert
-                conditionalSpecMapper.insertEqpSpecLink(eqpId, rule_id, ordering, use_yn, description, userName);
+                conditionalSpecMapper.insertEqpSpecLink(eqpId, rule_id, ordering,  description, userName);
             }
             else
             {

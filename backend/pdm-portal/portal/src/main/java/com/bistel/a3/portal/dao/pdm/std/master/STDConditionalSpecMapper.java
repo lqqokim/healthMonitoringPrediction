@@ -34,12 +34,12 @@ public interface STDConditionalSpecMapper {
 
     Long selectCheckModelParam(@Param("rule_id") Long rule_id, @Param("param_name") String param_name);
 
-    void insertModelParamSpec(@Param("rule_id") Long rule_id,@Param("model_name") String model_name,@Param("param_name") String param_name,
+    void insertModelParamSpec(@Param("rule_id") Long rule_id, @Param("param_name") String param_name,
                               @Param("upper_alarm_spec") Double upper_alarm_spec, @Param("upper_warning_spec") Double upper_warning_spec,
                               @Param("target") Double target, @Param("lower_alarm_spec") Double lower_alarm_spec, @Param("lower_warning_spec") Double lower_warning_spec,
                               @Param("description") String description, @Param("userName") String userName);
 
-    void updateModelParamSpec(@Param("model_name") String model_name, @Param("param_name") String param_name,
+    void updateModelParamSpec( @Param("param_name") String param_name,
                               @Param("upper_alarm_spec") Double upper_alarm_spec, @Param("upper_warning_spec") Double upper_warning_spec,
                               @Param("target") Double target, @Param("lower_alarm_spec") Double lower_alarm_spec, @Param("lower_warning_spec") Double lower_warning_spec,
                               @Param("description") String description, @Param("userName") String userName,
@@ -50,7 +50,7 @@ public interface STDConditionalSpecMapper {
     void deleteConditionalSpec(@Param("rule_id") Long rule_id);
 
     void insertEqpSpecLink(@Param("eqp_id") Long eqp_id, @Param("rule_id") Long rule_id, @Param("ordering") Long ordering,
-                           @Param("use_yn") String use_yn, @Param("description") String description, @Param("userName") String userName);
+                            @Param("description") String description, @Param("userName") String userName);
 
     void deleteEqpSpecLink(@Param("eqp_id") Long eqp_id, @Param("rule_id") Long rule_id );
 

@@ -7,7 +7,7 @@
     </select>
 
     <select id="selectConditionsByModel" resultType="com.bistel.a3.portal.domain.pdm.std.master.STDConditionalSpec">
-        select rawid as rule_id, condition_name as rule_name, expression, expression_value ,condition
+        select rawid as rule_id, rule_name, expression, expression_value ,condition
         from conditional_spec_mst_pdm
         where model_name= #{model}
     </select>
@@ -39,7 +39,7 @@
         from model_param_spec_mst_pdm m, conditional_spec_mst_pdm c
         where 1=1
         and m.CONDITIONAL_SPEC_MST_RAWID=c.rawid
-        and m.model_name=#{model}
+        and c..model_name=#{model}
         and c.rawid=#{rule_id}
         )b
         where a.param_name = b.param_name(+)
@@ -58,7 +58,7 @@
 
 
     <insert id="insertConditionalSpec"  databaseId="oracle">
-        insert into CONDITIONAL_SPEC_MST_PDM(rawid, model_name, condition_name, expression, condition, description, create_by, create_dtts, update_by, update_dtts, expression_value)
+        insert into CONDITIONAL_SPEC_MST_PDM(rawid, model_name, rule_name, expression, condition, description, create_by, create_dtts, update_by, update_dtts, expression_value)
         values(seq_conditional_spec_mst_pdm.nextval, #{model_name}, #{rule_name}, #{expression}, #{condition}, #{description,jdbcType=VARCHAR}, #{userName}, SYSTIMESTAMP, #{userName}, SYSTIMESTAMP, #{expression_value})
     </insert>
 
@@ -67,7 +67,7 @@
         update CONDITIONAL_SPEC_MST_PDM
         set
         model_name=#{model_name},
-        condition_name=#{rule_name},
+        rule_name=#{rule_name},
         expression=#{expression,jdbcType=VARCHAR},
         condition=#{condition,jdbcType=VARCHAR},
         description = #{description,jdbcType=VARCHAR},
@@ -81,13 +81,13 @@
         select rawid as rule_id
         from CONDITIONAL_SPEC_MST_PDM
         where model_name=#{model_name}
-        and condition_name=#{rule_name}
+        and rule_name=#{rule_name}
     </select>
 
 
     <insert id="insertModelParamSpec" databaseId="oracle">
-        insert into model_param_spec_mst_pdm (rawid, conditional_spec_mst_rawid, model_name, param_name, upper_alarm_spec, upper_warning_spec, target, lower_alarm_spec, lower_warning_spec, description, create_by, create_dtts, update_by, update_dtts )
-        values(seq_model_param_spec_mst_pdm.nextval, #{rule_id},#{model_name},#{param_name},#{upper_alarm_spec,jdbcType=FLOAT}, #{upper_warning_spec,jdbcType=FLOAT}, #{target,jdbcType=FLOAT}, #{lower_alarm_spec,jdbcType=FLOAT}, #{lower_warning_spec,jdbcType=FLOAT}, #{description,jdbcType=VARCHAR}, #{userName}, systimestamp, #{userName}, systimestamp )
+        insert into model_param_spec_mst_pdm (rawid, conditional_spec_mst_rawid, param_name, upper_alarm_spec, upper_warning_spec, target, lower_alarm_spec, lower_warning_spec, description, create_by, create_dtts, update_by, update_dtts )
+        values(seq_model_param_spec_mst_pdm.nextval, #{rule_id}, #{param_name},#{upper_alarm_spec,jdbcType=FLOAT}, #{upper_warning_spec,jdbcType=FLOAT}, #{target,jdbcType=FLOAT}, #{lower_alarm_spec,jdbcType=FLOAT}, #{lower_warning_spec,jdbcType=FLOAT}, #{description,jdbcType=VARCHAR}, #{userName}, systimestamp, #{userName}, systimestamp )
     </insert>
 
     <select id="selectCheckModelParam" resultType="Long">
@@ -100,7 +100,6 @@
     <update id="updateModelParamSpec" databaseId="oracle">
         update model_param_spec_mst_pdm
         set
-        model_name=#{model_name},
         param_name=#{param_name},
         upper_alarm_spec=#{upper_alarm_spec,jdbcType=FLOAT},
         upper_warning_spec=#{upper_warning_spec,jdbcType=FLOAT},
@@ -127,18 +126,18 @@
 
 
     <select id="selectConditionsByModelAndRule" resultType="com.bistel.a3.portal.domain.pdm.std.master.STDConditionalSpec">
-        select c.rawid rule_id, c.condition_name rule_name, c.condition, c.expression, c.expression_value,p.rawid as param_id, m.param_name, m.upper_alarm_spec, m.upper_warning_spec
+        select c.rawid rule_id, c.rule_name, c.condition, c.expression, c.expression_value,p.rawid as param_id, m.param_name, m.upper_alarm_spec, m.upper_warning_spec
         from model_param_spec_mst_pdm m, conditional_spec_mst_pdm c, EQP_SPEC_LINK_MST_PDM l, param_mst_pdm p
         where c.rawid=m.conditional_spec_mst_rawid
         and c.rawid=l.conditional_spec_mst_rawid
         and l.eqp_mst_rawid=p.eqp_mst_rawid
         and c.model_name=#{model}
-        and c.condition_name=#{rule}
+        and c.rule_name=#{rule}
     </select>
 
     <select id="selectConditionsByEqpId" resultType="com.bistel.a3.portal.domain.pdm.std.master.STDConditionalSpec">
         SELECT * FROM (
-        select MODEL_SPEC.RAWID RULE_ID,MODEL_SPEC.CONDITION_NAME AS RULE_NAME, MODEL_SPEC.MODEL_NAME,MODEL_SPEC.CONDITION,MODEL_SPEC.CONDITION_NAME
+        select MODEL_SPEC.RAWID RULE_ID,MODEL_SPEC.RULE_NAME, MODEL_SPEC.MODEL_NAME,MODEL_SPEC.CONDITION,MODEL_SPEC.rule_name
         from CONDITIONAL_SPEC_MST_PDM MODEL_SPEC
         where model_name=
         (
@@ -159,8 +158,8 @@
 
 
     <insert id="insertEqpSpecLink" databaseId="oracle">
-        insert into eqp_spec_link_mst_pdm(rawid, eqp_mst_rawid, conditional_spec_mst_rawid, ordering, use_yn, description, create_by, create_dtts, update_by, update_dtts)
-        values(seq_eqp_spec_link_mst_pdm.nextval, #{eqp_id}, #{rule_id}, #{ordering,jdbcType=NUMERIC}, #{use_yn,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, #{userName}, systimestamp, #{userName}, systimestamp)
+        insert into eqp_spec_link_mst_pdm(rawid, eqp_mst_rawid, conditional_spec_mst_rawid, ordering, description, create_by, create_dtts, update_by, update_dtts)
+        values(seq_eqp_spec_link_mst_pdm.nextval, #{eqp_id}, #{rule_id}, #{ordering,jdbcType=NUMERIC},  #{description,jdbcType=VARCHAR}, #{userName}, systimestamp, #{userName}, systimestamp)
     </insert>
 
     <delete id="deleteEqpSpecLink" databaseId="oracle">
@@ -178,7 +177,7 @@
         and l.rawid=s.eqp_spec_link_mst_rawid
         and p.rawid=s.param_mst_rawid
         and e.rawid=#{eqpId}
-        and c.condition_name=#{rule}
+        and c.rule_name=#{rule}
     </select>
 
 
