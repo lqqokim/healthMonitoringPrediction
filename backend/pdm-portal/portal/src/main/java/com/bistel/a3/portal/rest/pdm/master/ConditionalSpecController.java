@@ -96,7 +96,7 @@ public class ConditionalSpecController {
     }
 
     @RequestMapping(value="eqps/setEqpParamSpec", method = RequestMethod.PUT)
-    public void setEqpParamSpec(Principal user, @PathVariable String fabId, @PathVariable Long eqpId,  @RequestBody List<STDConditionalSpec> eqpParamSpecList) {
+    public void setEqpParamSpec(Principal user, @PathVariable String fabId, @RequestBody List<STDConditionalSpec> eqpParamSpecList) {
 
         for (int i = 0; i < eqpParamSpecList.size(); i++) {
             eqpParamSpecList.get(i).setUserName(user.getName());
