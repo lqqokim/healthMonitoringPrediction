@@ -1,20 +1,46 @@
-chart-draw-area > table { width:100%; }
+/* x축만 그리기 */
+chart-draw-area #table_Xmore_Yzero { display:flex; justify-content:flex-start; align-items:flex-start; border-top:1px solid #aaa; }
+chart-draw-area #table_Xmore_Yzero::after { content:''; display:block; clear:both; }
+
+chart-draw-area #table_Xmore_Yzero .chartGroup { float:left; }
+chart-draw-area #table_Xmore_Yzero .chartGroup > .chartGroupName { clear:both; background:#eee; border-left:1px solid #ccc; border-bottom:1px solid #ccc; padding:8px 10px; line-height:1; }
+chart-draw-area #table_Xmore_Yzero .chartGroup > .chartName { border-left:1px solid #ccc; border-bottom:1px solid #ccc; text-align:center; padding:5px 8px; }
+chart-draw-area #table_Xmore_Yzero .chartGroup > .chartView { border-left:1px solid #ccc; border-bottom:1px solid #ccc; text-align:center; padding:5px 8px; }
+
+/* y축만 그리기 */
+chart-draw-area #table_Xzero_Ymore { display:flex; justify-content:flex-start; align-items:flex-start; flex-direction:column; border-top:1px solid #aaa; }
+chart-draw-area #table_Xzero_Ymore::after { content:''; display:block; clear:both; }
+chart-draw-area #table_Xzero_Ymore .chartGroup { position:relative; margin-left:160px; }
+chart-draw-area #table_Xzero_Ymore .chartGroup > .chartGroupName { position:absolute; background:#eee; width:160px; left:0; top:0; bottom:0; border-bottom:1px solid #ccc; display:flex; justify-content:flex-start; align-items:flex-start; padding:8px 10px; line-height:1; }
+chart-draw-area #table_Xzero_Ymore .chartGroup > .chartName { position:absolute; background:#eee; width:160px; left:0; top:0; bottom:0; border-bottom:1px solid #ccc; display:flex; justify-content:flex-start; align-items:flex-start; padding:8px 10px; line-height:1; }
+
+chart-draw-area #table_Xzero_Ymore > .chartGroup { margin-left:0; }
+chart-draw-area #table_Xzero_Ymore > .chartGroup > .chartGroup { margin-left:0; }
+
+
+
+
+
+
+
+
+chart-draw-area table { width:100%; }
 
 /* 테이블 헤더 */
-chart-draw-area > table > thead > tr > th { border-top:2px solid #333; background:#eee; height:30px; text-align:center; vertical-align:middle; font-size:14px; font-weight:normal; border-bottom:1px solid #ccc; border-left:1px solid #ccc; }
-chart-draw-area > table > thead > tr > th:first-child { border-left:0; }
+chart-draw-area table > thead > tr > th { border-top:2px solid #333; background:#eee; height:30px; text-align:center; vertical-align:middle; font-size:14px; font-weight:normal; border-bottom:1px solid #ccc; border-left:1px solid #ccc; }
+chart-draw-area table > thead > tr > th:first-child { border-left:0; }
 
 /* 테이블 본문 */
-chart-draw-area > table > tbody > tr > td { background:#fff; border-bottom:1px solid #ccc; border-left:1px solid #ccc; padding:10px; }
-chart-draw-area > table > tbody > tr > td:first-child { border-left:0; }
+chart-draw-area table > tbody > tr > td { background:#fff; border-bottom:1px solid #ccc; border-left:1px solid #ccc; padding:10px; }
+chart-draw-area table > tbody > tr > td:first-child { border-left:0; }
 
 /* 테이블 본문 - x축 카테고리 포함 차트 */
-chart-draw-area > table > tbody > tr > td > dl { display:table; margin:0 -10px; padding:0; width:calc(100% + 20px) !important; }
-chart-draw-area > table > tbody > tr > td > dl > dt { display:table-cell; border-bottom:1px solid #ccc; border-right:1px solid #ccc; padding:10px; }
-chart-draw-area > table > tbody > tr > td > dl > dd { display:table-cell; border-bottom:1px solid #ccc; padding:10px; }
+chart-draw-area table > tbody > tr > td > dl { display:table; margin:0 -10px; padding:0; width:calc(100% + 20px) !important; }
+chart-draw-area table > tbody > tr > td > dl > dt { display:table-cell; border-bottom:1px solid #ccc; border-right:1px solid #ccc; padding:10px; }
+chart-draw-area table > tbody > tr > td > dl > dd { display:table-cell; border-bottom:1px solid #ccc; padding:10px; }
 
-chart-draw-area > table > tbody > tr > td > dl:first-child { margin-top:-10px; }
-chart-draw-area > table > tbody > tr > td > dl:last-child { margin-bottom:-10px; }
+chart-draw-area table > tbody > tr > td > dl:first-child { margin-top:-10px; }
+chart-draw-area table > tbody > tr > td > dl:last-child { margin-bottom:-10px; }
 
-chart-draw-area > table > tbody > tr > td > dl:last-child > dt { border-bottom:0; }
-chart-draw-area > table > tbody > tr > td > dl:last-child > dd { border-bottom:0; }
+chart-draw-area table > tbody > tr > td > dl:last-child > dt { border-bottom:0; }
+chart-draw-area table > tbody > tr > td > dl:last-child > dd { border-bottom:0; }

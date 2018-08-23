@@ -214,7 +214,7 @@ export class PdmEqpHealthIndex extends WidgetApi implements OnSetup, OnDestroy {
         let columnName = data.column;
         let chartType: string = undefined;
 
-        // console.log( 'cellClick-data', data );
+        console.log( 'cellClick-data', data );
 
         // 로직1~4 에 해당 (LogicChart)
         if( (columnName === 'logic1' || columnName === 'logic2' || columnName === 'logic3' || columnName === 'logic4') ){ chartType='logicChart'; }

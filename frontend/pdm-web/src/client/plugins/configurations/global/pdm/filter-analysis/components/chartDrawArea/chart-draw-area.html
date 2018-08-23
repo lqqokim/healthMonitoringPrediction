@@ -1,34 +1,23 @@
-<table>
-    <!-- 테이블 헤더 -->
-    <thead>
-        <tr>
-            <ng-container *ngFor="let val of tableDrawDataY">
-                <th>category</th>
-                <th>result</th>
-            </ng-container>
-        </tr>
-    </thead>
+<!-- 그려질 차트 테이블 없음 -->
+<ng-container *ngIf="tableDrawStatus === tableDrawType.none">
+</ng-container>
 
-    <!-- 테이블 본문 -->
-    <tbody>
-        <tr *ngFor="let item of tableDrawDataITEM; let itemIdx = index">
-            <ng-container *ngFor="let y of tableDrawDataY; let yIdx = index">
-                <td>{{yIdx}}-{{itemIdx}}</td>
-                <td>
-                    <!-- x축 카테고리 0개 (:차트 단독) -->
-                    <ng-container *ngIf="tableDrawData.x === 0">
-                        {{tableDrawData.x}}-차트
-                    </ng-container>
+<!-- x축, y축 없음 : 단일 차트 -->
+<ng-container *ngIf="tableDrawStatus === tableDrawType.Xzero_Yzero">
+    차트 한개
+</ng-container>
 
-                    <!-- x축 카테고리 1개 이상 (x축 카테고리 와 차트) -->
-                    <ng-container *ngIf="tableDrawData.x >= 1">
-                        <dl *ngFor="let x of tableDrawDataX; let xIdx = index">
-                            <dt>{{xIdx}}</dt>
-                            <dd>차트</dd>
-                        </dl>
-                    </ng-container>
-                </td>
-            </ng-container>
-        </tr>
-    </tbody>
-</table>
+<!-- x축만 있음 : 테이블 차트 1 -->
+<ng-container *ngIf="tableDrawStatus === tableDrawType.Xmore_Yzero">
+    <div id='table_Xmore_Yzero'></div>
+</ng-container>
+
+<!-- y축만 있음 : 테이블 차트 2 -->
+<ng-container *ngIf="tableDrawStatus === tableDrawType.Xzero_Ymore">
+    <div id='table_Xzero_Ymore'></div>
+</ng-container>
+
+<!-- x, y축 있음 : 테이블 차트 3 -->
+<ng-container *ngIf="tableDrawStatus === tableDrawType.Xmore_Ymore">
+    <div id='table_Xmore_Ymore'></div>
+</ng-container>
