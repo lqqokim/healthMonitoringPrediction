@@ -25,14 +25,14 @@ public class ExtractEventProcessor extends AbstractProcessor<String, byte[]> {
     @Override
     public void process(String partitionKey, byte[] streamByteRecord) {
         String recordValue = new String(streamByteRecord);
-        // time, P1, P2, P3, P4, ... Pn, now status:time, prev status:time, refresh flag
+        // time, P1, P2, P3, P4, ... Pn, now status:time, prev status:time, groupid, refresh flag
         String[] recordColumns = recordValue.split(SEPARATOR, -1);
 
         try {
-            String statusCodeAndTime = recordColumns[recordColumns.length - 3];
+            String statusCodeAndTime = recordColumns[recordColumns.length - 4];
             String[] nowStatusCodeAndTime = statusCodeAndTime.split(":");
 
-            String prevStatusAndTime = recordColumns[recordColumns.length - 2];
+            String prevStatusAndTime = recordColumns[recordColumns.length - 3];
             String[] prevStatusCodeAndTime = prevStatusAndTime.split(":");
 
             // extract event
