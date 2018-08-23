@@ -56,4 +56,6 @@ public interface STDConditionalSpecMapper {
 
     void deleteParamSpec(@Param("eqp_spec_link_mst_rawid") Long eqp_spec_link_mst_rawid);
 
+
+
 }

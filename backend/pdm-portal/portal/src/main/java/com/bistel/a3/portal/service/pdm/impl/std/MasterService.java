@@ -839,7 +839,7 @@ public class MasterService implements IMasterService {
                     }
 
                 }
-                else //used가 false이면 delete Model_param_spec_mst_pdm
+                else if (used_yn==false && model_param_spec_mst_rawid!=null) //used가 false이면 delete Model_param_spec_mst_pdm
                 {
                     conditionalSpecMapper.deleteModelParamSpec(model_param_spec_mst_rawid);
                 }
@@ -903,7 +903,6 @@ public class MasterService implements IMasterService {
     public void setEqpParamSpec(String fabId, List<STDConditionalSpec> eqpParamSpecList) {
 
         STDConditionalSpecMapper conditionalSpecMapper=SqlSessionUtil.getMapper(sessions, fabId, STDConditionalSpecMapper.class);
-
 
 
         //1. Spec 변경시 Param_spec_mst_pdm에 Insert
