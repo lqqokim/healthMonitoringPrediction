@@ -648,7 +648,6 @@ public class MasterService implements IMasterService {
 
         List<STDConditionalSpec> conditionsList=conditionalSpecMapper.selectConditionsByModel(model);
 
-        System.out.println("Hi");
 //        STDConditionalSpec conditionalSpec=new STDConditionalSpec();
 
 //        JSONParser jsonParser=null;
@@ -890,7 +889,35 @@ public class MasterService implements IMasterService {
             if (used_yn==true)
             {
                 //eqp_spec_link_mst_pdm에 있는지 없는지 체크 후에 Insert
+                //used tured인 경우
+                //1. eqp_spec_link_mst_pdm에 insert
+                //2. 해당 해당 파라미터들 param_spec_mst_pdm에 insert
+
+                //1.
                 conditionalSpecMapper.insertEqpSpecLink(eqpId, rule_id, ordering,  description, userName);
+
+                List<STDConditionalSpec> modelParam=conditionalSpecMapper.selectAppliedEqpParamListByeqpIdAndRule(eqpId,rule_id);
+
+                Long param_id=null;
+                String spec_type="MODEL";
+                Double upper_alarm_spec=null;
+                Double upper_warning_spec=null;
+                Double target=null;
+                Double lower_alarm_spec=null;
+                Double lower_warning_spec=null;
+                String modelParamDescription=null;
+
+                for (int j = 0; j < modelParam.size(); j++) {
+
+                    param_id=modelParam.get(i).getParam_id();
+                    upper_alarm_spec=modelParam.get(i).getUpper_alarm_spec();
+                    upper_warning_spec=modelParam.get(i).getUpper_warning_spec();
+
+                    conditionalSpecMapper.insertParamSpec(param_id,eqp_spec_link_mst_rawid,spec_type,upper_alarm_spec,upper_warning_spec,
+                            target,lower_alarm_spec,lower_warning_spec,modelParamDescription,userName);
+                }
+
+
             }
             else
             {
@@ -924,10 +951,18 @@ public class MasterService implements IMasterService {
         String userName=null;
 
 
+        for (int i = 0; i < eqpParamSpecList.size(); i++) {
 
+            param_id=eqpParamSpecList.get(i).getParam_id();
+            eqp_spec_link_mst_rawid=eqpParamSpecList.get(i).getEqp_spec_link_mst_rawid();
+            eqp_upper_alarm_spec=eqpParamSpecList.get(i).getEqp_upper_alarm_spec();
+            eqp_upper_warning_spec=eqpParamSpecList.get(i).getEqp_upper_warning_spec();
+            eqp_lower_alarm_spec=eqpParamSpecList.get(i).getEqp_lower_alarm_spec();
+            eqp_lower_warning_spec=eqpParamSpecList.get(i).getEqp_lower_warning_spec();
 
-        conditionalSpecMapper.insertParamSpec(param_id,eqp_spec_link_mst_rawid,spec_type,eqp_upper_alarm_spec,eqp_upper_warning_spec,
-                                                target,eqp_lower_alarm_spec,eqp_lower_warning_spec,description,userName);
+            conditionalSpecMapper.updateParamSpec(spec_type, eqp_upper_alarm_spec, eqp_upper_warning_spec, eqp_lower_alarm_spec, eqp_lower_warning_spec,
+                    param_id, eqp_spec_link_mst_rawid);
+        }
 
     }
 

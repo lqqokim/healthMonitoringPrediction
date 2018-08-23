@@ -65,4 +65,15 @@ public interface STDConditionalSpecMapper {
                          @Param("String") String description,
                          @Param("String") String userName);
 
+    void updateParamSpec(@Param("spec_type") String spec_type,
+                         @Param("eqp_upper_alarm_spec") Double eqp_upper_alarm_spec,
+                         @Param("eqp_upper_warning_spec") Double eqp_upper_warning_spec,
+                         @Param("eqp_lower_alarm_spec") Double eqp_lower_alarm_spec,
+                         @Param("eqp_lower_warning_spec") Double eqp_lower_warning_spec,
+                         @Param("param_id") Long param_id,
+                         @Param("eqp_spec_link_mst_rawid") Long eqp_spec_link_mst_rawid);
+
+    List<STDConditionalSpec> selectAppliedEqpParamListByeqpIdAndRule(@Param("eqpId") Long eqpId, @Param("rule_id") Long rule_id);
+
+
 }
