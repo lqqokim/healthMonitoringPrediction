@@ -195,11 +195,11 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     deleteRule(): void {
-        this._pdmConfigService.deleteModelRule(this.selectedPlant.fabId, this.selectedModel.model_name, this.selectedRule.rule_id)
+        this._pdmConfigService.deleteModelRule(this.selectedPlant.fabId, this.selectedRule.rule_id)
             .then((res) => {
                 console.log('deleteRule res', res);
             }).catch((err) => {
-
+                console.log(err);
             });
     }
 

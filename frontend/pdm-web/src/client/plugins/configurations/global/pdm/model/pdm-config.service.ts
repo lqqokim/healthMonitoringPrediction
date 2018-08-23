@@ -5,6 +5,9 @@ import { Injectable } from '@angular/core';
 //MIP
 import { ModelCommonService } from '../../../../../common';
 
+//Interface
+import * as IRule from './../spec-rule/model/spec-rule-interface'; 
+
 @Injectable()
 export class PdmConfigService extends ModelCommonService {
 
@@ -298,7 +301,7 @@ export class PdmConfigService extends ModelCommonService {
 
     getAllParamsByModel(fabId: number, model: string): Promise<any> {
         return this.GET({
-            uriPath: `service/pdm/fabs/${fabId}/models/${model}/paramList`
+            uriPath: `pdm/fabs/${fabId}/models/${model}/specs`
         })
     }
 
@@ -308,22 +311,24 @@ export class PdmConfigService extends ModelCommonService {
         });
     }
 
-    updateModelRule(fabId: number, params): Promise<any> {
+    updateModelRule(fabId: number, params: IRule.RuleRequest): Promise<any> {
         return this.PUT({
-            uriPath: `pdm/fabs/${fabId}/models`,
+            uriPath: `pdm/fabs/${fabId}/models/setModel`,
             params: {
-                rule_id: params.ruld_id,
+                rule_id: params.rule_id,
                 rule_name: params.rule_name,
+                model_name: params.model_name,
                 condition: params.condition,
                 expression: params.expression,
+                expression_value: params.expression_value,
                 parameter: params.parameter
             }
         });
     }
 
-    deleteModelRule(fabId: number, model: string, ruleId: number): Promise<any> {
+    deleteModelRule(fabId: number, ruleId: number): Promise<any> {
         return this.DELETE({
-            uriPath: `pdm/fabs/${fabId}/models/${model}/${ruleId}`
+            uriPath: `pdm/fabs/${fabId}/models/rule/${ruleId}/deleteModel`
         });
     }
 

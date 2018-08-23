@@ -24,20 +24,20 @@
     </div>
     <div class="spec-rule-content">
         <div class="rule-list">
-            <wj-flex-grid #wjRuleGrid 
+            <wj-flex-grid #RuleGrid 
                 [itemsSource]="rules" 
                 [allowDragging]="'None'" 
                 [isReadOnly]="true" 
                 [selectionMode]="'Row'" 
                 [headersVisibility]="'Column'"
-                (selectionChanged)="selectRule(wjRuleGrid)">
+                (selectionChanged)="selectRule(RuleGrid)">
                 <!-- <wj-flex-grid-filter #filter></wj-flex-grid-filter> -->
                 <wj-flex-grid-column [width]="'*'" [header]="'Rule Name'" [binding]="'rule_name'" [align]="'center'"></wj-flex-grid-column>
                 <wj-flex-grid-column [width]="'*'" [header]="'Condition'" [binding]="'expression'" [align]="'center'"></wj-flex-grid-column>
             </wj-flex-grid>
         </div>
         <div class="parameter-list">
-            <wj-flex-grid 
+            <wj-flex-grid
                 [itemsSource]="paramsBySelectedRule"
                 [allowDragging]="'None'" 
                 [isReadOnly]="true"
@@ -79,7 +79,7 @@
                             <input type="text" class="form-control" name="ruleName" [(ngModel)]="ruleFormData.rule_name" [disabled]="ruleFormData.rule_name === DEFAULT_NAME">
                         </div>
 
-                        <div class="form-group a3-input-group condition" *ngIf="ruleFormData.rule_name !== DEFAULT_NAME">
+                        <div class="form-group a3-input-group condition">
                             <label class="control-label">Condition</label>
                             <table>
                                 <thead>
@@ -92,7 +92,7 @@
                                     <tr *ngFor="let condition of ruleFormData.condition;let i=index">
                                         <td class="param-name">
                                             <select class='form-control' name="paramName{{i}}" [(ngModel)]="condition.param_name">
-                                                <option *ngFor="let parameter of paramsBySelectedRule" [ngValue]="parameter.param_name">{{parameter.param_name}}</option>
+                                                <option *ngFor="let parameter of editParameters" [ngValue]="parameter.param_name">{{parameter.param_name}}</option>
                                             </select>
                                         </td>
                                         <td class="param-operand">
@@ -119,14 +119,14 @@
                         </div>
                         <div class="form-group a3-input-group parameter-list" *ngIf="ruleFormData.parameter">
                             <label class="control-label">Parameter List</label>
-                            <wj-flex-grid #WijmoGridInstance 
-                                [itemsSource]="ruleFormData.parameter" 
+                            <wj-flex-grid #ParamGrid
+                                [itemsSource]="editParameters" 
                                 [selectionMode]="'Row'" 
                                 [headersVisibility]="'Column'">
                                 <!-- <wj-flex-grid-filter #filter></wj-flex-grid-filter> -->
                                 <wj-flex-grid-column [width]="'*'" [header]="'Parameter'" [binding]="'param_name'" [isReadOnly]="true"></wj-flex-grid-column>
-                                <wj-flex-grid-column [width]="'*'" [header]="'Alarm'" [binding]="'upper_alarm_spec'"></wj-flex-grid-column>
-                                <wj-flex-grid-column [width]="'*'" [header]="'Warning'" [binding]="'upper_warning_spec'"></wj-flex-grid-column>
+                                <wj-flex-grid-column [width]="'*'" [header]="'Alarm'" [binding]="'upper_alarm_spec'" [dataType]="'Number'"></wj-flex-grid-column>
+                                <wj-flex-grid-column [width]="'*'" [header]="'Warning'" [binding]="'upper_warning_spec'" [dataType]="'Number'"></wj-flex-grid-column>
                                 <wj-flex-grid-column [width]="'*'" [header]="'Used'" [binding]="'used_yn'"></wj-flex-grid-column>
                             </wj-flex-grid>
                         </div>
