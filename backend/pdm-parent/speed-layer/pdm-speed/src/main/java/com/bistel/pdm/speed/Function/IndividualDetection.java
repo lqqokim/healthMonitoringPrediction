@@ -40,7 +40,6 @@ public class IndividualDetection {
                 }
 
                 msg = makeOutOfAlarmMsg(time, paramInfo, fd01Health, paramValue);
-                log.debug("[{}] - alarm spec : {}, value : {}", paramKey, paramInfo.getUpperAlarmSpec(), paramValue);
 
             } else if (evaluateWarning(paramInfo, paramValue)) {
                 //warning
@@ -52,7 +51,6 @@ public class IndividualDetection {
                 }
 
                 msg = makeOutOfWarningMsg(time, paramInfo, fd01Health, paramValue);
-                log.debug("[{}] - warning spec : {}, value : {}", paramKey, paramInfo.getUpperWarningSpec(), paramValue);
             }
         } else {
             //log.debug("[{}] - No health because skip the logic 1.", paramKey);

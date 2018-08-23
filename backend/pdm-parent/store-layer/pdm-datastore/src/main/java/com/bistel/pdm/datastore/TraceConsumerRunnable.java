@@ -58,7 +58,7 @@ public class TraceConsumerRunnable implements Runnable {
         consumer.subscribe(Collections.singletonList(topicName));
         log.info("Reading topic: {}, db type: {}", topicName, DataSource.getDBType());
 
-        final int minBatchSize = 20;
+        final int minBatchSize = 100;
         List<ConsumerRecord<String, byte[]>> buffer = new ArrayList<>();
 
         while (true) {

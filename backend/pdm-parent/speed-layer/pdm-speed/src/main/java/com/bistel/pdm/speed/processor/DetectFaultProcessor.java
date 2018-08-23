@@ -31,12 +31,8 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
 
     private final static String SEPARATOR = ",";
 
-   //private WindowStore<String, String> kvParamValueStore;
     private KeyValueStore<String, Long> kvTimeInIntervalStore;
     private WindowStore<String, Double> kvNormalizedParamValueStore;
-
-//    private KeyValueStore<String, Integer> kvAlarmCountStore;
-//    private KeyValueStore<String, Integer> kvWarningCountStore;
 
     private final ConcurrentHashMap<String, String> conditionMap = new ConcurrentHashMap<>();
 
@@ -48,12 +44,8 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
     public void init(ProcessorContext processorContext) {
         super.init(processorContext);
 
-        //kvParamValueStore = (WindowStore) context().getStateStore("speed-param-value");
         kvTimeInIntervalStore = (KeyValueStore) context().getStateStore("speed-process-interval");
         kvNormalizedParamValueStore = (WindowStore) context().getStateStore("speed-normalized-value");
-
-//        kvAlarmCountStore = (KeyValueStore) context().getStateStore("speed-alarm-count");
-//        kvWarningCountStore = (KeyValueStore) context().getStateStore("speed-warning-count");
     }
 
     @Override
@@ -102,7 +94,9 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
                             Double paramValue = Double.parseDouble(recordColumns[paramInfo.getParamParseIndex()]);
                             String paramKey = partitionKey + ":" + paramInfo.getParameterRawId();
                             Long time = parseStringToTimestamp(recordColumns[0]);
-                            kvNormalizedParamValueStore.put(paramKey, paramValue/paramInfo.getUpperAlarmSpec(), time);
+                            Double healthIndex = paramValue/paramInfo.getUpperAlarmSpec();
+
+                            kvNormalizedParamValueStore.put(paramKey, healthIndex, time);
 
                             // fault detection
                             String msg = individualDetection.detect(partitionKey, paramKey, paramInfo,
@@ -110,6 +104,7 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
 
                             if (msg.length() > 0) {
                                 context().forward(partitionKey, msg.getBytes(), "output-fault");
+                                log.debug("[{}] - IND FAULT:{}", partitionKey, msg);
                             }
                         }
                     }
@@ -164,6 +159,7 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
                             String msgRuleAlarm = ruleBasedDetection.getOutOfSpecMsg();
                             if (msgRuleAlarm.length() > 0) {
                                 context().forward(partitionKey, msgRuleAlarm.getBytes(), "output-fault");
+                                log.debug("[{}] - RULE FAULT:{}", partitionKey, msgRuleAlarm);
                             }
 
                             // Logic 2 health
@@ -183,6 +179,7 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
                 if (flag.equalsIgnoreCase("CRC")) {
                     String msg = endTime + "," + "CRC";
                     context().forward(partitionKey, msg.getBytes(), "refresh");
+                    log.debug("[{}] - cache refreshed.", partitionKey);
                 }
             }
         } catch (Exception e) {
