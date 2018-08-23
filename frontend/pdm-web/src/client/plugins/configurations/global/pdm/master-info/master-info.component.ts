@@ -8,6 +8,7 @@ import { PdmConfigService } from './../model/pdm-config.service';
 import { SpinnerComponent } from './../../../../../sdk';
 
 import * as IEqp from './partial/eqp/model/eqp-interface';
+import * as IRule from './partial/spec-rule/model/spec-rule-interface';
 
 @Component({
     moduleId: module.id,
@@ -43,6 +44,8 @@ export class MasterInfoComponent implements OnInit, AfterViewInit {
     isLoading: boolean = false;
     isShowArea: boolean = true;
     parentNode;
+
+    eqpSpecCondition: IRule.SpecCondition;
 
     readonly TYPES: any = { FAB: 'fab', AREA: 'area', EQP: 'eqp', PARAMETER: 'parameter', PART: 'part' };
 
@@ -139,6 +142,17 @@ export class MasterInfoComponent implements OnInit, AfterViewInit {
                 this.selectedItem = ev.treeview;
                 this.selectedItem.isOpen = true;
                 this.selectedEv = ev;
+
+                //Spec List Component Data
+                this.eqpSpecCondition = {
+                    fabId: this.selectedFab.fabId,
+                    model: this.selectedItem.model_name,
+                    eqp: {
+                        eqpId: this.selectedItem.eqpId,
+                        eqpName: this.selectedItem.eqpName
+                    }
+                };
+
                 this.isLoading = true;
 
                 const children: any[] = this.selectedItem.children;
@@ -441,6 +455,7 @@ export class MasterInfoComponent implements OnInit, AfterViewInit {
         this.eqpData = undefined;
         this.paramData = undefined;
         this.partData = undefined;
+        this.eqpSpecCondition = undefined;
 
         this.selectedItem = undefined;
         this.selectedEv = undefined;

@@ -333,13 +333,13 @@ export class PdmConfigService extends ModelCommonService {
     }
 
     //EQP Spec Rule
-    getEQPRules(fabId: number, eqpId: number): Promise<any> {
+    getEqpRules(fabId: number, eqpId: number): Promise<any> {
         return this.GET({
             uriPath: `pdm/fabs/${fabId}/eqps/${eqpId}/conditions`
         });
     }
 
-    getParamsByEQPRule(fabId: number, eqpId: number, ruleId: number): Promise<any> {
+    getParamsByEqpRule(fabId: number, eqpId: number, ruleId: number): Promise<any> {
         return this.GET({
             uriPath: `pdm/fabs/${fabId}/eqps/${eqpId}/conditions/${ruleId}/specs`
         });

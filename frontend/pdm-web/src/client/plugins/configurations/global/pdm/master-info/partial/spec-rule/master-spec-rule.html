@@ -1,21 +1,16 @@
 <div class="spec-rule-container">
-    <div class="spec-rule-header clearfix">
-        <!-- <div class="btn-group pull-right">
-
-
-        </div> -->
-    </div>
+    <div class="spec-rule-header clearfix"></div>
     <div class="spec-rule-content">
         <div class="rule-list">
             <span class="title"> Spec Rule List</span>
             <div *ngIf="isEditGird;then edit else noneEdit"></div>
-            
+
             <ng-template #edit>
                 <div class="btn-group pull-right">
-                    <button type="button" class="btn btn-default" (click)="onDownOrder();">
+                    <button type="button" [disabled]="isDownDisabled" class="btn btn-default" (click)="onDownOrder();">
                         <span class="glyphicon glyphicon-arrow-down" aria-hidden="true"></span>
                     </button>
-                    <button type="button" class="btn btn-default" (click)="onUpOrder();">
+                    <button type="button" [disabled]="isUpDisabled" class="btn btn-default" (click)="onUpOrder();">
                         <span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span>
                     </button>
                     <button class="btn btn-default" type="button" (click)="saveEditRule();">Save</button>
@@ -29,17 +24,13 @@
                 </div>
             </ng-template>
 
-            <wj-flex-grid #RuleGrid 
-                [itemsSource]="rules" 
-                [allowDragging]="'None'" 
-                [selectionMode]="'Row'"
-                [headersVisibility]="'Column'" 
-                (selectionChanged)="selectRow(RuleGrid)">
+            <wj-flex-grid #RuleGrid [itemsSource]="rules" [allowDragging]="'None'" [selectionMode]="'Row'" [headersVisibility]="'Column'"
+                (selectionChanged)="selectRule(RuleGrid)">
                 <!-- <wj-flex-grid-filter #filter></wj-flex-grid-filter> -->
                 <wj-flex-grid-column [width]="'*'" [header]="'Rule Name'" [binding]="'rule_name'" [align]="'center'" [isReadOnly]="true"></wj-flex-grid-column>
                 <wj-flex-grid-column [width]="'*'" [header]="'Condition'" [binding]="'expression'" [align]="'center'" [isReadOnly]="true"></wj-flex-grid-column>
                 <wj-flex-grid-column [width]="'*'" [header]="'Order'" [binding]="'ordering'" [align]="'center'" [isReadOnly]="true"></wj-flex-grid-column>
-                <wj-flex-grid-column [width]="'*'" [header]="'Used'" [binding]="'use_yn'" [align]="'center'" [isReadOnly]="!isEditGird">
+                <wj-flex-grid-column [width]="'*'" [header]="'Used'" [binding]="'used_yn'" [align]="'center'" [isReadOnly]="!isEditGird">
                     <!-- <ng-template wjFlexGridCellTemplate let-item="item" *ngIf="isEditGrid === true">
                         <input type="checkbox" [checked]="item.use_yn"/>
                     </ng-template>
@@ -51,18 +42,13 @@
         </div>
         <div class="parameter-list">
             <div class="btn-group pull-right">
-                <button class="btn btn-default" type="button" (click)="controlRule(STATUS.MODIFY);">Modify</button>    
+                <button class="btn btn-default" type="button" (click)="openEditModal(STATUS.MODIFY);" [disabled]="isEditGird">Modify</button>
             </div>
 
-            <wj-flex-grid 
-                [itemsSource]="parametersByRule" 
-                [allowDragging]="'None'" 
-                [isReadOnly]="true" 
-                [selectionMode]="'Row'" 
-                [headersVisibility]="'Column'">
+            <wj-flex-grid [itemsSource]="paramsBySeletedRule" [allowDragging]="'None'" [isReadOnly]="true" [selectionMode]="'Row'" [headersVisibility]="'Column'">
                 <wj-flex-grid-filter #filter></wj-flex-grid-filter>
                 <wj-flex-grid-column [width]="'*'" [header]="'Parameter'" [binding]="'param_name'" [align]="'center'"></wj-flex-grid-column>
-                <wj-flex-grid-column [width]="'*'" [header]="'Type'" [binding]="'spec_type'" [align]="'center'"></wj-flex-grid-column>
+                <wj-flex-grid-column [width]="'*'" [header]="'Type'" [binding]="'type'" [align]="'center'"></wj-flex-grid-column>
                 <wj-flex-grid-column [width]="'*'" [header]="'Alarm'" [binding]="'alarm_spec'" [align]="'center'"></wj-flex-grid-column>
                 <wj-flex-grid-column [width]="'*'" [header]="'Warning'" [binding]="'warning_spec'" [align]="'center'"></wj-flex-grid-column>
             </wj-flex-grid>
@@ -92,7 +78,6 @@
                         <div class="form-group a3-input-group">
                             <label class="control-label">Rule Name</label>
                             <input type="text" class="form-control" name="ruleName" [(ngModel)]="ruleFormData.rule_name" disabled>
-                            <!-- <input type="checkbox" (click)="isRuleUse = !isRuleUse; changeRuleUse(isRuleUse);" [checked]="isRuleUse" />Rule Use -->
                         </div>
 
                         <div class="form-group a3-input-group condition">
@@ -107,17 +92,20 @@
                                 <tbody>
                                     <tr *ngFor="let condition of ruleFormData.condition;let i=index">
                                         <td class="param-name">
-                                            <select class='form-control' name="paramName{{i}}" [(ngModel)]="condition.param_name" disabled>
-                                                <option *ngFor="let parameter of parametersByRule" [ngValue]="parameter.param_name">{{parameter.param_name}}</option>
-                                            </select>
+                                            <input type="text" value="{{condition.param_name}}" disabled/>
+                                            <!-- <select class='form-control' name="paramName{{i}}" [(ngModel)]="condition.param_name" disabled>
+                                                <option *ngFor="let parameter of editParameters" [ngValue]="parameter.param_name">{{parameter.param_name}}</option>
+                                            </select> -->
                                         </td>
                                         <td class="param-operand">
-                                            <select id="field{{i}}" class='form-control' name="operand{{i}}" [(ngModel)]="condition.operand" disabled>
+                                            <input type="text" value="{{condition.operand}}" disabled/>
+                                            <!-- <select id="field{{i}}" class='form-control' name="operand{{i}}" [(ngModel)]="condition.operand" disabled>
                                                 <option *ngFor="let operand of operands" [ngValue]="operand.display">{{operand.display}}</option>
-                                            </select>
+                                            </select> -->
                                         </td>
                                         <td class="param-value">
-                                            <input type='text' class='form-control' name="value{{i}}" [(ngModel)]="condition.param_value" #value{{i}}="ngModel" disabled>
+                                            <input type="text" value="{{condition.param_value}}" disabled/>
+                                            <!-- <input type='text' class='form-control' name="value{{i}}" [(ngModel)]="condition.param_value" #value{{i}}="ngModel" disabled> -->
                                         </td>
                                     </tr>
                                 </tbody>
@@ -128,12 +116,12 @@
                         <div class="form-group a3-input-group parameter-list">
                             <label class="control-label">Parameter List</label>
                             <wj-flex-grid #WijmoGridInstance 
-                                [itemsSource]="ruleFormData.parameter"
+                                [itemsSource]="editParameters" 
                                 [selectionMode]="'Row'" 
                                 [headersVisibility]="'Column'">
                                 <wj-flex-grid-filter #filter></wj-flex-grid-filter>
                                 <wj-flex-grid-column [width]="'*'" [header]="'Parameter'" [binding]="'param_name'" [isReadOnly]="true"></wj-flex-grid-column>
-                                <wj-flex-grid-column [width]="'*'" [header]="'Type'" [binding]="'spec_type'" [isReadOnly]="true"></wj-flex-grid-column>
+                                <wj-flex-grid-column [width]="'*'" [header]="'Type'" [binding]="'type'" [isReadOnly]="true"></wj-flex-grid-column>
                                 <wj-flex-grid-column [width]="'*'" [header]="'Alarm'" [binding]="'alarm_spec'" [isReadOnly]="false" [dataType]="'Number'"></wj-flex-grid-column>
                                 <wj-flex-grid-column [width]="'*'" [header]="'Warning'" [binding]="'warning_spec'" [isReadOnly]="false" [dataType]="'Number'"></wj-flex-grid-column>
                             </wj-flex-grid>
@@ -143,7 +131,8 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal" (click)="RuleForm.form.reset(); closeModal();">Close</button>
-                    <button type="button" class="btn btn-primary" [disabled]="!RuleForm.form.valid" (click)="saveRule(RuleForm)">Apply</button>
+                    <button type="button" class="btn btn-primary" (click)="saveRule(RuleForm)">Apply</button>
+                    <!-- <button type="button" class="btn btn-primary" [disabled]="!RuleForm.form.valid" (click)="saveRule(RuleForm)">Apply</button> -->
                 </div>
             </form>
 

@@ -155,8 +155,12 @@ export class SpecRuleComponent implements OnInit, OnDestroy {
 
     //Rule 목록의 첫번째 Row를 선택한다.
     selectFirstRule(): void {
-        this.selectedRule = this.RuleGrid.itemsSource[0];
-        this.getParamsByRule();
+        setTimeout(() => {
+            if (this.RuleGrid.itemsSource && this.RuleGrid.itemsSource.length > 0) {
+                this.selectedRule = this.RuleGrid.itemsSource[0];
+                this.getParamsByRule();
+            }
+        });
     }
 
     // rule을 클릭해서 가져오는 parameter
@@ -266,15 +270,17 @@ export class SpecRuleComponent implements OnInit, OnDestroy {
                 1. String인 Condition을 JSON으로 파싱
                 2. JSON 형태의 Condition을 Modal Form Data에 세팅
             */
-            const conditionsStr: string = this.selectedRule.condition.replace(new RegExp(/\\/g), '');
-            const conditions: IRule.Condition[] = JSON.parse(conditionsStr);
-            conditions.map((condition: IRule.Condition) => {
-                ruleFormData.condition.push({
-                    param_name: condition.param_name,
-                    operand: condition.operand,
-                    param_value: condition.param_value
+            if (this.selectedRule && this.selectedRule.condition) {
+                const conditionsStr: string = this.selectedRule.condition.replace(new RegExp(/\\/g), '');
+                const conditions: IRule.Condition[] = JSON.parse(conditionsStr);
+                conditions.map((condition: IRule.Condition) => {
+                    ruleFormData.condition.push({
+                        param_name: condition.param_name,
+                        operand: condition.operand,
+                        param_value: condition.param_value
+                    });
                 });
-            });
+            }
         }
 
         this.ruleFormData = ruleFormData;

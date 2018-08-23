@@ -1,5 +1,5 @@
 //Angular
-import { Component, OnInit, OnDestroy, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, OnChanges, ViewChild, Input, SimpleChange, SimpleChanges } from '@angular/core';
 
 //MIP
 import { ModalAction, ModalRequester, RequestType } from '../../../../../../../common';
@@ -28,132 +28,169 @@ import { NgForm } from '@angular/forms';
 })
 export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
     @ViewChild('RuleGrid') RuleGrid: wjcGrid.FlexGrid;
+    @Input() specCondition: any;
+
+    fabId: IRule.SpecCondition['fabId'];
+    eqp: IRule.SpecCondition['eqp'];
+    model: IRule.SpecCondition['model'];
 
     plants: IRule.Plant[];
     models: IRule.Model[];
     rules: IRule.Rule[];
-    parametersByRule: IRule.Parameter[];
 
     selectedPlant: IRule.Plant;
     selectedModel: IRule.Model;
     selectedRule: IRule.Rule;
     ruleFormData: IRule.FormData;
 
+    paramsBySeletedRule: IRule.ParameterByRule[];
+    editParameters: IRule.ParameterByRule[];
+    tempParameters: IRule.ParameterByRule[];
+
     isRuleUse: boolean = false;
     isEditGird: boolean = false;
-
-    protected readonly STATUS: IRule.Status = { CREATE: 'create', MODIFY: 'modify', DELETE: 'delete' };
-    protected readonly operands: IRule.Operand[] = [
-        { display: '=', value: 'equal' },
-        { display: '<', value: 'lessthan' },
-        { display: '>', value: 'greaterthan' },
-        { display: '<=', value: 'lessthanequal' },
-        { display: '>=', value: 'greaterthanequal' },
-        { display: 'like', value: 'like' }
-    ];
-
     modalTitle: string;
 
+    isUpDisabled: boolean = false;
+    isDownDisabled: boolean = false;
+    isOnOrder: boolean = false;
+
+    readonly TYPE: IRule.Type = { MODEL: 'MODEL', EQP: 'EQP' };
+    readonly STATUS: IRule.Status = { CREATE: 'create', MODIFY: 'modify', DELETE: 'delete' };
+
     constructor(
-        private _pdmConfigService: PdmConfigService,
-        private _pdmModelService: PdmModelService,
-        private modalAction: ModalAction,
-        private requester: ModalRequester,
-        private notify: NotifyService,
-        private translater: Translater) {
+        private _pdmConfigService: PdmConfigService
+    ) {
 
     }
 
-    ngOnChanges(changes: SimpleChanges) {
-        console.log('spec rule changes', changes);
+    ngOnChanges(changes: any) {
+        const currentValue = changes.specCondition.currentValue;
+        this.fabId = currentValue.fabId;
+        this.eqp = currentValue.eqp;
+        this.model = currentValue.model;
+        this.getRules();
     }
 
     ngOnInit() {
-        this.getPlants();
-        this.getAllPrametersByModelEQP();
-    }
 
-    getAllPrametersByModelEQP(): void {
-
-    }
-
-    getPlants(): void {
-        this._pdmModelService.getPlants()
-            .then((plants: IRule.Plant[]) => {
-                if (!this.selectedPlant) this.selectedPlant = plants[0];
-                this.plants = plants;
-                this.getModels();
-            }).catch((err) => {
-
-            });
-    }
-
-    getModels(): void {
-        // this._pdmConfigService.getModels(this.selectedPlant.fabId)
-        //     .then((models: IRule.Model[]) => {
-        //         if(!this.selectedModel) this.selectedModel = models[0];
-        //         this.models = models;
-        //         this.getRules();
-        //     }).catch((err) => {
-
-        //     });
-
-        this.models = DATA.MODELS;
-        this.selectedModel = this.models[0];
-        this.getRules();
     }
 
     getRules(): void {
-        //api call
-        // this._pdmConfigService.getModelRules(this.selectedPlant.fabId, this.selectedModel.model_name)
-        //     .then((rules: IRule.Rule[]) => {
-        //         if(!this.selectedRule) this.selectedRule = rules[0];
-        //         this.rules = rules;
-        //         this.getParams();
-        //     }).catch((err) => {
+        this._pdmConfigService.getEqpRules(this.fabId, this.eqp.eqpId)
+            .then((ruleResponse: IRule.RuleResponse[]) => {
+                console.log('getRules', ruleResponse);
 
-        //     });
-        // this.rules = new wjcCore.CollectionView(this.dataSvc.getData(100));
-        this.rules = DATA.RULES;
-        console.log('rules', this.rules);
-        this.selectedRule = this.rules[0];
-        this.getParams();
+                this.rules = this.setRules(ruleResponse);
+
+                if (this.rules.length) {
+                    this.selectFirstRule();
+                } else {
+                    if (this.paramsBySeletedRule) {
+                        this.paramsBySeletedRule = [];
+                    }
+                }
+            }).catch((err) => {
+                console.log(err);
+            });
     }
 
-    getParams(): void {
-        //api call
-        // this._pdmConfigService.getParamsByModelRule(this.selectedPlant.fabId, this.selectedModel.model_name, this.selectedRule.rule_id)
-        //     .then((parameters: IRule.Parameter[]) => {
-        //         this.parameters = parameters;
-        //     }).catch((err) => {
+    setRules(ruleResponse: IRule.RuleResponse[]): IRule.Rule[] {
+        let rules: IRule.Rule[] = [];
 
-        //     });
-        for (let i = 0; i < DATA.PARAMETERS.length; i++) {
-            let param_name = DATA.PARAMETERS[i].param_name;
-            param_name = param_name.toLowerCase();
+        ruleResponse.map((rule: IRule.RuleResponse, index: number) => {
+            let condition: IRule.Condition[] = rule.condition ? JSON.parse(rule.condition.replace(new RegExp(/\\/g), '')) : null;
+            let expresssion: string = condition ? this.conditionToExpression(condition) : null;
+
+            rules.push({
+                rule_id: rule.rule_id,
+                rule_name: rule.rule_name,
+                model_name: rule.model_name,
+                condition: condition,
+                expression: expresssion,
+                used_yn: rule.used_yn,
+                // ordering: rule.ordering
+                ordering: index + 1
+            });
+        });
+
+        return rules;
+    }
+
+    selectFirstRule(): void {
+        setTimeout(() => {
+            if (this.RuleGrid.itemsSource && this.RuleGrid.itemsSource.length > 0) {
+                this.selectedRule = this.RuleGrid.itemsSource[0];
+                console.log('selectFirstRule', this.RuleGrid)
+                this.getParamsByEqpRule();
+            }
+        });
+    }
+
+    // rule을 클릭해서 가져오는 parameter
+    getParamsByEqpRule(): void {
+        this._pdmConfigService.getParamsByEqpRule(this.fabId, this.eqp.eqpId, this.selectedRule.rule_id)
+            .then((params: IRule.ParameterResponse[]) => {
+                console.log('getParamsByRule', params);
+                let parameters: IRule.ParameterByRule[] = [];
+                params.map((param: IRule.ParameterResponse) => {
+                    parameters.push({
+                        eqp_spec_link_mst_rawid: param.eqp_spec_link_mst_rawid,
+                        param_id: param.param_id,
+                        param_name: param.param_name,
+                        param_value: param.param_value,
+                        operand: param.operand,
+                        alarm_spec: param.type === this.TYPE.EQP ? param.eqp_upper_alarm_spec : param.model_upper_alarm_spec,
+                        warning_spec: param.type === this.TYPE.EQP ? param.eqp_upper_warning_spec : param.model_upper_warning_spec,
+                        used_yn: param.used_yn,
+                        type: param.type
+                    });
+                });
+
+                this.paramsBySeletedRule = parameters;
+            }).catch((err) => {
+                console.log(err);
+            });
+    }
+
+    conditionToExpression(conditions: IRule.Condition[]): string {
+        let expression: string = '';
+
+        conditions.map((condition: IRule.Condition, index: number) => {
+            let appendStr: string = `${condition.param_name}${condition.operand}${condition.param_value} AND `;
+            if (index === conditions.length - 1) {
+                appendStr = appendStr.replace(' AND ', '');
+            }
+
+            expression = expression.concat(appendStr);
+        });
+
+        // console.log('conditionToExpression', expression);
+        return expression;
+    }
+
+    selectRule(grid: wjcGrid.FlexGrid): void {
+        this.selectedRule = grid.selectedItems[0];
+
+        if(this.isOnOrder) {
+            this.isOnOrder = false;
+            return;
         }
 
-        this.parametersByRule = DATA.PARAMETERS;
-    }
+        let selectedIndex: number = this.rules.indexOf(this.selectedRule);
+        if(selectedIndex === 0) {
+            this.isUpDisabled = true;
+            this.isDownDisabled = false;
+        } else if(selectedIndex === this.RuleGrid.itemsSource.length - 1) {
+            this.isDownDisabled = true;
+            this.isUpDisabled = false;
+        } else {
+            this.isDownDisabled = false;
+            this.isUpDisabled = false;
+        }
 
-    changeSelectedPlant(plant: IRule.Plant): void {
-        this.selectedPlant = plant;
-        this.getModels();
-    }
-
-    changeSelectedModel(model: IRule.Model): void {
-        this.selectedModel = model;
-        this.getRules();
-    }
-
-    changeRuleUse(isUse: boolean): void {
-        console.log('changeRuleUse', isUse);
-    }
-
-    selectRow(grid: wjcGrid.FlexGrid): void {
-        this.RuleGrid.collectionView.refresh();
-        this.selectedRule = grid.selectedItems[0];
-        console.log('selectRow', this.selectedRule)
+        
+        this.getParamsByEqpRule();
     }
 
     editRuleGrid(isEdit: boolean): void {
@@ -163,87 +200,44 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
 
     cancelEditRule(isEdit: boolean): void {
         console.log('cancelEditRule', isEdit);
+        this.isUpDisabled = false;
+        this.isDownDisabled = false;
     }
 
     saveEditRule(): void {
 
     }
 
-    controlRule(status: string): void {
-        console.log('controlRule', status);
-        if (status === this.STATUS.DELETE) {
-            this.openDeletePopup();
-        } else {
-            this.openEditModal(status);
-        }
-    }
-
-    openDeletePopup(): void {
-        this.modalAction.showConfirmDelete({
-            info: {
-                title: this.selectedRule.rule_name,
-                confirmMessage: this.translater.get("MESSAGE.PDM.MANAGEMENT.REMOVE_ITEM", { itemName: this.selectedRule.rule_name })['value']
-            },
-            requester: this.requester
-        });
-
-        this.requester.getObservable().subscribe((response: RequestType) => {
-            if (response.type === 'OK' && response.data) {
-                // this.deleteRule();
-            }
-        });
-    }
-
-    deleteRule(): void {
-        this._pdmConfigService.deleteModelRule(this.selectedPlant.fabId, this.selectedRule.rule_id)
-            .then((res) => {
-                console.log('deleteRule res', res);
-            }).catch((err) => {
-                console.log(err);
-            });
-    }
-
     openEditModal(status: string): void {
-        if (status === this.STATUS.CREATE) {
-            let ruleFormData: IRule.FormData = {
-                model_name: this.selectedModel.model_name,
-                rule_name: '',
-                condition: [{
-                    param_name: '',
-                    operand: '',
-                    param_value: null
-                }],
-                parameter: this.parametersByRule
-            };
+        const rule: IRule.Rule = this.selectedRule;
+        let ruleFormData: IRule.FormData = {
+            model_name: this.model,
+            rule_name: rule && rule.rule_name ? rule.rule_name : null,
+            condition: rule && rule.condition ? rule.condition : null,
+            parameter: this.paramsBySeletedRule
+        };
 
-            this.ruleFormData = ruleFormData;
-        } else if (status === this.STATUS.MODIFY) {
-            let ruleFormData: IRule.FormData = {
-                model_name: this.selectedModel.model_name,
-                rule_name: this.selectedRule.rule_name,
-                condition: [],
-                parameter: this.parametersByRule
-            };
+        // if (this.selectedRule && this.selectedRule.condition) {
+        //     rule.condition.map((condition: IRule.Condition, index: number) => {
+        //         ruleFormData.condition.push({
+        //             param_name: condition.param_name,
+        //             operand: condition.operand,
+        //             param_value: condition.param_value
+        //         });
+        //     });
+        // }
 
-            this.selectedRule.condition.map((condition: IRule.Condition, index: number) => {
-                ruleFormData.condition.push({
-                    param_name: condition.param_name.toLowerCase(),
-                    operand: condition.operand,
-                    param_value: condition.param_value
-                });
-            });
-
-            console.log('modify ruleFormData', ruleFormData);
-            this.ruleFormData = ruleFormData;
-        }
-
+        console.log('ruleFormData', ruleFormData);
+        this.ruleFormData = ruleFormData;
+        this.editParameters = JSON.parse(JSON.stringify(ruleFormData.parameter));
+        this.tempParameters = JSON.parse(JSON.stringify(this.editParameters)); //Wijmo 수정 취소시, Rollback을 위해
         this._showModal(true, status);
     }
 
-    saveRule(form: NgForm): void {
-        console.log('saveRule', form);
+    saveRule(ruleForm: NgForm): void {
+        let ruleFormData = this.ruleFormData;
+        console.log('ruleFormData', this.ruleFormData);
 
-        // const rule: IRule.Rule = this.selectedRule;
         // const params: IRule.RuleReqParams = {
         //     rule_id: status === 'create' ? null : rule.rule_id,
         //     rule_name: rule.rule_name,
@@ -252,6 +246,10 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
         //     parameter: this.parameters
         // };
 
+
+    }
+
+    updateOrder(): void {
         // this._pdmConfigService.updateModelRule(this.selectedPlant.fabId, params)
         //     .then((res) => {
 
@@ -260,29 +258,69 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
         //     });
     }
 
-    updateOrder(): void {
-
-    }
-
     onUpOrder(): void {
+        this.isOnOrder = true;
+        if(this.isDownDisabled) this.isDownDisabled = false;
+        let selectedIndex: number = this.rules.indexOf(this.selectedRule);
+        // console.log('index ==> ', selectedIndex);
+        if (selectedIndex === 0) {
+            // this.isUpDisabled = true;
+            return;
+        }
 
+        // Row switching
+        let temp = this.rules[selectedIndex];
+        this.rules[selectedIndex] = this.rules[selectedIndex - 1];
+        this.rules[selectedIndex - 1] = temp;
+
+        // Reset code order
+        const rulesSize: number = this.rules.length;
+        for (let i = 0; i < rulesSize; i++) {
+            this.rules[i].ordering = i + 1;
+            // console.log('order ==> ', this.rules[i].ordering);
+        }
+
+        // Wijmo refresh
+        this.RuleGrid.collectionView.refresh();
+
+        setTimeout(() => {
+            this.RuleGrid.selection = new wjcGrid.CellRange(selectedIndex - 1, 0, selectedIndex, 2);
+            if (selectedIndex === 1) {
+                this.isUpDisabled = true;
+            }
+        });
     }
 
     onDownOrder(): void {
+        this.isOnOrder = true;
+        if(this.isUpDisabled) this.isUpDisabled = false;
+        let selectedIndex: number = this.rules.indexOf(this.selectedRule);
+        if (selectedIndex === this.RuleGrid.itemsSource.length - 1) {
+            this.isDownDisabled = true;
+            return;
+        }
 
-    }
+        // Row switching
+        let temp = this.rules[selectedIndex];
+        this.rules[selectedIndex] = this.rules[selectedIndex + 1];
+        this.rules[selectedIndex + 1] = temp;
 
-    addCondition(): void {
-        this.ruleFormData.condition.push({
-            param_name: '',
-            operand: '',
-            param_value: null
+        // Reset code order
+        const rulesSize: number = this.rules.length;
+        for (let i = 0; i < rulesSize; i++) {
+            this.rules[i].ordering = i + 1;
+        }
+
+        // Wijmo refresh
+        this.RuleGrid.collectionView.refresh();
+
+        setTimeout(() => {
+            this.RuleGrid.selection = new wjcGrid.CellRange(selectedIndex + 1, 0, selectedIndex, 2);
+            if (selectedIndex === this.RuleGrid.itemsSource.length - 2) {
+                this.isDownDisabled = true;
+            }
+    
         });
-        // this.filterCriteriaDatas.push({ operator: 'AND', fieldName: '-none-', functionName: 'count', condition: 'equal', value: '' });
-    }
-
-    removeCondition(index: number): void {
-        this.ruleFormData.condition.splice(index, 1);
     }
 
     closeModal(): void {

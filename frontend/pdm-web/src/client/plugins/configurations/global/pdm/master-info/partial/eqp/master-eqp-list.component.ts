@@ -68,6 +68,7 @@ export class MasterEqpListComponent implements OnInit, OnChanges {
     }
 
     ngOnChanges(changes: any) {
+        console.log('test change', changes);
         if (changes.datas.currentValue) {
             let currentValue = changes.datas.currentValue;
             const eqpDatas = currentValue.eqps;

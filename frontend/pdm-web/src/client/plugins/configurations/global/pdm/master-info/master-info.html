@@ -49,8 +49,10 @@
                     </part-list>
                 </div>
 
-                <div class="spec-list" *ngIf="nodeType === 'eqp'">
-                    <spec-rule></spec-rule>
+                <div class="spec-list">
+                    <spec-rule *ngIf="nodeType === 'eqp'" 
+                        [specCondition]="eqpSpecCondition">
+                    </spec-rule>
                 </div>
             </div>
         </div>
