@@ -131,4 +131,6 @@ public interface IMasterService {
     void deleteModel(String fabId, Long rule);
 
     void setEqpRule(String fabId, Long eqpId ,List<STDConditionalSpec> eqpRuleList);
+
+    void setEqpParamSpec(String fabId, List<STDConditionalSpec> eqpParamSpecList);
 }

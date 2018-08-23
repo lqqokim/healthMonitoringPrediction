@@ -137,7 +137,7 @@
 
     <select id="selectConditionsByEqpId" resultType="com.bistel.a3.portal.domain.pdm.std.master.STDConditionalSpec">
         SELECT * FROM (
-        select MODEL_SPEC.RAWID RULE_ID,MODEL_SPEC.RULE_NAME, MODEL_SPEC.MODEL_NAME,MODEL_SPEC.CONDITION,MODEL_SPEC.rule_name
+        select MODEL_SPEC.RAWID RULE_ID,MODEL_SPEC.RULE_NAME, MODEL_SPEC.MODEL_NAME,MODEL_SPEC.CONDITION
         from CONDITIONAL_SPEC_MST_PDM MODEL_SPEC
         where model_name=
         (
@@ -195,6 +195,13 @@
         )B
         WHERE A.PARAM_NAME = B.NAME(+)
     </select>
+
+    <delete id="deleteParamSpec" databaseId="oracle">
+        delete
+        from param_spec_mst_pdm
+        where eqp_spec_link_mst_rawid=#{eqp_spec_link_mst_rawid}
+
+    </delete>
 
 
 

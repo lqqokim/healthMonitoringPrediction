@@ -450,6 +450,11 @@ public class MasterService implements IMasterService {
 
     }
 
+    @Override
+    public void setEqpParamSpec(String fabId, List<STDConditionalSpec> eqpParamSpecList) {
+
+    }
+
 
     @Override
     public void eqpCopy(String userName,String fabId, Long fromEqpId, List<String> toEqpNames) {

@@ -28,7 +28,7 @@ public interface STDConditionalSpecMapper {
 
     void insertConditionalSpec(@Param("model_name") String model_name, @Param("rule_name") String rule_name, @Param("expression") String expression, @Param("condition") String condition, @Param("description") String description, @Param("userName") String userName, @Param("expression_value") String expression_value);
 
-    void updateConditionalSpec(@Param("rule_id") Long rule_id,@Param("model_name") String model_name, @Param("rule_name") String rule_name, @Param("expression") String expression, @Param("condition") String condition, @Param("description") String description, @Param("userName") String userName);
+    void updateConditionalSpec(@Param("rule_id") Long rule_id,@Param("model_name") String model_name, @Param("rule_name") String rule_name, @Param("expression") String expression, @Param("condition") String condition, @Param("description") String description, @Param("userName") String userName, @Param("expression_value") String expression_value);
 
     Long selectConditionalSpecRawId(@Param("model_name") String model_name, @Param("rule_name") String rule_name);
 
@@ -53,5 +53,7 @@ public interface STDConditionalSpecMapper {
                             @Param("description") String description, @Param("userName") String userName);
 
     void deleteEqpSpecLink(@Param("eqp_id") Long eqp_id, @Param("rule_id") Long rule_id );
+
+    void deleteParamSpec(@Param("eqp_spec_link_mst_rawid") Long eqp_spec_link_mst_rawid);
 
 }

@@ -809,7 +809,7 @@ public class MasterService implements IMasterService {
         }
         else //updatae
         {
-            conditionalSpecMapper.updateConditionalSpec(ruleId,modelName,ruleName,expression,condition,description,userName);
+            conditionalSpecMapper.updateConditionalSpec(ruleId,modelName,ruleName,expression,condition,description,userName, expression_value);
 
             for (int j = 0; j < parameter.size(); j++) {
 
@@ -858,7 +858,6 @@ public class MasterService implements IMasterService {
         conditionalSpecMapper.deleteModelParamSpec(rule); //delete Model_Param_Spec_Mst_Pdm
         conditionalSpecMapper.deleteConditionalSpec(rule); // delete Conditional_Spec_Mst_Pdm
 
-
     }
 
     @Override
@@ -871,6 +870,7 @@ public class MasterService implements IMasterService {
         String use_yn=null;
         String description=null;
         String userName=null;
+        Long eqp_spec_link_mst_rawid=null;
 
         boolean used_yn=false;
 
@@ -880,7 +880,7 @@ public class MasterService implements IMasterService {
             ordering=eqpRuleList.get(i).getOrdering();
             userName=eqpRuleList.get(i).getUserName();
             used_yn=eqpRuleList.get(i).isUsed_yn();
-
+            eqp_spec_link_mst_rawid=eqpRuleList.get(i).getEqp_spec_link_mst_rawid();
 
             if (used_yn==true)
             {
@@ -889,11 +889,27 @@ public class MasterService implements IMasterService {
             }
             else
             {
+                //1. param_spec_mst_pdm삭제
+                //2. eqp_spec_mst_link_pdm 삭제
+                conditionalSpecMapper.deleteParamSpec(eqp_spec_link_mst_rawid);
                 conditionalSpecMapper.deleteEqpSpecLink(eqpId,rule_id);
             }
 
         }
 
+    }
+
+    @Override
+    public void setEqpParamSpec(String fabId, List<STDConditionalSpec> eqpParamSpecList) {
+
+        STDConditionalSpecMapper conditionalSpecMapper=SqlSessionUtil.getMapper(sessions, fabId, STDConditionalSpecMapper.class);
+
+
+
+        //1. Spec 변경시 Param_spec_mst_pdm에 Insert
+        //2.
+
+        //conditionalSpecMapper.insertParamSpec();
 
     }
 
