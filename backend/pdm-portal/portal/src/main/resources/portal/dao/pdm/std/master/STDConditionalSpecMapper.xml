@@ -170,7 +170,7 @@
     </delete>
 
     <select id="selectParamSpecByeqpIdAndRule" resultType="com.bistel.a3.portal.domain.pdm.std.master.STDConditionalSpec">
-        SELECT PARAM_NAME, a.upper_alarm_spec as model_upper_alarm_spec, a.upper_warning_spec as model_upper_warning_spec,
+        SELECT param_id, PARAM_NAME, a.upper_alarm_spec as model_upper_alarm_spec, a.upper_warning_spec as model_upper_warning_spec,
         b.upper_alarm_spec as eqp_upper_alarm_spec, b.upper_warning_spec as eqp_upper_warning_spec,
         CASE WHEN B.NAME IS NOT NULL THEN 'EQP' WHEN b.name is null then 'MODEL' END AS TYPE
         FROM
@@ -188,7 +188,7 @@
             AND model.RAWID=#{rule_id}
         ) A,
         (
-            SELECT PARAM.NAME, param_spec.UPPER_ALARM_SPEC, param_spec.UPPER_WARNING_SPEC, param_spec.spec_type
+            SELECT param.rawid as param_id, PARAM.NAME, param_spec.UPPER_ALARM_SPEC, param_spec.UPPER_WARNING_SPEC, param_spec.spec_type
             FROM PARAM_SPEC_MST_PDM param_spec, PARAM_MST_PDM PARAM
             WHERE EQP_SPEC_LINK_MST_RAWID = #{rule_id}
             AND param_spec.PARAM_MST_RAWID = PARAM.RAWID
