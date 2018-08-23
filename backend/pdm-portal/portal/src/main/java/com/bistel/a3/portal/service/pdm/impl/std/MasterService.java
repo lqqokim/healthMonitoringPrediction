@@ -871,7 +871,6 @@ public class MasterService implements IMasterService {
 
         Long rule_id=null;
         Long ordering=null;
-        String use_yn=null;
         String description=null;
         String userName=null;
         Long eqp_spec_link_mst_rawid=null;
@@ -880,11 +879,16 @@ public class MasterService implements IMasterService {
 
         for (int i = 0; i < eqpRuleList.size(); i++) {
 
-            rule_id=eqpRuleList.get(i).getModel_param_spec_mst_rawid();
+            rule_id=eqpRuleList.get(i).getRule_id();
             ordering=eqpRuleList.get(i).getOrdering();
             userName=eqpRuleList.get(i).getUserName();
             used_yn=eqpRuleList.get(i).isUsed_yn();
             eqp_spec_link_mst_rawid=eqpRuleList.get(i).getEqp_spec_link_mst_rawid();
+
+            if (eqp_spec_link_mst_rawid!=null)
+            {
+                used_yn=true;
+            }
 
             if (used_yn==true)
             {
@@ -923,7 +927,10 @@ public class MasterService implements IMasterService {
             {
                 //1. param_spec_mst_pdm삭제
                 //2. eqp_spec_mst_link_pdm 삭제
-                conditionalSpecMapper.deleteParamSpec(eqp_spec_link_mst_rawid);
+                if (eqp_spec_link_mst_rawid!=null)
+                {
+                    conditionalSpecMapper.deleteParamSpec(eqp_spec_link_mst_rawid);
+                }
                 conditionalSpecMapper.deleteEqpSpecLink(eqpId,rule_id);
             }
 
@@ -949,7 +956,6 @@ public class MasterService implements IMasterService {
         Double eqp_lower_warning_spec=null;
         String description=null;
         String userName=null;
-
 
         for (int i = 0; i < eqpParamSpecList.size(); i++) {
 

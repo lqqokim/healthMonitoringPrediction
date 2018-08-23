@@ -59,7 +59,7 @@
 
     <insert id="insertConditionalSpec"  databaseId="oracle">
         insert into CONDITIONAL_SPEC_MST_PDM(rawid, model_name, rule_name, expression, condition, description, create_by, create_dtts, update_by, update_dtts, expression_value)
-        values(seq_conditional_spec_mst_pdm.nextval, #{model_name}, #{rule_name}, #{expression}, #{condition}, #{description,jdbcType=VARCHAR}, #{userName}, SYSTIMESTAMP, #{userName}, SYSTIMESTAMP, #{expression_value})
+        values(seq_conditional_spec_mst_pdm.nextval, #{model_name}, #{rule_name}, #{expression,jdbcType=VARCHAR}, #{condition,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, #{userName}, SYSTIMESTAMP, #{userName}, SYSTIMESTAMP, #{expression_value,jdbcType=VARCHAR})
     </insert>
 
 
