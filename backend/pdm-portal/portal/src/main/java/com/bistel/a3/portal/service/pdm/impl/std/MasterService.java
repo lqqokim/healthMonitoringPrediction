@@ -800,7 +800,7 @@ public class MasterService implements IMasterService {
 
                 if (used_yn==true) //used가 체크되면 Insert into Model_param_spec_mst_pdm
                 {
-                    conditionalSpecMapper.insertModelParamSpec(ruleId,  param_name,upper_alarm_spec, upper_warning_spec,target,
+                    conditionalSpecMapper.insertModelParamSpec(ruleId,  param_name, upper_alarm_spec, upper_warning_spec,target,
                             lower_alarm_spec,lower_warning_spec, paramDescription,userName);
                 }
 
@@ -828,14 +828,19 @@ public class MasterService implements IMasterService {
                 if (used_yn==true) //used가 체크되면 Insert into Model_param_spec_mst_pdm
                 {
                     //Model_param_spec_mst_pdm에 paramName이 있는지 없는지 체크
-                    // Insert into Model_param_spec_mst_pd
-
+                    //없으면 insert 있으면 update
+                    // Insert into Model_param_spec_mst_pdm
+                    // update model_param_spec_mst_pdm
                     //conditionalSpecMapper.updateModelParamSpec(modelName,param_name,upper_alarm_spec,upper_warning_spec,target,lower_alarm_spec,lower_warning_spec, paramDescription, userName, model_param_spec_mst_rawid);
 
                     checkParam=conditionalSpecMapper.selectCheckModelParam(ruleId,param_name);
-                    if (checkParam<1){
+                    if (checkParam<1){//used_Yn이 treu일때
                         conditionalSpecMapper.insertModelParamSpec(ruleId, param_name, upper_alarm_spec, upper_warning_spec,target, lower_alarm_spec,
                                 lower_warning_spec,paramDescription,userName);
+                    }
+                    else{//스펙만 바뀔때
+                        conditionalSpecMapper.updateModelParamSpec(param_name,upper_alarm_spec,upper_warning_spec,target,lower_alarm_spec,lower_warning_spec, paramDescription, userName, model_param_spec_mst_rawid);
+
                     }
 
                 }
@@ -907,8 +912,22 @@ public class MasterService implements IMasterService {
 
         //1. Spec 변경시 Param_spec_mst_pdm에 Insert
         //2.
+        Long param_id=null;
+        Long eqp_spec_link_mst_rawid=null;
+        String spec_type="EQP";
+        Double eqp_upper_alarm_spec=null;
+        Double eqp_upper_warning_spec=null;
+        Double target=null;
+        Double eqp_lower_alarm_spec=null;
+        Double eqp_lower_warning_spec=null;
+        String description=null;
+        String userName=null;
 
-        //conditionalSpecMapper.insertParamSpec();
+
+
+
+        conditionalSpecMapper.insertParamSpec(param_id,eqp_spec_link_mst_rawid,spec_type,eqp_upper_alarm_spec,eqp_upper_warning_spec,
+                                                target,eqp_lower_alarm_spec,eqp_lower_warning_spec,description,userName);
 
     }
 

@@ -56,6 +56,13 @@ public interface STDConditionalSpecMapper {
 
     void deleteParamSpec(@Param("eqp_spec_link_mst_rawid") Long eqp_spec_link_mst_rawid);
 
-
+    void insertParamSpec(@Param("param_id") Long param_id, @Param("eqp_spec_link_mst_rawid") Long eqp_spec_link_mst_rawid,
+                         @Param("spec_type") String spec_type, @Param("eqp_upper_alarm_spec") Double eqp_upper_alarm_spec,
+                         @Param("eqp_upper_warning_spec") Double eqp_upper_warning_spec,
+                         @Param("target") Double target,
+                         @Param("eqp_lower_alarm_spec") Double eqp_lower_alarm_spec,
+                         @Param("eqp_lower_warning_spec") Double eqp_lower_warning_spec,
+                         @Param("String") String description,
+                         @Param("String") String userName);
 
 }
