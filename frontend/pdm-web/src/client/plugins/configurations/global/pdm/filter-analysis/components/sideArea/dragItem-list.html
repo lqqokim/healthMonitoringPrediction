@@ -1,8 +1,8 @@
 <ul>
     <li 
-        *ngFor='let row of data'
+        *ngFor='let row of data; let idx = index;'
         draggable='true'
-        (dragstart)='onDragStart($event, row)'
+        (dragstart)='onDragStart($event, row, idx)'
         (dragend)='onDragEnd($event)'
     >
         <b>{{row.name}}</b>
