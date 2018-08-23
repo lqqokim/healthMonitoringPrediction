@@ -3,6 +3,9 @@
     height: 100%;
     width: 100%;
 }
+.spec-rule-modal-body .control-label{
+    font-size: 13px;
+}
 .spec-rule-container .spec-rule-header{
     padding-bottom: 10px; 
 }
@@ -29,10 +32,10 @@
     margin-left: 15px;
 }
 
-.modal-body.spec-rule-modal-body .condition {
-    
+.modal-body.spec-rule-modal-body .condition{
+    max-height: 275px;
+    overflow-y: auto;
 }
-
 .modal-body.spec-rule-modal-body .condition table{
     width: 100%;
 }
@@ -43,13 +46,10 @@
 
 .modal-body.spec-rule-modal-body .condition table .param-name,
 .modal-body.spec-rule-modal-body .condition table .param-operand,
-.modal-body.spec-rule-modal-body .condition table .param-value, 
-.modal-body.spec-rule-modal-body .condition table .remove{
+.modal-body.spec-rule-modal-body .condition table .param-value{
     padding: 10px 10px 0 0;
 }
-.modal-body.spec-rule-modal-body .condition tr td:last-child{
-    padding-right: 0;
-}
+
 .modal-body.spec-rule-modal-body .condition tr{
     position: relative;
 }
@@ -70,10 +70,15 @@
     margin-right: 5px; 
 }
 .modal-body.spec-rule-modal-body .condition tr > .param-value{
-    padding-right: 25px;
+    padding-right: 15px;
+}
+.modal-body.spec-rule-modal-body .condition tbody tr:first-child:after{
+    padding:0 30px;
+    content: '';
 }
 .modal-body.spec-rule-modal-body .condition .glyphicon-plus{
     display: flex;
+    margin-top: 10px;
     justify-content: center;
     align-items: center;
     cursor: pointer;
@@ -88,15 +93,20 @@
 }
 .modal-body.spec-rule-modal-body .condition .glyphicon-minus {
     position: relative;
-    top: 2px;
+    top: 6px;
     width: 40px;
     height: 25px;
     text-align: center;
     line-height: 2;
     cursor: pointer;
+    transition: background 0.2s ease-in-out;
 }
 .modal-body.spec-rule-modal-body .condition .glyphicon-minus:hover
 {
     color: #fff;
     background: #f00;
+}
+#ruleModal .modal-header > button[class="close"]{
+    position: static;
+    font-size: 30px;
 }
