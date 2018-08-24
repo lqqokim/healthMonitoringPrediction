@@ -2271,9 +2271,8 @@
 
 	</select>
 	<select id="selectFabMonitoring" resultType="com.bistel.a3.portal.domain.pdm.FabMonitoringInfo">
-		
 		SELECT
-			barcode as locationName,status_cd as status,round(displayvalue,2)||' '||unit_cd as displayvalue,'PARAM_NAME:'||NAME||' VALUES:'||round(displayvalue,2)||' '||unit_cd as info,
+			barcode as locationName,status_cd as status,round(displayvalue,2)||' '||unit_cd as displayvalue,'PARAM_NAME:'||NAME||' SCORE:'||case when score!=0 then TO_CHAR(ROUND(score, 2), 'FM9990.99')  else '0' end||' VALUES:'||round(displayvalue,2)||' '||unit_cd as info,
 			0.8 as warning_spec,1 as alarm_spec,round(score,2) as value,1.3 as maxvalue
 		FROM
 		(
@@ -2281,21 +2280,20 @@
 			FROM
 				PARAM_MST_PDM param,
 				(
-					SELECT trx_data.*,a.value as barcode from trace_trx_pdm trx_data,
+					SELECT trx_data.*, a.value as barcode from trace_trx_pdm trx_data,
 						(
-						SELECT trx.*
-						FROM trace_trx_pdm trx,param_mst_pdm param
-						WHERE trx.event_dtts <![CDATA[>=]]> #{fromdate}
-							and trx.event_dtts <![CDATA[<]]> #{todate}
-							and param.name='BARCODE'
+						SELECT trx.*, (SELECT max(VALUE) FROM TRACE_TRX_PDM A,PARAM_MST_PDM B WHERE EVENT_DTTS = TRX.END_DTTS AND  B.NAME = #{param_name} and b.rawid = a.param_mst_rawid ) as value
+						FROM PARAM_FEATURE_TRX_PDM trx,param_mst_pdm param
+						WHERE trx.END_DTTS <![CDATA[>=]]> #{fromdate}
+							and trx.END_DTTS <![CDATA[<]]> #{todate}
+							and param.name= #{param_name}
 							AND PARAM.RAWID = TRX.PARAM_MST_RAWID
 						) a
 					WHERE
-						a.event_dtts = trx_data.event_dtts
-				
+						a.END_DTTS = trx_data.event_dtts
 				) b
 			WHERE
-				param.name =#{param_name}
+				param.name = #{param_name}
 				and B.param_mst_rawid = param.rawid
 			GROUP BY BARCODE,PARAM.NAME
 			ORDER BY BARCODE
@@ -2313,7 +2311,7 @@
 					WHERE
 						trx.create_dtts <![CDATA[>=]]> #{fromdate}
 						and trx.create_dtts  <![CDATA[<]]> #{todate}
-						and param.name =#{param_name}
+						and param.name = #{param_name}
 						and param.rawid = trx.param_mst_rawid
 						and trx.param_health_mst_rawid  = health.rawid
 						and health.param_mst_rawid = param.rawid
@@ -2322,13 +2320,12 @@
 				)b
 				WHERE trx.event_dtts = b.create_dtts
 					and trx.param_mst_rawid = param.rawid
-					and param.name='BARCODE'
+					and param.name = #{param_name}
 			)
 			GROUP BY value ,param_mst_rawid
 		) score
 		WHERE avg_value.barcode = score.value
 		ORDER BY locationname
-
 	</select>
 
 

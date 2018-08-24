@@ -14,28 +14,32 @@
             <td class='param-label'>
                 <label>
                     <!-- <input type="radio" name="paramRadio" [(ngModel)]="selectedParamId" value={{param.paramId}} (change)="onClickParam(param)"> {{param.name}} -->
-                    <input type="radio" name="paramRadio" [(ngModel)]="selectedParamId" value='{{param.paramId}}' (change)="onClickParam(param)"  > {{param.name}}
+                    <input type="radio" name="paramRadio" [(ngModel)]="selectedParamId" value='{{param.paramId}}' (change)="onClickParam(param)"> {{param.name}}
                 </label>
                 <br>
-                <div *ngIf="selectedParamId==param.paramId" >
-                    <label>Start</label>
+                <div class="param-condition" *ngIf="selectedParamId==param.paramId">
+                    <span>Start</span>
                     <select class="form-control conditionOperator" [(ngModel)]="conditionStartOperator" name="conditionStartOperator" (change)="onChangeOperator()">
                         <option *ngFor="let item of operators" [ngValue]="item.value">
                             {{item.name}}
                         </option>
                     </select>
-                    <input type="number" class="conditionValue" [(ngModel)]="conditionValue" (input)="onChange($event,param)">
-                    <select class="form-control conditionOperator" [(ngModel)]="conditionEndOperator" name="conditionEndOperator">
+                    <input type="number" class="conditionValue" [(ngModel)]="conditionValue" (input)="onChange($event,param)"/>
+                    <span>End</span>
+                    <select class="form-control conditionOperator" style="margin-left: 49px;" [(ngModel)]="conditionEndOperator" name="conditionEndOperator">
                         <option *ngFor="let item of endOperators" [ngValue]="item.value">
                             {{item.name}}
                         </option>
                     </select>
-                    <label>End</label>
+
+
+                    <span>Timeout</span>
+                    <input style="width: 80px;" type="number" name="timeout" class="timeoutValue" [(ngModel)]="timeoutValue" (input)="onChangeTimeout($event, param)">
                 </div>
             </td>
             <td>
                 <div class="chart-container" [ngClass]="{'scroll-here':selectedParamId==param.paramId}">
-                    <a3c-bistel-chart #bistelchart [data]="param.datas" [config]="trendConfig" [eventLines]="param.eventLines" [chartEvents]="eventConfig"  >
+                    <a3c-bistel-chart #bistelchart [data]="param.datas" [config]="trendConfig" [eventLines]="param.eventLines" [chartEvents]="eventConfig">
                     </a3c-bistel-chart>
                     <!-- <ng2-c3  [data]="param.datas" [chartOptions]="chartOptions" >
                     </ng2-c3> -->

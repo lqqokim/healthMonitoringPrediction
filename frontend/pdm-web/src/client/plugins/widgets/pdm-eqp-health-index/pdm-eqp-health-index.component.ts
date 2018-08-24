@@ -466,6 +466,32 @@ export class PdmEqpHealthIndex extends WidgetApi implements OnSetup, OnDestroy {
         });
     }
 
+    //* (tableCellFeedbackPaint 용) health index 셀에 해당하는 로직 이름, 값 가져오기
+    getHelthindexLogicName( healthIndexVal: number, data: any ): string {
+        const logicName: {
+            logic1: string;
+            logic2: string;
+            logic3: string;
+            logic4: string;
+        } = {
+            logic1: 'Standard',
+            logic2: 'SPC',
+            logic3: 'Variation',
+            logic4: 'RUL'
+        };
+
+        let i: number = 1;
+        while( i <= 4 ){
+            const keyName = `logic${i}`;
+            if( data.hasOwnProperty(keyName) && <number>data[keyName] === healthIndexVal ){
+                return logicName[keyName];
+            }
+            i++;
+        }
+
+        return '';
+    }
+
     //* 해당 표 셀에 피드백 표기
     public tableCellFeedbackPaint(columnIdx: number, e: {data:Array<any>, elements:any}): void {
 
@@ -515,6 +541,12 @@ export class PdmEqpHealthIndex extends WidgetApi implements OnSetup, OnDestroy {
 
             // 엘리먼트 표기용 툴팁
             tableTd.eq(i).attr('title', `Alarm:${alarmSpec}, Warning:${warningSpec}`);
+
+            // health index 셀 일경우
+            if( columnIdx === 2 ){
+                const logicName: string = this.getHelthindexLogicName(targetNum, datas[i]);
+                tableTd.eq(i).attr('addCont', logicName);
+            }
         }
     }
 
