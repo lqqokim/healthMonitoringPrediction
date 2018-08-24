@@ -355,7 +355,7 @@ export class PdmConfigService extends ModelCommonService {
 
     updateEqpRuleParams(fabId: number, params): Promise<any> {
         return this.PUT({
-            uriPath: `pdm/fabs/${fabId}/eqps/eqps/setEqpParamSpec`,
+            uriPath: `pdm/fabs/${fabId}/eqps/setEqpParamSpec`,
             params: params
         });
     }

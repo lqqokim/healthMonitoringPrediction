@@ -89,7 +89,7 @@
                             <input type="text" class="form-control" name="ruleName" [(ngModel)]="ruleFormData.rule_name" disabled>
                         </div>
 
-                        <div class="form-group a3-input-group condition">
+                        <div class="form-group a3-input-group condition" *ngIf="ruleFormData.condition && ruleFormData.rule_name !== DEFAULT_NAME">
                             <label class="control-label">Condition</label>
                             <table>
                                 <thead>
@@ -143,7 +143,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal" (click)="RuleForm.form.reset(); closeModal();">Close</button>
-                    <button type="button" class="btn btn-primary" (click)="saveRule(RuleForm)">Apply</button>
+                    <button type="button" class="btn btn-primary" (click)="saveRule(ParamGrid)">Apply</button>
                     <!-- <button type="button" class="btn btn-primary" [disabled]="!RuleForm.form.valid" (click)="saveRule(RuleForm)">Apply</button> -->
                 </div>
             </form>

@@ -44,7 +44,6 @@ export class SpecRuleComponent implements OnInit, OnDestroy {
     selectedRule: IRule.Rule;
     ruleFormData: IRule.FormData; // modal form에 binding 하기 위한 form data
 
-    // parameters: IRule.ParameterResponse[];
     editParameters: IRule.ParameterResponse[];
     tempParameters: IRule.ParameterResponse[]; // wijmo grid item 수정 취소 시, rollback을 위한 copy parameters
 
@@ -58,7 +57,6 @@ export class SpecRuleComponent implements OnInit, OnDestroy {
         { display: '>=', value: 'greaterthanequal' },
         { display: 'like', value: 'like' }
     ];
-
 
     constructor(
         private _pdmConfigService: PdmConfigService,
@@ -83,7 +81,7 @@ export class SpecRuleComponent implements OnInit, OnDestroy {
                     this.getModels();
                 }
             }).catch((err) => {
-
+                console.log(err);
             });
     }
 
@@ -230,8 +228,12 @@ export class SpecRuleComponent implements OnInit, OnDestroy {
                 console.log('deleteRule res', res);
                 this.getParamsByModel();
                 this.getRules();
+                this.notify.success("MESSAGE.USER_CONFIG.REMOVE_SUCCESS");
             }).catch((err) => {
                 console.log(err);
+                this.getParamsByModel();
+                this.getRules();
+                this.notify.error("MESSAGE.GENERAL.ERROR");
             });
     }
 
@@ -293,7 +295,6 @@ export class SpecRuleComponent implements OnInit, OnDestroy {
     //Modal창에서 Save를 누르면 호출
     saveRule(ruleForm: NgForm): void {
         let ruleFormData = this.ruleFormData;
-        console.log('ruleFormData', this.ruleFormData);
 
         //Rule update를 위한 Request Param, default는 condition, expression, expression_value가 null이다
         let ruleRequest: IRule.RuleRequest = {
@@ -309,7 +310,6 @@ export class SpecRuleComponent implements OnInit, OnDestroy {
         console.log('ruleRequest', ruleRequest);
         this.updateRule(ruleRequest);
         this._showModal(false);
-
     }
 
     updateRule(params): void {
@@ -318,8 +318,18 @@ export class SpecRuleComponent implements OnInit, OnDestroy {
                 console.log('updateRule res', res);
                 this.getParamsByModel();
                 this.getRules();
+
+                if (this.status === this.STATUS.CREATE) {
+                    this.notify.success("MESSAGE.USER_CONFIG.CREATE_SUCCESS");
+                } else {
+                    this.notify.success("MESSAGE.USER_CONFIG.UPDATE_SUCCESS");
+                }
+
             }).catch((err) => {
                 console.log(err);
+                this.getParamsByModel();
+                this.getRules();
+                this.notify.error("MESSAGE.GENERAL.ERROR");
             });
     }
 
@@ -386,17 +396,13 @@ export class SpecRuleComponent implements OnInit, OnDestroy {
             operand: '',
             param_value: null
         });
-        // this.filterCriteriaDatas.push({ operator: 'AND', fieldName: '-none-', functionName: 'count', condition: 'equal', value: '' });
     }
-
-
 
     removeCondition(index: number): void {
         this.ruleFormData.condition.splice(index, 1);
     }
 
     closeModal(): void {
-        // this.editParameters = this.tempParameters;
         this._showModal(false);
     }
 

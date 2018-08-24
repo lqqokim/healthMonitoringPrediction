@@ -11,7 +11,6 @@ import { PdmConfigService } from './../../../model/pdm-config.service';
 
 //Interface
 import * as IRule from './model/spec-rule-interface';
-import * as DATA from './model/spec-rule-mock';
 
 //Wijmo
 import { CellRangeEventArgs } from 'wijmo/wijmo.grid';
@@ -28,6 +27,7 @@ import { NgForm } from '@angular/forms';
 })
 export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
     @ViewChild('RuleGrid') RuleGrid: wjcGrid.FlexGrid;
+    @ViewChild('ParamGrid') ParamGrid: wjcGrid.FlexGrid;
     @Input() specCondition: any;
 
     fabId: IRule.SpecCondition['fabId'];
@@ -54,11 +54,15 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
     isUpDisabled: boolean = false;
     isDownDisabled: boolean = false;
 
+    readonly DEFAULT_NAME: string = 'DEFAULT';
     readonly TYPE: IRule.Type = { MODEL: 'MODEL', EQP: 'EQP' };
     readonly STATUS: IRule.Status = { CREATE: 'create', MODIFY: 'modify', DELETE: 'delete' };
 
     constructor(
-        private _pdmConfigService: PdmConfigService
+        private _pdmConfigService: PdmConfigService,
+        private requester: ModalRequester,
+        private notify: NotifyService,
+        private translater: Translater,
     ) {
 
     }
@@ -94,6 +98,7 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
             });
     }
 
+    //조회한 Rules 파싱
     setRules(ruleResponse: IRule.RuleResponse[]): IRule.Rule[] {
         let rules: IRule.Rule[] = [];
 
@@ -117,6 +122,7 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
         return rules;
     }
 
+    //Rule Grid에서 첫번째 Row 선택
     selectFirstRule(): void {
         setTimeout(() => {
             if (this.RuleGrid.itemsSource && this.RuleGrid.itemsSource.length > 0) {
@@ -176,6 +182,7 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
         return expression;
     }
 
+    //Rule Grid에서 Row 선택시 호출
     selectRule(grid: wjcGrid.FlexGrid): void {
         this.selectedRule = grid.selectedItems[0];
 
@@ -197,6 +204,7 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
         this.getParamsByEqpRule();
     }
 
+    //Rule Grid에서 Rule 수정
     editRuleGrid(): void {
         //Rules 수정 취소시 Rollback을 위한 Copy
         this.tempSpecRules = JSON.parse(JSON.stringify(this.rules));
@@ -212,11 +220,13 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
         }
     }
 
+    //Rule Grid 수정 취소
     cancelEditRule(): void {
         this.rules = this.tempSpecRules;
         this._resetDisabled();
     }
 
+    //Rule Grid에서 수정된 Rule 정보 저장
     saveEditRule(): void {
         let rules: IRule.Rule[] = this.rules;
         let ruleRequest: IRule.RuleRequest[] = [];
@@ -234,15 +244,21 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
         this.updateEqpRule(ruleRequest);
     }
 
+    //Rule Grid에서 수정된 Rule 정보 저장을 위한 API 호출
     updateEqpRule(request: IRule.RuleRequest[]): void {
         this._pdmConfigService.updateEqpRule(this.fabId, this.eqp.eqpId, request)
             .then((res) => {
                 console.log('updateEqpRule res', res);
+                this.getRules();
+                this.notify.success("MESSAGE.USER_CONFIG.UPDATE_SUCCESS");
             }).catch((err) => {
                 console.log('updateEqpRule err', err);
+                this.getRules();
+                this.notify.error("MESSAGE.GENERAL.ERROR");
             });
     }
 
+    //수정을 위한 Modal Open
     openEditModal(status: string): void {
         const rule: IRule.Rule = this.selectedRule;
         let ruleFormData: IRule.FormData = {
@@ -252,24 +268,18 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
             parameter: this.paramsBySeletedRule
         };
 
-        // if (this.selectedRule && this.selectedRule.condition) {
-        //     rule.condition.map((condition: IRule.Condition, index: number) => {
-        //         ruleFormData.condition.push({
-        //             param_name: condition.param_name,
-        //             operand: condition.operand,
-        //             param_value: condition.param_value
-        //         });
-        //     });
-        // }
-
-        console.log('ruleFormData', ruleFormData);
         this.ruleFormData = ruleFormData;
+        console.log('ruleFormData', ruleFormData);
         this.editParameters = JSON.parse(JSON.stringify(ruleFormData.parameter));
         this.tempParameters = JSON.parse(JSON.stringify(this.editParameters)); //Wijmo 수정 취소시, Rollback을 위해
         this._showModal(true, status);
     }
 
-    saveRule(): void {
+    //Modal에서 수정된 Rule의 Parameter 정보를 저장
+    saveRule(grid: wjcGrid.FlexGrid): void {
+        // this.ParamGrid.onCellEditEnded();
+        // console.log('source', this.ParamGrid.itemsSource[0]);
+
         let parameters: IRule.ParameterByRule[] = this.editParameters;
         let paramRequest: IRule.ParamRequest[] = [];
         parameters.map((param: IRule.ParameterByRule) => {
@@ -286,21 +296,23 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
         this.updateEqpRuleParams(paramRequest);
     }
 
+    //수정된 Rule의 Parameter 정보 저장을 위한 API 호출
     updateEqpRuleParams(request: IRule.ParamRequest[]): void {
         this._pdmConfigService.updateEqpRuleParams(this.fabId, request)
             .then((res) => {
                 console.log('updateEqpRuleParams res', res);
+                this.getRules();
+                this.notify.success("MESSAGE.USER_CONFIG.UPDATE_SUCCESS");
             }).catch((err) => {
                 console.log('updateEqpRuleParams err', err);
             });
     }
 
+    //Rule Grid에서 Up 버튼 클릭
     onUpOrder(): void {
         if (this.isDownDisabled) this.isDownDisabled = false;
         let selectedIndex: number = this.rules.indexOf(this.selectedRule);
-        // console.log('index ==> ', selectedIndex);
         if (selectedIndex === 0) {
-            // this.isUpDisabled = true;
             return;
         }
 
@@ -309,11 +321,10 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
         this.rules[selectedIndex] = this.rules[selectedIndex - 1];
         this.rules[selectedIndex - 1] = temp;
 
-        // Reset code order
+        // Reset row order
         const rulesSize: number = this.rules.length;
         for (let i = 0; i < rulesSize; i++) {
             this.rules[i].ordering = i + 1;
-            // console.log('order ==> ', this.rules[i].ordering);
         }
 
         // Wijmo refresh
@@ -327,6 +338,7 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
         });
     }
 
+    // Rule Grid에서 Up 버튼 클릭
     onDownOrder(): void {
         if (this.isUpDisabled) this.isUpDisabled = false;
         let selectedIndex: number = this.rules.indexOf(this.selectedRule);
@@ -340,7 +352,7 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
         this.rules[selectedIndex] = this.rules[selectedIndex + 1];
         this.rules[selectedIndex + 1] = temp;
 
-        // Reset code order
+        // Reset row order
         const rulesSize: number = this.rules.length;
         for (let i = 0; i < rulesSize; i++) {
             this.rules[i].ordering = i + 1;
@@ -374,6 +386,7 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
         this._showModal(false);
     }
 
+    // Up, Down 버튼 Disabled 여부 초기화
     private _resetDisabled(): void {
         if (this.isDownDisabled) {
             this.isDownDisabled = false;
@@ -394,10 +407,6 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
         } else {
             $('#ruleModal').modal('hide');
         }
-    }
-
-    private _initData(): void {
-
     }
 
     private _firstCharUpper(value: string): string {
