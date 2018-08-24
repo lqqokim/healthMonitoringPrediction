@@ -139,8 +139,8 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal" (click)="RuleForm.form.reset(); closeModal();">Close</button>
-                    <button *ngIf="rules?.length" type="button" class="btn btn-primary" [disabled]="!RuleForm.form.valid" (click)="saveRule(RuleForm)">Apply</button>
-                    <button *ngIf="!rules?.length" type="button" class="btn btn-primary" (click)="saveRule(RuleForm)">Apply</button>
+                    <button *ngIf="ruleFormData.rule_name !== DEFAULT_NAME" type="button" class="btn btn-primary" [disabled]="!RuleForm.form.valid" (click)="saveRule(RuleForm)">Apply</button>
+                    <button *ngIf="ruleFormData.rule_name === DEFAULT_NAME" type="button" class="btn btn-primary" (click)="saveRule(RuleForm)">Apply</button>
                 </div>
             </form>
 

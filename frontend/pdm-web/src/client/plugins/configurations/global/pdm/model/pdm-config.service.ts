@@ -345,39 +345,18 @@ export class PdmConfigService extends ModelCommonService {
         });
     }
 
-    getEQPRulesAndParams(fabId: number, eqpId: number, ruleId: number): Promise<any> {
-        return this.GET({
-            uriPath: `pdm/fabs/${fabId}/eqps/${eqpId}/conditions/${ruleId}`
-        })
-    }
 
-    createEQPRule(fabId: number, eqpId: number, params): Promise<any> {
+    updateEqpRule(fabId: number, eqpId: number, params): Promise<any> {
         return this.PUT({
-            uriPath: `pdm/fabs/${fabId}/eqps/${eqpId}/conditions`,
-            params: {
-                rule_id: null,
-                rule_name: params.rule_name,
-                condition: params.condition,
-                expression: params.expression,
-                order: params.order,
-                use_yn: params.use_yn,
-                parameter: params.parameter
-            }
+            uriPath: `pdm/fabs/${fabId}/eqps/${eqpId}/setEqpRule`,
+            params: params
         });
     }
 
-    updateEQPRule(fabId: number, eqpId: number, params): Promise<any> {
+    updateEqpRuleParams(fabId: number, params): Promise<any> {
         return this.PUT({
-            uriPath: `pdm/fabs/${fabId}/eqps/${eqpId}/conditions`,
-            params: {
-                rule_id: params.rule_id,
-                rule_name: params.rule_name,
-                condition: params.condition,
-                expression: params.expression,
-                order: params.order,
-                use_yn: params.use_yn,
-                parameter: params.parameter
-            }
+            uriPath: `pdm/fabs/${fabId}/eqps/eqps/setEqpParamSpec`,
+            params: params
         });
     }
 }
