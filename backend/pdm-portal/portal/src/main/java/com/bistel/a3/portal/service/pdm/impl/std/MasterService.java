@@ -914,6 +914,7 @@ public class MasterService implements IMasterService {
                 //2. 해당 해당 파라미터들 param_spec_mst_pdm에 insert
 
                 //1.
+                conditionalSpecMapper.deleteEqpSpecLink(eqpId,rule_id);
                 conditionalSpecMapper.insertEqpSpecLink(eqpId, rule_id, ordering,  description, userName);
 
                 List<STDConditionalSpec> modelParam=conditionalSpecMapper.selectAppliedEqpParamListByeqpIdAndRule(eqpId,rule_id);
@@ -929,12 +930,15 @@ public class MasterService implements IMasterService {
 
                 for (int j = 0; j < modelParam.size(); j++) {
 
-                    param_id=modelParam.get(i).getParam_id();
-                    upper_alarm_spec=modelParam.get(i).getUpper_alarm_spec();
-                    upper_warning_spec=modelParam.get(i).getUpper_warning_spec();
+                    param_id=modelParam.get(j).getParam_id();
+                    upper_alarm_spec=modelParam.get(j).getUpper_alarm_spec();
+                    upper_warning_spec=modelParam.get(j).getUpper_warning_spec();
 
+                    conditionalSpecMapper.deleteParamSpec(eqp_spec_link_mst_rawid);
                     conditionalSpecMapper.insertParamSpec(param_id,eqp_spec_link_mst_rawid,spec_type,upper_alarm_spec,upper_warning_spec,
                             target,lower_alarm_spec,lower_warning_spec,modelParamDescription,userName);
+
+
                 }
 
 

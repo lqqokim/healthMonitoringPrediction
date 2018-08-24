@@ -62,8 +62,8 @@ public interface STDConditionalSpecMapper {
                          @Param("target") Double target,
                          @Param("eqp_lower_alarm_spec") Double eqp_lower_alarm_spec,
                          @Param("eqp_lower_warning_spec") Double eqp_lower_warning_spec,
-                         @Param("String") String description,
-                         @Param("String") String userName);
+                         @Param("description") String description,
+                         @Param("userName") String userName);
 
     void updateParamSpec(@Param("spec_type") String spec_type,
                          @Param("eqp_upper_alarm_spec") Double eqp_upper_alarm_spec,
