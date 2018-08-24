@@ -761,7 +761,16 @@ public class MasterService implements IMasterService {
 
         STDConditionalSpecMapper conditionalSpecMapper=SqlSessionUtil.getMapper(sessions, fabId, STDConditionalSpecMapper.class);
 
-        return conditionalSpecMapper.selectParamSpecByeqpIdAndRule(eqpId, rule);
+        Long eqp_spec_link_mst_rawid=conditionalSpecMapper.selectEqpSpecLnkRawId(eqpId,rule);
+
+        if (eqp_spec_link_mst_rawid!=null){
+            return conditionalSpecMapper.selectParamSpecByeqpIdAndRule(eqpId, rule,eqp_spec_link_mst_rawid);
+        }
+        else{
+            List<STDConditionalSpec> stdConditionalSpecs=new ArrayList<>();
+            return stdConditionalSpecs;
+        }
+
     }
 
     @Override

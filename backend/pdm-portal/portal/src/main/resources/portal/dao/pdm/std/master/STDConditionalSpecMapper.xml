@@ -190,7 +190,8 @@
         (
             SELECT param.rawid as param_id, PARAM.NAME, param_spec.eqp_spec_link_mst_rawid ,param_spec.UPPER_ALARM_SPEC, param_spec.UPPER_WARNING_SPEC, param_spec.spec_type
             FROM PARAM_SPEC_MST_PDM param_spec, PARAM_MST_PDM PARAM
-            WHERE EQP_SPEC_LINK_MST_RAWID = #{rule_id}
+            WHERE 1=1
+            and EQP_SPEC_LINK_MST_RAWID = #{eqp_spec_link_mst_rawid}
             AND param_spec.PARAM_MST_RAWID = PARAM.RAWID
         )B
         WHERE A.PARAM_NAME = B.NAME(+)
@@ -213,7 +214,7 @@
     <update id="updateParamSpec" databaseId="oracle">
         update param_spec_mst_pdm
         set
-        spec_type=#{spec_type,jdbcType=VARCHAR}
+        spec_type=#{spec_type,jdbcType=VARCHAR},
         upper_alarm_spec=#{eqp_upper_alarm_spec,jdbcType=FLOAT},
         upper_warning_spec=#{eqp_upper_warning_spec,jdbcType=FLOAT},
         lower_alarm_spec=#{eqp_lower_alarm_spec,jdbcType=FLOAT},
