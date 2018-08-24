@@ -53,7 +53,6 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
 
     isUpDisabled: boolean = false;
     isDownDisabled: boolean = false;
-    isOnOrder: boolean = false;
 
     readonly TYPE: IRule.Type = { MODEL: 'MODEL', EQP: 'EQP' };
     readonly STATUS: IRule.Status = { CREATE: 'create', MODIFY: 'modify', DELETE: 'delete' };
@@ -109,7 +108,7 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
                 model_name: rule.model_name,
                 condition: condition,
                 expression: expresssion,
-                used_yn: rule.used_yn,
+                used_yn: rule.eqp_spec_link_mst_rawid ? true : false,
                 // ordering: rule.ordering
                 ordering: index + 1
             });
@@ -180,8 +179,7 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
     selectRule(grid: wjcGrid.FlexGrid): void {
         this.selectedRule = grid.selectedItems[0];
 
-        if (this.isOnOrder) {
-            this.isOnOrder = false;
+        if (this.isEditGird) {
             return;
         }
 
@@ -298,7 +296,6 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     onUpOrder(): void {
-        this.isOnOrder = true;
         if (this.isDownDisabled) this.isDownDisabled = false;
         let selectedIndex: number = this.rules.indexOf(this.selectedRule);
         // console.log('index ==> ', selectedIndex);
@@ -331,7 +328,6 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     onDownOrder(): void {
-        this.isOnOrder = true;
         if (this.isUpDisabled) this.isUpDisabled = false;
         let selectedIndex: number = this.rules.indexOf(this.selectedRule);
         if (selectedIndex === this.RuleGrid.itemsSource.length - 1) {
