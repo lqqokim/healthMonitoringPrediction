@@ -30,18 +30,17 @@ public class EqpEventController {
     public void setEqpEvent(Principal user,@PathVariable String fabId, @RequestBody List<EqpEvent> eqpEvents) {
 
         for (int i = 0; i < eqpEvents.size(); i++) {
-            if(eqpEvents.get(i).getRawId()==null){
+            if(eqpEvents.get(i).getRawId() == null) {
 
                 eqpEvents.get(i).setCreateBy(user.getName());
             }
             eqpEvents.get(i).setUpdateBy(user.getName());
-            service.setEpqEvent(fabId , eqpEvents.get(i));
+            service.setEpqEvent(fabId, eqpEvents.get(i));
 
         }
-
-
-
     }
+
+
 
 
 }

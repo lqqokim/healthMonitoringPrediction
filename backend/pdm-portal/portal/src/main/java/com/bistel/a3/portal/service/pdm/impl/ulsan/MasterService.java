@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 
+import java.security.Principal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -454,6 +455,8 @@ public class MasterService implements IMasterService {
     public void setEqpParamSpec(String fabId, List<STDConditionalSpec> eqpParamSpecList) {
 
     }
+
+
 
 
     @Override

@@ -16,4 +16,6 @@ public interface STDEventMapper {
     List<EqpEvent> select(@Param("eqpId") Long eqpId);
     List<EqpEvent> selectAll();
 
+    void updateEqpTimeout(@Param("eqpId") Long eqpId, @Param("timeout") Long timeout);
+
 }

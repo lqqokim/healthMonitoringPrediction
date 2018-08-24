@@ -28,6 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 
+import java.security.Principal;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -617,6 +618,12 @@ public class MasterService implements IMasterService {
             mapper.update(eqpEvent);
         }
 
+        if (eqpEvent.getTimeout()!=36000L)
+        {
+            mapper.updateEqpTimeout(eqpEvent.getEqpId(),eqpEvent.getTimeout());
+        }
+
+
         //request to Kafka
         STDEqpMapper eqpMapper= SqlSessionUtil.getMapper(sessions, fabId, STDEqpMapper.class);
         Long eqpId=eqpEvent.getEqpId();
@@ -980,5 +987,6 @@ public class MasterService implements IMasterService {
         }
 
     }
+
 
 }

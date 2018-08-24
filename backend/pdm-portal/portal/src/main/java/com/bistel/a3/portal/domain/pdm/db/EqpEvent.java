@@ -17,7 +17,15 @@ public class EqpEvent {
     private String eventGroup;
     private String timeIntervalYn;
     private Integer intervalTimeMs;
+    private Long timeout;
 
+    public Long getTimeout() {
+        return timeout;
+    }
+
+    public void setTimeout(Long timeout) {
+        this.timeout = timeout;
+    }
 
     public Long getRawId() {
         return rawId;

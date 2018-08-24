@@ -10,6 +10,7 @@ import com.bistel.a3.portal.domain.pdm.master.PartWithParam;
 import com.bistel.a3.portal.domain.pdm.std.master.STDConditionalSpec;
 import com.bistel.a3.portal.domain.pdm.std.master.STDEqp;
 
+import java.security.Principal;
 import java.util.List;
 
 public interface IMasterService {
@@ -133,4 +134,6 @@ public interface IMasterService {
     void setEqpRule(String fabId, Long eqpId ,List<STDConditionalSpec> eqpRuleList);
 
     void setEqpParamSpec(String fabId, List<STDConditionalSpec> eqpParamSpecList);
+
+
 }
