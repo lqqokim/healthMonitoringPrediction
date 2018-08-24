@@ -195,6 +195,7 @@ export class SpecRuleComponent implements OnInit, OnDestroy {
     //Rule 목록에서 Row를 선택하면 호출
     selectRule(grid: wjcGrid.FlexGrid): void {
         this.selectedRule = grid.selectedItems[0];
+        console.log('selectRule', this.selectedRule);
         this.getParamsByRule();
     }
 

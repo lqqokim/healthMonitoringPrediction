@@ -38,14 +38,14 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
     models: IRule.Model[];
     rules: IRule.Rule[];
 
-    selectedPlant: IRule.Plant;
-    selectedModel: IRule.Model;
     selectedRule: IRule.Rule;
     ruleFormData: IRule.FormData;
 
     paramsBySeletedRule: IRule.ParameterByRule[];
     editParameters: IRule.ParameterByRule[];
     tempParameters: IRule.ParameterByRule[];
+
+    tempSpecRules: IRule.Rule[];
 
     isRuleUse: boolean = false;
     isEditGird: boolean = false;
@@ -103,6 +103,7 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
             let expresssion: string = condition ? this.conditionToExpression(condition) : null;
 
             rules.push({
+                eqp_spec_link_mst_rawid: rule.eqp_spec_link_mst_rawid,
                 rule_id: rule.rule_id,
                 rule_name: rule.rule_name,
                 model_name: rule.model_name,
@@ -142,6 +143,8 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
                         operand: param.operand,
                         alarm_spec: param.type === this.TYPE.EQP ? param.eqp_upper_alarm_spec : param.model_upper_alarm_spec,
                         warning_spec: param.type === this.TYPE.EQP ? param.eqp_upper_warning_spec : param.model_upper_warning_spec,
+                        eqp_lower_alarm_spec: param.eqp_lower_alarm_spec,
+                        eqp_lower_warning_spec: param.eqp_lower_warning_spec,
                         used_yn: param.used_yn,
                         type: param.type
                     });
@@ -151,6 +154,12 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
             }).catch((err) => {
                 console.log(err);
             });
+    }
+
+    conditionToString(conditions: IRule.Condition[]): string {
+        const toJsonStr = JSON.stringify(conditions);
+        const condition: string = toJsonStr.toString().replace(/"/g, '\\"');
+        return condition;
     }
 
     conditionToExpression(conditions: IRule.Condition[]): string {
@@ -165,47 +174,74 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
             expression = expression.concat(appendStr);
         });
 
-        // console.log('conditionToExpression', expression);
         return expression;
     }
 
     selectRule(grid: wjcGrid.FlexGrid): void {
         this.selectedRule = grid.selectedItems[0];
 
-        if(this.isOnOrder) {
+        if (this.isOnOrder) {
             this.isOnOrder = false;
             return;
         }
 
         let selectedIndex: number = this.rules.indexOf(this.selectedRule);
-        if(selectedIndex === 0) {
+        if (selectedIndex === 0) {
             this.isUpDisabled = true;
             this.isDownDisabled = false;
-        } else if(selectedIndex === this.RuleGrid.itemsSource.length - 1) {
+        } else if (selectedIndex === this.RuleGrid.itemsSource.length - 1) {
+            this.isUpDisabled = false;
             this.isDownDisabled = true;
-            this.isUpDisabled = false;
         } else {
-            this.isDownDisabled = false;
-            this.isUpDisabled = false;
+            this._resetDisabled();
         }
 
-        
         this.getParamsByEqpRule();
     }
 
-    editRuleGrid(isEdit: boolean): void {
-        this.RuleGrid.collectionView.refresh();
-        console.log('editRuleGrid', isEdit);
+    editRuleGrid(): void {
+        //Rules 수정 취소시 Rollback을 위한 Copy
+        this.tempSpecRules = JSON.parse(JSON.stringify(this.rules));
+
+        //Up, Down Button Disabled 여부 체크
+        this.selectedRule = this.RuleGrid.selectedItems[0];
+        let selectedIndex: number = this.rules.indexOf(this.selectedRule);
+
+        if (selectedIndex === 0) {
+            this.isUpDisabled = true;
+        } else if (selectedIndex === this.RuleGrid.itemsSource.length - 1) {
+            this.isDownDisabled = true;
+        }
     }
 
-    cancelEditRule(isEdit: boolean): void {
-        console.log('cancelEditRule', isEdit);
-        this.isUpDisabled = false;
-        this.isDownDisabled = false;
+    cancelEditRule(): void {
+        this.rules = this.tempSpecRules;
+        this._resetDisabled();
     }
 
     saveEditRule(): void {
+        let rules: IRule.Rule[] = this.rules;
+        let ruleRequest: IRule.RuleRequest[] = [];
+        rules.map((rule: IRule.Rule) => {
+            ruleRequest.push({
+                eqp_spec_link_mst_rawid: rule.eqp_spec_link_mst_rawid,
+                rule_id: rule.rule_id,
+                rule_name: rule.rule_name,
+                model_name: this.model,
+                condition: this.conditionToString(rule.condition)
+            });
+        });
 
+        this.updateEqpRule(ruleRequest);
+    }
+
+    updateEqpRule(request: IRule.RuleRequest[]): void {
+        this._pdmConfigService.updateEqpRule(this.fabId, this.eqp.eqpId, request)
+            .then((res) => {
+                console.log('updateEqpRule res', res);
+            }).catch((err) => {
+                console.log('updateEqpRule err', err);
+            })
     }
 
     openEditModal(status: string): void {
@@ -234,33 +270,35 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
         this._showModal(true, status);
     }
 
-    saveRule(ruleForm: NgForm): void {
-        let ruleFormData = this.ruleFormData;
-        console.log('ruleFormData', this.ruleFormData);
+    saveRule(): void {
+        let parameters: IRule.ParameterByRule[] = this.editParameters;
+        let paramRequest: IRule.ParamRequest[] = [];
+        parameters.map((param: IRule.ParameterByRule) => {
+            paramRequest.push({
+                eqp_spec_link_mst_rawid: param.eqp_spec_link_mst_rawid,
+                param_id: param.param_id,
+                eqp_upper_alarm_spec: param.alarm_spec,
+                eqp_upper_warning_spec: param.warning_spec,
+                eqp_lower_alarm_spec: param.eqp_lower_alarm_spec,
+                eqp_lower_warning_spec: param.eqp_lower_warning_spec
+            });
+        });
 
-        // const params: IRule.RuleReqParams = {
-        //     rule_id: status === 'create' ? null : rule.rule_id,
-        //     rule_name: rule.rule_name,
-        //     expression: rule.expression,
-        //     condition: rule.condition,
-        //     parameter: this.parameters
-        // };
-
-
+        this.updateEqpRuleParams(paramRequest);
     }
 
-    updateOrder(): void {
-        // this._pdmConfigService.updateModelRule(this.selectedPlant.fabId, params)
-        //     .then((res) => {
-
-        //     }).catch((err) => {
-
-        //     });
+    updateEqpRuleParams(request: IRule.ParamRequest[]): void {
+        this._pdmConfigService.updateEqpRuleParams(this.fabId, request)
+            .then((res) => {
+                console.log('updateEqpRuleParams res', res);
+            }).catch((err) => {
+                console.log('updateEqpRuleParams err', err);
+            });
     }
 
     onUpOrder(): void {
         this.isOnOrder = true;
-        if(this.isDownDisabled) this.isDownDisabled = false;
+        if (this.isDownDisabled) this.isDownDisabled = false;
         let selectedIndex: number = this.rules.indexOf(this.selectedRule);
         // console.log('index ==> ', selectedIndex);
         if (selectedIndex === 0) {
@@ -293,7 +331,7 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
 
     onDownOrder(): void {
         this.isOnOrder = true;
-        if(this.isUpDisabled) this.isUpDisabled = false;
+        if (this.isUpDisabled) this.isUpDisabled = false;
         let selectedIndex: number = this.rules.indexOf(this.selectedRule);
         if (selectedIndex === this.RuleGrid.itemsSource.length - 1) {
             this.isDownDisabled = true;
@@ -319,12 +357,34 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
             if (selectedIndex === this.RuleGrid.itemsSource.length - 2) {
                 this.isDownDisabled = true;
             }
-    
+
         });
+    }
+
+    onCellEditEnded(grid, event) {
+        console.log('onCellEditEnded => ', grid, event);
+    }
+
+    onCellEditEnding(grid, event) {
+        console.log('onCellEditEnding => ', grid, event);
+    }
+
+    onItemsSourceChanged(grid, event) {
+        console.log('onItemsSourceChanged => ', grid, event);
     }
 
     closeModal(): void {
         this._showModal(false);
+    }
+
+    private _resetDisabled(): void {
+        if (this.isDownDisabled) {
+            this.isDownDisabled = false;
+        }
+
+        if (this.isUpDisabled) {
+            this.isUpDisabled = false;
+        }
     }
 
     private _showModal(isShow: boolean, status?: string): void {
@@ -337,6 +397,10 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
         } else {
             $('#ruleModal').modal('hide');
         }
+    }
+
+    private _initData(): void {
+
     }
 
     private _firstCharUpper(value: string): string {

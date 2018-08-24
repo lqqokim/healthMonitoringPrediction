@@ -45,6 +45,7 @@ export interface RuleResponse {
 }
 
 export interface Rule {
+    eqp_spec_link_mst_rawid: number;
     rule_id: number;
     rule_name: string;
     model_name: string;
@@ -54,14 +55,22 @@ export interface Rule {
     ordering?: number;
 }
 
+// export interface RuleRequest {
+//     rule_id: number;
+//     rule_name: string;
+//     model_name: string;
+//     condition: string;
+//     expression: string;
+//     expression_value: string;
+//     parameter: Array<Parameter>;
+// }
+
 export interface RuleRequest {
+    eqp_spec_link_mst_rawid: number;
     rule_id: number;
     rule_name: string;
     model_name: string;
     condition: string;
-    expression: string;
-    expression_value: string;
-    parameter: Array<Parameter>;
 }
 
 export interface FormData {
@@ -77,6 +86,15 @@ export interface Parameter {
     upper_alarm_spec: number;
     upper_warning_spec: number;
     used_yn: boolean;
+}
+
+export interface ParamRequest {
+    eqp_spec_link_mst_rawid: number;
+    param_id: number;
+    eqp_upper_alarm_spec: number;
+    eqp_upper_warning_spec: number;
+    eqp_lower_alarm_spec: number;
+    eqp_lower_warning_spec: number;
 }
 
 export interface Condition {
@@ -154,6 +172,9 @@ export interface ParameterByRule {
     warning_spec: number;
     used_yn: boolean;
     type: string;
+
+    eqp_lower_alarm_spec : number;
+    eqp_lower_warning_spec : number;
 }
 
 export interface Type {
