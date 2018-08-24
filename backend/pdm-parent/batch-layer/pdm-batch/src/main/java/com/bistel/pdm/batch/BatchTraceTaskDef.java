@@ -5,6 +5,7 @@ import com.bistel.pdm.batch.processor.BeginProcessor;
 import com.bistel.pdm.batch.processor.CalculateHealthProcessor;
 import com.bistel.pdm.batch.processor.PrepareDataProcessor;
 import com.bistel.pdm.lambda.kafka.AbstractPipeline;
+import com.bistel.pdm.lambda.kafka.partitioner.CustomStreamPartitioner;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KafkaStreams;
@@ -74,6 +75,7 @@ public class BatchTraceTaskDef extends AbstractPipeline {
                         Serdes.String(),
                         Serdes.Long());
 
+        CustomStreamPartitioner partitioner = new CustomStreamPartitioner();
 
         topology.addSource("input-trace", this.getInputTraceTopic())
                 .addProcessor("begin", BeginProcessor::new, "input-trace")
@@ -82,7 +84,8 @@ public class BatchTraceTaskDef extends AbstractPipeline {
                 .addProcessor("aggregate", AggregateFeatureProcessor::new, "prepare")
                 .addStateStore(summaryWindowStoreSupplier, "aggregate")
                 .addStateStore(summaryIntervalStoreSupplier, "aggregate")
-                .addSink("output-feature", this.getOutputFeatureTopic(), "aggregate");
+
+                .addSink("output-feature", this.getOutputFeatureTopic(), partitioner, "aggregate");
                 //.addSink("route-feature", this.getRouteFeatureTopic(), "aggregate");
 
         return new KafkaStreams(topology, getStreamProperties());

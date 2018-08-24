@@ -43,6 +43,9 @@ public class EventMaster {
     @JsonProperty("intervalTimeMs")
     private Long intervalTimeMs;
 
+    @JsonProperty("timeoutMs")
+    private Long timeoutMs;
+
 //    public String toKey(){
 //        return this.areaName  + "," + this.equipmentName;
 //    }
@@ -145,5 +148,13 @@ public class EventMaster {
 
     public void setIntervalTimeMs(Long intervalTimeMs) {
         this.intervalTimeMs = intervalTimeMs;
+    }
+
+    public Long getTimeoutMs() {
+        return timeoutMs;
+    }
+
+    public void setTimeoutMs(Long timeoutMs) {
+        this.timeoutMs = timeoutMs;
     }
 }

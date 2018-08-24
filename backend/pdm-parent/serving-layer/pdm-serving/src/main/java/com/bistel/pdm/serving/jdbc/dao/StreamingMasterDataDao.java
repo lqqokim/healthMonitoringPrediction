@@ -286,7 +286,8 @@ public class StreamingMasterDataDao {
                     "event.process_yn, " +
                     "param.parse_index, " +
                     "event.time_interval_yn," +
-                    "event.interval_time_ms " +
+                    "event.interval_time_ms," +
+                    "event.timeout " +
                     "from area_mst_pdm area, eqp_mst_pdm eqp, param_mst_pdm param, eqp_event_mst_pdm event " +
                     "where area.rawid=eqp.area_mst_rawid " +
                     "and eqp.rawid=param.eqp_mst_rawid " +
@@ -318,6 +319,7 @@ public class StreamingMasterDataDao {
                         ds.setParamParseIndex(rs.getInt(10));
                         ds.setTimeIntervalYn(rs.getString(11));
                         ds.setIntervalTimeMs(rs.getLong(12));
+                        ds.setTimeoutMs(rs.getLong(13));
 
                         resultRows.add(ds);
                     }
