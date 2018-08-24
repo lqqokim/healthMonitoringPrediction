@@ -20,7 +20,7 @@
 
             <ng-template #noneEdit>
                 <div class="btn-group pull-right">
-                    <button class="btn btn-default" type="button" (click)="isEditGird = !isEditGird; editRuleGrid(isEditGird);">Modify</button>
+                    <button class="btn btn-default" type="button" (click)="isEditGird = !isEditGird; editRuleGrid(isEditGird);" [disabled]="!rules?.length">Modify</button>
                 </div>
             </ng-template>
 
@@ -46,7 +46,7 @@
         </div>
         <div class="parameter-list">
             <div class="btn-group pull-right">
-                <button class="btn btn-default" type="button" (click)="openEditModal(STATUS.MODIFY);" [disabled]="isEditGird">Modify</button>
+                <button class="btn btn-default" type="button" (click)="openEditModal(STATUS.MODIFY);" [disabled]="isEditGird || !rules?.length">Modify</button>
             </div>
 
             <wj-flex-grid 

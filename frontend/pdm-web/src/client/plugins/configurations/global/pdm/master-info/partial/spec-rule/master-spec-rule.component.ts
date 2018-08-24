@@ -228,7 +228,8 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
                 rule_id: rule.rule_id,
                 rule_name: rule.rule_name,
                 model_name: this.model,
-                condition: this.conditionToString(rule.condition)
+                condition: this.conditionToString(rule.condition),
+                used_yn: rule.used_yn
             });
         });
 
@@ -241,7 +242,7 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
                 console.log('updateEqpRule res', res);
             }).catch((err) => {
                 console.log('updateEqpRule err', err);
-            })
+            });
     }
 
     openEditModal(status: string): void {

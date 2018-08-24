@@ -71,6 +71,7 @@ export interface RuleRequest {
     rule_name: string;
     model_name: string;
     condition: string;
+    used_yn: boolean;
 }
 
 export interface FormData {
