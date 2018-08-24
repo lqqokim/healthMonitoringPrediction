@@ -24,14 +24,14 @@
                             {{item.name}}
                         </option>
                     </select>
-                    <span></span>
-                    <select class="form-control conditionOperator" [(ngModel)]="conditionEndOperator" name="conditionEndOperator">
+                    <input type="number" class="conditionValue" [(ngModel)]="conditionValue" (input)="onChange($event,param)"/>
+                    <span>End</span>
+                    <select class="form-control conditionOperator" style="margin-left: 49px;" [(ngModel)]="conditionEndOperator" name="conditionEndOperator">
                         <option *ngFor="let item of endOperators" [ngValue]="item.value">
                             {{item.name}}
                         </option>
                     </select>
-                    <span>End</span>
-                    <input type="number" class="conditionValue" [(ngModel)]="conditionValue" (input)="onChange($event,param)">
+
 
                     <span>Timeout</span>
                     <input style="width: 80px;" type="number" name="timeout" class="timeoutValue" [(ngModel)]="timeoutValue" (input)="onChangeTimeout($event, param)">

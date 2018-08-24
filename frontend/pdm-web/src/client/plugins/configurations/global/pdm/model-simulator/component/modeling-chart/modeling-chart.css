@@ -72,8 +72,11 @@
     cursor: pointer;
 }
 .modeling-chart td[class='param-label'] .param-condition > span{
-    width: 80px;
+    width: 50px;
     float: left;
+}
+.modeling-chart td[class='param-label'] .param-condition{
+    margin-top:25px;
 }
 .modeling-chart td[class='param-label'] .param-condition > select,
 .modeling-chart td[class='param-label'] .param-condition > input{
