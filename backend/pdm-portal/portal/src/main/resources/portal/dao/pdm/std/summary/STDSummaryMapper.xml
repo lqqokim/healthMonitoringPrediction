@@ -22,24 +22,26 @@
 	</select>
 
     <select id="selectSummaryDataForFeature" resultType="com.bistel.a3.portal.domain.pdm.BasicData">
-        select
-			feature.end_dtts as x
-			,case when feature.upper_alarm_spec !=null then
-				feature.mean / feature.upper_alarm_spec else
-				feature.mean / spec.alarm_spec
-			end AS y
-			, 1 as upper_alarm
-			, case when feature.upper_warning_spec !=null  then  feature.upper_warning_spec/feature.upper_alarm_spec
-				else spec.warning_spec/spec.alarm_spec end  as upper_warn
-			, feature.lower_alarm_spec as lower_alarm
-			, feature.lower_warning_spec as lower_warn
-        from PARAM_FEATURE_TRX_PDM feature,trace_spec_mst_pdm spec
-        where
-        feature.param_mst_rawid =  #{param_id}
-        and feature.end_dtts  <![CDATA[>=]]> #{fromdate}
-        and feature.end_dtts  <![CDATA[<]]> #{todate}
-		and spec.param_mst_rawid = feature.param_mst_rawid
-        order by feature.end_dtts
+		select
+		feature.end_dtts as x
+		,case when feature.upper_alarm_spec !=null then
+		feature.mean / feature.upper_alarm_spec else
+		feature.mean / 1
+		end AS y
+		, 1 as upper_alarm
+		, case when feature.upper_warning_spec !=null  then  feature.upper_warning_spec/feature.upper_alarm_spec
+		<!-- Change Query : else spec.warning_spec/spec.alarm_spec end  as upper_warn-->
+		else #{globalWarning}/1 end  as upper_warn
+		, feature.lower_alarm_spec as lower_alarm
+		, feature.lower_warning_spec as lower_warn
+		from PARAM_FEATURE_TRX_PDM feature
+		        <!--Change Query : ,trace_spec_mst_pdm spec-->
+		where
+		feature.param_mst_rawid =  #{param_id}
+		and feature.end_dtts  <![CDATA[>=]]> #{fromdate}
+		and feature.end_dtts  <![CDATA[<]]> #{todate}
+		        <!-- Change Query : and spec.param_mst_rawid = feature.param_mst_rawid-->
+		order by feature.end_dtts
     </select>
     <select id="selectSummaryData" resultType="com.bistel.a3.portal.domain.pdm.db.ParamFeatureTrx">
         select
