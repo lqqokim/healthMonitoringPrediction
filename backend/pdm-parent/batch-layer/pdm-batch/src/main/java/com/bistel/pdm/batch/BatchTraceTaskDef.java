@@ -58,12 +58,6 @@ public class BatchTraceTaskDef extends AbstractPipeline {
                         Serdes.String(),
                         Serdes.String());
 
-        StoreBuilder<KeyValueStore<String, String>> refershFlagStoreSupplier =
-                Stores.keyValueStoreBuilder(
-                        Stores.persistentKeyValueStore("batch-cache-refresh"),
-                        Serdes.String(),
-                        Serdes.String());
-
         StoreBuilder<WindowStore<String, Double>> summaryWindowStoreSupplier =
                 Stores.windowStoreBuilder(
                         Stores.persistentWindowStore("batch-feature-summary",
@@ -85,7 +79,6 @@ public class BatchTraceTaskDef extends AbstractPipeline {
                 .addProcessor("begin", BeginProcessor::new, "input-trace")
                 .addProcessor("prepare", PrepareDataProcessor::new, "begin")
                 .addStateStore(statusContextStoreSupplier, "prepare")
-                .addStateStore(refershFlagStoreSupplier, "prepare")
                 .addProcessor("aggregate", AggregateFeatureProcessor::new, "prepare")
                 .addStateStore(summaryWindowStoreSupplier, "aggregate")
                 .addStateStore(summaryIntervalStoreSupplier, "aggregate")

@@ -26,11 +26,11 @@ public class PrepareDataProcessor extends AbstractProcessor<String, byte[]> {
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
     private KeyValueStore<String, String> kvStatusContextStore;
-    private KeyValueStore<String, String> kvCacheRefreshFlagStore;
 
     private final static String SEPARATOR = ",";
 
     private final ConcurrentHashMap<String, String> messageGroupMap = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, String> cacheRefreshFlagMap = new ConcurrentHashMap<>();
 
     @Override
     @SuppressWarnings("unchecked")
@@ -38,7 +38,6 @@ public class PrepareDataProcessor extends AbstractProcessor<String, byte[]> {
         super.init(processorContext);
 
         kvStatusContextStore = (KeyValueStore) this.context().getStateStore("batch-status-context");
-        kvCacheRefreshFlagStore = (KeyValueStore) this.context().getStateStore("batch-cache-refresh");
     }
 
     @Override
@@ -49,7 +48,7 @@ public class PrepareDataProcessor extends AbstractProcessor<String, byte[]> {
         try {
             // refresh cache command
             if (recordColumns[1].equalsIgnoreCase("CMD-REFRESH-CACHE")) {
-                kvCacheRefreshFlagStore.put(partitionKey, "Y");
+                cacheRefreshFlagMap.put(partitionKey, "Y");
             }
 
             // filter by master
@@ -80,11 +79,11 @@ public class PrepareDataProcessor extends AbstractProcessor<String, byte[]> {
                 }
             } else {
                 // refresh cache
-                if (kvCacheRefreshFlagStore.get(partitionKey) != null &&
-                        kvCacheRefreshFlagStore.get(partitionKey).equalsIgnoreCase("Y")) {
+                if (cacheRefreshFlagMap.get(partitionKey) != null &&
+                        cacheRefreshFlagMap.get(partitionKey).equalsIgnoreCase("Y")) {
 
                     refreshMasterCache(partitionKey);
-                    kvCacheRefreshFlagStore.put(partitionKey, "N");
+                    cacheRefreshFlagMap.put(partitionKey, "N");
                 }
 
                 // No event registered.
@@ -174,11 +173,11 @@ public class PrepareDataProcessor extends AbstractProcessor<String, byte[]> {
                 extendMessage = extendMessage + "idle" + ",";
             }
 
-            if (kvCacheRefreshFlagStore.get(partitionKey) != null &&
-                    kvCacheRefreshFlagStore.get(partitionKey).equalsIgnoreCase("Y")) {
+            if (cacheRefreshFlagMap.get(partitionKey) != null &&
+                    cacheRefreshFlagMap.get(partitionKey).equalsIgnoreCase("Y")) {
 
                 extendMessage = extendMessage + "," + "CRC"; //CMD-REFRESH-CACHE
-                kvCacheRefreshFlagStore.put(partitionKey, "N");
+                cacheRefreshFlagMap.put(partitionKey, "N");
                 log.debug("[{}] - append cache-refresh flag.", partitionKey);
             }
         }

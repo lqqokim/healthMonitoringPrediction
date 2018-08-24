@@ -56,12 +56,6 @@ public class SpeedTaskDef extends AbstractPipeline {
                         Serdes.String(),
                         Serdes.String());
 
-        StoreBuilder<KeyValueStore<String, String>> refershFlagStoreSupplier =
-                Stores.keyValueStoreBuilder(
-                        Stores.persistentKeyValueStore("speed-cache-refresh"),
-                        Serdes.String(),
-                        Serdes.String());
-
         StoreBuilder<WindowStore<String, Double>> normalizedParamValueStoreSupplier =
                 Stores.windowStoreBuilder(
                         Stores.persistentWindowStore("speed-normalized-value",
@@ -84,7 +78,6 @@ public class SpeedTaskDef extends AbstractPipeline {
                 .addProcessor("begin", BeginProcessor::new, "input-trace")
                 .addProcessor("prepare", PrepareDataProcessor::new, "begin")
                 .addStateStore(statusStoreSupplier, "prepare")
-                .addStateStore(refershFlagStoreSupplier, "prepare")
 
                 .addProcessor("event", ExtractEventProcessor::new, "prepare")
                 .addProcessor("fault", DetectFaultProcessor::new, "prepare")
