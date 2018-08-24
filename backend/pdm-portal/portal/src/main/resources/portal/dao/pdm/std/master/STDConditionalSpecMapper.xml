@@ -246,4 +246,15 @@
 
     </select>
 
+
+    <select id="selectEqpSpecLnkRawId" resultType="Long">
+        select l.rawid as eqp_spec_link_mst_rawid
+        from eqp_spec_link_mst_pdm l, conditional_spec_mst_pdm r
+        where 1=1
+        and l.CONDITIONAL_SPEC_MST_RAWID=r.rawid
+        and r.rawid=#{rule_id}
+        and l.eqp_mst_rawid=#{eqpId}
+    </select>
+
+
 </mapper>

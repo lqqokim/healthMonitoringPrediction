@@ -901,10 +901,10 @@ public class MasterService implements IMasterService {
             used_yn=eqpRuleList.get(i).isUsed_yn();
             eqp_spec_link_mst_rawid=eqpRuleList.get(i).getEqp_spec_link_mst_rawid();
 
-            if (eqp_spec_link_mst_rawid!=null)
-            {
-                used_yn=true;
-            }
+//            if (eqp_spec_link_mst_rawid!=null)
+//            {
+//                used_yn=true;
+//            }
 
             if (used_yn==true)
             {
@@ -934,10 +934,18 @@ public class MasterService implements IMasterService {
                     upper_alarm_spec=modelParam.get(j).getUpper_alarm_spec();
                     upper_warning_spec=modelParam.get(j).getUpper_warning_spec();
 
-                    conditionalSpecMapper.deleteParamSpec(eqp_spec_link_mst_rawid);
+                    if (eqp_spec_link_mst_rawid!=null)
+                    {
+                        conditionalSpecMapper.deleteParamSpec(eqp_spec_link_mst_rawid);
+                    }
+
+                    if (eqp_spec_link_mst_rawid==null && used_yn==true) //체크해제 후 체크
+                    {
+                        eqp_spec_link_mst_rawid=conditionalSpecMapper.selectEqpSpecLnkRawId(eqpId, rule_id);
+                    }
+
                     conditionalSpecMapper.insertParamSpec(param_id,eqp_spec_link_mst_rawid,spec_type,upper_alarm_spec,upper_warning_spec,
                             target,lower_alarm_spec,lower_warning_spec,modelParamDescription,userName);
-
 
                 }
 

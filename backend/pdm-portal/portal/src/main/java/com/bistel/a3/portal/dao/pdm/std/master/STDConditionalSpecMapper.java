@@ -76,4 +76,5 @@ public interface STDConditionalSpecMapper {
     List<STDConditionalSpec> selectAppliedEqpParamListByeqpIdAndRule(@Param("eqpId") Long eqpId, @Param("rule_id") Long rule_id);
 
 
+    Long selectEqpSpecLnkRawId(@Param("eqpId") Long eqpId, @Param("rule_id") Long rule_id);
 }
