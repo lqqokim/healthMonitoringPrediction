@@ -273,9 +273,11 @@ public class SummaryDataService implements ISummaryDataService {
         STDSummaryMapper stdSummaryMapper= SqlSessionUtil.getMapper(sessions, fabId, STDSummaryMapper.class);
         STDParamMapper paramMapper= SqlSessionUtil.getMapper(sessions, fabId, STDParamMapper.class);
 
+        Double globalWarning=globalAWSpec.getNormalized_upper_warning_spec();
+
         if(areaId==null)
         {
-            List<EqpHealthIndex> eqpHealthIndexMasterEqpInfo = stdSummaryMapper.selectEqpHealthIndex(fromdate, todate);
+            List<EqpHealthIndex> eqpHealthIndexMasterEqpInfo = stdSummaryMapper.selectEqpHealthIndex(fromdate, todate, globalWarning);
 
             HashMap<Long,HashMap<Integer,HashMap<Long,List<EqpHealthIndex>>>> eqpLogicParam = new HashMap<>();
             for (int i = 0; i < eqpHealthIndexMasterEqpInfo.size(); i++) {
@@ -547,7 +549,8 @@ public class SummaryDataService implements ISummaryDataService {
         STDParamMapper stdParamMapper= SqlSessionUtil.getMapper(sessions, fabId, STDParamMapper.class);
         EqpHealthRUL eqpHealthRULData=stdSummaryMapper.selectRUL(from,to,paramId);
 
-        Spec spec =stdParamMapper.selectSpec(paramId);
+        //Allen trace_spec_mst_pdm제거작업(2018-08-24)
+//        Spec spec =stdParamMapper.selectSpec(paramId);
 
 
         EqpHealthRUL eqpHealthRUL = new EqpHealthRUL();
@@ -557,7 +560,9 @@ public class SummaryDataService implements ISummaryDataService {
         Double slope=eqpHealthRULData.getSlope();
         Long xValue=eqpHealthRULData.getxValue();
         Double yValue=intercept+(slope*xValue);
-        yValue = yValue/spec.getAlarm();
+
+        //Allen trace_spec_mst_pdm제거작업(2018-08-24)
+        //yValue = yValue/spec.getAlarm();
 
         if (slope<0) //기울기가 음수일 경우  모두 null
         {

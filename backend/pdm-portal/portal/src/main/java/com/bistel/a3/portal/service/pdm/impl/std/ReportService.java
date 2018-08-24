@@ -69,6 +69,8 @@ public class ReportService implements IReportService {
     @Autowired
     private ResourceLoader resourceLoader;
 
+    @Autowired
+    private GlobalAWSpec globalAWSpec;
 
     @Value("${fab.list}")
     private String fabList;
@@ -783,13 +785,34 @@ public class ReportService implements IReportService {
 
     public List<ParamWithCommon> getParamWtihTypeByEqp(String fabId, Long eqpId) {
         STDParamMapper mapper = SqlSessionUtil.getMapper(sessions, fabId, STDParamMapper.class);
-        return mapper.selectParamWtihInfoByEqp(eqpId);
+
+        //Allen trace_spec_mst_pdm제거작업(2018-08-24)
+        Double globalWarn=globalAWSpec.getNormalized_upper_warning_spec();
+
+        List<ParamWithCommon> paramWithCommonList=mapper.selectParamWtihInfoByEqp(eqpId);
+
+        for (int i = 0; i < paramWithCommonList.size(); i++) {
+            paramWithCommonList.get(i).setAlarm(1D);
+            paramWithCommonList.get(i).setWarn(globalWarn);
+        }
+
+        return paramWithCommonList;
     }
 
 
     public ParamWithCommon getParamWithComm(String fabId, Long paramId) {
+
+//Allen trace_spec_mst_pdm제거작업(2018-08-24)
         STDParamMapper mapper = SqlSessionUtil.getMapper(sessions, fabId, STDParamMapper.class);
-        return mapper.selectParamWithInfo(paramId);
+
+        Double globalWarn=globalAWSpec.getNormalized_upper_warning_spec();
+
+        ParamWithCommon paramWithCommon=mapper.selectParamWithInfo(paramId);
+        paramWithCommon.setAlarm(1D);
+        paramWithCommon.setWarn(globalWarn);
+
+        return paramWithCommon;
+
     }
 
 
@@ -811,7 +834,17 @@ public class ReportService implements IReportService {
 
     public Spec getOverallMinuteTrxSpecConfig(String fabId, Long paramId) {
         STDParamMapper mapper = SqlSessionUtil.getMapper(sessions, fabId, STDParamMapper.class);
-        return mapper.selectSpec(paramId);
+
+
+        //Allen trace_spec_mst_pdm제거작업(2018-08-24)
+        Double upperWarn=globalAWSpec.getNormalized_upper_warning_spec();
+        Spec spec=new Spec();
+        spec.setAlarm(1.0);
+        spec.setWarn(upperWarn);
+        //return mapper.selectSpec(paramId);
+        return spec;
+
+
     }
 
 
@@ -821,6 +854,13 @@ public class ReportService implements IReportService {
         STDAlarmTrxMapper alarmTrxMapper = SqlSessionUtil.getMapper(sessions, fabId, STDAlarmTrxMapper.class);
         List<ParamWithCommon> params = paramMapper.selectParamWtihInfoByEqp(eqpId);
 
+        //Allen trace_spec_mst_pdm제거작업(2018-08-24)
+        Double globalWarn=globalAWSpec.getNormalized_upper_warning_spec();
+
+        for (int i = 0; i < params.size(); i++) {
+            params.get(i).setAlarm(1D);
+            params.get(i).setWarn(globalWarn);
+        }
 //        HashMap<Long, String> paramClassificationDataHashMap = getCalssifications(fabId, from, to, eqpId, reportMapper);
 
         PlatformTransactionManager manager = TransactionUtil.getTransactionManger(trMgrs, fabId);
@@ -858,7 +898,16 @@ public class ReportService implements IReportService {
     public void calculateRealTimeSummary(String userName,String fabId, Date from, Date to, Long eqpId) {
         STDParamMapper paramMapper = SqlSessionUtil.getMapper(sessions, fabId, STDParamMapper.class);
         STDReportMapper reportMapper = SqlSessionUtil.getMapper(sessions, fabId, STDReportMapper.class);
+
+        //Allen trace_spec_mst_pdm제거작업(2018-08-24)
+        Double globalWarn=globalAWSpec.getNormalized_upper_warning_spec();
+
         List<ParamWithCommon> params = paramMapper.selectParamWtihInfoByEqp(eqpId);
+
+        for (int i = 0; i < params.size(); i++) {
+            params.get(i).setAlarm(1D);
+            params.get(i).setWarn(globalWarn);
+        }
 
         PlatformTransactionManager manager = TransactionUtil.getTransactionManger(trMgrs, fabId);
         TransactionStatus status = TransactionUtil.getTransactionStatus(manager);
@@ -877,8 +926,11 @@ public class ReportService implements IReportService {
 
 
     public OverallSpec getOverallSpec(String fabId, Long paramId) {
-        STDParamMapper paramMapper= SqlSessionUtil.getMapper(sessions, fabId, STDParamMapper.class);
-        return paramMapper.selectTraceDataSpec(paramId);
+
+        //Allen trace_spec_mst_pdm제거작업(2018-08-24)
+//        STDParamMapper paramMapper= SqlSessionUtil.getMapper(sessions, fabId, STDParamMapper.class);
+//        return paramMapper.selectTraceDataSpec(paramId);
+        return null;
     }
 
 

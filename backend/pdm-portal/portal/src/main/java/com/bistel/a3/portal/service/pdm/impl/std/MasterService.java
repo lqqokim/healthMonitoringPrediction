@@ -326,19 +326,22 @@ public class MasterService implements IMasterService {
     private void copySpec(String userName,String fabId, Long fromParamId, Long toParamId) {
 
         STDParamMapper paramDataMapper=SqlSessionUtil.getMapper(sessions, fabId, STDParamMapper.class);
-        OverallSpec overallSpec=paramDataMapper.selectTraceDataSpec(fromParamId);
+        //Allen trace_spec_mst_pdm제거작업(2018-08-24)
+        //        OverallSpec overallSpec=paramDataMapper.selectTraceDataSpec(fromParamId);
 
 //        paramDataMapper.insertSpec(toParamId, overallSpec.getAlarm(),overallSpec.getWarn());
         ParamWithCommonWithRpm paramWithCommonWithRpm = new ParamWithCommonWithRpm();
         paramWithCommonWithRpm.setUserName(userName);
         paramWithCommonWithRpm.setParam_id(toParamId);
+
+        //Allen trace_spec_mst_pdm제거작업(2018-08-24)
+//        if (overallSpec != null) {
+//        	paramWithCommonWithRpm.setAlarm(overallSpec.getAlarm());
+//        	paramWithCommonWithRpm.setWarn(overallSpec.getWarn());
+//        }
         
-        if (overallSpec != null) {
-        	paramWithCommonWithRpm.setAlarm(overallSpec.getAlarm());
-        	paramWithCommonWithRpm.setWarn(overallSpec.getWarn());
-        }        
-        
-        paramDataMapper.insertSpec(paramWithCommonWithRpm);
+        //Trace_Spec_Mst_Pdm 없음 Allen trace_spec_mst_pdm제거작업(2018-08-24)
+        // paramDataMapper.insertSpec(paramWithCommonWithRpm);
     }
 
 
@@ -372,7 +375,9 @@ public class MasterService implements IMasterService {
 
 //                mapper.insertCommonOne(param);
                 if(param.getAlarm()!=null && param.getWarn()!=null){
-                    mapper.insertSpec(param);
+
+                    //Allen trace_spec_mst_pdm제거작업(2018-08-24)
+//                    mapper.insertSpec(param);
                     this.updateParamHealth(fabId, eqpId, param.getParam_id()); //추후 삭제(UI 부재)
 
                 }
@@ -391,14 +396,17 @@ public class MasterService implements IMasterService {
 //                }
 //                mapper.updateCommonOne(param);
                 if(param.getAlarm()!=null && param.getWarn()!=null) {
-                    Spec spec = mapper.selectSpec(param.getParam_id());
-                    if(spec!=null) {
-                        mapper.updateSpec(param);
+                    //Allen trace_spec_mst_pdm제거작업(2018-08-24)
+//                    Spec spec = mapper.selectSpec(param.getParam_id());
+//                    if(spec!=null) {
+                        //Allen trace_spec_mst_pdm제거작업(2018-08-24)
+//                        mapper.updateSpec(param);
 
-                    }else{
-                        mapper.insertSpec(param);
-                        this.updateParamHealth(fabId, eqpId, param.getParam_id()); //추후 삭제(UI 부재)
-                    }
+//                    }else{
+                        //Allen trace_spec_mst_pdm제거작업(2018-08-24)
+//                        mapper.insertSpec(param);
+//                        this.updateParamHealth(fabId, eqpId, param.getParam_id()); //추후 삭제(UI 부재)
+//                    }
                 }
             }
             manager.commit(status);
@@ -420,7 +428,8 @@ public class MasterService implements IMasterService {
 //            mapper.deleteCommonOne(paramId);
 //            mapper.deleteRpmOne(paramId);
             mapper.deleteOne(paramId);
-            mapper.deleteSpec(paramId);
+            //Allen trace_spec_mst_pdm제거작업(2018-08-24)
+            //mapper.deleteSpec(paramId);
             this.deleteParamHealth(fabId,eqpId,paramId);
 
             manager.commit(status);

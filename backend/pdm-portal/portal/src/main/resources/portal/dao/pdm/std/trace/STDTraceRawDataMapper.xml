@@ -318,62 +318,95 @@
         <!--WHERE trace_trx_pdm.PARAM_ID   = #{param_id}-->
         <!--AND trace_trx_pdm.MEASURE_DTTS = specout_date_data.specout_date-->
         <!--ORDER BY measure_dtts-->
-    
-        SELECT
-            RAWID,
-            PARAM_MST_RAWID,
-            TRACE_TRX_RAWID,
-            DATA_TYPE_CD,
-            MAX_FREQ,
-            FREQ_COUNT,
-            RPM,
-            SAMPLING_TIME,
-            EVENT_DTTS,
-            RESERVED_COL1,
-            RESERVED_COL2,
-            RESERVED_COL3,
-            RESERVED_COL4,
-            RESERVED_COL5
-        FROM
-                trace_raw_trx_pdm,
-        (
-           select
-           *
-           from
-           (
-              SELECT
-           meas.event_dtts specout_date
-              FROM
-                trace_raw_trx_pdm meas,
-              (
-                 SELECT
-                 trx.param_mst_rawid,
-                 trx.event_dtts
-                 FROM
-                trace_trx_pdm trx,
-                 trace_spec_mst_pdm spec
-                 WHERE trx.param_mst_rawid =#{param_id}
-                 AND trx.param_mst_rawid = spec.param_mst_rawid
-                 AND trx.event_dtts <![CDATA[>=]]> #{start}
-                 AND trx.event_dtts <![CDATA[<]]> #{end}
-                 AND trx.value      > trx.warning_spec - abs(trx.warning_spec ) *  (  1- #{rate} )
 
-              )
-              specout
-              WHERE
-                meas.param_mst_rawid = specout.param_mst_rawid
-              AND   meas.event_dtts <![CDATA[>=]]>  specout.event_dtts
-              AND   meas.event_dtts <![CDATA[<]]> #{end}
-                )
-           where
-            rownum <![CDATA[<]]> 2
-            
-        )
-        specout_date_data
-        WHERE
-                trace_raw_trx_pdm.param_mst_rawid = #{param_id}
+        <!--SELECT-->
+            <!--RAWID,-->
+            <!--PARAM_MST_RAWID,-->
+            <!--TRACE_TRX_RAWID,-->
+            <!--DATA_TYPE_CD,-->
+            <!--MAX_FREQ,-->
+            <!--FREQ_COUNT,-->
+            <!--RPM,-->
+            <!--SAMPLING_TIME,-->
+            <!--EVENT_DTTS,-->
+            <!--RESERVED_COL1,-->
+            <!--RESERVED_COL2,-->
+            <!--RESERVED_COL3,-->
+            <!--RESERVED_COL4,-->
+            <!--RESERVED_COL5-->
+        <!--FROM-->
+                <!--trace_raw_trx_pdm,-->
+        <!--(-->
+           <!--select-->
+           <!--*-->
+           <!--from-->
+           <!--(-->
+              <!--SELECT-->
+           <!--meas.event_dtts specout_date-->
+              <!--FROM-->
+                <!--trace_raw_trx_pdm meas,-->
+              <!--(-->
+                 <!--SELECT-->
+                 <!--trx.param_mst_rawid,-->
+                 <!--trx.event_dtts-->
+                 <!--FROM-->
+                <!--trace_trx_pdm trx,-->
+                 <!--trace_spec_mst_pdm spec-->
+                 <!--WHERE trx.param_mst_rawid =#{param_id}-->
+                 <!--AND trx.param_mst_rawid = spec.param_mst_rawid-->
+                 <!--AND trx.event_dtts <![CDATA[>=]]> #{start}-->
+                 <!--AND trx.event_dtts <![CDATA[<]]> #{end}-->
+                 <!--AND trx.value      > trx.warning_spec - abs(trx.warning_spec ) *  (  1- #{rate} )-->
+
+              <!--)-->
+              <!--specout-->
+              <!--WHERE-->
+                <!--meas.param_mst_rawid = specout.param_mst_rawid-->
+              <!--AND   meas.event_dtts <![CDATA[>=]]>  specout.event_dtts-->
+              <!--AND   meas.event_dtts <![CDATA[<]]> #{end}-->
+                <!--)-->
+           <!--where-->
+            <!--rownum <![CDATA[<]]> 2-->
+            <!---->
+        <!--)-->
+        <!--specout_date_data-->
+        <!--WHERE-->
+                <!--trace_raw_trx_pdm.param_mst_rawid = #{param_id}-->
+        <!--AND   trace_raw_trx_pdm.event_dtts = specout_date_data.specout_date-->
+        <!--ORDER BY event_dtts-->
+
+
+        SELECT RAWID,PARAM_MST_RAWID,TRACE_TRX_RAWID,DATA_TYPE_CD, MAX_FREQ, FREQ_COUNT, RPM, SAMPLING_TIME, EVENT_DTTS, RESERVED_COL1, RESERVED_COL2, RESERVED_COL3, RESERVED_COL4, RESERVED_COL5
+        FROM trace_raw_trx_pdm,
+        (
+            select *
+            from
+            (
+                SELECT meas.event_dtts specout_date
+                FROM trace_raw_trx_pdm meas,
+                    (
+                        SELECT trx.param_mst_rawid, trx.event_dtts
+                        FROM trace_trx_pdm trx
+                        <!-- Remove Query : , trace_spec_mst_pdm spec -->
+                        WHERE trx.param_mst_rawid =#{param_id}
+                        <!-- Remove Query : AND trx.param_mst_rawid = spec.param_mst_rawid -->
+                        AND trx.event_dtts <![CDATA[>=]]> #{start}
+                        AND trx.event_dtts <![CDATA[<]]> #{end}
+                        AND trx.value      > trx.warning_spec - abs(trx.warning_spec ) *  (  1- #{rate} )
+                    )
+                    specout
+                WHERE meas.param_mst_rawid = specout.param_mst_rawid
+                AND meas.event_dtts <![CDATA[>=]]>  specout.event_dtts
+                AND meas.event_dtts <![CDATA[<]]> #{end}
+            )
+            where rownum <![CDATA[<]]> 2
+        ) specout_date_data
+        WHERE trace_raw_trx_pdm.param_mst_rawid = #{param_id}
         AND   trace_raw_trx_pdm.event_dtts = specout_date_data.specout_date
         ORDER BY event_dtts
+
+
+
     </select>
     <select id="selectWarningRateMeasureTrxId" resultType="java.util.HashMap" databaseId="postgresql">
 		SELECT

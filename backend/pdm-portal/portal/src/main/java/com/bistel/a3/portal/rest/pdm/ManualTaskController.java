@@ -65,6 +65,7 @@ public class ManualTaskController {
         }
         logger.info("MANUAL datapump runtime .. {} ms", System.currentTimeMillis() - start);
     }
+
     @RequestMapping("summarydata")
     public void summaryData(@RequestParam("date") String dateString,
                            @RequestParam("day") Integer day,

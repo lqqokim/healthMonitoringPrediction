@@ -5,6 +5,7 @@
         select * from param_mst_pdm where eqp_mst_rawid = #{eqpId}
     </select>
     <select id="selectList" resultType="com.bistel.a3.portal.domain.pdm.master.ParamWithCommonWithRpm">
+
         select
         a.rawid as param_id,
         e.rawid as eqp_id, e.name as eqp_name,
@@ -12,20 +13,24 @@
         a.description,
         (select name from code_mst_pdm where code=a.param_type_cd and category='param_type' and used_yn='Y') as param_type_name,
         (select name from code_mst_pdm where code=a.unit_cd and category='unit_type' and used_yn='Y') as unit_name,
-       
-        a.param_type_cd,
-        a.unit_cd,
-        a.parts_mst_rawid as parts_id,
-        parts.name as parts_name,
-        spec.alarm_spec as alarm,
-        spec.warning_spec as warn
+
+        a.param_type_cd
+        ,a.unit_cd
+        ,a.parts_mst_rawid as parts_id
+        ,parts.name as parts_name
+        <!--//Allen trace_spec_mst_pdm제거작업(2018-08-24) -->
+        <!--spec.alarm_spec as alarm,-->
+        <!--spec.warning_spec as warn-->
 
         from param_mst_pdm a
         join eqp_mst_pdm e on a.eqp_mst_rawid = e.rawid
-        left join trace_spec_mst_pdm spec on spec.param_mst_rawid = a.rawid
+        <!-- //Allen trace_spec_mst_pdm제거작업(2018-08-24) -->
+        <!--left join trace_spec_mst_pdm spec on spec.param_mst_rawid = a.rawid-->
         left join parts_mst_pdm parts on parts.rawid = a.parts_mst_rawid
         where a.eqp_mst_rawid = #{eqpId}
         order by a.name
+
+
 
     </select>
 
@@ -41,12 +46,13 @@
         a.unit_cd,
         a.parts_mst_rawid as parts_id,
         parts.name as parts_name,
-        spec.alarm_spec as alarm,
-        spec.warning_spec as warn
+        <!-- //Allen trace_spec_mst_pdm제거작업(2018-08-24)  -->
+        <!--spec.alarm_spec as alarm,-->
+        <!--spec.warning_spec as warn-->
 
         from param_mst_pdm a
         join eqp_mst_pdm e on a.eqp_mst_rawid = e.rawid
-        left join trace_spec_mst_pdm spec on spec.param_mst_rawid = a.rawid
+        <!--left join trace_spec_mst_pdm spec on spec.param_mst_rawid = a.rawid-->
         left join parts_mst_pdm parts on parts.rawid = a.parts_mst_rawid
         where a.rawid = #{paramId}
     </select>
@@ -264,15 +270,15 @@
         a.param_type_cd,
         a.unit_cd,
         a.parts_mst_rawid as parts_id,
-        parts.name as parts_name,
-        spec.alarm_spec as alarm,
-        spec.warning_spec as warn
+        parts.name as parts_name
+        <!--        ,spec.alarm_spec as alarm, -->
+        <!--        spec.warning_spec as warn  -->
 
-        from param_mst_pdm a join eqp_mst_pdm e 
+        from param_mst_pdm a join eqp_mst_pdm e
         on a.eqp_mst_rawid = e.rawid
-        left join trace_spec_mst_pdm spec 
-        on spec.param_mst_rawid = a.rawid
-        left join parts_mst_pdm parts 
+        <!--       left join trace_spec_mst_pdm spec -->
+        <!--        on spec.param_mst_rawid = a.rawid -->
+        left join parts_mst_pdm parts
         on parts.rawid = a.parts_mst_rawid
         where a.rawid = #{param_id}
     </select>
@@ -287,15 +293,15 @@
         a.param_type_cd,
         a.unit_cd,
         a.parts_mst_rawid as parts_id,
-        parts.name as parts_name,
-        spec.alarm_spec as alarm,
-        spec.warning_spec as warn
+        parts.name as parts_name
+        <!--        ,spec.alarm_spec as alarm, -->
+        <!--       spec.warning_spec as warn -->
 
-        from param_mst_pdm a join eqp_mst_pdm e 
+        from param_mst_pdm a join eqp_mst_pdm e
         on a.eqp_mst_rawid = e.rawid
-        left join trace_spec_mst_pdm spec 
-        on spec.param_mst_rawid = a.rawid
-        left join parts_mst_pdm parts 
+        <!--       left join trace_spec_mst_pdm spec -->
+        <!--        on spec.param_mst_rawid = a.rawid -->
+        left join parts_mst_pdm parts
         on parts.rawid = a.parts_mst_rawid
 
         where a.eqp_mst_rawid = #{eqp_id}

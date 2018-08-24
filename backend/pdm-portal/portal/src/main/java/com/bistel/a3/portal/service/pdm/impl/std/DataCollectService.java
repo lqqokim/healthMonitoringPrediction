@@ -233,7 +233,7 @@ public class DataCollectService implements IDataCollectService {
 
 //            long trxId= traceRawTrxMapper.selectMaxMeasureTrxId();
 
-                Spec spec = paramMapper.selectSpec(toParamId);
+//                Spec spec = paramMapper.selectSpec(toParamId);
 
 //            OverallMinuteTrx traceTrx = new OverallMinuteTrx();
 //            tracetrx.setValue(traceRawTrx.getValue());
@@ -250,8 +250,9 @@ public class DataCollectService implements IDataCollectService {
                     stdTraceTrx = result.get(0);
                 } else {
 
-                    stdTraceTrx.setAlarm_spec(spec.getAlarm());
-                    stdTraceTrx.setWarning_spec(spec.getWarn());
+                    //Allen trace_spec_mst_pdm제거작업(2018-08-24)
+//                    stdTraceTrx.setAlarm_spec(spec.getAlarm());
+//                    stdTraceTrx.setWarning_spec(spec.getWarn());
                     stdTraceTrx.setEvent_dtts(newTargetDate);
                     stdTraceTrx.setParam_mst_rawid(toParamId);
                     stdTraceTrx.setValue(traceRawTrx.getValue());
@@ -1016,7 +1017,8 @@ public class DataCollectService implements IDataCollectService {
 
 //            long trxId= traceRawTrxMapper.selectMaxMeasureTrxId();
 
-            Spec spec = paramMapper.selectSpec(toParamId);
+                //Allen trace_spec_mst_pdm제거작업(2018-08-24)
+//            Spec spec = paramMapper.selectSpec(toParamId);
 
 //            OverallMinuteTrx traceTrx = new OverallMinuteTrx();
 //            tracetrx.setValue(traceRawTrx.getValue());
@@ -1033,8 +1035,8 @@ public class DataCollectService implements IDataCollectService {
                 stdTraceTrx = result.get(0);
             }else {
 
-                stdTraceTrx.setAlarm_spec(spec.getAlarm());
-                stdTraceTrx.setWarning_spec(spec.getWarn());
+//                stdTraceTrx.setAlarm_spec(spec.getAlarm());
+//                stdTraceTrx.setWarning_spec(spec.getWarn());
                 stdTraceTrx.setEvent_dtts(newTargetDate);
                 stdTraceTrx.setParam_mst_rawid(toParamId);
                 stdTraceTrx.setValue(traceRawTrx.getValue());
