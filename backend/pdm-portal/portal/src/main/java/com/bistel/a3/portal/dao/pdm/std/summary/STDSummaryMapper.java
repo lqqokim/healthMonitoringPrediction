@@ -52,7 +52,7 @@ public interface STDSummaryMapper {
 
     List<EqpHealthSPCRule> selectEqpHealthSPCRule(@Param("param_id") Long param_id, @Param("health_logic_id") Long health_logic_id);
 
-    List<BasicData> selectSummaryDataForFeature(@Param("param_id") Long param_id, @Param("fromdate") Date fromdate, @Param("todate") Date todate);
+    List<BasicData> selectSummaryDataForFeature(@Param("param_id") Long param_id, @Param("fromdate") Date fromdate, @Param("todate") Date todate,@Param("globalWarning") Double globalWarning);
 
     List<BasicData> selectParamHealthTrx(@Param("param_id") Long param_id, @Param("logic_id") Long logic_id ,@Param("fromdate") Date fromdate, @Param("todate") Date todate);
 

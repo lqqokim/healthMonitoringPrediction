@@ -243,6 +243,8 @@
             <result column="spec_normal" property="normal"/>
         </association>
     </resultMap>
+
+    <!-- TODO: Chris 테이블 없음  -->
     <select id="selectParamStatusByEqpId" resultMap="ParamStatusMap">
         select
         n.param_id,

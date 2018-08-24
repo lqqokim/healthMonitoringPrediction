@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, OnChanges, ViewEncapsulation, Input, Output, EventEmitter, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, OnChanges, ViewEncapsulation, Input, Output, EventEmitter, ViewChild, ElementRef, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { NgTableComponent } from 'ng2-table/ng2-table';
 // import { PaginationHelper } from './pagination';
 
@@ -39,7 +39,8 @@ export interface TableCellInfo {
     selector: 'ng2-Table',
     templateUrl: 'table.html',
     styleUrls: ['table.css'],
-    encapsulation: ViewEncapsulation.None
+    encapsulation: ViewEncapsulation.None,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 
 export class TableComponent implements AfterViewInit, OnChanges, OnDestroy {
@@ -106,7 +107,9 @@ export class TableComponent implements AfterViewInit, OnChanges, OnDestroy {
     //* 임시 테이블 rows 데이터
     private tmpRowsData: Array<any> = [];
 
-    constructor(){}
+    constructor(
+        private changeDetectorRef: ChangeDetectorRef
+    ){}
 
     //* pagination 부분이 변경될 시 호출될 콜백 함수 (first, prev, next, last, 페이지 번호등 클릭 후 구동)
     // pageChange( pager:PaginationHelper ): void {
@@ -228,6 +231,9 @@ export class TableComponent implements AfterViewInit, OnChanges, OnDestroy {
             this.ngTable['_columns'] = cols;
 
             // this.setResizeHeight();
+
+            // 강제 렌더링
+            this.changeDetectorRef.detectChanges();
 
             // 다 출력 됬다고 emit
             this.drawEndEmit( this.rows );

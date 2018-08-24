@@ -356,15 +356,8 @@
                  AND trx.param_mst_rawid = spec.param_mst_rawid
                  AND trx.event_dtts <![CDATA[>=]]> #{start}
                  AND trx.event_dtts <![CDATA[<]]> #{end}
-                 AND trx.value      >  case when trx.warning_spec is not null then trx.warning_spec - abs
-                 (
-                    trx.warning_spec
-                 )
-                 *
-                 (
-                    1- #{rate}
-                 )
-                 else spec.warning_spec -abs(spec.warning_spec)*(1-#{rate}) end
+                 AND trx.value      > trx.warning_spec - abs(trx.warning_spec ) *  (  1- #{rate} )
+
               )
               specout
               WHERE

@@ -46,6 +46,12 @@
     <bean class="com.bistel.a3.portal.util.ApacheHttpClientGet" id="requestURL">
         <property name="url" value="${requestURL}"/>
     </bean>
+    <bean class="com.bistel.a3.portal.domain.pdm.GlobalAWSpec" id="GlobalAWSpec">
+        <property name="normalized_upper_alarm_spec" value="${GlobalAWSpec.upperAlarmSpec}"/>
+        <property name="normalized_upper_warning_spec" value="${GlobalAWSpec.upperWarningSpec}"/>
+        <property name="normalized_lower_alarm_spec" value="${GlobalAWSpec.lowerWarningSpec}"/>
+        <property name="normalized_lower_warning_spec" value="${GlobalAWSpec.lowerWarningSpec}"/>
+    </bean>
 
     <!--Ulsan-->
     <!--&lt;!&ndash; fab 1&ndash;&gt;-->

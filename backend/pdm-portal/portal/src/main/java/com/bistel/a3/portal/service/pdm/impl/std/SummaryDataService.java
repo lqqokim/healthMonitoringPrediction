@@ -51,6 +51,9 @@ public class SummaryDataService implements ISummaryDataService {
     @Autowired
     private ResourceLoader resourceLoader;
 
+    @Autowired
+    private GlobalAWSpec globalAWSpec;
+
     @Value("${fab.list}")
     private String fabList;
 
@@ -669,9 +672,14 @@ public class SummaryDataService implements ISummaryDataService {
     public List<List<Object>> getSummaryDataForHealth(String fabId, Long paramId, Long lHealthLogic, Long fromdate, Long todate) {
         STDSummaryMapper mapper = SqlSessionUtil.getMapper(sessions, fabId, STDSummaryMapper.class);
         List<BasicData> data = null;
+
+        Double globalWarningSpec=globalAWSpec.getNormalized_upper_warning_spec();
+
         if(lHealthLogic==4){
-            data = mapper.selectSummaryDataForFeature(paramId, new Date(fromdate), new Date(todate));
+
+            data = mapper.selectSummaryDataForFeature(paramId, new Date(fromdate), new Date(todate), globalWarningSpec);
         }else{
+
             data = mapper.selectParamHealthTrx(paramId, lHealthLogic,new Date(fromdate), new Date(todate));
         }
 
