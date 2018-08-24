@@ -13,6 +13,9 @@ pdm-eqp-health-index ng2-Table table > tbody > tr > td:nth-child(5),
 pdm-eqp-health-index ng2-Table table > tbody > tr > td:nth-child(6),
 pdm-eqp-health-index ng2-Table table > tbody > tr > td:nth-child(7) { cursor: pointer; position:relative; text-align:right;  }
 
+/* Health Index 추가 내용 */
+pdm-eqp-health-index ng2-Table table > tbody > tr > td:nth-child(3)::after { content: ' (' attr(addCont) ')'; font-size:11px; color:#999; }
+
 /* Alarm Count */
 pdm-eqp-health-index ng2-Table table > tbody > tr > td:nth-child(8) {  text-align:right;  }
 
