@@ -26,6 +26,7 @@ export class ModelingChartComponent implements OnInit, OnChanges, DoCheck {
     conditionStartOperator=">";
     conditionEndOperator=">=";
     endOperators=[];
+    timeoutValue: number;
 
     operators =[
         {name:'>',value:'>',subOperators:[{name:'>=',value:'>='}]},
@@ -489,6 +490,9 @@ export class ModelingChartComponent implements OnInit, OnChanges, DoCheck {
                 break;
             }
         }
+    }
+    onChangeTimeout(ev, param): void {
+        console.log('onChangeTimeout', ev, param);
     }
     drawConditionLine(param) {
         if(param==null) return;
