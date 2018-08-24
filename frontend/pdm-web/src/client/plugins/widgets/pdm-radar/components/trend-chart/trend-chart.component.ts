@@ -91,7 +91,8 @@ export class TrendChartComponent implements OnInit, OnChanges, AfterViewInit {
         return this._pdmCommonService.getTrendMultipleSpecConfig(this.plantId, this.areaId, this.eqpId, this.paramId, this.fromDate, this.toDate).then((data) => {
             // let spec_alarm = data.alarm;
             let spec_alarm = 1;
-            let spec_warning = data.warning/data.alarm;
+            // let spec_warning = data.warning/data.alarm;
+            let spec_warning = data.warning;
             this.trendEventLines = [];
             if (spec_alarm) {
                 this.trendEventLines.push({
