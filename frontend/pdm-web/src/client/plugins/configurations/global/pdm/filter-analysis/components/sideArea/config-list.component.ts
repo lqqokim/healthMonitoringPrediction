@@ -8,7 +8,7 @@
             - switch ON/OFF (checkbox)
             - on: true, off: false (FilterAnalysisConfig.value)
 */
-import { Component, OnInit, ViewEncapsulation, Input, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation, Input, ViewChild, ElementRef, Output, EventEmitter } from '@angular/core';
 
 // 설정 인터페이스
 export interface FilterAnalysisConfig {
@@ -31,6 +31,9 @@ export class ConfigListComponent implements OnInit {
     // 설정 데이터
     @Input() data: Array<FilterAnalysisConfig>;
 
+    // Draw Chart 버튼 클릭 시 세팅된 데이터 부모 컴포넌트 전달 용
+    @Output() onConfigChange = new EventEmitter<{configName:string; value:any;}>();
+
     constructor(){
     }
 
@@ -41,7 +44,7 @@ export class ConfigListComponent implements OnInit {
     //* 체크박스 클릭
     onCheckboxClick( e: MouseEvent, idx: number ): void {
         // 체크박스 엘리먼트의 체크값 얻어오기
-        const checkboxElem: Element = e.target['previousSibling'];
+        const checkboxElem: Element = e.target['previousSibling']['previousSibling'];
         const checked: boolean = <boolean>checkboxElem['checked'];
 
         // 해당 체크박스 설정 데이터
@@ -49,6 +52,12 @@ export class ConfigListComponent implements OnInit {
 
         // 클릭 당시의 값은 변경 전 값이라 변경 후 값으로 적용
         row.value = !checked;
+
+        // 체크박스 클릭 값 변경 전달
+        this.onConfigChange.emit({
+            configName: row.name,
+            value: !checked
+        });
     }
 
     //* 셀렉트 박스 영역 클릭
@@ -80,5 +89,11 @@ export class ConfigListComponent implements OnInit {
 
         // 클릭 항목으로 값 변경
         row.value = value;
+
+        // 셀렉트 항목 클릭 값 변경 전달
+        this.onConfigChange.emit({
+            configName: row.name,
+            value: value
+        });
     }
 }
