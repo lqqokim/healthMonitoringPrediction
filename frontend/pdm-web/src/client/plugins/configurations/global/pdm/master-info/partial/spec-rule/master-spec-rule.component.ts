@@ -242,6 +242,7 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
         });
 
         this.updateEqpRule(ruleRequest);
+        this._showModal(false);
     }
 
     //Rule Grid에서 수정된 Rule 정보 저장을 위한 API 호출
@@ -286,14 +287,17 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
             paramRequest.push({
                 eqp_spec_link_mst_rawid: param.eqp_spec_link_mst_rawid,
                 param_id: param.param_id,
+                eqp_id: this.eqp.eqpId,
+                rule_id: this.selectedRule.rule_id,
                 eqp_upper_alarm_spec: param.alarm_spec,
                 eqp_upper_warning_spec: param.warning_spec,
                 eqp_lower_alarm_spec: param.eqp_lower_alarm_spec,
-                eqp_lower_warning_spec: param.eqp_lower_warning_spec
+                eqp_lower_warning_spec: param.eqp_lower_warning_spec,
             });
         });
 
         this.updateEqpRuleParams(paramRequest);
+        this._showModal(false);
     }
 
     //수정된 Rule의 Parameter 정보 저장을 위한 API 호출

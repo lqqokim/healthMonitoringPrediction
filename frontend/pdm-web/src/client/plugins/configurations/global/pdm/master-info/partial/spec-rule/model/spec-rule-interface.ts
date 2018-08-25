@@ -92,6 +92,8 @@ export interface Parameter {
 export interface ParamRequest {
     eqp_spec_link_mst_rawid: number;
     param_id: number;
+    eqp_id: number;
+    rule_id: number;
     eqp_upper_alarm_spec: number;
     eqp_upper_warning_spec: number;
     eqp_lower_alarm_spec: number;

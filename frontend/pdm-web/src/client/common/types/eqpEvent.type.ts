@@ -9,6 +9,7 @@ export interface EqpEventType {
     eventGroup:string;
     timeIntervalYn:string;
     intervalTimeMs:number;
+    timeout: number;
     createBy?:string;
     createDtts?:any;
     updateBy?:string;

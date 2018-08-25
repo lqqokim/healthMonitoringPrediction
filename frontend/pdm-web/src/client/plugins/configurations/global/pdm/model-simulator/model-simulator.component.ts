@@ -196,6 +196,7 @@ export class ModelSimulatorComponent implements OnInit {
         }
         this._eventTypeEvents ={};
         this.pdmModelService.getEqpEventByEqpId(this.fabId,this.eqpId).then((datas)=>{
+            console.log('getEqpEventByEqpId => ', datas);
             if(datas.length>0){
                 this.eqpEvents = datas;
                 for(let i=0;i<this.eqpEvents.length;i++){
@@ -238,6 +239,9 @@ export class ModelSimulatorComponent implements OnInit {
     getEndCondition(){
         return "value"+ this.modelChart.getConditionEndOperator() +this.modelChart.getConditionValue();
     }
+    getTimeout() {
+        return this.modelChart.getTimeoutValue();
+    }
     save(){
         // let fabId = this.tree.selectedFab.fabId;
         let eqpEvents :EqpEventType[] =[] ;
@@ -252,6 +256,7 @@ export class ModelSimulatorComponent implements OnInit {
             eqpStartEvent.eventGroup="PROCESS_EVENT";
             eqpStartEvent.timeIntervalYn = this.eventType == "event"?"N":"Y";
             eqpStartEvent.intervalTimeMs = this.aggregationTime*1000*60;
+            eqpStartEvent.timeout = this.getTimeout();
         }else{
             eqpStartEvent ={
                 eqpId : this.eqpId,
@@ -262,7 +267,8 @@ export class ModelSimulatorComponent implements OnInit {
                 processYn:"Y",
                 eventGroup:"PROCESS_EVENT",
                 timeIntervalYn : this.eventType == "event"?"N":"Y",
-                intervalTimeMs : this.aggregationTime*1000*60
+                intervalTimeMs : this.aggregationTime*1000*60,
+                timeout: this.getTimeout()
             }
         }
         eqpEvents.push(eqpStartEvent);
@@ -274,6 +280,7 @@ export class ModelSimulatorComponent implements OnInit {
             eqpEndEvent.eventGroup="PROCESS_EVENT";
             eqpEndEvent.timeIntervalYn = this.eventType == "event"?"N":"Y";
             eqpEndEvent.intervalTimeMs = this.aggregationTime*1000*60;
+            eqpEndEvent.timeout = this.getTimeout();
         }else{
             eqpEndEvent={
                 eqpId : this.eqpId,
@@ -285,11 +292,12 @@ export class ModelSimulatorComponent implements OnInit {
                 paramId : this.modelChart.getParamId(),
                 timeIntervalYn : this.eventType == "event"?"N":"Y",
                 intervalTimeMs : this.aggregationTime*1000*60,
+                timeout: this.getTimeout()
             }
         }
         eqpEvents.push(eqpEndEvent);
         
-
+        console.log('eqpEvents', eqpEvents);
         this.pdmModelService.setEqpEvent(this.fabId,eqpEvents).subscribe((result)=>{
             alert("save success!");
         })

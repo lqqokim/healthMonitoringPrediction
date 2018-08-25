@@ -27,7 +27,8 @@ export class GaugeChartGenerateComponent implements OnInit, OnChanges {
     gaugeChartData: IGaugeChartConfig;
     gaugeChartInfo: IGaugeChartInfo;
 
-    private readonly ALARM_RATIO: number = 70;
+    // private readonly ALARM_RATIO: number = 70;
+    private readonly ALARM_RATIO: number = 71.5; //(%)
 
     constructor() {
 
@@ -93,15 +94,20 @@ export class GaugeChartGenerateComponent implements OnInit, OnChanges {
         }
     }
     chartGenerator(item: pdmRadarI.ChartDataType, score: number, axisCategory: string, warn: number) {
+        console.log('score => ', score, 'warn => ', warn );
         const alarmRatio: number = this.ALARM_RATIO * 0.01;
         const warnInterval: number = warn * alarmRatio;
-        let gaugePoinerPercent: number = score * alarmRatio > 1 ? 1 : score * alarmRatio;
+        let gaugePointerPercent: number = score * alarmRatio > 1.4 ? 1.3 : score * alarmRatio;
+        console.log('score * alarmRatio', score * alarmRatio);
+        console.log('alarmRatio', alarmRatio);
+        console.log('warnInterval', warnInterval);
+        console.log('gaugePoinerPercent', gaugePointerPercent);
 
         const gaugeChartData: IGaugeChartConfig = {
             chartData: [
                 { name: 'normal', start: 0, end: warnInterval },
                 { name: 'warning', start: warnInterval, end: alarmRatio },
-                { name: 'alarm', start: alarmRatio, end: 1 }
+                { name: 'alarm', start: alarmRatio, end: 1.4 }
             ],
             chartColor: [
                 { name: 'normal', color: '#21b100' },
@@ -109,9 +115,9 @@ export class GaugeChartGenerateComponent implements OnInit, OnChanges {
                 { name: 'alarm', color: '#ff3d3d' }
             ],
             dataRangeStart: 0,
-            dataRangeEnd: 100,
-            markerCount: 5,
-            gaugePoinerPercent: gaugePoinerPercent
+            dataRangeEnd: 1.4,
+            markerCount: 7,
+            gaugePoinerPercent: gaugePointerPercent
         };
 
         this.gaugeChartComp.drawChart(gaugeChartData);
@@ -122,6 +128,35 @@ export class GaugeChartGenerateComponent implements OnInit, OnChanges {
 
 
     }
+    // Standard: 100
+    // chartGenerator(item: pdmRadarI.ChartDataType, score: number, axisCategory: string, warn: number) {
+    //     const alarmRatio: number = this.ALARM_RATIO * 0.01;
+    //     const warnInterval: number = warn * alarmRatio;
+    //     let gaugePoinerPercent: number = score * alarmRatio > 1 ? 1 : score * alarmRatio;
+
+    //     const gaugeChartData: IGaugeChartConfig = {
+    //         chartData: [
+    //             { name: 'normal', start: 0, end: warnInterval },
+    //             { name: 'warning', start: warnInterval, end: alarmRatio },
+    //             { name: 'alarm', start: alarmRatio, end: 1 }
+    //         ],
+    //         chartColor: [
+    //             { name: 'normal', color: '#21b100' },
+    //             { name: 'warning', color: '#ffba00' },
+    //             { name: 'alarm', color: '#ff3d3d' }
+    //         ],
+    //         dataRangeStart: 0,
+    //         dataRangeEnd: 100,
+    //         markerCount: 5,
+    //         gaugePoinerPercent: gaugePoinerPercent
+    //     };
+
+    //     this.gaugeChartComp.drawChart(gaugeChartData);
+    //     this.gaugeChartInfo = {
+    //         value: `Health Index : ${score.toFixed(4)}`,
+    //         name: `Parameter : ${axisCategory}`
+    //     };
+    // }
 
 
 

@@ -116,8 +116,8 @@ export class AlarmCountTrendComponent implements OnInit, OnChanges {
                 columns: chartData,
                 // type: 'line',
                 colors: {
-                    alarm: 'red',
-                    warning: 'orange'
+                    Alarm: 'red',
+                    Warning: 'orange'
                 },
                 // color: (color: string, data: any): string => {
                 //     return colors[data.index];

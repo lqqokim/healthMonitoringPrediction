@@ -224,6 +224,7 @@ export class ModelingChartComponent implements OnInit, OnChanges, DoCheck {
         this.setStatusEventConfig();
 
         if(changes["eqpEvents"]!=null &&  this.eqpEvents.length>=2){
+            console.log('modeling changes', this.eqpEvents)
             let eqpId ="";
             for (let index = 0; index < this.eqpEvents.length; index++) {
                 const element = this.eqpEvents[index];
@@ -246,6 +247,7 @@ export class ModelingChartComponent implements OnInit, OnChanges, DoCheck {
                     }
                     this.conditionStartOperator = operator;
                     this.conditionValue = parseFloat(value);
+                    this.timeoutValue = this.eqpEvents[index].timeout;
                 }
                 // }else if(element.eventTypeCd="E"){ //End는 보이는 모양이 반대라서 Operation모두 반대임 
                 //     let operator = element.condition.replace('value','').trim();
@@ -493,6 +495,7 @@ export class ModelingChartComponent implements OnInit, OnChanges, DoCheck {
     }
     onChangeTimeout(ev, param): void {
         console.log('onChangeTimeout', ev, param);
+        this.timeoutValue = ev.target.value;
     }
     drawConditionLine(param) {
         if(param==null) return;
@@ -596,5 +599,8 @@ export class ModelingChartComponent implements OnInit, OnChanges, DoCheck {
         }
 
         return this.conditionEndOperator;
+    }
+    public getTimeoutValue() {
+        return this.timeoutValue;
     }
 }

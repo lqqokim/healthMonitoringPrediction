@@ -143,12 +143,20 @@
     background-color: rgba(253, 101, 105, 0.1);
 }
 
-
 .alram-type-danger .pdm-gauge-section:hover {
     border: 1px solid #ff5d43;
     transition: all 0.1s ease-in-out;
-    background-color: rgba(253, 101, 105, 0.1);
 }
+
+.alram-type-danger .pdm-gauge-section {
+    background-color: rgb(255, 202, 210);
+}
+
+/* .alram-type-danger .pdm-gauge-section:hover {
+    border: 1px solid #ff5d43;
+    transition: all 0.1s ease-in-out;
+    background-color: rgba(253, 101, 105, 0.1);
+} */
 
 /* Warning */
 
@@ -161,8 +169,17 @@
 .alram-type-warning .pdm-gauge-section:hover {
     border: 1px solid #ffb4a8;
     transition: all 0.1s ease-in-out;
-    background-color: #ffefed;
 }
+
+.alram-type-warning .pdm-gauge-section:hover {
+    background-color: rgb(252, 225, 198);
+}
+
+/* .alram-type-warning .pdm-gauge-section:hover {
+    border: 1px solid #ffb4a8;
+    transition: all 0.1s ease-in-out;
+    background-color: #ffefed;
+} */
 
 /* Bad */
 

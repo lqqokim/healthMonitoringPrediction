@@ -121,10 +121,10 @@ export class LineStatusTrendComponent implements OnInit, OnChanges {
                 columns: chartData,
                 type: 'line',
                 colors: {
-                    normal: 'green',
-                    warning: 'orange',
-                    alarm: 'red',
-                    offline: 'gray'
+                    Normal: 'green',
+                    Warning: 'orange',
+                    Alarm: 'red',
+                    Offline: 'gray'
                 },
                 // color: (color: string, data: any): string => {
                 //     return colors[data.index];
