@@ -51,7 +51,7 @@ export class FilterAnalysisComponent implements OnInit {
     
     //* 설정 값
     private configData: Array<FilterAnalysisConfig> = [
-        {dataType: 'select', name:'Chart Type', items: ['Bar Chart', 'Line Chart', 'Pie Chart', 'Candle Chart'], value: 'Bar Chart'},
+        {dataType: 'select', name:'Chart Type', items: ['Bar Chart', 'Line Chart', 'Pie Chart', 'Point Chart'], value: 'Line Chart'},
         {dataType: 'boolean', name:'Scailing', value: true },
     ];
 
@@ -70,6 +70,9 @@ export class FilterAnalysisComponent implements OnInit {
 
     //* fabId
     private fabId: string = undefined;
+
+    //* 차트 그려질 타입 명
+    private chartType: string = 'line';
 
     constructor(
         private _pdmModel: PdmModelService
@@ -159,16 +162,18 @@ export class FilterAnalysisComponent implements OnInit {
         }
 
         // 테스트 용 (실 구동시 제거 코드)
-        // res.category.x = ["EQP_NAME"];
-        res.category.x = [];
-        // res.category.y = ["AREA_NAME"];
-        res.category.y = ['AREA_NAME', 'DATE_TIME', 'EQP_NAME'];
-        res.chartData.x = [{name:"DATE_TIME", selected:'NORMAL'}];
-        res.chartData.y = [{name:"Z_RMS", selected:'NORMAL'}];
-        res.chartData.y2 = [{name:"HOIST_AXIS_SPEED", selected:'NORMAL'}];
+        // res.category.x = [];
+        // res.category.y = [];
+        // // res.category.y = ['EQP_NAME'];
+        // // res.category.x = ['AREA_NAME', 'EQP_NAME', 'BARCODE'];
+        // // res.chartData.x = [{name:"BARCODE", selected:'NORMAL'}];
+        // res.chartData.x = [{name:"DATE_TIME", selected:'NORMAL'}];
+        // res.chartData.y = [{name:"Z_RMS", selected:'NORMAL'}];
+        // // res.chartData.y2 = [];
+        // res.chartData.y2 = [{name:"HOIST_AXIS_SPEED", selected:'NORMAL'}];
 
-        this.timePeriod.from = 1532410240000;
-        this.timePeriod.to = 1532413840000;
+        // this.timePeriod.from = 1532410240000;
+        // this.timePeriod.to = 1532413840000;
         
         // 차트 관련 데이터 가져오기
         this._pdmModel
@@ -188,7 +193,7 @@ export class FilterAnalysisComponent implements OnInit {
                 const xCategoryCount: number = res.category.x.length;
                 const yCategoryCount: number = res.category.y.length;
 
-                this.chartDrawArea.draw(drawResData, xCategoryCount, yCategoryCount);
+                this.chartDrawArea.draw(drawResData, xCategoryCount, yCategoryCount, this.chartType);
             })
             .catch((err: any)=>{
                 console.log( '[error] getAnalysisToolData', err );
@@ -291,6 +296,26 @@ export class FilterAnalysisComponent implements OnInit {
                 const pushIdx: number = $(elem).index()+1;
                 dropAreaList.splice(pushIdx, 0, {name: dragItemName});
             }
+        }
+    }
+
+    //* 설정 값 변경 시 전달 받을 함수
+    onConfigChange(e: {configName:string; value:any;}): void {
+        switch( e.configName ){
+            case 'Scailing': break;
+
+            // 차트 타입 변경
+            case 'Chart Type': {
+                switch( e.value ){
+                    case 'Bar Chart': this.chartType = 'bar'; break;
+                    case 'Line Chart': this.chartType = 'line'; break;
+                    case 'Pie Chart': this.chartType = 'pie'; break;
+                    case 'Point Chart': this.chartType = 'scatter'; break;
+                }
+
+                // 그려진 차트가 있으면 해당 차트로 변경
+                this.chartDrawArea.draw_c3ChartTypeChange( this.chartType );
+            } break;
         }
     }
 }

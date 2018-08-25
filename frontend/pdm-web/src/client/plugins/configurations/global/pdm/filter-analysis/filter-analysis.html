@@ -22,7 +22,7 @@
     </div>
 
     <!-- 설정 -->
-    <config-list [data]='configData'></config-list>
+    <config-list [data]='configData' (onConfigChange)="onConfigChange($event)"></config-list>
 </div>
 
 <!-- 상단 영역 -->

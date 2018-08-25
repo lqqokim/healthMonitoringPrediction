@@ -1,21 +1,54 @@
+/* 차트 한개 그리기 */
+chart-draw-area #table_Xzero_Yzero { height:100%; }
+chart-draw-area #table_Xzero_Yzero > .chartView { display:flex; justify-content:center; align-items:center; height:100%; max-height:none !important; }
+
 /* x축만 그리기 */
 chart-draw-area #table_Xmore_Yzero { display:flex; justify-content:flex-start; align-items:flex-start; border-top:1px solid #aaa; }
 chart-draw-area #table_Xmore_Yzero::after { content:''; display:block; clear:both; }
 
 chart-draw-area #table_Xmore_Yzero .chartGroup { float:left; }
-chart-draw-area #table_Xmore_Yzero .chartGroup > .chartGroupName { clear:both; background:#eee; border-left:1px solid #ccc; border-bottom:1px solid #ccc; padding:8px 10px; line-height:1; }
+chart-draw-area #table_Xmore_Yzero .chartGroup > .chartGroupName { clear:both; background:#eee; border-left:1px solid #ccc; border-bottom:1px solid #ccc; padding:8px 10px; line-height:1; text-align:center; }
 chart-draw-area #table_Xmore_Yzero .chartGroup > .chartName { border-left:1px solid #ccc; border-bottom:1px solid #ccc; text-align:center; padding:5px 8px; }
-chart-draw-area #table_Xmore_Yzero .chartGroup > .chartView { border-left:1px solid #ccc; border-bottom:1px solid #ccc; text-align:center; padding:5px 8px; }
+chart-draw-area #table_Xmore_Yzero .chartGroup > .chartView { border-left:1px solid #ccc; border-bottom:1px solid #ccc; text-align:center; padding:0; }
 
 /* y축만 그리기 */
-chart-draw-area #table_Xzero_Ymore { display:flex; justify-content:flex-start; align-items:flex-start; flex-direction:column; border-top:1px solid #aaa; }
-chart-draw-area #table_Xzero_Ymore::after { content:''; display:block; clear:both; }
-chart-draw-area #table_Xzero_Ymore .chartGroup { position:relative; margin-left:160px; }
-chart-draw-area #table_Xzero_Ymore .chartGroup > .chartGroupName { position:absolute; background:#eee; width:160px; left:0; top:0; bottom:0; border-bottom:1px solid #ccc; display:flex; justify-content:flex-start; align-items:flex-start; padding:8px 10px; line-height:1; }
-chart-draw-area #table_Xzero_Ymore .chartGroup > .chartName { position:absolute; background:#eee; width:160px; left:0; top:0; bottom:0; border-bottom:1px solid #ccc; display:flex; justify-content:flex-start; align-items:flex-start; padding:8px 10px; line-height:1; }
+chart-draw-area #table_Xzero_Ymore { border-top:1px solid #aaa; }
+chart-draw-area #table_Xzero_Ymore .chartGroup::after { content:''; display:block; clear:both;  }
+chart-draw-area #table_Xzero_Ymore .chartGroup > .chartGroupName { float:left; height:100%; width:100px; background:#eee; border-right:1px solid #ccc; border-bottom:1px solid #ccc; display:flex; justify-content:center; align-items:center; text-align:center; }
+chart-draw-area #table_Xzero_Ymore .chartGroup > .chartGroupName + .chartGroup { float:left; width:calc(100% - 100px); }
+chart-draw-area #table_Xzero_Ymore .chartGroup > .chartViewAreaGroup { float:left; width:calc(100% - 100px); height:100%; border-bottom:1px solid #ccc; }
+chart-draw-area #table_Xzero_Ymore .chartGroup > .chartViewAreaGroup > .chartViewArea { height:100%; }
+chart-draw-area #table_Xzero_Ymore .chartGroup > .chartViewAreaGroup > .chartViewArea::after { content:''; display:block; clear:both; }
+chart-draw-area #table_Xzero_Ymore .chartGroup > .chartViewAreaGroup > .chartViewArea > .chartName { float:left; height:100%; border-right:1px solid #ccc; border-bottom:1px solid #ccc; display:flex; justify-content:center; align-items:center; text-align:center; padding:10px; width:80px; }
+chart-draw-area #table_Xzero_Ymore .chartGroup > .chartViewAreaGroup > .chartViewArea > .chartView { float:left; height:100%; border-bottom:1px solid #ccc; width:calc(100% - 80px); }
+chart-draw-area #table_Xzero_Ymore .chartGroup > .chartViewAreaGroup > .chartViewArea:last-child > .chartName { border-bottom:0; }
+chart-draw-area #table_Xzero_Ymore .chartGroup > .chartViewAreaGroup > .chartViewArea:last-child > .chartView { border-bottom:0; display:flex; justify-content:center; align-items:center; }
 
-chart-draw-area #table_Xzero_Ymore > .chartGroup { margin-left:0; }
-chart-draw-area #table_Xzero_Ymore > .chartGroup > .chartGroup { margin-left:0; }
+/* y, x축 그리기 - y*/
+chart-draw-area #table_Xmore_Ymore { border-top:1px solid #aaa; }
+chart-draw-area #table_Xmore_Ymore .chartGroup_y { float:left; width:calc(100% - 100px); }
+chart-draw-area #table_Xmore_Ymore .chartGroup_y::after { content:''; display:block; clear:both;  }
+chart-draw-area #table_Xmore_Ymore > .chartGroup_y { float:none; width:auto; }
+
+chart-draw-area #table_Xmore_Ymore .chartGroup_y > .chartGroupName_y { float:left; height:100%; width:100px; background:#eee; border-right:1px solid #ccc; border-bottom:1px solid #ccc; display:flex; justify-content:center; align-items:center; text-align:center; }
+chart-draw-area #table_Xmore_Ymore .chartGroup_y > .chartGroupName_y > .chartGroup_y { float:left; width:calc(100% - 100px); }
+chart-draw-area #table_Xmore_Ymore .chartGroup_y > .chartViewAreaGroup_y { float:left; width:calc(100% - 100px);height:100%; border-bottom:1px solid #ccc; }
+chart-draw-area #table_Xmore_Ymore .chartGroup_y > .chartViewAreaGroup_y > .chartViewArea_y { height:100%; }
+chart-draw-area #table_Xmore_Ymore .chartGroup_y > .chartViewAreaGroup_y > .chartViewArea_y::after { content:''; display:block; clear:both; }
+chart-draw-area #table_Xmore_Ymore .chartGroup_y > .chartViewAreaGroup_y > .chartViewArea_y > .chartName { float:left; height:100%; border-right:1px solid #ccc; border-bottom:1px solid #ccc; display:flex; justify-content:center; align-items:center; text-align:center; padding:10px; width:80px; }
+chart-draw-area #table_Xmore_Ymore .chartGroup_y > .chartViewAreaGroup_y > .chartViewArea_y > .chartView { float:left; height:100%; height:100%; border-bottom:1px solid #ccc; width:calc(100% - 80px); max-height:none !important; }
+chart-draw-area #table_Xmore_Ymore .chartGroup_y > .chartViewAreaGroup_y > .chartViewArea_y:last-child > .chartName { border-bottom:0; }
+chart-draw-area #table_Xmore_Ymore .chartGroup_y > .chartViewAreaGroup_y > .chartViewArea_y:last-child > .chartView { border-bottom:0; }
+
+/* y, x축 그리기 - x*/
+chart-draw-area #table_Xmore_Ymore .chartGroup_x { float:left; width:calc(100% - 100px); height:calc(100% - 30px); }
+chart-draw-area #table_Xmore_Ymore .chartGroup_y > .chartGroupName_x { clear:both; background:#eee; border-right:1px solid #ccc; border-bottom:1px solid #ccc; padding:8px 10px; line-height:1; height:30px; text-align:center; }
+chart-draw-area #table_Xmore_Ymore .chartGroup_x > .chartGroupName_x { clear:both; background:#eee; border-right:1px solid #ccc; border-bottom:1px solid #ccc; padding:8px 10px; line-height:1; height:30px; text-align:center; }
+chart-draw-area #table_Xmore_Ymore .chartGroup_x > .chartName { border-right:1px solid #ccc; border-bottom:1px solid #ccc; text-align:center; padding:5px 8px; height:30px; }
+chart-draw-area #table_Xmore_Ymore .chartGroup_x > .chartView { border-right:1px solid #ccc; border-bottom:1px solid #ccc; text-align:center; padding:5px 8px; height:calc(100% - 30px); max-height:none !important; }
+
+chart-draw-area #table_Xmore_Ymore .chartViewAreaGroup_y .chartViewArea_x > .chartName { border-right:1px solid #ccc; border-bottom:1px solid #ccc; text-align:center; padding:5px 8px; height:30px; }
+chart-draw-area #table_Xmore_Ymore .chartViewAreaGroup_y .chartViewArea_x > .chartView { border-right:1px solid #ccc; text-align:center; padding:5px 8px; height:calc(100% - 30px); max-height:none !important; }
 
 
 
