@@ -73,6 +73,7 @@ public class PrepareDataProcessor extends AbstractProcessor<String, byte[]> {
                         recordValue = recordValue + "," + statusContext;
                         context().forward(partitionKey, recordValue.getBytes());
                         context().commit();
+
                         //log.debug("[{}] - {}", partitionKey, recordValue);
                         break;
                     }
@@ -132,8 +133,6 @@ public class PrepareDataProcessor extends AbstractProcessor<String, byte[]> {
         kvStatusContextStore.put(partitionKey, statusCodeAndTime);
         extendMessage = statusCodeAndTime + "," + prevStatusAndTime + ",";
 
-
-        // append cache refresh flag.
         String[] prevStatusCodeAndTime = prevStatusAndTime.split(":");
         String prevStatusCode = prevStatusCodeAndTime[0];
 
@@ -147,17 +146,9 @@ public class PrepareDataProcessor extends AbstractProcessor<String, byte[]> {
 
             extendMessage = extendMessage + msgGroup + ",";
 
-//            if (kvCacheRefreshFlagStore.get(partitionKey) != null &&
-//                    kvCacheRefreshFlagStore.get(partitionKey).equalsIgnoreCase("Y")) {
-//
-//                extendMessage = extendMessage + "CRC"; //CMD-REFRESH-CACHE
-//                kvCacheRefreshFlagStore.put(partitionKey, "N");
-//                log.debug("[{}] - append cache-refresh flag.", partitionKey);
-//            }
-        }
+        } else if (nowStatusCode.equalsIgnoreCase("R")){
+            String msgGroup = messageGroupMap.computeIfAbsent(partitionKey, k -> msgTimeStamp.toString());
 
-        if (nowStatusCode.equalsIgnoreCase("R")){
-            String msgGroup = messageGroupMap.get(partitionKey);
             // define group id
             extendMessage = extendMessage + msgGroup + ",";
         }
@@ -165,18 +156,13 @@ public class PrepareDataProcessor extends AbstractProcessor<String, byte[]> {
         // idle
         if (nowStatusCode.equalsIgnoreCase("I")) {
 
-            if(prevStatusCode.equalsIgnoreCase("R")){
-                String msgGroup = messageGroupMap.get(partitionKey);
-                // define group id
-                extendMessage = extendMessage + msgGroup + ",";
-            } else {
-                extendMessage = extendMessage + "idle" + ",";
-            }
+            extendMessage = extendMessage + "idle" + ",";
 
+            // append cache refresh flag.
             if (cacheRefreshFlagMap.get(partitionKey) != null &&
                     cacheRefreshFlagMap.get(partitionKey).equalsIgnoreCase("Y")) {
 
-                extendMessage = extendMessage + "," + "CRC"; //CMD-REFRESH-CACHE
+                extendMessage = extendMessage + "CRC"; //CMD-REFRESH-CACHE
                 cacheRefreshFlagMap.put(partitionKey, "N");
                 log.debug("[{}] - append cache-refresh flag.", partitionKey);
             }

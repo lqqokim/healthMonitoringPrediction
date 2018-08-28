@@ -61,7 +61,8 @@ public class StreamingMasterDataDao {
             "select a.name area_name, e.name eqp_name, e.rawid eqp_rawid, " +
                     "    p.name param_name, p.parse_index, p.rawid param_id, p.param_type_cd, " +
                     "    c.rule_name, c.expression, c.expression_value, " +
-                    "    s.spec_type, s.upper_alarm_spec, s.upper_warning_spec " +
+                    "    nvl(s.upper_alarm_spec, m.upper_alarm_spec) as alarm_spec, " +
+                    "    nvl(s.upper_warning_spec, m.upper_warning_spec) as warning_sepc " +
                     "from area_mst_pdm a inner join eqp_mst_pdm e " +
                     "on a.rawid=e.area_mst_rawid " +
                     "and e.name=? " +
@@ -71,21 +72,12 @@ public class StreamingMasterDataDao {
                     "on e.rawid=l.eqp_mst_rawid " +
                     "inner join conditional_spec_mst_pdm c " +
                     "on c.rawid=l.conditional_spec_mst_rawid " +
+                    "inner join model_param_spec_mst_pdm m " +
+                    "on c.rawid=m.conditional_spec_mst_rawid " +
+                    "and m.param_name=p.name " +
                     "left outer join param_spec_mst_pdm s " +
                     "on l.rawid=s.eqp_spec_link_mst_rawid " +
                     "and p.rawid=s.param_mst_rawid ";
-
-//            "select " +
-//                    "a.name area_name, e.name as eqp_name, e.rawid as eqp_rawid, " +
-//                    "p.name as param_name, p.parse_index, p.rawid param_id, " +
-//                    "s.alarm_spec, s.warning_spec, p.param_type_cd " +
-//                    "from area_mst_pdm a inner join eqp_mst_pdm e " +
-//                    "on a.rawid=e.area_mst_rawid " +
-//                    "and e.name=? " +
-//                    "inner join param_mst_pdm p " +
-//                    "on e.rawid=p.eqp_mst_rawid " +
-//                    "left outer join trace_spec_mst_pdm s " +
-//                    "on p.rawid=s.param_mst_rawid ";
 
     public List<ParameterWithSpecMaster> getParamWithSpecMasterDataSet(String eqpId) throws SQLException {
         List<ParameterWithSpecMaster> resultRows = new ArrayList<>();
@@ -109,15 +101,14 @@ public class StreamingMasterDataDao {
                         ds.setRuleName(rs.getString(8));
                         ds.setExpression(rs.getString(9));
                         ds.setExpressionValue(rs.getString(10));
-                        ds.setSpecType(rs.getString(11));
 
-                        Float uas = rs.getFloat(12);
+                        Float uas = rs.getFloat(11);
                         if (rs.wasNull()) {
                             uas = null;
                         }
                         ds.setUpperAlarmSpec(uas);
 
-                        Float uws = rs.getFloat(13);
+                        Float uws = rs.getFloat(12);
                         if (rs.wasNull()) {
                             uws = null;
                         }
@@ -229,9 +220,10 @@ public class StreamingMasterDataDao {
                     "param.name as param_name, " +
                     "event.condition, " +
                     "event.process_yn, " +
-                    "param.parse_index," +
-                    "event.time_interval_yn," +
-                    "event.interval_time_ms " +
+                    "param.parse_index, " +
+                    "event.time_interval_yn, " +
+                    "event.interval_time_ms, " +
+                    "event.timeout " +
                     "from area_mst_pdm area, eqp_mst_pdm eqp, param_mst_pdm param, eqp_event_mst_pdm event " +
                     "where area.rawid=eqp.area_mst_rawid " +
                     "and eqp.rawid=param.eqp_mst_rawid " +
@@ -262,6 +254,7 @@ public class StreamingMasterDataDao {
                 ds.setParamParseIndex(rs.getInt(10));
                 ds.setTimeIntervalYn(rs.getString(11));
                 ds.setIntervalTimeMs(rs.getLong(12));
+                ds.setTimeoutMs(rs.getLong(13));
 
                 resultRows.add(ds);
             }

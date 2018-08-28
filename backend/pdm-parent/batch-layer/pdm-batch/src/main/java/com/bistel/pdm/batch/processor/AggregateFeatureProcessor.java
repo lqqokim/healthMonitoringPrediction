@@ -75,11 +75,11 @@ public class AggregateFeatureProcessor extends AbstractProcessor<String, byte[]>
 
                 // check conditional spec.
                 String ruleName = ConditionSpecFunction.evaluateCondition(partitionKey, columns);
-
                 //log.debug("[{}] - rule:{}", partitionKey, ruleName);
 
                 if (ruleName.length() > 0) {
                     conditionRuleMap.put(partitionKey, ruleName);
+                    //log.debug("[{}] - cache rule : {}", partitionKey, ruleName);
 
                     for (ParameterWithSpecMaster paramInfo : parameterMasterDataSets) {
                         if (paramInfo.getParamParseIndex() <= 0) continue;
@@ -160,14 +160,14 @@ public class AggregateFeatureProcessor extends AbstractProcessor<String, byte[]>
                             kvSummaryIntervalStore.put(partitionKey, paramTime);
                         }
                     }
+                } else {
+                    log.debug("[{}] - skip aggregation because rule does not exist.", partitionKey);
                 }
             }
 
             // run -> idle
             if (prevStatusAndTime[0].equalsIgnoreCase("R") &&
                     currStatusAndTime[0].equalsIgnoreCase("I")) {
-
-                log.debug("[{}] - aggregate data at the end of the event.", partitionKey);
 
                 Long startTime = kvSummaryIntervalStore.get(partitionKey);
                 Long endTime = Long.parseLong(prevStatusAndTime[1]);
@@ -178,7 +178,6 @@ public class AggregateFeatureProcessor extends AbstractProcessor<String, byte[]>
 
                 // check conditional spec.
                 String ruleName = conditionRuleMap.get(partitionKey);
-                log.debug("[{}] - rule : {}", partitionKey, ruleName);
 
                 if (ruleName != null && ruleName.length() > 0) {
 
@@ -227,10 +226,12 @@ public class AggregateFeatureProcessor extends AbstractProcessor<String, byte[]>
                             context().forward(partitionKey, msg.getBytes());
                             context().commit();
 
-                            log.debug("[{}] - from : {}, end : {}, param : {} ",
+                            log.debug("[{}] - aggregated. (from : {}, end : {}, param : {})",
                                     partitionKey, startTime, endTime, paramMaster.getParameterName());
                         }
                     }
+                } else {
+                    log.debug("[{}] - skip aggregation because rule does not exist.", partitionKey);
                 }
 
                 // refresh cache

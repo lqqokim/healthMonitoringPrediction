@@ -86,6 +86,7 @@ public class TraceTrxDao implements SensorTraceDataDao {
                     byte[] sensorData = record.value();
                     String valueString = new String(sensorData);
 
+                    // 2018-08-27 22:08:26.092,7005,0,0,950,14,2,-51,2,1,R:1535375306092,R:1535375306092,null,,DEFAULT
                     // time, P1, P2, P3, P4, ... Pn, now status:time, prev status:time, groupid, refresh flag, rulename
                     String[] values = valueString.split(",", -1);
 
@@ -114,7 +115,7 @@ public class TraceTrxDao implements SensorTraceDataDao {
                             pstmt.setNull(4, Types.FLOAT);
 
                             //status
-                            String statusCodeAndTime = values[values.length - 2];
+                            String statusCodeAndTime = values[values.length - 5];
                             String[] nowStatusCodeAndTime = statusCodeAndTime.split(":");
                             pstmt.setString(5, nowStatusCodeAndTime[0]);
 
@@ -165,7 +166,7 @@ public class TraceTrxDao implements SensorTraceDataDao {
                                 }
 
                                 //status
-                                String statusCodeAndTime = values[values.length - 2];
+                                String statusCodeAndTime = values[values.length - 5];
                                 String[] nowStatusCodeAndTime = statusCodeAndTime.split(":");
                                 pstmt.setString(5, nowStatusCodeAndTime[0]);
 

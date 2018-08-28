@@ -4,10 +4,8 @@ import com.bistel.pdm.data.stream.EventMaster;
 import com.bistel.pdm.expression.RuleEvaluator;
 import com.bistel.pdm.expression.RuleVariables;
 import com.bistel.pdm.lambda.kafka.master.MasterCache;
-import com.bistel.pdm.speed.model.MessageExtended;
 import org.apache.kafka.streams.processor.AbstractProcessor;
 import org.apache.kafka.streams.processor.ProcessorContext;
-import org.apache.kafka.streams.processor.PunctuationType;
 import org.apache.kafka.streams.state.KeyValueStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +32,7 @@ public class PrepareDataProcessor extends AbstractProcessor<String, byte[]> {
     private final ConcurrentHashMap<String, String> messageGroupMap = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, String> cacheRefreshFlagMap = new ConcurrentHashMap<>();
 
-    private final static ConcurrentHashMap<String, MessageExtended> TimeOutOffset = new ConcurrentHashMap<>();
+//    private final static ConcurrentHashMap<String, MessageExtended> TimeOutOffset = new ConcurrentHashMap<>();
 
     @Override
     @SuppressWarnings("unchecked")
@@ -44,39 +42,41 @@ public class PrepareDataProcessor extends AbstractProcessor<String, byte[]> {
         kvStatusContextStore = (KeyValueStore) this.context().getStateStore("speed-status-context");
 
         // If you no longer receive messages, processing it as idle.
-        context().schedule(60000, PunctuationType.STREAM_TIME, (timestamp) -> {
-
-            try {
-                while(TimeOutOffset.keys().hasMoreElements()){
-                    String key = TimeOutOffset.keys().nextElement();
-                    MessageExtended msgExtended = TimeOutOffset.get(key);
-
-                    List<EventMaster> eventList = MasterCache.Event.get(key);
-                    for (EventMaster event : eventList) {
-                        // for process interval
-                        if (event.getProcessYN().equalsIgnoreCase("Y")) {
-                            Long timeoutMs = event.getTimeoutMs();
-                            long diffInMillies = Math.abs(System.currentTimeMillis() - msgExtended.getLongTime());
-
-                            // time out
-                            if(diffInMillies > timeoutMs){
-                                // time, P1, P2, P3, P4, ... Pn, now status:time, prev status:time, groupid, refresh flag
-                                String msg = System.currentTimeMillis() + "," +
-                                        msgExtended.getCurrentStatus() + "," +
-                                        msgExtended.getPreviousStatus() + "," +
-                                        "idle" + ",";
-
-                                context().forward(key, msg.getBytes());
-                                // commit the current processing progress
-                                context().commit();
-                            }
-                        }
-                    }
-                }
-            } catch (Exception e){
-                log.error(e.getMessage(), e);
-            }
-        });
+//        context().schedule(60000, PunctuationType.STREAM_TIME, (timestamp) -> {
+//
+//            try {
+//                while(TimeOutOffset.keys().hasMoreElements()){
+//                    String key = TimeOutOffset.keys().nextElement();
+//                    MessageExtended msgExtended = TimeOutOffset.get(key);
+//
+//                    List<EventMaster> eventList = MasterCache.Event.get(key);
+//                    for (EventMaster event : eventList) {
+//                        // for process interval
+//                        if (event.getProcessYN().equalsIgnoreCase("Y")) {
+//                            if(event.getTimeoutMs() != null && event.getTimeoutMs() > 3600000){ // > 1h
+//                                Long timeoutMs = event.getTimeoutMs();
+//                                long diffInMillies = Math.abs(System.currentTimeMillis() - msgExtended.getLongTime());
+//
+//                                // time out
+//                                if(diffInMillies > timeoutMs){
+//                                    // time, P1, P2, P3, P4, ... Pn, now status:time, prev status:time, groupid, refresh flag
+//                                    String msg = System.currentTimeMillis() + "," +
+//                                            msgExtended.getCurrentStatus() + "," +
+//                                            msgExtended.getPreviousStatus() + "," +
+//                                            "idle" + ",";
+//
+//                                    context().forward(key, msg.getBytes());
+//                                    // commit the current processing progress
+//                                    context().commit();
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
+//            } catch (Exception e){
+//                log.error(e.getMessage(), e);
+//            }
+//        });
     }
 
     @Override
@@ -114,7 +114,7 @@ public class PrepareDataProcessor extends AbstractProcessor<String, byte[]> {
                         context().forward(partitionKey, recordValue.getBytes());
                         context().commit();
 
-                        TimeOutOffset.put(partitionKey, new MessageExtended(msgTimeStamp, statusContext));
+//                        TimeOutOffset.put(partitionKey, new MessageExtended(msgTimeStamp, statusContext));
 
                         //log.debug("[{}] - {}", partitionKey, recordValue);
                         break;
@@ -139,7 +139,7 @@ public class PrepareDataProcessor extends AbstractProcessor<String, byte[]> {
                 context().forward(partitionKey, recordValue.getBytes());
                 context().commit();
 
-                TimeOutOffset.put(partitionKey, new MessageExtended(msgTimeStamp, statusContext));
+//                TimeOutOffset.put(partitionKey, new MessageExtended(msgTimeStamp, statusContext));
 
                 log.debug("[{}] - No event registered.", partitionKey);
             }
@@ -176,8 +176,6 @@ public class PrepareDataProcessor extends AbstractProcessor<String, byte[]> {
         kvStatusContextStore.put(partitionKey, statusCodeAndTime);
         extendMessage = statusCodeAndTime + "," + prevStatusAndTime + ",";
 
-
-        // append cache refresh flag.
         String[] prevStatusCodeAndTime = prevStatusAndTime.split(":");
         String prevStatusCode = prevStatusCodeAndTime[0];
 
@@ -190,10 +188,10 @@ public class PrepareDataProcessor extends AbstractProcessor<String, byte[]> {
             messageGroupMap.put(partitionKey, msgGroup);
 
             extendMessage = extendMessage + msgGroup + ",";
-        }
 
-        if (nowStatusCode.equalsIgnoreCase("R")){
-            String msgGroup = messageGroupMap.get(partitionKey);
+        } else if (nowStatusCode.equalsIgnoreCase("R")){
+            String msgGroup = messageGroupMap.computeIfAbsent(partitionKey, k -> msgTimeStamp.toString());
+
             // define group id
             extendMessage = extendMessage + msgGroup + ",";
         }
@@ -201,18 +199,13 @@ public class PrepareDataProcessor extends AbstractProcessor<String, byte[]> {
         // idle
         if (nowStatusCode.equalsIgnoreCase("I")) {
 
-            if(prevStatusCode.equalsIgnoreCase("R")){
-                String msgGroup = messageGroupMap.get(partitionKey);
-                // define group id
-                extendMessage = extendMessage + msgGroup + ",";
-            } else {
-                extendMessage = extendMessage + "idle" + ",";
-            }
+            extendMessage = extendMessage + "idle" + ",";
 
+            // append cache refresh flag.
             if (cacheRefreshFlagMap.get(partitionKey) != null &&
                     cacheRefreshFlagMap.get(partitionKey).equalsIgnoreCase("Y")) {
 
-                extendMessage = extendMessage + "," + "CRC"; //CMD-REFRESH-CACHE
+                extendMessage = extendMessage + "CRC"; //CMD-REFRESH-CACHE
                 cacheRefreshFlagMap.put(partitionKey, "N");
                 log.debug("[{}] - append cache-refresh flag.", partitionKey);
             }

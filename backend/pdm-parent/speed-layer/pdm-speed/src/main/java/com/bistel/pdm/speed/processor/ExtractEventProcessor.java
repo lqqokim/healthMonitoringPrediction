@@ -29,6 +29,10 @@ public class ExtractEventProcessor extends AbstractProcessor<String, byte[]> {
         String[] recordColumns = recordValue.split(SEPARATOR, -1);
 
         try {
+            //log.debug("[{}] - {}", partitionKey, recordValue);
+            //2018-08-28 09:43:19.904,1022,949,0,1537,15,23,-42,-5,1,I:1535416999904,I:1535416999795,idle,
+            //2018-08-28 09:43:19.905,1022,949,0,1537,15,23,-42,-5,0,R:1535416999905,I:1535416999904,1535416999905,1535416999905,
+
             String statusCodeAndTime = recordColumns[recordColumns.length - 4];
             String[] nowStatusCodeAndTime = statusCodeAndTime.split(":");
 

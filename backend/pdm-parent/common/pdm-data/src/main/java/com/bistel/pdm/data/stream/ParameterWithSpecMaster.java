@@ -37,9 +37,6 @@ public class ParameterWithSpecMaster {
     @JsonProperty("expressionValue")
     private String expressionValue;
 
-    @JsonProperty("specType")
-    private String specType;
-
     @JsonProperty("dataType")
     private String dataType;
 
@@ -144,14 +141,6 @@ public class ParameterWithSpecMaster {
 
     public void setExpressionValue(String expressionValue) {
         this.expressionValue = expressionValue;
-    }
-
-    public String getSpecType() {
-        return specType;
-    }
-
-    public void setSpecType(String specType) {
-        this.specType = specType;
     }
 
     public String getDataType() {

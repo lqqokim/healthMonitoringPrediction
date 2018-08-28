@@ -40,6 +40,7 @@
         <module>support/pdm-datagen</module>
         <module>support/pdm-file-connector</module>
         <module>common/pdm-data</module>
+        <module>support/pdm-simulator</module>
 
     </modules>
 

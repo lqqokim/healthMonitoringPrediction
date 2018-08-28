@@ -62,7 +62,7 @@ public class SpeedTaskDef extends AbstractPipeline {
                                 TimeUnit.DAYS.toMillis(1),
                                 24,
                                 TimeUnit.HOURS.toMillis(1),
-                                true),
+                                false),
                         Serdes.String(),
                         Serdes.Double());
 
@@ -76,6 +76,7 @@ public class SpeedTaskDef extends AbstractPipeline {
 
         topology.addSource("input-trace", this.getInputTraceTopic())
                 .addProcessor("begin", BeginProcessor::new, "input-trace")
+
                 .addProcessor("prepare", PrepareDataProcessor::new, "begin")
                 .addStateStore(statusStoreSupplier, "prepare")
 
@@ -87,12 +88,13 @@ public class SpeedTaskDef extends AbstractPipeline {
                 .addProcessor("refresh", RefreshCacheProcessor::new, "fault")
                 //.addProcessor("mail", SendMailProcessor::new, "fault")
 
-                .addSink("output-trace", this.getOutputTraceTopic(), partitioner, "fault")
                 .addSink("output-event", this.getOutputEventTopic(), partitioner, "event")
 
+                .addSink("output-trace", this.getOutputTraceTopic(), partitioner, "fault")
                 .addSink("output-raw", this.getInputTimewaveTopic(), partitioner, "fault")
                 .addSink("output-fault", this.getOutputFaultTopic(), partitioner, "fault")
                 .addSink("output-health", this.getOutputHealthTopic(), partitioner, "fault")
+
                 .addSink("output-refresh", this.getOutputReloadTopic(), partitioner, "refresh");
 
         return new KafkaStreams(topology, getStreamProperties());
