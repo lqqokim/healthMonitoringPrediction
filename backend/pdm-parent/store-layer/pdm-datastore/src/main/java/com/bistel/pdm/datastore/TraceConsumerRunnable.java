@@ -63,10 +63,8 @@ public class TraceConsumerRunnable implements Runnable {
 
         while (true) {
             ConsumerRecords<String, byte[]> records = consumer.poll(TimeUnit.MILLISECONDS.toMillis(PollingDurations));
-
             for (ConsumerRecord<String, byte[]> record : records) {
                 buffer.add(record);
-
 //                log.debug("topic = {}, partition = {}, offset = {}, key = {}",
 //                        record.topic(), record.partition(), record.offset(), record.key());
             }

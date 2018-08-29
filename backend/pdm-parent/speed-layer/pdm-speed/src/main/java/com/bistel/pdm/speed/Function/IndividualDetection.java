@@ -113,6 +113,7 @@ public class IndividualDetection {
             }
 
             // time, eqpRawid, param_rawid, param_health_rawid, status_cd, data_count, index, specs
+            // 1535498957495,1,1055,96,N,2,0.1489,30000.0,1.0,,,,1535498957385
             msg = longTime + ","
                     + paramInfo.getEquipmentRawId() + ","
                     + paramInfo.getParameterRawId() + ","
@@ -183,8 +184,11 @@ public class IndividualDetection {
                 "256" + "," +
                 param.getUpperAlarmSpec() + "," +
                 param.getUpperWarningSpec() + "," +
-                "N/A";
+                "N/A" + "," +
+                param.getRuleName() + "," +
+                param.getCondition();
 
+        //[{\"param_name\":\"BARCODE\",\"operand\":\"=\",\"param_value\":\"7005\"}]
         return sbMsg;
 
         //send mail
@@ -226,7 +230,9 @@ public class IndividualDetection {
                 "128" + "," +
                 param.getUpperAlarmSpec() + "," +
                 param.getUpperWarningSpec() + "," +
-                "N/A";
+                "N/A" + "," +
+                param.getRuleName() + "," +
+                param.getCondition();
 
 //                    String mailText = "" + "\n" +
 //                            "- Equipment ID : " + paramKey + "\n" +

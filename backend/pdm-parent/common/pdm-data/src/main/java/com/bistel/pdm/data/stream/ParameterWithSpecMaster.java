@@ -55,6 +55,9 @@ public class ParameterWithSpecMaster {
     @JsonProperty("lowerAlarmSpec")
     private Float lowerAlarmSpec;
 
+    @JsonProperty("condition")
+    private String condition;
+
 //    public String toKey(){
 //        return this.areaName  + "," + this.equipmentName;
 //    }
@@ -120,7 +123,11 @@ public class ParameterWithSpecMaster {
     }
 
     public String getRuleName() {
-        return ruleName;
+        if(ruleName == null){
+            return "";
+        } else {
+            return ruleName;
+        }
     }
 
     public void setRuleName(String ruleName) {
@@ -189,5 +196,13 @@ public class ParameterWithSpecMaster {
 
     public void setLowerAlarmSpec(Float lowerAlarmSpec) {
         this.lowerAlarmSpec = lowerAlarmSpec;
+    }
+
+    public String getCondition() {
+        return condition;
+    }
+
+    public void setCondition(String condition) {
+        this.condition = condition;
     }
 }

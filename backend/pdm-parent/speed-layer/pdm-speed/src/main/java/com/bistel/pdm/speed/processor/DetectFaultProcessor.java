@@ -82,6 +82,8 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
                 String ruleName = ConditionSpecFunction.evaluateCondition(partitionKey, recordColumns);
 
                 if (ruleName.length() > 0) {
+                    conditionRuleMap.put(partitionKey, ruleName);
+
                     // time, P1, P2, P3, P4, ... Pn, now status:time, prev status:time, groupid, refresh flag
                     String newRecord = recordValue + "," + ruleName;
                     context().forward(partitionKey, newRecord.getBytes(), "output-trace");
@@ -121,19 +123,16 @@ public class DetectFaultProcessor extends AbstractProcessor<String, byte[]> {
                             }
                         }
                     }
-
-                    conditionRuleMap.put(partitionKey, ruleName);
-
                 } else {
                     // time, P1, P2, P3, P4, ... Pn, now status:time, prev status:time, groupid, refresh flag
-                    String newRecord = recordValue + "," + "NA";
+                    String newRecord = recordValue + "," + "EMPTY"; // append rule name
                     context().forward(partitionKey, newRecord.getBytes(), "output-trace");
                     context().commit();
                 }
             } else {
                 // idle
                 // time, P1, P2, P3, P4, ... Pn, now status:time, prev status:time, groupid, refresh flag
-                String newRecord = recordValue + "," + "NA";
+                String newRecord = recordValue + "," + "N/A";
                 context().forward(partitionKey, newRecord.getBytes(), "output-trace");
                 context().commit();
             }

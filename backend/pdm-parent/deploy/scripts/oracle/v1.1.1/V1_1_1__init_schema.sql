@@ -45,6 +45,12 @@ ALTER TABLE PARAM_FEATURE_TRX_PDM ADD (message_group varchar2(1024));
 ALTER TABLE PARAM_HEALTH_TRX_PDM ADD (message_group varchar2(1024));
 
 
+ALTER TABLE ALARM_TRX_PDM ADD (RULE_NAME VARCHAR2(32));
+ALTER TABLE ALARM_TRX_PDM ADD (CONDITION VARCHAR2(4000));
+
+ALTER TABLE TRACE_TRX_PDM ADD (RULE_NAME VARCHAR2(32));
+ALTER TABLE TRACE_TRX_PDM ADD (CONDITION VARCHAR2(4000));
+
 -- -----------------------------------------------------
 -- Table CONDITIONAL_SPEC_MST_PDM
 -- -----------------------------------------------------
@@ -118,7 +124,6 @@ CREATE TABLE PARAM_SPEC_MST_PDM (
   RAWID                             NUMBER(38) NOT NULL,
   PARAM_MST_RAWID                   NUMBER(38) NOT NULL,
   EQP_SPEC_LINK_MST_RAWID           NUMBER(38) NOT NULL,
-  SPEC_TYPE                         VARCHAR2(10) DEFAULT 'MODEL',
   UPPER_ALARM_SPEC                  FLOAT,
   UPPER_WARNING_SPEC                FLOAT,
   TARGET                            FLOAT,

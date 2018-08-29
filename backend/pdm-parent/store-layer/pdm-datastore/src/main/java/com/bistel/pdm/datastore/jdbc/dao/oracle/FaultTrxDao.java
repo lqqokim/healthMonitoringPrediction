@@ -22,15 +22,17 @@ public class FaultTrxDao implements FaultDataDao {
     private static final String INSERT_SQL =
             "insert into ALARM_TRX_PDM " +
                     "(RAWID, " +
-                    "PARAM_MST_RAWID, " +
-                    "PARAM_HEALTH_MST_RAWID, " +
-                    "ALARM_TYPE_CD, " +
-                    "VALUE, " +
+                    " PARAM_MST_RAWID, " +
+                    " PARAM_HEALTH_MST_RAWID, " +
+                    " ALARM_TYPE_CD, " +
+                    " VALUE, " +
                     " FAULT_CLASS, " +
                     " ALARM_SPEC, " +
-                    "WARNING_SPEC, " +
+                    " WARNING_SPEC, " +
+                    " CONDITION, " +
+                    " RULE_NAME, " +
                     " ALARM_DTTS) " +
-                    "values (seq_alarm_trx_pdm.nextval, ?, ?, ?, ?, ?, ?, ?, ?)";
+                    "values (seq_alarm_trx_pdm.nextval, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     @Override
     public void storeRecords(List<ConsumerRecord<String, byte[]>> records) {
@@ -45,7 +47,7 @@ public class FaultTrxDao implements FaultDataDao {
                     String valueString = new String(features);
 
                     String[] values = valueString.split(",");
-                    // time, param_rawid, health_rawid, value, alarm type, alarm_spec, warning_spec, fault_class
+                    // time, param_rawid, health_rawid, value, alarm type, alarm_spec, warning_spec, fault_class, rulename, condition
 
                     Timestamp timestamp = new Timestamp(Long.parseLong(values[0]));
                     Long param_rawid = Long.parseLong(values[1]);
@@ -58,7 +60,9 @@ public class FaultTrxDao implements FaultDataDao {
                     pstmt.setString(5, values[7]); //fault classifications
                     pstmt.setFloat(6, Float.parseFloat(values[5])); // alarm spec
                     pstmt.setFloat(7, Float.parseFloat(values[6])); // warning spec
-                    pstmt.setTimestamp(8, timestamp);
+                    pstmt.setString(8, values[9]); //condition
+                    pstmt.setString(9, values[8]); //rulename
+                    pstmt.setTimestamp(10, timestamp);
 
                     pstmt.addBatch();
                     ++totalCount;

@@ -148,15 +148,19 @@ public class PrepareDataProcessor extends AbstractProcessor<String, byte[]> {
 
         } else if (nowStatusCode.equalsIgnoreCase("R")){
             String msgGroup = messageGroupMap.computeIfAbsent(partitionKey, k -> msgTimeStamp.toString());
-
             // define group id
             extendMessage = extendMessage + msgGroup + ",";
         }
 
-        // idle
         if (nowStatusCode.equalsIgnoreCase("I")) {
 
-            extendMessage = extendMessage + "idle" + ",";
+            if (prevStatusCode.equalsIgnoreCase("R")) {
+                String msgGroup = messageGroupMap.computeIfAbsent(partitionKey, k -> msgTimeStamp.toString());
+                // define group id
+                extendMessage = extendMessage + msgGroup + ",";
+            } else {
+                extendMessage = extendMessage + "idle" + ",";
+            }
 
             // append cache refresh flag.
             if (cacheRefreshFlagMap.get(partitionKey) != null &&

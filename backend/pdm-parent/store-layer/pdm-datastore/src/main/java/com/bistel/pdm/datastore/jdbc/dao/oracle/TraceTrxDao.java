@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 /**
  *
@@ -32,8 +33,10 @@ public class TraceTrxDao implements SensorTraceDataDao {
                     "STATUS_CD, " +
                     "EVENT_DTTS, " +
                     "MESSAGE_GROUP, " +
+                    "RULE_NAME, " +
+                    "CONDITION, " +
                     "RESERVED_COL1, RESERVED_COL2, RESERVED_COL3, RESERVED_COL4, RESERVED_COL5) " +
-                    "values (SEQ_TRACE_TRX_PDM.nextval,?,?,?,?,?,?,?,?,?,?,?,?)";
+                    "values (SEQ_TRACE_TRX_PDM.nextval,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
     private static final String INSERT_SQL_WITH_RAW =
             "insert into trace_trx_pdm " +
@@ -70,6 +73,22 @@ public class TraceTrxDao implements SensorTraceDataDao {
         return trxRawId;
     }
 
+    private ParameterWithSpecMaster getParamSpec(String key, String paramName, String ruleName) throws ExecutionException {
+        List<ParameterWithSpecMaster> paramWithSpec = MasterCache.ParameterWithSpec.get(key);
+
+        ParameterWithSpecMaster paramInfo = null;
+        for (ParameterWithSpecMaster pws : paramWithSpec) {
+            if(ruleName.equalsIgnoreCase(pws.getRuleName())){
+                if (paramName.equalsIgnoreCase(pws.getParameterName())){
+                    paramInfo = pws;
+                    break;
+                }
+            }
+        }
+
+        return paramInfo;
+    }
+
     @Override
     public void storeRecords(List<ConsumerRecord<String, byte[]>> records) {
         try (Connection conn = DataSource.getConnection()) {
@@ -93,103 +112,72 @@ public class TraceTrxDao implements SensorTraceDataDao {
                     String ruleName = values[values.length - 1];
                     String msgGroup = values[values.length - 3];
 
-                    if (ruleName.equalsIgnoreCase("NA")) {
+                    List<ParameterMaster> paramData = MasterCache.Parameter.get(record.key());
 
-                        List<ParameterMaster> paramData = MasterCache.Parameter.get(record.key());
+                    for (ParameterMaster paramInfo : paramData) {
+                        if (paramInfo.getParamParseIndex() == -1) continue;
 
-                        for (ParameterMaster paramInfo : paramData) {
-                            if (paramInfo.getParamParseIndex() == -1) continue;
+                        pstmt.setLong(1, paramInfo.getParameterRawId()); //param rawid
 
-                            pstmt.setLong(1, paramInfo.getParameterRawId()); //param rawid
+                        String strValue = values[paramInfo.getParamParseIndex()];
+                        if (strValue.length() <= 0) {
+                            log.debug("key:{}, param:{}, index:{} - value is empty.",
+                                    record.key(), paramInfo.getParameterName(), paramInfo.getParamParseIndex());
+                            pstmt.setFloat(2, Types.FLOAT); //value
+                        } else {
+                            pstmt.setFloat(2, Float.parseFloat(strValue)); //value
+                        }
 
-                            String strValue = values[paramInfo.getParamParseIndex()];
-                            if (strValue.length() <= 0) {
-                                log.debug("key:{}, param:{}, index:{} - value is empty.",
-                                        record.key(), paramInfo.getParameterName(), paramInfo.getParamParseIndex());
-                                pstmt.setFloat(2, Types.FLOAT); //value
+                        ParameterWithSpecMaster paramSpec = getParamSpec(record.key(), paramInfo.getParameterName(), ruleName);
+
+                        if(paramSpec != null) {
+                            if (paramSpec.getUpperAlarmSpec() != null) {
+                                pstmt.setFloat(3, paramSpec.getUpperAlarmSpec()); //upper alarm spec
                             } else {
-                                pstmt.setFloat(2, Float.parseFloat(strValue)); //value
+                                pstmt.setNull(3, Types.FLOAT);
                             }
 
+                            if (paramSpec.getUpperWarningSpec() != null) {
+                                pstmt.setFloat(4, paramSpec.getUpperWarningSpec()); //upper warning spec
+                            } else {
+                                pstmt.setNull(4, Types.FLOAT);
+                            }
+
+                            pstmt.setString(8, paramSpec.getRuleName());
+                            pstmt.setString(9, paramSpec.getCondition());
+
+                        } else {
                             pstmt.setNull(3, Types.FLOAT);
                             pstmt.setNull(4, Types.FLOAT);
 
-                            //status
-                            String statusCodeAndTime = values[values.length - 5];
-                            String[] nowStatusCodeAndTime = statusCodeAndTime.split(":");
-                            pstmt.setString(5, nowStatusCodeAndTime[0]);
-
-                            ts = getTimeStampFromString(values[0]);
-                            pstmt.setTimestamp(6, ts);
-
-                            pstmt.setString(7, msgGroup);
-
                             pstmt.setNull(8, Types.VARCHAR);
                             pstmt.setNull(9, Types.VARCHAR);
-                            pstmt.setNull(10, Types.VARCHAR);
-                            pstmt.setNull(11, Types.VARCHAR);
-                            pstmt.setNull(12, Types.VARCHAR);
-
-                            pstmt.addBatch();
-                            ++totalCount;
                         }
-                    } else {
 
-                        List<ParameterWithSpecMaster> paramData = MasterCache.ParameterWithSpec.get(record.key());
+                        //status
+                        String statusCodeAndTime = values[values.length - 5];
+                        String[] nowStatusCodeAndTime = statusCodeAndTime.split(":");
+                        pstmt.setString(5, nowStatusCodeAndTime[0]);
 
-                        for (ParameterWithSpecMaster paramInfo : paramData) {
-                            if (paramInfo.getParamParseIndex() == -1) continue;
+                        ts = getTimeStampFromString(values[0]);
+                        pstmt.setTimestamp(6, ts);
 
-                            if (paramInfo.getRuleName().equalsIgnoreCase(ruleName)) {
+                        pstmt.setString(7, msgGroup);
 
-                                pstmt.setLong(1, paramInfo.getParameterRawId()); //param rawid
+                        pstmt.setNull(10, Types.VARCHAR);
+                        pstmt.setNull(11, Types.VARCHAR);
+                        pstmt.setNull(12, Types.VARCHAR);
+                        pstmt.setNull(13, Types.VARCHAR);
+                        pstmt.setNull(14, Types.VARCHAR);
 
-                                String strValue = values[paramInfo.getParamParseIndex()];
-                                if (strValue.length() <= 0) {
-                                    log.debug("key:{}, param:{}, index:{} - value is empty.",
-                                            record.key(), paramInfo.getParameterName(), paramInfo.getParamParseIndex());
-                                    pstmt.setFloat(2, Types.FLOAT); //value
-                                } else {
-                                    pstmt.setFloat(2, Float.parseFloat(strValue)); //value
-                                }
-
-                                if (paramInfo.getUpperAlarmSpec() != null) {
-                                    pstmt.setFloat(3, paramInfo.getUpperAlarmSpec()); //upper alarm spec
-                                } else {
-                                    pstmt.setNull(3, Types.FLOAT);
-                                }
-
-                                if (paramInfo.getUpperWarningSpec() != null) {
-                                    pstmt.setFloat(4, paramInfo.getUpperWarningSpec()); //upper warning spec
-                                } else {
-                                    pstmt.setNull(4, Types.FLOAT);
-                                }
-
-                                //status
-                                String statusCodeAndTime = values[values.length - 5];
-                                String[] nowStatusCodeAndTime = statusCodeAndTime.split(":");
-                                pstmt.setString(5, nowStatusCodeAndTime[0]);
-
-                                ts = getTimeStampFromString(values[0]);
-                                pstmt.setTimestamp(6, ts);
-
-                                pstmt.setString(7, msgGroup);
-
-                                pstmt.setNull(8, Types.VARCHAR);
-                                pstmt.setNull(9, Types.VARCHAR);
-                                pstmt.setNull(10, Types.VARCHAR);
-                                pstmt.setNull(11, Types.VARCHAR);
-                                pstmt.setNull(12, Types.VARCHAR);
-
-                                pstmt.addBatch();
-                                ++totalCount;
-                            }
-                        }
+                        pstmt.addBatch();
+                        ++totalCount;
                     }
                 }
 
                 pstmt.executeBatch();
                 conn.commit();
+
                 String timeStamp = new SimpleDateFormat("MMdd HH:mm:ss.SSS").format(ts);
                 log.debug("[{}] - {} records are inserted into TRACE_TRX_PDM.", timeStamp, totalCount);
 

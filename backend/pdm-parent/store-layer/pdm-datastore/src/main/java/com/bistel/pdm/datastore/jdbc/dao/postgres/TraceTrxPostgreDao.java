@@ -1,6 +1,7 @@
 package com.bistel.pdm.datastore.jdbc.dao.postgres;
 
 import com.bistel.pdm.common.collection.Pair;
+import com.bistel.pdm.data.stream.ParameterMaster;
 import com.bistel.pdm.data.stream.ParameterWithSpecMaster;
 import com.bistel.pdm.datastore.jdbc.DataSource;
 import com.bistel.pdm.datastore.jdbc.dao.SensorTraceDataDao;
@@ -23,16 +24,22 @@ public class TraceTrxPostgreDao implements SensorTraceDataDao {
     private static final String TRX_SEQ_SQL = "select nextval from nextval('seq_trace_trx_pdm')";
 
     private static final String INSERT_SQL =
-            "insert into trace_trx_pdm (PARAM_MST_RAWID, VALUE, ALARM_SPEC, " +
-                    "WARNING_SPEC, STATUS_CD, EVENT_DTTS, RESERVED_COL1, RESERVED_COL2, " +
-                    "RESERVED_COL3, RESERVED_COL4, RESERVED_COL5) " +
-                    "values (?,?,?,?,?,?,?,?,?,?,?)";
+            "insert into trace_trx_pdm (PARAM_MST_RAWID, VALUE, " +
+                    "ALARM_SPEC, WARNING_SPEC, " +
+                    "STATUS_CD, " +
+                    "EVENT_DTTS, " +
+                    "MESSAGE_GROUP, " +
+                    "RESERVED_COL1, RESERVED_COL2, RESERVED_COL3, RESERVED_COL4, RESERVED_COL5) " +
+                    "values (?,?,?,?,?,?,?,?,?,?,?,?)";
 
     private static final String INSERT_SQL_WITH_RAW =
-            "insert into trace_trx_pdm (RAWID, PARAM_MST_RAWID, VALUE, RPM, ALARM_SPEC, " +
-                    "WARNING_SPEC, STATUS_CD, EVENT_DTTS, RESERVED_COL1, RESERVED_COL2, " +
-                    "RESERVED_COL3, RESERVED_COL4, RESERVED_COL5) " +
-                    "values (?,?,?,?,?,?,?,?,?,?,?,?,?)";
+            "insert into trace_trx_pdm (RAWID, PARAM_MST_RAWID, VALUE, RPM, " +
+                    "ALARM_SPEC, WARNING_SPEC, " +
+                    "STATUS_CD, " +
+                    "EVENT_DTTS, " +
+                    "MESSAGE_GROUP, " +
+                    "RESERVED_COL1, RESERVED_COL2, RESERVED_COL3, RESERVED_COL4, RESERVED_COL5) " +
+                    "values (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
     @Override
     public Long getTraceRawId() throws SQLException {
@@ -71,79 +78,69 @@ public class TraceTrxPostgreDao implements SensorTraceDataDao {
 
                     byte[] sensorData = record.value();
                     String valueString = new String(sensorData);
-                    // time, p1, p2, p3, p4, ... pn, status:time, prev:time
-                    String[] values = valueString.split(",");
 
-                    List<ParameterWithSpecMaster> paramData = MasterCache.ParameterWithSpec.get(record.key());
+                    // 2018-08-27 22:08:26.092,7005,0,0,950,14,2,-51,2,1,R:1535375306092,R:1535375306092,null,,DEFAULT
+                    // time, P1, P2, P3, P4, ... Pn, now status:time, prev status:time, groupid, refresh flag, rulename
+                    String[] values = valueString.split(",", -1);
 
-                    if (paramData == null) {
-                        log.debug("[{}] - parameter does not existed.", record.key());
-                        return;
-                    }
+                    String ruleName = values[values.length - 1];
+                    String msgGroup = values[values.length - 3];
 
-                    log.debug("[{}] - {} parameters", record.key(), paramData.size());
+                    List<ParameterMaster> paramData = MasterCache.Parameter.get(record.key());
+                    List<ParameterWithSpecMaster> paramWithSpec = MasterCache.ParameterWithSpec.get(record.key());
 
-                    for (ParameterWithSpecMaster param : paramData) {
-                        if (param.getParamParseIndex() == -1) continue;
+                    for (ParameterMaster paramInfo : paramData) {
+                        if (paramInfo.getParamParseIndex() == -1) continue;
 
-                        //PARAM_MST_RAWID, VALUE, ALARM_SPEC, " +
-                        //                    "WARNING_SPEC, STATUS_CD, EVENT_DTTS, RESERVED_COL1, RESERVED_COL2, " +
-                        //                    "RESERVED_COL3, RESERVED_COL4, RESERVED_COL5
+                        pstmt.setLong(1, paramInfo.getParameterRawId()); //param rawid
 
-                        pstmt.setLong(1, param.getParameterRawId()); //param rawid
-
-                        String strValue = values[param.getParamParseIndex()];
+                        String strValue = values[paramInfo.getParamParseIndex()];
                         if (strValue.length() <= 0) {
                             log.debug("key:{}, param:{}, index:{} - value is empty.",
-                                    record.key(), param.getParameterName(), param.getParamParseIndex());
-                            pstmt.setDouble(2, Types.DOUBLE); //value
+                                    record.key(), paramInfo.getParameterName(), paramInfo.getParamParseIndex());
+                            pstmt.setFloat(2, Types.FLOAT); //value
                         } else {
-                            pstmt.setDouble(2, Double.parseDouble(strValue)); //value
+                            pstmt.setFloat(2, Float.parseFloat(strValue)); //value
                         }
 
-                        if (param.getUpperAlarmSpec() != null) {
-                            pstmt.setFloat(3, param.getUpperAlarmSpec()); //upper alarm spec
-                        } else {
-                            pstmt.setNull(3, Types.FLOAT);
-                        }
+                        for (ParameterWithSpecMaster pws : paramWithSpec) {
+                            if (pws.getParameterName().equalsIgnoreCase(paramInfo.getParameterName())) {
+                                if (pws.getRuleName().equalsIgnoreCase(ruleName)) {
+                                    if (pws.getUpperAlarmSpec() != null) {
+                                        pstmt.setFloat(3, pws.getUpperAlarmSpec()); //upper alarm spec
+                                    } else {
+                                        pstmt.setNull(3, Types.FLOAT);
+                                    }
 
-                        if (param.getUpperWarningSpec() != null) {
-                            pstmt.setFloat(4, param.getUpperWarningSpec()); //upper warning spec
-                        } else {
-                            pstmt.setNull(4, Types.FLOAT);
-                        }
+                                    if (pws.getUpperWarningSpec() != null) {
+                                        pstmt.setFloat(4, pws.getUpperWarningSpec()); //upper warning spec
+                                    } else {
+                                        pstmt.setNull(4, Types.FLOAT);
+                                    }
+                                } else {
+                                    pstmt.setNull(3, Types.FLOAT);
+                                    pstmt.setNull(4, Types.FLOAT);
+                                }
 
-//                        if (param.getTarget() != null) {
-//                            pstmt.setFloat(5, param.getTarget()); //target
-//                        } else {
-//                            pstmt.setNull(5, Types.FLOAT);
-//                        }
-//
-//                        if (param.getLowerAlarmSpec() != null) {
-//                            pstmt.setFloat(6, param.getLowerAlarmSpec()); //lower alarm spec
-//                        } else {
-//                            pstmt.setNull(6, Types.FLOAT);
-//                        }
-//
-//                        if (param.getLowerWarningSpec() != null) {
-//                            pstmt.setFloat(7, param.getLowerWarningSpec()); //lower warning spec
-//                        } else {
-//                            pstmt.setNull(7, Types.FLOAT);
-//                        }
+                                break;
+                            }
+                        }
 
                         //status
-                        String statusCodeAndTime = values[values.length - 2];
+                        String statusCodeAndTime = values[values.length - 5];
                         String[] nowStatusCodeAndTime = statusCodeAndTime.split(":");
                         pstmt.setString(5, nowStatusCodeAndTime[0]);
 
                         ts = getTimeStampFromString(values[0]);
                         pstmt.setTimestamp(6, ts);
 
-                        pstmt.setNull(7, Types.VARCHAR);
+                        pstmt.setString(7, msgGroup);
+
                         pstmt.setNull(8, Types.VARCHAR);
                         pstmt.setNull(9, Types.VARCHAR);
                         pstmt.setNull(10, Types.VARCHAR);
                         pstmt.setNull(11, Types.VARCHAR);
+                        pstmt.setNull(12, Types.VARCHAR);
 
                         pstmt.addBatch();
                         ++totalCount;

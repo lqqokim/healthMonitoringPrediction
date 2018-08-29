@@ -58,26 +58,38 @@ public class StreamingMasterDataDao {
 
 
     private final static String PARAM_MASTER_DS_1_SQL =
-            "select a.name area_name, e.name eqp_name, e.rawid eqp_rawid, " +
-                    "    p.name param_name, p.parse_index, p.rawid param_id, p.param_type_cd, " +
-                    "    c.rule_name, c.expression, c.expression_value, " +
-                    "    nvl(s.upper_alarm_spec, m.upper_alarm_spec) as alarm_spec, " +
-                    "    nvl(s.upper_warning_spec, m.upper_warning_spec) as warning_sepc " +
-                    "from area_mst_pdm a inner join eqp_mst_pdm e " +
-                    "on a.rawid=e.area_mst_rawid " +
-                    "and e.name=? " +
-                    "inner join param_mst_pdm p " +
-                    "on e.rawid=p.eqp_mst_rawid " +
-                    "inner join eqp_spec_link_mst_pdm l " +
-                    "on e.rawid=l.eqp_mst_rawid " +
-                    "inner join conditional_spec_mst_pdm c " +
-                    "on c.rawid=l.conditional_spec_mst_rawid " +
-                    "inner join model_param_spec_mst_pdm m " +
-                    "on c.rawid=m.conditional_spec_mst_rawid " +
-                    "and m.param_name=p.name " +
-                    "left outer join param_spec_mst_pdm s " +
-                    "on l.rawid=s.eqp_spec_link_mst_rawid " +
-                    "and p.rawid=s.param_mst_rawid ";
+            "select " +
+                    "    b.area_name, b.eqp_name, b.eqp_rawid, " +
+                    "    b.param_name, b.parse_index, b.param_id, b.param_type_cd, " +
+                    "    a.rule_name, a.expression, a.expression_value, " +
+                    "    a.alarm_spec, a.warning_spec, a.condition " +
+                    "from " +
+                    "( " +
+                    "    select " +
+                    "        e.name eqp_name, e.rawid eqp_rawid, m.param_name, " +
+                    "        c.rule_name, c.expression, c.expression_value, " +
+                    "        nvl(s.upper_alarm_spec, m.upper_alarm_spec) as alarm_spec, " +
+                    "        nvl(s.upper_warning_spec, m.upper_warning_spec) as warning_spec, " +
+                    "        c.condition " +
+                    "    from eqp_mst_pdm e inner join eqp_spec_link_mst_pdm l " +
+                    "    on e.rawid=l.eqp_mst_rawid and e.name=? " +
+                    "    inner join conditional_spec_mst_pdm c " +
+                    "    on c.rawid=l.conditional_spec_mst_rawid " +
+                    "    inner join model_param_spec_mst_pdm m " +
+                    "    on c.rawid=m.conditional_spec_mst_rawid " +
+                    "    left outer join param_spec_mst_pdm s " +
+                    "    on l.rawid=s.eqp_spec_link_mst_rawid " +
+                    ") a " +
+                    "right outer join " +
+                    "( " +
+                    "    select a.name area_name, e.name eqp_name, e.rawid eqp_rawid, " +
+                    "        p.name param_name, p.parse_index, p.rawid param_id, p.param_type_cd " +
+                    "    from area_mst_pdm a inner join eqp_mst_pdm e " +
+                    "    on a.rawid=e.area_mst_rawid and e.name=? " +
+                    "    inner join param_mst_pdm p " +
+                    "    on e.rawid=p.eqp_mst_rawid " +
+                    ") b " +
+                    "on a.eqp_rawid=b.eqp_rawid and a.param_name=b.param_name ";
 
     public List<ParameterWithSpecMaster> getParamWithSpecMasterDataSet(String eqpId) throws SQLException {
         List<ParameterWithSpecMaster> resultRows = new ArrayList<>();
@@ -85,6 +97,7 @@ public class StreamingMasterDataDao {
         try (Connection conn = DataSource.getConnection()) {
             try (PreparedStatement pst = conn.prepareStatement(PARAM_MASTER_DS_1_SQL)) {
                 pst.setString(1, eqpId);
+                pst.setString(2, eqpId);
 
                 log.debug("sql:{}", PARAM_MASTER_DS_1_SQL);
 
@@ -113,6 +126,8 @@ public class StreamingMasterDataDao {
                             uws = null;
                         }
                         ds.setUpperWarningSpec(uws);
+
+                        ds.setCondition(rs.getString(13));
 
 //                    Float t = rs.getFloat(14);
 //                    if(rs.wasNull()){
