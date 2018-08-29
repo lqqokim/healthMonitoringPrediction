@@ -119,7 +119,9 @@ public class RuleBasedDetection {
                 alarmTypeCode + "," +
                 paramInfo.getUpperAlarmSpec() + "," +
                 paramInfo.getUpperWarningSpec() + "," +
-                "N/A";
+                "N/A" + "," +
+                paramInfo.getRuleName() + "," +
+                paramInfo.getCondition().replaceAll(",", ";");
     }
 
     private String makeHealthMsg(Long longTime, String statusCode, ParameterWithSpecMaster paramInfo,

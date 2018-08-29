@@ -25,8 +25,9 @@ public class FeatureTrxDao implements FeatureDataDao {
                     "COUNT, MIN, MAX, MEDIAN, MEAN, STDDEV, Q1, Q3, " +
                     "MESSAGE_GROUP, " +
                     "UPPER_ALARM_SPEC, UPPER_WARNING_SPEC, TARGET, " +
-                    "LOWER_ALARM_SPEC, LOWER_WARNING_SPEC) " +
-                    "values (seq_param_feature_trx_pdm.nextval,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+                    "LOWER_ALARM_SPEC, LOWER_WARNING_SPEC, " +
+                    "RESERVED_COL1, RESERVED_COL2, RESERVED_COL3, RESERVED_COL4, RESERVED_COL5) " +
+                    "values (seq_param_feature_trx_pdm.nextval,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
     @Override
     public void storeRecords(List<ConsumerRecord<String, byte[]>> records) {
@@ -41,12 +42,11 @@ public class FeatureTrxDao implements FeatureDataDao {
                 for (ConsumerRecord<String, byte[]> record : records) {
                     byte[] features = record.value();
                     String valueString = new String(features);
+
                     String[] values = valueString.split(",", -1);
 
-                    log.trace("[{}] - from : {}, end : {}, param : {}", record.key(),
-                            values[0], values[1], values[2]);
-
                     // startDtts, endDtts, param rawid, count, max, min, median, avg, stddev, q1, q3, group, specs, refresh cmd
+                    // 1535527633937,1535527633937,1111,1,2822.0,2822.0,2822.0,2822.0,0.0,2822.0,2822.0,1535527633937,5003.0,4776.0,,,,,null
                     Long param_rawid = Long.parseLong(values[2]);
                     Timestamp beginDtts = new Timestamp(Long.parseLong(values[0]));
                     Timestamp endDtts = new Timestamp(Long.parseLong(values[1]));
@@ -96,6 +96,17 @@ public class FeatureTrxDao implements FeatureDataDao {
                     } else {
                         pstmt.setNull(17, Types.FLOAT);
                     }
+
+                    if (values[18].length() > 0) {
+                        pstmt.setString(18, values[18]); //dimensional column
+                    } else {
+                        pstmt.setNull(18, Types.VARCHAR);
+                    }
+
+                    pstmt.setNull(19, Types.VARCHAR);
+                    pstmt.setNull(20, Types.VARCHAR);
+                    pstmt.setNull(21, Types.VARCHAR);
+                    pstmt.setNull(22, Types.VARCHAR);
 
                     ts = endDtts;
 

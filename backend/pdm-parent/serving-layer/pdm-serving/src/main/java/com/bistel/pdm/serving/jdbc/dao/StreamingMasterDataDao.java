@@ -20,7 +20,8 @@ public class StreamingMasterDataDao {
 
     private final static String PARAM_MASTER_DS_SQL =
             "select e.rawid eqp_rawid, e.name eqp_name, e.model_name, " +
-                    "p.rawid param_rawid, p.name param_name, p.param_type_cd, p.parse_index " +
+                    "p.rawid param_rawid, p.name param_name, p.param_type_cd, p.parse_index, " +
+                    "p.data_type, p.mapping_dimension " +
                     "from eqp_mst_pdm e " +
                     "inner join param_mst_pdm p " +
                     "on e.rawid=p.eqp_mst_rawid " +
@@ -45,6 +46,8 @@ public class StreamingMasterDataDao {
                         ds.setParameterName(rs.getString(5));
                         ds.setParameterType(rs.getString(6));
                         ds.setParamParseIndex(rs.getInt(7));
+                        ds.setDataType(rs.getString(8));
+                        ds.setMappingDimensionColumn(rs.getString(9));
 
                         resultRows.add(ds);
                     }
@@ -62,7 +65,8 @@ public class StreamingMasterDataDao {
                     "    b.area_name, b.eqp_name, b.eqp_rawid, " +
                     "    b.param_name, b.parse_index, b.param_id, b.param_type_cd, " +
                     "    a.rule_name, a.expression, a.expression_value, " +
-                    "    a.alarm_spec, a.warning_spec, a.condition " +
+                    "    a.alarm_spec, a.warning_spec, a.condition," +
+                    "    b.data_type, b.mapping_dimension " +
                     "from " +
                     "( " +
                     "    select " +
@@ -83,7 +87,8 @@ public class StreamingMasterDataDao {
                     "right outer join " +
                     "( " +
                     "    select a.name area_name, e.name eqp_name, e.rawid eqp_rawid, " +
-                    "        p.name param_name, p.parse_index, p.rawid param_id, p.param_type_cd " +
+                    "        p.name param_name, p.parse_index, p.rawid param_id, p.param_type_cd," +
+                    "        p.data_type, p.mapping_dimension " +
                     "    from area_mst_pdm a inner join eqp_mst_pdm e " +
                     "    on a.rawid=e.area_mst_rawid and e.name=? " +
                     "    inner join param_mst_pdm p " +
@@ -128,6 +133,8 @@ public class StreamingMasterDataDao {
                         ds.setUpperWarningSpec(uws);
 
                         ds.setCondition(rs.getString(13));
+                        ds.setDataType(rs.getString(14));
+                        ds.setMappingDimensionColumn(rs.getString(15));
 
 //                    Float t = rs.getFloat(14);
 //                    if(rs.wasNull()){

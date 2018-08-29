@@ -144,7 +144,7 @@ public class TraceTrxDao implements SensorTraceDataDao {
                             }
 
                             pstmt.setString(8, paramSpec.getRuleName());
-                            pstmt.setString(9, paramSpec.getCondition());
+                            pstmt.setString(9, paramSpec.getCondition().replaceAll(",", ";"));
 
                         } else {
                             pstmt.setNull(3, Types.FLOAT);

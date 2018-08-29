@@ -33,6 +33,8 @@ public class AggregateFeatureProcessor extends AbstractProcessor<String, byte[]>
 
     private final ConcurrentHashMap<String, String> conditionRuleMap = new ConcurrentHashMap<>();
 
+    private final ConcurrentHashMap<String, String> dimensionalValues = new ConcurrentHashMap<>();
+
     @Override
     @SuppressWarnings("unchecked")
     public void init(ProcessorContext context) {
@@ -75,22 +77,29 @@ public class AggregateFeatureProcessor extends AbstractProcessor<String, byte[]>
 
                 // check conditional spec.
                 String ruleName = ConditionSpecFunction.evaluateCondition(partitionKey, columns);
-                //log.debug("[{}] - rule:{}", partitionKey, ruleName);
 
                 if (ruleName.length() > 0) {
                     conditionRuleMap.put(partitionKey, ruleName);
-                    //log.debug("[{}] - cache rule : {}", partitionKey, ruleName);
 
                     for (ParameterWithSpecMaster paramInfo : parameterMasterDataSets) {
                         if (paramInfo.getParamParseIndex() <= 0) continue;
 
-                        if (ruleName.equalsIgnoreCase(paramInfo.getRuleName())) {
-                            if (paramInfo.getUpperAlarmSpec() == null) continue;
+                        String paramKey = partitionKey + ":" + paramInfo.getParameterRawId();
 
-                            String paramKey = partitionKey + ":" + paramInfo.getParameterRawId();
-                            Double dValue = Double.parseDouble(columns[paramInfo.getParamParseIndex()]);
-                            kvSummaryWindowStore.put(paramKey, dValue, paramTime);
-                            //log.debug("[{}] - put the value {}", partitionKey, dValue);
+                        if (ruleName.equalsIgnoreCase(paramInfo.getRuleName())) {
+                            if (paramInfo.getDataType().equalsIgnoreCase("CONTINUOUS")){
+                                if(paramInfo.getUpperAlarmSpec() == null) continue;
+
+                                Double dValue = Double.parseDouble(columns[paramInfo.getParamParseIndex()]);
+                                kvSummaryWindowStore.put(paramKey, dValue, paramTime);
+                            }
+                        } else {
+                            if(paramInfo.getDataType().equalsIgnoreCase("CATEGORICAL")
+                                    && paramInfo.getMappingDimensionColumn() != null){
+
+                                String v = columns[paramInfo.getParamParseIndex()];
+                                dimensionalValues.put(partitionKey, v); // only 1 per eqp
+                            }
                         }
                     }
 
@@ -114,6 +123,8 @@ public class AggregateFeatureProcessor extends AbstractProcessor<String, byte[]>
                                     if (paramMaster.getUpperAlarmSpec() == null) continue;
 
                                     String paramKey = partitionKey + ":" + paramMaster.getParameterRawId();
+                                    String dimensionValue = dimensionalValues.get(partitionKey);
+
                                     WindowStoreIterator<Double> storeIterator = kvSummaryWindowStore.fetch(paramKey, startTime, paramTime);
 
                                     DescriptiveStatistics stats = new DescriptiveStatistics();
@@ -147,7 +158,7 @@ public class AggregateFeatureProcessor extends AbstractProcessor<String, byte[]>
                                             tgt + "," +
                                             las + "," +
                                             lws + "," +
-                                            refreshCacheflag;
+                                            refreshCacheflag + "," + dimensionValue;
 
                                     context().forward(partitionKey, msg.getBytes());
                                     context().commit();
@@ -188,8 +199,9 @@ public class AggregateFeatureProcessor extends AbstractProcessor<String, byte[]>
                             if (paramMaster.getUpperAlarmSpec() == null) continue;
 
                             String paramKey = partitionKey + ":" + paramMaster.getParameterRawId();
-                            WindowStoreIterator<Double> storeIterator = kvSummaryWindowStore.fetch(paramKey, startTime, endTime);
+                            String dimensionValue = dimensionalValues.get(partitionKey);
 
+                            WindowStoreIterator<Double> storeIterator = kvSummaryWindowStore.fetch(paramKey, startTime, endTime);
                             DescriptiveStatistics stats = new DescriptiveStatistics();
                             while (storeIterator.hasNext()) {
                                 KeyValue<Long, Double> kv = storeIterator.next();
@@ -221,11 +233,12 @@ public class AggregateFeatureProcessor extends AbstractProcessor<String, byte[]>
                                     tgt + "," +
                                     las + "," +
                                     lws + "," +
-                                    refreshCacheflag;
+                                    refreshCacheflag + "," + dimensionValue;
 
                             context().forward(partitionKey, msg.getBytes());
                             context().commit();
 
+//                            log.debug("[{}] - {}", partitionKey, msg);
                             log.debug("[{}] - aggregated. (from : {}, end : {}, param : {})",
                                     partitionKey, startTime, endTime, paramMaster.getParameterName());
                         }

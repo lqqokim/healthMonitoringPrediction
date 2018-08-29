@@ -186,7 +186,7 @@ public class IndividualDetection {
                 param.getUpperWarningSpec() + "," +
                 "N/A" + "," +
                 param.getRuleName() + "," +
-                param.getCondition();
+                param.getCondition().replaceAll(",", ";");
 
         //[{\"param_name\":\"BARCODE\",\"operand\":\"=\",\"param_value\":\"7005\"}]
         return sbMsg;
@@ -232,7 +232,7 @@ public class IndividualDetection {
                 param.getUpperWarningSpec() + "," +
                 "N/A" + "," +
                 param.getRuleName() + "," +
-                param.getCondition();
+                param.getCondition().replaceAll(",", ";");
 
 //                    String mailText = "" + "\n" +
 //                            "- Equipment ID : " + paramKey + "\n" +

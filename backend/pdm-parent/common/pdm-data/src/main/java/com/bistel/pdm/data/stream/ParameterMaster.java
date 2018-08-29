@@ -31,6 +31,9 @@ public class ParameterMaster {
     @JsonProperty("dataType")
     private String dataType;
 
+    @JsonProperty("mappingDimensionColumn")
+    private String mappingDimensionColumn;
+
     public String toKey() {
         return this.equipmentName;
     }
@@ -97,5 +100,13 @@ public class ParameterMaster {
 
     public void setDataType(String dataType) {
         this.dataType = dataType;
+    }
+
+    public String getMappingDimensionColumn() {
+        return mappingDimensionColumn;
+    }
+
+    public void setMappingDimensionColumn(String mappingDimensionColumn) {
+        this.mappingDimensionColumn = mappingDimensionColumn;
     }
 }
