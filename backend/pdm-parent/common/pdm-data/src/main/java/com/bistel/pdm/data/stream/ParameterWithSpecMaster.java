@@ -58,9 +58,6 @@ public class ParameterWithSpecMaster {
     @JsonProperty("condition")
     private String condition;
 
-    @JsonProperty("mappingDimensionColumn")
-    private String mappingDimensionColumn;
-
 //    public String toKey(){
 //        return this.areaName  + "," + this.equipmentName;
 //    }
@@ -207,13 +204,5 @@ public class ParameterWithSpecMaster {
 
     public void setCondition(String condition) {
         this.condition = condition;
-    }
-
-    public String getMappingDimensionColumn() {
-        return mappingDimensionColumn;
-    }
-
-    public void setMappingDimensionColumn(String mappingDimensionColumn) {
-        this.mappingDimensionColumn = mappingDimensionColumn;
     }
 }

@@ -1,6 +1,7 @@
 package com.bistel.pdm.speed.bundle;
 
 import com.bistel.pdm.speed.SpeedTaskDef;
+import com.bistel.pdm.speed.SpeedTimeOutTaskDef;
 import org.apache.commons.cli.*;
 import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
@@ -21,6 +22,7 @@ public class SpeedStreamAppBootstrap {
     private static final String SCHEMA_REGISTRY_URL = "registryUrl";
     private static final String SERVING_ADDR = "servingAddr";
     private static final String LOG_PATH = "log4jConf";
+    private static final String PIPELINE = "pipeline";
 
     private static final Options options = new Options();
 
@@ -33,13 +35,22 @@ public class SpeedStreamAppBootstrap {
         String schemaUrl = commandLine.getOptionValue(SCHEMA_REGISTRY_URL);
         String servingAddr = commandLine.getOptionValue(SERVING_ADDR);
         String logPath = commandLine.getOptionValue(LOG_PATH);
+        String pipeline = commandLine.getOptionValue(PIPELINE);
 
         Properties logProperties = new Properties();
         logProperties.load(new FileInputStream(logPath));
         PropertyConfigurator.configure(logProperties);
 
-        try (SpeedTaskDef processor = new SpeedTaskDef(appId, brokers, schemaUrl, servingAddr)) {
-            processor.start();
+        if (pipeline.equalsIgnoreCase("REALTIME")) {
+            try (SpeedTaskDef processor = new SpeedTaskDef(appId, brokers, schemaUrl, servingAddr)) {
+                processor.start();
+            }
+        } else if (pipeline.equalsIgnoreCase("TIMEOUT")) {
+            try (SpeedTimeOutTaskDef processor = new SpeedTimeOutTaskDef(appId, brokers, schemaUrl, servingAddr)) {
+                processor.start();
+            }
+        } else {
+            log.info("Not supported.");
         }
     }
 
@@ -48,12 +59,13 @@ public class SpeedStreamAppBootstrap {
         Option broker = new Option(BROKERS, true, "input/output broker");
         Option schemaUrl = new Option(SCHEMA_REGISTRY_URL, true, "schema registry url");
         Option servingAddr = new Option(SERVING_ADDR, true, "serving address");
+        Option pipeline = new Option(PIPELINE, true, "streaming pipeline");
         Option logPath = new Option(LOG_PATH, true, "config path");
 
         options.addOption(appId).addOption(broker).addOption(schemaUrl)
-                .addOption(servingAddr).addOption(logPath);
+                .addOption(servingAddr).addOption(pipeline).addOption(logPath);
 
-        if (args.length < 5) {
+        if (args.length < 6) {
             printUsageAndExit();
         }
         CommandLineParser parser = new DefaultParser();

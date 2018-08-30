@@ -4,7 +4,6 @@ import com.bistel.pdm.data.stream.*;
 import com.bistel.pdm.serving.Exception.Message;
 import com.bistel.pdm.serving.jdbc.dao.AlarmMailConfigDataDao;
 import com.bistel.pdm.serving.jdbc.dao.ParamHealthDataDao;
-import com.bistel.pdm.serving.jdbc.dao.ParameterSpecDataDao;
 import com.bistel.pdm.serving.jdbc.dao.StreamingMasterDataDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -165,40 +164,6 @@ public class StreamingMasterService {
             return Response.status(Response.Status.NOT_FOUND).entity(new Message(e.getMessage())).build();
         }
     }
-
-//    @GET
-//    @Path("/latest/spec")
-//    public Response reloadSpecAll() {
-//        ParameterSpecDataDao repository = new ParameterSpecDataDao();
-//        List<ParameterWithSpecMaster> paramSpecDataSet = null;
-//
-//        try {
-//            paramSpecDataSet = repository.getParamSpecDataSet();
-//            log.info("Provides the latest parameter spec info. count={}", paramSpecDataSet.size());
-//            return Response.status(Response.Status.OK).entity(paramSpecDataSet).build();
-//
-//        } catch (SQLException e) {
-//            log.error(e.getMessage(), e);
-//            return Response.status(Response.Status.NOT_FOUND).entity(new Message(e.getMessage())).build();
-//        }
-//    }
-
-//    @GET
-//    @Path("/latest/spec/{eqpid}")
-//    public Response reloadSpec(@PathParam("eqpid") String eqpId) {
-//        ParameterSpecDataDao repository = new ParameterSpecDataDao();
-//        List<ParameterWithSpecMaster> paramSpecDataSet = null;
-//
-//        try {
-//            paramSpecDataSet = repository.getParamSpecDataSet(eqpId);
-//            log.info("Provides the latest parameter spec info. count={}", paramSpecDataSet.size());
-//            return Response.status(Response.Status.OK).entity(paramSpecDataSet).build();
-//
-//        } catch (SQLException e) {
-//            log.error(e.getMessage(), e);
-//            return Response.status(Response.Status.NOT_FOUND).entity(new Message(e.getMessage())).build();
-//        }
-//    }
 
     @GET
     @Path("/latest/health")

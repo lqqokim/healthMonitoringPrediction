@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
-APPNAME="Speed Layer"
-APPPID=speed.pid
+APPNAME="Speed Layer - realtime"
+APPPID=speed-realtime.pid
 APPJAR=pdm-speed-bundle-1.0-SNAPSHOT.jar
-APPOPTS="-appId pdm-speed-v1.1.0
+APPOPTS="-appId pdm-speed-realtime-v1.1.0
 -brokers 192.168.7.228:29092,192.168.7.228:39092,192.168.7.228:49092
 -registryUrl http://192.168.7.228:8081
 -servingAddr http://192.168.7.227:28000
+-pipeline REALTIME
 -log4jConf ./config/log4j-trace.properties"
 
 case $1 in

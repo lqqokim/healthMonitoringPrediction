@@ -32,10 +32,6 @@ public class PrepareDataProcessor extends AbstractProcessor<String, byte[]> {
     private final ConcurrentHashMap<String, String> messageGroupMap = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, String> cacheRefreshFlagMap = new ConcurrentHashMap<>();
 
-//    private final Timer timer = new Timer();
-
-//    private final static ConcurrentHashMap<String, MessageExtended> TimeOutOffset = new ConcurrentHashMap<>();
-
     @Override
     @SuppressWarnings("unchecked")
     public void init(ProcessorContext processorContext) {
@@ -43,80 +39,6 @@ public class PrepareDataProcessor extends AbstractProcessor<String, byte[]> {
 
         kvStatusContextStore = (KeyValueStore) this.context().getStateStore("speed-status-context");
 
-//        // If you no longer receive messages, processing it as idle.
-//        timer.scheduleAtFixedRate(new TimerTask() {
-//            @Override
-//            public void run() {
-//                try {
-//                    while (TimeOutOffset.keys().hasMoreElements()) {
-//                        String key = TimeOutOffset.keys().nextElement();
-//                        MessageExtended msgExtended = TimeOutOffset.get(key);
-//
-//                        List<EventMaster> eventList = MasterCache.Event.get(key);
-//                        for (EventMaster event : eventList) {
-//                            // for process interval
-//                            if (event.getProcessYN().equalsIgnoreCase("Y")) {
-//                                if (event.getTimeoutMs() != null && event.getTimeoutMs() > 3600000) { // > 1h
-//                                    Long timeoutMs = event.getTimeoutMs();
-//                                    long diffInMillies = Math.abs(System.currentTimeMillis() - msgExtended.getLongTime());
-//
-//                                    // time out
-//                                    if (diffInMillies > timeoutMs) {
-//                                        // time, P1, P2, P3, P4, ... Pn, now status:time, prev status:time, groupid, refresh flag
-//                                        String msg = System.currentTimeMillis() + "," +
-//                                                msgExtended.getCurrentStatus() + "," +
-//                                                msgExtended.getPreviousStatus() + "," +
-//                                                "idle" + ",";
-//
-//                                        context().forward(key, msg.getBytes());
-//                                        // commit the current processing progress
-//                                        context().commit();
-//                                    }
-//                                }
-//                            }
-//                        }
-//                    }
-//                } catch (Exception e) {
-//                    log.error(e.getMessage(), e);
-//                }
-//            }
-//        }, 0, TimeUnit.MINUTES.toMillis(1));
-
-
-//        context().schedule(60000, PunctuationType.STREAM_TIME, (timestamp) -> {
-//            try {
-//                while(TimeOutOffset.keys().hasMoreElements()){
-//                    String key = TimeOutOffset.keys().nextElement();
-//                    MessageExtended msgExtended = TimeOutOffset.get(key);
-//
-//                    List<EventMaster> eventList = MasterCache.Event.get(key);
-//                    for (EventMaster event : eventList) {
-//                        // for process interval
-//                        if (event.getProcessYN().equalsIgnoreCase("Y")) {
-//                            if(event.getTimeoutMs() != null && event.getTimeoutMs() > 3600000){ // > 1h
-//                                Long timeoutMs = event.getTimeoutMs();
-//                                long diffInMillies = Math.abs(System.currentTimeMillis() - msgExtended.getLongTime());
-//
-//                                // time out
-//                                if(diffInMillies > timeoutMs){
-//                                    // time, P1, P2, P3, P4, ... Pn, now status:time, prev status:time, groupid, refresh flag
-//                                    String msg = System.currentTimeMillis() + "," +
-//                                            msgExtended.getCurrentStatus() + "," +
-//                                            msgExtended.getPreviousStatus() + "," +
-//                                            "idle" + ",";
-//
-//                                    context().forward(key, msg.getBytes());
-//                                    // commit the current processing progress
-//                                    context().commit();
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
-//            } catch (Exception e){
-//                log.error(e.getMessage(), e);
-//            }
-//        });
     }
 
     @Override
@@ -156,7 +78,6 @@ public class PrepareDataProcessor extends AbstractProcessor<String, byte[]> {
                         context().forward(partitionKey, recordValue.getBytes());
                         context().commit();
 
-//                        TimeOutOffset.put(partitionKey, new MessageExtended(msgTimeStamp, statusContext));
                         //log.debug("[{}] - {}", partitionKey, recordValue);
                         break;
                     }
@@ -180,7 +101,6 @@ public class PrepareDataProcessor extends AbstractProcessor<String, byte[]> {
                 context().forward(partitionKey, recordValue.getBytes());
                 context().commit();
 
-//                TimeOutOffset.put(partitionKey, new MessageExtended(msgTimeStamp, statusContext));
                 log.debug("[{}] - No event registered.", partitionKey);
             }
         } catch (Exception e) {
@@ -229,7 +149,7 @@ public class PrepareDataProcessor extends AbstractProcessor<String, byte[]> {
 
             extendMessage = extendMessage + msgGroup + ",";
 
-        } else if (nowStatusCode.equalsIgnoreCase("R")){
+        } else if (nowStatusCode.equalsIgnoreCase("R")) {
             String msgGroup = messageGroupMap.computeIfAbsent(partitionKey, k -> msgTimeStamp.toString());
             // define group id
             extendMessage = extendMessage + msgGroup + ",";

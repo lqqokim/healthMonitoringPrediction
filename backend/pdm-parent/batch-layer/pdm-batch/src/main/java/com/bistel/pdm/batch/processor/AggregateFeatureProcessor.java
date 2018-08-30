@@ -33,8 +33,6 @@ public class AggregateFeatureProcessor extends AbstractProcessor<String, byte[]>
 
     private final ConcurrentHashMap<String, String> conditionRuleMap = new ConcurrentHashMap<>();
 
-    private final ConcurrentHashMap<String, String> dimensionalValues = new ConcurrentHashMap<>();
-
     @Override
     @SuppressWarnings("unchecked")
     public void init(ProcessorContext context) {
@@ -85,21 +83,11 @@ public class AggregateFeatureProcessor extends AbstractProcessor<String, byte[]>
                         if (paramInfo.getParamParseIndex() <= 0) continue;
 
                         String paramKey = partitionKey + ":" + paramInfo.getParameterRawId();
-
                         if (ruleName.equalsIgnoreCase(paramInfo.getRuleName())) {
-                            if (paramInfo.getDataType().equalsIgnoreCase("CONTINUOUS")){
-                                if(paramInfo.getUpperAlarmSpec() == null) continue;
+                            if (paramInfo.getUpperAlarmSpec() == null) continue;
 
-                                Double dValue = Double.parseDouble(columns[paramInfo.getParamParseIndex()]);
-                                kvSummaryWindowStore.put(paramKey, dValue, paramTime);
-                            }
-                        } else {
-                            if(paramInfo.getDataType().equalsIgnoreCase("CATEGORICAL")
-                                    && paramInfo.getMappingDimensionColumn() != null){
-
-                                String v = columns[paramInfo.getParamParseIndex()];
-                                dimensionalValues.put(partitionKey, v); // only 1 per eqp
-                            }
+                            Double dValue = Double.parseDouble(columns[paramInfo.getParamParseIndex()]);
+                            kvSummaryWindowStore.put(paramKey, dValue, paramTime);
                         }
                     }
 
@@ -123,7 +111,6 @@ public class AggregateFeatureProcessor extends AbstractProcessor<String, byte[]>
                                     if (paramMaster.getUpperAlarmSpec() == null) continue;
 
                                     String paramKey = partitionKey + ":" + paramMaster.getParameterRawId();
-                                    String dimensionValue = dimensionalValues.get(partitionKey);
 
                                     WindowStoreIterator<Double> storeIterator = kvSummaryWindowStore.fetch(paramKey, startTime, paramTime);
 
@@ -158,7 +145,7 @@ public class AggregateFeatureProcessor extends AbstractProcessor<String, byte[]>
                                             tgt + "," +
                                             las + "," +
                                             lws + "," +
-                                            refreshCacheflag + "," + dimensionValue;
+                                            refreshCacheflag; // + "," + dimensionValue;
 
                                     context().forward(partitionKey, msg.getBytes());
                                     context().commit();
@@ -199,7 +186,6 @@ public class AggregateFeatureProcessor extends AbstractProcessor<String, byte[]>
                             if (paramMaster.getUpperAlarmSpec() == null) continue;
 
                             String paramKey = partitionKey + ":" + paramMaster.getParameterRawId();
-                            String dimensionValue = dimensionalValues.get(partitionKey);
 
                             WindowStoreIterator<Double> storeIterator = kvSummaryWindowStore.fetch(paramKey, startTime, endTime);
                             DescriptiveStatistics stats = new DescriptiveStatistics();
@@ -233,7 +219,7 @@ public class AggregateFeatureProcessor extends AbstractProcessor<String, byte[]>
                                     tgt + "," +
                                     las + "," +
                                     lws + "," +
-                                    refreshCacheflag + "," + dimensionValue;
+                                    refreshCacheflag; // + "," + dimensionValue;
 
                             context().forward(partitionKey, msg.getBytes());
                             context().commit();
