@@ -64,7 +64,8 @@ public class PrepareDataProcessor extends AbstractProcessor<String, byte[]> {
             if (eventList != null && eventList.size() > 0) {
                 for (EventMaster event : eventList) {
                     // for process interval
-                    if (event.getProcessYN().equalsIgnoreCase("Y")) {
+                    if (event.getProcessYN().equalsIgnoreCase("Y")
+                            && event.getEventTypeCD().equalsIgnoreCase("S")) {
                         double paramValue = Double.parseDouble(recordColumns[event.getParamParseIndex()]);
 
                         String statusContext = appendStatusContext(partitionKey, msgTimeStamp, event, paramValue);
