@@ -45,6 +45,13 @@ public class TransformTimewaveProcessor extends AbstractProcessor<String, byte[]
         // 8      : prev. status
 
         try {
+            // filter by master
+            if (MasterCache.Equipment.get(partitionKey) == null) {
+                log.debug("[{}] - Not existed.", partitionKey);
+                context().commit();
+                return;
+            }
+
             //
             if (columns[1].equalsIgnoreCase("CMD-CACHE-REFRESH")) {
                 refreshMasterCache(partitionKey);

@@ -2,13 +2,12 @@ package com.bistel.pdm.speed;
 
 import com.bistel.pdm.lambda.kafka.AbstractPipeline;
 import com.bistel.pdm.lambda.kafka.partitioner.CustomStreamPartitioner;
-import com.bistel.pdm.speed.processor.*;
+import com.bistel.pdm.speed.processor.SpeedProcessor;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.Topology;
-import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.state.StoreBuilder;
 import org.apache.kafka.streams.state.Stores;
 import org.apache.kafka.streams.state.WindowStore;
@@ -50,12 +49,6 @@ public class SpeedTaskDef extends AbstractPipeline {
     private KafkaStreams processStreams() {
         final Topology topology = new Topology();
 
-        StoreBuilder<KeyValueStore<String, String>> statusStoreSupplier =
-                Stores.keyValueStoreBuilder(
-                        Stores.persistentKeyValueStore("speed-status-context"),
-                        Serdes.String(),
-                        Serdes.String());
-
         StoreBuilder<WindowStore<String, Double>> normalizedParamValueStoreSupplier =
                 Stores.windowStoreBuilder(
                         Stores.persistentWindowStore("speed-normalized-value",
@@ -66,36 +59,19 @@ public class SpeedTaskDef extends AbstractPipeline {
                         Serdes.String(),
                         Serdes.Double());
 
-        StoreBuilder<KeyValueStore<String, Long>> sumIntervalStoreSupplier =
-                Stores.keyValueStoreBuilder(
-                        Stores.persistentKeyValueStore("speed-process-interval"),
-                        Serdes.String(),
-                        Serdes.Long());
-
         CustomStreamPartitioner partitioner = new CustomStreamPartitioner();
 
         topology.addSource("input-trace", this.getInputTraceTopic())
-                .addProcessor("begin", BeginProcessor::new, "input-trace")
+                .addSource("input-reload", this.getInputReloadTopic())
+                .addProcessor("speed", SpeedProcessor::new, "input-trace", "input-reload")
+                .addStateStore(normalizedParamValueStoreSupplier, "speed")
 
-                .addProcessor("prepare", PrepareDataProcessor::new, "begin")
-                .addStateStore(statusStoreSupplier, "prepare")
-
-                .addProcessor("event", ExtractEventProcessor::new, "prepare")
-                .addProcessor("fault", DetectFaultProcessor::new, "prepare")
-                .addStateStore(normalizedParamValueStoreSupplier, "fault")
-                .addStateStore(sumIntervalStoreSupplier, "fault")
-
-                .addProcessor("refresh", RefreshCacheProcessor::new, "fault")
-                //.addProcessor("mail", SendMailProcessor::new, "fault")
-
-                .addSink("output-event", this.getOutputEventTopic(), partitioner, "event")
-
-                .addSink("output-trace", this.getOutputTraceTopic(), partitioner, "fault")
-                .addSink("output-raw", this.getInputTimewaveTopic(), partitioner, "fault")
-                .addSink("output-fault", this.getOutputFaultTopic(), partitioner, "fault")
-                .addSink("output-health", this.getOutputHealthTopic(), partitioner, "fault")
-
-                .addSink("output-refresh", this.getOutputReloadTopic(), partitioner, "refresh");
+                .addSink("output-trace", this.getOutputTraceTopic(), partitioner, "speed")
+                .addSink("output-event", this.getOutputEventTopic(), partitioner, "speed")
+                .addSink("output-fault", this.getOutputFaultTopic(), partitioner, "speed")
+                .addSink("output-health", this.getOutputHealthTopic(), partitioner, "speed")
+                .addSink("output-reload", this.getOutputReloadTopic(), partitioner, "speed")
+                .addSink("output-raw", this.getInputTimewaveTopic(), partitioner, "speed");
 
         return new KafkaStreams(topology, getStreamProperties());
     }
@@ -124,7 +100,7 @@ public class SpeedTaskDef extends AbstractPipeline {
         streamProps.put(StreamsConfig.PROCESSING_GUARANTEE_CONFIG, StreamsConfig.EXACTLY_ONCE);
 
         // The number of threads to execute stream processing. default is 1.
-        streamProps.put(StreamsConfig.NUM_STREAM_THREADS_CONFIG, 1);
+        streamProps.put(StreamsConfig.NUM_STREAM_THREADS_CONFIG, 9);
 
         streamProps.put(StreamsConfig.STATE_DIR_CONFIG, stateDir);
 

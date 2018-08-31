@@ -1,7 +1,5 @@
 package com.bistel.pdm.batch;
 
-import com.bistel.pdm.batch.processor.BeginProcessor;
-import com.bistel.pdm.batch.processor.FilterByMasterProcessor;
 import com.bistel.pdm.batch.processor.TransformTimewaveProcessor;
 import com.bistel.pdm.lambda.kafka.AbstractPipeline;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -48,9 +46,7 @@ public class BatchTimewaveTaskDef extends AbstractPipeline {
         final Topology topology = new Topology();
 
         topology.addSource("input-raw", this.getInputTimewaveTopic())
-                .addProcessor("begin", BeginProcessor::new, "input-raw")
-                .addProcessor("filter", FilterByMasterProcessor::new, "begin")
-                .addProcessor("transform", TransformTimewaveProcessor::new, "filter")
+                .addProcessor("transform", TransformTimewaveProcessor::new, "input-raw")
                 .addSink("output-raw", this.getOutputTimewaveTopic(), "transform");
 
         return new KafkaStreams(topology, getStreamProperties());

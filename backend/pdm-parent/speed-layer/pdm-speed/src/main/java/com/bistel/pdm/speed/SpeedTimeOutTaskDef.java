@@ -12,6 +12,7 @@ import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.state.StoreBuilder;
 import org.apache.kafka.streams.state.Stores;
 import org.apache.kafka.streams.state.WindowStore;
+import org.omg.CORBA.TIMEOUT;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,12 +54,8 @@ public class SpeedTimeOutTaskDef extends AbstractPipeline {
         CustomStreamPartitioner partitioner = new CustomStreamPartitioner();
 
         topology.addSource("input-trace", this.getInputTraceTopic())
-                .addProcessor("begin", BeginProcessor::new, "input-trace")
-                .addProcessor("timeout", TimeoutProcessor::new, "begin")
-                .addProcessor("event", ExtractEventProcessor::new, "timeout")
-
-                .addSink("output-event", this.getOutputEventTopic(), partitioner, "event")
-                .addSink("output-trace", this.getOutputTraceTopic(), partitioner, "timeout");
+                .addProcessor("timeout", TimeoutProcessor::new, "input-trace")
+                .addSink("output-event", this.getOutputEventTopic(), partitioner, "timeout");
 
         return new KafkaStreams(topology, getStreamProperties());
     }
@@ -87,7 +84,7 @@ public class SpeedTimeOutTaskDef extends AbstractPipeline {
         streamProps.put(StreamsConfig.PROCESSING_GUARANTEE_CONFIG, StreamsConfig.EXACTLY_ONCE);
 
         // The number of threads to execute stream processing. default is 1.
-        streamProps.put(StreamsConfig.NUM_STREAM_THREADS_CONFIG, 1);
+        streamProps.put(StreamsConfig.NUM_STREAM_THREADS_CONFIG, 10);
 
         streamProps.put(StreamsConfig.STATE_DIR_CONFIG, stateDir);
 

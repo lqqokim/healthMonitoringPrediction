@@ -1,9 +1,6 @@
 package com.bistel.pdm.batch;
 
-import com.bistel.pdm.batch.processor.AggregateFeatureProcessor;
-import com.bistel.pdm.batch.processor.BeginProcessor;
-import com.bistel.pdm.batch.processor.CalculateHealthProcessor;
-import com.bistel.pdm.batch.processor.PrepareDataProcessor;
+import com.bistel.pdm.batch.processor.BatchProcessor;
 import com.bistel.pdm.lambda.kafka.AbstractPipeline;
 import com.bistel.pdm.lambda.kafka.partitioner.CustomStreamPartitioner;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -11,7 +8,6 @@ import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.Topology;
-import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.state.StoreBuilder;
 import org.apache.kafka.streams.state.Stores;
 import org.apache.kafka.streams.state.WindowStore;
@@ -53,15 +49,9 @@ public class BatchTraceTaskDef extends AbstractPipeline {
     private KafkaStreams processStreams() {
         final Topology topology = new Topology();
 
-        StoreBuilder<KeyValueStore<String, String>> statusContextStoreSupplier =
-                Stores.keyValueStoreBuilder(
-                        Stores.persistentKeyValueStore("batch-status-context"),
-                        Serdes.String(),
-                        Serdes.String());
-
-        StoreBuilder<WindowStore<String, Double>> summaryWindowStoreSupplier =
+        StoreBuilder<WindowStore<String, Double>> contValueWindowStoreSupplier =
                 Stores.windowStoreBuilder(
-                        Stores.persistentWindowStore("batch-feature-summary",
+                        Stores.persistentWindowStore("batch-continuous-summary",
                                 TimeUnit.DAYS.toMillis(1),
                                 24,
                                 TimeUnit.DAYS.toMillis(1),
@@ -69,24 +59,25 @@ public class BatchTraceTaskDef extends AbstractPipeline {
                         Serdes.String(),
                         Serdes.Double());
 
-        StoreBuilder<KeyValueStore<String, Long>> summaryIntervalStoreSupplier =
-                Stores.keyValueStoreBuilder(
-                        Stores.persistentKeyValueStore("batch-summary-interval"),
+        StoreBuilder<WindowStore<String, String>> catValueWindowStoreSupplier =
+                Stores.windowStoreBuilder(
+                        Stores.persistentWindowStore("batch-categorical-summary",
+                                TimeUnit.DAYS.toMillis(1),
+                                24,
+                                TimeUnit.DAYS.toMillis(1),
+                                true),
                         Serdes.String(),
-                        Serdes.Long());
+                        Serdes.String());
 
         CustomStreamPartitioner partitioner = new CustomStreamPartitioner();
 
         topology.addSource("input-trace", this.getInputTraceTopic())
-                .addProcessor("begin", BeginProcessor::new, "input-trace")
-                .addProcessor("prepare", PrepareDataProcessor::new, "begin")
-                .addStateStore(statusContextStoreSupplier, "prepare")
-                .addProcessor("aggregate", AggregateFeatureProcessor::new, "prepare")
-                .addStateStore(summaryWindowStoreSupplier, "aggregate")
-                .addStateStore(summaryIntervalStoreSupplier, "aggregate")
-
-                .addSink("output-feature", this.getOutputFeatureTopic(), partitioner, "aggregate");
-                //.addSink("route-feature", this.getRouteFeatureTopic(), "aggregate");
+                .addSource("input-reload", this.getInputReloadTopic())
+                .addProcessor("batch", BatchProcessor::new, "input-trace", "input-reload")
+                .addStateStore(contValueWindowStoreSupplier, "batch")
+                .addStateStore(catValueWindowStoreSupplier, "batch")
+                .addSink("output-feature", this.getOutputFeatureTopic(), partitioner, "batch")
+                .addSink("output-dimension", this.getOutputDimensionTopic(), partitioner, "batch");
 
         return new KafkaStreams(topology, getStreamProperties());
     }
@@ -115,7 +106,7 @@ public class BatchTraceTaskDef extends AbstractPipeline {
         streamProps.put(StreamsConfig.PROCESSING_GUARANTEE_CONFIG, StreamsConfig.EXACTLY_ONCE);
 
         // The number of threads to execute stream processing. default is 1.
-        streamProps.put(StreamsConfig.NUM_STREAM_THREADS_CONFIG, 1);
+        streamProps.put(StreamsConfig.NUM_STREAM_THREADS_CONFIG, 9);
 
         streamProps.put(StreamsConfig.STATE_DIR_CONFIG, stateDir);
 

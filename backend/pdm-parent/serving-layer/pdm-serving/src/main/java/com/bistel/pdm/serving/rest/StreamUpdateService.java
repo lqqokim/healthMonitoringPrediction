@@ -32,10 +32,6 @@ public class StreamUpdateService {
 
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
-    private final String inputTraceTopic = "pdm-input-trace";
-    private final String inputTimewaveTopic = "pdm-input-raw";
-    private final String routeFeatureTopic = "pdm-route-feature";
-    private final String routeHealthTopic = "pdm-route-health";
     private final String inputReloadTopic = "pdm-input-reload";
 
     private final String clientId = "serving";
@@ -60,11 +56,7 @@ public class StreamUpdateService {
         try {
             Timestamp timestamp = new Timestamp(System.currentTimeMillis());
             String msg =  dateFormat.format(timestamp) + ",CMD-REFRESH-CACHE,http://" + HostInfo.ip + ":" + HostInfo.port;
-            producer.send(new ProducerRecord<>(inputTraceTopic, eqpId, msg.getBytes()));
-            producer.send(new ProducerRecord<>(inputTimewaveTopic, eqpId, msg.getBytes()));
             producer.send(new ProducerRecord<>(inputReloadTopic, eqpId, msg.getBytes()));
-//            producer.send(new ProducerRecord<>(routeFeatureTopic, eqpId, msg.getBytes()));
-//            producer.send(new ProducerRecord<>(routeHealthTopic, eqpId, msg.getBytes()));
 
             log.info("requested to {} to update the master information.", eqpId);
             return Response.status(Response.Status.OK).entity(eqpId).build();

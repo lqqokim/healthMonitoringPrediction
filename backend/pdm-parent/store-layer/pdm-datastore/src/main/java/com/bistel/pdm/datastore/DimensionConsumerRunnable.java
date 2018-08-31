@@ -1,7 +1,9 @@
 package com.bistel.pdm.datastore;
 
+import com.bistel.pdm.datastore.jdbc.DBType;
 import com.bistel.pdm.datastore.jdbc.DataSource;
-import com.bistel.pdm.lambda.kafka.master.MasterCache;
+import com.bistel.pdm.datastore.jdbc.dao.FeatureDataDao;
+import com.bistel.pdm.datastore.jdbc.dao.oracle.DimensionTrxDao;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -11,28 +13,42 @@ import org.slf4j.LoggerFactory;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 /**
  *
  */
-public class ReloadConsumerRunnable implements Runnable {
-    private static final Logger log = LoggerFactory.getLogger(ReloadConsumerRunnable.class);
+public class DimensionConsumerRunnable implements Runnable {
+    private static final Logger log = LoggerFactory.getLogger(DimensionConsumerRunnable.class);
 
     private final KafkaConsumer<String, byte[]> consumer;
     private final String topicName;
 
-    private final static int PollingDurations = 100; // milliseconds
+    private final static int PollingDurations = 100;
 
-    public ReloadConsumerRunnable(String configPath, String groupId, String topicName, String servingAddress) {
+    private FeatureDataDao trxDao;
+
+    public DimensionConsumerRunnable(String configPath, String groupId, String topicName) {
 
         this.consumer = new KafkaConsumer<>(createConsumerConfig(groupId, configPath));
         this.topicName = topicName;
-        MasterCache.ServingAddress = servingAddress;
 
         log.debug("{} - group id : {}", groupId, this.getClass().getName());
+
+        if (DataSource.getDBType() == DBType.oracle) {
+            trxDao = new DimensionTrxDao();
+            log.info("loaded data object of oracle.");
+        } else if (DataSource.getDBType() == DBType.postgresql) {
+            //trxDao = new DimensionTrxPostgreDao();
+            log.info("loaded data object of postgresql.");
+        } else {
+            trxDao = new DimensionTrxDao();
+            log.info("loaded data object of default(oracle).");
+        }
     }
 
     @Override
@@ -42,18 +58,20 @@ public class ReloadConsumerRunnable implements Runnable {
         consumer.subscribe(Collections.singletonList(topicName));
         log.info("Reading topic: {}, db type: {}", topicName, DataSource.getDBType());
 
+        final int minBatchSize = 2;
+        List<ConsumerRecord<String, byte[]>> buffer = new ArrayList<>();
+
         while (true) {
             ConsumerRecords<String, byte[]> records = consumer.poll(TimeUnit.MILLISECONDS.toMillis(PollingDurations));
-            if (records.count() > 0) {
-                log.debug(" polling {} records", records.count());
+            for (ConsumerRecord<String, byte[]> record : records) {
+                buffer.add(record);
+            }
 
-                for (ConsumerRecord<String, byte[]> record : records) {
-                    // refresh master info.
-                    MasterCache.Parameter.refresh(record.key());
-                    MasterCache.ParameterWithSpec.refresh(record.key());
-                }
-                consumer.commitAsync();
-                log.info("{} reloaded.", records.count());
+            if (buffer.size() >= minBatchSize) {
+                trxDao.storeRecords(buffer);
+                consumer.commitSync();
+                log.info("{} records are committed.", buffer.size());
+                buffer.clear();
             }
         }
     }
