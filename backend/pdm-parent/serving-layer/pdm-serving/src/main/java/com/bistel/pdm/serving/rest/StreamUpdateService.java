@@ -1,10 +1,15 @@
 package com.bistel.pdm.serving.rest;
 
+import com.bistel.pdm.data.stream.EquipmentMaster;
+import com.bistel.pdm.lambda.kafka.master.MasterCache;
+import com.bistel.pdm.lambda.kafka.partitioner.CustomStreamPartitioner;
 import com.bistel.pdm.serving.Exception.Message;
 import com.bistel.pdm.serving.HostInfo;
+import com.bistel.pdm.serving.jdbc.dao.StreamingMasterDataDao;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.PartitionInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,6 +24,7 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -32,7 +38,7 @@ public class StreamUpdateService {
 
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
-    private final String inputReloadTopic = "pdm-input-reload";
+    private final String inputReloadTopic = "pdm-input-trace";
 
     private final String clientId = "serving";
     private Producer<String, byte[]> producer;
@@ -55,10 +61,17 @@ public class StreamUpdateService {
     public Response getReload(@PathParam("eqpid") String eqpId) {
         try {
             Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-            String msg =  dateFormat.format(timestamp) + ",CMD-REFRESH-CACHE,http://" + HostInfo.ip + ":" + HostInfo.port;
-            producer.send(new ProducerRecord<>(inputReloadTopic, eqpId, msg.getBytes()));
+            String msg = dateFormat.format(timestamp) + ",CMD-REFRESH-CACHE";
 
-            log.info("requested to {} to update the master information.", eqpId);
+            StreamingMasterDataDao repository = new StreamingMasterDataDao();
+            EquipmentMaster masterDataSet = repository.getEqpMasterDataSet(eqpId);
+
+            List<PartitionInfo> partitions = producer.partitionsFor(inputReloadTopic);
+            int partitionNum = masterDataSet.getEqpRawId().intValue() % partitions.size();
+
+            producer.send(new ProducerRecord<>(inputReloadTopic, partitionNum, eqpId, msg.getBytes()));
+
+            log.info("requested to {} to update the master information. partition:{}", eqpId, partitionNum);
             return Response.status(Response.Status.OK).entity(eqpId).build();
 
         } catch (Exception e) {

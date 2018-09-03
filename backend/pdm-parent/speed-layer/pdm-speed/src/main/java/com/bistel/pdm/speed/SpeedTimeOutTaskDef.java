@@ -84,7 +84,7 @@ public class SpeedTimeOutTaskDef extends AbstractPipeline {
         streamProps.put(StreamsConfig.PROCESSING_GUARANTEE_CONFIG, StreamsConfig.EXACTLY_ONCE);
 
         // The number of threads to execute stream processing. default is 1.
-        streamProps.put(StreamsConfig.NUM_STREAM_THREADS_CONFIG, 10);
+        streamProps.put(StreamsConfig.NUM_STREAM_THREADS_CONFIG, 9);
 
         streamProps.put(StreamsConfig.STATE_DIR_CONFIG, stateDir);
 

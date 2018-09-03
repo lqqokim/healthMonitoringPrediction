@@ -72,8 +72,7 @@ public class BatchTraceTaskDef extends AbstractPipeline {
         CustomStreamPartitioner partitioner = new CustomStreamPartitioner();
 
         topology.addSource("input-trace", this.getInputTraceTopic())
-                .addSource("input-reload", this.getInputReloadTopic())
-                .addProcessor("batch", BatchProcessor::new, "input-trace", "input-reload")
+                .addProcessor("batch", BatchProcessor::new, "input-trace")
                 .addStateStore(contValueWindowStoreSupplier, "batch")
                 .addStateStore(catValueWindowStoreSupplier, "batch")
                 .addSink("output-feature", this.getOutputFeatureTopic(), partitioner, "batch")

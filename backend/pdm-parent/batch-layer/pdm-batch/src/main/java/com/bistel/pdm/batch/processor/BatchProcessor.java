@@ -60,6 +60,7 @@ public class BatchProcessor extends AbstractProcessor<String, byte[]> {
             if (recordColumns[1].equalsIgnoreCase("CMD-REFRESH-CACHE")) {
                 refreshCacheFlagMap.put(partitionKey, "Y");
                 context().commit();
+                log.debug("[{}] - Refresh Order were issued.", partitionKey);
                 return;
             }
 
@@ -122,57 +123,81 @@ public class BatchProcessor extends AbstractProcessor<String, byte[]> {
                         }
                     }
 
-                    Long startTime = intervalLongTime.get(partitionKey);
-                    Long interval = startTime + eventInfo.getFirst().getIntervalTimeMs();
+                    if(eventInfo.getFirst().getTimeIntervalYn().equalsIgnoreCase("Y")){
 
-                    if (paramTime >= interval) {
+                        Long startTime = intervalLongTime.get(partitionKey);
+                        Long interval = startTime + eventInfo.getFirst().getIntervalTimeMs();
 
-                        String sts = new SimpleDateFormat("MMdd HH:mm:ss.SSS").format(new Timestamp(startTime));
-                        String ets = new SimpleDateFormat("MMdd HH:mm:ss.SSS").format(new Timestamp(paramTime));
-                        log.trace("[{}] - processing interval from {} to {}.", partitionKey, sts, ets);
+                        if (paramTime >= interval) {
 
-                        for (ParameterMaster paramMaster : paramList) {
-                            if (paramMaster.getParamParseIndex() <= 0) continue;
+                            String sts = new SimpleDateFormat("MMdd HH:mm:ss.SSS").format(new Timestamp(startTime));
+                            String ets = new SimpleDateFormat("MMdd HH:mm:ss.SSS").format(new Timestamp(paramTime));
 
-                            String paramKey = partitionKey + ":" + paramMaster.getParameterRawId();
+                            for (ParameterMaster paramMaster : paramList) {
+                                if (paramMaster.getParamParseIndex() <= 0) continue;
 
-                            if(paramMaster.getDataType().equalsIgnoreCase("CONTINUOUS")){
-                                WindowStoreIterator<Double> storeIterator = kvContValueWindowStore.fetch(paramKey, startTime, paramTime);
-                                DescriptiveStatistics stats = new DescriptiveStatistics();
-                                while (storeIterator.hasNext()) {
-                                    KeyValue<Long, Double> kv = storeIterator.next();
-                                    stats.addValue(kv.value);
-                                }
-                                storeIterator.close();
+                                String paramKey = partitionKey + ":" + paramMaster.getParameterRawId();
 
-                                if(stats.getValues().length > 0){
-                                    // startDtts, endDtts, param rawid, count, max, min, median, avg, stddev, q1, q3, group
-                                    String summaryMsg = String.valueOf(startTime) + "," +
-                                            String.valueOf(paramTime) + "," +
-                                            paramMaster.getParameterRawId() + "," +
-                                            stats.getValues().length + "," +
-                                            stats.getMin() + "," +
-                                            stats.getMax() + "," +
-                                            stats.getPercentile(50) + "," +
-                                            stats.getMean() + "," +
-                                            stats.getStandardDeviation() + "," +
-                                            stats.getPercentile(25) + "," +
-                                            stats.getPercentile(75) + "," +
-                                            msgGroup;
+                                if(paramMaster.getDataType().equalsIgnoreCase("CONTINUOUS")){
+                                    WindowStoreIterator<Double> storeIterator = kvContValueWindowStore.fetch(paramKey, startTime, paramTime);
+                                    DescriptiveStatistics stats = new DescriptiveStatistics();
+                                    while (storeIterator.hasNext()) {
+                                        KeyValue<Long, Double> kv = storeIterator.next();
+                                        stats.addValue(kv.value);
+                                    }
+                                    storeIterator.close();
 
-                                    context().forward(partitionKey, summaryMsg.getBytes(), "output-feature");
-                                    context().commit();
+                                    if(stats.getValues().length > 0){
+                                        // startDtts, endDtts, param rawid, count, max, min, median, avg, stddev, q1, q3, group
+                                        String summaryMsg = String.valueOf(startTime) + "," +
+                                                String.valueOf(paramTime) + "," +
+                                                paramMaster.getParameterRawId() + "," +
+                                                stats.getValues().length + "," +
+                                                stats.getMin() + "," +
+                                                stats.getMax() + "," +
+                                                stats.getPercentile(50) + "," +
+                                                stats.getMean() + "," +
+                                                stats.getStandardDeviation() + "," +
+                                                stats.getPercentile(25) + "," +
+                                                stats.getPercentile(75) + "," +
+                                                msgGroup;
 
-                                    log.trace("[{}] - from : {}, end : {}, param : {} ",
-                                            partitionKey, startTime, paramTime, paramMaster.getParameterName());
+                                        context().forward(partitionKey, summaryMsg.getBytes(), "output-feature");
+                                        context().commit();
+
+                                    } else {
+                                        log.debug("[{}] - skip {} because count is 0.", partitionKey, paramMaster.getParameterName());
+                                    }
                                 } else {
-                                    log.debug("[{}] - skip {} because count is 0.", partitionKey, paramMaster.getParameterName());
+                                    // for dimensional
+                                    WindowStoreIterator<String> catStoreIterator = kvCatValueWindowStore.fetch(paramKey, startTime, paramTime);
+                                    List<String> catDimensions = new ArrayList<>();
+                                    while (catStoreIterator.hasNext()) {
+                                        KeyValue<Long, String> kv = catStoreIterator.next();
+                                        if(!catDimensions.contains(kv.value)){
+                                            catDimensions.add(kv.value);
+                                        }
+                                    }
+                                    catStoreIterator.close();
+
+                                    for(String dim : catDimensions){
+                                        String categoricalMsg = String.valueOf(startTime) + "," +
+                                                String.valueOf(paramTime) + "," +
+                                                paramMaster.getParameterRawId() + "," +
+                                                dim + "," +
+                                                msgGroup;
+
+                                        context().forward(partitionKey, categoricalMsg.getBytes(), "output-dimension");
+                                        context().commit();
+                                    }
                                 }
                             }
-                        }
+                            log.debug("[{}] - data was aggregated. interval ({} to {}).", partitionKey, sts, ets);
 
-                        intervalLongTime.put(partitionKey, paramTime);
+                            intervalLongTime.put(partitionKey, paramTime);
+                        }
                     }
+
                 } else if (statusWindow.getCurrentStatusCode().equalsIgnoreCase("I")
                         && statusWindow.getPreviousStatusCode().equalsIgnoreCase("R")) {
                     // process end (RI)
@@ -183,7 +208,6 @@ public class BatchProcessor extends AbstractProcessor<String, byte[]> {
 
                     String sts = new SimpleDateFormat("MMdd HH:mm:ss.SSS").format(new Timestamp(startTime));
                     String ets = new SimpleDateFormat("MMdd HH:mm:ss.SSS").format(new Timestamp(endTime));
-                    log.trace("[{}] - processing interval from {} to {}.", partitionKey, sts, ets);
 
                     List<ParameterMaster> paramList = MasterCache.Parameter.get(partitionKey);
                     for (ParameterMaster paramMaster : paramList) {
@@ -218,8 +242,6 @@ public class BatchProcessor extends AbstractProcessor<String, byte[]> {
                                 context().forward(partitionKey, summaryMsg.getBytes(), "output-feature");
                                 context().commit();
 
-                                log.trace("[{}] - aggregated. (from : {}, end : {}, param : {})",
-                                        partitionKey, startTime, endTime, paramMaster.getParameterName());
                             } else {
                                 log.debug("[{}] - skip {} because count is 0.", partitionKey, paramMaster.getParameterName());
                             }
@@ -244,11 +266,10 @@ public class BatchProcessor extends AbstractProcessor<String, byte[]> {
 
                                 context().forward(partitionKey, categoricalMsg.getBytes(), "output-dimension");
                                 context().commit();
-
-                                log.trace("[{}] - aggregated. (from : {}, end : {}, value : {})",
-                                        paramKey, startTime, endTime, dim);
                             }
                         }
+
+                        log.debug("[{}] - data was aggregated. interval ({} to {}).", partitionKey, sts, ets);
                     }
                 } else {
                     // idle (II)
@@ -295,13 +316,19 @@ public class BatchProcessor extends AbstractProcessor<String, byte[]> {
 
     private void refreshMasterCache(String partitionKey) {
         // refresh master info.
-        MasterCache.Equipment.refresh(partitionKey);
-        MasterCache.EquipmentCondition.refresh(partitionKey);
-        MasterCache.ExprParameter.refresh(partitionKey);
-        MasterCache.IntervalEvent.refresh(partitionKey);
-        MasterCache.Health.refresh(partitionKey);
-        MasterCache.Mail.refresh(partitionKey);
+        try {
+            MasterCache.Equipment.refresh(partitionKey);
+            MasterCache.IntervalEvent.refresh(partitionKey);
+            MasterCache.Parameter.refresh(partitionKey);
+            MasterCache.ParameterWithSpec.refresh(partitionKey);
+            MasterCache.EquipmentCondition.refresh(partitionKey);
+            MasterCache.ExprParameter.refresh(partitionKey);
+            MasterCache.Health.refresh(partitionKey);
+            MasterCache.Mail.refresh(partitionKey);
 
-        log.debug("[{}] - all master refreshed.", partitionKey);
+            log.debug("[{}] - all cache refreshed.", partitionKey);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
     }
 }

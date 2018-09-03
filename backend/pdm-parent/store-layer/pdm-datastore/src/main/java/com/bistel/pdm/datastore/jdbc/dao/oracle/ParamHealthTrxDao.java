@@ -21,8 +21,9 @@ public class ParamHealthTrxDao implements HealthDataDao {
 
     private static final String INSERT_SQL =
             "insert into param_health_trx_pdm " +
-                    "(RAWID, PARAM_MST_RAWID, PARAM_HEALTH_MST_RAWID, STATUS_CD, DATA_COUNT, SCORE, MESSAGE_GROUP, " +
-                    " UPPER_ALARM_SPEC, UPPER_WARNING_SPEC, CREATE_DTTS) " +
+                    "(RAWID, PARAM_MST_RAWID, PARAM_HEALTH_MST_RAWID, STATUS_CD, " +
+                    "DATA_COUNT, SCORE, MESSAGE_GROUP, " +
+                    "UPPER_ALARM_SPEC, UPPER_WARNING_SPEC, CREATE_DTTS) " +
                     "values (?,?,?,?,?,?,?,?,?,?) ";
 
     private static final String INSERT_RUL_SQL =
@@ -64,7 +65,7 @@ public class ParamHealthTrxDao implements HealthDataDao {
                     pstmt.setLong(2, health.getParamRawId()); //param_mst_rawid
                     pstmt.setLong(3, health.getParamHealthRawId()); //param_health_rawid
                     pstmt.setString(4, health.getStatus());
-                    pstmt.setDouble(5, health.getDataCount()); //data count
+                    pstmt.setInt(5, health.getDataCount()); //data count
                     pstmt.setDouble(6, health.getIndex()); //index score
                     pstmt.setString(7, health.getMessageGroup()); // message group
 
@@ -102,7 +103,7 @@ public class ParamHealthTrxDao implements HealthDataDao {
 
                     pstmt.addBatch();
 
-                    if (++batchCount == 100) {
+                    if (++batchCount >= 100) {
                         totalCount += batchCount;
                         pstmt.executeBatch();
                         pstmt.clearBatch();

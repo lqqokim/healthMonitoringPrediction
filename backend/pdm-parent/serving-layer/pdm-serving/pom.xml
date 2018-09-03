@@ -63,6 +63,10 @@
             <groupId>com.bistel</groupId>
             <artifactId>pdm-data</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.bistel</groupId>
+            <artifactId>pdm-kafka-stream</artifactId>
+        </dependency>
 
         <!--<dependency>-->
             <!--<groupId>com.mysema.querydsl</groupId>-->

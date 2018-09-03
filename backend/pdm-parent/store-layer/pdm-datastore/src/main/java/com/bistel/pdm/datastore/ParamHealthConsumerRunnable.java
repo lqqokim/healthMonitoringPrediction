@@ -68,11 +68,13 @@ public class ParamHealthConsumerRunnable implements Runnable {
                     log.debug(" polling {} records", records.count());
 
                     List<ParamHealthData> dataList = new ArrayList<>();
-                    List<ParamHealthRULData> rulList = new ArrayList<>();
+//                    List<ParamHealthRULData> rulList = new ArrayList<>();
 
                     for (ConsumerRecord<String, byte[]> record : records) {
                         byte[] healthData = record.value();
                         String valueString = new String(healthData);
+
+                        log.debug("[{}] - {}", record.key(), valueString);
 
                         // time, eqpRawid, param_rawid, param_health_rawid, status_cd, data_count, index, specs, group
                         String[] values = valueString.split(",", -1);

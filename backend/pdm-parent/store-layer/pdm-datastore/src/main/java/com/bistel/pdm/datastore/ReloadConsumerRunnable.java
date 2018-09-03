@@ -51,9 +51,9 @@ public class ReloadConsumerRunnable implements Runnable {
                     // refresh master info.
                     MasterCache.Parameter.refresh(record.key());
                     MasterCache.ParameterWithSpec.refresh(record.key());
+                    log.info("[{}] - cache reloaded.", record.key());
                 }
-                consumer.commitAsync();
-                log.info("{} reloaded.", records.count());
+                consumer.commitSync();
             }
         }
     }

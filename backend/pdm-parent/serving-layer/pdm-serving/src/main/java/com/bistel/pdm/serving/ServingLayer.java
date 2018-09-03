@@ -16,11 +16,7 @@ public class ServingLayer implements Closeable {
     public ServingLayer() {}
 
     public synchronized void start(final String ip, final int port) throws ServletException {
-
         log.info("Starting PdM Serving Layer...");
-
-        HostInfo.ip = ip;
-        HostInfo.port = port;
 
         //http://localhost:8080/pdm/api/...
         final EmbeddedServer server = new EmbeddedServer(ip, port);

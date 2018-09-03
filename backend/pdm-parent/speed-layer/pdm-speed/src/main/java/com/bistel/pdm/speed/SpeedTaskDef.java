@@ -62,8 +62,7 @@ public class SpeedTaskDef extends AbstractPipeline {
         CustomStreamPartitioner partitioner = new CustomStreamPartitioner();
 
         topology.addSource("input-trace", this.getInputTraceTopic())
-                .addSource("input-reload", this.getInputReloadTopic())
-                .addProcessor("speed", SpeedProcessor::new, "input-trace", "input-reload")
+                .addProcessor("speed", SpeedProcessor::new, "input-trace")
                 .addStateStore(normalizedParamValueStoreSupplier, "speed")
 
                 .addSink("output-trace", this.getOutputTraceTopic(), partitioner, "speed")
