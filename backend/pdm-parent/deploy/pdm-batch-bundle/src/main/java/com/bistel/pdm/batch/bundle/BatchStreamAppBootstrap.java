@@ -41,11 +41,11 @@ public final class BatchStreamAppBootstrap {
         logProperties.load(new FileInputStream(logPath));
         PropertyConfigurator.configure(logProperties);
 
-        if (pipeline.equalsIgnoreCase("TRACE")) {
+        if (pipeline.equalsIgnoreCase("SUMMARY")) {
             try (BatchTraceTaskDef processor = new BatchTraceTaskDef(appId, brokers, schemaUrl, servingAddr)) {
                 processor.start();
             }
-        } else if (pipeline.equalsIgnoreCase("RAW")) {
+        } else if (pipeline.equalsIgnoreCase("VIBRATION")) {
             try (BatchTimewaveTaskDef processor = new BatchTimewaveTaskDef(appId, brokers, schemaUrl, servingAddr)) {
                 processor.start();
             }

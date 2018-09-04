@@ -7,7 +7,7 @@ APPOPTS="-appId pdm-speed-timeout-v1.1.0
 -registryUrl http://192.168.7.228:8081
 -servingAddr http://192.168.7.227:28000
 -pipeline TIMEOUT
--log4jConf ./config/log4j-trace.properties"
+-log4jConf ./config/log4j-timeout.properties"
 
 case $1 in
     start)

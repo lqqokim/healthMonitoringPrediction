@@ -10,7 +10,7 @@
             <directory>../bin/</directory>
             <outputDirectory />
             <includes>
-                <include>speed-stream.sh</include>
+                <include>speed-*-stream.sh</include>
             </includes>
             <excludes>
                 <exclude/>
@@ -32,7 +32,7 @@
         </fileSet>
         <fileSet>
             <directory>./src/main/resources</directory>
-            <outputDirectory>logs</outputDirectory>
+            <outputDirectory>config</outputDirectory>
             <excludes>
                 <exclude>*.*</exclude>
             </excludes>

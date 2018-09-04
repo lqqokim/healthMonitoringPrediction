@@ -10,7 +10,7 @@
             <directory>../bin/</directory>
             <outputDirectory />
             <includes>
-                <include>*-batch-stream.sh</include>
+                <include>batch-*-stream.sh</include>
             </includes>
             <excludes>
                 <exclude/>
