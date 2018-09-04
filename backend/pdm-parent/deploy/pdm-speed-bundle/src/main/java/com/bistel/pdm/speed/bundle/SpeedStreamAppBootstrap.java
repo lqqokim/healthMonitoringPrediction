@@ -1,6 +1,6 @@
 package com.bistel.pdm.speed.bundle;
 
-import com.bistel.pdm.speed.SpeedTaskDef;
+import com.bistel.pdm.speed.SpeedRealTimeTaskDef;
 import com.bistel.pdm.speed.SpeedTimeOutTaskDef;
 import org.apache.commons.cli.*;
 import org.apache.log4j.PropertyConfigurator;
@@ -23,6 +23,7 @@ public class SpeedStreamAppBootstrap {
     private static final String SERVING_ADDR = "servingAddr";
     private static final String LOG_PATH = "log4jConf";
     private static final String PIPELINE = "pipeline";
+    private static final String STREAM_THREADS = "streamThreads";
 
     private static final Options options = new Options();
 
@@ -36,17 +37,20 @@ public class SpeedStreamAppBootstrap {
         String servingAddr = commandLine.getOptionValue(SERVING_ADDR);
         String logPath = commandLine.getOptionValue(LOG_PATH);
         String pipeline = commandLine.getOptionValue(PIPELINE);
+        String streamThreads = commandLine.getOptionValue(STREAM_THREADS, "1");
 
         Properties logProperties = new Properties();
         logProperties.load(new FileInputStream(logPath));
         PropertyConfigurator.configure(logProperties);
 
         if (pipeline.equalsIgnoreCase("REALTIME")) {
-            try (SpeedTaskDef processor = new SpeedTaskDef(appId, brokers, schemaUrl, servingAddr)) {
+            try (SpeedRealTimeTaskDef processor =
+                         new SpeedRealTimeTaskDef(appId, brokers, schemaUrl, servingAddr, streamThreads)) {
                 processor.start();
             }
         } else if (pipeline.equalsIgnoreCase("TIMEOUT")) {
-            try (SpeedTimeOutTaskDef processor = new SpeedTimeOutTaskDef(appId, brokers, schemaUrl, servingAddr)) {
+            try (SpeedTimeOutTaskDef processor =
+                         new SpeedTimeOutTaskDef(appId, brokers, schemaUrl, servingAddr, streamThreads)) {
                 processor.start();
             }
         } else {
@@ -61,11 +65,17 @@ public class SpeedStreamAppBootstrap {
         Option servingAddr = new Option(SERVING_ADDR, true, "serving address");
         Option pipeline = new Option(PIPELINE, true, "streaming pipeline");
         Option logPath = new Option(LOG_PATH, true, "config path");
+        Option streamThreads = new Option(STREAM_THREADS, true, "stream thread count");
 
-        options.addOption(appId).addOption(broker).addOption(schemaUrl)
-                .addOption(servingAddr).addOption(pipeline).addOption(logPath);
+        options.addOption(appId)
+                .addOption(broker)
+                .addOption(schemaUrl)
+                .addOption(servingAddr)
+                .addOption(pipeline)
+                .addOption(logPath)
+                .addOption(streamThreads);
 
-        if (args.length < 6) {
+        if (args.length < 7) {
             printUsageAndExit();
         }
         CommandLineParser parser = new DefaultParser();

@@ -20,12 +20,14 @@ public class BatchTimewaveTaskDef extends AbstractPipeline {
     private static final Logger log = LoggerFactory.getLogger(BatchTimewaveTaskDef.class);
 
     private final String applicationId;
+    private final int streamThreadCount;
 
     public BatchTimewaveTaskDef(String applicationId, String brokers,
-                                String schemaUrl, String servingAddr) {
+                                String schemaUrl, String servingAddr, String streamThreadCount) {
 
         super(brokers, schemaUrl, servingAddr);
         this.applicationId = applicationId;
+        this.streamThreadCount = Integer.parseInt(streamThreadCount);
     }
 
     public void start() {
@@ -76,7 +78,7 @@ public class BatchTimewaveTaskDef extends AbstractPipeline {
         streamProps.put(StreamsConfig.PROCESSING_GUARANTEE_CONFIG, StreamsConfig.EXACTLY_ONCE);
 
         // The number of threads to execute stream processing. default is 1.
-        streamProps.put(StreamsConfig.NUM_STREAM_THREADS_CONFIG, 1);
+        streamProps.put(StreamsConfig.NUM_STREAM_THREADS_CONFIG, streamThreadCount);
 
         streamProps.put(StreamsConfig.STATE_DIR_CONFIG, stateDir);
 

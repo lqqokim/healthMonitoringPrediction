@@ -21,16 +21,18 @@ import java.util.concurrent.TimeUnit;
 /**
  *
  */
-public class SpeedTaskDef extends AbstractPipeline {
-    private static final Logger log = LoggerFactory.getLogger(SpeedTaskDef.class);
+public class SpeedRealTimeTaskDef extends AbstractPipeline {
+    private static final Logger log = LoggerFactory.getLogger(SpeedRealTimeTaskDef.class);
 
     private final String applicationId;
+    private final int streamThreadCount;
 
-    public SpeedTaskDef(String applicationId, String brokers,
-                        String schemaUrl, String servingAddr) {
+    public SpeedRealTimeTaskDef(String applicationId, String brokers,
+                        String schemaUrl, String servingAddr, String streamThreadCount) {
 
         super(brokers, schemaUrl, servingAddr);
         this.applicationId = applicationId;
+        this.streamThreadCount = Integer.parseInt(streamThreadCount);
     }
 
     public void start() {
@@ -99,7 +101,7 @@ public class SpeedTaskDef extends AbstractPipeline {
         streamProps.put(StreamsConfig.PROCESSING_GUARANTEE_CONFIG, StreamsConfig.EXACTLY_ONCE);
 
         // The number of threads to execute stream processing. default is 1.
-        streamProps.put(StreamsConfig.NUM_STREAM_THREADS_CONFIG, 9);
+        streamProps.put(StreamsConfig.NUM_STREAM_THREADS_CONFIG, streamThreadCount);
 
         streamProps.put(StreamsConfig.STATE_DIR_CONFIG, stateDir);
 

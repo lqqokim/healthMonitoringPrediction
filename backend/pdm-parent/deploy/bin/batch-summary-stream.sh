@@ -7,6 +7,7 @@ APPOPTS="-appId pdm-batch-trace-v1.1.0
 -registryUrl http://192.168.7.228:8081
 -servingAddr http://192.168.7.227:28000
 -pipeline SUMMARY
+-streamThreads 9
 -log4jConf ./config/log4j-summary.properties"
 
 case $1 in

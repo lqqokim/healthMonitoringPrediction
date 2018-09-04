@@ -1,7 +1,7 @@
 package com.bistel.pdm.batch.bundle;
 
+import com.bistel.pdm.batch.BatchSummaryTaskDef;
 import com.bistel.pdm.batch.BatchTimewaveTaskDef;
-import com.bistel.pdm.batch.BatchTraceTaskDef;
 import org.apache.commons.cli.*;
 import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
@@ -23,6 +23,7 @@ public final class BatchStreamAppBootstrap {
     private static final String SERVING_ADDR = "servingAddr";
     private static final String PIPELINE = "pipeline";
     private static final String LOG_PATH = "log4jConf";
+    private static final String STREAM_THREADS = "streamThreads";
 
     private static final Options options = new Options();
 
@@ -36,17 +37,20 @@ public final class BatchStreamAppBootstrap {
         String servingAddr = commandLine.getOptionValue(SERVING_ADDR);
         String pipeline = commandLine.getOptionValue(PIPELINE);
         String logPath = commandLine.getOptionValue(LOG_PATH);
+        String streamThreads = commandLine.getOptionValue(STREAM_THREADS, "1");
 
         Properties logProperties = new Properties();
         logProperties.load(new FileInputStream(logPath));
         PropertyConfigurator.configure(logProperties);
 
         if (pipeline.equalsIgnoreCase("SUMMARY")) {
-            try (BatchTraceTaskDef processor = new BatchTraceTaskDef(appId, brokers, schemaUrl, servingAddr)) {
+            try (BatchSummaryTaskDef processor =
+                         new BatchSummaryTaskDef(appId, brokers, schemaUrl, servingAddr, streamThreads)) {
                 processor.start();
             }
         } else if (pipeline.equalsIgnoreCase("VIBRATION")) {
-            try (BatchTimewaveTaskDef processor = new BatchTimewaveTaskDef(appId, brokers, schemaUrl, servingAddr)) {
+            try (BatchTimewaveTaskDef processor =
+                         new BatchTimewaveTaskDef(appId, brokers, schemaUrl, servingAddr, streamThreads)) {
                 processor.start();
             }
         } else {
@@ -61,15 +65,17 @@ public final class BatchStreamAppBootstrap {
         Option servingAddr = new Option(SERVING_ADDR, true, "serving address");
         Option pipeline = new Option(PIPELINE, true, "streaming pipeline");
         Option logPath = new Option(LOG_PATH, true, "config path");
+        Option streamThreads = new Option(STREAM_THREADS, true, "stream thread count");
 
         options.addOption(appId)
                 .addOption(broker)
                 .addOption(schemaUrl)
                 .addOption(servingAddr)
                 .addOption(pipeline)
-                .addOption(logPath);
+                .addOption(logPath)
+                .addOption(streamThreads);
 
-        if (args.length < 6) {
+        if (args.length < 7) {
             printUsageAndExit();
         }
         CommandLineParser parser = new DefaultParser();
