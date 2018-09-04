@@ -38,7 +38,8 @@ public class StreamUpdateService {
 
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
-    private final String inputReloadTopic = "pdm-input-trace";
+    private final String inputReload1Topic = "pdm-input-trace";
+    private final String inputReload2Topic = "pdm-input-raw";
 
     private final String clientId = "serving";
     private Producer<String, byte[]> producer;
@@ -66,10 +67,15 @@ public class StreamUpdateService {
             StreamingMasterDataDao repository = new StreamingMasterDataDao();
             EquipmentMaster masterDataSet = repository.getEqpMasterDataSet(eqpId);
 
-            List<PartitionInfo> partitions = producer.partitionsFor(inputReloadTopic);
+            List<PartitionInfo> partitions = producer.partitionsFor(inputReload1Topic);
             int partitionNum = masterDataSet.getEqpRawId().intValue() % partitions.size();
 
-            producer.send(new ProducerRecord<>(inputReloadTopic, partitionNum, eqpId, msg.getBytes()));
+            producer.send(new ProducerRecord<>(inputReload1Topic, partitionNum, eqpId, msg.getBytes()));
+
+            partitions = producer.partitionsFor(inputReload2Topic);
+            partitionNum = masterDataSet.getEqpRawId().intValue() % partitions.size();
+
+            producer.send(new ProducerRecord<>(inputReload2Topic, partitionNum, eqpId, msg.getBytes()));
 
             log.info("requested to {} to update the master information. partition:{}", eqpId, partitionNum);
             return Response.status(Response.Status.OK).entity(eqpId).build();
