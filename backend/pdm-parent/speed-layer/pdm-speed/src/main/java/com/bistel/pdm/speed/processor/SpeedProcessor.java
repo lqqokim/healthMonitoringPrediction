@@ -420,7 +420,7 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
                 log.debug("[{}] - No event registered.", partitionKey);
             }
         } catch (Exception e) {
-            log.debug("msg:{}", recordValue);
+            log.debug("[{}] - {}", partitionKey, recordValue);
             log.error(e.getMessage(), e);
         }
     }

@@ -192,7 +192,7 @@ public class BatchProcessor extends AbstractProcessor<String, byte[]> {
                                     }
                                 }
                             }
-                            log.debug("[{}] - data was aggregated. interval ({} to {}).", partitionKey, sts, ets);
+                            log.debug("[{}] - aggregated interval ({} to {}).", partitionKey, sts, ets);
 
                             intervalLongTime.put(partitionKey, paramTime);
                         }
@@ -268,9 +268,9 @@ public class BatchProcessor extends AbstractProcessor<String, byte[]> {
                                 context().commit();
                             }
                         }
-
-                        log.debug("[{}] - data was aggregated. interval ({} to {}).", partitionKey, sts, ets);
                     }
+
+                    log.debug("[{}] - aggregated interval ({} to {}).", partitionKey, sts, ets);
                 } else {
                     // idle (II)
                     // refresh cache
@@ -295,7 +295,7 @@ public class BatchProcessor extends AbstractProcessor<String, byte[]> {
                 log.debug("[{}] - No event registered.", partitionKey);
             }
         } catch (Exception e) {
-            log.debug("msg:{}", recordValue);
+            log.debug("[{}] - {}", partitionKey, recordValue);
             log.error(e.getMessage(), e);
         }
     }

@@ -2,7 +2,7 @@
 APPNAME="Batch Layer - Feature Summary"
 APPPID=batch-summary.pid
 APPJAR=pdm-batch-bundle-1.0-SNAPSHOT.jar
-APPOPTS="-appId pdm-batch-trace-v1.1.0
+APPOPTS="-appId pdm-batch-summary-v1.1.0
 -brokers 192.168.7.228:29092,192.168.7.228:39092,192.168.7.228:49092
 -registryUrl http://192.168.7.228:8081
 -servingAddr http://192.168.7.227:28000

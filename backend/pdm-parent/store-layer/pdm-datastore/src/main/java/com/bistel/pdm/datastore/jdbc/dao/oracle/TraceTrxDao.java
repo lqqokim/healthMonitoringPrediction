@@ -38,19 +38,6 @@ public class TraceTrxDao implements SensorTraceDataDao {
                     "RESERVED_COL1, RESERVED_COL2, RESERVED_COL3, RESERVED_COL4, RESERVED_COL5) " +
                     "values (SEQ_TRACE_TRX_PDM.nextval,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
-    private static final String INSERT_SQL_WITH_RAW =
-            "insert into trace_trx_pdm " +
-                    "(RAWID, PARAM_MST_RAWID, VALUE, " +
-                    "ALARM_SPEC, WARNING_SPEC, " +
-                    //"UPPER_ALARM_SPEC, UPPER_WARNING_SPEC, " +
-                    //"TARGET, " +
-                    //"LOWER_ALARM_SPEC, LOWER_WARNING_SPEC, " +
-                    "STATUS_CD, " +
-                    "EVENT_DTTS, " +
-                    "MESSAGE_GROUP, " +
-                    "RESERVED_COL1, RESERVED_COL2, RESERVED_COL3, RESERVED_COL4, RESERVED_COL5) " +
-                    "values (?,?,?,?,?,?,?,?,?,?,?,?,?)";
-
     @Override
     public Long getTraceRawId() throws SQLException {
         Long trxRawId = Long.MIN_VALUE;
@@ -188,6 +175,21 @@ public class TraceTrxDao implements SensorTraceDataDao {
         }
     }
 
+    private static final String INSERT_SQL_WITH_RAW =
+            "insert into trace_trx_pdm " +
+                    "(RAWID, PARAM_MST_RAWID, VALUE, " +
+                    "ALARM_SPEC, WARNING_SPEC, " +
+                    //"UPPER_ALARM_SPEC, UPPER_WARNING_SPEC, " +
+                    //"TARGET, " +
+                    //"LOWER_ALARM_SPEC, LOWER_WARNING_SPEC, " +
+                    "STATUS_CD, " +
+                    "EVENT_DTTS, " +
+                    "MESSAGE_GROUP, " +
+                    //"RULE_NAME, " +
+                    //"CONDITION, " +
+                    "RESERVED_COL1, RESERVED_COL2, RESERVED_COL3, RESERVED_COL4, RESERVED_COL5) " +
+                    "values (?,?,?,?,?,?,?,?,?,?,?,?,?)";
+
     @Override
     public void storeRecord(List<Pair<Long, SensorTraceData>> records) throws SQLException {
         try (Connection conn = DataSource.getConnection()) {
@@ -240,7 +242,7 @@ public class TraceTrxDao implements SensorTraceDataDao {
                     pstmt.setString(6, sensorData.getStatusCode()); //status
                     pstmt.setTimestamp(7, new Timestamp(sensorData.getEventDtts()));
 
-                    pstmt.setString(8, "TIMEWAVE");
+                    pstmt.setString(8, "TIMEWAVE"); //message group
 
                     //reserved columns
                     pstmt.setString(9, sensorData.getReservedCol1());

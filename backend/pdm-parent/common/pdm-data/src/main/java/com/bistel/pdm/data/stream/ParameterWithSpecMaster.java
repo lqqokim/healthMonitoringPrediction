@@ -199,6 +199,9 @@ public class ParameterWithSpecMaster {
     }
 
     public String getCondition() {
+        if(condition == null)
+            return "";
+
         return condition;
     }
 

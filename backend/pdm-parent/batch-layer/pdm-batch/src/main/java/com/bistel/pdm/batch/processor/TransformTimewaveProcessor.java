@@ -1,5 +1,6 @@
 package com.bistel.pdm.batch.processor;
 
+import com.bistel.pdm.data.stream.ParameterMaster;
 import com.bistel.pdm.data.stream.ParameterWithSpecMaster;
 import com.bistel.pdm.lambda.kafka.master.MasterCache;
 import org.apache.kafka.streams.processor.AbstractProcessor;
@@ -29,22 +30,18 @@ public class TransformTimewaveProcessor extends AbstractProcessor<String, byte[]
     @Override
     public void process(String partitionKey, byte[] streamByteRecord) {
         String value = new String(streamByteRecord);
+
+        // time, param_name, param_value(rms), freq.value, timewave, freq. count, max freq, rpm, sampling time(sec)
         String[] columns = value.split(SEPARATOR, -1);
 
-        // input message :
-        // partition key : area,eqp
-
-        // 0      : 2018-04-27 08:50:00,
-        // 1(rms) : 1.342991,
-        // 2      : 0.0^0.0^0.0^0.007003599392926243^0.004083909132515738 ...,
-        // 3(f.c) : 1600,
-        // 4(m.f) : 500,
-        // 5(rpm) : 0.0
-        // 6(s.c) : 1.6
-        // 7      : current status
-        // 8      : prev. status
-
         try {
+            if (columns[1].equalsIgnoreCase("CMD-CACHE-REFRESH")) {
+                refreshMasterCache(partitionKey);
+                log.info("all master data of {} is reloaded.", partitionKey);
+                context().commit();
+                return;
+            }
+
             // filter by master
             if (MasterCache.Equipment.get(partitionKey) == null) {
                 log.debug("[{}] - Not existed.", partitionKey);
@@ -52,77 +49,35 @@ public class TransformTimewaveProcessor extends AbstractProcessor<String, byte[]
                 return;
             }
 
-            //
-            if (columns[1].equalsIgnoreCase("CMD-CACHE-REFRESH")) {
-                refreshMasterCache(partitionKey);
-                log.info("all master data of {} is reloaded.", partitionKey);
-            } else {
+            String paramName = columns[1];
 
-                List<ParameterWithSpecMaster> parameterMasterDataSets = MasterCache.ParameterWithSpec.get(partitionKey);
-                for (ParameterWithSpecMaster param : parameterMasterDataSets) {
+            List<ParameterMaster> parameterMasterDataSets = MasterCache.Parameter.get(partitionKey);
+            for (ParameterMaster paramInfo : parameterMasterDataSets) {
 
-                    if (param.getParamParseIndex() == -1) continue;
-
-                    // param_mst_rawid, value, upper_alarm_spec, upper_warning_spec,
-                    // target, lower_alarm_spec, lower_warning_spec,
+                if(paramInfo.getParameterName().equalsIgnoreCase(paramName)){
+                    // param_mst_rawid, value,
+                    // upper_alarm_spec, upper_warning_spec, target, lower_alarm_spec, lower_warning_spec,
                     // event_dtts,
-                    // frequency, timewave, freq count, max freq, rpm,
-                    // rsd01~05
+                    // freq count, max freq, rpm, sampling time
+                    // frequency, timewave
                     StringBuilder sbValue = new StringBuilder();
-                    if (param.getUpperAlarmSpec() == null) {
-                        sbValue.append(param.getParameterRawId()).append(",")
-                                .append(columns[param.getParamParseIndex()]).append(",") //value
-                                .append(",") //upper_alarm
-                                .append(",") //upper_warning
-                                .append(",") //target
-                                .append(",") //lower_alarm
-                                .append(",") //lower_warning
-                                .append(parseStringToTimestamp(columns[0])).append(",")
-                                .append(columns[3]).append(",") // freq count
-                                .append(columns[4]).append(",") // max frequency
-                                .append(columns[5]).append(",") // rpm
-                                .append(columns[6]).append(",") // sampling time
-                                .append(columns[2]).append(",") // frequency blob
-                                .append(""); // timewave blob
-                    } else {
-                        sbValue.append(param.getParameterRawId()).append(",")
-                                .append(columns[param.getParamParseIndex()]).append(",") //value
-                                .append(param.getUpperAlarmSpec()).append(",")   //upper_alarm
-                                .append(param.getUpperWarningSpec()).append(",") //upper_warning
-                                .append(param.getTarget()).append(",")           //target
-                                .append(param.getLowerAlarmSpec()).append(",")   //lower_alarm
-                                .append(param.getLowerWarningSpec()).append(",") //lower_warning
-                                .append(parseStringToTimestamp(columns[0])).append(",")
-                                .append(columns[3]).append(",") // freq count
-                                .append(columns[4]).append(",") // max frequency
-                                .append(columns[5]).append(",") // rpm
-                                .append(columns[6]).append(",") // sampling time
-                                .append(columns[2]).append(",") // frequency blob
-                                .append(""); // timewave blob
-                    }
 
-                    //rsd 01~05
-                    if (columns.length > 9) {
-                        sbValue.append(columns[9]).append(","); // e.g location
+                    sbValue.append(paramInfo.getParameterRawId()).append(",")
+                            .append(columns[2]).append(",") //value
+                            .append(",") //upper_alarm
+                            .append(",") //upper_warning
+                            .append(",") //target
+                            .append(",") //lower_alarm
+                            .append(",") //lower_warning
+                            .append(parseStringToTimestamp(columns[0])).append(",")
+                            .append(columns[5]).append(",") // freq count
+                            .append(columns[6]).append(",") // max frequency
+                            .append(columns[7]).append(",") // rpm
+                            .append(columns[8]).append(",") // sampling time
+                            .append(columns[3]).append(",") // frequency blob
+                            .append(columns[4]); // timewave blob
 
-                        if (columns.length > 10) {
-                            sbValue.append(columns[10]).append(",");
-
-                            if (columns.length > 11) {
-                                sbValue.append(columns[11]).append(",");
-
-                                if (columns.length > 12) {
-                                    sbValue.append(columns[12]).append(",");
-
-                                    if (columns.length > 13) {
-                                        sbValue.append(columns[13]).append(",");
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    log.debug("[{}] - parameter : {}", partitionKey, param.getParameterName());
+                    log.debug("[{}] - parameter : {}", partitionKey, paramInfo.getParameterName());
                     context().forward(partitionKey, sbValue.toString().getBytes());
                     context().commit();
                 }

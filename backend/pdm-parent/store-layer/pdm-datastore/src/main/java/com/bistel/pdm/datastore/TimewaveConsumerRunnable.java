@@ -80,22 +80,16 @@ public class TimewaveConsumerRunnable implements Runnable {
                     String valueString = new String(sensorData);
                     String[] values = valueString.split(",", -1);
 
-                    /*
-                    0 : paramRawid
-                    1 : value
-                    2 : upper alarm spec
-                    3 : upper warning spec
-                    4 : target
-                    5 : lower alarm spec
-                    6 : lower warning spec
-                    7 : time
-                    8 : frequency count
-                    9 : max frequency
-                    10 : rpm
-                    11 : sampling time
-                    12 : frequency binary
-                    13 : timewave binary
-                    */
+                    // 0: param_mst_rawid,
+                    // 1: value,
+                    // 2: upper_alarm_spec, upper_warning_spec, target, lower_alarm_spec, lower_warning_spec,
+                    // 7: event_dtts,
+                    // 8: freq count,
+                    // 9: max freq,
+                    // 10: rpm,
+                    // 11: sampling time
+                    // 12: frequency,
+                    // 13: timewave
 
                     Long rawId = trxDao.getTraceRawId();
 
@@ -105,10 +99,10 @@ public class TimewaveConsumerRunnable implements Runnable {
                     log.debug("parsing frequency...");
                     parseFrequency(rawRow, values, rawId);
 
-//                    if(values[13].length() > 0){
-//                        log.debug("parsing timewave...");
-//                        parseTimewave(rawRow, values, rawId);
-//                    }
+                    if(values[13].length() > 0){
+                        log.debug("parsing timewave...");
+                        parseTimewave(rawRow, values, rawId);
+                    }
                 }
 
                 if (traceRow.size() > 0) {
@@ -124,22 +118,16 @@ public class TimewaveConsumerRunnable implements Runnable {
     }
 
     private void parseFrequency(Map<String, Pair<Long, SensorRawData>> rawRow, String[] values, Long rawId) {
-        /*
-        0 : paramRawid
-        1 : value
-        2 : upper alarm spec
-        3 : upper warning spec
-        4 : target
-        5 : lower alarm spec
-        6 : lower warning spec
-        7 : time
-        8 : frequency count
-        9 : max frequency
-        10 : rpm
-        11 : sampling time
-        12 : frequency binary
-        13 : timewave binary
-        */
+        // 0: param_mst_rawid,
+        // 1: value,
+        // 2: upper_alarm_spec, upper_warning_spec, target, lower_alarm_spec, lower_warning_spec,
+        // 7: event_dtts,
+        // 8: freq count,
+        // 9: max freq,
+        // 10: rpm,
+        // 11: sampling time
+        // 12: frequency,
+        // 13: timewave
 
         SensorRawData rawDataFrequency = new SensorRawData();
         rawDataFrequency.setTraceTrxRawid(rawId);
@@ -184,47 +172,41 @@ public class TimewaveConsumerRunnable implements Runnable {
         rawDataFrequency.setSamplingTime(Float.parseFloat(values[11]));
         rawDataFrequency.setFrequencyData(values[12]);
 
-        //rsd 01~05
-        if (values.length > 14) {
-            rawDataFrequency.setReservedCol1(values[14]); //location
-
-            if (values.length > 15) {
-                rawDataFrequency.setReservedCol2(values[15]);
-
-                if (values.length > 16) {
-                    rawDataFrequency.setReservedCol3(values[16]);
-
-                    if (values.length > 17) {
-                        rawDataFrequency.setReservedCol4(values[17]);
-
-                        if (values.length > 18) {
-                            rawDataFrequency.setReservedCol5(values[18]);
-                        }
-                    }
-                }
-            }
-        }
+//        //rsd 01~05
+//        if (values.length > 14) {
+//            rawDataFrequency.setReservedCol1(values[14]); //location
+//
+//            if (values.length > 15) {
+//                rawDataFrequency.setReservedCol2(values[15]);
+//
+//                if (values.length > 16) {
+//                    rawDataFrequency.setReservedCol3(values[16]);
+//
+//                    if (values.length > 17) {
+//                        rawDataFrequency.setReservedCol4(values[17]);
+//
+//                        if (values.length > 18) {
+//                            rawDataFrequency.setReservedCol5(values[18]);
+//                        }
+//                    }
+//                }
+//            }
+//        }
 
         rawRow.put("F," + rawId, new Pair<>(rawId, rawDataFrequency)); //frequency
     }
 
     private void parseTimewave(Map<String, Pair<Long, SensorRawData>> rawRow, String[] values, Long rawId) {
-        /*
-        0 : paramRawid
-        1 : value
-        2 : upper alarm spec
-        3 : upper warning spec
-        4 : target
-        5 : lower alarm spec
-        6 : lower warning spec
-        7 : time
-        8 : frequency count
-        9 : max frequency
-        10 : rpm
-        11 : sampling time
-        12 : frequency binary
-        13 : timewave binary
-        */
+        // 0: param_mst_rawid,
+        // 1: value,
+        // 2: upper_alarm_spec, upper_warning_spec, target, lower_alarm_spec, lower_warning_spec,
+        // 7: event_dtts,
+        // 8: freq count,
+        // 9: max freq,
+        // 10: rpm,
+        // 11: sampling time
+        // 12: frequency,
+        // 13: timewave
 
         SensorRawData rawDataTimeWave = new SensorRawData();
         rawDataTimeWave.setTraceTrxRawid(rawId);
@@ -268,47 +250,41 @@ public class TimewaveConsumerRunnable implements Runnable {
         rawDataTimeWave.setSamplingTime(Float.parseFloat(values[11]));
         rawDataTimeWave.setTimewaveData(values[13]);
 
-        //rsd 01~05
-        if (values.length > 14) {
-            rawDataTimeWave.setReservedCol1(values[14]); //location
-
-            if (values.length > 15) {
-                rawDataTimeWave.setReservedCol2(values[15]);
-
-                if (values.length > 16) {
-                    rawDataTimeWave.setReservedCol3(values[16]);
-
-                    if (values.length > 17) {
-                        rawDataTimeWave.setReservedCol4(values[17]);
-
-                        if (values.length > 18) {
-                            rawDataTimeWave.setReservedCol5(values[18]);
-                        }
-                    }
-                }
-            }
-        }
+//        //rsd 01~05
+//        if (values.length > 14) {
+//            rawDataTimeWave.setReservedCol1(values[14]); //location
+//
+//            if (values.length > 15) {
+//                rawDataTimeWave.setReservedCol2(values[15]);
+//
+//                if (values.length > 16) {
+//                    rawDataTimeWave.setReservedCol3(values[16]);
+//
+//                    if (values.length > 17) {
+//                        rawDataTimeWave.setReservedCol4(values[17]);
+//
+//                        if (values.length > 18) {
+//                            rawDataTimeWave.setReservedCol5(values[18]);
+//                        }
+//                    }
+//                }
+//            }
+//        }
 
         rawRow.put("T," + rawId, new Pair<>(rawId, rawDataTimeWave)); //timewave
     }
 
     private void parseTrace(List<Pair<Long, SensorTraceData>> traceRow, String[] values, Long rawId) {
-       /*
-        0 : paramRawid
-        1 : value
-        2 : upper alarm spec
-        3 : upper warning spec
-        4 : target
-        5 : lower alarm spec
-        6 : lower warning spec
-        7 : time
-        8 : frequency count
-        9 : max frequency
-        10 : rpm
-        11 : sampling time
-        12 : frequency binary
-        13 : timewave binary
-        */
+        // 0: param_mst_rawid,
+        // 1: value,
+        // 2: upper_alarm_spec, upper_warning_spec, target, lower_alarm_spec, lower_warning_spec,
+        // 7: event_dtts,
+        // 8: freq count,
+        // 9: max freq,
+        // 10: rpm,
+        // 11: sampling time
+        // 12: frequency,
+        // 13: timewave
 
         SensorTraceData std = new SensorTraceData();
         std.setRawid(rawId);
@@ -347,26 +323,26 @@ public class TimewaveConsumerRunnable implements Runnable {
             std.setLowerWarningSpec(Float.parseFloat(values[6]));
         }
 
-        //rsd 01~05
-        if (values.length > 14) {
-            std.setReservedCol1(values[14]); //location
-
-            if (values.length > 15) {
-                std.setReservedCol2(values[15]);
-
-                if (values.length > 16) {
-                    std.setReservedCol3(values[16]);
-
-                    if (values.length > 17) {
-                        std.setReservedCol4(values[17]);
-
-                        if (values.length > 18) {
-                            std.setReservedCol5(values[18]);
-                        }
-                    }
-                }
-            }
-        }
+//        //rsd 01~05
+//        if (values.length > 14) {
+//            std.setReservedCol1(values[14]); //location
+//
+//            if (values.length > 15) {
+//                std.setReservedCol2(values[15]);
+//
+//                if (values.length > 16) {
+//                    std.setReservedCol3(values[16]);
+//
+//                    if (values.length > 17) {
+//                        std.setReservedCol4(values[17]);
+//
+//                        if (values.length > 18) {
+//                            std.setReservedCol5(values[18]);
+//                        }
+//                    }
+//                }
+//            }
+//        }
 
         traceRow.add(new Pair<>(rawId, std));
     }
