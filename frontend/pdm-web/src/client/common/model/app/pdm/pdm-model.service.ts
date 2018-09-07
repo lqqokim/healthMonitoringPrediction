@@ -36,7 +36,7 @@ export class PdmModelService extends ModelCommonService {
 	getEqpsByAreaIds(plantId, areaIds) {
 		return this.POST({
 			uriPath: `pdm/fabs/${plantId}/areas/1/eqps/eqpsByAreaIds`,
-			params:areaIds 
+			params: areaIds
 		});
 	}
 	getParamNameByEqpIds(plantId, eqpIds) {
@@ -51,22 +51,22 @@ export class PdmModelService extends ModelCommonService {
 	// 		params: {'eqpIds':eqpIds,'paramNames':paramNames}
 	// 	});
 	// }
-	getEqpIdParamIdsInFilterTraceData(plantId, eqpIds,paramNames,fromDate:number,toDate:number,filterCriteriaDatas) {
+	getEqpIdParamIdsInFilterTraceData(plantId, eqpIds, paramNames, fromDate: number, toDate: number, filterCriteriaDatas) {
 		return this.POST({
 			uriPath: `pdm/fabs/${plantId}/filterTraceData/eqpIdsParamIds?fromdate=${fromDate}&todate=${toDate}`,
-			params: {'eqpIds':eqpIds,'paramNames':paramNames,'filterCriteriaDatas':filterCriteriaDatas}
+			params: { 'eqpIds': eqpIds, 'paramNames': paramNames, 'filterCriteriaDatas': filterCriteriaDatas }
 		});
 	}
-	getFilterTraceDataByEqpIdParamIds(plantId, eqpId,eqpName,paramIds,paramNames,fromDate:number,toDate:number,filterCriteriaDatas,filterAggregation) {
+	getFilterTraceDataByEqpIdParamIds(plantId, eqpId, eqpName, paramIds, paramNames, fromDate: number, toDate: number, filterCriteriaDatas, filterAggregation) {
 		return this.POST({
 			uriPath: `pdm/fabs/${plantId}/eqps/${eqpId}/filterTraceData?fromdate=${fromDate}&todate=${toDate}&eqpName=${eqpName}`,
-			params: {'filterCriteriaDatas':filterCriteriaDatas,filterAggregation:filterAggregation,paramIds:paramIds,paramNames:paramNames}
+			params: { 'filterCriteriaDatas': filterCriteriaDatas, filterAggregation: filterAggregation, paramIds: paramIds, paramNames: paramNames }
 		});
 	}
-	getFilterTraceDataByEqpIdParamId(plantId, eqpId,paramId,fromDate:number,toDate:number,filterCriteriaDatas,filterAggregation) {
+	getFilterTraceDataByEqpIdParamId(plantId, eqpId, paramId, fromDate: number, toDate: number, filterCriteriaDatas, filterAggregation) {
 		return this.POST({
 			uriPath: `pdm/fabs/${plantId}/eqps/${eqpId}/params/${paramId}/filterTraceData?fromdate=${fromDate}&todate=${toDate}`,
-			params: {'filterCriteriaDatas':filterCriteriaDatas,filterAggregation:filterAggregation}
+			params: { 'filterCriteriaDatas': filterCriteriaDatas, filterAggregation: filterAggregation }
 		});
 	}
 
@@ -80,13 +80,13 @@ export class PdmModelService extends ModelCommonService {
 			}
 		});
 	}
-	getFabMonitoring(plantId,  from, to,param_name) {
+	getFabMonitoring(plantId, from, to, param_name, eqpId) {
 		return this.GET({
-			uriPath: `pdm/fabs/${plantId}/fabmonitoring`,
+			uriPath: `pdm/fabs/${plantId}/eqps/${eqpId}/fabmonitoring`,
 			querystring: {
 				fromdate: from,
 				todate: to,
-				param_name:param_name
+				param_name: param_name
 			}
 		});
 	}
@@ -546,7 +546,7 @@ export class PdmModelService extends ModelCommonService {
 			}
 		});
 	}
-	getTraceDataByParamId(fabId,paramId,fromDate,toDate): Promise<any> {
+	getTraceDataByParamId(fabId, paramId, fromDate, toDate): Promise<any> {
 		return this.GET({
 			uriPath: `pdm/fabs/${fabId}/areas/0/eqps/0/params/${paramId}/tracedata`,
 			params: {
@@ -555,25 +555,25 @@ export class PdmModelService extends ModelCommonService {
 			}
 		});
 	}
-	getTraceDataEventSimulation(fabId,paramId,fromDate,toDate,startCondition,endCondition): Promise<any> {
+	getTraceDataEventSimulation(fabId, paramId, fromDate, toDate, startCondition, endCondition): Promise<any> {
 		return this.GET({
 			uriPath: `pdm/fabs/${fabId}/areas/0/eqps/0/params/${paramId}/eventsimulation`,
 			params: {
 				fromdate: fromDate,
 				todate: toDate,
-				startCondition:startCondition,
-				endCondition:endCondition
+				startCondition: startCondition,
+				endCondition: endCondition
 			}
 		});
 	}
-	getTraceDataEventSimulationByConditionValue(fabId,paramId,fromDate,toDate,conditionParamId,startCondition,endCondition,adHocFunctions,adHocTime,eventType): Observable<any> {
+	getTraceDataEventSimulationByConditionValue(fabId, paramId, fromDate, toDate, conditionParamId, startCondition, endCondition, adHocFunctions, adHocTime, eventType): Observable<any> {
 		let startConditionParam = encodeURIComponent(startCondition);
 		let endConditionParam = encodeURIComponent(endCondition);
 		return this.rxPOST({
 			uriPath: `pdm/fabs/${fabId}/areas/0/eqps/0/params/${paramId}/eventsimulationbyconditionvalue?fromdate=${fromDate}&todate=${toDate}&eventType=${eventType}&adHocTime=${adHocTime}&startCondition=${startConditionParam}&endCondition=${endConditionParam}&conditionParamId=${conditionParamId}`,
 			params:
 				adHocFunctions
-			
+
 		})
 		// return this.GET({
 		// 	uriPath: `pdm/fabs/${fabId}/areas/0/eqps/0/params/${paramId}/eventsimulation`,
@@ -584,12 +584,12 @@ export class PdmModelService extends ModelCommonService {
 		// 	}
 		// });
 	}
-	getSummaryData(fabId,paramId,fromDate,toDate,adHocFunctions): Observable<any> {
+	getSummaryData(fabId, paramId, fromDate, toDate, adHocFunctions): Observable<any> {
 		return this.rxPOST({
 			uriPath: `pdm/fabs/${fabId}/areas/0/eqps/0/params/${paramId}/summarydata?fromdate=${fromDate}&todate=${toDate}`,
 			params:
 				adHocFunctions
-			
+
 		})
 		// return this.GET({
 		// 	uriPath: `pdm/fabs/${fabId}/areas/0/eqps/0/params/${paramId}/eventsimulation`,
@@ -601,7 +601,7 @@ export class PdmModelService extends ModelCommonService {
 		// });
 	}
 
-	setEqpEvent(fabId,eqpEvents:EqpEventType[]): Observable<any> {
+	setEqpEvent(fabId, eqpEvents: EqpEventType[]): Observable<any> {
 		return this.rxPUT({
 			uriPath: `pdm/fabs/${fabId}/eqpEvent`,
 			params: eqpEvents
@@ -612,22 +612,22 @@ export class PdmModelService extends ModelCommonService {
 			uriPath: `pdm/fabs/${fabId}/eqpEvents`,
 		});
 	}
-	getEqpEventByEqpId(fabId,eqpId): Promise<any> {
+	getEqpEventByEqpId(fabId, eqpId): Promise<any> {
 		return this.GET({
 			uriPath: `pdm/fabs/${fabId}/eqps/${eqpId}/eqpEventsByEqpId`,
 		});
 	}
 
-	createMonitoring(fabId,param): Observable<any> {
-		let fabInfo = Object.assign({},param);
+	createMonitoring(fabId, param): Observable<any> {
+		let fabInfo = Object.assign({}, param);
 		fabInfo.datas = JSON.stringify(fabInfo.datas);
 		return this.rxPOST({
 			uriPath: `pdm/fabs/${fabId}/monitorings`,
 			params: fabInfo
 		})
 	}
-	updateMonitoring(fabId,param): Observable<any> {
-		let fabInfo = Object.assign({},param);
+	updateMonitoring(fabId, param): Observable<any> {
+		let fabInfo = Object.assign({}, param);
 		fabInfo.datas = JSON.stringify(fabInfo.datas);
 		return this.rxPUT({
 			uriPath: `pdm/fabs/${fabId}/monitorings`,
@@ -635,22 +635,22 @@ export class PdmModelService extends ModelCommonService {
 		})
 	}
 
-	deleteMonitoring(fabId,param): Observable<any> {
+	deleteMonitoring(fabId, rawId): Observable<any> {
 		return this.rxDELETE({
-			uriPath: `pdm/fabs/${fabId}/monitorings/${param.rawId}`
+			uriPath: `pdm/fabs/${fabId}/monitorings/${rawId}`
 		})
 	}
-	getMonitoring(fabId): Observable<any>  {
+	getMonitoring(fabId): Observable<any> {
 		return this.rxGET({
 			uriPath: `pdm/fabs/${fabId}/monitorings`,
 			params: {
 			}
-		}).map((datas)=>{
-			for(let i=0;i<datas.length;i++){
+		}).map((datas) => {
+			for (let i = 0; i < datas.length; i++) {
 				datas[i].datas = JSON.parse(datas[i].datas);
 			}
 			return datas;
-			
+
 		});
 	}
 
@@ -729,104 +729,104 @@ export class PdmModelService extends ModelCommonService {
 	}
 
 	// AlaramHistory
-	getAlaramHistoryByEqpId(fabId: string, areaId: number, eqpId: string, fromDate:number, toDate:number): Promise<any> {
+	getAlaramHistoryByEqpId(fabId: string, areaId: number, eqpId: string, fromDate: number, toDate: number): Promise<any> {
 		return this.GET({
 			uriPath: `pdm/fabs/${fabId}/areas/${areaId}/eqps/${eqpId}/alarmHistoryByEqpId/?fromdate=${fromDate}&todate=${toDate}`
 		});
 	}
-	getAlaramHistoryByAreaId(fabId: string, areaId: number, fromDate:number, toDate:number): Promise<any> {
+	getAlaramHistoryByAreaId(fabId: string, areaId: number, fromDate: number, toDate: number): Promise<any> {
 		return this.GET({
 			uriPath: `pdm/fabs/${fabId}/areas/${areaId}/alarmHistoryByAreaId/?fromdate=${fromDate}&todate=${toDate}`
 		});
 	}
-	getAlaramHistory(fabId: string, fromDate:number, toDate:number): Promise<any> {
+	getAlaramHistory(fabId: string, fromDate: number, toDate: number): Promise<any> {
 		return this.GET({
 			uriPath: `pdm/fabs/${fabId}/alarmHistory/?fromdate=${fromDate}&todate=${toDate}`
 		});
 	}
 
 	// WorstEqpList
-	getWorstEqpsWithHealthIndex(fabId: string,  fromDate:number, toDate:number,numberOfWorst:number): Promise<any> {
+	getWorstEqpsWithHealthIndex(fabId: string, fromDate: number, toDate: number, numberOfWorst: number): Promise<any> {
 		return this.GET({
 			uriPath: `pdm/fabs/${fabId}/worstEqps?fromdate=${fromDate}&todate=${toDate}&numberOfWorst=${numberOfWorst}`
 		});
 	}
 
 	// WorstEqpList
-	getWorstEqpListByAreaId(fabId: string, areaId: number, fromDate:number, toDate:number): Promise<any> {
+	getWorstEqpListByAreaId(fabId: string, areaId: number, fromDate: number, toDate: number): Promise<any> {
 		return this.GET({
 			uriPath: `pdm/fabs/${fabId}/areas/${areaId}/worstEquipmentListByAreaId/?fromdate=${fromDate}&todate=${toDate}`
 		});
 	}
-	getWorstEqpList(fabId: string, fromDate:number, toDate:number): Promise<any> {
+	getWorstEqpList(fabId: string, fromDate: number, toDate: number): Promise<any> {
 		return this.GET({
 			uriPath: `pdm/fabs/${fabId}/worstEquipmentList/?fromdate=${fromDate}&todate=${toDate}`
 		});
 	}
-	getWorstEqpInfo(fabId: string,eqpId:string, fromDate:number, toDate:number): Promise<any> {
+	getWorstEqpInfo(fabId: string, eqpId: string, fromDate: number, toDate: number): Promise<any> {
 		return this.GET({
 			uriPath: `pdm/fabs/${fabId}/eqps/${eqpId}/worstEquipmentInfo/?fromdate=${fromDate}&todate=${toDate}`
 		})
 	}
 
 	// AlarmClassificationSummary
-	getAlarmClassificationSummaryByAreaId(fabId: string, areaId: number, fromDate:number, toDate:number): Promise<any> {
+	getAlarmClassificationSummaryByAreaId(fabId: string, areaId: number, fromDate: number, toDate: number): Promise<any> {
 		return this.GET({
 			uriPath: `pdm/fabs/${fabId}/areas/${areaId}/alarmClassificationSummaryByAreaId/?fromdate=${fromDate}&todate=${toDate}`
 		})
 	}
-	getAlarmClassificationSummary(fabId: string, fromDate:number, toDate:number): Promise<any> {
+	getAlarmClassificationSummary(fabId: string, fromDate: number, toDate: number): Promise<any> {
 		return this.GET({
 			uriPath: `pdm/fabs/${fabId}/alarmClassificationSummary/?fromdate=${fromDate}&todate=${toDate}`
 		});
 	}
 
 	// PdmEqpHealthIndex
-	getPdmEqpHealthIndexByAreaId(fabId: string, areaId: number, fromDate:number, toDate:number): Promise<any> {
+	getPdmEqpHealthIndexByAreaId(fabId: string, areaId: number, fromDate: number, toDate: number): Promise<any> {
 		return this.GET({
 			uriPath: `pdm/fabs/${fabId}/areas/${areaId}/eqpHealthIndexByAreaId/?fromdate=${fromDate}&todate=${toDate}`
 		});
 	}
-	getPdmEqpHealthIndex(fabId: string, fromDate:number, toDate:number): Promise<any> {
+	getPdmEqpHealthIndex(fabId: string, fromDate: number, toDate: number): Promise<any> {
 		return this.GET({
 			uriPath: `pdm/fabs/${fabId}/eqpHealthIndex/?fromdate=${fromDate}&todate=${toDate}`
 		});
 	}
 
 	// eqpHealthTrendChart (Logic1 -Standard)
-	getEqpHealthTrendChart(fabId: string, paramId:number, fromDate:number, toDate:number): Promise<any> {
+	getEqpHealthTrendChart(fabId: string, paramId: number, fromDate: number, toDate: number): Promise<any> {
 		return this.GET({
 			uriPath: `pdm/fabs/${fabId}/params/${paramId}/eqpHealthTrendChart/?fromdate=${fromDate}&todate=${toDate}`
 		});
 	}
 	// eqpHealthTrendChart (Logic2 -SPC)
-	getEqpHealthTrendChartWithSPC(fabId: string, paramId:number, fromDate:number, toDate:number): Promise<any> {
+	getEqpHealthTrendChartWithSPC(fabId: string, paramId: number, fromDate: number, toDate: number): Promise<any> {
 		return this.GET({
 			uriPath: `pdm/fabs/${fabId}/params/${paramId}/eqpHealthTrendChartWithSPC/?fromdate=${fromDate}&todate=${toDate}`
 		});
 	}
 	// eqpHealthTrendChart (Logic3 -Variation)
-	getEqpHealthTrendChartWithAVG(fabId: string, paramId:number, fromDate:number, toDate:number): Promise<any> {
+	getEqpHealthTrendChartWithAVG(fabId: string, paramId: number, fromDate: number, toDate: number): Promise<any> {
 		return this.GET({
 			uriPath: `pdm/fabs/${fabId}/params/${paramId}/eqpHealthTrendChartWithAVG/?fromdate=${fromDate}&todate=${toDate}`
 		});
 	}
 	// eqpHealthTrendChart (Logic4 -RUL)
-	getEqpHealthTrendChartWithRUL(fabId: string, paramId:number, fromDate:number, toDate:number): Promise<any> {
+	getEqpHealthTrendChartWithRUL(fabId: string, paramId: number, fromDate: number, toDate: number): Promise<any> {
 		return this.GET({
 			uriPath: `pdm/fabs/${fabId}/params/${paramId}/eqpHealthTrendChartWithRUL/?fromdate=${fromDate}&todate=${toDate}`
 		});
 	}
 
 	// Analysis Tool
-	getAnalysisToolData(fabId: string, fromDate:number, toDate:number, postParams: any): Promise<any> {
+	getAnalysisToolData(fabId: string, fromDate: number, toDate: number, postParams: any): Promise<any> {
 
 		// postParams 참고 용
 		interface SendItemType {
 			param_name: string;
 			group_name: string;
 		};
-		
+
 		interface PostParamType {
 			x_category: Array<SendItemType>;
 			y_category: Array<SendItemType>;

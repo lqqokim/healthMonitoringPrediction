@@ -23,7 +23,7 @@ public interface ISummaryDataService {
 
     List<WorstEquipmentList> worstEquipmentList(String fabId, Long areaId ,Long eqpId, Date fromdate, Date todate);
 
-    List<FabMonitoringInfo> getFabMonitoringInfo(String fabId,String param_name,Date fromdate, Date todate);
+    List<FabMonitoringInfo> getFabMonitoringInfo(String fabId, Long eqp_id, String param_name,Date fromdate, Date todate);
 
     List<EqpHealthIndex> eqpHealthIndex(String fabId, Long areaId, Date from, Date to);
 
@@ -35,7 +35,7 @@ public interface ISummaryDataService {
 
     EqpHealthSPC eqpHealthTrendChartWithSPC(String fabId, Long paramId, Long from, Long to, List<List<Object>> eqpHealthTrendData);
 
-    List<List<Object>> getSummaryDataForHealth(String fabId, Long paramId, Long lHealthLogic , Long fromdate, Long todate);
+    List<List<Object>> getSummaryDataForHealth(String fabId, Long paramId, Long lHealthLogic , Date fromdate, Date todate);
 
     Object getSummaryData(String fabId,Long paramId, Long fromdate, Long todate, List<String> adHocFucntions);
 

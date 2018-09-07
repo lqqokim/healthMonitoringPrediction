@@ -1,19 +1,28 @@
 package com.bistel.a3.portal.rest.pdm.master;
 
+import com.bistel.a3.portal.dao.pdm.std.master.STDEqpMapper;
 import com.bistel.a3.portal.domain.pdm.db.Area;
+import com.bistel.a3.portal.domain.pdm.master.EqpWithEtc;
 import com.bistel.a3.portal.domain.pdm.std.master.STDConditionalSpec;
 import com.bistel.a3.portal.service.pdm.IMasterService;
+import com.bistel.a3.portal.util.ApacheHttpClientGet;
+import com.bistel.a3.portal.util.SqlSessionUtil;
+import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("pdm/fabs/{fabId}")
 public class ConditionalSpecController {
-    @Autowired
-    private IMasterService service;
+    @Autowired private IMasterService service;
+
+    @Autowired private ApacheHttpClientGet apacheHttpClientGet;
+
+    @Autowired private Map<String, SqlSessionTemplate> sessions;
 
 
     //*********************************************
@@ -64,8 +73,6 @@ public class ConditionalSpecController {
         service.deleteModel(fabId, rule);
     }
 
-
-
     @RequestMapping(value="models/{model}/{rule}",method = RequestMethod.GET)
     public Object getConditionsByModelAndRule(@PathVariable String fabId, @PathVariable String model, @PathVariable String rule) {
         return service.getConditionsByModelAndRule(fabId, model, rule);
@@ -87,7 +94,7 @@ public class ConditionalSpecController {
             eqpRuleList.get(i).setUserName(user.getName());
         }
         service.setEqpRule(fabId, eqpId,eqpRuleList);
-
+        //request to Kafka
     }
 
     @RequestMapping(value="/eqps/{eqpId}/conditions/{rule}/specs",method = RequestMethod.GET)
@@ -102,6 +109,19 @@ public class ConditionalSpecController {
             eqpParamSpecList.get(i).setUserName(user.getName());
         }
         service.setEqpParamSpec(fabId, eqpParamSpecList);
+        //request to Kafka
+
+    }
+
+    @RequestMapping(value="eqps/setEqpParamSpec/rule/{ruleId}/paramName/{param_name}/eqpSpecLinkId/{eqp_spec_link_mst_rawid}/getModelEqpSpec", method = RequestMethod.GET)
+    public Object getModelEqpSpec(Principal user, @PathVariable String fabId, @PathVariable String param_name, @PathVariable Long eqp_spec_link_mst_rawid, @PathVariable Long ruleId ) {
+        return service.getModelEqpSpec(fabId, param_name, eqp_spec_link_mst_rawid, ruleId);
+
+    }
+
+    @RequestMapping(value="eqps/setEqpParamSpec/paramName/{param_name}/eqpSpecLinkId/{eqp_spec_link_mst_rawid}/revertToModelSpec", method = RequestMethod.DELETE)
+    public void revertToModelSpec(Principal user, @PathVariable String fabId, @PathVariable String param_name, @PathVariable Long eqp_spec_link_mst_rawid ) {
+        service.revertToModelSpec(fabId, param_name, eqp_spec_link_mst_rawid);
 
     }
 

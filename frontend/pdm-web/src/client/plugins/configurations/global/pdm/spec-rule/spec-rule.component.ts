@@ -47,15 +47,17 @@ export class SpecRuleComponent implements OnInit, OnDestroy {
     editParameters: IRule.ParameterResponse[];
     tempParameters: IRule.ParameterResponse[]; // wijmo grid item 수정 취소 시, rollback을 위한 copy parameters
 
+    isOnEdit: boolean = false;
+
     readonly DEFAULT_NAME: string = 'DEFAULT';
     readonly STATUS: IRule.Status = { CREATE: 'create', MODIFY: 'modify', DELETE: 'delete' };
     readonly operands: IRule.Operand[] = [
-        { display: '=', value: 'equal' },
+        { display: '==', value: 'equal' },
         { display: '<', value: 'lessthan' },
         { display: '>', value: 'greaterthan' },
         { display: '<=', value: 'lessthanequal' },
         { display: '>=', value: 'greaterthanequal' },
-        { display: 'like', value: 'like' }
+        // { display: 'like', value: 'like' }
     ];
 
     constructor(
@@ -193,7 +195,7 @@ export class SpecRuleComponent implements OnInit, OnDestroy {
     //Rule 목록에서 Row를 선택하면 호출
     selectRule(grid: wjcGrid.FlexGrid): void {
         this.selectedRule = grid.selectedItems[0];
-        console.log('selectRule', this.selectedRule);
+        // console.log('selectRule', this.selectedRule);
         this.getParamsByRule();
     }
 
@@ -295,6 +297,11 @@ export class SpecRuleComponent implements OnInit, OnDestroy {
     //Modal창에서 Save를 누르면 호출
     saveRule(ruleForm: NgForm): void {
         let ruleFormData = this.ruleFormData;
+        ruleFormData.condition.map((condition: IRule.Condition) => {
+            if (condition.param_value.toString().indexOf('.') < 0) {
+                condition.param_value = Number(condition.param_value).toFixed(1);
+            }
+        });
 
         //Rule update를 위한 Request Param, default는 condition, expression, expression_value가 null이다
         let ruleRequest: IRule.RuleRequest = {
@@ -354,7 +361,7 @@ export class SpecRuleComponent implements OnInit, OnDestroy {
         const toJsonStr = JSON.stringify(conditions);
         const condition: string = toJsonStr.toString().replace(/"/g, '\\"');
 
-        console.log('conditionToString', condition);
+        // console.log('conditionToString', condition);
         return condition;
     }
 
@@ -370,7 +377,7 @@ export class SpecRuleComponent implements OnInit, OnDestroy {
             expression = expression.concat(appendStr);
         });
 
-        console.log('conditionToExpression', expression);
+        // console.log('conditionToExpression', expression);
         return expression;
     }
 
@@ -386,7 +393,7 @@ export class SpecRuleComponent implements OnInit, OnDestroy {
             expressionValue = expressionValue.concat(appendStr);
         });
 
-        console.log('conditionToExpressionValue', expressionValue);
+        // console.log('conditionToExpressionValue', expressionValue);
         return expressionValue;
     }
 
@@ -399,10 +406,21 @@ export class SpecRuleComponent implements OnInit, OnDestroy {
     }
 
     removeCondition(index: number): void {
-        this.ruleFormData.condition.splice(index, 1);
+        const conditions: IRule.Condition[] = this.ruleFormData.condition;
+        conditions.splice(index, 1)
+        this.ruleFormData.condition = JSON.parse(JSON.stringify(conditions));
+    }
+
+    beginningEdit(ev) {
+        this.isOnEdit = true;
+    }
+
+    cellEditEnding(ev) {
+        this.isOnEdit = false;
     }
 
     closeModal(): void {
+        this.isOnEdit = false;
         this._showModal(false);
     }
 
@@ -423,6 +441,6 @@ export class SpecRuleComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy() {
-        console.log('spec ngOnDestroy');
+        // console.log('spec ngOnDestroy');
     }
 }

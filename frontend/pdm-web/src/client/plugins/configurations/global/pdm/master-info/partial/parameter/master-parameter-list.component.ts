@@ -132,10 +132,11 @@ export class MasterParameterListComponent extends WijmoApi implements OnInit, On
                 eu: '',
                 euType: '',
                 // rpm: null,
-                alarm: '',
-                warning: '',
+                // alarm: '',
+                // warning: '',
                 description: '',
-                parts_id: ''
+                parts_id: '',
+                parse_index: ''
             };
         } else if (status === 'modify') {
             paramData = Object.assign({}, this.selectedRowData);
@@ -147,7 +148,7 @@ export class MasterParameterListComponent extends WijmoApi implements OnInit, On
         this.paramData.unitTypes = this.unitTypes;
 
         if (!this.paramData.partsDatas.length) {
-            this.notify.info("PDM.NOTIFY.NOT_EXIST_PARTS");
+            this.notify.info("PDM.NOTIFY.INFO.NOT_EXIST_PARTS");
             return;
         }
 
@@ -162,21 +163,21 @@ export class MasterParameterListComponent extends WijmoApi implements OnInit, On
 
         if(paramAlarm !== undefined && paramAlarm !== null && paramAlarm !== '') {
             if(paramWarning === undefined || paramWarning === null || paramWarning === '') {
-                this.notify.info("PDM.NOTIFY.NOT_EXIST_WARNING");
+                this.notify.info("PDM.NOTIFY.INFO.NOT_EXIST_WARNING");
                 return;
             }
         }
 
         if(paramWarning !== undefined && paramWarning !== null && paramWarning !== '') {
             if(paramAlarm === undefined || paramAlarm === null || paramAlarm === '') {
-                this.notify.info("PDM.NOTIFY.NOT_EXIST_ALARM");
+                this.notify.info("PDM.NOTIFY.INFO.NOT_EXIST_ALARM");
                 return;
             }
         }
 
         if (this.status === 'create' || (this.status === 'modify' && this.selectedRowData.paramName !== paramData.paramName)) {
             if (!this.checkUniqueData(paramData)) {
-                this.notify.warn("PDM.NOTIFY.DUPLICATE_PARAMETER");
+                this.notify.warn("PDM.NOTIFY.INFO.WARN.DUPLICATE_PARAMETER");
                 return;
             }
         }
@@ -192,10 +193,11 @@ export class MasterParameterListComponent extends WijmoApi implements OnInit, On
             paramName: paramData.paramName,
             // euType: paramData.euType,
             eqpName: paramData.eqpName,
-            alarm: paramData.alarm,
-            warning: paramData.warning,
+            // alarm: paramData.alarm,
+            // warning: paramData.warning,
             param_type_cd: paramData.param_type_cd,
-            parts_id: paramData.parts_id
+            parts_id: paramData.parts_id,
+            parse_index: paramData.parse_index
         };
 
         if (this.status === 'modify') {

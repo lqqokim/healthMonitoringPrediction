@@ -238,7 +238,8 @@ public class MasterService implements IMasterService {
             eqpWithEtc1.setName(toEqpNames.get(i));
             eqpWithEtc1.setData_type_cd(eqpWithEtc.getData_type_cd());
             eqpWithEtc1.setImage(eqpWithEtc.getImage());
-
+            eqpWithEtc1.setModel_name(eqpWithEtc.getModel_name());
+            eqpWithEtc1.setOffline_yn(eqpWithEtc.getOffline_yn());
             eqpWithEtc1.setUserName(userName);
             STDEqpMapper.insertOne(eqpWithEtc1);//eqp추가
 
@@ -363,26 +364,21 @@ public class MasterService implements IMasterService {
         STDParamMapper mapper = SqlSessionUtil.getMapper(sessions, fabId, STDParamMapper.class);
         return mapper.selectOne(paramId);
     }
-    public void setParam(String fabId, Long eqpId , ParamWithCommonWithRpm param) {
+    public void setParam(String fabId, Long eqpId , ParamWithCommonWithRpm param, String userName) {
         STDParamMapper mapper = SqlSessionUtil.getMapper(sessions, fabId, STDParamMapper.class);
         PlatformTransactionManager manager = TransactionUtil.getTransactionManger(trMgrs, fabId);
         TransactionStatus status = TransactionUtil.getTransactionStatus(manager);
         try {
-            if(param.getParam_id() == null) {
-                mapper.insertOne(param);
-//                if(param.getRpm()!=null){
-//                    mapper.insertRpmOne(param);
-//                }
-
-//                mapper.insertCommonOne(param);
-                if(param.getAlarm()!=null && param.getWarn()!=null){
-
-                    //Allen trace_spec_mst_pdm제거작업(2018-08-24)
-//                    mapper.insertSpec(param);
-                    this.updateParamHealth(fabId, eqpId, param.getParam_id()); //추후 삭제(UI 부재)
-
+            if(param.getParam_id() == null)
+            {
+                if(param.getParse_index()==null)
+                {
+                    param.setParse_index(-1L);
                 }
+                mapper.insertOne(param);
+                Long newParamId=mapper.selectMaxParamRawId();
 
+                this.updateParamHealth(fabId, eqpId, newParamId, userName); //추후 삭제(UI 부재)
 
 
             } else {
@@ -426,8 +422,7 @@ public class MasterService implements IMasterService {
         PlatformTransactionManager manager = TransactionUtil.getTransactionManger(trMgrs, fabId);
         TransactionStatus status = TransactionUtil.getTransactionStatus(manager);
         try {
-//            mapper.deleteCommonOne(paramId);
-//            mapper.deleteRpmOne(paramId);
+
             mapper.deleteOne(paramId);
             //Allen trace_spec_mst_pdm제거작업(2018-08-24)
             //mapper.deleteSpec(paramId);
@@ -438,8 +433,6 @@ public class MasterService implements IMasterService {
             manager.rollback(status);
             throw new RuntimeException(e.getMessage());
         }
-
-
 
         //request to Kafka
         STDEqpMapper eqpMapper= SqlSessionUtil.getMapper(sessions, fabId, STDEqpMapper.class);
@@ -478,27 +471,27 @@ public class MasterService implements IMasterService {
     ///////////////////////////////////////////** 추후 삭제 ** //////////////////////////////////////////////////////////////
     //insert Param_health_mst_pdm (UI의 부재 때문)
     @Override
-    public void updateParamHealth(String fabId, Long eqpId, Long paramId){
+    public void updateParamHealth(String fabId, Long eqpId, Long paramId, String userName){
 
 
         STDEtcMapper stdEtcMapper=SqlSessionUtil.getMapper(sessions, fabId, STDEtcMapper.class);
-        List<STDParamHealth> paramHealths=stdEtcMapper.selectParamHealth(eqpId, paramId);
-
-
-        for (int i = 0; i < paramHealths.size(); i++) {
-
-            Long param_health_mst_rawid=paramHealths.get(i).getParam_health_mst_rawid();
-            Long param_mst_rawid=paramHealths.get(i).getParam_mst_rawid();
-            Long health_logic_mst_rawid=paramHealths.get(i).getHealth_logic_mst_rawid();
-            String apply_logic_yn=paramHealths.get(i).getApply_logic_yn();
-
-            stdEtcMapper.insertParamHealth(param_health_mst_rawid, param_mst_rawid, health_logic_mst_rawid, apply_logic_yn); // param_health_mst_pdm에 Insert
-            stdEtcMapper.insertParamHealthOptionTotal(param_health_mst_rawid); // param_health_option_mst_pdm 에 Insert
-            stdEtcMapper.insertParamHealthOptionSpecific(param_health_mst_rawid); // param_health_option_mst_pdm 에 Insert
 
 
 
-        }
+        stdEtcMapper.insertParamHealth(paramId, 1L , "Y", userName); // param_health_mst_pdm
+        stdEtcMapper.insertParamHealth(paramId, 2L , "Y", userName); // param_health_mst_pdm
+
+
+
+        STDParamHealth paramHealths=stdEtcMapper.selectParamHealth(eqpId, paramId);
+
+
+
+        Long param_health_mst_rawid=paramHealths.getParam_health_mst_rawid();
+
+        stdEtcMapper.insertParamHealthOptionTotal(param_health_mst_rawid, "M",6L,null, userName);
+        stdEtcMapper.insertParamHealthOptionTotal(param_health_mst_rawid, "N",3L,null, userName);
+
 
         //request to Kafka
         STDEqpMapper eqpMapper= SqlSessionUtil.getMapper(sessions, fabId, STDEqpMapper.class);
@@ -513,16 +506,20 @@ public class MasterService implements IMasterService {
     public void deleteParamHealth(String fabId, Long eqpId, Long paramId){
 
         STDEtcMapper stdEtcMapper=SqlSessionUtil.getMapper(sessions, fabId, STDEtcMapper.class);
-        List<STDParamHealth> paramHealthMstAndOptionRawId=stdEtcMapper.selectParamHealthOption(paramId);
 
-        Long optionRawId=null;
-        for (int i = 0; i < paramHealthMstAndOptionRawId.size(); i++) {
+        List<Long> param_health_rawid_list=stdEtcMapper.selectParamHealthMstRawIdByParamId(paramId);
 
-            optionRawId=paramHealthMstAndOptionRawId.get(i).getParam_health_option_mst_rawid();
-            stdEtcMapper.deleteParamHealthOptionMstPdmByRawId(optionRawId);
+        for (int i = 0; i < param_health_rawid_list.size(); i++) {
+
+            Long paramHealthMstRawId=param_health_rawid_list.get(i);
+            List<Long> param_health_opt_rawid_list=stdEtcMapper.selectParamHealthOptMstRawIdByMstRawId(paramHealthMstRawId);
+            for (int j = 0; j < param_health_opt_rawid_list.size(); j++)
+            {
+                Long optionRawId=param_health_opt_rawid_list.get(j);
+                stdEtcMapper.deleteParamHealthOptionMstPdmByRawId(optionRawId);
+            }
+            stdEtcMapper.deleteParamHealthMstPdmByRawId(paramHealthMstRawId);
         }
-        Long paramHealthMstRawId=paramHealthMstAndOptionRawId.get(0).getParam_health_mst_rawid();
-        stdEtcMapper.deleteParamHealthMstPdmByRawId(paramHealthMstRawId);
 
 
         //request to Kafka
@@ -716,7 +713,6 @@ public class MasterService implements IMasterService {
                 conditionsList.get(i).setExpression_values(expressionValue.split(","));
             }
 
-
         }
 
         return conditionsList;
@@ -727,9 +723,7 @@ public class MasterService implements IMasterService {
 
         STDConditionalSpecMapper conditionalSpecMapper=SqlSessionUtil.getMapper(sessions, fabId, STDConditionalSpecMapper.class);
 
-
             return conditionalSpecMapper.selectParamSpec(model, ruleId);
-
 
     }
 
@@ -830,6 +824,11 @@ public class MasterService implements IMasterService {
 
             }
 
+
+
+
+
+
         }
         else //updatae
         {
@@ -863,7 +862,8 @@ public class MasterService implements IMasterService {
                                 lower_warning_spec,paramDescription,userName);
                     }
                     else{//스펙만 바뀔때
-                        conditionalSpecMapper.updateModelParamSpec(param_name,upper_alarm_spec,upper_warning_spec,target,lower_alarm_spec,lower_warning_spec, paramDescription, userName, model_param_spec_mst_rawid);
+                        conditionalSpecMapper.updateModelParamSpec(param_name,upper_alarm_spec,upper_warning_spec,target,
+                                lower_alarm_spec,lower_warning_spec, paramDescription, userName, model_param_spec_mst_rawid);
 
                     }
 
@@ -874,8 +874,24 @@ public class MasterService implements IMasterService {
                 }
 
             }
+
+
         }
 
+        //request to Kafka
+        List<Long> eqpIds=conditionalSpecMapper.selectEqpIdListByModelName(modelName);
+
+        for (int i = 0; i < eqpIds.size(); i++) {
+
+            STDEqpMapper eqpMapper= SqlSessionUtil.getMapper(sessions, fabId, STDEqpMapper.class);
+            if (eqpIds.get(i)!=null)
+            {
+                EqpWithEtc eqpWithEtc=eqpMapper.selectOne(eqpIds.get(i));
+                String eqp_name=eqpWithEtc.getName();
+                apacheHttpClientGet.requestReload(eqp_name);
+            }
+
+        }
 
     }
 
@@ -883,10 +899,35 @@ public class MasterService implements IMasterService {
     public void deleteModel(String fabId, Long rule) {
 
         STDConditionalSpecMapper conditionalSpecMapper=SqlSessionUtil.getMapper(sessions, fabId, STDConditionalSpecMapper.class);
+        //request to Kafka
+        String modelName=conditionalSpecMapper.selectModelNameByRuleName(rule);
+        //
 
-        conditionalSpecMapper.deleteModelParamSpec(rule); //delete Model_Param_Spec_Mst_Pdm
+        List<String> paramNameList=conditionalSpecMapper.selectParamNameByRuleId(rule);
+        String param_name=null;
+        for (int i = 0; i <paramNameList.size() ; i++) {
+
+            param_name=paramNameList.get(i);
+            conditionalSpecMapper.deleteModelParamSpecOne(rule, param_name); //delete Model_Param_Spec_Mst_Pdm
+        }
+
         conditionalSpecMapper.deleteConditionalSpec(rule); // delete Conditional_Spec_Mst_Pdm
 
+        //request to Kafka
+        List<Long> eqpIds=conditionalSpecMapper.selectEqpIdListByModelName(modelName);
+
+        for (int i = 0; i < eqpIds.size(); i++) {
+
+            STDEqpMapper eqpMapper= SqlSessionUtil.getMapper(sessions, fabId, STDEqpMapper.class);
+            if (eqpIds.get(i)!=null)
+            {
+                EqpWithEtc eqpWithEtc=eqpMapper.selectOne(eqpIds.get(i));
+                String eqp_name=eqpWithEtc.getName();
+                apacheHttpClientGet.requestReload(eqp_name);
+            }
+
+        }
+        //
     }
 
     @Override
@@ -923,7 +964,7 @@ public class MasterService implements IMasterService {
                 //2. 해당 해당 파라미터들 param_spec_mst_pdm에 insert
 
                 //1.
-                conditionalSpecMapper.deleteEqpSpecLink(eqpId,rule_id);
+                conditionalSpecMapper.deleteEqpSpecLink(eqpId,rule_id);//체크해제했다가 다시 체크하는 경우를 위해서
                 conditionalSpecMapper.insertEqpSpecLink(eqpId, rule_id, ordering,  description, userName);
 
                 List<STDConditionalSpec> modelParam=conditionalSpecMapper.selectAppliedEqpParamListByeqpIdAndRule(eqpId,rule_id);
@@ -943,9 +984,9 @@ public class MasterService implements IMasterService {
                     upper_alarm_spec=modelParam.get(j).getUpper_alarm_spec();
                     upper_warning_spec=modelParam.get(j).getUpper_warning_spec();
 
-                    if (eqp_spec_link_mst_rawid!=null)
+                    if (eqp_spec_link_mst_rawid!=null)//체크 된 Param(eqp에만 쓰이는 param일 경우)
                     {
-                        conditionalSpecMapper.deleteParamSpec(eqp_spec_link_mst_rawid);
+//                        conditionalSpecMapper.deleteParamSpec(eqp_spec_link_mst_rawid);
                     }
 
                     if (eqp_spec_link_mst_rawid==null && used_yn==true) //체크해제 후 체크
@@ -953,8 +994,8 @@ public class MasterService implements IMasterService {
                         eqp_spec_link_mst_rawid=conditionalSpecMapper.selectEqpSpecLnkRawId(eqpId, rule_id);
                     }
 
-                    conditionalSpecMapper.insertParamSpec(param_id,eqp_spec_link_mst_rawid,spec_type,upper_alarm_spec,upper_warning_spec,
-                            target,lower_alarm_spec,lower_warning_spec,modelParamDescription,userName);
+//                    conditionalSpecMapper.insertParamSpec(param_id,eqp_spec_link_mst_rawid,spec_type,upper_alarm_spec,upper_warning_spec,
+//                            target,lower_alarm_spec,lower_warning_spec,modelParamDescription,userName);
 
                 }
 
@@ -973,17 +1014,27 @@ public class MasterService implements IMasterService {
 
         }
 
+        //request to Kafka
+        STDEqpMapper eqpMapper= SqlSessionUtil.getMapper(sessions, fabId, STDEqpMapper.class);
+        if (eqpId!=null)
+        {
+            EqpWithEtc eqpWithEtc=eqpMapper.selectOne(eqpId);
+            String eqp_name=eqpWithEtc.getName();
+            apacheHttpClientGet.requestReload(eqp_name);
+        }
+
     }
 
     @Override
     public void setEqpParamSpec(String fabId, List<STDConditionalSpec> eqpParamSpecList) {
 
         STDConditionalSpecMapper conditionalSpecMapper=SqlSessionUtil.getMapper(sessions, fabId, STDConditionalSpecMapper.class);
-
+        STDParamMapper paramMapper=SqlSessionUtil.getMapper(sessions, fabId, STDParamMapper.class);
 
         //1. Spec 변경시 Param_spec_mst_pdm에 Insert
         //2.
         Long param_id=null;
+        String param_name=null;
         Long eqp_spec_link_mst_rawid=null;
         String spec_type="EQP";
         Double eqp_upper_alarm_spec=null;
@@ -993,19 +1044,94 @@ public class MasterService implements IMasterService {
         Double eqp_lower_warning_spec=null;
         String description=null;
         String userName=null;
+        Long eqpId=null;
+        Long ruleId=null;
+        Long model_param_spec_mst_rawid=null;
+        boolean used_yn=false;
 
         for (int i = 0; i < eqpParamSpecList.size(); i++) {
 
             param_id=eqpParamSpecList.get(i).getParam_id();
+            ParamWithCommonWithRpm param=paramMapper.selectOne(param_id);
+            param_name=param.getName();
+
             eqp_spec_link_mst_rawid=eqpParamSpecList.get(i).getEqp_spec_link_mst_rawid();
             eqp_upper_alarm_spec=eqpParamSpecList.get(i).getEqp_upper_alarm_spec();
             eqp_upper_warning_spec=eqpParamSpecList.get(i).getEqp_upper_warning_spec();
             eqp_lower_alarm_spec=eqpParamSpecList.get(i).getEqp_lower_alarm_spec();
             eqp_lower_warning_spec=eqpParamSpecList.get(i).getEqp_lower_warning_spec();
+            eqpId=eqpParamSpecList.get(i).getEqp_id();
+            ruleId=eqpParamSpecList.get(i).getRule_id();
+            description= eqpParamSpecList.get(i).getDescription();
+            userName=eqpParamSpecList.get(i).getUserName();
+            model_param_spec_mst_rawid=conditionalSpecMapper.selectModelParamSpecMstRawId(ruleId, param_name);
+            used_yn=eqpParamSpecList.get(i).isUsed_yn();
+//            if (eqp_spec_link_mst_rawid==null) //Model의 스펙을 처음 바꿨을때 param_spec_mst_pdm에 없다면 insert
+//            {
+//                eqp_spec_link_mst_rawid=conditionalSpecMapper.selectEqpSpecLnkRawId(eqpId,ruleId);
+//
+//
+//            }
+            if (eqp_spec_link_mst_rawid==null && used_yn==true) // model의 param인데 수정된 것만 param_spec_mst_pdm에 insert
+            {
+                eqp_spec_link_mst_rawid=conditionalSpecMapper.selectEqpSpecLnkRawId(eqpId,ruleId);
+                conditionalSpecMapper.insertParamSpec(param_id, eqp_spec_link_mst_rawid,  eqp_upper_alarm_spec, eqp_upper_warning_spec,
+                        target,eqp_lower_alarm_spec,eqp_lower_warning_spec,description, userName);
+            }
+            else if (eqp_spec_link_mst_rawid!=null && used_yn==true) //이미 eqp param이지만 spec을 변경할때
+            {
+                conditionalSpecMapper.updateParamSpec( eqp_upper_alarm_spec, eqp_upper_warning_spec, eqp_lower_alarm_spec, eqp_lower_warning_spec,
+                        param_id, eqp_spec_link_mst_rawid);
+            }
+//            if (eqp_spec_link_mst_rawid==null) //모델정보
+//            {
+//                conditionalSpecMapper.updateModelParamSpec(param_name, eqp_upper_alarm_spec, eqp_upper_warning_spec, target,
+//                        eqp_lower_alarm_spec, eqp_lower_warning_spec, description, userName, model_param_spec_mst_rawid );
+//            }
+            else if (eqp_spec_link_mst_rawid!=null && used_yn==false)//이미 eqp spec값을 바꾼 것이라면 (param_spec_mst_pdm에 이미 있다면) update
+            {
+                conditionalSpecMapper.updateParamSpec( eqp_upper_alarm_spec, eqp_upper_warning_spec, eqp_lower_alarm_spec, eqp_lower_warning_spec,
+                        param_id, eqp_spec_link_mst_rawid);
+            }
 
-            conditionalSpecMapper.updateParamSpec(spec_type, eqp_upper_alarm_spec, eqp_upper_warning_spec, eqp_lower_alarm_spec, eqp_lower_warning_spec,
-                    param_id, eqp_spec_link_mst_rawid);
+            //request to Kafka
+            STDEqpMapper eqpMapper= SqlSessionUtil.getMapper(sessions, fabId, STDEqpMapper.class);
+            if (eqpId!=null)
+            {
+                EqpWithEtc eqpWithEtc=eqpMapper.selectOne(eqpId);
+                String eqp_name=eqpWithEtc.getName();
+                apacheHttpClientGet.requestReload(eqp_name);
+            }
+
         }
+    }
+
+    @Override
+    public void revertToModelSpec(String fabId, String param_name, Long eqp_spec_link_mst_rawid) {
+
+        STDConditionalSpecMapper conditionalSpecMapper=SqlSessionUtil.getMapper(sessions, fabId, STDConditionalSpecMapper.class);
+
+
+        conditionalSpecMapper.deleteParamSpecOne(eqp_spec_link_mst_rawid, param_name);
+
+        //request to Kafka
+        Long eqpId=conditionalSpecMapper.selectEqpIdByEqpSpecMstRawId(eqp_spec_link_mst_rawid);
+
+        STDEqpMapper eqpMapper= SqlSessionUtil.getMapper(sessions, fabId, STDEqpMapper.class);
+        if (eqpId!=null)
+        {
+            EqpWithEtc eqpWithEtc=eqpMapper.selectOne(eqpId);
+            String eqp_name=eqpWithEtc.getName();
+            apacheHttpClientGet.requestReload(eqp_name);
+        }
+
+    }
+
+    @Override
+    public STDConditionalSpec getModelEqpSpec(String fabId, String param_name, Long eqp_spec_link_mst_rawid, Long rule_id) {
+
+        STDConditionalSpecMapper conditionalSpecMapper=SqlSessionUtil.getMapper(sessions, fabId, STDConditionalSpecMapper.class);
+        return conditionalSpecMapper.selectModelEqpParamSpec(eqp_spec_link_mst_rawid, param_name, rule_id);
 
     }
 

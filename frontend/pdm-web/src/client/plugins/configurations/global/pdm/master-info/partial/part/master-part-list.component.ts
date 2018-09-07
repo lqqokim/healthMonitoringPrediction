@@ -209,7 +209,7 @@ export class MasterPartListComponent implements OnInit, OnChanges {
                 }
 
                 if (isExist) {
-                    this.notify.warn("PDM.NOTIFY.REFER_PART");
+                    this.notify.warn("PDM.NOTIFY.WARN.REFER_PART");
                     return;
                 } else {
                     this.pdmConfigService.deletePart(this.dataInfo.fabId, this.dataInfo.eqpId, this.selectedRowData.partId)
@@ -251,7 +251,7 @@ export class MasterPartListComponent implements OnInit, OnChanges {
 
         if (this.status === 'create' || (this.status === 'modify' && this.selectedRowData.name !== partData.name)) {
             if (!this.checkUniqueData(partData)) {
-                this.notify.warn("PDM.NOTIFY.DUPLICATE_PART");
+                this.notify.warn("PDM.NOTIFY.WARN.DUPLICATE_PART");
                 return;
             }
         }

@@ -28,14 +28,13 @@ export class ModelSimulatorComponent implements OnInit {
     @ViewChild('tree') tree: FabAreaEqpParamTreeComponent;
     @ViewChild('tree2') tree2: FabAreaEqpParamTreeComponent;
     @ViewChild('modelChart') modelChart: ModelingChartComponent;
-    @ViewChild('simulationChart') simulationChart :ModelingSimulatorChartComponent;
+    @ViewChild('simulationChart') simulationChart: ModelingSimulatorChartComponent;
 
     // params = [
     //     { name: 'param1', isEventParam: false, conditionValue: null, datas: [],eventConfig:[] },
     //     { name: 'param2', isEventParam: false, conditionValue: null, datas: [],eventConfig:[] },
     //     { name: 'param3', isEventParam: false, conditionValue: null, datas: [] ,eventConfig:[]}
     // ]
-
 
     fabId;
     eqpId;
@@ -67,12 +66,13 @@ export class ModelSimulatorComponent implements OnInit {
         { f: 'STD DEV', checked: false },
         { f: 'Max', checked: false },
         { f: 'Q3', checked: false },
-        { f: 'Median', checked: false},
+        { f: 'Median', checked: false },
         { f: 'Q1', checked: false },
         { f: 'Min', checked: false },
         { f: 'Count', checked: false },
         { f: 'Sum', checked: false },
     ];
+
     aggregationChecked = false;
     aggregationTime = 1;
 
@@ -89,7 +89,12 @@ export class ModelSimulatorComponent implements OnInit {
     eqpEvents = [];
     _eventTypeEvents = {};
 
-    constructor(private pdmModelService: PdmModelService, private pdmConfigService: PdmConfigService) {
+    readonly STANDARD_MILLISECOND: number = 1000 * 60 * 60;
+
+    constructor
+        (private pdmModelService: PdmModelService,
+        private pdmConfigService: PdmConfigService,
+        private notify: NotifyService) {
         this.searchTimePeriod.to = new Date().getTime();
         let fromDate = new Date();
         // fromDate.setDate(fromDate.getDate()-1);
@@ -103,9 +108,9 @@ export class ModelSimulatorComponent implements OnInit {
     ngOnInit() {
 
     }
-    selectParam(event){
+    selectParam(event) {
         this.selectedParam = true;
-        this.eventLines=[];
+        this.eventLines = [];
     }
     drawChart() {
         this.drawChart_init();
@@ -139,7 +144,7 @@ export class ModelSimulatorComponent implements OnInit {
                         // let paramInfo = { name: parameters[i].paramName, paramId: parameters[i].paramId, datas:{x:'time',rows: datas},from:this.searchTimePeriod.from, to:this.searchTimePeriod.to };
 
                         //bistelchart
-                        let paramInfo = { name: parameters[i].paramName, paramId: parameters[i].paramId, datas:[ datas],from:this.searchTimePeriod.from, to:this.searchTimePeriod.to };
+                        let paramInfo = { name: parameters[i].paramName, paramId: parameters[i].paramId, datas: [datas], from: this.searchTimePeriod.from, to: this.searchTimePeriod.to };
                         this.paramDatas.push(paramInfo);
                         // this.paramDatas = this.paramDatas.concat();
                     }
@@ -149,7 +154,7 @@ export class ModelSimulatorComponent implements OnInit {
                     this.percentage = this.percentage.toFixed(0);
                     if (this.percentage >= 100) {
                         this.showProgress = false;
-                        if(this.paramDatas.length>0){
+                        if (this.paramDatas.length > 0) {
                             this.canDrawEvent = true;
                             this.paramDatas = this.paramDatas.concat([]);
                             this.xMin = this.searchTimePeriod.from;
@@ -164,7 +169,7 @@ export class ModelSimulatorComponent implements OnInit {
                     this.percentage = this.percentage.toFixed(0);
                     if (this.percentage >= 100) {
                         this.showProgress = false;
-                        if(this.paramDatas.length>0){
+                        if (this.paramDatas.length > 0) {
                             this.canDrawEvent = true;
                             this.paramDatas = this.paramDatas.concat([]);
                             this.xMin = this.searchTimePeriod.from;
@@ -181,8 +186,8 @@ export class ModelSimulatorComponent implements OnInit {
         }
 
     }
-    
-    setEqpEvent(){
+
+    setEqpEvent() {
         // let fabId = this.tree.selectedFab.fabId;
         let node = this.tree.getSelectedNodes();
         // let eqpId = "";
@@ -194,35 +199,33 @@ export class ModelSimulatorComponent implements OnInit {
             }
 
         }
-        this._eventTypeEvents ={};
-        this.pdmModelService.getEqpEventByEqpId(this.fabId,this.eqpId).then((datas)=>{
+        this._eventTypeEvents = {};
+        this.pdmModelService.getEqpEventByEqpId(this.fabId, this.eqpId).then((datas) => {
             console.log('getEqpEventByEqpId => ', datas);
-            if(datas.length>0){
+            if (datas.length > 0) {
                 this.eqpEvents = datas;
-                for(let i=0;i<this.eqpEvents.length;i++){
-                    this._eventTypeEvents[ this.eqpEvents[i].eventTypeCd]=Object.assign({}, this.eqpEvents[i]);
+                for (let i = 0; i < this.eqpEvents.length; i++) {
+                    this._eventTypeEvents[this.eqpEvents[i].eventTypeCd] = Object.assign({}, this.eqpEvents[i]);
                 }
 
                 this.selectParam(null);
-                if(this.eqpEvents[0].timeIntervalYn=='Y'){
-                    this.eventType="time";
-                    this.aggregationTime = this.eqpEvents[0].intervalTimeMs/1000/60;
-                }else{
-                    this.eventType="event";
+                if (this.eqpEvents[0].timeIntervalYn == 'Y') {
+                    this.eventType = "time";
+                    this.aggregationTime = this.eqpEvents[0].intervalTimeMs / 1000 / 60;
+                } else {
+                    this.eventType = "event";
                 }
             }
 
         });
     }
     drawEvent() {
-
         this.drawEvent_init();
-
         this.componentSpinner.showSpinner();
         // let fabId = this.tree.selectedFab.fabId;
         let paramId = this.modelChart.getParamId();
         let conditionValue = this.modelChart.getConditionValue();
-        this.pdmModelService.getTraceDataEventSimulation(this.fabId, paramId, this.searchTimePeriod.from, this.searchTimePeriod.to, this.getStartCondition(),this.getEndCondition()).then((datas) => {
+        this.pdmModelService.getTraceDataEventSimulation(this.fabId, paramId, this.searchTimePeriod.from, this.searchTimePeriod.to, this.getStartCondition(), this.getEndCondition()).then((datas) => {
             this.eventLines = datas;
             this.canDrawAdHoc = true;
             this.componentSpinner.hideSpinner();
@@ -233,76 +236,93 @@ export class ModelSimulatorComponent implements OnInit {
                 this.componentSpinner.hideSpinner();
             })
     }
-    getStartCondition(){
-        return "value"+ this.modelChart.getConditionStartOperator() +this.modelChart.getConditionValue();
+    getStartCondition() {
+        return "value" + this.modelChart.getConditionStartOperator() + this.modelChart.getConditionValue();
     }
-    getEndCondition(){
-        return "value"+ this.modelChart.getConditionEndOperator() +this.modelChart.getConditionValue();
+    getEndCondition() {
+        return "value" + this.modelChart.getConditionEndOperator() + this.modelChart.getConditionValue();
     }
     getTimeout() {
         return this.modelChart.getTimeoutValue();
     }
-    save(){
-        // let fabId = this.tree.selectedFab.fabId;
-        let eqpEvents :EqpEventType[] =[] ;
-        
-        let eqpStartEvent :EqpEventType  ;
-        let eqpEndEvent :EqpEventType;
+    save() {
+        if (!this.isTimeoutValid()) {
+            this.notify.info("PDM.NOTIFY.INFO.TIMEOUT_VALID");
+            return;
+        }
 
-        if(this._eventTypeEvents['S']!=null){
+        let eqpEvents: EqpEventType[] = [];
+        let eqpStartEvent: EqpEventType;
+        let eqpEndEvent: EqpEventType;
+
+        if (this._eventTypeEvents['S'] != null) {
             eqpStartEvent = this._eventTypeEvents['S'];
             eqpStartEvent.condition = this.getStartCondition();
             eqpStartEvent.paramId = this.modelChart.getParamId();
-            eqpStartEvent.eventGroup="PROCESS_EVENT";
-            eqpStartEvent.timeIntervalYn = this.eventType == "event"?"N":"Y";
-            eqpStartEvent.intervalTimeMs = this.aggregationTime*1000*60;
+            eqpStartEvent.eventGroup = "PROCESS_EVENT";
+            eqpStartEvent.timeIntervalYn = this.eventType == "event" ? "N" : "Y";
+            eqpStartEvent.intervalTimeMs = this.aggregationTime * 1000 * 60;
             eqpStartEvent.timeout = this.getTimeout();
-        }else{
-            eqpStartEvent ={
-                eqpId : this.eqpId,
-                condition : this.getEndCondition(),
-                eventName : "process start",
-                eventTypeCd:"S",
-                paramId : this.modelChart.getParamId(),
-                processYn:"Y",
-                eventGroup:"PROCESS_EVENT",
-                timeIntervalYn : this.eventType == "event"?"N":"Y",
-                intervalTimeMs : this.aggregationTime*1000*60,
+        } else {
+            eqpStartEvent = {
+                eqpId: this.eqpId,
+                condition: this.getEndCondition(),
+                eventName: "process start",
+                eventTypeCd: "S",
+                paramId: this.modelChart.getParamId(),
+                processYn: "Y",
+                eventGroup: "PROCESS_EVENT",
+                timeIntervalYn: this.eventType == "event" ? "N" : "Y",
+                intervalTimeMs: this.aggregationTime * 1000 * 60,
                 timeout: this.getTimeout()
             }
         }
         eqpEvents.push(eqpStartEvent);
-        
-        if(this._eventTypeEvents['E']!=null){
+
+        if (this._eventTypeEvents['E'] != null) {
             eqpEndEvent = this._eventTypeEvents['E'];
             eqpEndEvent.condition = this.getEndCondition();
             eqpEndEvent.paramId = this.modelChart.getParamId();
-            eqpEndEvent.eventGroup="PROCESS_EVENT";
-            eqpEndEvent.timeIntervalYn = this.eventType == "event"?"N":"Y";
-            eqpEndEvent.intervalTimeMs = this.aggregationTime*1000*60;
+            eqpEndEvent.eventGroup = "PROCESS_EVENT";
+            eqpEndEvent.timeIntervalYn = this.eventType == "event" ? "N" : "Y";
+            eqpEndEvent.intervalTimeMs = this.aggregationTime * 1000 * 60;
             eqpEndEvent.timeout = this.getTimeout();
-        }else{
-            eqpEndEvent={
-                eqpId : this.eqpId,
-                condition : this.getEndCondition(),
-                eventName : "process end",
-                eventGroup:"PROCESS_EVENT",
-                processYn:"Y",
-                eventTypeCd:"E",
-                paramId : this.modelChart.getParamId(),
-                timeIntervalYn : this.eventType == "event"?"N":"Y",
-                intervalTimeMs : this.aggregationTime*1000*60,
+        } else {
+            eqpEndEvent = {
+                eqpId: this.eqpId,
+                condition: this.getEndCondition(),
+                eventName: "process end",
+                eventGroup: "PROCESS_EVENT",
+                processYn: "Y",
+                eventTypeCd: "E",
+                paramId: this.modelChart.getParamId(),
+                timeIntervalYn: this.eventType == "event" ? "N" : "Y",
+                intervalTimeMs: this.aggregationTime * 1000 * 60,
                 timeout: this.getTimeout()
             }
         }
+
         eqpEvents.push(eqpEndEvent);
-        
-        console.log('eqpEvents', eqpEvents);
-        this.pdmModelService.setEqpEvent(this.fabId,eqpEvents).subscribe((result)=>{
+        console.log('Simulator request => ', eqpEvents);
+        this.pdmModelService.setEqpEvent(this.fabId, eqpEvents).subscribe((result) => {
             alert("save success!");
-        })
+        });
     }
-    drawChart_init(){
+
+    isTimeoutValid(): boolean {
+        const timeout: number = this.getTimeout();
+        let isValid: boolean;
+
+        if (timeout && timeout < this.STANDARD_MILLISECOND) {
+            isValid = false;
+        } else {
+            isValid = true;
+        }
+
+        return isValid;
+    }
+
+    drawChart_init() {
         this.canDrawAdHoc = false;
         this.selectedParam = false;
         this.eventLines = [];
@@ -311,11 +331,11 @@ export class ModelSimulatorComponent implements OnInit {
 
         this.adHocSummary_init();
     }
-    drawEvent_init(){
+    drawEvent_init() {
         this.modelChart.initEvent();
         this.adHocSummary_init();
     }
-    adHocSummary_init(){
+    adHocSummary_init() {
         this.simulation_params = [];
         this.simulationChart.init();
     }
@@ -326,17 +346,17 @@ export class ModelSimulatorComponent implements OnInit {
     fromToChange2(data: any) {
         this.searchTimePeriod2 = data;
     }
-    
-    clickCheck(){
+
+    clickCheck() {
         this.aggregationChecked = false;
-        for(let i=0;i<this.aggregations.length;i++){
-            if(this.aggregations[i].checked){
+        for (let i = 0; i < this.aggregations.length; i++) {
+            if (this.aggregations[i].checked) {
                 this.aggregationChecked = true;
                 break;
             }
         }
     }
-    nodeClick(event){
+    nodeClick(event) {
         let node = this.tree.getSelectedNodes();
         let parameters = [];
         let eqpId = "";
@@ -348,16 +368,16 @@ export class ModelSimulatorComponent implements OnInit {
             }
 
         }
-        if(parameters.length>0){
+        if (parameters.length > 0) {
             this.treeParamSelect = true;
-        }else{
+        } else {
             this.treeParamSelect = false;
         }
-        if(this.eqpId!= eqpId){
+        if (this.eqpId != eqpId) {
             this.canDrawEvent = false;
         }
     }
-    nodeClick2(event){
+    nodeClick2(event) {
         let node = this.tree2.getSelectedNodes();
         let parameters = [];
         for (let index = 0; index < node.length; index++) {
@@ -367,9 +387,9 @@ export class ModelSimulatorComponent implements OnInit {
             }
 
         }
-        if(parameters.length>0){
+        if (parameters.length > 0) {
             this.tree2ParamSelect = true;
-        }else{
+        } else {
             this.tree2ParamSelect = false;
         }
     }
@@ -405,11 +425,11 @@ export class ModelSimulatorComponent implements OnInit {
             this.showProgress = true;
             try {
                 this.pdmModelService.getTraceDataEventSimulationByConditionValue(fabId, parameters[i].paramId,
-                    this.searchTimePeriod2.from, this.searchTimePeriod2.to, conditionParamId, this.getStartCondition(),this.getEndCondition(), adHocFunctions, this.aggregationTime, this.eventType).subscribe((datas) => {
+                    this.searchTimePeriod2.from, this.searchTimePeriod2.to, conditionParamId, this.getStartCondition(), this.getEndCondition(), adHocFunctions, this.aggregationTime, this.eventType).subscribe((datas) => {
 
                         let keys = Object.keys(datas);
                         for (let j = 0; j < keys.length; j++) {
-                            this.simulation_params.push({ name: parameters[i].name, adHoc: keys[j], datas: [datas[keys[j]]],from:this.searchTimePeriod2.from,to: this.searchTimePeriod2.to });
+                            this.simulation_params.push({ name: parameters[i].name, adHoc: keys[j], datas: [datas[keys[j]]], from: this.searchTimePeriod2.from, to: this.searchTimePeriod2.to });
                         }
 
                         this.current++;
@@ -417,8 +437,8 @@ export class ModelSimulatorComponent implements OnInit {
                         this.percentage = this.percentage.toFixed(0);
                         if (this.percentage >= 100) {
                             this.showProgress = false;
-                            this.sortByKey(this.simulation_params,"name","asc");
-                            
+                            this.sortByKey(this.simulation_params, "name", "asc");
+
                         }
                     })
             } catch (e) {
@@ -427,8 +447,8 @@ export class ModelSimulatorComponent implements OnInit {
                 this.percentage = this.percentage.toFixed(0);
                 if (this.percentage >= 100) {
                     this.showProgress = false;
-                    this.sortByKey(this.simulation_params,"name","asc");
-                    
+                    this.sortByKey(this.simulation_params, "name", "asc");
+
                 }
                 console.log(e);
             }
@@ -436,18 +456,16 @@ export class ModelSimulatorComponent implements OnInit {
         }
 
     }
-    sortByKey(array, key,sortType) {
-       
-        return array.sort(function(a, b) {
+    sortByKey(array, key, sortType) {
+
+        return array.sort(function (a, b) {
             var x = a[key]; var y = b[key];
-            if(sortType=="asc"){
+            if (sortType == "asc") {
                 return ((x < y) ? -1 : ((x > y) ? 1 : 0));
-            }else{
+            } else {
                 return ((x > y) ? -1 : ((x < y) ? 1 : 0));
             }
-            
+
         });
     }
-   
-
 }

@@ -84,7 +84,7 @@
 
         select rawid as param_health_mst_rawid, param_mst_rawid, HEALTH_LOGIC_MST_RAWID, apply_logic_yn, create_by, create_dtts, update_by, update_dtts
         from param_health_mst_pdm
-        where health_logic_mst_rawid in (1,2,3,4)
+        where health_logic_mst_rawid =2
         and param_mst_rawid=#{paramId}
 
     </select>
@@ -95,6 +95,18 @@
         where 1=1
         and a.PARAM_HEALTH_MST_RAWID=b.rawid
         and b.param_mst_rawid=#{paramId}
+    </select>
+
+    <select id="selectParamHealthMstRawIdByParamId" resultType="Long">
+        select rawid
+        from param_health_mst_pdm
+        where param_mst_rawid=#{paramId}
+    </select>
+
+    <select id="selectParamHealthOptMstRawIdByMstRawId" resultType="Long">
+        select rawid
+        from param_health_option_mst_pdm
+        where param_health_mst_rawid=#{param_health_mst_rawid}
     </select>
 
     <delete id="deleteParamHealthOptionMstPdmByRawId">
@@ -112,8 +124,8 @@
 
 
     <insert id="insertParamHealth" databaseId="oracle">
-        insert into param_health_mst_pdm (rawid, param_mst_rawid, health_logic_mst_rawid, apply_logic_yn)
-        values(#{param_health_mst_rawid}, #{param_mst_rawid}, #{health_logic_mst_rawid}, #{apply_logic_yn})
+        insert into param_health_mst_pdm (rawid, param_mst_rawid, health_logic_mst_rawid, apply_logic_yn, create_by, create_dtts, update_by, update_dtts)
+        values(seq_param_health_mst_pdm.nextval ,#{param_mst_rawid}, #{health_logic_mst_rawid},  #{apply_logic_yn}, #{userName} ,systimestamp, #{userName}, systimestamp)
     </insert>
 
     <insert id="insertParamHealth" databaseId="postgre">
@@ -122,13 +134,13 @@
     </insert>
 
     <insert id="insertParamHealthOptionTotal" databaseId="oracle">
-        insert into param_health_option_mst_pdm (rawid, param_health_mst_rawid, option_name, option_value)
-        values(seq_param_health_opt_mst_pdm.nextval, #{param_health_mst_rawid}, 'M', 6);
+        insert into param_health_option_mst_pdm (rawid, param_health_mst_rawid, option_name, option_value, description, create_by, create_dtts, update_by, update_dtts)
+        values(seq_param_health_opt_mst_pdm.nextval, #{param_health_mst_rawid}, #{option_name}, #{option_value}, #{description,jdbcType=VARCHAR}, #{userName}, systimestamp, #{userName}, systimestamp )
     </insert>
 
     <insert id="insertParamHealthOptionSpecific" databaseId="oracle">
-        insert into param_health_option_mst_pdm (rawid, param_health_mst_rawid, option_name, option_value)
-        values(seq_param_health_opt_mst_pdm.nextval, #{param_health_mst_rawid}, 'N', 3);
+        insert into param_health_option_mst_pdm (rawid, param_health_mst_rawid, option_name, option_value, description, create_by, create_dtts, update_by, update_dtts)
+        values(seq_param_health_opt_mst_pdm.nextval, #{param_health_mst_rawid}, #{option_name}, #{option_value}, #{description,jdbcType=VARCHAR}, #{userName}, systimestamp, #{userName}, systimestamp )
     </insert>
 
 </mapper>

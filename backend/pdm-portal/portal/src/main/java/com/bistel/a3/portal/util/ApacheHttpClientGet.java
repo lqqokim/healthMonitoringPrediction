@@ -36,14 +36,14 @@ public class ApacheHttpClientGet {
             HttpResponse response = httpClient.execute(getRequest);
 
             if (response.getStatusLine().getStatusCode() != 200) {
-                throw new RuntimeException("Failed : HTTP error code : "
+                throw new RuntimeException( "EQP NAME: "+eqp_name+" Failed : HTTP error code : "
                         + response.getStatusLine().getStatusCode());
             }
 
             BufferedReader br = new BufferedReader(new InputStreamReader((response.getEntity().getContent())));
 
             String output;
-            System.out.println("Output from Server .... \n");
+            System.out.println("EQP NAME: "+eqp_name+" Output from Server .... to Kafka \n");
             while ((output = br.readLine()) != null) {
 
                 System.out.println(output);

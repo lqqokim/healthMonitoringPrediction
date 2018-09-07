@@ -35,7 +35,8 @@ public class ParamController {
     @RequestMapping(method = RequestMethod.PUT)
     public void setParam(Principal user,@PathVariable String fabId, @PathVariable Long eqpId, @RequestBody ParamWithCommonWithRpm param) {
         param.setUserName(user.getName());
-        service.setParam(fabId, eqpId ,param);
+        String userName=user.getName();
+        service.setParam(fabId, eqpId ,param, userName);
     }
 
     @RequestMapping(value = "{paramId}", method = RequestMethod.DELETE)

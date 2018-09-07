@@ -20,73 +20,75 @@ import { FabEditorComponent } from './component/fab-editor/fab-editor.component'
 })
 export class FabMonitoringComponent implements OnInit {
 
-    @ViewChild('fabMonitoring') fabMonitoring:FabEditorComponent;
+    @ViewChild('fabMonitoring') fabMonitoring: FabEditorComponent;
     // fabInfo:FabInfo= new FabInfo();
-    plants: any=[{fabId:'',fabName:''}];
-    selectedFab={fabId:'',fabName:''};
+    plants: any = [{ fabId: '', fabName: '' }];
+    selectedFab = { fabId: '', fabName: '' };
     areas;
 
-    monitorings=[];
-    selectedMonitoring:FabInfo=new FabInfo();
-    selectedAreaDatas=[];
+    monitorings = [];
+    selectedMonitoring: FabInfo = new FabInfo();
+    selectedAreaDatas = [];
     simulationStop = true
     // locationNames = ['a','b','c','d','e','f','g','h'];
 
     constructor(private pdmModelService: PdmModelService) {
-       
+
     }
 
     ngOnInit() {
-       this._getPlants();
+        this._getPlants();
     }
 
-    simulationStart(){
-        if(this.simulationStop){
+    simulationStart() {
+        if (this.simulationStop) {
             this.fabMonitoring.simulationStart();
             this.simulationStop = false;
-        }else{
+        } else {
             this.fabMonitoring.simulationStop();
             this.simulationStop = true;
         }
-        
+
     }
 
-    save(){
-        const datas =this.fabMonitoring.getDatas();
+    save() {
+        const datas = this.fabMonitoring.getDatas();
         console.log(datas);
-        if(datas.rawId==null){
-            this.pdmModelService.createMonitoring(this.selectedFab.fabId,datas).subscribe(()=>{
+        if (datas.rawId == null) {
+            this.pdmModelService.createMonitoring(this.selectedFab.fabId, datas).subscribe(() => {
                 alert("Success!");
                 this._getMonitoring();
             });
-                
-        }else{
-            this.pdmModelService.updateMonitoring(this.selectedFab.fabId,datas).subscribe(()=>{
+
+        } else {
+            this.pdmModelService.updateMonitoring(this.selectedFab.fabId, datas).subscribe(() => {
                 alert("Success!");
                 this._getMonitoring();
-            });    
+            });
         }
-        
+
     }
-    saveas(){
-        const datas =this.fabMonitoring.getDatas();
+    saveas() {
+        const datas = this.fabMonitoring.getDatas();
         console.log(datas);
         datas.rawId = null;
-        this.pdmModelService.createMonitoring(this.selectedFab.fabId,datas).subscribe(()=>{
+        this.pdmModelService.createMonitoring(this.selectedFab.fabId, datas).subscribe(() => {
             alert("Success!");
             this._getMonitoring();
         });
-            
-        
+
+
     }
-    newMonitoring(){
+    newMonitoring() {
         this.selectedMonitoring = new FabInfo();
     }
-    delete(){
-        this.pdmModelService.updateMonitoring(this.selectedFab.fabId,this.selectedMonitoring.rawId).subscribe(()=>{
-            alert("Success!");
-            this._getMonitoring();
-        })
+    delete() {
+        this.pdmModelService.deleteMonitoring(this.selectedFab.fabId, this.selectedMonitoring.rawId)
+            .subscribe((res) => {
+                alert("Success!");
+                this._getMonitoring();
+                this.newMonitoring();
+            });
     }
 
     _getPlants(): void {
@@ -100,37 +102,36 @@ export class FabMonitoringComponent implements OnInit {
 
             });
     }
-    _getMonitoring(){
-        this.pdmModelService.getMonitoring(this.selectedFab.fabId).subscribe((datas)=>{
+    _getMonitoring() {
+        this.pdmModelService.getMonitoring(this.selectedFab.fabId).subscribe((datas) => {
             this.simulationStop = true;
             this.monitorings = datas;
         });
     }
-    _getAreas(){
+    _getAreas() {
         this.pdmModelService.getAllArea(this.selectedFab.fabId)
-            .then((areas)=>{
+            .then((areas) => {
                 this.areas = areas;
-                        
+
             }).catch((error: any) => {
 
             });
 
     }
 
-    changeSelectedMonitoring(event){
-
+    changeSelectedMonitoring(event) {
+        this.selectedMonitoring = event;
     }
-    changeSelectedFab(){
+    changeSelectedFab() {
         this._getMonitoring();
     }
-    onChangeArea(event){
+    onChangeArea(event) {
         console.log(event);
-        this.selectedMonitoring.areas= [];
+        this.selectedMonitoring.areas = [];
         for (let index = 0; index < event.length; index++) {
             const element = event[index];
             this.selectedMonitoring.areas.push(element.areaId);
         }
         this.selectedAreaDatas = event;
     }
-
 }

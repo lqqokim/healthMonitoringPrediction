@@ -151,7 +151,7 @@ export class MasterAreaListComponent implements OnInit, OnChanges {
 
         if (this.status === 'create' || (this.status === 'modify' && this.selectedRowData.areaName !== areaData.areaName)) {
             if (!this.checkUniqueData(areaData)) {
-                this.notify.warn("PDM.NOTIFY.DUPLICATE_AREA");
+                this.notify.warn("PDM.NOTIFY.WARN.DUPLICATE_AREA");
                 return;
             }
         }

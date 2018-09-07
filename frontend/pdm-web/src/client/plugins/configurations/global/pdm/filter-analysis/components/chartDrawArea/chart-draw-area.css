@@ -6,10 +6,11 @@ chart-draw-area #table_Xzero_Yzero > .chartView { display:flex; justify-content:
 chart-draw-area #table_Xmore_Yzero { display:flex; justify-content:flex-start; align-items:flex-start; border-top:1px solid #aaa; }
 chart-draw-area #table_Xmore_Yzero::after { content:''; display:block; clear:both; }
 
-chart-draw-area #table_Xmore_Yzero .chartGroup { float:left; }
+chart-draw-area #table_Xmore_Yzero .chartGroup { float:left; height:100%; }
 chart-draw-area #table_Xmore_Yzero .chartGroup > .chartGroupName { clear:both; background:#eee; border-left:1px solid #ccc; border-bottom:1px solid #ccc; padding:8px 10px; line-height:1; text-align:center; }
-chart-draw-area #table_Xmore_Yzero .chartGroup > .chartName { border-left:1px solid #ccc; border-bottom:1px solid #ccc; text-align:center; padding:5px 8px; }
-chart-draw-area #table_Xmore_Yzero .chartGroup > .chartView { border-left:1px solid #ccc; border-bottom:1px solid #ccc; text-align:center; padding:0; }
+chart-draw-area #table_Xmore_Yzero .chartGroup > .chartName { border-left:1px solid #ccc; border-bottom:1px solid #ccc; text-align:center; padding:5px 8px; height:30px; }
+chart-draw-area #table_Xmore_Yzero .chartGroup > .chartView { border-left:1px solid #ccc; border-bottom:1px solid #ccc; text-align:center; padding:10px; max-height: none !important; height:calc(100% - 30px); background:#f3f3f3; }
+chart-draw-area #table_Xmore_Yzero .chartGroup > .chartView > div { width:100%; height:100%; }
 
 /* y축만 그리기 */
 chart-draw-area #table_Xzero_Ymore { border-top:1px solid #aaa; }
@@ -20,7 +21,8 @@ chart-draw-area #table_Xzero_Ymore .chartGroup > .chartViewAreaGroup { float:lef
 chart-draw-area #table_Xzero_Ymore .chartGroup > .chartViewAreaGroup > .chartViewArea { height:100%; }
 chart-draw-area #table_Xzero_Ymore .chartGroup > .chartViewAreaGroup > .chartViewArea::after { content:''; display:block; clear:both; }
 chart-draw-area #table_Xzero_Ymore .chartGroup > .chartViewAreaGroup > .chartViewArea > .chartName { float:left; height:100%; border-right:1px solid #ccc; border-bottom:1px solid #ccc; display:flex; justify-content:center; align-items:center; text-align:center; padding:10px; width:80px; }
-chart-draw-area #table_Xzero_Ymore .chartGroup > .chartViewAreaGroup > .chartViewArea > .chartView { float:left; height:100%; border-bottom:1px solid #ccc; width:calc(100% - 80px); }
+chart-draw-area #table_Xzero_Ymore .chartGroup > .chartViewAreaGroup > .chartViewArea > .chartView { float:left; height:100%; border-bottom:1px solid #ccc; width:calc(100% - 80px); padding:10px; }
+chart-draw-area #table_Xzero_Ymore .chartGroup > .chartViewAreaGroup > .chartViewArea > .chartView > div { width:100%; height:100%; }
 chart-draw-area #table_Xzero_Ymore .chartGroup > .chartViewAreaGroup > .chartViewArea:last-child > .chartName { border-bottom:0; }
 chart-draw-area #table_Xzero_Ymore .chartGroup > .chartViewAreaGroup > .chartViewArea:last-child > .chartView { border-bottom:0; display:flex; justify-content:center; align-items:center; }
 
@@ -36,7 +38,8 @@ chart-draw-area #table_Xmore_Ymore .chartGroup_y > .chartViewAreaGroup_y { float
 chart-draw-area #table_Xmore_Ymore .chartGroup_y > .chartViewAreaGroup_y > .chartViewArea_y { height:100%; }
 chart-draw-area #table_Xmore_Ymore .chartGroup_y > .chartViewAreaGroup_y > .chartViewArea_y::after { content:''; display:block; clear:both; }
 chart-draw-area #table_Xmore_Ymore .chartGroup_y > .chartViewAreaGroup_y > .chartViewArea_y > .chartName { float:left; height:100%; border-right:1px solid #ccc; border-bottom:1px solid #ccc; display:flex; justify-content:center; align-items:center; text-align:center; padding:10px; width:80px; }
-chart-draw-area #table_Xmore_Ymore .chartGroup_y > .chartViewAreaGroup_y > .chartViewArea_y > .chartView { float:left; height:100%; height:100%; border-bottom:1px solid #ccc; width:calc(100% - 80px); max-height:none !important; }
+chart-draw-area #table_Xmore_Ymore .chartGroup_y > .chartViewAreaGroup_y > .chartViewArea_y > .chartView { float:left; height:100%; height:100%; border-bottom:1px solid #ccc; width:calc(100% - 80px); max-height:none !important; padding:10px; }
+chart-draw-area #table_Xmore_Ymore .chartGroup_y > .chartViewAreaGroup_y > .chartViewArea_y > .chartView > div { width:100%; height:100%; }
 chart-draw-area #table_Xmore_Ymore .chartGroup_y > .chartViewAreaGroup_y > .chartViewArea_y:last-child > .chartName { border-bottom:0; }
 chart-draw-area #table_Xmore_Ymore .chartGroup_y > .chartViewAreaGroup_y > .chartViewArea_y:last-child > .chartView { border-bottom:0; }
 
@@ -45,35 +48,72 @@ chart-draw-area #table_Xmore_Ymore .chartGroup_x { float:left; width:calc(100% -
 chart-draw-area #table_Xmore_Ymore .chartGroup_y > .chartGroupName_x { clear:both; background:#eee; border-right:1px solid #ccc; border-bottom:1px solid #ccc; padding:8px 10px; line-height:1; height:30px; text-align:center; }
 chart-draw-area #table_Xmore_Ymore .chartGroup_x > .chartGroupName_x { clear:both; background:#eee; border-right:1px solid #ccc; border-bottom:1px solid #ccc; padding:8px 10px; line-height:1; height:30px; text-align:center; }
 chart-draw-area #table_Xmore_Ymore .chartGroup_x > .chartName { border-right:1px solid #ccc; border-bottom:1px solid #ccc; text-align:center; padding:5px 8px; height:30px; }
-chart-draw-area #table_Xmore_Ymore .chartGroup_x > .chartView { border-right:1px solid #ccc; border-bottom:1px solid #ccc; text-align:center; padding:5px 8px; height:calc(100% - 30px); max-height:none !important; }
+chart-draw-area #table_Xmore_Ymore .chartGroup_x > .chartView { border-right:1px solid #ccc; border-bottom:1px solid #ccc; text-align:center; padding:5px 8px; height:calc(100% - 30px); max-height:none !important; padding:10px; }
+chart-draw-area #table_Xmore_Ymore .chartGroup_x > .chartView > div { width:100%; height:100%; }
 
 chart-draw-area #table_Xmore_Ymore .chartViewAreaGroup_y .chartViewArea_x > .chartName { border-right:1px solid #ccc; border-bottom:1px solid #ccc; text-align:center; padding:5px 8px; height:30px; }
-chart-draw-area #table_Xmore_Ymore .chartViewAreaGroup_y .chartViewArea_x > .chartView { border-right:1px solid #ccc; text-align:center; padding:5px 8px; height:calc(100% - 30px); max-height:none !important; }
+chart-draw-area #table_Xmore_Ymore .chartViewAreaGroup_y .chartViewArea_x > .chartView { border-right:1px solid #ccc; text-align:center; padding:5px 8px; height:calc(100% - 30px); max-height:none !important; padding:10px; }
+chart-draw-area #table_Xmore_Ymore .chartViewAreaGroup_y .chartViewArea_x > .chartView > div { width:100%; height:100%; }
 
 
+/* jqplot 우측 레전드 아이콘 문자 여백 */
+chart-draw-area .jqplot-table-legend td:nth-child(2) { padding-left:15px !important; text-align:left !important; }
 
+/* jqplot 우측 레전드 오른쪽 마진 제거 */
+chart-draw-area div.jqplot-table-legend-wrap-right { margin:0 0 0 5px !important; }
 
+/* 로딩 에니메이션 */
+chart-draw-area > .loading_spinner {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1;
+    background:#fff;
+}
+chart-draw-area > .loading_spinner.on {
+    display: flex;
+}
+chart-draw-area > .loading_spinner > div {
+    width: 15px;
+    height: 15px;
+    background-color: #333;
 
+    border-radius: 100%;
+    display: inline-block;
+    margin-left: 10px;
+    animation: sk-bouncedelay 1.4s infinite ease-in-out both;
+} 
+chart-draw-area .loading_spinner > div::after {
+    margin-left:0;
+}
 
+chart-draw-area > .loading_spinner > div:nth-child(1) {
+    background: #0082d8;
+    animation-delay: -0.32s;
+}
+chart-draw-area > .loading_spinner > div:nth-child(2) {
+    background: #00d887;
+    animation-delay: -0.16s;
+}
+chart-draw-area > .loading_spinner > div:nth-child(3) { background:#00c2ff; }
 
-
-chart-draw-area table { width:100%; }
-
-/* 테이블 헤더 */
-chart-draw-area table > thead > tr > th { border-top:2px solid #333; background:#eee; height:30px; text-align:center; vertical-align:middle; font-size:14px; font-weight:normal; border-bottom:1px solid #ccc; border-left:1px solid #ccc; }
-chart-draw-area table > thead > tr > th:first-child { border-left:0; }
-
-/* 테이블 본문 */
-chart-draw-area table > tbody > tr > td { background:#fff; border-bottom:1px solid #ccc; border-left:1px solid #ccc; padding:10px; }
-chart-draw-area table > tbody > tr > td:first-child { border-left:0; }
-
-/* 테이블 본문 - x축 카테고리 포함 차트 */
-chart-draw-area table > tbody > tr > td > dl { display:table; margin:0 -10px; padding:0; width:calc(100% + 20px) !important; }
-chart-draw-area table > tbody > tr > td > dl > dt { display:table-cell; border-bottom:1px solid #ccc; border-right:1px solid #ccc; padding:10px; }
-chart-draw-area table > tbody > tr > td > dl > dd { display:table-cell; border-bottom:1px solid #ccc; padding:10px; }
-
-chart-draw-area table > tbody > tr > td > dl:first-child { margin-top:-10px; }
-chart-draw-area table > tbody > tr > td > dl:last-child { margin-bottom:-10px; }
-
-chart-draw-area table > tbody > tr > td > dl:last-child > dt { border-bottom:0; }
-chart-draw-area table > tbody > tr > td > dl:last-child > dd { border-bottom:0; }
+/* 로딩 에러 */
+chart-draw-area > .loading_spinner[error] {
+    display: flex;
+    flex-direction: column;
+}
+chart-draw-area > .loading_spinner[error] > div { display: none; }
+chart-draw-area > .loading_spinner[error]::before { content:''; display:block; width:300px; height:240px; margin-bottom:10px; background:no-repeat 50% 50%; background-size:300px 240px; }
+chart-draw-area > .loading_spinner[error=basic]::before { background-image:url(assets/images/icon-error.svg); }
+chart-draw-area > .loading_spinner[error=nodata]::before { background-image:url(assets/images/icon-nodata.svg); }
+chart-draw-area > .loading_spinner[error]::after { content:attr(error-msg); color:#999; font-size:14px; }
+ 
+@keyframes sk-bouncedelay {
+    0%, 80%, 100% { transform: scale(0); }
+    40% { transform: scale(1.0); }
+}

@@ -14,6 +14,14 @@ public interface STDConditionalSpecMapper {
 
     List<STDEqp> selectModelList();
 
+    List<Long> selectEqpIdListByModelName(@Param("model") String model);
+
+    Long selectEqpIdByEqpSpecMstRawId(@Param("eqp_spec_link_mst_rawid") Long eqp_spec_link_mst_rawid);
+
+    String selectModelNameByRuleName(@Param("rule") Long rule);
+
+    List<String> selectParamNameByRuleId(@Param("rule") Long rule);
+
     List<STDConditionalSpec> selectConditionsByModel( @Param("model") String model);
 
     List<STDConditionalSpec> selectParamSpec(@Param("model") String model, @Param("rule_id") Long rule_id);
@@ -45,7 +53,9 @@ public interface STDConditionalSpecMapper {
                               @Param("description") String description, @Param("userName") String userName,
                               @Param("model_param_spec_mst_rawid") Long model_param_spec_mst_rawid);
 
-    void deleteModelParamSpec(@Param("rule_id") Long rule_id);
+    void deleteModelParamSpec(@Param("rawid") Long rawid);
+
+    void deleteModelParamSpecOne(@Param("rule_id") Long rule_id, @Param("param_name") String param_name);
 
     void deleteConditionalSpec(@Param("rule_id") Long rule_id);
 
@@ -57,7 +67,7 @@ public interface STDConditionalSpecMapper {
     void deleteParamSpec(@Param("eqp_spec_link_mst_rawid") Long eqp_spec_link_mst_rawid);
 
     void insertParamSpec(@Param("param_id") Long param_id, @Param("eqp_spec_link_mst_rawid") Long eqp_spec_link_mst_rawid,
-                         @Param("spec_type") String spec_type, @Param("eqp_upper_alarm_spec") Double eqp_upper_alarm_spec,
+                          @Param("eqp_upper_alarm_spec") Double eqp_upper_alarm_spec,
                          @Param("eqp_upper_warning_spec") Double eqp_upper_warning_spec,
                          @Param("target") Double target,
                          @Param("eqp_lower_alarm_spec") Double eqp_lower_alarm_spec,
@@ -65,7 +75,7 @@ public interface STDConditionalSpecMapper {
                          @Param("description") String description,
                          @Param("userName") String userName);
 
-    void updateParamSpec(@Param("spec_type") String spec_type,
+    void updateParamSpec(
                          @Param("eqp_upper_alarm_spec") Double eqp_upper_alarm_spec,
                          @Param("eqp_upper_warning_spec") Double eqp_upper_warning_spec,
                          @Param("eqp_lower_alarm_spec") Double eqp_lower_alarm_spec,
@@ -77,4 +87,11 @@ public interface STDConditionalSpecMapper {
 
 
     Long selectEqpSpecLnkRawId(@Param("eqpId") Long eqpId, @Param("rule_id") Long rule_id);
+
+    Long selectModelParamSpecMstRawId(@Param("rule_id") Long rule_id, @Param("param_name") String param_name);
+
+    void deleteParamSpecOne(@Param("eqp_spec_link_mst_rawid") Long eqp_spec_link_mst_rawid, @Param("param_name") String param_name);
+
+    STDConditionalSpec selectModelEqpParamSpec(@Param("eqp_spec_link_mst_rawid") Long eqp_spec_link_mst_rawid, @Param("param_name") String param_name, @Param("rule_id") Long rule_id);
+
 }

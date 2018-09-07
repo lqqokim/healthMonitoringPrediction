@@ -31,8 +31,8 @@ export class CheckTreeComponent implements OnInit, OnChanges {
                 // }
                 // node.isChecked = !node.isChecked;
                 // this.selectedNode = node;
-                console.log(this.treeview);
-                console.log(node);
+                // console.log(this.treeview);
+                // console.log(node);
                 this.clickNode.emit({
                     treeview: node,
                     type:'node'

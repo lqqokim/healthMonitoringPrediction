@@ -72,6 +72,7 @@ export interface RuleRequest {
     model_name: string;
     condition: string;
     used_yn: boolean;
+    ordering: number;
 }
 
 export interface FormData {
@@ -98,6 +99,7 @@ export interface ParamRequest {
     eqp_upper_warning_spec: number;
     eqp_lower_alarm_spec: number;
     eqp_lower_warning_spec: number;
+    used_yn: boolean;
 }
 
 export interface Condition {

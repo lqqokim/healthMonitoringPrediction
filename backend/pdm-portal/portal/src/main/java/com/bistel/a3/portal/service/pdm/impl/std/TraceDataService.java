@@ -1313,15 +1313,15 @@ public class TraceDataService implements ITraceDataService {
                     }
                 }
             }else if(analysisCondition.getY_category().size()>0 ){
-                for(int ixCategory=0;ixCategory<analysisCondition.getX_category().size();ixCategory++){
-                    String xCValue = rowData.get(columnIndex.get(analysisCondition.getX_category().get(ixCategory).getParam_name()));
-                    key +=keyDelimeter + analysisCondition.getX_category().get(ixCategory).getParam_name()+"="+xCValue;
+                for(int iyCategory=0;iyCategory<analysisCondition.getY_category().size();iyCategory++){
+                    String xCValue = rowData.get(columnIndex.get(analysisCondition.getY_category().get(iyCategory).getParam_name()));
+                    key +=keyDelimeter + analysisCondition.getY_category().get(iyCategory).getParam_name()+"="+xCValue;
                     key = getGroupByData(analysisCondition, columnIndex, rowData, key,keyDelimeter);
                 }
             }else if(analysisCondition.getX_category().size()>0){
-                for(int iyCategory=0;iyCategory<analysisCondition.getY_category().size();iyCategory++){
-                    String yCValue = rowData.get(columnIndex.get(analysisCondition.getY_category().get(iyCategory).getParam_name()));
-                    key +=keyDelimeter + analysisCondition.getY_category().get(iyCategory).getParam_name()+"="+yCValue;
+                for(int ixCategory=0;ixCategory<analysisCondition.getX_category().size();ixCategory++){
+                    String yCValue = rowData.get(columnIndex.get(analysisCondition.getX_category().get(ixCategory).getParam_name()));
+                    key +=keyDelimeter + analysisCondition.getX_category().get(ixCategory).getParam_name()+"="+yCValue;
                     key = getGroupByData(analysisCondition, columnIndex, rowData, key,keyDelimeter);
                 }
 
@@ -1329,17 +1329,17 @@ public class TraceDataService implements ITraceDataService {
                 key = getGroupByData(analysisCondition, columnIndex, rowData, key,keyDelimeter);
             }
 
+            if (key != "") {
+                key = key.substring(keyDelimeter.length());
 
-            key = key.substring(keyDelimeter.length());
-
-            if(groupDatas.containsKey(key)){
-                groupDatas.get(key).add(rowData);
-            }else{
-                List<List<String>>  datas = new ArrayList<>();
-                datas.add(rowData);
-                groupDatas.put(key,datas);
+                if (groupDatas.containsKey(key)) {
+                    groupDatas.get(key).add(rowData);
+                } else {
+                    List<List<String>> datas = new ArrayList<>();
+                    datas.add(rowData);
+                    groupDatas.put(key, datas);
+                }
             }
-
         }
         List<List<String>> retValue = new ArrayList<>();
         boolean isFirst = true;

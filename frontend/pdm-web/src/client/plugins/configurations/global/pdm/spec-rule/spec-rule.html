@@ -16,7 +16,7 @@
                 </option>
             </select>
         </div>
-        <div class="btn-group">
+        <div class="btn-group pull-right">
             <button class="btn btn-default" type="button" (click)="controlRule(STATUS.DELETE)">Delete</button>
             <button class="btn btn-default" type="button" (click)="controlRule(STATUS.MODIFY)" [disabled]="!rules?.length">Modify</button>
             <button class="btn btn-default" type="button" (click)="controlRule(STATUS.CREATE)">Create</button>
@@ -64,7 +64,7 @@
                         </div>
                         <div class="form-group a3-input-group">
                             <label class="control-label">Rule Name
-                                <span class="a3-asterisk">*</span>
+                                <span *ngIf="status === STATUS.CREATE" class="a3-asterisk">*</span>
                             </label>
                             <input type="text" class="form-control" id="ruleName" name="ruleName" [(ngModel)]="ruleFormData.rule_name" #ruleName="ngModel" required [disabled]="!rules?.length || ruleFormData.rule_name === DEFAULT_NAME">
                             <!-- <div *ngIf="ruleName.errors && (ruleName.dirty || ruleName.touched)" class="alert alert-danger">
@@ -126,7 +126,12 @@
                         </div>
                         <div class="form-group a3-input-group parameter-list" *ngIf="ruleFormData.parameter">
                             <label class="control-label">Parameter List</label>
-                            <wj-flex-grid #ParamGrid [itemsSource]="editParameters" [selectionMode]="'Row'" [headersVisibility]="'Column'">
+                            <wj-flex-grid #ParamGrid 
+                            [itemsSource]="editParameters" 
+                            [selectionMode]="'Row'" 
+                            (beginningEdit)="beginningEdit($event)"
+                            (cellEditEnding)="cellEditEnding($event)"
+                            [headersVisibility]="'Column'">
                                 <!-- <wj-flex-grid-filter #filter></wj-flex-grid-filter> -->
                                 <wj-flex-grid-column [width]="'*'" [header]="'Parameter'" [binding]="'param_name'" [isReadOnly]="true"></wj-flex-grid-column>
                                 <wj-flex-grid-column [width]="'*'" [header]="'Alarm'" [binding]="'upper_alarm_spec'" [dataType]="'Number'"></wj-flex-grid-column>
@@ -139,8 +144,8 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal" (click)="RuleForm.form.reset(); closeModal();">Close</button>
-                    <button *ngIf="ruleFormData.rule_name !== DEFAULT_NAME" type="button" class="btn btn-primary" [disabled]="!RuleForm.form.valid" (click)="saveRule(RuleForm)">Apply</button>
-                    <button *ngIf="ruleFormData.rule_name === DEFAULT_NAME" type="button" class="btn btn-primary" (click)="saveRule(RuleForm)">Apply</button>
+                    <button *ngIf="ruleFormData.rule_name !== DEFAULT_NAME" type="button" class="btn btn-primary" [disabled]="!RuleForm.form.valid || isOnEdit" (click)="saveRule(RuleForm)">Apply</button>
+                    <button *ngIf="ruleFormData.rule_name === DEFAULT_NAME" type="button" class="btn btn-primary" (click)="saveRule(RuleForm)" [disabled]="isOnEdit">Apply</button>
                 </div>
             </form>
 

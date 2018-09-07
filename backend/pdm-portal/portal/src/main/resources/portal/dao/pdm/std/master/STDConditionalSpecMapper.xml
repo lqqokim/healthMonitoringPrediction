@@ -12,6 +12,19 @@
         where model_name= #{model}
     </select>
 
+    <select id="selectEqpIdListByModelName" resultType="Long">
+        select rawid
+        from eqp_mst_pdm
+        where model_name in #{model}
+    </select>
+
+    <select id="selectEqpIdByEqpSpecMstRawId" resultType="Long">
+        select eqp_mst_rawid
+        from eqp_spec_link_mst_pdm
+        where rawid=#{eqp_spec_link_mst_rawid}
+
+    </select>
+
     <!--<select id="selectParamSpec" resultType="com.bistel.a3.portal.domain.pdm.std.master.STDConditionalSpec">-->
         <!--select  p.rawid param_id ,m.rawid model_param_spec_mst_rawid, param_name, upper_alarm_spec, upper_warning_spec-->
         <!--from model_param_spec_mst_pdm m, conditional_spec_mst_pdm c, EQP_SPEC_LINK_MST_PDM l, param_mst_pdm p-->
@@ -22,25 +35,38 @@
         <!--and c.condition_name=#{rule}-->
     <!--</select>-->
 
+    <select id="selectModelNameByRuleName" resultType="String">
+        select model_name
+        from conditional_spec_mst_pdm
+        where rawid=#{rule}
+    </select>
+
+    <select id="selectParamNameByRuleId" resultType="String">
+        select param_name
+        from model_param_spec_mst_pdm
+        where conditional_spec_mst_rawid=#{rule}
+    </select>
+
     <select id="selectParamSpec" resultType="com.bistel.a3.portal.domain.pdm.std.master.STDConditionalSpec">
-        select b.model_param_spec_mst_rawid, a.param_name, b.upper_alarm_spec, b.upper_warning_spec  from
+        select b.model_param_spec_mst_rawid, a.param_name, b.upper_alarm_spec, b.upper_warning_spec
+        from
         (
-        select distinct name as param_name
-        from param_mst_pdm
-        where eqp_mst_rawid in
-        (
-        select rawid
-        from eqp_mst_pdm
-        where model_name=#{model}
-        )
+            select distinct name as param_name
+            from param_mst_pdm
+            where eqp_mst_rawid in
+            (
+                select rawid
+                from eqp_mst_pdm
+                where model_name=#{model}
+            )
         ) a,
         (
-        select m.rawid model_param_spec_mst_rawid, param_name, upper_alarm_spec, upper_warning_spec
-        from model_param_spec_mst_pdm m, conditional_spec_mst_pdm c
-        where 1=1
-        and m.CONDITIONAL_SPEC_MST_RAWID=c.rawid
-        and c.model_name=#{model}
-        and c.rawid=#{rule_id}
+            select m.rawid model_param_spec_mst_rawid, param_name, upper_alarm_spec, upper_warning_spec
+            from model_param_spec_mst_pdm m, conditional_spec_mst_pdm c
+            where 1=1
+            and m.CONDITIONAL_SPEC_MST_RAWID=c.rawid
+            and c.model_name=#{model}
+            and c.rawid=#{rule_id}
         )b
         where a.param_name = b.param_name(+)
 
@@ -115,7 +141,14 @@
     <delete id="deleteModelParamSpec" databaseId="oracle">
         delete
         from model_param_spec_mst_pdm
-        where rawid= #{rule_id}
+        where rawid= #{rawid}
+    </delete>
+
+    <delete id="deleteModelParamSpecOne" databaseId="oracle">
+        delete
+        from model_param_spec_mst_pdm
+        where conditional_spec_mst_rawid= #{rule_id}
+        and param_name=#{param_name}
     </delete>
 
     <delete id="deleteConditionalSpec" databaseId="oracle">
@@ -136,7 +169,9 @@
     </select>
 
     <select id="selectConditionsByEqpId" resultType="com.bistel.a3.portal.domain.pdm.std.master.STDConditionalSpec">
-        SELECT * FROM (
+        SELECT a.rule_id, a.rule_name, a.model_name, a.condition, b.conditional_spec_mst_rawid, b.eqp_spec_link_mst_rawid
+        FROM
+        (
         select MODEL_SPEC.RAWID RULE_ID,MODEL_SPEC.RULE_NAME, MODEL_SPEC.MODEL_NAME,MODEL_SPEC.CONDITION
         from CONDITIONAL_SPEC_MST_PDM MODEL_SPEC
         where model_name=
@@ -147,11 +182,12 @@
         )
         ) A,
         (
-            SELECT SPEC.CONDITIONAL_SPEC_MST_RAWID , SPEC.RAWID EQP_SPEC_LINK_MST_RAWID
+            SELECT SPEC.CONDITIONAL_SPEC_MST_RAWID , SPEC.RAWID EQP_SPEC_LINK_MST_RAWID, spec.ordering
             FROM EQP_SPEC_LINK_MST_PDM SPEC
             WHERE EQP_MST_RAWID=#{eqpId}
         )B
         WHERE A.RULE_ID = B.CONDITIONAL_SPEC_MST_RAWID(+)
+        order by ordering asc
 
     </select>
 
@@ -170,31 +206,68 @@
     </delete>
 
     <select id="selectParamSpecByeqpIdAndRule" resultType="com.bistel.a3.portal.domain.pdm.std.master.STDConditionalSpec">
-        SELECT eqp_spec_link_mst_rawid, param_id, PARAM_NAME, a.upper_alarm_spec as model_upper_alarm_spec, a.upper_warning_spec as model_upper_warning_spec,
-        b.upper_alarm_spec as eqp_upper_alarm_spec, b.upper_warning_spec as eqp_upper_warning_spec,
-        CASE WHEN B.NAME IS NOT NULL THEN 'EQP' WHEN b.name is null then 'MODEL' END AS TYPE
-        FROM
+        select a.rawid as param_id, b.*
+        from
         (
-            SELECT model_param.PARAM_NAME,model_param.UPPER_ALARM_SPEC, model_param.UPPER_WARNING_SPEC
-            FROM CONDITIONAL_SPEC_MST_PDM model, MODEL_PARAM_SPEC_MST_PDM model_param
-            WHERE 1=1
-            AND model.RAWID = model_param.CONDITIONAL_SPEC_MST_RAWID
-            and model.MODEL_NAME=
+            select *
+            from param_mst_pdm
+            where eqp_mst_rawid=#{eqpId}
+        )a,
+        (
+            SELECT eqp_spec_link_mst_rawid, PARAM_NAME, a.upper_alarm_spec as model_upper_alarm_spec, a.upper_warning_spec as model_upper_warning_spec,
+            b.upper_alarm_spec as eqp_upper_alarm_spec, b.upper_warning_spec as eqp_upper_warning_spec,
+            CASE WHEN B.NAME IS NOT NULL THEN 'EQP' WHEN b.name is null then 'MODEL' END AS TYPE
+            FROM
             (
-                SELECT MODEL_NAME
-                FROM EQP_MST_PDM
-                WHERE RAWID=#{eqpId}
-            )
-            AND model.RAWID=#{rule_id}
-        ) A,
-        (
-            SELECT param.rawid as param_id, PARAM.NAME, param_spec.eqp_spec_link_mst_rawid ,param_spec.UPPER_ALARM_SPEC, param_spec.UPPER_WARNING_SPEC, param_spec.spec_type
-            FROM PARAM_SPEC_MST_PDM param_spec, PARAM_MST_PDM PARAM
-            WHERE 1=1
-            and EQP_SPEC_LINK_MST_RAWID = #{eqp_spec_link_mst_rawid}
-            AND param_spec.PARAM_MST_RAWID = PARAM.RAWID
-        )B
-        WHERE A.PARAM_NAME = B.NAME(+)
+                SELECT model_param.PARAM_NAME,model_param.UPPER_ALARM_SPEC, model_param.UPPER_WARNING_SPEC
+                FROM CONDITIONAL_SPEC_MST_PDM model, MODEL_PARAM_SPEC_MST_PDM model_param
+                WHERE 1=1
+                AND model.RAWID = model_param.CONDITIONAL_SPEC_MST_RAWID
+                and model.MODEL_NAME=
+                (
+                    SELECT MODEL_NAME
+                    FROM EQP_MST_PDM
+                    WHERE RAWID=#{eqpId}
+                )
+                AND model.RAWID=#{rule_id}
+            ) A,
+            (
+                SELECT param.rawid as param_id, PARAM.NAME, param_spec.eqp_spec_link_mst_rawid ,param_spec.UPPER_ALARM_SPEC, param_spec.UPPER_WARNING_SPEC <!--, param_spec.spec_type-->
+                FROM PARAM_SPEC_MST_PDM param_spec, PARAM_MST_PDM PARAM
+                WHERE 1=1
+                and EQP_SPEC_LINK_MST_RAWID = #{eqp_spec_link_mst_rawid}
+                AND param_spec.PARAM_MST_RAWID = PARAM.RAWID
+            )B
+            WHERE A.PARAM_NAME = B.NAME(+)
+        ) b
+        where a.name=b.param_name
+
+
+        <!--SELECT eqp_spec_link_mst_rawid, param_id, PARAM_NAME, a.upper_alarm_spec as model_upper_alarm_spec, a.upper_warning_spec as model_upper_warning_spec,-->
+        <!--b.upper_alarm_spec as eqp_upper_alarm_spec, b.upper_warning_spec as eqp_upper_warning_spec,-->
+        <!--CASE WHEN B.NAME IS NOT NULL THEN 'EQP' WHEN b.name is null then 'MODEL' END AS TYPE-->
+        <!--FROM-->
+        <!--(-->
+            <!--SELECT model_param.PARAM_NAME,model_param.UPPER_ALARM_SPEC, model_param.UPPER_WARNING_SPEC-->
+            <!--FROM CONDITIONAL_SPEC_MST_PDM model, MODEL_PARAM_SPEC_MST_PDM model_param-->
+            <!--WHERE 1=1-->
+            <!--AND model.RAWID = model_param.CONDITIONAL_SPEC_MST_RAWID-->
+            <!--and model.MODEL_NAME=-->
+            <!--(-->
+                <!--SELECT MODEL_NAME-->
+                <!--FROM EQP_MST_PDM-->
+                <!--WHERE RAWID=#{eqpId}-->
+            <!--)-->
+            <!--AND model.RAWID=#{rule_id}-->
+        <!--) A,-->
+        <!--(-->
+            <!--SELECT param.rawid as param_id, PARAM.NAME, param_spec.eqp_spec_link_mst_rawid ,param_spec.UPPER_ALARM_SPEC, param_spec.UPPER_WARNING_SPEC, param_spec.spec_type-->
+            <!--FROM PARAM_SPEC_MST_PDM param_spec, PARAM_MST_PDM PARAM-->
+            <!--WHERE 1=1-->
+            <!--and EQP_SPEC_LINK_MST_RAWID = #{eqp_spec_link_mst_rawid}-->
+            <!--AND param_spec.PARAM_MST_RAWID = PARAM.RAWID-->
+        <!--)B-->
+        <!--WHERE A.PARAM_NAME = B.NAME(+)-->
     </select>
 
     <delete id="deleteParamSpec" databaseId="oracle">
@@ -205,8 +278,8 @@
     </delete>
 
     <insert id="insertParamSpec" databaseId="oracle">
-        insert into param_spec_mst_pdm(rawid, param_mst_rawid, eqp_spec_link_mst_rawid, spec_type, upper_alarm_spec, upper_warning_spec, target, lower_alarm_spec, lower_warning_spec, description, create_by, create_dtts, update_by, update_dtts)
-        values(seq_param_spec_mst_pdm.nextval, #{param_id}, #{eqp_spec_link_mst_rawid}, #{spec_type}, #{eqp_upper_alarm_spec,jdbcType=FLOAT}, #{eqp_upper_warning_spec,jdbcType=FLOAT},
+        insert into param_spec_mst_pdm(rawid, param_mst_rawid, eqp_spec_link_mst_rawid,  upper_alarm_spec, upper_warning_spec, target, lower_alarm_spec, lower_warning_spec, description, create_by, create_dtts, update_by, update_dtts)
+        values(seq_param_spec_mst_pdm.nextval, #{param_id}, #{eqp_spec_link_mst_rawid},  #{eqp_upper_alarm_spec,jdbcType=FLOAT}, #{eqp_upper_warning_spec,jdbcType=FLOAT},
                 #{target,jdbcType=FLOAT}, #{eqp_lower_alarm_spec,jdbcType=FLOAT}, #{eqp_lower_warning_spec,jdbcType=FLOAT}, #{description,jdbcType=VARCHAR}, #{userName}, systimestamp, #{userName}, systimestamp)
 
     </insert>
@@ -214,7 +287,6 @@
     <update id="updateParamSpec" databaseId="oracle">
         update param_spec_mst_pdm
         set
-        spec_type=#{spec_type,jdbcType=VARCHAR},
         upper_alarm_spec=#{eqp_upper_alarm_spec,jdbcType=FLOAT},
         upper_warning_spec=#{eqp_upper_warning_spec,jdbcType=FLOAT},
         lower_alarm_spec=#{eqp_lower_alarm_spec,jdbcType=FLOAT},
@@ -227,21 +299,21 @@
         select b.model_param_spec_mst_rawid, a.param_id, a.param_name, b.upper_alarm_spec, b.upper_warning_spec, b.lower_alarm_spec, b.lower_warning_spec
         from
         (
-        select rawid as param_id, name as param_name
-        from param_mst_pdm
-        where eqp_mst_rawid in
-        (
-        select rawid
-        from eqp_mst_pdm
-        where rawid=#{eqpId}
-        )
+            select rawid as param_id, name as param_name
+            from param_mst_pdm
+            where eqp_mst_rawid in
+                (
+                    select rawid
+                    from eqp_mst_pdm
+                    where rawid=#{eqpId}
+                )
         ) a,
         (
-        select m.rawid model_param_spec_mst_rawid, param_name, upper_alarm_spec, upper_warning_spec, lower_alarm_spec, lower_warning_spec
-        from model_param_spec_mst_pdm m, conditional_spec_mst_pdm c
-        where 1=1
-        and m.CONDITIONAL_SPEC_MST_RAWID=c.rawid
-        and c.rawid=#{rule_id}
+            select m.rawid model_param_spec_mst_rawid, param_name, upper_alarm_spec, upper_warning_spec, lower_alarm_spec, lower_warning_spec
+            from model_param_spec_mst_pdm m, conditional_spec_mst_pdm c
+            where 1=1
+            and m.CONDITIONAL_SPEC_MST_RAWID=c.rawid
+            and c.rawid=#{rule_id}
         )b
         where a.param_name = b.param_name
 
@@ -255,6 +327,50 @@
         and l.CONDITIONAL_SPEC_MST_RAWID=r.rawid
         and r.rawid=#{rule_id}
         and l.eqp_mst_rawid=#{eqpId}
+    </select>
+
+    <select id="selectModelParamSpecMstRawId" resultType="Long">
+        select rawid
+        from model_param_spec_mst_pdm
+        where conditional_spec_mst_rawid=#{rule_id}
+        and param_name=#{param_name}
+
+    </select>
+
+    <delete id="deleteParamSpecOne" databaseId="oracle">
+        delete
+        from param_spec_mst_pdm
+        where rawid=(
+        select spec.rawid
+        from param_spec_mst_pdm spec, param_mst_pdm param
+        where 1=1
+        and param.rawid=spec.param_mst_rawid
+        and spec.eqp_spec_link_mst_rawid=#{eqp_spec_link_mst_rawid}
+        and param.name=#{param_name})
+    </delete>
+
+    <select id="selectModelEqpParamSpec" resultType="com.bistel.a3.portal.domain.pdm.std.master.STDConditionalSpec">
+        select a.param_name, a.model_upper_alarm as model_upper_alarm_spec, a.model_upper_warning as model_upper_warning_spec
+        , a.model_lower_alarm as model_lower_alarm_spec, a.model_lower_warning as model_lower_warning_spec
+        , b.eqp_upper_alarm as eqp_upper_alarm_spec, b.eqp_upper_warning as eqp_upper_warning_spec,  b.eqp_lower_alarm as eqp_lower_alarm_spec
+        , b.eqp_lower_warning as eqp_lower_warning_spec
+        from
+        (
+            select param_name, UPPER_ALARM_SPEC as model_upper_alarm, upper_warning_spec as model_upper_warning, LOWER_ALARM_SPEC as model_lower_alarm, LOWER_WARNING_SPEC as model_lower_warning
+            from model_param_spec_mst_pdm
+            where conditional_spec_mst_rawid=#{rule_id}
+            and param_name=#{param_name}
+        ) a,
+        (
+            select param.name as param_name,spec.UPPER_ALARM_SPEC as eqp_upper_alarm, spec.upper_warning_spec as eqp_upper_warning, spec.lower_alarm_spec as eqp_lower_alarm, spec.lower_warning_spec as eqp_lower_warning
+            from param_spec_mst_pdm spec, param_mst_pdm param
+            where 1=1
+            and spec.param_mst_rawid=param.rawid
+            and eqp_spec_link_mst_rawid=#{eqp_spec_link_mst_rawid}
+            and param.name=#{param_name}
+        ) b
+        where a.param_name=b.param_name
+
     </select>
 
 

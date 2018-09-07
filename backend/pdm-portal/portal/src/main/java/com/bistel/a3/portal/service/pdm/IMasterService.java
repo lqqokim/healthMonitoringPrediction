@@ -70,13 +70,13 @@ public interface IMasterService {
 
     ParamWithCommonWithRpm getParam(String fabId, Long paramId);
 
-    void setParam(String fabId, Long eqpId ,  ParamWithCommonWithRpm param);
+    void setParam(String fabId, Long eqpId ,  ParamWithCommonWithRpm param, String userName);
 
     void removeParam(String fabId, Long eqpId, Long paramId);
 
     void removeParams(String fabId, Long eqpId, Long[] paramIds);
 
-    void updateParamHealth(String fabId, Long eqpId, Long paramId);
+    void updateParamHealth(String fabId, Long eqpId, Long paramId, String UserName);
 
     void deleteParamHealth(String fabId, Long eqpId, Long paramId);
 
@@ -135,5 +135,7 @@ public interface IMasterService {
 
     void setEqpParamSpec(String fabId, List<STDConditionalSpec> eqpParamSpecList);
 
+    void revertToModelSpec(String fabId, String param_name, Long eqp_spec_link_mst_rawid);
 
+    STDConditionalSpec getModelEqpSpec(String fabId, String param_name, Long eqp_spec_link_mst_rawid, Long ruleId);
 }

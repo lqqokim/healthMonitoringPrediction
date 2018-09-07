@@ -36,8 +36,8 @@ export class MasterEqpListComponent implements OnInit, OnChanges {
     @ViewChild("eqpForm") eqpForm;
 
     eqpDatas: wjcCore.CollectionView;
-    eqpData: any;
-    selectedRowData: any;
+    eqpData: IEqp.FormData;
+    selectedRowData: IEqp.Row;
     btnDisabled: boolean = false;
     status: string;
     fabId: number;
@@ -49,7 +49,24 @@ export class MasterEqpListComponent implements OnInit, OnChanges {
     changeImage: boolean;
 
     models: IEqp.Model[];
-    isDirectInput: boolean = false;
+    isSelectModel: boolean;
+
+    readonly STATUS: IEqp.Status = {
+        CREATE: 'CREATE',
+        MODIFY: 'MODIFY',
+        DELETE: 'DELETE',
+        COPY: 'COPY',
+        OK: 'OK'
+    };
+
+    readonly NOTIFY: IEqp.NOTIFY = {
+        CREATE_SUCCESS: "MESSAGE.USER_CONFIG.CREATE_SUCCESS",
+        UPDATE_SUCCESS: "MESSAGE.USER_CONFIG.UPDATE_SUCCESS",
+        REMOVE_SUCCESS: "MESSAGE.USER_CONFIG.REMOVE_SUCCESS",
+        REMOVE_ITEM: "MESSAGE.PDM.MANAGEMENT.REMOVE_ITEM",
+        ERROR: "MESSAGE.GENERAL.ERROR",
+        DUPLICATE_EQP: "PDM.NOTIFY.WARN.DUPLICATE_EQP"
+    };
 
     constructor(
         private modalAction: ModalAction,
@@ -68,7 +85,6 @@ export class MasterEqpListComponent implements OnInit, OnChanges {
     }
 
     ngOnChanges(changes: any) {
-        console.log('test change', changes);
         if (changes.datas.currentValue) {
             let currentValue = changes.datas.currentValue;
             const eqpDatas = currentValue.eqps;
@@ -116,13 +132,13 @@ export class MasterEqpListComponent implements OnInit, OnChanges {
         this.modalAction.showConfirmDelete({
             info: {
                 title: this.selectedRowData.eqpName,
-                confirmMessage: this.translater.get("MESSAGE.PDM.MANAGEMENT.REMOVE_ITEM", { itemName: this.selectedRowData.eqpName })['value']
+                confirmMessage: this.translater.get(this.NOTIFY.REMOVE_ITEM, { itemName: this.selectedRowData.eqpName })['value']
             },
             requester: this.requester
         });
 
         this.requester.getObservable().subscribe((response: RequestType) => {
-            if (response.type === 'OK' && response.data) {
+            if (response.type === this.STATUS.OK && response.data) {
                 this._deleteEqp();
             }
         });
@@ -131,7 +147,7 @@ export class MasterEqpListComponent implements OnInit, OnChanges {
     _deleteEqp() {
         this.pdmConfigService.deleteEqp(this.fabId, this.areaId, this.selectedRowData.eqpId)
             .then((res: any) => {
-                this.notify.success("MESSAGE.USER_CONFIG.REMOVE_SUCCESS");
+                this.notify.success(this.NOTIFY.REMOVE_SUCCESS);
                 this.updateItem.emit({
                     init: true
                 });
@@ -142,11 +158,10 @@ export class MasterEqpListComponent implements OnInit, OnChanges {
 
 
     showModal(status: string): void {
-        let eqpData: any = {};
         this.status = status;
-        // this.eqpForm.form.reset();
+        let eqpData: IEqp.FormData;
 
-        if (status === 'create') {
+        if (status === this.STATUS.CREATE) {
             eqpData = {
                 areaName: this.areaName,
                 eqpName: '',
@@ -156,16 +171,19 @@ export class MasterEqpListComponent implements OnInit, OnChanges {
                 dataType: '',
                 offline_yn: false
             };
-        } else if (status === 'modify' || status === 'copy') {
-            eqpData = this.selectedRowData;
-
-            if (eqpData.offline_yn === 'N') {
-                eqpData.offline_yn = false;
-            } else if (eqpData.offline_yn === 'Y') {
-                eqpData.offline_yn = true;
+        } else if (status === this.STATUS.MODIFY || status === this.STATUS.COPY) {
+            const row = this.selectedRowData;
+            eqpData = {
+                areaName: row.areaName,
+                eqpName: row.eqpName,
+                model_name: row.model_name,
+                description: row.description,
+                image: row.image,
+                dataType: row.dataType,
+                offline_yn: row.offline_yn === "Y" ? true : false
             }
 
-            eqpData.copyValue = "";
+            eqpData['copyValue'] = "";
         }
 
 
@@ -174,97 +192,119 @@ export class MasterEqpListComponent implements OnInit, OnChanges {
         }
 
         this.changeImage = false;
+        this.isSelectModel = true;
+        this.eqpData = eqpData;
+        
+        this.showEqpImage();
+        this._showModal(true);
+    }
 
-        // this.eqpData = { // Modify eqp data
-        //     eqp: eqpData,
-        //     status: status
-        // };
-        this.eqpData = Object.assign({}, eqpData);
-
-        if (this.status === "modify") { //for show image 
+    showEqpImage(): void {
+        if (this.status === this.STATUS.CREATE) {
+            if (this.base64Image) {
+                this.base64Image = undefined;
+            }
+        } else if (this.status === this.STATUS.MODIFY) { //for show image 
             if (this.eqpData.image) {
-                this.base64Image = this.domSanitizer.bypassSecurityTrustUrl(`data:image/png;base64,${this.eqpData.image}`);
+                this.base64Image = this.domSanitizer.bypassSecurityTrustUrl(`data:image/png;base64, ${this.eqpData.image}`);
             } else {
                 if (this.base64Image) {
                     this.base64Image = undefined;
                 }
             }
-        } else if (this.status === "create") {
-            if (this.base64Image) {
-                this.base64Image = undefined;
-            }
         }
-
-        this._showModal(true);
     }
 
-    saveData(): any {
-        let eqpData = Object.assign({}, this.eqpData);
+    saveData(): void {
+        let eqpData = this.eqpData
 
-        if (this.status === 'create' || (this.status === 'modify' && this.selectedRowData.eqpName !== eqpData.eqpName)) {
-            if (!this.checkUniqueData(eqpData)) {
-                this.notify.warn("PDM.NOTIFY.DUPLICATE_EQP");
+        if (this.status === this.STATUS.CREATE || (this.status === this.STATUS.MODIFY && this.selectedRowData.eqpName !== eqpData.eqpName)) {
+            if (!this.uniqueValidator(eqpData)) {
+                this.notify.warn(this.NOTIFY.DUPLICATE_EQP);
                 return;
             }
         }
 
-        this._showModal(false);
+        if (this.status === this.STATUS.COPY) {
+            let copyValue: string = eqpData.copyValue;
+            let removeSpace: string = copyValue.replace(/(\s*)/g, "");
+            let splitCopy: string[] = removeSpace.split(',');
 
-        if (this.status === 'copy') {
-            // let copyValue: any = this.eqpCopy.eqpCopyValue();
-            let copyValue: any = eqpData.copyValue;
-            let removeSpace = copyValue.replace(/(\s*)/g, "");
-            let splitCopy = removeSpace.split(',');
             this._eqpCopy(splitCopy);
         } else {
-            //let eqpData: any = this.eqpModify.getData();
-            if (this.base64Image) {
-                eqpData.image = this.splitImageData(this.base64Image);
+            const base64Image = this.base64Image;
+            if (base64Image) {
+                eqpData.image = this.splitImageData(base64Image);
             } else {
                 eqpData.image = '';
             }
 
-
-            if (eqpData.offline_yn === true) {
-                eqpData.offline_yn = 'Y';
-            } else if (eqpData.offline_yn === false) {
-                eqpData.offline_yn = 'N';
-            }
-
-
-            let request: any = {
+            let request: IEqp.EqpRequest = {
+                eqpId: this.status === this.STATUS.CREATE ? null : this.selectedRowData.eqpId,
                 description: eqpData.description,
                 eqpName: eqpData.eqpName,
                 model_name: eqpData.model_name,
                 areaId: this.areaId,
                 image: eqpData.image,
-                // dataType: eqpData.dataType
                 dataType: 'STD',
-                offline_yn: eqpData.offline_yn
+                offline_yn: eqpData.offline_yn === true ? 'Y' : 'N'
             };
 
-            if (this.status === 'modify') {
-                request.eqpId = this.selectedRowData.eqpId;
+            if (!this.isSelectModel) {
+                this.isSelectModel = true;
             }
 
-            if (this.isDirectInput) {
-                this.isDirectInput = false;
-            }
-
-            console.log('eqp req', request);
+            console.log('Eqp Request => ', request);
             this._updateEqp(request);
         }
     }
 
-    changeDirectInput(isDirectInput: boolean, modelName: string): void {
-        if (isDirectInput) {
-            if (modelName.length) {
-                this.eqpData.modelName = null;
+    private _updateEqp(request: IEqp.EqpRequest): void {
+        this.pdmConfigService.updateEqp(this.fabId, this.areaId, request)
+            .then((res: any) => {
+                this._showModal(false);
+                if (this.status === this.STATUS.CREATE) {
+                    this.notify.success(this.NOTIFY.CREATE_SUCCESS);
+                } else if (this.status === this.STATUS.MODIFY) {
+                    this.notify.success(this.NOTIFY.UPDATE_SUCCESS);
+                }
+
+                this.emitItem(request);
+            }, (err: any) => {
+                this._showModal(false);
+                this.notify.error(this.NOTIFY.ERROR);
+                console.log('err', err);
+            });
+    }
+
+    private _eqpCopy(request: string[]): void {
+        this.pdmConfigService.eqpCopy(this.fabId, this.areaId, this.selectedRowData.eqpId, request)
+            .then((res) => {
+                this.notify.success(this.NOTIFY.CREATE_SUCCESS);
+                this.emitItem(request);
+            }).catch((err) => {
+                this.notify.error(this.NOTIFY.ERROR);
+                console.log('err', err);
+            });
+    }
+
+    changeIsSelectModel(): void {
+        if (!this.isSelectModel) {
+            this.isSelectModel = true;
+
+            if (this.status === this.STATUS.MODIFY) {
+                this.eqpData.model_name = this.selectedRowData.model_name;
+            }
+        } else if(this.isSelectModel){
+            this.isSelectModel = false;
+
+            if (this.eqpData.model_name !== null || this.eqpData.model_name !== '') {
+                this.eqpData.model_name = null;
             }
         }
     }
 
-    checkUniqueData(data: any): boolean {
+    uniqueValidator(data: any): boolean {
         let eqpDatas: any = this.eqpDatas;
         let length: number = eqpDatas.length;
         let result: boolean = true;
@@ -278,45 +318,12 @@ export class MasterEqpListComponent implements OnInit, OnChanges {
         return result;
     }
 
-    _updateEqp(request: any): void {
-        this.pdmConfigService.updateEqp(this.fabId, this.areaId, request)
-            .then((res: any) => {
-                console.log('update res', res);
-                this._showModal(false);
-                if (this.status === 'create') {
-                    this.notify.success("MESSAGE.USER_CONFIG.CREATE_SUCCESS");
-                } else if (this.status === 'modify') {
-                    this.notify.success("MESSAGE.USER_CONFIG.UPDATE_SUCCESS");
-                }
-
-                this.updateItem.emit({
-                    init: true,
-                    request: request,
-                    selectedRowData: this.selectedRowData
-                });
-            }, (err: any) => {
-                this._showModal(false);
-                this.notify.error("MESSAGE.GENERAL.ERROR");
-            });
-    }
-
-    _eqpCopy(params: string[]): void {
-        this.pdmConfigService.eqpCopy(this.fabId, this.areaId, this.selectedRowData.eqpId, params)
-            .then((res) => {
-                this.notify.success("MESSAGE.USER_CONFIG.CREATE_SUCCESS");
-                this.updateItem.emit({
-                    init: true,
-                    request: params,
-                    selectedRowData: this.selectedRowData
-                });
-            }).catch((err) => {
-                this.notify.error("MESSAGE.GENERAL.ERROR");
-                console.log('err', err);
-            });
-    }
-
-    imageRegister(ev: any) {
-
+    emitItem(request): void {
+        this.updateItem.emit({
+            init: true,
+            request: request,
+            selectedRowData: this.selectedRowData
+        });
     }
 
     _showModal(isShow: boolean): void {
@@ -327,12 +334,11 @@ export class MasterEqpListComponent implements OnInit, OnChanges {
                 show: true
             });
         } else {
-            if (this.isDirectInput) {
-                this.isDirectInput = false;
+            if (!this.isSelectModel) {
+                this.isSelectModel = true;
             }
 
             this.eqpForm.form.reset();
-
             $('#eqpModal').modal('hide');
         }
     }
@@ -341,12 +347,12 @@ export class MasterEqpListComponent implements OnInit, OnChanges {
         return value.substr(0, 1).toUpperCase() + value.substr(1);
     }
 
-    splitImageData(base64Image): string {
-        let eqpImage;
+    splitImageData(base64Image: any): string {
+        let eqpImage: string;
 
-        if (this.status === "create") {
+        if (this.status === this.STATUS.CREATE) {
             eqpImage = base64Image.split(',')[1];
-        } else if (this.status === "modify") {
+        } else if (this.status === this.STATUS.MODIFY) {
             if (this.changeImage) {
                 eqpImage = base64Image.split(',')[1];
             } else {
@@ -364,7 +370,7 @@ export class MasterEqpListComponent implements OnInit, OnChanges {
     }
 
     changeListener(ev: any): void {
-        if (this.status === "modify") {
+        if (this.status === this.STATUS.MODIFY) {
             if (ev) {
                 this.changeImage = true;
             }

@@ -44,7 +44,7 @@
         </div>
         <div class="alarm-width-calc">
             <div id="gauge_bad{{i}}" class="pdm-gauge-wrapper" (click)="onParamClick(item, i, $event)" (mouseenter)="mouseEnter(item, $event, i)" 
-                *ngFor="let item of B5Datas; let i = index;" [ngClass]="{'alram-type-bad':item.type === 'B5', 'type-none': item.type === ''}">
+                *ngFor="let item of B5Datas; let i = index;" [ngClass]="{'alram-type-bad':item.type === 'normal', 'type-none': item.type === ''}">
                 <div class="pdm-gauge-section clearfix" [ngClass]="{'bad-section-active': selectedBadSection === i}">
                     <div class="pdm-gauge-title" *ngIf="item && item.name">
                         <div class="pdm-gauge-name">{{item.name}}</div>

@@ -3,7 +3,7 @@
     <span>{{value}}</span>
 </div>
 
-<div type='select' *ngIf="itemType === 'select'">
+<div type='select' *ngIf="itemType === 'select'" (mouseenter)='onItemListOver($event)'>
     <button class='closeButton' (click)='onCloseBtn($event, value)'></button>
     <span>{{value}}</span>
     <div>
@@ -13,3 +13,5 @@
         </ul>
     </div>
 </div>
+
+<div class='chartVisualOpts-itemTooltip' #toolTip *ngIf='outTooltip' (mouseleave)='onItemListLeave($event)'></div>

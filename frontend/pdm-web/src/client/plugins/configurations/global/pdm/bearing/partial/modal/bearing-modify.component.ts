@@ -113,7 +113,7 @@ export class BearingModifyComponent implements OnInit, OnChanges {
                             if (this._checkUniqueData()) {
                                 this._saveBearingData();
                             } else {
-                                this.notify.warn("PDM.NOTIFY.DUPLICATE_BEARING");
+                                this.notify.warn("PDM.NOTIFY.WARN.DUPLICATE_BEARING");
                                 return;
                             }
                         }
@@ -123,7 +123,7 @@ export class BearingModifyComponent implements OnInit, OnChanges {
                                 this._saveBearingData();
                             }
                         } else {
-                            this.notify.warn("PDM.NOTIFY.DUPLICATE_BEARING");
+                            this.notify.warn("PDM.NOTIFY.WARN.DUPLICATE_BEARING");
                             return;
                         }
                     }

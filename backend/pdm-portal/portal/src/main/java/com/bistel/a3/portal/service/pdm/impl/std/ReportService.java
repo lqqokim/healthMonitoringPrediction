@@ -462,7 +462,8 @@ public class ReportService implements IReportService {
 
     public List<EqpStatusData> getAlarmWarningEqps(String fabId, Date from, Date to) {
         STDReportMapper mapper = SqlSessionUtil.getMapper(sessions, fabId, STDReportMapper.class);
-        return mapper.selectAlarmWarningEqps(null, from, to);
+        Double globalWarn=globalAWSpec.getNormalized_upper_warning_spec();
+        return mapper.selectAlarmWarningEqps(null, from, to, globalWarn);
     }
 
 
@@ -548,7 +549,10 @@ public class ReportService implements IReportService {
 
     public List<ParamClassificationData> getParamClassifications(String fabId, Long eqpId, Date from, Date to) {
         STDReportMapper mapper = SqlSessionUtil.getMapper(sessions, fabId, STDReportMapper.class);
-        List<ParamClassificationData> result = mapper.selectRadar(eqpId, from, to);
+
+        Double globalWarn=globalAWSpec.getNormalized_upper_warning_spec();
+
+        List<ParamClassificationData> result = mapper.selectRadar(eqpId, from, to, globalWarn);
 
         List<HashMap<String,Object>> causes= mapper.selectDailyAnalysisCause(eqpId,from,to);
         HashMap<Long,List<String>> paramCauses = new HashMap<>();

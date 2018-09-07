@@ -34,6 +34,16 @@ public class Param {
     private Long parts_id;
     private String parts_name;
 
+    public Long getParse_index() {
+        return parse_index;
+    }
+
+    public void setParse_index(Long parse_index) {
+        this.parse_index = parse_index;
+    }
+
+    private Long parse_index;
+
 
     public String getEqp_name() {
         return eqp_name;

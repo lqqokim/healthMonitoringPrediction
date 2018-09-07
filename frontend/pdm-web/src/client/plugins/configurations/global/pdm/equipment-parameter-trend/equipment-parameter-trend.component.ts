@@ -99,6 +99,34 @@ export class EquipmentParameterTrendComponent implements OnInit {
         this.selectedParam = true;
         this.eventLines=[];
     }
+
+    // jqplot 데이터 포맷 전환
+    setChartDataSet(data: number[][]): number[][][] {
+        const totalLen: number = data.length;
+        const rowLen: number = data[0].length;
+
+        let tmp: number[][][] = [];
+        tmp[0] = [];
+        tmp[1] = [];
+        tmp[2] = [];
+        
+        let i: number = 0;
+        let row: number[] = [];
+
+        while( i < totalLen ){
+            row = data[i];      // [x, y, alarm, warning]
+
+            tmp[0].push([ row[0], row[1] ]);    // y
+            tmp[1].push([ row[0], row[2] ]);    // alarm
+            tmp[2].push([ row[0], row[3] ]);    // warning
+            i++;
+        }
+
+        console.log( tmp );
+
+        return tmp;
+    }
+
     drawChart() {
         this.drawChart_init();
 
@@ -115,18 +143,18 @@ export class EquipmentParameterTrendComponent implements OnInit {
 
         }
 
+        // [180829-TK] 불필요 코드로 추정 
+        // this.pdmModelService.getWorstEqpInfo(fabId,eqpId,this.searchTimePeriod.from, this.searchTimePeriod.to).then((result)=>{
+        //     console.log(result);
 
-        this.pdmModelService.getWorstEqpInfo(fabId,eqpId,this.searchTimePeriod.from, this.searchTimePeriod.to).then((result)=>{
-            console.log(result);
+        //     if(result.length==0) return;
+        //     this.timePeriod.fromDate = result[0].datas[0].start_dtts;
+        //     this.timePeriod.toDate = result[0].datas[result[0].datas.length-1].end_dtts;
 
-            if(result.length==0) return;
-            this.timePeriod.fromDate = result[0].datas[0].start_dtts;
-            this.timePeriod.toDate = result[0].datas[result[0].datas.length-1].end_dtts;
-
-            this.statusData = result[0].datas.map(d=>{return {type:d.status,start:d.start_dtts,end:d.end_dtts}});
-        }).catch((e)=>{
-            console.log(e);
-        })
+        //     this.statusData = result[0].datas.map(d=>{return {type:d.status,start:d.start_dtts,end:d.end_dtts}});
+        // }).catch((e)=>{
+        //     console.log(e);
+        // })
 
         this.paramDatas = [];
         this.total = parameters.length;
@@ -143,7 +171,17 @@ export class EquipmentParameterTrendComponent implements OnInit {
                     this.pdmModelService.getTraceDataByParamId(fabId, parameters[i].paramId, this.searchTimePeriod.from, this.searchTimePeriod.to).then((datas) => {
                         console.log(datas);
                         if (datas.length > 0) {
-                            let paramInfo = { name: parameters[i].paramName, paramId: parameters[i].paramId, datas: [datas],from:this.searchTimePeriod.from, to:this.searchTimePeriod.to,alarm_spec:alarm_spec,warning_spec:warning_spec };
+                            let paramInfo = {
+                                name: parameters[i].paramName,
+                                paramId: parameters[i].paramId,
+                                datas: 
+                                    this.setChartDataSet(datas)
+                                ,
+                                from:this.searchTimePeriod.from,
+                                to:this.searchTimePeriod.to,
+                                // alarm_spec:alarm_spec,
+                                // warning_spec:warning_spec
+                            };
                             this.paramDatas.push(paramInfo);
                         }
     

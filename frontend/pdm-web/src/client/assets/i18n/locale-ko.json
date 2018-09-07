@@ -555,16 +555,21 @@
 			"VIEW_TREND_CHART": "Trend Chart 보기"
 		},
 		"NOTIFY": {
-			"NOT_EXIST_PARTS": "Part 를 먼저 등록해주세요.",
-			"NOT_EXIST_ALARM": "Alarm 을 등록해주세요.",
-			"NOT_EXIST_WARNING": "Warning 을 등록해주세요.",
-			"DUPLICATE_NAME": "이미 등록된 Name입니다.",
-			"REFER_PART": "선택한 Part를 Parameter에서 참조하고 있습니다.",
-			"DUPLICATE_BEARING": "동일한 Manufacture / ModelNumber의 조합이 존재합니다.",
-			"DUPLICATE_AREA": "동일한 Name의 Area가 존재합니다.",
-			"DUPLICATE_EQP": "동일한 Name의 EQP가 존재합니다.",
-			"DUPLICATE_PARAMETER": "동일한 Name의 Parameter가 존재합니다.",
-			"DUPLICATE_PART": "동일한 Name의 Part가 존재합니다."
+			"INFO": {
+				"NOT_EXIST_PARTS": "Part 를 먼저 등록해주세요.",
+				"NOT_EXIST_ALARM": "Alarm 을 등록해주세요.",
+				"NOT_EXIST_WARNING": "Warning 을 등록해주세요.",
+				"TIMEOUT_VALID": "Timeout이 3,600,000 ms(1 hour)보다 작습니다."
+			},
+			"WARN": {
+				"DUPLICATE_NAME": "이미 등록된 Name입니다.",
+				"REFER_PART": "선택한 Part를 Parameter에서 참조하고 있습니다.",
+				"DUPLICATE_BEARING": "동일한 Manufacture / ModelNumber의 조합이 존재합니다.",
+				"DUPLICATE_AREA": "동일한 Name의 Area가 존재합니다.",
+				"DUPLICATE_EQP": "동일한 Name의 EQP가 존재합니다.",
+				"DUPLICATE_PARAMETER": "동일한 Name의 Parameter가 존재합니다.",
+				"DUPLICATE_PART": "동일한 Name의 Part가 존재합니다."
+			}
 		}
 	}
 }

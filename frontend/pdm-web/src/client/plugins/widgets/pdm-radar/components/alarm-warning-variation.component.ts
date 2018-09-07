@@ -1,6 +1,6 @@
 import { ElementRef } from '@angular/core';
 //Angular
-import { Component, OnInit, Output, OnChanges, Input, ViewChild, ViewEncapsulation, SimpleChanges, EventEmitter, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, Output, OnChanges, OnDestroy, Input, ViewChild, ViewEncapsulation, SimpleChanges, EventEmitter, ChangeDetectorRef } from '@angular/core';
 
 //MI
 import { PdmModelService } from './../../../../common';
@@ -15,7 +15,7 @@ import * as IRadar from './../model/pdm-radar.interface';
     providers: [PdmModelService, PdmRadarService],
     encapsulation: ViewEncapsulation.None
 })
-export class AlarmWarningVariationComponent implements OnInit, OnChanges {
+export class AlarmWarningVariationComponent implements OnInit, OnChanges, OnDestroy {
     @ViewChild('TrendChart') TrendChart: ElementRef;
     @ViewChild('Backdrop') Backdrop: ElementRef;
 
@@ -26,7 +26,7 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
     @Output() endLoading: EventEmitter<{ isLoad: boolean }> = new EventEmitter();
     @Output() countAlarmWarning: EventEmitter<{ alarmCount: number, warningCount: number }> = new EventEmitter();
 
-    selectedItem: IRadar.RadarData;
+    selectedItem: IRadar.AWRadarData | IRadar.BGRadarData;
     trendData: IRadar.TrendData;
 
     isMouseEnterDetail: any = false;
@@ -66,6 +66,14 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
 
     maxParamCount: number;
 
+    readonly TYPE: IRadar.Type = {
+        ALARM: 'alarm',
+        WARNING: 'warning',
+        B5: 'B5',
+        G5: 'G5',
+        AW: 'AW'
+    };
+
     constructor(
         private _pdmRadarService: PdmRadarService
     ) { }
@@ -80,11 +88,11 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
             this.fabId = currentValue['fabId'];
             this.timePeriod = currentValue['timePeriod'];
             this.maxParamCount = currentValue['maxParamCount'];
-            this._initData();
+            // this._initData();
 
-            this.getRadarDatas("AW");
-            this.getRadarDatas("B5");
-            this.getRadarDatas("G5");
+            this.getRadarDatas(this.TYPE.AW);
+            this.getRadarDatas(this.TYPE.B5);
+            this.getRadarDatas(this.TYPE.G5);
         } else if (changes['fullScreen'] != null && changes['fullScreen']['currentValue'] != null) {
             this.trendShow = false;
 
@@ -218,7 +226,7 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
                 }
             }
         }
-        // console.log('datas', datas);
+
         return datas;
     }
 
@@ -239,10 +247,10 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
         let min = 0.4;
         let max = 0.8;
 
-        if (type == "alarm") {
+        if (type == this.TYPE.ALARM) {
             min = 0.7;
             max = 1.0;
-        } else if (type == "warning") {
+        } else if (type == this.TYPE.WARNING) {
             min = 0.5;
             max = 0.8;
         }
@@ -260,22 +268,22 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
             }
         };
 
-        if (type === "AW") {
+        if (type === this.TYPE.AW) {
             this.getAWDatas(radarEqpParams);
-        } else if (type === "B5") {
+        } else if (type === this.TYPE.B5) {
             this.getB5Datas(radarEqpParams);
-        } else if (type === "G5") {
+        } else if (type === this.TYPE.G5) {
             this.getG5Datas(radarEqpParams);
         }
     }
 
-    getAWDatas(req): void {
+    getAWDatas(req: IRadar.RadarEqpReqParams): void {
         this._pdmRadarService.getRadarEqps(req)
             .then((eqps: IRadar.RadarEqpRes[]) => {
                 let alarmWarningDatas = [];
 
                 if (eqps.length && eqps.length > 0) {
-                    let promises: Promise<IRadar.RadarData | null>[] = [];
+                    let promises: Promise<IRadar.AWRadarData | null>[] = [];
 
                     const eqpsLength: number = eqps.length;
                     for (let i = 0; i < eqpsLength; i++) {
@@ -283,49 +291,68 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
                     }
 
                     Promise.all(promises)
-                        .then((results) => {
-                            let alarmDatas = [];
-                            let warningDatas = [];
-                            let datas: IRadar.RadarData[] = results;
+                        .then((results: IRadar.AWRadarData[]) => {
+                            let radarDatas: IRadar.AWRadarData[] = [];
+                            let tempRadarDatas: IRadar.AWRadarData[] = [];
+                            let sortedByAWs: IRadar.AWRadarData;
+                            let sortedByNames: IRadar.AWRadarData;
 
-                            const dataLength: number = datas.length;
-                            for (let i = 0; i < dataLength; i++) {
-                                datas[i].chartData[3].sort((a, b) => { // avgWithAW
-                                    if (a.value < b.value)
-                                        return 1;
-                                    if (a.value > b.value)
-                                        return -1;
-                                    return 0;
-                                });
+                            //avgWithAW를 기준으로 sort
+                            for (let i = 0; i < results.length; i++) {
+                                let radarData: IRadar.AWRadarData = results[i];
 
-                                datas[i].chartData[2].sort((a, b) => { // avgDaily
-                                    if (a.value < b.value)
-                                        return 1;
-                                    if (a.value > b.value)
-                                        return -1;
-                                    return 0;
-                                });
+                                const originAvgWithAWs: IRadar.AvgWithAW[] = results[i].chartData[3];
+                                const originAvgWithAWsSize: number = originAvgWithAWs.length;
+
+                                for (let j = 0; j < originAvgWithAWsSize; j++) {
+                                    originAvgWithAWs[j]['index'] = j;
+                                }
+
+                                sortedByAWs = this.sortByAWData(radarData, 'value');
+                                tempRadarDatas.push(sortedByAWs);
                             }
 
+                            const tempRadarDatasSize: number = tempRadarDatas.length;
                             const maxParamCount: number = Number(this.maxParamCount);
-                            for (let i = 0; i < dataLength; i++) {
-                                if (datas[i].chartData[3].length > maxParamCount) {
-                                    datas[i].chartData[3].splice(maxParamCount);
-                                }
 
-                                if (datas[i].chartData[2].length > maxParamCount) {
-                                    datas[i].chartData[2].splice(maxParamCount);
+                            //max param count만큼 splice
+                            for (let i = 0; i < tempRadarDatasSize; i++) {
+                                const chartDataLength: number = tempRadarDatas[i].chartData.length;
+                                for (let j = 0; j < chartDataLength; j++) {
+                                    const chartData: any = tempRadarDatas[i];
+                                    if (chartData.length > maxParamCount) {
+                                        chartData.splice(maxParamCount);
+                                    }
                                 }
                             }
 
-                            for (let i = 0; i < dataLength; i++) {
-                                const data = datas[i];
+                            //axis(name)을 기준으로 sort
+                            for (let i = 0; i < tempRadarDatas.length; i++) {
+                                let radarData: IRadar.AWRadarData = tempRadarDatas[i];
 
-                                if (data) {
-                                    if (data.type === "alarm") {
-                                        alarmDatas.push(data);
-                                    } else if (data.type === "warning") {
-                                        warningDatas.push(data);
+                                const originAvgWithAWs: IRadar.AvgWithAW[] = tempRadarDatas[i].chartData[3];
+                                const originAvgWithAWsSize: number = originAvgWithAWs.length;
+
+                                for (let j = 0; j < originAvgWithAWsSize; j++) {
+                                    originAvgWithAWs[j]['index'] = j;
+                                }
+
+                                sortedByNames = this.sortByAWData(radarData, 'axis');
+                                radarDatas.push(sortedByNames);
+                            }
+
+                            let alarmDatas: IRadar.AWRadarData[] = [];
+                            let warningDatas: IRadar.AWRadarData[] = [];
+                            const radarDatasSize: number = radarDatas.length;
+
+                            for (let i = 0; i < radarDatasSize; i++) {
+                                const radarData: IRadar.AWRadarData = radarDatas[i];
+
+                                if (radarData) {
+                                    if (radarData.type === this.TYPE.ALARM) {
+                                        alarmDatas.push(radarData);
+                                    } else if (radarData.type === this.TYPE.WARNING) {
+                                        warningDatas.push(radarData);
                                     }
                                 } else {
                                     break;
@@ -355,10 +382,10 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
                                 for (let i = 0; i < 5 - dataLength; i++) {
                                     alarmWarningDatas.push({ type: '', name: '', duration: '', problemreason: '', chartData: null, option: null, detail: null });
                                 }
-
                             }
 
                             this.alarmWarningDatas = alarmWarningDatas;
+                            console.log('AWDatas', this.alarmWarningDatas);
                         });
                 } else if (!eqps.length) {
                     for (let i = 0; i < 5; i++) {
@@ -375,10 +402,46 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
             });
     }
 
-    _getAWRadars(eqp: IRadar.RadarEqpRes): Promise<IRadar.RadarData> {
-        let alarmData: IRadar.RadarData;
-        let warningData: IRadar.RadarData;
-        let alarmWarningData: IRadar.RadarData;
+    private sortByAWData(radarData: IRadar.AWRadarData, key: string): IRadar.AWRadarData {
+        let awIndexs: number[] = [];
+        let avgWithAWs: IRadar.AvgWithAW[] = [];
+
+        radarData.chartData[3].sort((data1: IRadar.AvgWithAW, data2: IRadar.AvgWithAW) => {
+            return data1[key] < data2[key] ? 1 : data1[key] > data2[key] ? -1 : 0;
+        });
+
+        avgWithAWs = radarData.chartData[3];
+        const avgWithAWsSize: number = avgWithAWs.length;
+        for (let i = 0; i < avgWithAWsSize; i++) {
+            awIndexs.push(avgWithAWs[i].index);
+        }
+
+        const alarms: IRadar.Alarm[] = [];
+        const warns: IRadar.Warn[] = [];
+        const avgDailys: IRadar.AvgSpec[] = [];
+
+        for (let i = 0; i < awIndexs.length; i++) {
+            const awIndex: number = awIndexs[i];
+            const chartData: IRadar.AWRadarData['chartData'] = radarData.chartData;
+
+            alarms.push(chartData[0][awIndex]);
+            warns.push(chartData[1][awIndex]);
+            avgDailys.push(chartData[2][awIndex]);
+        }
+
+        radarData.chartData = [[], [], [], []];
+        radarData.chartData[0] = alarms;
+        radarData.chartData[1] = warns;
+        radarData.chartData[2] = avgDailys;
+        radarData.chartData[3] = avgWithAWs;
+
+        return radarData;
+    }
+
+    _getAWRadars(eqp: IRadar.RadarEqpRes): Promise<IRadar.AWRadarData> {
+        let alarmData: IRadar.AWRadarData;
+        let warningData: IRadar.AWRadarData;
+        let alarmWarningData: IRadar.AWRadarData;
         let radarParamReqParams: IRadar.RadarParamReqParams = {
             fabId: this.fabId,
             eqpId: eqp.eqpId,
@@ -390,8 +453,7 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
 
         return this._pdmRadarService.getRadarParams(radarParamReqParams)
             .then((params: IRadar.RadarParamRes[]) => {
-                console.log('aw params', params);
-                if (params && !params.length) return null;
+                if (!params.length) return null;
 
                 let option: IRadar.RadarOption = this.getChartOption();
                 let alarms: IRadar.Alarm[] = [];
@@ -401,7 +463,7 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
                 let avgWithAWs: IRadar.AvgWithAW[] = [];
                 let AWwithAvgs: number[] = [];
                 let variations: number[] = [];
-                let data: [IRadar.Alarm[], IRadar.Warn[], IRadar.AvgDaily[], IRadar.AvgSpec[]] = [[], [], [], []];
+                let data: [IRadar.Alarm[], IRadar.Warn[], IRadar.AvgDaily[], IRadar.AvgWithAW[]] = [[], [], [], []];
 
                 const paramsLength: number = params.length;
                 for (let i: number = 0; i < paramsLength; i++) {
@@ -422,28 +484,28 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
                         value: param.avgSpec
                     });
 
-                    let avgDaily: number;
+                    // let avgDaily: number;
                     // if (param.avgDaily > 1) { //Spec 넘어갈 경우 1로 고정
                     //     avgDaily = 1;
                     // } else {
-                    avgDaily = param.avgDaily;
+                    //     avgDaily = param.avgDaily;
                     // }
 
                     avgDailys.push({ //하루평균
                         axis: param.paramName,
-                        value: avgDaily
+                        value: param.avgDaily
                     });
 
-                    let avgWithAW: number;
+                    // let avgWithAW: number;
                     // if (param.avgWithAW > 1) {
                     //     avgWithAW = 1;
                     // } else {
-                    avgWithAW = param.avgWithAW;
+                    //     avgWithAW = param.avgWithAW;
                     // }
 
                     avgWithAWs.push({ //평균값(Warning, Alarm)
                         axis: param.paramName,
-                        value: avgWithAW,
+                        value: param.avgWithAW,
                         data: param
                     })
 
@@ -506,7 +568,6 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
                         return c[i];
                     };
 
-
                     alarmData = {
                         type: 'alarm',
                         id: eqp.eqpId,
@@ -525,37 +586,85 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
             });
     }
 
-    getB5Datas(req): void {
-        this._pdmRadarService.getRadarEqps(req).then(
-            (eqps: IRadar.RadarEqpRes[]) => {
+    getB5Datas(req: IRadar.RadarEqpReqParams): void {
+        this._pdmRadarService.getRadarEqps(req)
+            .then((eqps: IRadar.RadarEqpRes[]) => {
                 if (eqps.length && eqps.length > 0) {
-                    let promises: Promise<any>[] = [];
+                    let promises: Promise<IRadar.BGRadarData>[] = [];
 
-                    const eqpsLenght: number = eqps.length;
-                    for (let i = 0; i < eqpsLenght; i++) {
+                    const eqpsLength: number = eqps.length;
+                    for (let i = 0; i < eqpsLength; i++) {
                         promises.push(this._getB5Radars(eqps[i]));
                     }
 
                     Promise.all(promises)
-                        .then((results) => {
-                            let datas: IRadar.RadarData[] = results;
-                            const datasLength: number = datas.length;
-                            if (datasLength && datasLength < 5) {
-                                for (let i = 0; i < 5 - datasLength; i++) {
-                                    results.push({ type: '', name: '', duration: '', problemreason: '', chartData: null, option: null, detail: null });
+                        .then((results: IRadar.BGRadarData[]) => {
+                            let radarDatas: IRadar.BGRadarData[] = [];
+                            let tempRadarDatas: IRadar.BGRadarData[] = [];
+                            let sortedByDailys: IRadar.BGRadarData;
+                            let sortedByNames: IRadar.BGRadarData;
+
+                            //avgDaily를 기준으로 sort
+                            for (let i = 0; i < results.length; i++) {
+                                let radarData: IRadar.BGRadarData = results[i];
+
+                                const originAvgDailys: IRadar.AvgDaily[] = results[i].chartData[3];
+                                const originAvgDailysSize: number = originAvgDailys.length;
+
+                                for (let j = 0; j < originAvgDailysSize; j++) {
+                                    originAvgDailys[j]['index'] = j;
+                                }
+
+                                sortedByDailys = this.sortByBGData(radarData, 'value');
+                                tempRadarDatas.push(sortedByDailys);
+                            }
+
+                            const tempRadarDatasSize: number = tempRadarDatas.length;
+                            const maxParamCount: number = Number(this.maxParamCount);
+
+                            //Max Param Count만큼 Splice
+                            for (let i = 0; i < tempRadarDatasSize; i++) {
+                                const chartDataLength: number = tempRadarDatas[i].chartData.length;
+                                for (let j = 0; j < chartDataLength; j++) {
+                                    const chartData: IRadar.BGRadarData['chartData'] = tempRadarDatas[i].chartData;
+                                    if (chartData[j].length > maxParamCount) {
+                                        chartData[j].splice(maxParamCount);
+                                    }
                                 }
                             }
 
-                            this.B5Datas = results;
-                            console.log("B5Datas", results);
-                        }).catch((e) => {
+                            //axis(name)을 기준으로 sort
+                            for (let i = 0; i < tempRadarDatas.length; i++) {
+                                let radarData: IRadar.BGRadarData = tempRadarDatas[i];
 
+                                const originAvgDailys: IRadar.AvgDaily[] = tempRadarDatas[i].chartData[3];
+                                const originAvgDailysSize: number = originAvgDailys.length;
+
+                                for (let j = 0; j < originAvgDailysSize; j++) {
+                                    originAvgDailys[j]['index'] = j;
+                                }
+
+                                sortedByNames = this.sortByBGData(radarData, 'axis');
+                                radarDatas.push(sortedByNames);
+                            }
+
+                            const radarDatasSize: number = radarDatas.length;
+                            if (radarDatasSize && radarDatasSize < 5) {
+                                for (let i = 0; i < 5 - radarDatasSize; i++) {
+                                    radarDatas.push({ type: '', name: '', duration: '', chartData: null, option: null, detail: null });
+                                }
+                            }
+
+                            this.B5Datas = radarDatas;
+                            console.log("B5Datas", this.B5Datas);
+                        }).catch((e) => {
+                            console.log(e);
                         });
                 } else if (!eqps.length) {
-                    let emptyResults: IRadar.RadarData[] = [];
+                    let emptyResults: IRadar.BGRadarData[] = [];
 
                     for (let i = 0; i < 5; i++) {
-                        emptyResults.push({ type: '', name: '', duration: '', problemreason: '', chartData: null, option: null, detail: null });
+                        emptyResults.push({ type: '', name: '', duration: '', chartData: null, option: null, detail: null });
                     }
 
                     this.B5Datas = emptyResults;
@@ -563,8 +672,8 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
             });
     }
 
-    _getB5Radars(eqp: IRadar.RadarEqpRes): Promise<any> {
-        let B5Data: IRadar.RadarData;
+    _getB5Radars(eqp: IRadar.RadarEqpRes): Promise<IRadar.BGRadarData> {
+        let B5Data: IRadar.BGRadarData;
         let radarParamReqParams: IRadar.RadarParamReqParams = {
             fabId: this.fabId,
             eqpId: eqp.eqpId,
@@ -576,15 +685,16 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
 
         return this._pdmRadarService.getRadarParams(radarParamReqParams)
             .then((params: IRadar.RadarParamRes[]) => {
-                if (params && !params.length) return null;
+                if (!params.length) return null;
+
                 let option: any = this.getChartOption();
-                let data = [];
-                let alarms = [];
-                let wanrs = [];
-                let avgSpecs = [];
-                let avgDailys = [];
-                let variations = [];
-                let ratioVariations = [];
+                let data: IRadar.BGRadarData['chartData'] = [[], [], [], []];
+                let alarms: IRadar.Alarm[] = [];
+                let wanrs: IRadar.Warn[] = [];
+                let avgSpecs: IRadar.AvgSpec[] = [];
+                let avgDailys: IRadar.AvgDaily[] = [];
+                let variations: number[] = [];
+                let ratioVariations: number[] = [];
 
                 const paramsLength: number = params.length;
                 for (let i = 0; i < paramsLength; i++) {
@@ -600,33 +710,35 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
                         value: param.warn
                     });
 
-                    let avgSpec: number;
+                    // let avgSpec: number;
                     // if (param.avgSpec > 1) {
                     //     avgSpec = 1
                     // } else {
-                    avgSpec = param.avgSpec;
+                    //     avgSpec = param.avgSpec;
                     // }
 
                     avgSpecs.push({ // 90일평균
                         axis: param.paramName,
-                        value: avgSpec
+                        value: param.avgSpec
                     });
 
-                    let avgDaily: number;
+                    // let avgDaily: number;
                     // if (param.avgDaily > 1) {
                     //     avgDaily = 1
                     // } else {
-                    avgDaily = param.avgDaily;
+                    //     avgDaily = param.avgDaily;
                     // }
 
                     avgDailys.push({ // 하루평균
                         axis: param.paramName,
-                        value: avgDaily,
-                        data: param
+                        value: param.avgDaily,
+                        data: param,
+                        index: i
                     });
 
-                    if (param.avgDaily != null && param.avgSpec != null) {
-                        ratioVariations.push(param.avgDaily - param.avgSpec); // For max variation(daily-spec)
+                    if (param.avgDaily !== null && param.avgSpec !== null) {
+                        // ratioVariations.push(Math.abs(param.avgDaily) - Math.abs(param.avgSpec)); // For max variation(daily-spec)
+                        ratioVariations.push(param.avgDaily - param.avgSpec);
                     }
 
                     variations.push(param.variation);
@@ -644,20 +756,23 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
 
                 for (let i = 0; i < paramsLength; i++) {
                     try {
-                        if (maxRatioVariation === params[i].avgDaily - params[i].avgSpec) {
-                            let minMaxRatioVariation = maxRatioVariation;
-                            if (maxRatioVariation != 0) {
+                        const param = params[i];
+
+                        // if (maxRatioVariation === Math.abs(param.avgDaily) - Math.abs(param.avgSpec)) {
+                        if (maxRatioVariation === param.avgDaily - param.avgSpec) {
+                            let minMaxRatioVariation: number = maxRatioVariation;
+                            if (maxRatioVariation !== 0) {
                                 minMaxRatioVariation = this.sliceDecimal(maxRatioVariation, 4)
                             }
 
                             detail = {
-                                maxParamName: params[i].paramName,
-                                maxDailyAvg: this.sliceDecimal(params[i].avgDaily, 4),
-                                maxSpecAvg: this.sliceDecimal(params[i].avgSpec, 4),
+                                maxParamName: param.paramName,
+                                maxDailyAvg: this.sliceDecimal(param.avgDaily, 4),
+                                maxSpecAvg: this.sliceDecimal(param.avgSpec, 4),
                                 minMaxRatioVariation: minMaxRatioVariation
                             };
 
-                            option.SelectLabel = params[i].paramName;
+                            option.SelectLabel = param.paramName;
 
                             break;
                         }
@@ -671,7 +786,6 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
                     id: eqp.eqpId,
                     name: eqp.name,
                     duration: '',
-                    problemreason: '',
                     detail: detail,
                     chartData: data,
                     option: option,
@@ -683,7 +797,7 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
             });
     }
 
-    getG5Datas(req): void {
+    getG5Datas(req: IRadar.RadarEqpReqParams): void {
         this._pdmRadarService.getRadarEqps(req)
             .then((eqps: IRadar.RadarEqpRes[]) => {
                 if (eqps.length && eqps.length > 0) {
@@ -695,25 +809,84 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
                     }
 
                     Promise.all(promises)
-                        .then((results: IRadar.RadarData[]) => {
-                            const resultLength: number = results.length;
+                        .then((results: IRadar.BGRadarData[]) => {
+                            let radarDatas: IRadar.BGRadarData[] = [];
+                            let tempRadarDatas: IRadar.BGRadarData[] = [];
+                            let sortedByDailys: IRadar.BGRadarData;
+                            let sortedByNames: IRadar.BGRadarData;
 
-                            if (resultLength && resultLength < 5) {
-                                for (let i = 0; i < 5 - resultLength; i++) {
-                                    results.push({ type: '', name: '', duration: '', problemreason: '', chartData: null, option: null, detail: null });
+                            //avgDaily를 기준으로 sort
+                            for (let i = 0; i < results.length; i++) {
+                                let radarData: IRadar.BGRadarData = results[i];
 
+                                const originAvgDailys: IRadar.AvgDaily[] = results[i].chartData[3];
+                                const originAvgDailysSize: number = originAvgDailys.length;
+
+                                for (let j = 0; j < originAvgDailysSize; j++) {
+                                    originAvgDailys[j]['index'] = j;
+                                }
+
+                                sortedByDailys = this.sortByBGData(radarData, 'value');
+                                tempRadarDatas.push(sortedByDailys);
+                            }
+
+                            const tempRadarDatasSize: number = tempRadarDatas.length;
+                            const maxParamCount: number = Number(this.maxParamCount);
+
+                            //Max Param Count만큼 Slice
+                            for (let i = 0; i < tempRadarDatasSize; i++) {
+                                const chartDataLength: number = tempRadarDatas[i].chartData.length;
+                                for (let j = 0; j < chartDataLength; j++) {
+                                    const chartData: IRadar.BGRadarData['chartData'] = tempRadarDatas[i].chartData;
+                                    if (chartData[j].length > maxParamCount) {
+                                        chartData[j].splice(maxParamCount);
+                                    }
+                                }
+                            }
+                            // for (let i = 0; i < tempRadarDatasSize; i++) {
+                            //     const chartDataLength: number = tempRadarDatas[i].chartData.length;
+                            //     for (let j = 0; j < chartDataLength; j++) {
+                            //         const chartData: any = tempRadarDatas[i];
+                            //         if (chartData.length > maxParamCount) {
+                            //             chartData.splice(maxParamCount);
+                            //         }
+                            //     }
+                            // }
+
+                            //axis(name)을 기준으로 sort
+                            for (let i = 0; i < tempRadarDatas.length; i++) {
+                                let radarData: IRadar.BGRadarData = tempRadarDatas[i];
+
+                                const originAvgDailys: IRadar.AvgDaily[] = tempRadarDatas[i].chartData[3];
+                                const originAvgDailysSize: number = originAvgDailys.length;
+
+                                for (let j = 0; j < originAvgDailysSize; j++) {
+                                    originAvgDailys[j]['index'] = j;
+                                }
+
+                                sortedByNames = this.sortByBGData(radarData, 'axis');
+                                radarDatas.push(sortedByNames);
+                                // console.log('radarDatas', radarDatas);
+                            }
+
+                            const radarDatasSize: number = radarDatas.length;
+                            if (radarDatasSize && radarDatasSize < 5) {
+                                for (let i = 0; i < 5 - radarDatasSize; i++) {
+                                    radarDatas.push({ type: '', name: '', duration: '', chartData: null, option: null, detail: null });
                                 }
                             }
 
-                            this.G5Datas = results;
-                            console.log("G5Datas", results);
+
+                            this.G5Datas = radarDatas;
+                            console.log("G5Datas", this.G5Datas);
+
                             setTimeout(() => {
                                 this.endLoading.emit({
                                     isLoad: true
                                 });
                             }, 1000)
                         }).catch((e) => {
-
+                            console.log(e);
                         });
                 } else if (!eqps.length) {
                     this.endLoading.emit({
@@ -723,7 +896,7 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
                     let results = [];
 
                     for (let i = 0; i < 5; i++) {
-                        results.push({ type: '', name: '', duration: '', problemreason: '', chartData: null, option: null });
+                        results.push({ type: '', name: '', duration: '', chartData: null, option: null });
                     }
 
                     this.G5Datas = results;
@@ -731,8 +904,8 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
             });
     }
 
-    _getG5Radars(eqp: IRadar.RadarEqpRes): Promise<IRadar.RadarData> {
-        let G5Data: IRadar.RadarData;
+    _getG5Radars(eqp: IRadar.RadarEqpRes): Promise<IRadar.BGRadarData> {
+        let G5Data: IRadar.BGRadarData;
         let radarParamReqParams: IRadar.RadarParamReqParams = {
             fabId: this.fabId,
             eqpId: eqp.eqpId,
@@ -744,15 +917,16 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
 
         return this._pdmRadarService.getRadarParams(radarParamReqParams)
             .then((params: IRadar.RadarParamRes[]) => {
-                if (params && !params.length) return null;
+                if (!params.length) return null;
+
                 let option: IRadar.RadarOption = this.getChartOption();
-                let data = [];
-                let alarms = []
-                let wanrs = [];
-                let avgSpecs = [];
-                let avgDailys = [];
-                let variations = [];
-                let ratioVariations = [];
+                let data: IRadar.BGRadarData['chartData'] = [[], [], [], []];
+                let alarms: Array<IRadar.Alarm> = [];
+                let wanrs: Array<IRadar.Warn> = [];
+                let avgSpecs: Array<IRadar.AvgSpec> = [];
+                let avgDailys: Array<IRadar.AvgDaily> = [];
+                let variations: Array<number> = [];
+                let ratioVariations: Array<number> = [];
 
                 const paramsLength: number = params.length;
                 for (let i = 0; i < paramsLength; i++) {
@@ -768,33 +942,34 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
                         value: param.warn
                     });
 
-                    let avgSpec: number;
+                    // let avgSpec: number;
                     // if (param.avgSpec > 1) {
                     //     avgSpec = 1
                     // } else {
-                    avgSpec = param.avgSpec;
+                    //     avgSpec = param.avgSpec;
                     // }
 
                     avgSpecs.push({ // 90일평균
                         axis: param.paramName,
-                        value: avgSpec
+                        value: param.avgSpec
                     });
 
-                    let avgDaily: number;
+                    // let avgDaily: number;
                     // if (param.avgDaily > 1) {
                     //     avgDaily = 1
                     // } else {
-                    avgDaily = param.avgDaily;
+                    //     avgDaily = param.avgDaily;
                     // }
 
                     avgDailys.push({ // 하루평균
                         axis: param.paramName,
-                        value: avgDaily,
+                        value: param.avgDaily,
                         data: param
                     });
 
-                    if (param.avgDaily != null && param.avgSpec != null) {
-                        ratioVariations.push(param.avgDaily - param.avgSpec); // For max variation(daily-spec)
+                    if (param.avgDaily !== null && param.avgSpec !== null) {
+                        // ratioVariations.push(Math.min(param.avgDaily) - Math.min(param.avgSpec)); // For max variation(daily-spec)
+                        ratioVariations.push(param.avgDaily - param.avgSpec);
                     }
 
                     variations.push(param.variation);
@@ -812,19 +987,21 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
 
                 for (let i = 0; i < paramsLength; i++) {
                     try {
-                        if (params[i].avgDaily != null && params[i].avgSpec != null && minRatioVariation === params[i].avgDaily - params[i].avgSpec) {
-                            let minMaxRatioVariation = minRatioVariation;
-                            if (minMaxRatioVariation != 0) {
+                        const param = params[i];
+                        // if (minRatioVariation === Math.abs(param.avgDaily) - Math.abs(param.avgSpec)) {
+                        if (minRatioVariation === param.avgDaily - param.avgSpec) {
+                            let minMaxRatioVariation: number = minRatioVariation;
+                            if (minMaxRatioVariation !== 0) {
                                 minMaxRatioVariation = this.sliceDecimal(minRatioVariation, 4)
                             }
                             detail = {
-                                maxParamName: params[i].paramName,
-                                maxDailyAvg: this.sliceDecimal(params[i].avgDaily, 4),
-                                maxSpecAvg: this.sliceDecimal(params[i].avgSpec, 4),
+                                maxParamName: param.paramName,
+                                maxDailyAvg: this.sliceDecimal(param.avgDaily, 4),
+                                maxSpecAvg: this.sliceDecimal(param.avgSpec, 4),
                                 minMaxRatioVariation: minMaxRatioVariation
                             };
 
-                            option.SelectLabel = params[i].paramName;
+                            option.SelectLabel = param.paramName;
 
                             break;
                         }
@@ -838,7 +1015,6 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
                     id: eqp.eqpId,
                     name: eqp.name,
                     duration: '',
-                    problemreason: '',
                     detail: detail,
                     chartData: data,
                     option: option,
@@ -850,7 +1026,41 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
             });
     }
 
-    getChartOption(): IRadar.RadarOption {
+    private sortByBGData(radarData: IRadar.BGRadarData, key: string): IRadar.BGRadarData {
+        let bIndexs: number[] = [];
+        let avgDailys: IRadar.AvgDaily[] = [];
+
+        radarData.chartData[3].sort((data1: IRadar.AvgDaily, data2: IRadar.AvgDaily) => {
+            return data1[key] < data2[key] ? 1 : data1[key] > data2[key] ? -1 : 0;
+        });
+
+        avgDailys = radarData.chartData[3];
+        const avgDailysSize: number = avgDailys.length;
+        for (let i = 0; i < avgDailysSize; i++) {
+            bIndexs.push(avgDailys[i].index);
+        }
+
+        const alarms: IRadar.Alarm[] = [];
+        const warns: IRadar.Warn[] = [];
+        const avgSpecs: IRadar.AvgSpec[] = [];
+
+        for (let idx of bIndexs) {
+            const chartData: IRadar.BGRadarData['chartData'] = radarData.chartData;
+            alarms.push(chartData[0][idx]);
+            warns.push(chartData[1][idx]);
+            avgSpecs.push(chartData[2][idx]);
+        }
+
+        radarData.chartData = [[], [], [], []];
+        radarData.chartData[0] = alarms;
+        radarData.chartData[1] = warns;
+        radarData.chartData[2] = avgSpecs;
+        radarData.chartData[3] = avgDailys;
+
+        return radarData;
+    }
+
+    private getChartOption(): IRadar.RadarOption {
         return {
             maxValue: 0.6,
             levels: 6,
@@ -863,7 +1073,7 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
         };
     }
 
-    sliceDecimal(val: number, num: number): any {
+    private sliceDecimal(val: number, num: number): any {
         if (val) {
             let split: string[] = val.toString().split('.');
             let slice: string;
@@ -893,7 +1103,7 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
     //     }
     // }
 
-    mouseEnter(item: IRadar.RadarData, event: MouseEvent, index: number): void {
+    mouseEnter(item: IRadar.AWRadarData | IRadar.BGRadarData, index: number): void {
         if (this.isShowInfo) {
             return;
         }
@@ -928,6 +1138,7 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
     }
 
     showTrendChartAtContext(item: IRadar.ParamContext): void {
+        // console.log('showTrendChartAtContext', item);
         this.isParamContext = true;
         this.paramSelected = true;
         this.trendShow = true;
@@ -950,7 +1161,8 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
         this.paramClickEvent = event;
     }
 
-    onParamClick(item: IRadar.RadarData, paramData: IRadar.AvgWithAW, index: number, isInfo?: string): void {
+    onParamClick(item: IRadar.AWRadarData | IRadar.BGRadarData, paramData: IRadar.AvgWithAW, index: number, isInfo?: string): void {
+        // console.log('onParamClick', index);
         this.isParamContext = true;
         this.trendShow = true;
         this.colIndex = parseInt((index % 5).toString()); //Trend chart position
@@ -1014,9 +1226,9 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
         }, 300);
     }
 
-    setTrendChartData(item: IRadar.RadarData, data: IRadar.AvgWithAW['data']): void {
+    setTrendChartData(item: IRadar.AWRadarData | IRadar.BGRadarData, data: IRadar.AvgWithAW['data']): void {
         const condition: IRadar.Condition = this.condition;
-            
+
         this.trendData = {
             trendParamId: data.paramId,
             trendEqpName: item.name,
@@ -1033,16 +1245,17 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
     }
 
     appendTrendChartEl(type: string, index: number): void {
+        // console.log('appendTrendChartEl', index);
         let dataLength: number;
         let selector: string;
 
-        if (type === 'alarm' || type === 'warning') {
+        if (type === this.TYPE.ALARM || type === this.TYPE.WARNING) {
             dataLength = this.alarmWarningDatas.length;
             selector = '#alarmWarning';
-        } else if (type === 'B5') {
+        } else if (type === this.TYPE.B5) {
             dataLength = this.B5Datas.length;
             selector = '#bad';
-        } else if (type === 'G5') {
+        } else if (type === this.TYPE.G5) {
             dataLength = this.G5Datas.length;
             selector = '#good';
         }
@@ -1058,11 +1271,10 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
         }
 
         const trendChartEl: any = $('#trendChart')[0];
-        // trendChartEl.hidden = false;
         $(selector + lastCol).after(trendChartEl);
     }
 
-    onEqpClick(event: any, item: IRadar.RadarData, isPopup?: boolean): void {
+    onEqpClick(event: any, item: IRadar.AWRadarData | IRadar.BGRadarData, isPopup?: boolean): void {
         if (isPopup == null) {
             isPopup = false;
         }
@@ -1075,15 +1287,8 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
             this.paramSelected = false;
         }
 
-        // const trendChartEl: any = $('#trendChart')[0];
-        // if (!trendChartEl.hidden) { // Close trend chart
-        //     // trendChartEl.hidden = true;
-        // }
-
-
         if (event.target.tagName != 'circle' && !isPopup) {
             this.trendShow = false;
-            // this.showInfo = false;
 
             setTimeout(() => {
                 if (item) {
@@ -1105,15 +1310,15 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
     }
 
     activeByType(type: string, index: number): void {
-        if (type === 'alarm' || type === 'warning') {
+        if (type === this.TYPE.ALARM || type === this.TYPE.WARNING) {
             this.selectedBadSection = null;
             this.selectedGoodSection = null;
             this.selectedAWSection = index;
-        } else if (type === 'B5') {
+        } else if (type === this.TYPE.B5) {
             this.selectedAWSection = null;
             this.selectedGoodSection = null;
             this.selectedBadSection = index;
-        } else if (type === 'G5') {
+        } else if (type === this.TYPE.G5) {
             this.selectedAWSection = null;
             this.selectedBadSection = null;
             this.selectedGoodSection = index;
@@ -1136,7 +1341,7 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
     //     item.option = this.objectUnion({}, item.option);
     // }
 
-    showRadarInfo(item: any, event: MouseEvent, index: number): void | any {
+    showRadarInfo(item: IRadar.AWRadarData | IRadar.BGRadarData, event: MouseEvent, index: number): void | any {
         if (item.chartData) {
             this.activeByType(item.type, index);
             this.selectedItem.option.ShowLabel = true;
@@ -1230,13 +1435,13 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
         this.showY = newY + 'px';
     }
     // Util
-    objectUnion(obj1: any, obj2: any): any {
+    objectUnion(obj1 = {}, obj2: IRadar.AWRadarData | IRadar.BGRadarData): any {
         let newObj = this.objectUnionSub(obj1, obj2);
         newObj = this.assignFunctions(newObj, obj2);
         return newObj;
     }
 
-    objectUnionSub(obj1: any, obj2: any): any {
+    objectUnionSub(obj1: {}, obj2: IRadar.AWRadarData | IRadar.BGRadarData): IRadar.AWRadarData | IRadar.BGRadarData | {} {
         let newObj = obj1;
         if (obj2 == undefined) {
             return newObj;
@@ -1283,14 +1488,18 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
         return targetObj;
     }
 
-    private _initData(): void {
-        // if (this.trendParamId) {
-        //     this.trendParamId = null;
-        // }
+    //Radar Chart의 Data 타입 체크
+    isAWRadarData(data: IRadar.AWRadarData | IRadar.BGRadarData): data is IRadar.AWRadarData {
+        return (<IRadar.AWRadarData>data).type === this.TYPE.ALARM || (<IRadar.AWRadarData>data).type === this.TYPE.WARNING;
+    }
 
+    _initData(): void {
         if (this.trendData) {
             this.trendData = null;
         }
+
+        this.closeTrendChart();
+        this.closeRadarInfo();
 
         this.alarmWarningDatas = null;
         this.alarmDatas = null;
@@ -1305,5 +1514,9 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
         this.isMouseEnterDetail = null;
 
         this.paramSelected = false;
+    }
+
+    ngOnDestroy() {
+        this._initData();
     }
 }

@@ -78,6 +78,7 @@ export class DataConditionComponent implements OnInit {
     // 설정 데이터
     // @Input() data: Array<DragItemListData>;
     @Output() onParameter = new EventEmitter<OnParameterData>();
+    @Output() onDate = new EventEmitter<TimePeriod>();
 
     //* 1분 미리 계산
     private readonly oneMinute: number = (1000 * 60); 
@@ -137,6 +138,10 @@ export class DataConditionComponent implements OnInit {
 
     ngOnInit() {
         // console.log('DragItemListComponent - data', this.data);
+
+        // 변경날짜 전달
+        console.log('constructor-this.searchTimePeriod', this.searchTimePeriod);
+        this.onDate.emit( this.searchTimePeriod );
 
         // Fab 리스트 가져오기
         this._getPlants();
@@ -224,18 +229,25 @@ export class DataConditionComponent implements OnInit {
 
     //* [searchTimePeriod] From ~ To 값 변경 시 사용 값
     fromToChange(time: TimePeriod): void {
-        // console.log(
-        //     moment(time.from).format('YYYY-MM-DD HH:mm'),
-        //     moment(time.to).format('YYYY-MM-DD HH:mm'),
-        //     time,
-        //     this.searchTimePeriod
-        // );
         this.searchTimePeriod = time;
+
+        // 변경날짜 전달
+        this.onDate.emit( this.searchTimePeriod );
+
+        console.log(
+            moment(time.from).format('YYYY-MM-DD HH:mm'),
+            moment(time.to).format('YYYY-MM-DD HH:mm'),
+            time,
+            this.searchTimePeriod
+        );
     }
 
     //* [selectedPeriod] Period 값 선택
     changeSelectedPeriod(event: any): void {
         this.searchTimePeriod.from = this.searchTimePeriod.to - this.selectedPeriod ;
+
+        // 변경날짜 전달
+        this.onDate.emit( this.searchTimePeriod );
     }    
 
     //* Area 멀티 셀렉트 갑 변경 이벤트

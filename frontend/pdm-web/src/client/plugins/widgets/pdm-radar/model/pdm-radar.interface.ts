@@ -53,7 +53,6 @@ export interface RadarParamRes {
     warn: number;
 }
 
-
 //Type data by type
 export interface AlarmWarning {
     eqpName: string; // 장비 이름
@@ -65,7 +64,7 @@ export interface AlarmWarning {
     avgWithAW: number; // Alarm, Warning을 포함한 평균값
     avgDaily: number; // Parameter의 어제 하루 평균값
     avgSpec: number; // Parameter의 90일 평균값
-    classifications: string | any; // Type에 따른 원인
+    classifications: string | any; // Type에 따른 문제 원인
 }
 
 export interface B5Data {
@@ -84,21 +83,33 @@ export interface G5Data {
     avgSpec: number; // Parameter의 90일 평균값
 }
 
-
 //Radar data types
-export interface RadarData {
+export interface AWRadarData {
     type: string;
-    areaId?: number;
-    id?: number;
-    name: string;
-    duration?: string;
+    id: Eqp['eqpId'];
+    name: Eqp['eqpName'];
     problemreason: string;
-    labelColor?: string;
-
-    chartData: RadarChart;
+    chartData: [Alarm[], Warn[], AvgDaily[], AvgWithAW[]];
     option: RadarOption;
     detail: RadarDetail;
+
     index?: number;
+    areaId?: number;
+}
+
+export interface BGRadarData {
+    type: string;
+    id?: Eqp['eqpId'];
+    name: Eqp['eqpName'];
+    duration: string;
+    detail: RadarDetail;
+    chartData: [Alarm[], Warn[], AvgSpec[], AvgDaily[]];
+    option: RadarOption;
+
+    index?: number;
+    labelColor?: string;
+    areaId?: number;
+    problemreason?: string;
 }
 
 export interface RadarDetail {
@@ -121,9 +132,13 @@ export interface RadarOption {
     zoom?: number;
 }
 
-export interface RadarChart {
-
-}
+// export interface RadarChart {
+//     alarm: Alarm[];
+//     warn: Warn[];
+//     avgDaily?: AvgDaily[];
+//     avgSpec?: AvgSpec[];
+//     avgWithAW?: AvgWithAW[] 
+// }
 
 export interface Series {
     fill: boolean;
@@ -154,7 +169,7 @@ export interface RadarType {
 }
 
 export interface ParamContext {
-    selectedItem: RadarData;
+    selectedItem: AWRadarData | BGRadarData;
     event: Event;
 
     timePeriod: TimePeriod;
@@ -162,12 +177,12 @@ export interface ParamContext {
     eqpName: string;
     eqpId: number;
     paramData: AvgWithAW;
-    index: number;
+    index?: number;
     flag?: string;
 }
 
 export interface EqpContext {
-    selectedItem: RadarData;
+    selectedItem: AWRadarData | BGRadarData;
     event: Event;
 }
 
@@ -181,20 +196,26 @@ export interface Warn {
     value: number;
 }
 
-export interface AvgDaily {
-    axis: string;
-    value: number;
-}
-
 export interface AvgSpec {
     axis: string;
     value: number;
 }
 
+export interface AvgDaily {
+    axis: string;
+    value: number;
+    data?: RadarParamRes;
+
+    index?:number;
+}
+
+
 export interface AvgWithAW {
     axis: string;
     value: number;
     data: RadarParamRes;
+
+    index?: number;
 }
 
 export interface TrendData {
@@ -209,4 +230,12 @@ export interface TrendData {
     trendValue: number;
     trendSpecWarning: number;
     trendChartType: string;
+}
+
+export interface Type {
+    ALARM: string;
+    WARNING: string;
+    B5: string;
+    G5: string;
+    AW: string;
 }

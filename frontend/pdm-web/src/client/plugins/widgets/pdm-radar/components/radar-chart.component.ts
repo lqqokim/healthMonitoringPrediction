@@ -163,6 +163,7 @@ export class RadarChartComponent implements OnInit, AfterViewInit, OnChanges {
     let options = this.objectUnion(mycfg, this.options);
     // console.log(options);
     let data = this.data;
+    // console.log('radar chart data', data);
     if (this.data == null) {
       data = this.objectUnion(this.d, this.data);
     }
@@ -286,7 +287,7 @@ export class RadarChartComponent implements OnInit, AfterViewInit, OnChanges {
 
 
   RadarChart = {
-    draw: (id, d, options)=> {
+    draw: (id, data, options)=> {
       var cfg: any = {
         radius: 6,
         w: 0,
@@ -317,8 +318,8 @@ export class RadarChartComponent implements OnInit, AfterViewInit, OnChanges {
         //temp
         cfg.SelectLabel ="";
       }
-      cfg.maxValue = Math.max(cfg.maxValue, d3.max(d, function (i) { return d3.max(i.map(function (o) { return o.value; })) }));
-      var allAxis = (d[0].map(function (i, j) { return i.axis }));
+      cfg.maxValue = Math.max(cfg.maxValue, d3.max(data, function (i) { return d3.max(i.map(function (o) { return o.value; })) }));
+      var allAxis = (data[0].map(function (i, j) { return i.axis }));
       var total = allAxis.length;
       var radius = cfg.factor * Math.min(cfg.w / 2, cfg.h / 2);
       var Format = d3.format('%');
@@ -430,7 +431,7 @@ export class RadarChartComponent implements OnInit, AfterViewInit, OnChanges {
       }
 
       let dataValues = []
-      d.forEach( (y, x)=> {
+      data.forEach( (y, x)=> {
         dataValues = [];
         g.selectAll(".nodes")
           .data(y, function (j, i) {
@@ -500,7 +501,7 @@ export class RadarChartComponent implements OnInit, AfterViewInit, OnChanges {
       series = 0;
 
 
-      d.forEach( (y, x)=> {
+      data.forEach( (y, x)=> {
         g.selectAll(".nodes")
           .data(y).enter()
           .append("svg:circle")
@@ -562,6 +563,7 @@ export class RadarChartComponent implements OnInit, AfterViewInit, OnChanges {
           })
           .on('click',(d)=>{
             // d3.select(this).attr("fill","yellow");
+            console.log('radar click', d);
             this.click(d);
           })
           .append("svg:title")

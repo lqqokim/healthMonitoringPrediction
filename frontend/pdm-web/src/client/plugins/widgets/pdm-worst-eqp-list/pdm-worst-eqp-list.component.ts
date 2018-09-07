@@ -39,7 +39,8 @@ export class PdmWostEqpListComponent extends WidgetApi implements OnSetup, OnDes
         // {name:'Warning', color:'#ffc000'},
         // {name:'Alarm', color:'#ff0000'},
         // {name:'Failure', color:'#000000'},
-        {name:'IDLE', color:'#a6a6a6'}
+        {name:'IDLE', color:'#ff9'},
+        {name:'NODATA', color:'#b2b2b2'}
     ];
 
     // 날짜 범위 (config 값 사용)

@@ -56,7 +56,7 @@ public interface STDReportMapper {
     List<Double> selectPrevPeriodAVG(@Param("param_id") Long param_id, @Param("start") Date start, @Param("end") Date end);
 
 
-    List<EqpStatusData> selectAlarmWarningEqps(@Param("eqpId") Long eqpId, @Param("start") Date start, @Param("end") Date end);
+    List<EqpStatusData> selectAlarmWarningEqps(@Param("eqpId") Long eqpId, @Param("start") Date start, @Param("end") Date end, @Param("globalWarn") Double globalWarn);
 
     List<EqpStatusData> selectGoodFiveEqps(@Param("start") Date start, @Param("end") Date end);
 
@@ -64,7 +64,7 @@ public interface STDReportMapper {
 
     List<EqpStatusData> selectNumberOfWorstEqps(@Param("start") Date start, @Param("end") Date end,@Param("numberOfWorst") Integer numberOfWorst);
 
-    List<ParamClassificationData> selectRadar(@Param("eqpId") Long eqpId, @Param("start") Date start, @Param("end") Date end);
+    List<ParamClassificationData> selectRadar(@Param("eqpId") Long eqpId, @Param("start") Date start, @Param("end") Date end, @Param("globalWarn") Double globalWarn);
 
     List<HashMap<String,Object>> selectDailyAnalysisCause(@Param("eqpId") Long eqpId, @Param("start") Date start, @Param("end") Date end);
 

@@ -16,7 +16,7 @@
                 </th>
                 <th>Chart</th>
             </thead>
-            <tr class="param-info" *ngFor="let param of params">
+            <tr class="param-info" *ngFor="let param of params; let idx = index">
                 <td>
                     <label>
                         <!-- <input type="radio" name="param" [(ngModel)]="selectedParamId" [value]="param.paramId" (change)="onClickParam(param)">  -->
@@ -26,7 +26,13 @@
                 </td>
                 <td>
                     <div class="chart-container">
-                        <a3c-bistel-chart [data]="param.datas" [config]="trendConfig" [eventLines]="param.eventLines" [chartEvents]="eventConfig">
+                        <a3c-bistel-chart
+                            [data]="param.datas"
+                            [config]="trendConfig"
+                            [eventLines]="param.eventLines"
+                            [chartEvents]="eventConfig"
+                            (completeChart)='completeChart($event, idx)'
+                        >
                         </a3c-bistel-chart>
                     </div>
                 </td>

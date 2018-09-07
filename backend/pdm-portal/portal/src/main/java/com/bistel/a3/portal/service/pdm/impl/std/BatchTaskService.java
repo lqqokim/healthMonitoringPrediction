@@ -670,10 +670,10 @@ public class BatchTaskService implements IBatchTaskService {
                 stdSummaryMapper.insertParamHealthRULTRX(paramHealthMstRawId, intercept, slope, xValue, from);
 
                 stdSummaryMapper.insertSummaryHealthRUL(eqpId,paramHealthMstRawId, score, from);
-//                System.out.println(rawid + ":" + score);
+
             }
 
-//            System.out.println("hi");
+
 
         }
     }

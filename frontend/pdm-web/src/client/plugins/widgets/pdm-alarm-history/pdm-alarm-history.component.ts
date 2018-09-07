@@ -16,6 +16,15 @@ export interface IReqDataFormat {
     param_name: string;
     category: string;
     fault_class: string;
+    condition: string;
+    rule_name: string;
+}
+
+// Rule에 대한 Condition
+export interface IRuleCondition {
+    param_name: string;
+    operand: string;
+    param_value: number;
 }
 
 @Component({
@@ -33,11 +42,13 @@ export class PdmAlarmHistoryComponent extends WidgetApi implements OnSetup, OnDe
     @ViewChild('tableList') tableList: TableComponent;
 
     public columns: Array<TableData> = [
-        {title: 'Time', name: 'Time' },
-        {title: 'EQP', name: 'EQP'},
-        {title: 'Param', name: 'Param'},
-        {title: 'Category', name: 'Category'},
-        {title: 'Fault Class', name: 'FaultClass'}
+        { title: 'Time', name: 'Time' },
+        { title: 'EQP', name: 'EQP' },
+        { title: 'Param', name: 'Param' },
+        { title: 'Category', name: 'Category' },
+        { title: 'Fault Class', name: 'FaultClass' },
+        { title: 'Rule', name: 'Rule' },
+        { title: 'Condition', name: 'Condition' }
     ];
 
     // public data:Array<any> = [
@@ -49,7 +60,7 @@ export class PdmAlarmHistoryComponent extends WidgetApi implements OnSetup, OnDe
     // ];
 
     // 전체 필터 숨기기
-    public totalFilter:boolean = false;
+    public totalFilter: boolean = false;
 
     // 날짜 범위 (config 값 사용)
     private timePeriod: ITimePeriod = {
@@ -73,13 +84,13 @@ export class PdmAlarmHistoryComponent extends WidgetApi implements OnSetup, OnDe
     // 리사이즈 용    
     private currElem: ElementRef['nativeElement'] = undefined;
     private widgetElem: ElementRef['nativeElement'] = undefined;
-    
+
     constructor(
         private _service: PdmAlarmHistoryService,
         currentElem: ElementRef
-    ){
+    ) {
         super();
-        this.confgHelper = new WidgetConfigHelper( this, this.getData.bind(this) );
+        this.confgHelper = new WidgetConfigHelper(this, this.getData.bind(this));
         this.currElem = currentElem.nativeElement;
     }
 
@@ -87,14 +98,14 @@ export class PdmAlarmHistoryComponent extends WidgetApi implements OnSetup, OnDe
     ngOnSetup() {
         this.showSpinner();
 
-        if( !this.isConfigurationWidget ){
+        if (!this.isConfigurationWidget) {
             this.confgHelper.setConfigData('DAY', undefined, 1);
         }
         this.confgHelper.setConfigInfo('init', this.getProperties());
 
         //* 위젯 컴포넌트가 transition으로 효과로 인해 캔버스 리사이즈 크기가 제대로 반영 시키기 위함
         this.widgetElem = $(this.currElem).parents('li.a3-widget-container')[0];
-        if( this.widgetElem !== undefined ){
+        if (this.widgetElem !== undefined) {
             this.widgetElem.addEventListener('transitionend', this.onResize.bind(this), false);
         }
     }
@@ -103,21 +114,21 @@ export class PdmAlarmHistoryComponent extends WidgetApi implements OnSetup, OnDe
     refresh({ type, data }: WidgetRefreshType) {
 
         // 처리할 타입만 필터링
-        if( !(type === A3_WIDGET.JUST_REFRESH ||
+        if (!(type === A3_WIDGET.JUST_REFRESH ||
             type === A3_WIDGET.APPLY_CONFIG_REFRESH ||
-            type === A3_WIDGET.SYNC_INCONDITION_REFRESH) ){
+            type === A3_WIDGET.SYNC_INCONDITION_REFRESH)) {
             return;
         }
 
         this.showSpinner();
-        this.confgHelper.setConfigInfo( type, data );
+        this.confgHelper.setConfigInfo(type, data);
     }
 
     ngOnDestroy() {
         delete this.confgHelper;
 
         // 등록된 이벤트 제거
-        if( this.widgetElem !== undefined ){
+        if (this.widgetElem !== undefined) {
             this.widgetElem.removeEventListener('transitionend', this.onResize.bind(this));
         }
 
@@ -125,7 +136,7 @@ export class PdmAlarmHistoryComponent extends WidgetApi implements OnSetup, OnDe
     }
 
     //* 데이터 가져오기
-    getData( configData: IConfigData ){
+    getData(configData: IConfigData) {
         // 헬퍼를 통해 넘어온 값 설정
         this.fabId = configData.fabId;
         this.targetName = configData.targetName;
@@ -133,17 +144,17 @@ export class PdmAlarmHistoryComponent extends WidgetApi implements OnSetup, OnDe
         this.areaId = configData.areaId;
 
         // 타임 출력
-        this.condition.timeConvert( this.timePeriod );
+        this.condition.timeConvert(this.timePeriod);
 
         this._service.getListData({
             fabId: this.fabId,
             areaId: this.areaId,
             fromDate: this.timePeriod.fromDate,
             toDate: this.timePeriod.toDate
-        }).then((res: Array<IReqDataFormat>)=>{
-            // console.log('resLen',res.length);
+        }).then((res: Array<IReqDataFormat>) => {
+            // console.log('getListData => ', res);
 
-            if( this.listData.length ){
+            if (this.listData.length) {
                 this.listData.splice(0, this.listData.length);
             }
 
@@ -151,29 +162,48 @@ export class PdmAlarmHistoryComponent extends WidgetApi implements OnSetup, OnDe
                 max: number = res.length,
                 row: IReqDataFormat,
                 tmpList: Array<any> = []
-            ; 
+                ;
 
-            for( i=0; i<max; i++ ){
+            for (i = 0; i < max; i++) {
                 row = res[i];
                 tmpList[i] = {
-                    Time: ((dtts: number)=>{
+                    Time: ((dtts: number) => {
                         const millisecond: any = moment(dtts).milliseconds();
                         return `${moment(dtts).format('YYYY-MM-DD HH:mm:ss')}.${millisecond}`;
                     })(row.alarm_dtts),
                     EQP: row.eqp_name,
                     Param: row.param_name,
                     Category: row.category,
-                    FaultClass: row.fault_class
+                    FaultClass: row.fault_class,
+                    Rule: row.rule_name,
+                    Condition: this.convertCondition(row.condition)
                 };
             }
 
             this.listData = tmpList.concat();
 
             this.hideSpinner();
-        },(err: any)=>{
+        }, (err: any) => {
             console.log('err', err);
             this.hideSpinner();
         });
+    }
+
+    //* String 형태로 넘어오는 Condition을 JSON으로 변환 후, Expression 조합
+    convertCondition(conditionsString: string): string {
+        const replaceConditions: string = conditionsString.replace(new RegExp(/\\/g), '');
+        const conditions: IRuleCondition[] = JSON.parse(replaceConditions);
+        let expression: string = '';
+        conditions.map((condition: IRuleCondition, index: number) => {
+            let appendStr: string = `${condition.param_name}${condition.operand}${condition.param_value} AND `;
+            if (index === conditions.length - 1) {
+                appendStr = appendStr.replace(' AND ', '');
+            }
+
+            expression = expression.concat(appendStr);
+        });
+
+        return expression;
     }
 
     //* 리사이 징

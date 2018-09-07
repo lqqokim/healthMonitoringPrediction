@@ -3,7 +3,7 @@
     <div class='scrollView'>
         <!-- Conditions -->
         <folding-items bgcolor='#0082D8' title='Data Conditions' [folding]='folding.dataConditions'>
-            <data-condition (onParameter)='onParameter($event)'></data-condition>
+            <data-condition (onParameter)='onParameter($event)' (onDate)='onDate($event)'></data-condition>
         </folding-items>
 
         <!-- Dimensions -->

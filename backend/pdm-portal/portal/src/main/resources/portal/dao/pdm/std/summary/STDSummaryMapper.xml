@@ -8,7 +8,7 @@
 		a.create_dtts as x,
 		a.score as y,
 		1 as upper_alarm,
-		(a.upper_warning_spec/a.upper_alarm_spec) as upper_warn,
+		#{globalWarning} as upper_warn,
 		a.LOWER_ALARM_SPEC as lower_alarm,
 		a.lower_warning_spec as lower_warn
 		from param_health_trx_pdm a, PARAM_HEALTH_MST_PDM b
@@ -21,7 +21,9 @@
 		order by a.create_dtts
 	</select>
 
-    <select id="selectSummaryDataForFeature" resultType="com.bistel.a3.portal.domain.pdm.BasicData">
+	<!-- Multi Condition Spec 추가로 사용안함 -->
+    <select id="selectParamHealthTrxRul" resultType="com.bistel.a3.portal.domain.pdm.BasicData">
+		<!--
 		select
 		feature.end_dtts as x
 		,case when feature.upper_alarm_spec !=null then
@@ -30,19 +32,33 @@
 		end AS y
 		, 1 as upper_alarm
 		, case when feature.upper_warning_spec !=null  then  feature.upper_warning_spec/feature.upper_alarm_spec
-		<!-- Change Query : else spec.warning_spec/spec.alarm_spec end  as upper_warn-->
 		else #{globalWarning}/1 end  as upper_warn
 		, feature.lower_alarm_spec as lower_alarm
 		, feature.lower_warning_spec as lower_warn
 		from PARAM_FEATURE_TRX_PDM feature
-		        <!--Change Query : ,trace_spec_mst_pdm spec-->
 		where
 		feature.param_mst_rawid =  #{param_id}
 		and feature.end_dtts  <![CDATA[>=]]> #{fromdate}
 		and feature.end_dtts  <![CDATA[<]]> #{todate}
-		        <!-- Change Query : and spec.param_mst_rawid = feature.param_mst_rawid-->
 		order by feature.end_dtts
+
+
+		SELECT A.create_dtts AS x,
+		A.SCORE as y,
+		1 AS upper_alarm,
+		#{globalWarning} AS upper_warn,
+		A.lower_alarm_spec AS lower_alarm,
+		A.lower_warning_spec AS lower_warn
+		FROM PARAM_HEALTH_TRX_PDM A, PARAM_HEALTH_MST_PDM B
+		WHERE A.PARAM_HEALTH_MST_RAWID = B.RAWID
+		AND B.HEALTH_LOGIC_MST_RAWID = '2'
+		AND A.param_mst_rawid = #{param_id}
+		AND A.create_dtts <![CDATA[>=]]> #{fromdate}
+		AND A.create_dtts <![CDATA[<]]> #{todate}
+		ORDER BY A.create_dtts
+		-->
     </select>
+
     <select id="selectSummaryData" resultType="com.bistel.a3.portal.domain.pdm.db.ParamFeatureTrx">
         select
             rawid as rawId,
@@ -87,16 +103,38 @@
 
 		select  b.area_id,b.areagroupname area_name, a.status, count(a.name) cnt from
 		(
-		select e.rawid, e.name, e.offline_yn,
+		<!--select e.rawid, e.name, e.offline_yn,-->
+		<!--case when e.offline_yn='Y' then 'offline'-->
+		<!--when a.status_cd = '256' then 'alarm'-->
+		<!--when a.status_cd = '128' then 'warning'-->
+		<!--when a.status_cd is null and e.offline_yn='Y' then 'offline'-->
+		<!--when a.status_cd is null then 'normal'-->
+		<!--end status-->
+		<!--from-->
+		<!--(-->
+		<!--select eqp_mst_rawid, max(status_cd) as status_cd-->
+		<!--from-->
+		<!--(-->
+		<!--select eqp_mst_rawid, status_cd-->
+		<!--from eqp_alarm_daily_sum_pdm-->
+		<!--where sum_dtts <![CDATA[>=]]> #{fromdate}-->
+		<!--and sum_dtts <![CDATA[<]]> #{todate}-->
+		<!--)-->
+		<!--group by eqp_mst_rawid-->
+		<!--) a, eqp_mst_pdm e-->
+		<!--where e.rawid=a.eqp_mst_rawid(+)-->
+
+		select e.rawid, e.name, e.offline_yn, a.max_status, b.data_count,
 		case when e.offline_yn='Y' then 'offline'
-		when a.status_cd = '256' then 'alarm'
-		when a.status_cd = '128' then 'warning'
-		when a.status_cd is null and e.offline_yn='Y' then 'offline'
-		when a.status_cd is null then 'normal'
+		when a.max_status = '256' then 'alarm'
+		when a.max_status = '128' then 'warning'
+		when a.max_status is null and e.offline_yn='Y' then 'offline'
+		when a.max_status is null and data_count is not null then 'normal'
+		when a.max_status is null and data_count is null then 'offline'
 		end status
 		from
 		(
-		select eqp_mst_rawid, max(status_cd) as status_cd
+		select eqp_mst_rawid, max(status_cd) as max_status
 		from
 		(
 		select eqp_mst_rawid, status_cd
@@ -105,8 +143,17 @@
 		and sum_dtts <![CDATA[<]]> #{todate}
 		)
 		group by eqp_mst_rawid
-		) a, eqp_mst_pdm e
-		where e.rawid=a.eqp_mst_rawid(+)
+		) a,
+		(
+		select eqp_mst_rawid, count(*) data_count
+		from eqp_health_daily_sum_pdm
+		where sum_dtts <![CDATA[>=]]> #{fromdate}
+		and sum_dtts <![CDATA[<]]> #{todate}
+		group by eqp_mst_rawid
+		) b,
+		eqp_mst_pdm e
+		where e.rawid=b.eqp_mst_rawid(+)
+		and e.rawid=a.eqp_mst_rawid(+)
 
 
 
@@ -653,89 +700,77 @@
 
 
     <select id="selectAlarmHistoryAll" resultType="com.bistel.a3.portal.domain.pdm.AlarmHistory" databaseId="oracle">
-        select areaeqp.areagroupname as area_name, areaeqp.area_id as area_id,  areaeqp.eqp_mst_rawid as eqp_id  ,areaeqp.eqp_name ,alarmhistory.alarm_dtts, alarmhistory.param_mst_rawid as param_id, alarmhistory.param_name, alarmhistory.category, alarmhistory.fault_class
-        from
-        (
-        select areagroupname,area_id,eqp.name as eqp_name,eqp.rawid as eqp_mst_rawid
-        from eqp_mst_pdm eqp,
-        (
-        select * from
-        (SELECT
-        name as areagroupname,
-        rawid AS area_id,
-        level,
-        name,
-        parent_rawid AS parent_id,
-        CONNECT_BY_ISLEAF AS leaf
-        FROM
-        area_mst_pdm
-        where level=2
-        START WITH
-        parent_rawid = 0
-        CONNECT BY
-        PRIOR rawid = parent_rawid
-        ORDER BY
-        leaf,
-        parent_id
-        )
-        where leaf =1
-        union all
-        SELECT
-        areagroup.name as  areagroupname,
-        area.rawid AS area_id,
-        level,
-        area.name,
-        area.parent_rawid AS parent_id,
-        CONNECT_BY_ISLEAF AS leaf
-        FROM
-        area_mst_pdm area,
-        (
-        SELECT
-        rawid AS area_id,
-        name,
-        parent_rawid AS parent_id,
-        CONNECT_BY_ISLEAF AS leaf
-        FROM
-        area_mst_pdm
-        where level=2
-        START WITH
-        parent_rawid = 0
-        CONNECT BY
-        PRIOR rawid = parent_rawid
-        ORDER BY
-        leaf,
-        parent_id
-        ) areagroup
+		select areaeqp.areagroupname as area_name, areaeqp.area_id as area_id,  areaeqp.eqp_mst_rawid as eqp_id  ,areaeqp.eqp_name ,alarmhistory.alarm_dtts, alarmhistory.param_mst_rawid as param_id, alarmhistory.param_name, alarmhistory.category, alarmhistory.fault_class
+		,alarmhistory.condition, alarmhistory.rule_name
+		from
+		(
+			select areagroupname,area_id,eqp.name as eqp_name,eqp.rawid as eqp_mst_rawid
+			from eqp_mst_pdm eqp,
+			(
+				select * from
+				(
+					SELECT
+					name as areagroupname, rawid AS area_id, level, name, parent_rawid AS parent_id, CONNECT_BY_ISLEAF AS leaf
+					FROM
+					area_mst_pdm
+					where level=2
+					START WITH
+					parent_rawid = 0
+					CONNECT BY
+					PRIOR rawid = parent_rawid
+					ORDER BY leaf, parent_id
+				)
+			where leaf =1
 
-        START WITH
-        area.parent_rawid = areagroup.area_id
-        CONNECT BY
-        PRIOR area.rawid = area.parent_rawid
-        ) area_info
-        where eqp.area_mst_rawid = area_info.area_id
-        AND eqp.offline_yn = 'N'
-        order by areagroupname desc
+		union all
 
-        ) areaeqp,
+		SELECT  areagroup.name as  areagroupname, area.rawid AS area_id, level, area.name, area.parent_rawid AS parent_id, CONNECT_BY_ISLEAF AS leaf
+		FROM
+		area_mst_pdm area,
+		(
+			SELECT
+			rawid AS area_id, name,	parent_rawid AS parent_id,	CONNECT_BY_ISLEAF AS leaf
+			FROM
+			area_mst_pdm
+			where level=2
+			START WITH
+			parent_rawid = 0
+			CONNECT BY
+			PRIOR rawid = parent_rawid
+			ORDER BY
+			leaf,
+			parent_id
+		) areagroup
+
+		START WITH
+		area.parent_rawid = areagroup.area_id
+		CONNECT BY
+		PRIOR area.rawid = area.parent_rawid
+		) area_info
+		where eqp.area_mst_rawid = area_info.area_id
+		AND eqp.offline_yn = 'N'
+		order by areagroupname desc
+
+		) areaeqp,
 
 
 
-        (
-        select alarm_dtts,eqp_mst_rawid, eqp_name, param_mst_rawid, param_name, DECODE(category,'256', 'Alarm','128','Warning') as category, fault_class
-        from
-        (
-        select emp.rawid as eqp_mst_rawid, emp.name as eqp_name, pmp.rawid as param_mst_rawid, pmp.name as param_name, atp.ALARM_TYPE_CD as category, atp.fault_class, atp.ALARM_DTTS as alarm_dtts
-        from alarm_trx_pdm atp, eqp_mst_pdm emp, param_mst_pdm pmp
-        where 1=1
-        and atp.alarm_dtts <![CDATA[>=]]> #{fromdate}
-        and atp.alarm_dtts <![CDATA[<]]> #{todate}
-        and atp.PARAM_MST_RAWID=pmp.rawid
-        and pmp.eqp_mst_rawid=emp.rawid
-        )
-        ) alarmhistory
-        where 1=1
-        and alarmhistory.eqp_mst_rawid=areaeqp.eqp_mst_rawid
-        order by alarmhistory.alarm_dtts
+		(
+		select alarm_dtts,eqp_mst_rawid, eqp_name, param_mst_rawid, param_name, DECODE(category,'256', 'Alarm','128','Warning') as category, fault_class, condition, rule_name
+		from
+		(
+			select emp.rawid as eqp_mst_rawid, emp.name as eqp_name, pmp.rawid as param_mst_rawid, pmp.name as param_name, atp.ALARM_TYPE_CD as category, atp.fault_class, atp.ALARM_DTTS as alarm_dtts, atp.condition, atp.rule_name
+			from alarm_trx_pdm atp, eqp_mst_pdm emp, param_mst_pdm pmp
+			where 1=1
+			and atp.alarm_dtts <![CDATA[>=]]> #{fromdate}
+			and atp.alarm_dtts <![CDATA[<]]> #{todate}
+			and atp.PARAM_MST_RAWID=pmp.rawid
+			and pmp.eqp_mst_rawid=emp.rawid
+		)
+		) alarmhistory
+		where 1=1
+		and alarmhistory.eqp_mst_rawid=areaeqp.eqp_mst_rawid
+		order by alarmhistory.alarm_dtts
 
     </select>
     <select id="selectAlarmHistoryAll" resultType="com.bistel.a3.portal.domain.pdm.AlarmHistory" databaseId="postgresql">
@@ -876,94 +911,95 @@
 
 
     <select id="selectAlarmHistoryByAreaId" resultType="com.bistel.a3.portal.domain.pdm.AlarmHistory" databaseId="oracle">
-        select area_name, area_id, eqp_id, eqp_name, alarm_dtts, param_id, param_name, category, fault_class
-        from
-        (
-        select areaeqp.areagroupname as area_name, areaeqp.area_id as area_id,  areaeqp.eqp_mst_rawid as eqp_id  ,areaeqp.eqp_name ,alarmhistory.alarm_dtts, alarmhistory.param_mst_rawid as param_id, alarmhistory.param_name, alarmhistory.category, alarmhistory.fault_class
-        from
-        (
-        select areagroupname,area_id,eqp.name as eqp_name,eqp.rawid as eqp_mst_rawid
-        from eqp_mst_pdm eqp,
-        (
-        select * from
-        (SELECT
-        name as areagroupname,
-        rawid AS area_id,
-        level,
-        name,
-        parent_rawid AS parent_id,
-        CONNECT_BY_ISLEAF AS leaf
-        FROM
-        area_mst_pdm
-        where level=2
-        START WITH
-        parent_rawid = 0
-        CONNECT BY
-        PRIOR rawid = parent_rawid
-        ORDER BY
-        leaf,
-        parent_id
-        )
-        where leaf =1
-        union all
-        SELECT
-        areagroup.name as  areagroupname,
-        area.rawid AS area_id,
-        level,
-        area.name,
-        area.parent_rawid AS parent_id,
-        CONNECT_BY_ISLEAF AS leaf
-        FROM
-        area_mst_pdm area,
-        (
-        SELECT
-        rawid AS area_id,
-        name,
-        parent_rawid AS parent_id,
-        CONNECT_BY_ISLEAF AS leaf
-        FROM
-        area_mst_pdm
-        where level=2
-        START WITH
-        parent_rawid = 0
-        CONNECT BY
-        PRIOR rawid = parent_rawid
-        ORDER BY
-        leaf,
-        parent_id
-        ) areagroup
+		select area_name, area_id, eqp_id, eqp_name, alarm_dtts, param_id, param_name, category, fault_class , condition, rule_name
+		from
+		(
+		select areaeqp.areagroupname as area_name, areaeqp.area_id as area_id,  areaeqp.eqp_mst_rawid as eqp_id  ,areaeqp.eqp_name ,alarmhistory.alarm_dtts, alarmhistory.param_mst_rawid as param_id, alarmhistory.param_name, alarmhistory.category, alarmhistory.fault_class
+		, alarmhistory.condition, alarmhistory.rule_name
+		from
+		(
+		select areagroupname,area_id,eqp.name as eqp_name,eqp.rawid as eqp_mst_rawid
+		from eqp_mst_pdm eqp,
+		(
+		select * from
+		(SELECT
+		name as areagroupname,
+		rawid AS area_id,
+		level,
+		name,
+		parent_rawid AS parent_id,
+		CONNECT_BY_ISLEAF AS leaf
+		FROM
+		area_mst_pdm
+		where level=2
+		START WITH
+		parent_rawid = 0
+		CONNECT BY
+		PRIOR rawid = parent_rawid
+		ORDER BY
+		leaf,
+		parent_id
+		)
+		where leaf =1
+		union all
+		SELECT
+		areagroup.name as  areagroupname,
+		area.rawid AS area_id,
+		level,
+		area.name,
+		area.parent_rawid AS parent_id,
+		CONNECT_BY_ISLEAF AS leaf
+		FROM
+		area_mst_pdm area,
+		(
+		SELECT
+		rawid AS area_id,
+		name,
+		parent_rawid AS parent_id,
+		CONNECT_BY_ISLEAF AS leaf
+		FROM
+		area_mst_pdm
+		where level=2
+		START WITH
+		parent_rawid = 0
+		CONNECT BY
+		PRIOR rawid = parent_rawid
+		ORDER BY
+		leaf,
+		parent_id
+		) areagroup
 
-        START WITH
-        area.parent_rawid = areagroup.area_id
-        CONNECT BY
-        PRIOR area.rawid = area.parent_rawid
-        ) area_info
-        where eqp.area_mst_rawid = area_info.area_id
-        order by areagroupname desc
+		START WITH
+		area.parent_rawid = areagroup.area_id
+		CONNECT BY
+		PRIOR area.rawid = area.parent_rawid
+		) area_info
+		where eqp.area_mst_rawid = area_info.area_id
+		order by areagroupname desc
 
-        ) areaeqp,
+		) areaeqp,
 
 
 
-        (
-        select alarm_dtts,eqp_mst_rawid, eqp_name, param_mst_rawid, param_name, DECODE(category,'256', 'Alarm','128','Warning') as category, fault_class
-        from
-        (
-        select emp.rawid as eqp_mst_rawid, emp.name as eqp_name, pmp.rawid as param_mst_rawid, pmp.name as param_name, atp.ALARM_TYPE_CD as category, atp.fault_class, atp.ALARM_DTTS as alarm_dtts
-        from alarm_trx_pdm atp, eqp_mst_pdm emp, param_mst_pdm pmp
-        where 1=1
-        and atp.alarm_dtts <![CDATA[>=]]> #{fromdate}
-        and atp.alarm_dtts <![CDATA[<]]> #{todate}
-        and atp.PARAM_MST_RAWID=pmp.rawid
-        and pmp.eqp_mst_rawid=emp.rawid
-        )
-        ) alarmhistory
-        where 1=1
-        and alarmhistory.eqp_mst_rawid=areaeqp.eqp_mst_rawid
-        order by alarmhistory.alarm_dtts
-        )
-        where 1=1
-        and area_id= #{area_id}
+		(
+		select alarm_dtts,eqp_mst_rawid, eqp_name, param_mst_rawid, param_name, DECODE(category,'256', 'Alarm','128','Warning') as category, fault_class, condition, rule_name
+		from
+		(
+		select emp.rawid as eqp_mst_rawid, emp.name as eqp_name, pmp.rawid as param_mst_rawid, pmp.name as param_name, atp.ALARM_TYPE_CD as category, atp.fault_class, atp.ALARM_DTTS as alarm_dtts, atp.condition, atp.rule_name
+		from alarm_trx_pdm atp, eqp_mst_pdm emp, param_mst_pdm pmp
+		where 1=1
+		and atp.alarm_dtts <![CDATA[>=]]> #{fromdate}
+		and atp.alarm_dtts <![CDATA[<]]> #{todate}
+		and atp.PARAM_MST_RAWID=pmp.rawid
+		and pmp.eqp_mst_rawid=emp.rawid
+		)
+		) alarmhistory
+		where 1=1
+		and alarmhistory.eqp_mst_rawid=areaeqp.eqp_mst_rawid
+		order by alarmhistory.alarm_dtts
+		)
+		where 1=1
+		and area_id= #{area_id}
 
     </select>
     <select id="selectAlarmHistoryByAreaId" resultType="com.bistel.a3.portal.domain.pdm.AlarmHistory" databaseId="postgresql">
@@ -1158,7 +1194,7 @@
         WHERE ATP.ALARM_DTTS <![CDATA[>=]]> TO_TIMESTAMP(#{fromdate},'YYYY-MM-DD HH24:MI:SS')
         AND  ATP.ALARM_DTTS <![CDATA[<]]> TO_TIMESTAMP(#{todate},'YYYY-MM-DD HH24:MI:SS')
         AND ATP.PARAM_MST_RAWID = PARAM.PARAM_RAWID
-        AND ATP.ALARM_TYPE_CD = 256
+        AND ATP.ALARM_TYPE_CD = '256'
         ) ATP
         GROUP BY ATP.FAULT_CLASS
 
@@ -1214,6 +1250,87 @@
 	</select>
 
     <select id="selectLineStatusTrend" resultType="com.bistel.a3.portal.domain.pdm.AreaFaultCountSummary" databaseId="oracle">
+		<!--select-->
+		<!--datetime as day,  nvl(sum(decode(status, 'offline', cnt, '')), 0) offline_count, nvl(sum(decode(status, 'normal', cnt, '')), 0) normal_count,-->
+		<!--nvl(sum(decode(status, 'alarm', cnt, '')), 0) alarm_count, nvl(sum(decode(status, 'warning', cnt, '')), 0) warning_count,-->
+		<!--sum(cnt) total_count-->
+		<!--from-->
+		<!--(-->
+		<!--select a.datetime, b.areagroupname area, a.status, count(a.name) cnt from-->
+		<!--(-->
+
+		<!--select e.name, a.datetime, e.offline_yn,-->
+		<!--case when e.offline_yn='Y' then 'offline'-->
+		<!--when a.status_cd = '256' then 'alarm'-->
+		<!--when a.status_cd = '128' then 'warning'-->
+		<!--when a.status_cd is null and e.offline_yn='Y' then 'offline'-->
+		<!--when a.status_cd is null then 'normal'-->
+		<!--end status-->
+
+		<!--from-->
+		<!--(-->
+		<!--select datetime, eqp_mst_rawid, max(status_cd) as status_cd-->
+		<!--from-->
+		<!--(-->
+		<!--select d1.datetime, d1.eqp_mst_rawid, d2.status_cd, d2.value-->
+		<!--from-->
+		<!--(-->
+		<!--select a.datetime, b.rawid as eqp_mst_rawid-->
+		<!--from-->
+		<!--(-->
+		<!--SELECT TO_CHAR(TO_DATE(#{sFrom}, 'YYYY-MM-DD')+LEVEL-1, 'YYYY-MM-DD') as datetime-->
+		<!--FROM DUAL-->
+		<!--CONNECT BY LEVEL <![CDATA[<=]]> (TO_DATE(#{sTo}, 'YYYY-MM-DD')-TO_DATE(#{sFrom}, 'YYYY-MM-DD')+1)-->
+		<!--) a, eqp_mst_pdm b-->
+		<!--) d1,-->
+		<!--(-->
+		<!--select eqp_mst_rawid, status_cd, value, to_char(sum_dtts,'YYYY-MM-DD') as datetime-->
+		<!--from eqp_alarm_daily_sum_pdm where sum_dtts <![CDATA[>=]]> #{fromdate} and sum_dtts <![CDATA[<]]> #{todate}-->
+		<!--)d2-->
+		<!--where 1=1-->
+		<!--and d1.datetime=d2.datetime(+)-->
+		<!--and d1.eqp_mst_rawid=d2.eqp_mst_rawid(+)-->
+		<!--)-->
+		<!--group by datetime, eqp_mst_rawid-->
+
+		<!--) a, eqp_mst_pdm e-->
+		<!--where e.rawid=a.eqp_mst_rawid(+)-->
+		<!--)a,-->
+		<!--(-->
+		<!--SELECT areagroupname, area_id, eqp.name, eqp.rawid-->
+		<!--FROM eqp_mst_pdm eqp,-->
+		<!--(-->
+		<!--SELECT *-->
+		<!--FROM-->
+		<!--(-->
+		<!--SELECT name AS areagroupname, rawid AS area_id, LEVEL, name,-->
+		<!--parent_rawid AS parent_id, CONNECT_BY_ISLEAF AS leaf-->
+		<!--FROM area_mst_pdm-->
+		<!--WHERE LEVEL=2 START WITH parent_rawid = 0 CONNECT BY PRIOR rawid = parent_rawid-->
+		<!--ORDER BY leaf, parent_id-->
+		<!--)-->
+		<!--WHERE leaf=1-->
+		<!--UNION ALL-->
+		<!--SELECT areagroup.name AS areagroupname, area.rawid AS area_id, LEVEL,-->
+		<!--area.name, area.parent_rawid AS parent_id, CONNECT_BY_ISLEAF AS leaf-->
+		<!--FROM area_mst_pdm area,-->
+		<!--(-->
+		<!--SELECT rawid AS area_id, name, parent_rawid AS parent_id, CONNECT_BY_ISLEAF AS leaf-->
+		<!--FROM area_mst_pdm-->
+		<!--WHERE LEVEL=2 START WITH parent_rawid = 0 CONNECT BY PRIOR rawid = parent_rawid-->
+		<!--ORDER BY leaf, parent_id-->
+		<!--) areagroup-->
+		<!--START WITH area.parent_rawid = areagroup.area_id-->
+		<!--CONNECT BY PRIOR area.rawid = area.parent_rawid-->
+		<!--) area_info-->
+		<!--WHERE eqp.area_mst_rawid = area_info.area_id-->
+		<!--ORDER BY areagroupname DESC-->
+		<!--) b-->
+		<!--where a.name=b.name-->
+		<!--group by a.datetime, a.status, b.areagroupname-->
+		<!--) group by datetime-->
+
+
 		select
 		datetime as day,  nvl(sum(decode(status, 'offline', cnt, '')), 0) offline_count, nvl(sum(decode(status, 'normal', cnt, '')), 0) normal_count,
 		nvl(sum(decode(status, 'alarm', cnt, '')), 0) alarm_count, nvl(sum(decode(status, 'warning', cnt, '')), 0) warning_count,
@@ -1222,44 +1339,55 @@
 		(
 		select a.datetime, b.areagroupname area, a.status, count(a.name) cnt from
 		(
-
-		select e.name, a.datetime, e.offline_yn,
-		case when e.offline_yn='Y' then 'offline'
-		when a.status_cd = '256' then 'alarm'
-		when a.status_cd = '128' then 'warning'
-		when a.status_cd is null and e.offline_yn='Y' then 'offline'
-		when a.status_cd is null then 'normal'
-		end status
-
-		from
-		(
-		select datetime, eqp_mst_rawid, max(status_cd) as status_cd
-		from
-		(
-		select d1.datetime, d1.eqp_mst_rawid, d2.status_cd, d2.value
-		from
-		(
-		select a.datetime, b.rawid as eqp_mst_rawid
-		from
-		(
-		SELECT TO_CHAR(TO_DATE(#{sFrom}, 'YYYY-MM-DD')+LEVEL-1, 'YYYY-MM-DD') as datetime
-		FROM DUAL
-		CONNECT BY LEVEL <![CDATA[<=]]> (TO_DATE(#{sTo}, 'YYYY-MM-DD')-TO_DATE(#{sFrom}, 'YYYY-MM-DD')+1)
-		) a, eqp_mst_pdm b
-		) d1,
-		(
-		select eqp_mst_rawid, status_cd, value, to_char(sum_dtts,'YYYY-MM-DD') as datetime
-		from eqp_alarm_daily_sum_pdm where sum_dtts <![CDATA[>=]]> #{fromdate} and sum_dtts <![CDATA[<]]> #{todate}
-		)d2
-		where 1=1
-		and d1.datetime=d2.datetime(+)
-		and d1.eqp_mst_rawid=d2.eqp_mst_rawid(+)
-		)
-		group by datetime, eqp_mst_rawid
-
-		) a, eqp_mst_pdm e
-		where e.rawid=a.eqp_mst_rawid(+)
+					SELECT e.name, a.datetime, e.offline_yn, CASE WHEN e.offline_yn='Y' THEN 'offline'
+					WHEN a.status_cd = '256' THEN 'alarm'
+					WHEN a.status_cd = '128' THEN 'warning'
+					WHEN a.status_cd IS NULL AND e.offline_yn='Y' THEN 'offline'
+					WHEN a.status_cd IS NULL and data_value <![CDATA[>]]> 0 THEN 'normal'
+					WHEN a.status_cd IS NULL and data_value <![CDATA[<=]]> 0 THEN 'offline'
+					END status
+					FROM
+					(
+					SELECT datetime, eqp_mst_rawid, max(status_cd) AS status_cd, count(datavalue) as data_value
+					FROM
+					(
+					SELECT d1.datetime,
+					d1.eqp_mst_rawid,
+					d2.status_cd,
+					d2.value,
+					d3.value as datavalue
+					FROM
+					(
+					SELECT a.datetime, b.rawid AS eqp_mst_rawid
+					FROM
+					(
+					SELECT TO_CHAR(TO_DATE(#{sFrom}, 'YYYY-MM-DD')+LEVEL-1, 'YYYY-MM-DD') AS datetime
+					FROM DUAL CONNECT BY LEVEL <![CDATA[<=]]> (TO_DATE(#{sTo}, 'YYYY-MM-DD')-TO_DATE(#{sFrom}, 'YYYY-MM-DD')+1)
+					) a,
+					eqp_mst_pdm b
+					) d1,
+					(
+					SELECT eqp_mst_rawid, status_cd, value, to_char(sum_dtts,'YYYY-MM-DD') AS datetime
+					FROM eqp_alarm_daily_sum_pdm
+					WHERE sum_dtts <![CDATA[>=]]> #{fromdate} and sum_dtts <![CDATA[<]]> #{todate}
+					) d2,
+					(
+					SELECT eqp_mst_rawid, score value, to_char(sum_dtts,'YYYY-MM-DD') AS datetime
+					FROM eqp_health_daily_sum_pdm
+					WHERE sum_dtts <![CDATA[>=]]> #{fromdate} and sum_dtts <![CDATA[<]]> #{todate}
+					) d3
+					WHERE 1=1
+					AND d1.datetime=d2.datetime(+)
+					AND d1.eqp_mst_rawid=d2.eqp_mst_rawid(+)
+					AND d1.datetime=d3.datetime(+)
+					AND d1.eqp_mst_rawid=d3.eqp_mst_rawid(+)
+					order by d1.datetime, d1.eqp_mst_rawid
+					)
+					GROUP BY datetime, eqp_mst_rawid
+					) a, eqp_mst_pdm e
+					WHERE e.rawid=a.eqp_mst_rawid(+)
 		)a,
+
 		(
 		SELECT areagroupname, area_id, eqp.name, eqp.rawid
 		FROM eqp_mst_pdm eqp,
@@ -1293,6 +1421,8 @@
 		where a.name=b.name
 		group by a.datetime, a.status, b.areagroupname
 		) group by datetime
+
+
 	</select>
 	<select id="selectLineStatusTrend" resultType="com.bistel.a3.portal.domain.pdm.AreaFaultCountSummary" databaseId="postgresql">
 		SELECT total.groupdate AS day,
@@ -1412,42 +1542,53 @@
 		select a.datetime, b.areagroupname area, a.status, count(a.name) cnt from
 		(
 
-		select e.name, a.datetime, e.offline_yn,
-		case when e.offline_yn='Y' then 'offline'
-		when a.status_cd = '256' then 'alarm'
-		when a.status_cd = '128' then 'warning'
-		when a.status_cd is null and e.offline_yn='Y' then 'offline'
-		when a.status_cd is null then 'normal'
-		end status
-
-		from
-		(
-		select datetime, eqp_mst_rawid, max(status_cd) as status_cd
-		from
-		(
-		select d1.datetime, d1.eqp_mst_rawid, d2.status_cd, d2.value
-		from
-		(
-		select a.datetime, b.rawid as eqp_mst_rawid
-		from
-		(
-		SELECT TO_CHAR(TO_DATE(#{sFrom}, 'YYYY-MM-DD')+LEVEL-1, 'YYYY-MM-DD') as datetime
-		FROM DUAL
-		CONNECT BY LEVEL <![CDATA[<=]]> (TO_DATE(#{sTo}, 'YYYY-MM-DD')-TO_DATE(#{sFrom}, 'YYYY-MM-DD')+1)
-		) a, eqp_mst_pdm b
-		) d1,
-		(
-		select eqp_mst_rawid, status_cd, value, to_char(sum_dtts,'YYYY-MM-DD') as datetime
-		from eqp_alarm_daily_sum_pdm where sum_dtts <![CDATA[>=]]> #{fromdate} and sum_dtts <![CDATA[<]]> #{todate}
-		)d2
-		where 1=1
-		and d1.datetime=d2.datetime(+)
-		and d1.eqp_mst_rawid=d2.eqp_mst_rawid(+)
-		)
-		group by datetime, eqp_mst_rawid
-
-		) a, eqp_mst_pdm e
-		where e.rawid=a.eqp_mst_rawid(+)
+				SELECT e.name, a.datetime, e.offline_yn, CASE WHEN e.offline_yn='Y' THEN 'offline'
+				WHEN a.status_cd = '256' THEN 'alarm'
+				WHEN a.status_cd = '128' THEN 'warning'
+				WHEN a.status_cd IS NULL AND e.offline_yn='Y' THEN 'offline'
+				WHEN a.status_cd IS NULL and data_value <![CDATA[>]]> 0 THEN 'normal'
+				WHEN a.status_cd IS NULL and data_value <![CDATA[<=]]> 0 THEN 'offline'
+				END status
+				FROM
+				(
+				SELECT datetime, eqp_mst_rawid, max(status_cd) AS status_cd, count(datavalue) as data_value
+				FROM
+				(
+				SELECT d1.datetime,
+				d1.eqp_mst_rawid,
+				d2.status_cd,
+				d2.value,
+				d3.value as datavalue
+				FROM
+				(
+				SELECT a.datetime, b.rawid AS eqp_mst_rawid
+				FROM
+				(
+				SELECT TO_CHAR(TO_DATE(#{sFrom}, 'YYYY-MM-DD')+LEVEL-1, 'YYYY-MM-DD') AS datetime
+				FROM DUAL CONNECT BY LEVEL <![CDATA[<=]]> (TO_DATE(#{sTo}, 'YYYY-MM-DD')-TO_DATE(#{sFrom}, 'YYYY-MM-DD')+1)
+				) a,
+				eqp_mst_pdm b
+				) d1,
+				(
+				SELECT eqp_mst_rawid, status_cd, value, to_char(sum_dtts,'YYYY-MM-DD') AS datetime
+				FROM eqp_alarm_daily_sum_pdm
+				WHERE sum_dtts <![CDATA[>=]]> #{fromdate} and sum_dtts <![CDATA[<]]> #{todate}
+				) d2,
+				(
+				SELECT eqp_mst_rawid, score value, to_char(sum_dtts,'YYYY-MM-DD') AS datetime
+				FROM eqp_health_daily_sum_pdm
+				WHERE sum_dtts <![CDATA[>=]]> #{fromdate} and sum_dtts <![CDATA[<]]> #{todate}
+				) d3
+				WHERE 1=1
+				AND d1.datetime=d2.datetime(+)
+				AND d1.eqp_mst_rawid=d2.eqp_mst_rawid(+)
+				AND d1.datetime=d3.datetime(+)
+				AND d1.eqp_mst_rawid=d3.eqp_mst_rawid(+)
+				order by d1.datetime, d1.eqp_mst_rawid
+				)
+				GROUP BY datetime, eqp_mst_rawid
+				) a, eqp_mst_pdm e
+				WHERE e.rawid=a.eqp_mst_rawid(+)
 		)a,
 		(
 		SELECT areagroupname, area_id, eqp.name, eqp.rawid
@@ -1596,61 +1737,77 @@
 
     <select id="selectWorstEquipmentList" resultType="com.bistel.a3.portal.domain.pdm.WorstEquipmentList" databaseId="oracle">
 
-        select distinct eqpstatus.eqp_id, eqpstatus.eqp_name,score.score
-        from
-        (
-
-        select eqp_id,eqp_name,
-        case when event_type_cd is null
-        then decode(type_cd, 'E', 'RUN', 'IDLE')
-        else decode(event_type_cd, 'S', 'RUN', 'IDLE')
-        end status,
-        start_dtts, end_dtts
-        from
-        (
-        select eqp_id,eqp_name, event_type_cd, lead(event_type_cd) over (partition by eqp_name order by event_dtts) type_cd,
-        event_dtts as start_dtts,
-        nvl(lead(event_dtts) over (partition by eqp_name order by event_dtts), TO_TIMESTAMP(#{end_dtts}, 'YYYY-MM-DD HH24:MI:SS')) end_dtts
-        from
-        (
-        select e.rawid as eqp_id, e.name as eqp_name, v.event_name, v.event_type_cd, t.event_dtts
-        from eqp_mst_pdm e, eqp_event_mst_pdm v, eqp_event_trx_pdm t
-        where e.rawid=v.eqp_mst_rawid
-        <if test="eqp_id != null">
-            and e.rawid = #{eqp_id}
-        </if>
-        and v.rawid=t.eqp_event_mst_rawid
-        and v.process_yn='Y'
-        and t.event_dtts between TO_TIMESTAMP( #{start_dtts} , 'YYYY-MM-DD HH24:MI:SS')
-        and TO_TIMESTAMP( #{end_dtts} , 'YYYY-MM-DD HH24:MI:SS')
-        union all
-        select rawid as eqp_id, name as eqp_name, 'start', '' as typ, event_dtts from eqp_mst_pdm a,
-        (select TO_TIMESTAMP( #{start_dtts} , 'YYYY-MM-DD HH24:MI:SS') as event_dtts from dual) b
-        order by eqp_name, event_dtts
-        )
-        )
 
 
-        ) eqpstatus,
+		select distinct eqpstatus.eqp_id, eqpstatus.eqp_name, score.score
+		from
+		(
+		select eqp_id, eqp_name,
+		case when start_cd is null and end_cd = 'S' then 'IDLE'
+		when start_cd is null and end_cd = 'E' then 'RUN'
+		when start_cd is not null and end_cd is null then 'NODATA'
+		when start_cd is not null and diff_sec > 600 then 'NODATA'
+		when start_cd is not null and start_cd = 'S' then 'RUN'
+		when start_cd is not null and start_cd = 'E' then 'IDLE'
+		end status, start_dtts, end_dtts
+		from
+		(
+		select
+		eqp_id, eqp_name, start_cd, end_cd, start_dtts, end_dtts,
+		extract( day from end_dtts-start_dtts )*24*60*60 +
+		extract( hour from end_dtts-start_dtts )*60*60 +
+		extract( minute from end_dtts-start_dtts )*60 +
+		round(extract( second from end_dtts-start_dtts )) as diff_sec
+		from
+		(
+		select eqp_id,eqp_name, event_type_cd as start_cd,
+		lead(event_type_cd) over (partition by eqp_name order by event_dtts) end_cd,
+		event_dtts as start_dtts,
+		nvl(lead(event_dtts) over (partition by eqp_name order by event_dtts),
+		TO_TIMESTAMP( #{end_dtts}, 'YYYY-MM-DD HH24:MI:SS')) end_dtts
+		from
+		(
+		select e.rawid as eqp_id, e.name as eqp_name, v.event_name, v.event_type_cd, t.event_dtts
+		from eqp_mst_pdm e, eqp_event_mst_pdm v, eqp_event_trx_pdm t
+		where e.rawid=v.eqp_mst_rawid
+		and v.rawid=t.eqp_event_mst_rawid
+		<if test="eqp_id != null">
+			and e.rawid = #{eqp_id}
+		</if>
 
-        (
-        select e.rawid as eqp_id,name as eqp_name, max(h.score) as score
-        from eqp_mst_pdm e, eqp_health_trx_pdm h
-        where e.rawid=h.eqp_mst_rawid
-        <if test="eqp_id != null">
-            and e.rawid = #{eqp_id}
-        </if>
-        
-        and e.offline_yn='N'
-        and h.ALARM_DTTS between TO_TIMESTAMP( #{start_dtts} , 'YYYY-MM-DD HH24:MI:SS')
-        and TO_TIMESTAMP( #{end_dtts} , 'YYYY-MM-DD HH24:MI:SS')
-        group by e.RAWID,name
-        order by score desc
-        ) score
+		and v.process_yn='Y'
+		and t.event_dtts between TO_TIMESTAMP(#{start_dtts} , 'YYYY-MM-DD HH24:MI:SS')
+		and TO_TIMESTAMP(#{end_dtts} , 'YYYY-MM-DD HH24:MI:SS') + 0.01
+		union all
+		select rawid as eqp_id, name as eqp_name, 'start', '' as typ, event_dtts from eqp_mst_pdm a,
+		(select TO_TIMESTAMP( #{start_dtts} , 'YYYY-MM-DD HH24:MI:SS') as event_dtts from dual) b
+		where 1=1
+		<if test="eqp_id != null">
+			and a.rawid = #{eqp_id}
+		</if>
 
-        where 1=1
-        and eqpstatus.eqp_id=score.eqp_id
-        order by score.score desc
+		order by eqp_name, event_dtts
+		)
+		) where start_dtts <![CDATA[<]]> TO_TIMESTAMP(#{end_dtts}, 'YYYY-MM-DD HH24:MI:SS') and
+		end_dtts <![CDATA[<=]]> TO_TIMESTAMP(#{end_dtts}, 'YYYY-MM-DD HH24:MI:SS')
+		)
+		) eqpstatus,
+		(
+		select e.rawid as eqp_id, e.name as eqp_name, max(h.score) as score
+		from eqp_mst_pdm e, param_mst_pdm p, param_health_trx_pdm h
+		where e.rawid = p.eqp_mst_rawid
+		and p.rawid = h.param_mst_rawid
+		and e.offline_yn='N'
+		and h.create_dtts between TO_TIMESTAMP(#{start_dtts} , 'YYYY-MM-DD HH24:MI:SS')
+		and TO_TIMESTAMP(#{end_dtts} , 'YYYY-MM-DD HH24:MI:SS')
+		group by e.rawid, e.name
+		order by score desc
+		) score
+		where 1=1
+		and eqpstatus.eqp_id=score.eqp_id
+		order by eqpstatus.eqp_id
+
+
     </select>
 	<select id="selectWorstEquipmentList" resultType="com.bistel.a3.portal.domain.pdm.WorstEquipmentList" databaseId="postgresql">
 		select distinct eqpstatus.eqp_id, eqpstatus.eqp_name,score.score
@@ -1703,54 +1860,72 @@
 
     <select id="selectWorstEqupmentListChartData" resultType="com.bistel.a3.portal.domain.pdm.WorstEqupmentListChartData" databaseId="oracle">
 
-        select eqpstatus.eqp_id, eqpstatus.status, eqpstatus.start_dtts, eqpstatus.end_dtts
-        from
-        (
+		select eqpstatus.eqp_id, eqpstatus.status, eqpstatus.start_dtts, eqpstatus.end_dtts
+		from
+		(
+		select eqp_id, eqp_name,
+		case when start_cd is null and end_cd = 'S' then 'IDLE'
+		when start_cd is null and end_cd = 'E' then 'RUN'
+		when start_cd is not null and end_cd is null then 'NODATA'
+		when start_cd is not null and diff_sec > 600 then 'NODATA'
+		when start_cd is not null and start_cd = 'S' then 'RUN'
+		when start_cd is not null and start_cd = 'E' then 'IDLE'
+		end status, start_dtts, end_dtts
+		from
+		(
+		select
+		eqp_id, eqp_name, start_cd, end_cd, start_dtts, end_dtts,
+		extract( day from end_dtts-start_dtts )*24*60*60 +
+		extract( hour from end_dtts-start_dtts )*60*60 +
+		extract( minute from end_dtts-start_dtts )*60 +
+		round(extract( second from end_dtts-start_dtts )) as diff_sec
+		from
+		(
+		select eqp_id,eqp_name, event_type_cd as start_cd,
+		lead(event_type_cd) over (partition by eqp_name order by event_dtts) end_cd,
+		event_dtts as start_dtts,
+		nvl(lead(event_dtts) over (partition by eqp_name order by event_dtts),
+		TO_TIMESTAMP( #{end_dtts}, 'YYYY-MM-DD HH24:MI:SS')) end_dtts
+		from
+		(
+		select e.rawid as eqp_id, e.name as eqp_name, v.event_name, v.event_type_cd, t.event_dtts
+		from eqp_mst_pdm e, eqp_event_mst_pdm v, eqp_event_trx_pdm t
+		where e.rawid=v.eqp_mst_rawid
+		and v.rawid=t.eqp_event_mst_rawid
+		<if test="eqp_id != null">
+			and e.rawid = #{eqp_id}
+		</if>
+		and v.process_yn='Y'
+		and t.event_dtts between TO_TIMESTAMP(#{start_dtts} , 'YYYY-MM-DD HH24:MI:SS')
+		and TO_TIMESTAMP(#{end_dtts} , 'YYYY-MM-DD HH24:MI:SS') + 0.01
+		union all
+		select rawid as eqp_id, name as eqp_name, 'start', '' as typ, event_dtts from eqp_mst_pdm a,
+		(select TO_TIMESTAMP( #{start_dtts} , 'YYYY-MM-DD HH24:MI:SS') as event_dtts from dual) b
+		where 1=1
 
-            select eqp_id,eqp_name,
-            case when event_type_cd is null
-            then decode(type_cd, 'E', 'RUN', 'IDLE')
-            else decode(event_type_cd, 'S', 'RUN', 'IDLE')
-            end status,
-            start_dtts, end_dtts
-            from
-        (
-        select eqp_id,eqp_name, event_type_cd, lead(event_type_cd) over (partition by eqp_name order by event_dtts) type_cd,
-        event_dtts as start_dtts,
-        nvl(lead(event_dtts) over (partition by eqp_name order by event_dtts), TO_TIMESTAMP( #{end_dtts}, 'YYYY-MM-DD HH24:MI:SS')) end_dtts
-        from
-        (
-        select e.rawid as eqp_id, e.name as eqp_name, v.event_name, v.event_type_cd, t.event_dtts
-        from eqp_mst_pdm e, eqp_event_mst_pdm v, eqp_event_trx_pdm t
-        where e.rawid=v.eqp_mst_rawid
-        and v.rawid=t.eqp_event_mst_rawid
-        and v.process_yn='Y'
-        and t.event_dtts between TO_TIMESTAMP( #{start_dtts} , 'YYYY-MM-DD HH24:MI:SS')
-        and TO_TIMESTAMP( #{end_dtts} , 'YYYY-MM-DD HH24:MI:SS')
-        union all
-        select rawid as eqp_id, name as eqp_name, 'start', '' as typ, event_dtts from eqp_mst_pdm a,
-        (select TO_TIMESTAMP( #{start_dtts} , 'YYYY-MM-DD HH24:MI:SS') as event_dtts from dual) b
-        order by eqp_name, event_dtts
-        )
-        )
-
-
-        ) eqpstatus,
-
-        (
-        select e.rawid as eqp_id,name as eqp_name, max(h.score) as score
-        from eqp_mst_pdm e, eqp_health_trx_pdm h
-        where e.rawid=h.eqp_mst_rawid
-        and e.offline_yn='N'
-        and h.ALARM_DTTS between TO_TIMESTAMP( #{start_dtts} , 'YYYY-MM-DD HH24:MI:SS')
-        and TO_TIMESTAMP( #{end_dtts} , 'YYYY-MM-DD HH24:MI:SS')
-        group by e.RAWID,name
-        order by score desc
-        ) score
-
-        where 1=1
-        and eqpstatus.eqp_id=score.eqp_id
-        order by eqpstatus.eqp_id, eqpstatus.start_dtts
+		<if test="eqp_id != null">
+			and a.rawid = #{eqp_id}
+		</if>
+		order by eqp_name, event_dtts
+		)
+		) where start_dtts <![CDATA[<]]> TO_TIMESTAMP(#{end_dtts}, 'YYYY-MM-DD HH24:MI:SS') and
+		end_dtts <![CDATA[<=]]> TO_TIMESTAMP(#{end_dtts}, 'YYYY-MM-DD HH24:MI:SS')
+		)
+		) eqpstatus,
+		(
+		select e.rawid as eqp_id, e.name as eqp_name, max(h.score) as score
+		from eqp_mst_pdm e, param_mst_pdm p, param_health_trx_pdm h
+		where e.rawid = p.eqp_mst_rawid
+		and p.rawid = h.param_mst_rawid
+		and e.offline_yn='N'
+		and h.create_dtts between TO_TIMESTAMP(#{start_dtts} , 'YYYY-MM-DD HH24:MI:SS')
+		and TO_TIMESTAMP(#{end_dtts} , 'YYYY-MM-DD HH24:MI:SS')
+		group by e.rawid, e.name
+		order by score desc
+		) score
+		where 1=1
+		and eqpstatus.eqp_id=score.eqp_id
+		order by eqpstatus.eqp_id, eqpstatus.start_dtts
     </select>
     <select id="selectWorstEqupmentListChartData" resultType="com.bistel.a3.portal.domain.pdm.WorstEqupmentListChartData" databaseId="postgresql">
 		select eqpstatus.eqp_id, eqpstatus.status, eqpstatus.start_dtts, eqpstatus.end_dtts
@@ -1806,68 +1981,76 @@
 
 
     <select id="selectWorstEquipmentListByAreaId"  resultType="com.bistel.a3.portal.domain.pdm.WorstEquipmentList" databaseId="oracle">
-        select distinct worsteqp.eqp_id, worsteqp.eqp_name, worsteqp.score
-        from
-
-        (
 
 
-        select eqpstatus.eqp_id, eqpstatus.eqp_name,score.score, eqpstatus.status, eqpstatus.start_dtts, eqpstatus.end_dtts
-        from
+		select distinct eqpstatus.eqp_id, eqpstatus.eqp_name, score.score
+		from
+		(
+		select eqp_id, eqp_name,
+		case when start_cd is null and end_cd = 'S' then 'IDLE'
+		when start_cd is null and end_cd = 'E' then 'RUN'
+		when start_cd is not null and end_cd is null then 'NODATA'
+		when start_cd is not null and diff_sec > 600 then 'NODATA'
+		when start_cd is not null and start_cd = 'S' then 'RUN'
+		when start_cd is not null and start_cd = 'E' then 'IDLE'
+		end status, start_dtts, end_dtts
+		from
+		(
+		select
+		eqp_id, eqp_name, start_cd, end_cd, start_dtts, end_dtts,
+		extract( day from end_dtts-start_dtts )*24*60*60 +
+		extract( hour from end_dtts-start_dtts )*60*60 +
+		extract( minute from end_dtts-start_dtts )*60 +
+		round(extract( second from end_dtts-start_dtts )) as diff_sec
+		from
+		(
+		select eqp_id,eqp_name, event_type_cd as start_cd,
+		lead(event_type_cd) over (partition by eqp_name order by event_dtts) end_cd,
+		event_dtts as start_dtts,
+		nvl(lead(event_dtts) over (partition by eqp_name order by event_dtts),
+		TO_TIMESTAMP( #{end_dtts}, 'YYYY-MM-DD HH24:MI:SS')) end_dtts
+		from
+		(
+		select e.rawid as eqp_id, e.name as eqp_name, v.event_name, v.event_type_cd, t.event_dtts
+		from eqp_mst_pdm e, eqp_event_mst_pdm v, eqp_event_trx_pdm t
+		where e.rawid=v.eqp_mst_rawid
+		and v.rawid=t.eqp_event_mst_rawid
+		<if test="eqp_id != null">
+			and e.rawid = #{eqp_id}
+		</if>
+		and v.process_yn='Y'
+		and t.event_dtts between TO_TIMESTAMP(#{start_dtts} , 'YYYY-MM-DD HH24:MI:SS')
+		and TO_TIMESTAMP(#{end_dtts} , 'YYYY-MM-DD HH24:MI:SS') + 0.01
+		union all
+		select rawid as eqp_id, name as eqp_name, 'start', '' as typ, event_dtts from eqp_mst_pdm a,
+		(select TO_TIMESTAMP( #{start_dtts} , 'YYYY-MM-DD HH24:MI:SS') as event_dtts from dual) b
+		where 1=1
 
-        (
+		<if test="eqp_id != null">
+			and a.rawid = #{eqp_id}
+		</if>
+		order by eqp_name, event_dtts
+		)
+		) where start_dtts <![CDATA[<]]> TO_TIMESTAMP(#{end_dtts}, 'YYYY-MM-DD HH24:MI:SS') and
+		end_dtts <![CDATA[<=]]> TO_TIMESTAMP(#{end_dtts}, 'YYYY-MM-DD HH24:MI:SS')
+		)
+		) eqpstatus,
+		(
+		select e.rawid as eqp_id, e.name as eqp_name, max(h.score) as score
+		from eqp_mst_pdm e, param_mst_pdm p, param_health_trx_pdm h
+		where e.rawid = p.eqp_mst_rawid
+		and p.rawid = h.param_mst_rawid
+		and e.offline_yn='N'
+		and e.area_mst_rawid=#{area_id}
+		and h.create_dtts between TO_TIMESTAMP(#{start_dtts} , 'YYYY-MM-DD HH24:MI:SS')
+		and TO_TIMESTAMP(#{end_dtts} , 'YYYY-MM-DD HH24:MI:SS')
+		group by e.rawid, e.name
+		order by score desc
+		) score
+		where 1=1
+		and eqpstatus.eqp_id=score.eqp_id
+		order by eqpstatus.eqp_id
 
-        select eqp_id,eqp_name,
-        case when event_type_cd is null
-        then decode(type_cd, 'E', 'RUN', 'IDLE')
-        else decode(event_type_cd, 'S', 'RUN', 'IDLE')
-        end status,
-        start_dtts, end_dtts
-        from
-        (
-        select eqp_id,eqp_name, event_type_cd, lead(event_type_cd) over (partition by eqp_name order by event_dtts) type_cd,
-        event_dtts as start_dtts,
-        nvl(lead(event_dtts) over (partition by eqp_name order by event_dtts), TO_TIMESTAMP( #{end_dtts} , 'YYYY-MM-DD HH24:MI:SS')) end_dtts
-        from
-        (
-        select e.rawid as eqp_id, e.name as eqp_name, v.event_name, v.event_type_cd, t.event_dtts
-        from eqp_mst_pdm e, eqp_event_mst_pdm v, eqp_event_trx_pdm t
-        where e.rawid=v.eqp_mst_rawid
-        and v.rawid=t.eqp_event_mst_rawid
-        and v.process_yn='Y'
-        and t.event_dtts between TO_TIMESTAMP(#{start_dtts}, 'YYYY-MM-DD HH24:MI:SS')
-        and TO_TIMESTAMP(#{end_dtts}, 'YYYY-MM-DD HH24:MI:SS')
-        union all
-        select rawid as eqp_id, name as eqp_name, 'start', '' as typ, event_dtts from eqp_mst_pdm a,
-        (select TO_TIMESTAMP(#{start_dtts}, 'YYYY-MM-DD HH24:MI:SS') as event_dtts from dual) b
-        order by eqp_name, event_dtts
-        )
-        )
-
-
-        ) eqpstatus,
-
-        (
-        select e.rawid as eqp_id,name as eqp_name, max(h.score) as score
-        from eqp_mst_pdm e, eqp_health_trx_pdm h
-        where e.rawid=h.eqp_mst_rawid
-        and e.offline_yn='N'
-        and h.ALARM_DTTS between TO_TIMESTAMP(#{start_dtts}, 'YYYY-MM-DD HH24:MI:SS')
-        and TO_TIMESTAMP(#{end_dtts}, 'YYYY-MM-DD HH24:MI:SS')
-        group by e.RAWID,name
-        order by score desc
-        ) score
-
-
-        where 1=1
-        and eqpstatus.eqp_id=score.eqp_id
-
-        ) worsteqp,
-
-        eqp_mst_pdm eqp
-        where 1=1
-        and worsteqp.eqp_id=eqp.rawid
-        and eqp.area_mst_rawid= #{area_id}
 
     </select>
     <select id="selectWorstEquipmentListByAreaId"  resultType="com.bistel.a3.portal.domain.pdm.WorstEquipmentList" databaseId="postgresql">
@@ -1931,70 +2114,79 @@
 
 
     <select id="selectWorstEqupmentListChartDataByAreaId" resultType="com.bistel.a3.portal.domain.pdm.WorstEqupmentListChartData" databaseId="oracle">
-        select worsteqp.eqp_id, worsteqp.status, worsteqp.start_dtts, worsteqp.end_dtts
-        from
-
-        (
 
 
-        select eqpstatus.eqp_id, eqpstatus.eqp_name,score.score, eqpstatus.status, eqpstatus.start_dtts, eqpstatus.end_dtts
-        from
+		select eqpstatus.eqp_id, eqpstatus.status, eqpstatus.start_dtts, eqpstatus.end_dtts
+		from
+		(
+		select eqp_id, eqp_name,
+		case when start_cd is null and end_cd = 'S' then 'IDLE'
+		when start_cd is null and end_cd = 'E' then 'RUN'
+		when start_cd is not null and end_cd is null then 'NODATA'
+		when start_cd is not null and diff_sec > 600 then 'NODATA'
+		when start_cd is not null and start_cd = 'S' then 'RUN'
+		when start_cd is not null and start_cd = 'E' then 'IDLE'
+		end status, start_dtts, end_dtts
+		from
+		(
+		select
+		eqp_id, eqp_name, start_cd, end_cd, start_dtts, end_dtts,
+		extract( day from end_dtts-start_dtts )*24*60*60 +
+		extract( hour from end_dtts-start_dtts )*60*60 +
+		extract( minute from end_dtts-start_dtts )*60 +
+		round(extract( second from end_dtts-start_dtts )) as diff_sec
+		from
+		(
+		select eqp_id,eqp_name, event_type_cd as start_cd,
+		lead(event_type_cd) over (partition by eqp_name order by event_dtts) end_cd,
+		event_dtts as start_dtts,
+		nvl(lead(event_dtts) over (partition by eqp_name order by event_dtts),
+		TO_TIMESTAMP( #{end_dtts}, 'YYYY-MM-DD HH24:MI:SS')) end_dtts
+		from
+		(
+		select e.rawid as eqp_id, e.name as eqp_name, v.event_name, v.event_type_cd, t.event_dtts
+		from eqp_mst_pdm e, eqp_event_mst_pdm v, eqp_event_trx_pdm t
+		where e.rawid=v.eqp_mst_rawid
+		and v.rawid=t.eqp_event_mst_rawid
+		<if test="eqp_id != null">
+			and e.rawid = #{eqp_id}
+		</if>
+		and v.process_yn='Y'
+		and t.event_dtts between TO_TIMESTAMP(#{start_dtts} , 'YYYY-MM-DD HH24:MI:SS')
+		and TO_TIMESTAMP(#{end_dtts} , 'YYYY-MM-DD HH24:MI:SS') + 0.01
+		union all
+		select rawid as eqp_id, name as eqp_name, 'start', '' as typ, event_dtts from eqp_mst_pdm a,
+		(select TO_TIMESTAMP( #{start_dtts} , 'YYYY-MM-DD HH24:MI:SS') as event_dtts from dual) b
+		where 1=1
 
-        (
-
-        select eqp_id,eqp_name,
-        case when event_type_cd is null
-        then decode(type_cd, 'E', 'RUN', 'IDLE')
-        else decode(event_type_cd, 'S', 'RUN', 'IDLE')
-        end status,
-        start_dtts, end_dtts
-        from
-        (
-        select eqp_id,eqp_name, event_type_cd, lead(event_type_cd) over (partition by eqp_name order by event_dtts) type_cd,
-        event_dtts as start_dtts,
-        nvl(lead(event_dtts) over (partition by eqp_name order by event_dtts), TO_TIMESTAMP(#{end_dtts}, 'YYYY-MM-DD HH24:MI:SS')) end_dtts
-        from
-        (
-        select e.rawid as eqp_id, e.name as eqp_name, v.event_name, v.event_type_cd, t.event_dtts
-        from eqp_mst_pdm e, eqp_event_mst_pdm v, eqp_event_trx_pdm t
-        where e.rawid=v.eqp_mst_rawid
-        and v.rawid=t.eqp_event_mst_rawid
-        and v.process_yn='Y'
-        and t.event_dtts between TO_TIMESTAMP(#{start_dtts}, 'YYYY-MM-DD HH24:MI:SS')
-        and TO_TIMESTAMP(#{end_dtts}, 'YYYY-MM-DD HH24:MI:SS')
-        union all
-        select rawid as eqp_id, name as eqp_name, 'start', '' as typ, event_dtts from eqp_mst_pdm a,
-        (select TO_TIMESTAMP(#{start_dtts}, 'YYYY-MM-DD HH24:MI:SS') as event_dtts from dual) b
-        order by eqp_name, event_dtts
-        )
-        )
+		<if test="eqp_id != null">
+			and a.rawid = #{eqp_id}
+		</if>
+		order by eqp_name, event_dtts
+		)
+		) where start_dtts <![CDATA[<]]> TO_TIMESTAMP(#{end_dtts}, 'YYYY-MM-DD HH24:MI:SS') and
+		end_dtts <![CDATA[<=]]> TO_TIMESTAMP(#{end_dtts}, 'YYYY-MM-DD HH24:MI:SS')
+		)
+		) eqpstatus,
+		(
+		select e.rawid as eqp_id, e.name as eqp_name, max(h.score) as score
+		from eqp_mst_pdm e, param_mst_pdm p, param_health_trx_pdm h
+		where e.rawid = p.eqp_mst_rawid
+		and p.rawid = h.param_mst_rawid
+		and e.offline_yn='N'
+		and e.area_mst_rawid=#{area_id}
+		and h.create_dtts between TO_TIMESTAMP(#{start_dtts} , 'YYYY-MM-DD HH24:MI:SS')
+		and TO_TIMESTAMP(#{end_dtts} , 'YYYY-MM-DD HH24:MI:SS')
+		group by e.rawid, e.name
+		order by score desc
+		) score
+		where 1=1
+		and eqpstatus.eqp_id=score.eqp_id
+		order by eqpstatus.eqp_id, eqpstatus.start_dtts
 
 
-        ) eqpstatus,
 
-        (
-        select e.rawid as eqp_id,name as eqp_name, max(h.score) as score
-        from eqp_mst_pdm e, eqp_health_trx_pdm h
-        where e.rawid=h.eqp_mst_rawid
-        and e.offline_yn='N'
-        and h.ALARM_DTTS between TO_TIMESTAMP(#{start_dtts}, 'YYYY-MM-DD HH24:MI:SS')
-        and TO_TIMESTAMP(#{end_dtts}, 'YYYY-MM-DD HH24:MI:SS')
-        group by e.RAWID,name
-        order by score desc
-        ) score
-
-
-        where 1=1
-        and eqpstatus.eqp_id=score.eqp_id
-
-        ) worsteqp,
-
-        eqp_mst_pdm eqp
-        where 1=1
-        and worsteqp.eqp_id=eqp.rawid
-        and eqp.area_mst_rawid= #{area_id}
-
-    </select>
+	</select>
     <select id="selectWorstEqupmentListChartDataByAreaId" resultType="com.bistel.a3.portal.domain.pdm.WorstEqupmentListChartData" databaseId="postgresql">
 		select worsteqp.eqp_id, worsteqp.status, worsteqp.start_dtts, worsteqp.end_dtts
 		from
@@ -2250,7 +2442,7 @@
 
 	<select id="selectEqpHealthIndex" resultType="com.bistel.a3.portal.domain.pdm.EqpHealthIndex">
 		select eqp.AREA_MST_RAWID as area_id, amp.name as area_name ,ehdsp.eqp_mst_rawid as eqp_id, eqp.name as eqp_name,
-			phmp.param_mst_rawid as param_id, param.name as param_name,  hlmsp.rawid as health_logic_id, ehdsp.sum_dtts ,hlmsp.code, ehdsp.score,
+			phmp.param_mst_rawid as param_id, param.name as param_name,  hlmsp.rawid as health_logic_id, ehdsp.sum_dtts ,hlmsp.code, ROUND(ehdsp.score, 2) as score,
 			<!-- Remove Query : spec.alarm_spec as upperAlarmSpec,-->
     		<!-- Remove Query: spec.warning_spec as upperWarningSpec-->
 			1 as upperAlarmSpec,
@@ -2271,61 +2463,57 @@
 
 	</select>
 	<select id="selectFabMonitoring" resultType="com.bistel.a3.portal.domain.pdm.FabMonitoringInfo">
-		SELECT
-			barcode as locationName,status_cd as status,round(displayvalue,2)||' '||unit_cd as displayvalue,'PARAM_NAME:'||NAME||' SCORE:'||case when score!=0 then TO_CHAR(ROUND(score, 2), 'FM9990.99')  else '0' end||' VALUES:'||round(displayvalue,2)||' '||unit_cd as info,
-			0.8 as warning_spec,1 as alarm_spec,round(score,2) as value,1.3 as maxvalue
-		FROM
+		select
+		o.dimension as locationname, NVL(q.status_cd, 0),
+		ROUND (o.value, 2) || ' ' || o.unit_cd AS displayvalue,
+		'PARAM_NAME:' || o.name || ' SCORE:' ||
+		CASE WHEN q.score != 0 THEN TO_CHAR (ROUND (q.score, 2), 'FM9990.99') ELSE '0' END || ' VALUES:' || ROUND (o.value, 2) || ' ' || o.unit_cd AS info,
+		#{globalWarn} AS warning_spec, 1 AS alarm_spec, ROUND (q.score, 2) AS VALUE, 1.3 AS MAXVALUE
+		from
 		(
-			SELECT BARCODE,PARAM.NAME,avg(value) as displayvalue,max(param.unit_cd) as unit_cd
-			FROM
-				PARAM_MST_PDM param,
-				(
-					SELECT trx_data.*, a.value as barcode from trace_trx_pdm trx_data,
-						(
-						SELECT trx.*, (SELECT max(VALUE) FROM TRACE_TRX_PDM A,PARAM_MST_PDM B WHERE EVENT_DTTS = TRX.END_DTTS AND  B.NAME = #{param_name} and b.rawid = a.param_mst_rawid ) as value
-						FROM PARAM_FEATURE_TRX_PDM trx,param_mst_pdm param
-						WHERE trx.END_DTTS <![CDATA[>=]]> #{fromdate}
-							and trx.END_DTTS <![CDATA[<]]> #{todate}
-							and param.name= #{param_name}
-							AND PARAM.RAWID = TRX.PARAM_MST_RAWID
-						) a
-					WHERE
-						a.END_DTTS = trx_data.event_dtts
-				) b
-			WHERE
-				param.name = #{param_name}
-				and B.param_mst_rawid = param.rawid
-			GROUP BY BARCODE,PARAM.NAME
-			ORDER BY BARCODE
-		) avg_value,
-		
+		select e.rawid as eqp_mst_rawid, g.value as dimension, p.name, avg(f.value) value, p.unit_cd
+		from trace_trx_pdm f, param_mst_pdm p, eqp_mst_pdm e,
 		(
-			SELECT value,param_mst_rawid,max(score) as score,max(status_cd1) as status_cd
-			FROM
-			(
-				SELECT b.*  ,trx.value as value ,case when b.status_cd ='A' then 256 when b.status_cd='W' then 128 else 0 end as status_cd1
-				FROM trace_trx_pdm trx,param_mst_pdm param,
-				(
-					SELECT trx.*
-					FROM PARAM_HEALTH_TRX_PDM trx,param_mst_pdm param,param_health_mst_pdm health
-					WHERE
-						trx.create_dtts <![CDATA[>=]]> #{fromdate}
-						and trx.create_dtts  <![CDATA[<]]> #{todate}
-						and param.name = #{param_name}
-						and param.rawid = trx.param_mst_rawid
-						and trx.param_health_mst_rawid  = health.rawid
-						and health.param_mst_rawid = param.rawid
-						and health.health_logic_mst_rawid = 2
-					ORDER BY trx.create_dtts
-				)b
-				WHERE trx.event_dtts = b.create_dtts
-					and trx.param_mst_rawid = param.rawid
-					and param.name = #{param_name}
-			)
-			GROUP BY value ,param_mst_rawid
-		) score
-		WHERE avg_value.barcode = score.value
-		ORDER BY locationname
+		select d.value, d.message_group
+		from param_mst_pdm p, param_dimension_trx_pdm d
+		where p.rawid=d.param_mst_rawid
+		and (p.name='VEHICLE_CURRENT_POSITION(POINT)' or p.name='BARCODE' or p.name='VEHICLE_POSITION')
+		and d.end_dtts <![CDATA[>=]]> #{fromdate}
+		and d.end_dtts  <![CDATA[<]]> #{todate}
+		) g
+		where f.message_group=g.message_group
+		and e.rawid=p.eqp_mst_rawid
+		and e.rawid=#{eqp_id}
+		and p.name=#{param_name}
+		and p.rawid=f.param_mst_rawid
+		and f.event_dtts <![CDATA[>=]]> #{fromdate}
+		and f.event_dtts <![CDATA[<]]> #{todate}
+		group by e.rawid, g.value, p.name, p.unit_cd
+		) o,
+		(
+		select e.rawid eqp_mst_rawid, g.value as dimension, p.name, max(h.score) score,
+		CASE WHEN h.status_cd = 'A' THEN 256 WHEN h.status_cd = 'W' THEN 128 ELSE 0 END AS status_cd
+		from param_health_trx_pdm h, param_health_mst_pdm t, param_mst_pdm p, eqp_mst_pdm e,
+		(
+		select d.value, d.message_group
+		from param_mst_pdm p, param_dimension_trx_pdm d
+		where p.rawid=d.param_mst_rawid
+		and (p.name='VEHICLE_CURRENT_POSITION(POINT)' or p.name='BARCODE' or p.name='VEHICLE_POSITION')
+		and d.end_dtts <![CDATA[>=]]> #{fromdate}
+		and d.end_dtts <![CDATA[<]]> #{todate}
+		) g
+		where h.message_group=g.message_group
+		and e.rawid=p.eqp_mst_rawid
+		and e.rawid=#{eqp_id}
+		and p.name= #{param_name}
+		and p.rawid=h.param_mst_rawid
+		and t.rawid=h.param_health_mst_rawid
+		and t.health_logic_mst_rawid=2
+		and h.create_dtts <![CDATA[>=]]> #{fromdate}
+		and h.create_dtts <![CDATA[<]]> #{todate}
+		group by e.rawid, g.value, p.name, h.status_cd
+		) q
+		where o.dimension=q.dimension(+) and o.eqp_mst_rawid=q.eqp_mst_rawid(+) and o.name=q.name(+)
 	</select>
 
 
@@ -2466,15 +2654,16 @@
 	</select>
 
     <select id="selectRUL" resultType="com.bistel.a3.portal.domain.pdm.EqpHealthRUL">
-        select c.rawid as param_id, c.name as param_name, a.intercept, a.slope, max(a.xvalue) over() as xvalue, a.create_dtts
-        from PARAM_HEALTH_RUL_TRX_PDM a,param_health_mst_pdm b, PARAM_MST_PDM c
-        where 1=1
-        and a.create_dtts <![CDATA[>=]]> #{fromdate}
-        and a.create_dtts <![CDATA[<]]> #{todate}
-        and a.param_health_mst_rawid=b.rawid
-        and b.param_mst_rawid=c.rawid
-        and b.param_mst_rawid= #{param_id}
-        and rownum = 1
+		select c.rawid as param_id, c.name as param_name, a.intercept, a.slope, a.xvalue, a.create_dtts
+		from PARAM_HEALTH_RUL_TRX_PDM a,param_health_mst_pdm b, PARAM_MST_PDM c
+		where 1=1
+		and a.create_dtts <![CDATA[>=]]> #{fromdate}
+		and a.create_dtts <![CDATA[<]]> #{todate}
+		and a.param_health_mst_rawid=b.rawid
+		and b.param_mst_rawid=c.rawid
+		and b.param_mst_rawid= #{param_id}
+		and rownum = 1
+		order by a.create_dtts desc
     </select>
 
     <select id="selectEqpHealthAlarmCount" resultType="com.bistel.a3.portal.domain.pdm.EqpHealthIndex">
@@ -2612,6 +2801,7 @@
 					<!--status_cd!='A'-->
 					and A.create_dtts <![CDATA[>=]]> #{fromdate}
 					and A.create_dtts <![CDATA[<]]> #{todate}
+					and a.data_count!=0
 				)
 				group by PARAM_MST_RAWID, PARAM_HEALTH_MST_RAWID
 			)
@@ -2623,147 +2813,55 @@
 
 
     <insert id="insertSummaryHealthDiff" databaseId="oracle">
-		<!--insert into eqp_health_daily_sum_pdm (rawid, eqp_mst_rawid, param_health_mst_rawid, score, alarm_count, sum_dtts, create_by, create_dtts)-->
-		<!--select seq_eqp_health_daily_sum_pdm.nextval , a.eqp_mst_rawid, a.param_health_mst_rawid, a.score, nvl(b.cnt, 0) as alarm_count, to_timestamp(#{fromdate},'YYYY-MM-DD HH24:MI:SS.FF') as sum_dtts ,'SYSTEM' as create_by, current_timestamp create_dtts-->
-		<!--from-->
-		<!--(-->
-		<!--select-->
-		<!--eqp_mst_rawid,name as param_name ,param_health_mst_rawid, score-->
-		<!--from-->
-		<!--(-->
-		<!--select e.rawid as eqp_mst_rawid, p.name, t.param_health_mst_rawid, t.score, t.create_dtts,-->
-		<!--rank() over (partition by e.rawid, t.param_health_mst_rawid order by t.create_dtts desc) ord-->
-		<!--from eqp_mst_pdm e, param_mst_pdm p, param_health_trx_pdm t, param_health_mst_pdm h-->
-		<!--where e.rawid=p.eqp_mst_rawid-->
-		<!--and p.rawid=h.param_mst_rawid-->
-		<!--and t.param_health_mst_rawid=h.rawid-->
-		<!--and h.health_logic_mst_rawid in(3)-->
-		<!--and t.create_dtts between #{fromdate} and #{todate}-->
-		<!--)-->
-		<!--where ord = 1-->
-		<!--) a,-->
-		<!--(-->
-		<!--select e.rawid as eqp_mst_rawid, a.param_health_mst_rawid, count(a.value) as cnt-->
-		<!--from eqp_mst_pdm e, param_mst_pdm p, alarm_trx_pdm a, param_health_mst_pdm l-->
-		<!--where e.rawid=p.eqp_mst_rawid-->
-		<!--and p.rawid=a.param_mst_rawid-->
-		<!--and a.param_health_mst_rawid=l.rawid-->
-		<!--and a.alarm_dtts between #{fromdate} and #{todate}-->
-		<!--group by e.rawid, p.name, a.param_health_mst_rawid-->
-		<!--order by e.rawid, p.name-->
-		<!--) b-->
-		<!--where a.eqp_mst_rawid=b.eqp_mst_rawid (+)-->
-		<!--and a.param_health_mst_rawid=b.param_health_mst_rawid (+)-->
-
 		insert into eqp_health_daily_sum_pdm (rawid, eqp_mst_rawid, param_health_mst_rawid, score, alarm_count, sum_dtts, create_by, create_dtts, previous_avg, today_avg, sigma, previous_date)
-		select seq_eqp_health_daily_sum_pdm.nextval, z.eqp_mst_rawid, z.param_health_mst_rawid, zz.score, z.alarm_count, z.sum_dtts, z.create_by, z.create_dtts,zz.previous_avg, zz.sigma, zz.today_avg ,zz.previous_date
+		select
+		seq_eqp_health_daily_sum_pdm.nextval, l.eqp_mst_rawid, l.param_health_mst_rawid,
+		((k.today_avg-k.previous_avg)/k.sigma) AS score,
+		0 as alarm_count, to_timestamp(#{fromdate},'YYYY-MM-DD HH24:MI:SS.FF') as sum_dtts,
+		'SYSTEM' create_by, current_timestamp as create_dtts,
+		k.previous_avg, k.today_avg, k.sigma, current_timestamp - 90 previous_date
 		from
 		(
-		select a.eqp_mst_rawid, a.param_mst_rawid, a.param_health_mst_rawid, a.score, nvl(b.cnt, 0) as alarm_count, to_timestamp(#{fromdate},'YYYY-MM-DD HH24:MI:SS.FF') as sum_dtts,'SYSTEM' as create_by, current_timestamp create_dtts
-		from
+		SELECT
+		a.eqp_mst_rawid, b.name, ((b.today_avg-a.previous_avg)/a.sigma) AS score,
+		0 as alarm_count, to_timestamp(#{fromdate},'YYYY-MM-DD HH24:MI:SS.FF') as sum_dtts,
+		'SYSTEM' create_by, current_timestamp as create_dtts,
+		a.previous_avg, today_avg, sigma, current_timestamp - 90 previous_date
+		FROM
 		(
-		select eqp_mst_rawid, rawid as param_mst_rawid, name as param_name ,param_health_mst_rawid, score
-		from
-		(
-		select e.rawid as eqp_mst_rawid, p.rawid , p.name, t.param_health_mst_rawid, t.score, t.create_dtts,  rank() over (partition by e.rawid, t.param_health_mst_rawid order by t.create_dtts desc) ord
-		from eqp_mst_pdm e, param_mst_pdm p, param_health_trx_pdm t, param_health_mst_pdm h
-		where e.rawid=p.eqp_mst_rawid
-		and p.rawid=h.param_mst_rawid
-		and t.param_health_mst_rawid=h.rawid
-		and h.health_logic_mst_rawid in(3)
-		and t.create_dtts between to_timestamp(#{fromdate}, 'YYYY-MM-DD HH24:MI:SS.FF')
-		and to_timestamp(#{todate}, 'YYYY-MM-DD HH24:MI:SS.FF')
-		)
-		where ord = 1
+		SELECT p.eqp_mst_rawid, p.rawid, p.name, avg(t.score) previous_avg, stddev(t.score) sigma
+		FROM param_mst_pdm p,
+		param_health_trx_pdm t,
+		param_health_mst_pdm h
+		WHERE p.rawid=h.param_mst_rawid
+		and h.rawid=t.param_health_mst_rawid
+		and h.health_logic_mst_rawid=2
+		AND t.create_dtts BETWEEN to_timestamp(#{fromdate}, 'YYYY-MM-DD HH24:MI:SS.FF') - 90
+		AND to_timestamp(#{fromdate}, 'YYYY-MM-DD HH24:MI:SS.FF')
+		GROUP BY p.eqp_mst_rawid, p.rawid, p.name
 		) a,
 		(
-		select e.rawid as eqp_mst_rawid, a.param_health_mst_rawid, count(a.value) as cnt
-		from eqp_mst_pdm e, param_mst_pdm p, alarm_trx_pdm a, param_health_mst_pdm l
-		where e.rawid=p.eqp_mst_rawid
-		and p.rawid=a.param_mst_rawid
-		and a.param_health_mst_rawid=l.rawid
-		and a.alarm_dtts between to_timestamp(#{fromdate}, 'YYYY-MM-DD HH24:MI:SS.FF')
-		and to_timestamp(#{todate}, 'YYYY-MM-DD HH24:MI:SS.FF')
-		group by e.rawid, p.name, a.param_health_mst_rawid
-		order by e.rawid, p.name
+		SELECT p.eqp_mst_rawid, p.rawid, h.rawid param_health_mst_rawid, p.name, avg(t.score) today_avg
+		FROM param_mst_pdm p,
+		param_health_trx_pdm t,
+		param_health_mst_pdm h
+		WHERE p.rawid=h.param_mst_rawid
+		and h.rawid=t.param_health_mst_rawid
+		and h.health_logic_mst_rawid=2
+		AND t.create_dtts BETWEEN to_timestamp(#{fromdate}, 'YYYY-MM-DD HH24:MI:SS.FF')
+		AND to_timestamp(#{todate}, 'YYYY-MM-DD HH24:MI:SS.FF')
+		GROUP BY p.eqp_mst_rawid, p.rawid, h.rawid, p.name
 		) b
-		where a.eqp_mst_rawid=b.eqp_mst_rawid (+)
-		and a.param_health_mst_rawid=b.param_health_mst_rawid (+)
-		) z,
-
+		WHERE a.eqp_mst_rawid=b.eqp_mst_rawid and a.rawid=b.rawid
+		) k,
 		(
-		select param_id, param_name, previous_avg, sigma, today_avg, score, previous_date
-		from
-		(
-		select a.rawid as param_id, a.name as param_name, previous_avg, sigma, today_avg, decode(sigma, 0, 0, (today_avg-previous_avg)/sigma) as score,	to_timestamp(#{fromdate}, 'YYYY-MM-DD HH24:MI:SS.FF') - 90 as previous_date
-		from
-		(
-		select p.rawid, p.name, avg(t.value/t.alarm_spec) previous_avg, stddev(t.value/t.alarm_spec)+avg(t.value/t.alarm_spec) sigma
-		from param_mst_pdm p, trace_trx_pdm t
-		where p.rawid=t.param_mst_rawid
-		and t.status_cd='R'
-		and t.event_dtts between to_timestamp(#{fromdate}, 'YYYY-MM-DD HH24:MI:SS.FF') - 90
-		and to_timestamp(#{fromdate}, 'YYYY-MM-DD HH24:MI:SS.FF')
-		and t.alarm_spec!=0
-		group by p.rawid,p.name
-		) a,
-		(
-		select p.rawid, p.name, avg(t.value/t.alarm_spec) today_avg
-		from param_mst_pdm p, trace_trx_pdm t
-		where p.rawid=t.param_mst_rawid
-		and t.status_cd='R'
-		and t.event_dtts between to_timestamp(#{fromdate}, 'YYYY-MM-DD HH24:MI:SS.FF')
-		and to_timestamp(#{todate}, 'YYYY-MM-DD HH24:MI:SS.FF')
-		and t.alarm_spec!=0
-		group by p.rawid,p.name
-		) b
-		where a.rawid=b.rawid
-
-		)
-		where 1=1
-		and param_id in
-		(
-		select param_mst_rawid
-		from
-		(
-		select a.eqp_mst_rawid, a.param_mst_rawid, a.param_health_mst_rawid, a.score, nvl(b.cnt, 0) as alarm_count, to_timestamp(#{fromdate},'YYYY-MM-DD HH24:MI:SS.FF') as sum_dtts,'SYSTEM' as create_by, current_timestamp create_dtts
-		from
-		(
-		select eqp_mst_rawid, rawid as param_mst_rawid, name as param_name ,param_health_mst_rawid, score
-		from
-		(
-		select e.rawid as eqp_mst_rawid, p.rawid , p.name, t.param_health_mst_rawid, t.score, t.create_dtts,  rank() over (partition by e.rawid, t.param_health_mst_rawid order by t.create_dtts desc) ord
-		from eqp_mst_pdm e, param_mst_pdm p, param_health_trx_pdm t, param_health_mst_pdm h
-		where e.rawid=p.eqp_mst_rawid
-		and p.rawid=h.param_mst_rawid
-		and t.param_health_mst_rawid=h.rawid
-		and h.health_logic_mst_rawid in(3)
-		and t.create_dtts between to_timestamp(#{fromdate}, 'YYYY-MM-DD HH24:MI:SS.FF')
-		and to_timestamp(#{todate}, 'YYYY-MM-DD HH24:MI:SS.FF')
-		)
-		where ord = 1
-		) a,
-		(
-		select e.rawid as eqp_mst_rawid, a.param_health_mst_rawid, count(a.value) as cnt
-		from eqp_mst_pdm e, param_mst_pdm p, alarm_trx_pdm a, param_health_mst_pdm l
-		where e.rawid=p.eqp_mst_rawid
-		and p.rawid=a.param_mst_rawid
-		and a.param_health_mst_rawid=l.rawid
-		and a.alarm_dtts between to_timestamp(#{fromdate}, 'YYYY-MM-DD HH24:MI:SS.FF')
-		and to_timestamp(#{todate}, 'YYYY-MM-DD HH24:MI:SS.FF')
-		group by e.rawid, p.name, a.param_health_mst_rawid
-		order by e.rawid, p.name
-		) b
-		where a.eqp_mst_rawid=b.eqp_mst_rawid (+)
-		and a.param_health_mst_rawid=b.param_health_mst_rawid (+)
-		)
-		)
-		)zz
-		where z.param_mst_rawid=param_id
-
-
-
-
+		SELECT p.eqp_mst_rawid, p.rawid, h.rawid param_health_mst_rawid, p.name
+		FROM param_mst_pdm p,
+		param_health_mst_pdm h
+		WHERE p.rawid=h.param_mst_rawid
+		and h.health_logic_mst_rawid=3
+		) l
+		where k.eqp_mst_rawid=l.eqp_mst_rawid and k.name=l.name
 	</insert>
 
 	<!--To do Postgre-->
@@ -2840,10 +2938,10 @@
                                 paramId,
                                 score,
                                 1 AS upperAlarmSpec,
-                                0.8 AS upperWarningSpec,
+		 						#{globalWarn} AS upperWarningSpec,
                                 CASE
                                         WHEN eqp_rank.score >= 1   THEN 'alarm'
-                                        WHEN eqp_rank.score >= 0.8 THEN 'warning'
+                                        WHEN eqp_rank.score <![CDATA[>=]]> #{globalWarn} THEN 'warning'
                                         ELSE 'normal'
                                     END
                                 AS status
@@ -2913,10 +3011,10 @@
                                 paramId,
                                 score,
                                 1 AS upperAlarmSpec,
-                                0.8 AS upperWarningSpec,
+		 						#{globalWarn} AS upperWarningSpec,
                                 CASE
                                         WHEN eqp_rank.score >= 1   THEN 'alarm'
-                                        WHEN eqp_rank.score >= 0.8 THEN 'warning'
+                                        WHEN eqp_rank.score <![CDATA[>=]]> #{globalWarn} THEN 'warning'
                                         ELSE 'normal'
                                     END
                                 AS status
@@ -2979,14 +3077,33 @@
 
 
 	<select id="selectRULSummary" resultType="com.bistel.a3.portal.domain.pdm.ParamRULSummary">
-		select f.param_mst_rawid, f.end_dtts,  ht.score as mean, h.rawid param_health_mst_rawid,  1 as alarm_spec
-		from param_feature_trx_pdm f, param_health_mst_pdm h, param_health_trx_pdm ht
-		where end_dtts <![CDATA[>=]]> #{fromdate}
-		and end_dtts <![CDATA[<]]> #{todate}
+
+		select
+		a.param_mst_rawid, a.end_dtts, a.mean, b.param_health_mst_rawid, a.alarm_spec
+
+
+		from
+		(
+		select ht.param_mst_rawid as param_mst_rawid, ht.create_dtts as end_dtts,
+		ht.score as mean, 1 as alarm_spec, p.eqp_mst_rawid
+		from param_mst_pdm p, param_health_mst_pdm h, param_health_trx_pdm ht
+		where 1=1
+		and p.rawid=h.param_mst_rawid
+		and ht.create_dtts <![CDATA[>=]]> #{fromdate}
+		AND ht.create_dtts <![CDATA[<]]> #{todate}
+		and h.health_logic_mst_rawid=2
+		and h.param_mst_rawid=ht.param_mst_rawid
+		) a,
+		(
+		SELECT p.eqp_mst_rawid, p.rawid, h.rawid param_health_mst_rawid
+		FROM param_mst_pdm p,
+		param_health_mst_pdm h
+		WHERE p.rawid=h.param_mst_rawid
 		and h.health_logic_mst_rawid=4
-		and f.param_mst_rawid=h.param_mst_rawid
-		and h.rawid=ht.param_health_mst_rawid
-		order by f.end_dtts
+		) b
+		where a.eqp_mst_rawid=b.eqp_mst_rawid and b.rawid=a.param_mst_rawid
+		order by a.end_dtts
+
 
 	</select>
 
@@ -3054,6 +3171,28 @@
 		and health.param_mst_rawid=param.rawid
 		and health.health_logic_mst_rawid=4
 		and param.rawid=#{param_id}
+	</select>
+
+	<select id="selectHealthIndexTrend" resultType="com.bistel.a3.portal.domain.pdm.EqpHealthIndex">
+		select eqp.AREA_MST_RAWID as area_id, amp.name as area_name ,ehdsp.eqp_mst_rawid as eqp_id, eqp.name as eqp_name,
+		phmp.param_mst_rawid as param_id, param.name as param_name,  hlmsp.rawid as health_logic_id, ehdsp.sum_dtts ,hlmsp.code, ehdsp.score,
+		1 as upperAlarmSpec,
+		#{globalWarn} as upperWarningSpec
+		from EQP_HEALTH_DAILY_SUM_PDM ehdsp, param_health_mst_pdm phmp, health_logic_mst_pdm hlmsp,
+		eqp_mst_pdm eqp, area_mst_pdm amp, param_mst_pdm param
+
+		where 1=1
+		and ehdsp.sum_dtts <![CDATA[>=]]> #{fromdate}
+		and ehdsp.sum_dtts <![CDATA[<]]> #{todate}
+		and phmp.rawid=ehdsp.param_health_mst_rawid
+		and phmp.health_logic_mst_rawid=hlmsp.rawid
+		and phmp.param_mst_rawid=param.rawid
+		and eqp.rawid=ehdsp.eqp_mst_rawid
+		and eqp.area_mst_rawid=amp.rawid
+		and phmp.param_mst_rawid=#{param_id}
+		<!--        and hlmsp.rawid=2 -->
+		order by area_id, eqp_id, eqp_name, param_id, param_name, ehdsp.SUM_DTTS ,health_logic_id, code
+
 	</select>
 
 </mapper>

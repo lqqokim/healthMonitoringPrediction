@@ -1,50 +1,55 @@
-.spec-rule-container {
+.spmaster-ec-rule-container {
     height: 100%;
     width: 100%;
 }
 .condition .control-label{
     position: fixed;
 }
-/* .spec-rule-container .spec-rule-header{
+/* .master-spec-rule-container .spec-rule-header{
     padding-bottom: 8px;
 } */
-/* .spec-rule-container .spec-rule-header .btn-group{
+/* .master-spec-rule-container .spec-rule-header .btn-group{
     padding-right: 8px;
 } */
-/* .spec-rule-container .spec-rule-header .btn-default{
+/* .master-spec-rule-container .spec-rule-header .btn-default{
     margin-left: 5px;
 } */
-.spec-rule-container .spec-rule-header .fab-selector {
+.master-spec-rule-container .spec-rule-header .fab-selector {
     width:200px;
     display: inline-block;
 }
 
-.spec-rule-container .spec-rule-header .model-seletor {
+.master-spec-rule-container .spec-rule-header .model-seletor {
     width:200px;
     display: inline-block;
 }
 
-.spec-rule-container .spec-rule-content .rule-list {
+.master-spec-rule-container .spec-rule-content .rule-list {
     width: calc(100% / 2 - 10px);
     display: inline-block;
+    position: relative;
+    height: 300px;
     float: left;
 }
-.spec-rule-container .spec-rule-content .rule-list .btn-group,
-.spec-rule-container .spec-rule-content .parameter-list .btn-group {
+.master-spec-rule-container .spec-rule-content .rule-list .btn-group,
+.master-spec-rule-container .spec-rule-content .parameter-list .btn-group {
     padding-bottom: 8px;
 }
-.spec-rule-container .spec-rule-content .rule-list .btn-group .btn-default {
-    margin-left: 8px;
+.master-spec-rule-container .spec-rule-content .rule-list .btn-group .btn-default {
+    margin-left: 2px;
 }
 
-.spec-rule-container .spec-rule-content .parameter-list {
+.master-spec-rule-container .spec-rule-content .parameter-list {
     width: calc(100% / 2 - 10px);
     display: inline-block;
+    position: relative;
+    height: 300px;
     margin-left: 15px;
 }
 
 .modal-body.spec-rule-modal-body .condition table{
     width: 100%;
+    margin-top: 6px;
 }
 
 .modal-body.spec-rule-modal-body .condition table td{
@@ -63,4 +68,20 @@
 #ruleModal .modal-header > button[class="close"]{
     position: static;
     font-size: 30px;
+}
+
+.rule-list-wrapper {
+    position: absolute;
+    top:35px;
+    left:0;
+    right:0;
+    bottom: 10px;
+}
+
+.param-list-wrapper {
+    position: absolute;
+    top:35px;
+    left:0;
+    right:0;
+    bottom: 10px;
 }

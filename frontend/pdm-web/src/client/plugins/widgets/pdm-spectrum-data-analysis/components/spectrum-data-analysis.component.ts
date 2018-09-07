@@ -2675,7 +2675,7 @@ export class SpectrumDataAnalysisComponent implements OnDestroy, AfterViewInit {
         }
 
         this.isShowExpandBtn = true;
-        // this._restoreChartPanel();
+        this._restoreChartPanel();
         this.chartPopup.hide();
     }
 

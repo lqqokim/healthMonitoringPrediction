@@ -104,12 +104,7 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
             this.timePeriod = currentValue['timePeriod'];
             this.worstTop = currentValue['worstTop'];
             this._initData();
-
             this.getRadarDatas();
-            // this.getRadarDatas("AW");
-            // this.getRadarDatas("B5");
-            // this.getRadarDatas("B5");
-            // this.getRadarDatas("G5");
         } else if (changes['fullScreen'] != null && changes['fullScreen']['currentValue'] != null) {
             this.trendShow = false;
 
@@ -251,8 +246,6 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
         };
     }
 
-
-
     mouseEnter(item: any, index: number): void | any {
         if (item.chartData) {
             this.selectedItem = this.objectUnion({}, item);
@@ -273,28 +266,6 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
         }
 
         if (item.chartData && this.paramDatas) {
-            // let params: any[] = this.paramDatas;
-            // let param: any = {
-            //     paramId: '',
-            //     paramName: ''
-            // };
-
-            // const dataLength: number = params.length;
-            // for (let i: number = 0; i < dataLength; i++) {
-            //     if (item.type === params[i].type && item.id === params[i].eqpId) {
-            //         param = {
-            //             paramId: params[i].paramId,
-            //             paramName: params[i].paramName,
-            //             avgWithAW: params[i].avgWithAW,
-            //             warn: params[i].warn,
-            //             eqpId: params[i].eqpId
-            //         };
-
-            //         break;
-            //     }
-            // }
-
-            // this.isParamContext = true;
             this.paramSelected = true;
             this.trendShow = true;
             this.colIndex = parseInt((index % 5).toString()); //Trend chart position
@@ -338,12 +309,9 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges {
         if (type === 'alarm' || type === 'warning') {
             dataLength = this.alarmWarningDatas.length;
             selector = '#gauge_alarmWarning';
-        } else if (type === 'B5') {
+        } else if (type === 'normal') {
             dataLength = this.B5Datas.length;
             selector = '#gauge_bad';
-        } else if (type === 'G5') {
-            dataLength = this.G5Datas.length;
-            selector = '#gauge_good';
         }
 
         const row: number = parseInt((index / 5).toString()) + 1;

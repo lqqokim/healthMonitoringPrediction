@@ -16,7 +16,6 @@ chart-visual-options-item > div:hover > .closeButton { right:-16px; }
 chart-visual-options-item > div > .closeButton:hover::after { color:#f00; }
 chart-visual-options-item > div > .closeButton:hover + span { background:#f00; color:#fff; }
 
-
 /* select 타입 */
 chart-visual-options-item > div[type=select] > span { align-items:flex-start; line-height:20px; border-radius:5px; min-width:55px; }
 chart-visual-options-item > div[type=select] > div { position:absolute; left:0; right:0; bottom:0; height:14px; background:#333; border-radius:0 0 5px 5px; display:flex; justify-content:center; align-items:center; z-index:3; cursor:pointer; }
@@ -41,3 +40,45 @@ chart-visual-options-item > div[type=select] > div > ul > li.selected:hover::bef
 /* select - 리스트 영역 마우스 오버 */
 chart-visual-options-item > div[type=select] > div:hover { border-radius:0; }
 chart-visual-options-item > div[type=select] > div:hover > ul { display:block; }
+
+
+
+/* 아이템 기본 베이스*/
+.chartVisualOpts-itemTooltip > span { position:relative; display:flex; justify-content:center; align-items:center; background:#eee; border-radius:10px; color:#333; height:32px; padding:0 15px; z-index:2; }
+
+/* 닫기버튼 */
+.chartVisualOpts-itemTooltip > .closeButton { position:absolute; right:0; top:0; bottom:0; border:0; width:100%; background:transparent; z-index:1; transition:right 0.1s ease-in-out; }
+.chartVisualOpts-itemTooltip > .closeButton::after { content:'\f00d'; display:flex; justify-content:flex-end; align-items:center; position:absolute; left:0; right:0; top:0; bottom:0; margin:auto; font:normal normal normal 14px/1 FontAwesome; font-size:14px; }
+
+/* 아이템에 마우스 오버 시 등장효과 */
+.chartVisualOpts-itemTooltip:hover { margin-right:25px; }
+.chartVisualOpts-itemTooltip:hover > .closeButton { right:-16px; }
+
+/* 닫기버튼 마우스 오버 효과 */
+.chartVisualOpts-itemTooltip > .closeButton:hover::after { color:#f00; }
+.chartVisualOpts-itemTooltip > .closeButton:hover + span { background:#f00; color:#fff; }
+
+/* select 타입 */
+.chartVisualOpts-itemTooltip > span { align-items:flex-start; line-height:20px; border-radius:5px; min-width:55px; }
+.chartVisualOpts-itemTooltip > div { position:absolute; left:0; right:0; bottom:0; height:14px; background:#333; border-radius:0 0 5px 5px; display:flex; justify-content:center; align-items:center; z-index:3; cursor:pointer; }
+.chartVisualOpts-itemTooltip > div::after { content:''; display:block; position:absolute; top:0; bottom:0; right:5px; width:0; height:0; border-top:3px solid #fff; border-left:3px solid transparent; border-right:3px solid transparent; margin:auto 0; }
+
+/* select - 아이템 이름 */
+.chartVisualOpts-itemTooltip > div > span { color:#fff; font-size:10px; margin-right:5px; }
+
+/* select - 리스트 */
+.chartVisualOpts-itemTooltip > div > ul { display:none; position:absolute; left:0; right:0; top:100%; border-top:1px solid #fff; background:#333; box-shadow:0 0 5px rgba(0,0,0,0.25); }
+.chartVisualOpts-itemTooltip > div > ul > li { position:relative; padding:7px 6px; border-bottom:1px solid #666; font-size:11px; color:#fff; }
+.chartVisualOpts-itemTooltip > div > ul > li:last-child { border-bottom:0; }
+
+/* select - 리스트 선택 */
+.chartVisualOpts-itemTooltip > div > ul > li.selected::before { content:''; display:block; position:absolute; right:100%; top:0; bottom:0; width:10px; border-radius:5px 0 0 10px; background:#333; }
+.chartVisualOpts-itemTooltip > div > ul > li.selected::after { content:''; display:block; position:absolute; right:100%; top:0; bottom:0; width:4px; height:9px; border-radius:3px; background:#00d887; margin:auto 0; }
+
+/* select - 리스트 아이템 마우스 오버 */
+.chartVisualOpts-itemTooltip > div > ul > li:hover { background:#000; }
+.chartVisualOpts-itemTooltip > div > ul > li.selected:hover::before { background:#000; }
+
+/* select - 리스트 영역 마우스 오버 */
+.chartVisualOpts-itemTooltip > div:hover { border-radius:0; }
+.chartVisualOpts-itemTooltip > div:hover > ul { display:block; }

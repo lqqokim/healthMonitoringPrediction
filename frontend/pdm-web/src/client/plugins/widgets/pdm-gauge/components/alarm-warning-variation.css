@@ -149,7 +149,7 @@
 }
 
 .alram-type-danger .pdm-gauge-section {
-    background-color: rgb(255, 202, 210);
+    background-color: rgba(253, 101, 105, 0.1);
 }
 
 /* .alram-type-danger .pdm-gauge-section:hover {
@@ -172,7 +172,7 @@
 }
 
 .alram-type-warning .pdm-gauge-section:hover {
-    background-color: rgb(252, 225, 198);
+    background-color: #ffefed;
 }
 
 /* .alram-type-warning .pdm-gauge-section:hover {

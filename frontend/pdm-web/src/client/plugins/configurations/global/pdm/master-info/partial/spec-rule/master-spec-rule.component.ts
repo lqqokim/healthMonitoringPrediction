@@ -20,7 +20,7 @@ import { NgForm } from '@angular/forms';
 
 @Component({
     moduleId: module.id,
-    selector: 'spec-rule',
+    selector: 'master-spec-rule',
     templateUrl: './master-spec-rule.html',
     styleUrls: ['./master-spec-rule.css'],
     providers: [PdmConfigService, PdmModelService]
@@ -47,6 +47,7 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
 
     tempSpecRules: IRule.Rule[];
 
+    isOnModalEdit: boolean = false;
     isRuleUse: boolean = false;
     isEditGird: boolean = false;
     modalTitle: string;
@@ -93,6 +94,9 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
                         this.paramsBySeletedRule = [];
                     }
                 }
+
+                // const wjCellCheckBox: Element= $('.wj-cell-check');
+                // console.log('wjCellCheckBox1', wjCellCheckBox);
             }).catch((err) => {
                 console.log(err);
             });
@@ -127,7 +131,7 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
         setTimeout(() => {
             if (this.RuleGrid.itemsSource && this.RuleGrid.itemsSource.length > 0) {
                 this.selectedRule = this.RuleGrid.itemsSource[0];
-                console.log('selectFirstRule', this.RuleGrid)
+                // console.log('selectFirstRule', this.RuleGrid)
                 this.getParamsByEqpRule();
             }
         });
@@ -162,7 +166,7 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     conditionToString(conditions: IRule.Condition[]): string {
-        const toJsonStr = JSON.stringify(conditions);
+        const toJsonStr: string = JSON.stringify(conditions);
         const condition: string = toJsonStr.toString().replace(/"/g, '\\"');
         return condition;
     }
@@ -182,13 +186,47 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
         return expression;
     }
 
+    revertToModel(item: IRule.ParameterByRule): void {
+        const editParameters = this.editParameters;
+        const dataSize: number = editParameters.length;
+        let selectedRow: IRule.ParameterByRule;
+        for (let i = 0; i < dataSize; i++) {
+            if (editParameters[i].param_id === item.param_id) {
+                selectedRow = editParameters[i];
+            }
+        }
+
+        console.log('selectedRow', selectedRow);
+        this.getSingleParam(selectedRow);
+    }
+
+    getSingleParam(row: IRule.ParameterByRule): void {
+        this._pdmConfigService.getSingleParam(this.fabId, this.selectedRule.rule_id, row.param_name, row.eqp_spec_link_mst_rawid)
+            .then((param: IRule.ParameterResponse) => {
+                console.log('Rollback param success!', param)
+                const editParameters = this.editParameters;
+                for (let i = 0; i < editParameters.length; i++) { //Model로 변경된 값의 Spec을 Model Spec으로 변경
+                    if (editParameters[i].param_name === param.param_name) {
+                        editParameters[i].alarm_spec = param.model_upper_alarm_spec;
+                        editParameters[i].warning_spec = param.model_upper_warning_spec;
+                    }
+                }
+
+                this.editParameters = JSON.parse(JSON.stringify(editParameters)); //Edit Param Grid에 반영
+                console.log('Revert parameters', this.editParameters);
+            }).catch((err) => {
+                console.log('err', err);
+            });
+    }
+
+    closeEditParamModal(): void {
+        this.editParameters = JSON.parse(JSON.stringify(this.tempParameters));
+        this._showModal(false);
+    }
+
     //Rule Grid에서 Row 선택시 호출
     selectRule(grid: wjcGrid.FlexGrid): void {
         this.selectedRule = grid.selectedItems[0];
-
-        if (this.isEditGird) {
-            return;
-        }
 
         let selectedIndex: number = this.rules.indexOf(this.selectedRule);
         if (selectedIndex === 0) {
@@ -201,6 +239,10 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
             this._resetDisabled();
         }
 
+        if (this.isEditGird) {
+            return;
+        }
+
         this.getParamsByEqpRule();
     }
 
@@ -211,12 +253,18 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
 
         //Up, Down Button Disabled 여부 체크
         this.selectedRule = this.RuleGrid.selectedItems[0];
-        let selectedIndex: number = this.rules.indexOf(this.selectedRule);
 
-        if (selectedIndex === 0) {
-            this.isUpDisabled = true;
-        } else if (selectedIndex === this.RuleGrid.itemsSource.length - 1) {
+        if (this.rules.length === 1) {
             this.isDownDisabled = true;
+            this.isUpDisabled = true;
+        } else {
+            let selectedIndex: number = this.rules.indexOf(this.selectedRule);
+
+            if (selectedIndex === 0) {
+                this.isUpDisabled = true;
+            } else if (selectedIndex === this.RuleGrid.itemsSource.length - 1) {
+                this.isDownDisabled = true;
+            }
         }
     }
 
@@ -230,6 +278,7 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
     saveEditRule(): void {
         let rules: IRule.Rule[] = this.rules;
         let ruleRequest: IRule.RuleRequest[] = [];
+        // console.log('saveEditRule rules', rules);
         rules.map((rule: IRule.Rule) => {
             ruleRequest.push({
                 eqp_spec_link_mst_rawid: rule.eqp_spec_link_mst_rawid,
@@ -237,7 +286,8 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
                 rule_name: rule.rule_name,
                 model_name: this.model,
                 condition: this.conditionToString(rule.condition),
-                used_yn: rule.used_yn
+                used_yn: rule.used_yn,
+                ordering: rule.ordering
             });
         });
 
@@ -270,7 +320,7 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
         };
 
         this.ruleFormData = ruleFormData;
-        console.log('ruleFormData', ruleFormData);
+        // console.log('ruleFormData', ruleFormData);
         this.editParameters = JSON.parse(JSON.stringify(ruleFormData.parameter));
         this.tempParameters = JSON.parse(JSON.stringify(this.editParameters)); //Wijmo 수정 취소시, Rollback을 위해
         this._showModal(true, status);
@@ -278,12 +328,13 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
 
     //Modal에서 수정된 Rule의 Parameter 정보를 저장
     saveRule(grid: wjcGrid.FlexGrid): void {
-        // this.ParamGrid.onCellEditEnded();
-        // console.log('source', this.ParamGrid.itemsSource[0]);
-
+        let tempParams = this.tempParameters;
         let parameters: IRule.ParameterByRule[] = this.editParameters;
+        console.log('saveRule parameters', parameters);
+
+        //Update Parameter에 대한 Request Data Setting
         let paramRequest: IRule.ParamRequest[] = [];
-        parameters.map((param: IRule.ParameterByRule) => {
+        parameters.map((param: IRule.ParameterByRule, index: number) => {
             paramRequest.push({
                 eqp_spec_link_mst_rawid: param.eqp_spec_link_mst_rawid,
                 param_id: param.param_id,
@@ -293,23 +344,58 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
                 eqp_upper_warning_spec: param.warning_spec,
                 eqp_lower_alarm_spec: param.eqp_lower_alarm_spec,
                 eqp_lower_warning_spec: param.eqp_lower_warning_spec,
+                used_yn: param.used_yn
             });
+
+            if (tempParams[index].alarm_spec !== paramRequest[index].eqp_upper_alarm_spec) {
+                paramRequest[index].used_yn = true;
+            }
+
+            if (tempParams[index].warning_spec !== paramRequest[index].eqp_upper_warning_spec) {
+                paramRequest[index].used_yn = true;
+            }
         });
 
+        console.log('Parameter Request', paramRequest);
+        this.updateRevertToModelSpec();
         this.updateEqpRuleParams(paramRequest);
         this._showModal(false);
+    }
+
+    gotFocus(event) {
+        console.log('gotFocus', event);
     }
 
     //수정된 Rule의 Parameter 정보 저장을 위한 API 호출
     updateEqpRuleParams(request: IRule.ParamRequest[]): void {
         this._pdmConfigService.updateEqpRuleParams(this.fabId, request)
             .then((res) => {
-                console.log('updateEqpRuleParams res', res);
+                // console.log('updateEqpRuleParams res', res);
                 this.getRules();
                 this.notify.success("MESSAGE.USER_CONFIG.UPDATE_SUCCESS");
             }).catch((err) => {
-                console.log('updateEqpRuleParams err', err);
+                console.log(err);           
+                this.getRules();
+                this.notify.error("MESSAGE.GENERAL.ERROR");
             });
+    }
+
+    //Edit Modal에서 Rollback한 Parameter를 제거
+    updateRevertToModelSpec(): void {
+        const previousParams = this.tempParameters;
+        const currentParams = this.editParameters;
+
+        currentParams.map((param: IRule.ParameterByRule, index: number) => {
+            if (param.type !== previousParams[index].type) {
+                this._pdmConfigService.revertToModelSpec(this.fabId, param.param_name, param.eqp_spec_link_mst_rawid)
+                    .then((res) => {
+                        // console.log('updateRevertToModelSpec success!', res);
+                    }).catch((err) => {
+                        console.log(err);
+                    })
+            }
+        });
+
     }
 
     //Rule Grid에서 Up 버튼 클릭
@@ -374,20 +460,12 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
         });
     }
 
-    onCellEditEnded(grid, event) {
-        console.log('onCellEditEnded => ', grid, event);
+    beginningEdit(event) {
+        this.isOnModalEdit = true;
     }
 
-    onCellEditEnding(grid, event) {
-        console.log('onCellEditEnding => ', grid, event);
-    }
-
-    onItemsSourceChanged(grid, event) {
-        console.log('onItemsSourceChanged => ', grid, event);
-    }
-
-    closeModal(): void {
-        this._showModal(false);
+    cellEditEnding(event) {
+        this.isOnModalEdit = false;
     }
 
     // Up, Down 버튼 Disabled 여부 초기화

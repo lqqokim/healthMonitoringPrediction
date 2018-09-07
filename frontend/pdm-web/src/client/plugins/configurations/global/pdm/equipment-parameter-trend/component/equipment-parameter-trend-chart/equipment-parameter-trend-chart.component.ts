@@ -30,22 +30,28 @@ export class EquipmentParameterTrendChartComponent implements OnInit, OnChanges,
         legend: {
             show: false,
         },
-        eventLine: {
-            show: true,
-            tooltip: {  // default line tooltip options
-                show: false,         // default : true
-                adjust: 5,          // right, top move - default : 5
-                formatter: null,    // content formatting callback (must return content) - default : true
-                style: '',          // tooltip container style (string or object) - default : empty string
-                classes: ''         // tooltip container classes - default : empty string
-            },
-            events: [
+        // eventLine: {
+        //     show: true,
+        //     tooltip: {  // default line tooltip options
+        //         show: false,         // default : true
+        //         adjust: 5,          // right, top move - default : 5
+        //         formatter: null,    // content formatting callback (must return content) - default : true
+        //         style: '',          // tooltip container style (string or object) - default : empty string
+        //         classes: ''         // tooltip container classes - default : empty string
+        //     },
+        //     events: [
 
-            ]
-        },
+        //     ]
+        // },
         seriesDefaults: {
             showMarker: false
         },
+        seriesColors:['#2196f3', '#fb6520', '#ed9622'], // 기본, 알람, 워닝 순 컬러 지정
+        series: [
+            { lineWidth:1 },
+            { pointLabels:{ show: true }, lineWidth:1, lineCap:'butt' },
+            { pointLabels:{ show: true }, lineWidth:1, lineCap:'butt' },
+        ],
         axes: {
             xaxis: {
                 // min: this.searchTimePeriod[CD.FROM],
@@ -94,32 +100,44 @@ export class EquipmentParameterTrendChartComponent implements OnInit, OnChanges,
         jqplotDblClick: (ev: any, seriesIndex: number, pointIndex: number, data: any) => {
             console.log(ev);
         },
-        jqplotZoom: (ev, gridpos, datapos, plot, cursor)=>{
-            var plotData = plot.series[0].data;
 
+        // 줌 in
+        jqplotZoom: (ev, gridpos, datapos, plot, cursor)=>{
             this.trendConfig['axes']['xaxis']['min'] = plot.axes.xaxis.min;
             this.trendConfig['axes']['xaxis']['max'] = plot.axes.xaxis.max;
 
             this.trendConfig = Object.assign({},this.trendConfig);
             this._chRef.detectChanges();
-
         },
+
+        // 줌 out
         jqplotResetZoom:(ev, gridpos, datapos, plot, cursor)=>{
+            // this.trendConfig['axes']['xaxis']['min'] = this.timePeriod.fromDate;
+            // this.trendConfig['axes']['xaxis']['max'] = this.timePeriod.toDate;
 
-            this.trendConfig['axes']['xaxis']['min'] = this.timePeriod.fromDate;
-            this.trendConfig['axes']['xaxis']['max'] = this.timePeriod.toDate;
+            // this.trendConfig = Object.assign({},this.trendConfig);
 
-            this.trendConfig = Object.assign({},this.trendConfig);
+            // 차트 초기화
+            this.allChartZoomReset();
             this._chRef.detectChanges();
-
         }
-
-        
     };
     sort={parameter:'none',adHoc:'none'};
+
+    // BistelChartComponent 추가
+    chartComponents: Array<{
+        chart: BistelChartComponent,
+        from: number,
+        to: number
+    }> = [];
+
     constructor(private _chRef: ChangeDetectorRef) { }
 
     ngOnInit() {
+        // 이미 차트가 생성된게 있다면 초기화
+        if( this.chartComponents.length > 0 ){
+            this.chartComponents.splice(0);
+        }
 
         // let startDateTime = new Date().getTime() - 100 * 1000;
         // for (let i = 0; i < this.params.length; i++) {
@@ -311,4 +329,33 @@ export class EquipmentParameterTrendChartComponent implements OnInit, OnChanges,
 
     }
 
+    //* 차트가 다 그려질 때 줌 전체 초기 화 값 세팅
+    completeChart( jqplot: {component: BistelChartComponent}, index: number ): void {
+        this.chartComponents.push({
+            chart: jqplot.component,
+            from: <number>jqplot.component.config.axes.xaxis.min,
+            to: <number>jqplot.component.config.axes.xaxis.max
+        });
+    }
+
+    //* 차트 줌 전체 초기화
+    allChartZoomReset(): void {
+        if( this.chartComponents.length === 0 ){ return; }
+
+        let i: number = 0;
+        const len: number = this.chartComponents.length;
+
+        // x축 초기화
+        while( i < len ){
+            this.chartComponents[i].chart.config.axes.xaxis.min = this.chartComponents[i].from;
+            this.chartComponents[i].chart.config.axes.xaxis.min = this.chartComponents[i].to;
+
+            this.chartComponents[i].chart.replot({
+                resetAxes: {
+                    xaxis: true
+                }
+            });
+            i++;
+        }
+    }
 }

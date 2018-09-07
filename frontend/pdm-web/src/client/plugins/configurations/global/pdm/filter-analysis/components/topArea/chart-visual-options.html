@@ -29,11 +29,11 @@
         <dd>
             <chart-visual-options-item
                 itemType='select'
-                *ngFor="let row of chartDataX"
+                *ngFor="let row of chartDataX; let idx = index"
                 [value]='row.name'
-                [itemList]='chartDataTypeX'
-                (onItemSelect)='onItemSelectChartDataX($event)'
-                (onClose)='onChartDataItemDelete(chartDataX, $event)'
+                [itemList]="(row.name === 'DATE_TIME') ? chartDataTypeXDATE_TIME : chartDataTypeX"
+                (onItemSelect)='onItemSelectChartDataX(idx, $event)'
+                (onClose)="onChartDataItemDelete(chartDataX, $event, 'x')"
             ></chart-visual-options-item>
         </dd>
     </dl>
@@ -47,7 +47,7 @@
                 [itemList]='chartDataTypeY[chartDataTypeXSelected]'
                 [selectedItemValue]='row.selected'
                 (onItemSelect)='onItemSelectChartDataY(chartDataY, idx, $event)'
-                (onClose)='onChartDataItemDelete(chartDataY, $event)'
+                (onClose)="onChartDataItemDelete(chartDataY, $event, 'y')"
             ></chart-visual-options-item>
         </dd>
     </dl>
@@ -61,7 +61,7 @@
                 [itemList]='chartDataTypeY[chartDataTypeXSelected]'
                 [selectedItemValue]='row.selected'
                 (onItemSelect)='onItemSelectChartDataY(chartDataY2, idx, $event)'
-                (onClose)='onChartDataItemDelete(chartDataY2, $event)'
+                (onClose)="onChartDataItemDelete(chartDataY2, $event, 'y2')"
             ></chart-visual-options-item>
         </dd>
     </dl>

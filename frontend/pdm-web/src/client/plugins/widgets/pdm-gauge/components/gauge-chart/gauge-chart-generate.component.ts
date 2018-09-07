@@ -29,6 +29,8 @@ export class GaugeChartGenerateComponent implements OnInit, OnChanges {
 
     // private readonly ALARM_RATIO: number = 70;
     private readonly ALARM_RATIO: number = 71.5; //(%)
+    // Gauge Chart 실제 Pointer 값의 Max는 1이다.
+    private readonly gaugeAlarmStandard: number = 1; 
 
     constructor() {
 
@@ -89,19 +91,16 @@ export class GaugeChartGenerateComponent implements OnInit, OnChanges {
                     eqpId: item.chartData.eqpId,
                     eqpName: item.chartData.eqpName,
                 });
-    
             }, 500);
         }
     }
+    
     chartGenerator(item: pdmRadarI.ChartDataType, score: number, axisCategory: string, warn: number) {
-        console.log('score => ', score, 'warn => ', warn );
         const alarmRatio: number = this.ALARM_RATIO * 0.01;
         const warnInterval: number = warn * alarmRatio;
-        let gaugePointerPercent: number = score * alarmRatio > 1.4 ? 1.3 : score * alarmRatio;
-        console.log('score * alarmRatio', score * alarmRatio);
-        console.log('alarmRatio', alarmRatio);
-        console.log('warnInterval', warnInterval);
-        console.log('gaugePoinerPercent', gaugePointerPercent);
+        // let gaugePointerPercent: number = score * alarmRatio; 
+        let gaugePointerPercent: number = score * alarmRatio > this.gaugeAlarmStandard ? 0.996 : score * alarmRatio;
+        console.log('score => ', score, 'warn => ', warn, 'gaugePointerPercent => ', gaugePointerPercent);
 
         const gaugeChartData: IGaugeChartConfig = {
             chartData: [
@@ -157,10 +156,6 @@ export class GaugeChartGenerateComponent implements OnInit, OnChanges {
     //         name: `Parameter : ${axisCategory}`
     //     };
     // }
-
-
-
-
 
     removeGridLine(): void {//for bistel chart bug
         $('.jqplot-target>canvas.jqplot-grid-canvas').remove();

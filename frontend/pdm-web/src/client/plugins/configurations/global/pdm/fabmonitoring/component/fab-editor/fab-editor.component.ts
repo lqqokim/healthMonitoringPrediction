@@ -252,7 +252,8 @@ export class FabEditorComponent implements OnInit, OnChanges, AfterViewInit{
         if(this.fabInfo==null) return this.isSimulationStop;
         for(let i=0;i<this.fabInfo.datas.length;i++){
             this.locations.push(this.fabInfo.datas[i].name);
-        }
+			this.locationKeys[this.fabInfo.datas[i].name] = this.fabInfo.datas[i];
+       }
         // this.moveaction();
         this.locationStatusAction();
         

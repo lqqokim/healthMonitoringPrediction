@@ -359,4 +359,16 @@ export class PdmConfigService extends ModelCommonService {
             params: params
         });
     }
+
+    getSingleParam(fabId: number, ruleId: number, paramName:string, mstRawId: number): Promise<any> {
+        return this.GET({
+            uriPath: `pdm/fabs/${fabId}/eqps/setEqpParamSpec/rule/${ruleId}/paramName/${paramName}/eqpSpecLinkId/${mstRawId}/getModelEqpSpec`
+        });
+    }
+
+    revertToModelSpec(fabId: number, paramName: string, mstRawId: number): Promise<any> {
+        return this.DELETE({
+            uriPath: `pdm/fabs/${fabId}/eqps/setEqpParamSpec/paramName/${paramName}/eqpSpecLinkId/${mstRawId}/revertToModelSpec`
+        });
+    }
 }

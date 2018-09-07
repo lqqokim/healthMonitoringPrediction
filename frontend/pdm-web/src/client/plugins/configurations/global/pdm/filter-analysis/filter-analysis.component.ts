@@ -51,8 +51,13 @@ export class FilterAnalysisComponent implements OnInit {
     
     //* 설정 값
     private configData: Array<FilterAnalysisConfig> = [
-        {dataType: 'select', name:'Chart Type', items: ['Bar Chart', 'Line Chart', 'Pie Chart', 'Point Chart'], value: 'Line Chart'},
-        {dataType: 'boolean', name:'Scailing', value: true },
+        {dataType: 'select', name:'Chart Type', items: [
+            // 'Bar Chart',
+            'Line Chart',
+            // 'Pie Chart',
+            'Point Chart'
+        ], value: 'Line Chart'},
+        // {dataType: 'boolean', name:'Scailing', value: true },
     ];
 
     //* DataConditions에서 넘어올 TimePeriod
@@ -126,6 +131,8 @@ export class FilterAnalysisComponent implements OnInit {
     //* (onDrawChartData) x, y, y2 해당 배열 세팅 용
     private getChartDataType( target: Array<ChartDataItem>): Array<SendItemType> {
 
+        console.log('target', target);
+
         let result: Array<SendItemType> = [];
 
         // 데이터가 없으면 공백
@@ -161,19 +168,31 @@ export class FilterAnalysisComponent implements OnInit {
             return;
         }
 
+        // 로딩 애니메이션 시작
+        this.chartDrawArea.loadingSwitch(true);
+
         // 테스트 용 (실 구동시 제거 코드)
         // res.category.x = [];
         // res.category.y = [];
-        // // res.category.y = ['EQP_NAME'];
-        // // res.category.x = ['AREA_NAME', 'EQP_NAME', 'BARCODE'];
-        // // res.chartData.x = [{name:"BARCODE", selected:'NORMAL'}];
+        // res.category.y = ['EQP_NAME'];
+        // res.category.x = ['AREA_NAME', 'EQP_NAME', 'BARCODE'];
+        // // // res.chartData.x = [{name:"BARCODE", selected:'NORMAL'}];
         // res.chartData.x = [{name:"DATE_TIME", selected:'NORMAL'}];
         // res.chartData.y = [{name:"Z_RMS", selected:'NORMAL'}];
         // // res.chartData.y2 = [];
         // res.chartData.y2 = [{name:"HOIST_AXIS_SPEED", selected:'NORMAL'}];
 
-        // this.timePeriod.from = 1532410240000;
-        // this.timePeriod.to = 1532413840000;
+        // res.category.y = ['EQP_NAME'];
+        // res.category.x = ['AREA_NAME'];
+        // res.chartData.x = [{name:"BARCODE", selected:'NORMAL'}];
+        // res.chartData.y = [{name:"Z_RMS", selected:'NORMAL'}];
+        // res.chartData.y2 = [{name:"HOIST_AXIS_SPEED", selected:'NORMAL'}];
+
+        // this.timePeriod.from = 1535585440000;
+        // this.timePeriod.to = 1535586440000;
+
+        console.log('this.timePeriod.from', moment(this.timePeriod.from).format('YYYY-MM-DD HH:mm:ss'));
+        console.log('this.timePeriod.to', moment(this.timePeriod.to).format('YYYY-MM-DD HH:mm:ss'));
         
         // 차트 관련 데이터 가져오기
         this._pdmModel
@@ -190,32 +209,52 @@ export class FilterAnalysisComponent implements OnInit {
             )
             .then((drawResData: DrawResponseData)=>{
                 console.log( 'getAnalysisToolData-res', res );
+                console.log( 'getAnalysisToolData-drawResData', drawResData );
+
+                // (error-nodata) 그려질 차트 데이터가 없으면 띄워줄 에러 메시지
+                if( 
+                    (drawResData.children.length === 0 && drawResData.values.length === 0) ||
+                    (drawResData.values.length > 0 && drawResData.values[0].length === 0)
+                ){
+                    this.chartDrawArea.errorMsg('No Chart Datas', 'nodata');
+                    return;
+                }
+                
                 const xCategoryCount: number = res.category.x.length;
                 const yCategoryCount: number = res.category.y.length;
 
-                this.chartDrawArea.draw(drawResData, xCategoryCount, yCategoryCount, this.chartType);
+                this.chartDrawArea.draw(drawResData, xCategoryCount, yCategoryCount, this.chartType, res);
             })
             .catch((err: any)=>{
                 console.log( '[error] getAnalysisToolData', err );
+
+                // (error-nodata) 서버 에러 메세지 출력
+                this.chartDrawArea.errorMsg('Server Request Error');
             })
         ;
     }
 
+    //* 날짜 변경 값 적용
+    public onDate( res: TimePeriod ): void {
+        console.log('onDate-res', res);
+        this.timePeriod = res;
+    }
+
     //* 선택된 Parameter 값 리스트 넘어올 데이터
-    onParameter( res: OnParameterData ): void {
+    public onParameter( res: OnParameterData ): void {
         console.log('onParameter - res', res );
         this.parameterFilter( res );
     }
 
     //* 넘어온 Parameter 값 Dimensions, Measures 필터링
-    parameterFilter( datas: OnParameterData ): void {
+    public parameterFilter( datas: OnParameterData ): void {
         const len: number = datas.selectedParameters.length;
 
         // 기존 데이터와 새로 넘어온 데이터가 없으면 처리 안함
         if( len === 0 && this.dimensions.length === 0 && this.measures.length === 0 ){ return; }
 
         // 지정된 날짜 기록
-        this.timePeriod = datas.timePeriod;
+        // this.timePeriod = datas.timePeriod;
 
         // 선택된 파라메터
         const items: Array<string> = datas.selectedParameters;

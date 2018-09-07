@@ -190,9 +190,11 @@ public class SummaryDataService implements ISummaryDataService {
 
     }
     @Override
-    public List<FabMonitoringInfo> getFabMonitoringInfo(String fabId,String param_name,Date fromdate, Date todate){
+    public List<FabMonitoringInfo> getFabMonitoringInfo(String fabId, Long eqp_id, String param_name, Date fromdate, Date todate){
         STDSummaryMapper stdSummaryMapper= SqlSessionUtil.getMapper(sessions, fabId, STDSummaryMapper.class);
-        return stdSummaryMapper.selectFabMonitoring(param_name,fromdate,todate);
+
+        Double globalWarn=globalAWSpec.getNormalized_upper_warning_spec();
+        return stdSummaryMapper.selectFabMonitoring(eqp_id, param_name, fromdate, todate, globalWarn);
     }
 
     @Override
@@ -208,7 +210,7 @@ public class SummaryDataService implements ISummaryDataService {
         if (areaId==null)
         {
             List<WorstEquipmentList> worstEquipmentLists = stdSummaryMapper.selectWorstEquipmentList(start_dtts,end_dtts,eqpId);
-            ArrayList<WorstEqupmentListChartData> worstEqupmentListChartData=stdSummaryMapper.selectWorstEqupmentListChartData(start_dtts,end_dtts);
+            ArrayList<WorstEqupmentListChartData> worstEqupmentListChartData=stdSummaryMapper.selectWorstEqupmentListChartData(start_dtts,end_dtts, eqpId);
 
 
             WorstEqupmentListChartData worstEqupmentListChartData1=null;
@@ -237,8 +239,8 @@ public class SummaryDataService implements ISummaryDataService {
         else
         {
 
-            List<WorstEquipmentList> worstEquipmentLists = stdSummaryMapper.selectWorstEquipmentListByAreaId(start_dtts,end_dtts,areaId);
-            ArrayList<WorstEqupmentListChartData> worstEqupmentListChartData=stdSummaryMapper.selectWorstEqupmentListChartDataByAreaId(start_dtts,end_dtts,areaId);
+            List<WorstEquipmentList> worstEquipmentLists = stdSummaryMapper.selectWorstEquipmentListByAreaId(start_dtts,end_dtts,areaId,eqpId);
+            ArrayList<WorstEqupmentListChartData> worstEqupmentListChartData=stdSummaryMapper.selectWorstEqupmentListChartDataByAreaId(start_dtts,end_dtts,areaId,eqpId);
 
             WorstEqupmentListChartData worstEqupmentListChartData1=null;
             ArrayList<WorstEqupmentListChartData> worstEqupmentListChartDataArray=null;
@@ -546,7 +548,7 @@ public class SummaryDataService implements ISummaryDataService {
 
 
         STDSummaryMapper stdSummaryMapper = SqlSessionUtil.getMapper(sessions, fabId, STDSummaryMapper.class);
-        STDParamMapper stdParamMapper= SqlSessionUtil.getMapper(sessions, fabId, STDParamMapper.class);
+//        STDParamMapper stdParamMapper= SqlSessionUtil.getMapper(sessions, fabId, STDParamMapper.class);
         EqpHealthRUL eqpHealthRULData=stdSummaryMapper.selectRUL(from,to,paramId);
 
         //Allen trace_spec_mst_pdm제거작업(2018-08-24)
@@ -600,7 +602,9 @@ public class SummaryDataService implements ISummaryDataService {
     public Long eqpHealthIndexGetWorstParam(String fabId, Long eqpId, Date from, Date to) { //장비에서 가장 상태가 않좋은 Param_id return
 
         STDReportMapper mapper = SqlSessionUtil.getMapper(sessions, fabId, STDReportMapper.class);
-        List<ParamClassificationData> paramList = mapper.selectRadar(eqpId, from, to);
+
+        Double globalWarn=globalAWSpec.getNormalized_upper_warning_spec();
+        List<ParamClassificationData> paramList = mapper.selectRadar(eqpId, from, to, globalWarn);
 
         //avg_with_aw기준으로 paramList정렬 --> 가장 큰값(Worst)을 찾기위해서
         Collections.sort(paramList, new Comparator<ParamClassificationData>() {
@@ -674,21 +678,14 @@ public class SummaryDataService implements ISummaryDataService {
 
 
 
-    public List<List<Object>> getSummaryDataForHealth(String fabId, Long paramId, Long lHealthLogic, Long fromdate, Long todate) {
+    public List<List<Object>> getSummaryDataForHealth(String fabId, Long paramId, Long lHealthLogic, Date fromdate, Date todate) {
         STDSummaryMapper mapper = SqlSessionUtil.getMapper(sessions, fabId, STDSummaryMapper.class);
         List<BasicData> data = null;
 
         Double globalWarningSpec=globalAWSpec.getNormalized_upper_warning_spec();
 
-        if(lHealthLogic==4){
+        data = mapper.selectParamHealthTrx(paramId, lHealthLogic, fromdate, todate, globalWarningSpec);
 
-            data = mapper.selectSummaryDataForFeature(paramId, new Date(fromdate), new Date(todate), globalWarningSpec);
-        }else{
-
-            data = mapper.selectParamHealthTrx(paramId, lHealthLogic,new Date(fromdate), new Date(todate));
-        }
-
-//        List<BasicData> data = mapper.selectParamHealthTrx(paramId, lHealthLogic,new Date(fromdate), new Date(todate));
         return changeList(data);
     }
 
@@ -811,7 +808,9 @@ public class SummaryDataService implements ISummaryDataService {
     @Override
     public List<HealthInfo> getWorstEqpsByHealthIndex(String fabId, Date fromdate, Date todate,Integer numberOfWorst) {
         STDSummaryMapper mapper = SqlSessionUtil.getMapper(sessions, fabId, STDSummaryMapper.class);
-        return mapper.selectWorstEqps(fromdate,todate,numberOfWorst);
+
+        Double globalWarn=globalAWSpec.getNormalized_upper_warning_spec();
+        return mapper.selectWorstEqps(fromdate,todate,numberOfWorst, globalWarn);
     }
 
     private List<List<Object>> changeList(List<BasicData> data) {

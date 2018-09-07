@@ -13,7 +13,27 @@ public class AlarmHistory {
     private String param_name;
     private String category;
     private String fault_class;
+    private String condition;
+    private String rule_name;
 
+    public String getCondition() {
+        return condition;
+    }
+
+    public void setCondition(String condition) {
+
+        String newCondition=condition.replaceAll(";",",");
+
+        this.condition = newCondition;
+    }
+
+    public String getRule_name() {
+        return rule_name;
+    }
+
+    public void setRule_name(String rule_name) {
+        this.rule_name = rule_name;
+    }
 
     public Date getAlarm_dtts() {
         return alarm_dtts;

@@ -402,8 +402,8 @@
                 eqp.name,
                 min(eqp_health.SUM_DTTS) as start_dtts,
                 max(eqp_health.score) as value,
-                case when max(eqp_health.score)>=1 then 'alarm' when max(eqp_health.score) >= 0.8 then 'warning' end as type,
-                case when max(eqp_health.score)>=1 then '256' when max(eqp_health.score) >= 0.8 then '128' end as status
+                case when max(eqp_health.score)>=1 then 'alarm' when max(eqp_health.score) <![CDATA[>=]]> #{globalWarn} then 'warning' end as type,
+                case when max(eqp_health.score)>=1 then '256' when max(eqp_health.score) <![CDATA[>=]]> #{globalWarn} then '128' end as status
             from EQP_HEALTH_DAILY_SUM_PDM eqp_health,param_health_mst_pdm param_health,eqp_mst_pdm eqp
             where eqp_health.param_health_mst_rawid = param_health.rawid
                 AND eqp.rawid = eqp_health.eqp_mst_rawid
@@ -909,14 +909,14 @@
         <!--and a.sum_dtts <![CDATA[<]]> #{end}-->
         <!--group by a.param_mst_rawid, b.name-->
         select
-            case when normal.param_id is not null then normal.param_id when oos.param_id is not null then oos.param_id when variant.param_id is not null then variant.param_id end as param_id,
-            case when normal.name is not null then normal.name when oos.name is not null then oos.name when variant.name is not null then variant.name end as name,
-            case when normal.alarm is not null then normal.alarm when oos.alarm is not null then oos.alarm when variant.alarm is not null then variant.alarm end as alarm,
-            case when normal.warn is not null then normal.warn when oos.warn is not null then oos.warn when variant.warn is not null then variant.warn end as warn,
-            variant.avg_spec as avg_spec,
-            variant.avg_daily as avg_daily,
+            case when normal.param_id is not null then normal.param_id when oos.param_id is not null then oos.param_id when variation.param_id is not null then variation.param_id end as param_id,
+            case when normal.name is not null then normal.name when oos.name is not null then oos.name when variation.name is not null then variation.name end as name,
+            case when normal.alarm is not null then normal.alarm when oos.alarm is not null then oos.alarm when variation.alarm is not null then variation.alarm end as alarm,
+            case when normal.warn is not null then normal.warn when oos.warn is not null then oos.warn when variation.warn is not null then variation.warn end as warn,
+            variation.avg_spec as avg_spec,
+            variation.avg_daily as avg_daily,
             oos.avg_daily AS avg_with_aw,
-            variant.avg_daily AS variation
+            variation.avg_daily AS variation
         from
             (
             select
@@ -924,8 +924,8 @@
                 param.name,
                 avg(eqp_health.score) avg_daily,
                 avg(1) as alarm ,
-                avg(0.8) as warn,
-                avg(eqp_health.score)*0.8 as avg_spec
+                avg(#{globalWarn}) as warn,
+                avg(eqp_health.score)*(#{globalWarn}) as avg_spec
             from EQP_HEALTH_DAILY_SUM_PDM eqp_health,param_health_mst_pdm param_health,param_mst_pdm param
             where
                 eqp_health.EQP_MST_RAWID = #{eqpId}
@@ -943,8 +943,8 @@
                 param.name,
                 avg(eqp_health.score) avg_daily,
                 avg(1) as alarm ,
-                avg(0.8) as warn,
-                avg(eqp_health.score)*0.8 as avg_spec
+                avg(#{globalWarn}) as warn,
+                avg(eqp_health.score)*(#{globalWarn}) as avg_spec
             from EQP_HEALTH_DAILY_SUM_PDM eqp_health,param_health_mst_pdm param_health,param_mst_pdm param
             where
                 eqp_health.EQP_MST_RAWID = #{eqpId}
@@ -961,9 +961,10 @@
             select
                 param_health.PARAM_MST_RAWID as param_id,
                 param.name,
-                avg(eqp_health.score) avg_daily,
+                <!-- avg(eqp_health.score) avg_daily, -->
+                avg(eqp_health.today_avg) avg_daily,
                 avg(1) as alarm ,
-                avg(0.8) as warn,
+                avg(#{globalWarn}) as warn,
                 avg(eqp_health.previous_avg) as avg_spec
             from EQP_HEALTH_DAILY_SUM_PDM eqp_health,param_health_mst_pdm param_health,param_mst_pdm param
             where
@@ -974,8 +975,8 @@
                 and param_health.health_logic_mst_rawid=3
                 and param_health.PARAM_MST_RAWID = param.rawid
             group by param_health.PARAM_MST_RAWID,name
-            ) variant
-            on oos.param_id = variant.param_id
+            ) variation
+            on oos.param_id = variation.param_id
         
         
     </select>

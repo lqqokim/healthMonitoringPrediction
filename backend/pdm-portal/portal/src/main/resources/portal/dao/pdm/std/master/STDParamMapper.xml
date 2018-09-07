@@ -21,7 +21,7 @@
         <!--//Allen trace_spec_mst_pdm제거작업(2018-08-24) -->
         <!--spec.alarm_spec as alarm,-->
         <!--spec.warning_spec as warn-->
-
+        ,parse_index
         from param_mst_pdm a
         join eqp_mst_pdm e on a.eqp_mst_rawid = e.rawid
         <!-- //Allen trace_spec_mst_pdm제거작업(2018-08-24) -->
@@ -45,9 +45,10 @@
         a.param_type_cd,
         a.unit_cd,
         a.parts_mst_rawid as parts_id,
-        parts.name as parts_name,
+        parts.name as parts_name
+
         <!-- //Allen trace_spec_mst_pdm제거작업(2018-08-24)  -->
-        <!--spec.alarm_spec as alarm,-->
+        <!--,spec.alarm_spec as alarm,-->
         <!--spec.warning_spec as warn-->
 
         from param_mst_pdm a
@@ -76,8 +77,8 @@
         <selectKey keyProperty="param_id" resultType="Long" order="BEFORE">
             select seq_param_mst_pdm.nextval FROM DUAL
         </selectKey>
-        insert into param_mst_pdm(rawid, eqp_mst_rawid, name, description, param_type_cd,unit_cd,parts_mst_rawid,create_by,create_dtts,update_by,update_dtts)
-        values(#{param_id,jdbcType=VARCHAR}, #{eqp_id}, #{name,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, #{param_type_cd,jdbcType=VARCHAR}, #{unit_cd,jdbcType=VARCHAR},#{parts_id,jdbcType=NUMERIC},#{userName},systimestamp,#{userName},systimestamp)
+        insert into param_mst_pdm(rawid, eqp_mst_rawid, name, description, param_type_cd,parse_index,unit_cd,parts_mst_rawid,create_by,create_dtts,update_by,update_dtts )
+        values(#{param_id,jdbcType=VARCHAR}, #{eqp_id}, #{name,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, #{param_type_cd,jdbcType=VARCHAR}, #{parse_index} ,#{unit_cd,jdbcType=VARCHAR},#{parts_id,jdbcType=NUMERIC},#{userName},systimestamp,#{userName},systimestamp)
     </insert>
     <insert id="insertOne" databaseId="postgresql">
         <selectKey keyProperty="param_id" resultType="Long" order="BEFORE">
@@ -316,5 +317,10 @@
         from trace_spec_mst_pdm
         where param_mst_rawid=#{param_id}
     </delete>
+
+    <select id="selectMaxParamRawId" resultType="Long">
+        select max(rawid)
+        from param_mst_pdm
+    </select>
 
 </mapper>

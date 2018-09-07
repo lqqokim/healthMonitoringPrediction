@@ -71,7 +71,7 @@ export interface Parameter {
 export interface Condition {
     param_name: string;
     operand: string;
-    param_value: number;
+    param_value: string;
 }
 
 export interface ParameterResponse {

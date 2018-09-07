@@ -2,7 +2,7 @@
 <div class='sc-infoBox' #infoBox [ngStyle]="infoBoxStyle" *ngIf='is_mouse_over'>
     <ul>
         <li class='currTime'>{{infoBoxcont.currTime}}</li>
-        <li class='currName' [ngStyle]="{'color':targetColor}"><i [ngStyle]="{'backgroundColor':targetColor}"></i>{{infoBoxcont.name | titlecase}}</li>
+        <li class='currName'><i [ngStyle]="{'backgroundColor':targetColor}"></i>{{infoBoxcont.name | titlecase}}</li>
         <li>{{infoBoxcont.currTimeStart}}</li>
         <li>{{infoBoxcont.currTimeEnd}}</li>
     </ul>

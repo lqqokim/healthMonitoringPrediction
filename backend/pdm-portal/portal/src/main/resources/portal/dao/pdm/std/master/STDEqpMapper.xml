@@ -224,7 +224,9 @@
             a.area_mst_rawid as area_id,
             a.image as binary,
             a.data_type_cd,
-            b.name as data_type
+            b.name as data_type,
+            a.model_name,
+            a.offline_yn
         from eqp_mst_pdm a left outer join code_mst_pdm b
         on a.data_type_cd = b.code
         where a.rawid = #{eqpId}

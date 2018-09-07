@@ -239,8 +239,10 @@ public class MasterService implements IMasterService {
         return mapper.selectOne(paramId);
     }
 
+
+
     @Override
-    public void setParam(String fabId, Long eqpId ,ParamWithCommonWithRpm param) {
+    public void setParam(String fabId, Long eqpId ,ParamWithCommonWithRpm param, String userName) {
         ParamMapper mapper = SqlSessionUtil.getMapper(sessions, fabId, ParamMapper.class);
         PlatformTransactionManager manager = TransactionUtil.getTransactionManger(trMgrs, fabId);
         TransactionStatus status = TransactionUtil.getTransactionStatus(manager);
@@ -300,9 +302,10 @@ public class MasterService implements IMasterService {
     }
 
     @Override
-    public void updateParamHealth(String fabId, Long eqpId, Long paramId) {
+    public void updateParamHealth(String fabId, Long eqpId, Long paramId, String UserName) {
 
     }
+
 
     @Override
     public void deleteParamHealth(String fabId, Long eqpId, Long paramId) {
@@ -456,7 +459,15 @@ public class MasterService implements IMasterService {
 
     }
 
+    @Override
+    public void revertToModelSpec(String fabId, String param_name, Long eqp_spec_link_mst_rawid) {
 
+    }
+
+    @Override
+    public STDConditionalSpec getModelEqpSpec(String fabId, String param_name, Long eqp_spec_link_mst_rawid, Long rule_id) {
+        return null;
+    }
 
 
     @Override

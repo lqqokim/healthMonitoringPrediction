@@ -32,14 +32,14 @@ public interface STDSummaryMapper {
 
     List<WorstEquipmentList> selectWorstEquipmentList(@Param("start_dtts") String start_dtts, @Param("end_dtts") String end_dtts,@Param("eqp_id") Long eqp_id );
 
-    ArrayList<WorstEqupmentListChartData> selectWorstEqupmentListChartData(@Param("start_dtts") String start_dtts, @Param("end_dtts") String end_dtts);
+    ArrayList<WorstEqupmentListChartData> selectWorstEqupmentListChartData(@Param("start_dtts") String start_dtts, @Param("end_dtts") String end_dtts, @Param("eqp_id") Long eqp_id);
 
-    List<WorstEquipmentList> selectWorstEquipmentListByAreaId(@Param("start_dtts") String start_dtts, @Param("end_dtts") String end_dtts, @Param("area_id") Long area_id);
+    List<WorstEquipmentList> selectWorstEquipmentListByAreaId(@Param("start_dtts") String start_dtts, @Param("end_dtts") String end_dtts, @Param("area_id") Long area_id, @Param("eqp_id") Long eqp_id);
 
-    ArrayList<WorstEqupmentListChartData> selectWorstEqupmentListChartDataByAreaId(@Param("start_dtts") String start_dtts, @Param("end_dtts") String end_dtts, @Param("area_id") Long area_id);
+    ArrayList<WorstEqupmentListChartData> selectWorstEqupmentListChartDataByAreaId(@Param("start_dtts") String start_dtts, @Param("end_dtts") String end_dtts, @Param("area_id") Long area_id, @Param("eqp_id") Long eqp_id);
 
     List<EqpHealthIndex> selectEqpHealthIndex(@Param("fromdate") Date fromdate, @Param("todate") Date todate, @Param("globalWarning") Double globalWarning);
-    List<FabMonitoringInfo> selectFabMonitoring(@Param("param_name") String param_name,@Param("fromdate") Date fromdate, @Param("todate") Date todate);
+    List<FabMonitoringInfo> selectFabMonitoring(@Param("eqp_id") Long eqp_id, @Param("param_name") String param_name, @Param("fromdate") Date fromdate, @Param("todate") Date todate, @Param("globalWarn") Double globalWarn);
 
     List<EqpHealthIndex> selectEqpHealthAlarmCount(@Param("fromdate") Date fromdate, @Param("todate") Date todate);
 
@@ -52,9 +52,9 @@ public interface STDSummaryMapper {
 
     List<EqpHealthSPCRule> selectEqpHealthSPCRule(@Param("param_id") Long param_id, @Param("health_logic_id") Long health_logic_id);
 
-    List<BasicData> selectSummaryDataForFeature(@Param("param_id") Long param_id, @Param("fromdate") Date fromdate, @Param("todate") Date todate,@Param("globalWarning") Double globalWarning);
+//    List<BasicData> selectParamHealthTrxRul(@Param("param_id") Long param_id, @Param("fromdate") Date fromdate, @Param("todate") Date todate,@Param("globalWarning") Double globalWarning);
 
-    List<BasicData> selectParamHealthTrx(@Param("param_id") Long param_id, @Param("logic_id") Long logic_id ,@Param("fromdate") Date fromdate, @Param("todate") Date todate);
+    List<BasicData> selectParamHealthTrx(@Param("param_id") Long param_id, @Param("logic_id") Long logic_id ,@Param("fromdate") Date fromdate, @Param("todate") Date todate, @Param("globalWarning") Double globalWarning);
 
     List<WorstEquipmentList> selectEqpHealthDiff(@Param("start_dtts") String start_dtts, @Param("end_dtts") String end_dtts,@Param("eqp_id") Long eqp_id );
 
@@ -81,7 +81,7 @@ public interface STDSummaryMapper {
     void insertEqpAlarmDailySum(@Param("fromdate") Date fromdate, @Param("todate") Date todate);
 
 
-    List<HealthInfo> selectWorstEqps(@Param("fromdate") Date fromdate, @Param("todate") Date todate,@Param("numberOfWorst") Integer numberOfWorst);
+    List<HealthInfo> selectWorstEqps(@Param("fromdate") Date fromdate, @Param("todate") Date todate,@Param("numberOfWorst") Integer numberOfWorst, @Param("globalWarn") Double globalWarn);
 
     List<ParamRULSummary> selectRULSummary(@Param("fromdate") Date fromdate, @Param("todate") Date todate);
 

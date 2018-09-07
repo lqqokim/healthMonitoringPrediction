@@ -14,6 +14,7 @@
     <wj-flex-grid-column [width]="'*'" [header]="'Parameter Type'" [binding]="'param_type_name'" [align]="'center'"></wj-flex-grid-column>
     <wj-flex-grid-column [width]="'*'" [header]="'Parts'" [binding]="'parts_name'" [align]="'center'"></wj-flex-grid-column>
     <wj-flex-grid-column [width]="'*'" [header]="'Unit'" [binding]="'unit_name'" [align]="'center'"></wj-flex-grid-column>
+    <wj-flex-grid-column [width]="'*'" [header]="'Parsing Index'" [binding]="'parse_index'" [align]="'center'"></wj-flex-grid-column>
     <!-- <wj-flex-grid-column [width]="'*'" [header]="'EU Type'" [binding]="'euType'" [align]="'center'"></wj-flex-grid-column> -->
     <!-- <wj-flex-grid-column [width]="'*'" [header]="'RPM'" [binding]="'rpm'" [align]="'center'"></wj-flex-grid-column> -->
     <!-- <wj-flex-grid-column [width]="'*'" [header]="'Alarm'" [binding]="'alarm'" [align]="'center'"></wj-flex-grid-column>
@@ -94,13 +95,17 @@
               <input type="number" class="form-control" [(ngModel)]="paramData.rpm" name="paramDataRpm">
             </div> -->
             <div class="form-group a3-input-group">
+              <label class="control-label">Parsing Index</label>
+              <input type="number" class="form-control" [(ngModel)]="paramData.parse_index" name="parseIndex" #parseIndex="ngModel">
+            </div>
+            <!-- <div class="form-group a3-input-group">
               <label class="control-label">Alarm</label>
               <input type="number" id="alarmInput" class="form-control" (keypress)="alarmKeypress($event)" [(ngModel)]="paramData.alarm" name="alarm" #alarm="ngModel"/>
             </div>
             <div class="form-group a3-input-group">
               <label class="control-label">Warning</label>
               <input type="number" id="warningInput" class="form-control" (keypress)="warningKeypress($event)" [(ngModel)]="paramData.warning" name="warning" #warning="ngModel"/>
-            </div>
+            </div> -->
             <div class="form-group a3-input-group">
               <label class="control-label">Description</label>
               <input type="text" class="form-control" [(ngModel)]="paramData.description" name="des" #des="ngModel">

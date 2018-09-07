@@ -22,6 +22,8 @@ public interface STDParamMapper {
 
     void insertOne(ParamWithCommonWithRpm eqp);
 
+    Long selectMaxParamRawId();
+
     void insertSpec(ParamWithCommonWithRpm eqp);
 
     void insertRpmOne(ParamWithCommonWithRpm eqp);

@@ -62,6 +62,7 @@ export class PdmRadarWidgetComponent extends WidgetApi implements OnSetup, OnDes
     refresh({ type, data }: WidgetRefreshType) {
         if (type === A3_WIDGET.APPLY_CONFIG_REFRESH || type === A3_WIDGET.JUST_REFRESH) {
             this.showSpinner();
+            this.AWVComponent._initData();
             this._props = data;
             this._setConfigInfo();
         } else if (type === A3_WIDGET.SYNC_INCONDITION_REFRESH) {
@@ -151,6 +152,7 @@ export class PdmRadarWidgetComponent extends WidgetApi implements OnSetup, OnDes
     }
 
     showParamContext(emitItem: IRadar.ParamContext): void {
+        console.log('showParamContext', emitItem);
         let item = emitItem.selectedItem;
         let event = emitItem.event;
         let paramData = emitItem.paramData.data;

@@ -556,16 +556,21 @@
             "VIEW_TREND_CHART": "View Trend Chart"
         },
         "NOTIFY": {
-            "NOT_EXIST_PARTS": "Please register your part first.",
-            "NOT_EXIST_ALARM": "Please register an alarm.",
-            "NOT_EXIST_WARNING": "Please register an warning.",
-            "DUPLICATE_NAME": "The Name already exists. Please use a different Name.",
-            "REFER_PART": "The selected Part is referenced in the Parameter.",
-            "DUPLICATE_BEARING": "A combination of the same Manufacture / ModelNumber exists.",
-            "DUPLICATE_AREA": "Area with the same name exists.",
-            "DUPLICATE_EQP": "Area with the same name exists.",
-            "DUPLICATE_PARAMETER": "Parameter with the same name exists.",
-            "DUPLICATE_PART": "Part with the same name exists."
+            "INFO": {
+                "NOT_EXIST_PARTS": "Please register your part first.",
+                "NOT_EXIST_ALARM": "Please register an alarm.",
+                "NOT_EXIST_WARNING": "Please register an warning.",
+                "TIMEOUT_VALID": "Timeout must be greater than or equal to 3,600,000 ms(1 hour)."
+            },
+            "WARN": {
+                "DUPLICATE_NAME": "The Name already exists. Please use a different Name.",
+                "REFER_PART": "The selected Part is referenced in the Parameter.",
+                "DUPLICATE_BEARING": "A combination of the same Manufacture / ModelNumber exists.",
+                "DUPLICATE_AREA": "Area with the same name exists.",
+                "DUPLICATE_EQP": "Area with the same name exists.",
+                "DUPLICATE_PARAMETER": "Parameter with the same name exists.",
+                "DUPLICATE_PART": "Part with the same name exists."
+            } 
 		}
 	}
 }

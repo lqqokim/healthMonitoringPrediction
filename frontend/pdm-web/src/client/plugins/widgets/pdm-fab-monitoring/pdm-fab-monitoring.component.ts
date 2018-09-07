@@ -24,11 +24,11 @@ import { FabAreaEqpParamTreeComponent } from '../../../plugins/common/fab-area-e
 export class PdmFabMonitoringComponent extends WidgetApi implements OnInit, OnSetup, OnDestroy {
 
     private _props: any;
-    selectedMonitoring:FabInfo=new FabInfo();
-    @ViewChild("fabMonitoring") fabMonitoring:FabEditorComponent;
+    selectedMonitoring: FabInfo = new FabInfo();
+    @ViewChild("fabMonitoring") fabMonitoring: FabEditorComponent;
     @ViewChild('tree') tree: FabAreaEqpParamTreeComponent;
 
-
+    eqpId;
     searchTimePeriod = {
         from: null,
         to: null
@@ -45,7 +45,8 @@ export class PdmFabMonitoringComponent extends WidgetApi implements OnInit, OnSe
 
     ngOnInit() {
         let fromDate = new Date();
-        fromDate.setHours(fromDate.getHours() - 3);
+        // fromDate.setHours(fromDate.getHours() - 3);
+        fromDate.setMinutes(fromDate.getMinutes() - 5);
         this.searchTimePeriod.from = fromDate.getTime();
         this.searchTimePeriod.to = new Date().getTime();
     }
@@ -63,10 +64,11 @@ export class PdmFabMonitoringComponent extends WidgetApi implements OnInit, OnSe
 
     setConfig(): void {
         this.selectedMonitoring = this._props.monitoring;
-        if(this.selectedMonitoring==null) return;
-        
-        setTimeout(()=>{
-            this.fabMonitoring.initLayout()},500);
+        if (this.selectedMonitoring == null) return;
+
+        setTimeout(() => {
+            this.fabMonitoring.initLayout()
+        }, 500);
         this.hideSpinner();
     }
 
@@ -82,12 +84,12 @@ export class PdmFabMonitoringComponent extends WidgetApi implements OnInit, OnSe
     fromToChange(data: any) {
         this.searchTimePeriod = data;
     }
-    getMonitoringInfo(){
+    getMonitoringInfo() {
         this.showSpinner();
         let fabId = this.tree.selectedFab.fabId;
         // let conditionParamId = this.modelChart.getConditionParamId();
         let node = this.tree.getSelectedNodes();
-        let param_name ="";
+        let param_name = "";
         for (let index = 0; index < node.length; index++) {
             const element = node[index];
             if (element.nodeType == 'parameter') {
@@ -97,25 +99,27 @@ export class PdmFabMonitoringComponent extends WidgetApi implements OnInit, OnSe
 
         }
 
-
-        this._pdmSvc.getFabMonitoring(fabId,this.searchTimePeriod.from,this.searchTimePeriod.to,param_name).then((datas)=>{
-            this.hideSpinner();
-            if(datas.length==0){
-                this.fabMonitoring.clearLocationAction();
-                return;
-            }
-            let locationDatas = datas;
-            this.fabMonitoring.setLocationActions(locationDatas);
-            setTimeout(()=>{
+        console.log(`getFabMonitoring Request => [fabId] ${fabId} [timePeriod] ${JSON.stringify(this.searchTimePeriod)} [paramName] ${param_name} [eqpId] ${this.eqpId}`);
+        this._pdmSvc.getFabMonitoring(fabId, this.searchTimePeriod.from, this.searchTimePeriod.to, param_name, this.eqpId)
+            .then((datas) => {
+                console.log('getFabMonitoring Response => ', datas);
+                this.hideSpinner();
+                if (datas.length == 0) {
+                    this.fabMonitoring.clearLocationAction();
+                    return;
+                }
+                let locationDatas = datas;
                 this.fabMonitoring.setLocationActions(locationDatas);
-            });
-            setTimeout(()=>{
-                this.fabMonitoring.setLocationActions(locationDatas);
-            },500);            
-        }).catch((err)=>{
-            this.hideSpinner();
-            alert(err);
-        })
+                setTimeout(() => {
+                    this.fabMonitoring.setLocationActions(locationDatas);
+                });
+                setTimeout(() => {
+                    this.fabMonitoring.setLocationActions(locationDatas);
+                }, 500);
+            }).catch((err) => {
+                this.hideSpinner();
+                alert(JSON.stringify(err));
+            })
 
         // let locationDatas = this.fabMonitoring.getLocationStatusSimul();
         // this.fabMonitoring.setLocationActions(locationDatas);
@@ -125,6 +129,14 @@ export class PdmFabMonitoringComponent extends WidgetApi implements OnInit, OnSe
         // setTimeout(()=>{
         //     this.fabMonitoring.setLocationActions(locationDatas);
         // },500);
+    }
+
+    nodeClick(ev) {
+        console.log('nodeClick', ev);
+        if(ev.length) {
+            const paramNode = ev[0];
+            this.eqpId = paramNode.eqpId;
+        }
     }
 }
 

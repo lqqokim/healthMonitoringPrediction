@@ -7,6 +7,7 @@ import com.bistel.a3.portal.module.pdm.FabsComponent;
 import com.bistel.a3.portal.util.ApacheHttpClientGet;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
+import org.apache.commons.math3.stat.regression.SimpleRegression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -93,26 +95,22 @@ public class SchedulerService {
 
         Date startDate = new Date();
 
-        Date start = DateUtils.truncate(new Date(), Calendar.DATE);
-        Date start_dtts=DateUtils.addDays(start, -1);
-        Date end = DateUtils.truncate(new Date(), Calendar.DATE);
+        Date start = DateUtils.truncate(new Date(), Calendar.DATE);                               //
+        Date start_dtts=DateUtils.addDays(start, -1);                                             //
+        Date end = DateUtils.truncate(new Date(), Calendar.DATE);                                 //
 
-//        for (int i = 6; i > 1; i--) {
-//
-
-//            Date start = DateUtils.truncate(new Date(), Calendar.DATE);
-//            Date start_dtts = DateUtils.addDays(start, -(i + 1));
-//            Date end_sdf = DateUtils.truncate(new Date(), Calendar.DATE);
-//            Date end = DateUtils.addDays(end_sdf, -i);
+//        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//        String day="2018-09-03 17:00:00";
+//        Date start_dtts=sdf.parse(day);
+//        Date end=DateUtils.truncate(new Date(), Calendar.DATE);
+//        end=DateUtils.addDays(end,1);
 
             Date rulStart_dtts = DateUtils.addDays(end, -7);
             logger.info("START scheduled summaryHealth [{} ~ {}]", ff.format(start_dtts), ff.format(end));
 
-
             batchTaskService.deleteHealthDailySum(fabsComponent.scheduleFabs(), start_dtts, end);
             batchTaskService.summaryHealthSTDSPC(fabsComponent.scheduleFabs(), start_dtts, end); //STD (Logic1, Logic2) Insert eqp_health_daily_sum_pdm
             batchTaskService.summaryHealthDiff(fabsComponent.scheduleFabs(), start_dtts, end); //Diff (Logic3) Insert eqp_health_daily_sum_pdm
-
 
             batchTaskService.deleteEqpAlarmDailySum(fabsComponent.scheduleFabs(), start_dtts, end); //delete EQP_ALARM_DAILY_SUM_PDM
             batchTaskService.summaryEqpAlarmDaily(fabsComponent.scheduleFabs(), start_dtts, end); // insert EQP_ALARM_DAILY_SUM_PDM
@@ -121,7 +119,65 @@ public class SchedulerService {
             batchTaskService.summaryParamHealthRUL(fabsComponent.scheduleFabs(), rulStart_dtts, start_dtts, end); // insert param_health_rul_trx_pdm, insert eqp_health_daily_sum_pdm
 
             logger.info("END   scheduled summaryHealth [{} ~ {}] time spend:{}", ff.format(start_dtts), ff.format(end), com.bistel.a3.portal.util.date.DateUtil.getProgressStatusString("End", 100, 100, startDate, "summaryHealth"));
-//        }
+
     }
+
+
+
+
+
+
+    @Value("${schedule.summaryHealthPeriod.enable}")
+    private boolean schedulerEnableSummaryHealthPeriod;
+    @Scheduled(cron="${schedule.summaryHealthPeriod}")
+    public void summaryHealthPeriod() throws InterruptedException, ExecutionException, ParseException, IOException {
+        if(!schedulerEnableSummaryHealthPeriod) return;
+
+
+
+
+        Date startDate = new Date();
+
+//        Date start = DateUtils.truncate(new Date(), Calendar.DATE);                               //
+//        Date start_dtts=DateUtils.addDays(start, -1);                                             //
+//        Date end = DateUtils.truncate(new Date(), Calendar.DATE);                                 //
+
+
+        SimpleDateFormat dt = new SimpleDateFormat("yyyy-MM-dd");                            //*******************************************************
+        String sSchedulerStart="2018-09-02";                                                        //*******************************************************
+        Date schedulerEndDate=DateUtils.truncate(new Date(), Calendar.DATE);                        //***
+        Date schedulerStartDate=dt.parse(sSchedulerStart);                                          //***              <Long Term Scheduler>
+        long diff = schedulerEndDate.getTime() - schedulerStartDate.getTime();                      //***      sSchedulerStart : 스케쥴러 시작할 날짜 설정
+        int diffDays = (int)(diff / (24 * 60 * 60 * 1000));                                         //***
+                                                                                                    //***
+                                                                                                    //***
+        for (int i = diffDays; i >= 0; i--) {                                                       //***
+                                                                                                    //***
+                                                                                                    //***
+            Date start = DateUtils.truncate(new Date(), Calendar.DATE);                             //***
+            Date start_dtts = DateUtils.addDays(start, -i);                   // 2018-08-27 28 29   //********************************************************
+            Date end = DateUtils.addDays(start_dtts, 1);               // 2018-08-28 29 30   //********************************************************
+
+
+        Date rulStart_dtts = DateUtils.addDays(end, -7);
+        logger.info("START scheduled summaryHealth [{} ~ {}]", ff.format(start_dtts), ff.format(end));
+
+        batchTaskService.deleteHealthDailySum(fabsComponent.scheduleFabs(), start_dtts, end);
+        batchTaskService.summaryHealthSTDSPC(fabsComponent.scheduleFabs(), start_dtts, end); //STD (Logic1, Logic2) Insert eqp_health_daily_sum_pdm
+        batchTaskService.summaryHealthDiff(fabsComponent.scheduleFabs(), start_dtts, end); //Diff (Logic3) Insert eqp_health_daily_sum_pdm
+
+        batchTaskService.deleteEqpAlarmDailySum(fabsComponent.scheduleFabs(), start_dtts, end); //delete EQP_ALARM_DAILY_SUM_PDM
+        batchTaskService.summaryEqpAlarmDaily(fabsComponent.scheduleFabs(), start_dtts, end); // insert EQP_ALARM_DAILY_SUM_PDM
+
+        batchTaskService.deleteParamHealthRUL(fabsComponent.scheduleFabs(), start_dtts, end); //delete param_health_rul_trx_pdm
+        batchTaskService.summaryParamHealthRUL(fabsComponent.scheduleFabs(), rulStart_dtts, start_dtts, end); // insert param_health_rul_trx_pdm, insert eqp_health_daily_sum_pdm
+
+        logger.info("END   scheduled summaryHealth [{} ~ {}] time spend:{}", ff.format(start_dtts), ff.format(end), com.bistel.a3.portal.util.date.DateUtil.getProgressStatusString("End", 100, 100, startDate, "summaryHealth"));
+        }//
+    }
+
+
+
+
 
 }

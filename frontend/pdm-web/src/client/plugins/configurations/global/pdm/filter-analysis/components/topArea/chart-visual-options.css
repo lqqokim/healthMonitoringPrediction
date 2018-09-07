@@ -3,7 +3,7 @@ chart-visual-options > div { height:45px; border-bottom:1px solid #eee; display:
 /* 비주얼 영역 */
 chart-visual-options > div > dl { margin:0; height:100%; display:flex; justify-content:flex-start; align-items:center; }
 chart-visual-options > div > dl > dt { height:100%; line-height:1; background:#FAFAFA; display:flex; justify-content:flex-start; align-items:center; padding:0 15px; color:#333; }
-chart-visual-options > div > dl > dd { height:100%; line-height:1; background:#fff; display:flex; justify-content:flex-start; align-items:center; padding:0 15px; }
+chart-visual-options > div > dl > dd { height:100%; line-height:1; background:#fff; display:flex; justify-content:flex-start; align-items:center; padding:0 15px; overflow-x:auto; }
 
 /* 카테고리 타입 영역 */
 chart-visual-options > div[type=category] > dl { width:50%; }
