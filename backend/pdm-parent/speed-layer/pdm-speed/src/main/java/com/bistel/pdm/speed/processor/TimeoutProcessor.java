@@ -47,10 +47,13 @@ public class TimeoutProcessor extends AbstractProcessor<String, byte[]> {
                     if (eventInfo != null && eventInfo.getFirst() != null) {
 
                         if (eventInfo.getFirst().getTimeoutMs() != null
-                                && eventInfo.getFirst().getTimeoutMs() > 3600000) { // > 1h
-                            Long timeoutMs = eventInfo.getFirst().getTimeoutMs();
+                                && eventInfo.getFirst().getTimeoutMs() >= 3600000) { // > 1h
 
+                            Long timeoutMs = eventInfo.getFirst().getTimeoutMs();
                             long diffInMillies = Math.abs(currentTimeMs - lastReceivedTimeMs);
+
+                            log.info("[{}-{}] - diff time:{} > config time:{}",
+                                    key, context().partition(), diffInMillies, timeoutMs);
 
                             // time out
                             if (diffInMillies > timeoutMs) {
@@ -63,7 +66,7 @@ public class TimeoutProcessor extends AbstractProcessor<String, byte[]> {
                                                     + eventInfo.getSecond().getEventRawId() + ","
                                                     + eventInfo.getSecond().getEventTypeCD();
 
-                                    log.info("[{}] - Event Timeout. ", key);
+                                    log.info("[{}-{}] - Message Timeout. ", key, context().partition());
                                     context().forward(key, eventMsg.getBytes(), "output-event");
                                     context().commit();
                                     // event ended. ------------------------------------------
@@ -88,12 +91,10 @@ public class TimeoutProcessor extends AbstractProcessor<String, byte[]> {
         String[] recordColumns = recordValue.split(SEPARATOR, -1);
 
         try {
-            log.debug("[{}] - {}", partitionKey, recordValue);
-
             // refresh cache command
             if (recordColumns[1].equalsIgnoreCase("CMD-REFRESH-CACHE")) {
                 MasterCache.IntervalEvent.refresh(partitionKey);
-                log.debug("[{}] - event refreshed.", partitionKey);
+                log.debug("[{}-{}] - event refreshed.", partitionKey, context().partition());
             }
 
             Long msgTimeStamp = parseStringToTimestamp(recordColumns[0]);

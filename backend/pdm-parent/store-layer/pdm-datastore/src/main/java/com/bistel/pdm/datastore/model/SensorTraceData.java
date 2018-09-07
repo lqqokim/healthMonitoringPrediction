@@ -42,6 +42,9 @@ public class SensorTraceData {
     }
 
     public String getStatusCode() {
+        if(statusCode == null)
+            return "F";
+
         return statusCode;
     }
 

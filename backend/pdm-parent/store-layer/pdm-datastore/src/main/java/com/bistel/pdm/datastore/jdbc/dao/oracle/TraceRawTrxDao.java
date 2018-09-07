@@ -47,9 +47,9 @@ public class TraceRawTrxDao implements SensorRawDataDao {
                     pstmt.setString(3, dataTypeCode);
 
                     if (sensorData.getMaxFreq() != null) {
-                        pstmt.setDouble(4, sensorData.getMaxFreq());
+                        pstmt.setFloat(4, sensorData.getMaxFreq());
                     } else {
-                        pstmt.setNull(4, Types.INTEGER);
+                        pstmt.setNull(4, Types.FLOAT);
                     }
 
                     if (sensorData.getFreqCount() != null) {
@@ -61,7 +61,7 @@ public class TraceRawTrxDao implements SensorRawDataDao {
                     if (sensorData.getRpm() != null) {
                         pstmt.setFloat(6, sensorData.getRpm());
                     } else {
-                        pstmt.setNull(6, Types.INTEGER);
+                        pstmt.setNull(6, Types.FLOAT);
                     }
 
                     if (sensorData.getSamplingTime() != null) {

@@ -5,7 +5,7 @@ public class SensorRawData {
     public long param_mst_rawid;
     public long trace_trx_rawid;
     public String data_type_cd;
-    public Double max_freq;
+    public Float max_freq;
     public Integer freq_count;
     public Float rpm;
     public Float sampling_time;
@@ -56,11 +56,11 @@ public class SensorRawData {
         this.data_type_cd = data_type_cd;
     }
 
-    public Double getMaxFreq() {
+    public Float getMaxFreq() {
         return max_freq;
     }
 
-    public void setMaxFreq(Double max_freq) {
+    public void setMaxFreq(Float max_freq) {
         this.max_freq = max_freq;
     }
 

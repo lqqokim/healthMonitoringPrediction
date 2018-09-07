@@ -63,13 +63,13 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
             if (recordColumns[1].equalsIgnoreCase("CMD-REFRESH-CACHE")) {
                 refreshCacheFlagMap.put(partitionKey, "Y");
                 context().commit();
-                log.debug("[{}] - Refresh Order were issued.", partitionKey);
+                log.debug("[{}-{}] - Refresh Order were issued.", partitionKey, context().partition());
                 return;
             }
 
             // filter by master
             if (MasterCache.Equipment.get(partitionKey) == null) {
-                log.debug("[{}] - Not existed.", partitionKey);
+                log.debug("[{}-{}] - Not existed.", partitionKey, context().partition());
                 context().commit();
                 return;
             }
@@ -110,7 +110,7 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
                                     + eventInfo.getFirst().getEventRawId() + ","
                                     + eventInfo.getFirst().getEventTypeCD();
 
-                    log.info("[{}] - process started.", partitionKey);
+                    log.info("[{}-{}] - process started.", partitionKey, context().partition());
                     context().forward(partitionKey, eventMsg.getBytes(), "output-event");
                     context().commit();
                     // event started. ------------------------------------------
@@ -160,10 +160,11 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
                                     if (faultMsg.length() > 0) {
                                         context().forward(partitionKey, faultMsg.getBytes(), "output-fault");
                                         context().commit();
-                                        log.debug("[{}] - individual fault occurred.", partitionKey);
+                                        log.debug("[{}-{}] - individual fault occurred.", partitionKey, context().partition());
                                     }
                                 } else {
-                                    log.debug("[{}] - index {} empty.", partitionKey, paramInfo.getParamParseIndex());
+                                    log.debug("[{}-{}] - index {} empty.",
+                                            partitionKey, context().partition(), paramInfo.getParamParseIndex());
                                 }
                             }
                         }
@@ -182,7 +183,7 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
                                                 + eventInfo.getSecond().getEventRawId() + ","
                                                 + eventInfo.getSecond().getEventTypeCD();
 
-                                log.info("[{}] - process ended.", partitionKey);
+                                log.info("[{}-{}] - process ended.", partitionKey, context().partition());
                                 context().forward(partitionKey, eventMsg.getBytes(), "output-event");
                                 context().commit();
                                 // event ended. ------------------------------------------
@@ -193,7 +194,7 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
                                                 + eventInfo.getFirst().getEventRawId() + ","
                                                 + eventInfo.getFirst().getEventTypeCD();
 
-                                log.info("[{}] - process started.", partitionKey);
+                                log.info("[{}-{}] - process started.", partitionKey, context().partition());
                                 context().forward(partitionKey, eventMsg.getBytes(), "output-event");
                                 context().commit();
                                 // event started. ------------------------------------------
@@ -214,7 +215,7 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
 
                                         String sts = new SimpleDateFormat("MMdd HH:mm:ss.SSS").format(new Timestamp(startTime));
                                         String ets = new SimpleDateFormat("MMdd HH:mm:ss.SSS").format(new Timestamp(endTime));
-                                        log.debug("[{}] - fetch data from {} to {}.", partitionKey, sts, ets);
+                                        log.debug("[{}-{}] - fetch data from {} to {}.", partitionKey, context().partition(), sts, ets);
 
                                         WindowStoreIterator<Double> storeIterator = kvNormalizedParamValueStore.fetch(paramKey, startTime, endTime);
                                         while (storeIterator.hasNext()) {
@@ -233,7 +234,7 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
                                             health1Msg = health1Msg + "," + msgGroup; // with group
                                             context().forward(partitionKey, health1Msg.getBytes(), "output-health");
                                             context().commit();
-                                            log.debug("[{}] - logic 1 health : {}", paramKey, health1Msg);
+                                            log.debug("[{}-{}] - logic 1 health : {}", paramKey, context().partition(), health1Msg);
                                         }
 
                                         // Rule based detection
@@ -243,7 +244,7 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
                                         if (faultMsg.length() > 0) {
                                             context().forward(partitionKey, faultMsg.getBytes(), "output-fault");
                                             context().commit();
-                                            log.debug("[{}] - rule fault occurred.", partitionKey);
+                                            log.debug("[{}-{}] - rule fault occurred.", partitionKey, context().partition());
                                         }
 
                                         // Logic 2 health
@@ -252,7 +253,7 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
                                             health2Msg = health2Msg + "," + msgGroup; // with group
                                             context().forward(partitionKey, health2Msg.getBytes(), "output-health");
                                             context().commit();
-                                            log.debug("[{}] - logic 2 health : {}", paramKey, health2Msg);
+                                            log.debug("[{}-{}] - logic 2 health : {}", paramKey, context().partition(), health2Msg);
                                         }
 
                                         individualDetection.resetAlarmCount(paramKey);
@@ -284,7 +285,7 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
                                     + eventInfo.getSecond().getEventRawId() + ","
                                     + eventInfo.getSecond().getEventTypeCD();
 
-                    log.info("[{}] - process ended.", partitionKey);
+                    log.info("[{}-{}] - process ended.", partitionKey, context().partition());
                     context().forward(partitionKey, eventMsg.getBytes(), "output-event");
                     context().commit();
                     // event ended. ------------------------------------------
@@ -309,7 +310,7 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
 
                                 String sts = new SimpleDateFormat("MMdd HH:mm:ss.SSS").format(new Timestamp(startTime));
                                 String ets = new SimpleDateFormat("MMdd HH:mm:ss.SSS").format(new Timestamp(endTime));
-                                log.debug("[{}] - fetch data from {} to {}.", partitionKey, sts, ets);
+                                log.debug("[{}-{}] - fetch data from {} to {}.", partitionKey, context().partition(), sts, ets);
 
                                 WindowStoreIterator<Double> storeIterator = kvNormalizedParamValueStore.fetch(paramKey, startTime, endTime);
                                 while (storeIterator.hasNext()) {
@@ -328,7 +329,7 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
                                     health1Msg = health1Msg + "," + msgGroup; // with group
                                     context().forward(partitionKey, health1Msg.getBytes(), "output-health");
                                     context().commit();
-                                    log.debug("[{}] - logic 1 health : {}", paramKey, health1Msg);
+                                    log.debug("[{}-{}] - logic 1 health : {}", paramKey, context().partition(), health1Msg);
                                 }
 
                                 // Rule based detection
@@ -338,7 +339,7 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
                                 if (faultMsg.length() > 0) {
                                     context().forward(partitionKey, faultMsg.getBytes(), "output-fault");
                                     context().commit();
-                                    log.debug("[{}] - rule fault occurred.", partitionKey);
+                                    log.debug("[{}-{}] - rule fault occurred.", partitionKey, context().partition());
                                 }
 
                                 // Logic 2 health
@@ -347,7 +348,7 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
                                     health2Msg = health2Msg + "," + msgGroup; // with group
                                     context().forward(partitionKey, health2Msg.getBytes(), "output-health");
                                     context().commit();
-                                    log.debug("[{}] - logic 2 health : {}", paramKey, health2Msg);
+                                    log.debug("[{}-{}] - logic 2 health : {}", paramKey, context().partition(), health2Msg);
                                 }
 
                                 individualDetection.resetAlarmCount(paramKey);
@@ -371,7 +372,7 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
                         context().forward(partitionKey, msg.getBytes(), "output-reload");
                         context().commit();
 
-                        refreshMasterCache(partitionKey);
+                        refreshMasterCache(partitionKey, context().partition());
                         refreshCacheFlagMap.put(partitionKey, "N");
                     }
                 } else {
@@ -385,7 +386,7 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
                     if (refreshCacheFlagMap.get(partitionKey) != null
                             && refreshCacheFlagMap.get(partitionKey).equalsIgnoreCase("Y")) {
 
-                        refreshMasterCache(partitionKey);
+                        refreshMasterCache(partitionKey, context().partition());
                         refreshCacheFlagMap.put(partitionKey, "N");
 
                         Timestamp timestamp = new Timestamp(System.currentTimeMillis());
@@ -403,7 +404,7 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
                 if (refreshCacheFlagMap.get(partitionKey) != null
                         && refreshCacheFlagMap.get(partitionKey).equalsIgnoreCase("Y")) {
 
-                    refreshMasterCache(partitionKey);
+                    refreshMasterCache(partitionKey, context().partition());
                     refreshCacheFlagMap.put(partitionKey, "N");
 
                     Timestamp timestamp = new Timestamp(System.currentTimeMillis());
@@ -417,10 +418,10 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
                 context().forward(partitionKey, traceMsg.getBytes(), "output-trace");
                 context().commit();
 
-                log.debug("[{}] - No event registered.", partitionKey);
+                log.debug("[{}-{}] - No event registered.", partitionKey, context().partition());
             }
         } catch (Exception e) {
-            log.debug("[{}] - {}", partitionKey, recordValue);
+            log.debug("[{}-{}] - {}", partitionKey, context().partition(), recordValue);
             log.error(e.getMessage(), e);
         }
     }
@@ -439,7 +440,7 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
         return time;
     }
 
-    private void refreshMasterCache(String partitionKey) {
+    private void refreshMasterCache(String partitionKey, int partition) {
         // refresh master info.
         try {
             MasterCache.Equipment.refresh(partitionKey);
@@ -451,7 +452,7 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
             MasterCache.Health.refresh(partitionKey);
             MasterCache.Mail.refresh(partitionKey);
 
-            log.debug("[{}] - all cache refreshed.", partitionKey);
+            log.debug("[{}-{}] - all cache refreshed.", partitionKey, partition);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }

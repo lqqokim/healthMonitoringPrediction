@@ -207,7 +207,6 @@ public class TraceTrxDao implements SensorTraceDataDao {
                     pstmt.setLong(2, sensorData.getParamMstRawid());
                     pstmt.setFloat(3, sensorData.getValue());
 
-
                     if (sensorData.getUpperAlarmSpec() != null) {
                         pstmt.setFloat(4, sensorData.getUpperAlarmSpec()); //upper alarm spec
                     } else {

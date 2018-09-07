@@ -60,13 +60,13 @@ public class BatchProcessor extends AbstractProcessor<String, byte[]> {
             if (recordColumns[1].equalsIgnoreCase("CMD-REFRESH-CACHE")) {
                 refreshCacheFlagMap.put(partitionKey, "Y");
                 context().commit();
-                log.debug("[{}] - Refresh Order were issued.", partitionKey);
+                log.debug("[{}-{}] - Refresh Order were issued.", partitionKey, context().partition());
                 return;
             }
 
             // filter by master
             if (MasterCache.Equipment.get(partitionKey) == null) {
-                log.debug("[{}] - Not existed.", partitionKey);
+                log.debug("[{}-{}] - Not existed.", partitionKey, context().partition());
                 context().commit();
                 return;
             }
@@ -166,7 +166,8 @@ public class BatchProcessor extends AbstractProcessor<String, byte[]> {
                                         context().commit();
 
                                     } else {
-                                        log.debug("[{}] - skip {} because count is 0.", partitionKey, paramMaster.getParameterName());
+                                        log.debug("[{}-{}] - skip {} because value is empty.",
+                                                partitionKey, context().partition(), paramMaster.getParameterName());
                                     }
                                 } else {
                                     // for dimensional
@@ -192,7 +193,8 @@ public class BatchProcessor extends AbstractProcessor<String, byte[]> {
                                     }
                                 }
                             }
-                            log.debug("[{}] - aggregated interval ({} to {}).", partitionKey, sts, ets);
+                            log.debug("[{}-{}] - aggregated interval ({} to {}).",
+                                    partitionKey, context().partition(), sts, ets);
 
                             intervalLongTime.put(partitionKey, paramTime);
                         }
@@ -243,7 +245,8 @@ public class BatchProcessor extends AbstractProcessor<String, byte[]> {
                                 context().commit();
 
                             } else {
-                                log.debug("[{}] - skip {} because count is 0.", partitionKey, paramMaster.getParameterName());
+                                log.debug("[{}-{}] - skip {} because value is empty.",
+                                        partitionKey, context().partition(), paramMaster.getParameterName());
                             }
                         } else {
                             // for dimensional
@@ -270,13 +273,14 @@ public class BatchProcessor extends AbstractProcessor<String, byte[]> {
                         }
                     }
 
-                    log.debug("[{}] - aggregated interval ({} to {}).", partitionKey, sts, ets);
+                    log.debug("[{}-{}] - aggregated interval ({} to {}).",
+                            partitionKey, context().partition(), sts, ets);
                 } else {
                     // idle (II)
                     // refresh cache
                     if (refreshCacheFlagMap.get(partitionKey) != null
                             && refreshCacheFlagMap.get(partitionKey).equalsIgnoreCase("Y")) {
-                        refreshMasterCache(partitionKey);
+                        refreshMasterCache(partitionKey, context().partition());
                         refreshCacheFlagMap.put(partitionKey, "N");
                     }
                 }
@@ -288,14 +292,14 @@ public class BatchProcessor extends AbstractProcessor<String, byte[]> {
                 // refresh cache
                 if (refreshCacheFlagMap.get(partitionKey) != null
                         && refreshCacheFlagMap.get(partitionKey).equalsIgnoreCase("Y")) {
-                    refreshMasterCache(partitionKey);
+                    refreshMasterCache(partitionKey, context().partition());
                     refreshCacheFlagMap.put(partitionKey, "N");
                 }
 
-                log.debug("[{}] - No event registered.", partitionKey);
+                log.debug("[{}-{}] - No event registered.", partitionKey, context().partition());
             }
         } catch (Exception e) {
-            log.debug("[{}] - {}", partitionKey, recordValue);
+            log.debug("[{}-{}] - {}", partitionKey, context().partition(), recordValue);
             log.error(e.getMessage(), e);
         }
     }
@@ -314,7 +318,7 @@ public class BatchProcessor extends AbstractProcessor<String, byte[]> {
         return time;
     }
 
-    private void refreshMasterCache(String partitionKey) {
+    private void refreshMasterCache(String partitionKey, int partition) {
         // refresh master info.
         try {
             MasterCache.Equipment.refresh(partitionKey);
@@ -326,7 +330,7 @@ public class BatchProcessor extends AbstractProcessor<String, byte[]> {
             MasterCache.Health.refresh(partitionKey);
             MasterCache.Mail.refresh(partitionKey);
 
-            log.debug("[{}] - all cache refreshed.", partitionKey);
+            log.debug("[{}-{}] - all cache refreshed.", partitionKey, partition);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }

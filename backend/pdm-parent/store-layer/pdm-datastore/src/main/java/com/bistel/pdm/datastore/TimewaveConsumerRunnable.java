@@ -92,6 +92,7 @@ public class TimewaveConsumerRunnable implements Runnable {
                     // 13: timewave
 
                     Long rawId = trxDao.getTraceRawId();
+                    log.debug("[{}-{}] - trace rawid:{}", record.key(), record.partition(), rawId);
 
                     log.debug("parsing trace...");
                     parseTrace(traceRow, values, rawId);
@@ -166,7 +167,7 @@ public class TimewaveConsumerRunnable implements Runnable {
         rawDataFrequency.setEventDtts(Long.parseLong(values[7]));
 
         rawDataFrequency.setFreqCount(Integer.parseInt(values[8]));
-        rawDataFrequency.setMaxFreq(Double.parseDouble(values[9]));
+        rawDataFrequency.setMaxFreq(Float.parseFloat(values[9]));
 
         rawDataFrequency.setRpm(Float.parseFloat(values[10]));
         rawDataFrequency.setSamplingTime(Float.parseFloat(values[11]));
@@ -245,7 +246,8 @@ public class TimewaveConsumerRunnable implements Runnable {
         rawDataTimeWave.setEventDtts(Long.parseLong(values[7]));
 
         rawDataTimeWave.setFreqCount(Integer.parseInt(values[8]));
-        rawDataTimeWave.setMaxFreq(Double.parseDouble(values[9]));
+        rawDataTimeWave.setMaxFreq(Float.parseFloat(values[9]));
+
         rawDataTimeWave.setRpm(Float.parseFloat(values[10]));
         rawDataTimeWave.setSamplingTime(Float.parseFloat(values[11]));
         rawDataTimeWave.setTimewaveData(values[13]);
@@ -362,27 +364,4 @@ public class TimewaveConsumerRunnable implements Runnable {
 
         return prop;
     }
-
-//    private Properties createConsumerConfig(String groupId, Properties prop) {
-//        Properties props = new Properties();
-//        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, prop.getProperty("bootstrap.servers")); //bootstrap.servers
-//
-//        if (groupId.length() <= 0) {
-//            props.put(ConsumerConfig.GROUP_ID_CONFIG, prop.getProperty("group.id"));
-//        } else {
-//            props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId); //group.id
-//        }
-//
-//        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, prop.getProperty("enable.auto.commit"));
-//        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, prop.getProperty("auto.offset.reset"));
-//        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, prop.getProperty("key.deserializer"));
-//        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, prop.getProperty("value.deserializer"));
-//        props.put(ConsumerConfig.CONNECTIONS_MAX_IDLE_MS_CONFIG, prop.getProperty("connections.max.idle.ms"));
-//        props.put(ConsumerConfig.FETCH_MIN_BYTES_CONFIG, prop.getProperty("fetch.min.bytes"));
-//        props.put(ConsumerConfig.HEARTBEAT_INTERVAL_MS_CONFIG, prop.getProperty("heartbeat.interval.ms"));
-//        props.put(ConsumerConfig.MAX_PARTITION_FETCH_BYTES_CONFIG, prop.getProperty("max.partition.fetch.bytes"));
-//        props.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, prop.getProperty("session.timeout.ms"));
-//
-//        return props;
-//    }
 }
