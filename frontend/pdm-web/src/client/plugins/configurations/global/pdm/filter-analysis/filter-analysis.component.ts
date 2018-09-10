@@ -189,14 +189,14 @@ export class FilterAnalysisComponent implements OnInit {
 
         // res.category.y = ['EQP_NAME'];
         // res.category.x = ['AREA_NAME'];
-        res.category.y = [];
-        res.category.x = [];
-        res.chartData.x = [{name:"BARCODE", selected:'NORMAL'}];
-        res.chartData.y = [{name:"Z_RMS", selected:'NORMAL'}];
-        res.chartData.y2 = [{name:"HOIST_AXIS_SPEED", selected:'NORMAL'}];
+        // res.category.y = [];
+        // res.category.x = [];
+        // res.chartData.x = [{name:"BARCODE", selected:'NORMAL'}];
+        // res.chartData.y = [{name:"Z_RMS", selected:'NORMAL'}];
+        // res.chartData.y2 = [{name:"HOIST_AXIS_SPEED", selected:'NORMAL'}];
 
-        this.timePeriod.from = 1536104540000;
-        this.timePeriod.to = 1536104840000;
+        // this.timePeriod.from = 1536104540000;
+        // this.timePeriod.to = 1536104840000;
 
         console.log('this.timePeriod.from', moment(this.timePeriod.from).format('YYYY-MM-DD HH:mm:ss'));
         console.log('this.timePeriod.to', moment(this.timePeriod.to).format('YYYY-MM-DD HH:mm:ss'));
