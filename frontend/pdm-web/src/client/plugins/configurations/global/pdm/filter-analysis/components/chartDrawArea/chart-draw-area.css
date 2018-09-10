@@ -59,6 +59,9 @@ chart-draw-area #table_Xmore_Ymore .chartViewAreaGroup_y .chartViewArea_x > .cha
 /* jqplot 우측 레전드 아이콘 문자 여백 */
 chart-draw-area .jqplot-table-legend td:nth-child(2) { padding-left:15px !important; text-align:left !important; }
 
+/* jqplot 좌측 레전드 왼쪽 마진 제거 */
+chart-draw-area div.jqplot-table-legend-wrap-left { margin:0 5px 0 0 !important; }
+
 /* jqplot 우측 레전드 오른쪽 마진 제거 */
 chart-draw-area div.jqplot-table-legend-wrap-right { margin:0 0 0 5px !important; }
 

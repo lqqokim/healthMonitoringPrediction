@@ -213,7 +213,7 @@ export class ChartDrawAreaComponent implements OnInit, OnDestroy {
     }
 
     //* 차트 그리기
-    public draw( data: DrawResponseData, xCategoryCount: number, yCategoryCount: number, chartType: string, drawChartData: DrawChartData ): void {
+    public draw( data: DrawResponseData, xCategoryCount: number, yCategoryCount: number, chartType: string, legendPosition: string, drawChartData: DrawChartData ): void {
 
         // 그려질 차트 타입 설정
         this.tableDrawStatus = this.getDrawChartType(xCategoryCount, yCategoryCount);
@@ -230,15 +230,15 @@ export class ChartDrawAreaComponent implements OnInit, OnDestroy {
 
         // 그려질 차트에 따라 돔 그리기
         switch( this.tableDrawStatus ){
-            case this.tableDrawType.Xzero_Yzero: this.draw_table_xzero_yzero(data, chartType); break;
-            case this.tableDrawType.Xmore_Yzero: this.draw_table_xmore_yzero(data, chartType, xCategoryCount); break;
-            case this.tableDrawType.Xzero_Ymore: this.draw_table_xzero_ymore(data, chartType); break;
-            case this.tableDrawType.Xmore_Ymore: this.draw_table_xmore_ymore(data, chartType, yCategoryCount); break;
+            case this.tableDrawType.Xzero_Yzero: this.draw_table_xzero_yzero(data, chartType, legendPosition); break;
+            case this.tableDrawType.Xmore_Yzero: this.draw_table_xmore_yzero(data, chartType, legendPosition, xCategoryCount); break;
+            case this.tableDrawType.Xzero_Ymore: this.draw_table_xzero_ymore(data, chartType, legendPosition); break;
+            case this.tableDrawType.Xmore_Ymore: this.draw_table_xmore_ymore(data, chartType, legendPosition, yCategoryCount); break;
         }
     }
 
     //* jqplot 차트 그리기
-    private draw_jqplotChart( $drawElems: any, chartValues: Array<string[][]>, chartType: string ): void {
+    private draw_jqplotChart( $drawElems: any, chartValues: Array<string[][]>, chartType: string, legendPosition: string ): void {
 
         // 그릴 차트 데이터가 없을 때 에러문구 출력
         if( chartValues.length === 0 ){
@@ -446,7 +446,7 @@ export class ChartDrawAreaComponent implements OnInit, OnDestroy {
             max_Y = Math.round(max_Y + spaceY);
 
             // 차트 기본 타입 설정 값
-            const rendererOpts: any = this.chartTypeOpts(chartType, min_X, max_X, min_Y, max_Y);
+            const rendererOpts: any = this.chartTypeOpts(chartType, legendPosition, min_X, max_X, min_Y, max_Y);
 
             // 차트 그리기
             const chart:any = $.jqplot( currId, JSON.parse(JSON.stringify(datas.y)), rendererOpts );
@@ -494,7 +494,7 @@ export class ChartDrawAreaComponent implements OnInit, OnDestroy {
     }
 
     //* jqplot 차트 시리즈 옵션 타입별 기본 값 가져오기
-    private chartTypeOpts( chartType: string, minX: number, maxX: number, minY: number, maxY: number ): any {
+    private chartTypeOpts( chartType: string, legendPosition: string, minX: number, maxX: number, minY: number, maxY: number ): any {
         let rendererType: any = {};
 
         switch( chartType ){
@@ -677,7 +677,7 @@ export class ChartDrawAreaComponent implements OnInit, OnDestroy {
                 },
                 placement: 'outsideGrid',
                 shrinkGrid: true,
-                location: 'e'
+                location: legendPosition    // w: 왼쪽, n: 오른쪽
             },
             seriesDefaults: rendererType,
             series: this.chartSeriesOpts,
@@ -856,7 +856,7 @@ export class ChartDrawAreaComponent implements OnInit, OnDestroy {
     }
 
     //* jqplot으로 그려진 타입 변경
-    public draw_c3ChartTypeChange( chartType: string ): void {
+    public draw_c3ChartTypeChange( chartType: string, legendPosition: string ): void {
 
         // 그려진 차트가 없으면 건너 뜀
         if( this.drawChartObj.length === 0 ){ return; }
@@ -877,9 +877,7 @@ export class ChartDrawAreaComponent implements OnInit, OnDestroy {
             yTicks = JSON.parse(JSON.stringify(this.drawChartObj[i].yticks));
             minMax = chart.getMinMax();
 
-            console.log( 'minMax', minMax );
-
-            rendererOpts = this.chartTypeOpts(chartType, minMax.min_X, minMax.max_X, minMax.min_Y, minMax.max_Y);
+            rendererOpts = this.chartTypeOpts(chartType, legendPosition, minMax.min_X, minMax.max_X, minMax.min_Y, minMax.max_Y);
 
             // 차트 다시 그리기 (y축에 들어있는 x축 데이터를 1로 변환하는 문제 때문에 데이터 다시 전달)
             chart.destroy();
@@ -890,7 +888,7 @@ export class ChartDrawAreaComponent implements OnInit, OnDestroy {
     }
 
     //* 테이블 없이 차트 한개만 그리기
-    private draw_table_xzero_yzero(data: DrawResponseData, chartType: string): void {
+    private draw_table_xzero_yzero(data: DrawResponseData, chartType: string, legendPosition: string): void {
         let chartValues: Array< string[][] > = [];
 
         const tableRender: Function = ( d: DrawResponseData ): string =>{
@@ -909,11 +907,11 @@ export class ChartDrawAreaComponent implements OnInit, OnDestroy {
         $target[0].innerHTML = tableRender(data);
 
         // 차트 그리기
-        this.draw_jqplotChart( $target.find('.chartView'), chartValues, chartType );
+        this.draw_jqplotChart( $target.find('.chartView'), chartValues, chartType, legendPosition );
     }
 
     //* x축만 그리기
-    private draw_table_xmore_yzero(data: DrawResponseData, chartType: string, xCateCount: number ): void {
+    private draw_table_xmore_yzero(data: DrawResponseData, chartType: string, legendPosition: string, xCateCount: number ): void {
         let chartIdx: number = 0;
         let chartValues: Array< string[][] > = [];
 
@@ -987,11 +985,11 @@ export class ChartDrawAreaComponent implements OnInit, OnDestroy {
         $target.height( 500 + (xCateCount*30) );
 
         // 차트 그리기
-        this.draw_jqplotChart( $chatViewElems, chartValues, chartType );
+        this.draw_jqplotChart( $chatViewElems, chartValues, chartType, legendPosition );
     }
 
     //* y축만 그리기
-    private draw_table_xzero_ymore(data: DrawResponseData, chartType: string): void {
+    private draw_table_xzero_ymore(data: DrawResponseData, chartType: string, legendPosition: string): void {
         let chartIdx: number = 0;
         let chartValues: Array< string[][] > = [];
 
@@ -1077,11 +1075,11 @@ export class ChartDrawAreaComponent implements OnInit, OnDestroy {
         $target.height( chartViewCount*500 );
 
         // 차트 그리기
-        this.draw_jqplotChart( $chatViewElems, chartValues, chartType );
+        this.draw_jqplotChart( $chatViewElems, chartValues, chartType, legendPosition );
     }
 
     //* x, y축 그리기
-    private draw_table_xmore_ymore(data: DrawResponseData, chartType: string, yCateCount: number ): void {
+    private draw_table_xmore_ymore(data: DrawResponseData, chartType: string, legendPosition: string, yCateCount: number ): void {
         let chartIdx: number = 0;
         let chartValues: Array< string[][] > = [];
 
@@ -1241,6 +1239,6 @@ export class ChartDrawAreaComponent implements OnInit, OnDestroy {
         ;
 
         // 차트 그리기
-        this.draw_jqplotChart( $target.find('.chartView > div'), chartValues, chartType );
+        this.draw_jqplotChart( $target.find('.chartView > div'), chartValues, chartType, legendPosition );
     }
 }

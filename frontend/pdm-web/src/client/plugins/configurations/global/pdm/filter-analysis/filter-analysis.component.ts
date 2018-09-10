@@ -57,6 +57,12 @@ export class FilterAnalysisComponent implements OnInit {
             // 'Pie Chart',
             'Point Chart'
         ], value: 'Line Chart'},
+        {dataType: 'select', name:'Legend Position', items: [
+            'Left',
+            'Right',
+            'Up',
+            'Down'
+        ], value: 'Right'},
         // {dataType: 'boolean', name:'Scailing', value: true },
     ];
 
@@ -79,6 +85,9 @@ export class FilterAnalysisComponent implements OnInit {
     //* 차트 그려질 타입 명
     private chartType: string = 'line';
 
+    //* 차트 레전드 위치 설정 (w:왼쪽/ e:오른쪽/ n:위/ s:아래 )
+    private legendPosition: string = 'e';
+
     constructor(
         private _pdmModel: PdmModelService
     ){
@@ -97,7 +106,6 @@ export class FilterAnalysisComponent implements OnInit {
                 this.fabId = plants[0].fabId;
             })
             .catch((err: any) => {
-                console.log( 'getFabId', err );
                 this.fabId = undefined;
             })
         ;
@@ -131,8 +139,6 @@ export class FilterAnalysisComponent implements OnInit {
     //* (onDrawChartData) x, y, y2 해당 배열 세팅 용
     private getChartDataType( target: Array<ChartDataItem>): Array<SendItemType> {
 
-        console.log('target', target);
-
         let result: Array<SendItemType> = [];
 
         // 데이터가 없으면 공백
@@ -160,7 +166,6 @@ export class FilterAnalysisComponent implements OnInit {
 
     //* Draw Chart 버튼 클릭 시 넘어올 데이터
     onDrawChartData( res: DrawChartData ): void {
-        console.log( res );
 
         // fabId값을 가져오지 못한 상태라면 건너뜀
         if( this.fabId === undefined ){
@@ -184,12 +189,14 @@ export class FilterAnalysisComponent implements OnInit {
 
         // res.category.y = ['EQP_NAME'];
         // res.category.x = ['AREA_NAME'];
-        // res.chartData.x = [{name:"BARCODE", selected:'NORMAL'}];
-        // res.chartData.y = [{name:"Z_RMS", selected:'NORMAL'}];
-        // res.chartData.y2 = [{name:"HOIST_AXIS_SPEED", selected:'NORMAL'}];
+        res.category.y = [];
+        res.category.x = [];
+        res.chartData.x = [{name:"BARCODE", selected:'NORMAL'}];
+        res.chartData.y = [{name:"Z_RMS", selected:'NORMAL'}];
+        res.chartData.y2 = [{name:"HOIST_AXIS_SPEED", selected:'NORMAL'}];
 
-        // this.timePeriod.from = 1535585440000;
-        // this.timePeriod.to = 1535586440000;
+        this.timePeriod.from = 1536104540000;
+        this.timePeriod.to = 1536104840000;
 
         console.log('this.timePeriod.from', moment(this.timePeriod.from).format('YYYY-MM-DD HH:mm:ss'));
         console.log('this.timePeriod.to', moment(this.timePeriod.to).format('YYYY-MM-DD HH:mm:ss'));
@@ -223,7 +230,7 @@ export class FilterAnalysisComponent implements OnInit {
                 const xCategoryCount: number = res.category.x.length;
                 const yCategoryCount: number = res.category.y.length;
 
-                this.chartDrawArea.draw(drawResData, xCategoryCount, yCategoryCount, this.chartType, res);
+                this.chartDrawArea.draw(drawResData, xCategoryCount, yCategoryCount, this.chartType, this.legendPosition, res);
             })
             .catch((err: any)=>{
                 console.log( '[error] getAnalysisToolData', err );
@@ -236,13 +243,11 @@ export class FilterAnalysisComponent implements OnInit {
 
     //* 날짜 변경 값 적용
     public onDate( res: TimePeriod ): void {
-        console.log('onDate-res', res);
         this.timePeriod = res;
     }
 
     //* 선택된 Parameter 값 리스트 넘어올 데이터
     public onParameter( res: OnParameterData ): void {
-        console.log('onParameter - res', res );
         this.parameterFilter( res );
     }
 
@@ -353,7 +358,20 @@ export class FilterAnalysisComponent implements OnInit {
                 }
 
                 // 그려진 차트가 있으면 해당 차트로 변경
-                this.chartDrawArea.draw_c3ChartTypeChange( this.chartType );
+                this.chartDrawArea.draw_c3ChartTypeChange( this.chartType, this.legendPosition );
+            } break;
+
+            // 차트 레전드 변경
+            case 'Legend Position': {
+                switch( e.value ){
+                    case 'Left': this.legendPosition = 'w'; break;
+                    case 'Up': this.legendPosition = 'n'; break;
+                    case 'Right': this.legendPosition = 'e'; break;
+                    case 'Down': this.legendPosition = 's'; break;
+                }
+
+                // 그려진 차트가 있으면 해당 차트로 변경
+                this.chartDrawArea.draw_c3ChartTypeChange( this.chartType, this.legendPosition );
             } break;
         }
     }
