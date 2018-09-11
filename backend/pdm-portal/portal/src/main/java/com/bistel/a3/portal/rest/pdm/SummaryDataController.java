@@ -1,5 +1,6 @@
 package com.bistel.a3.portal.rest.pdm;
 
+import com.bistel.a3.portal.domain.pdm.EqpHealthIndexTrend;
 import com.bistel.a3.portal.domain.pdm.EqpStatusData;
 import com.bistel.a3.portal.domain.pdm.db.HealthInfo;
 import com.bistel.a3.portal.service.pdm.ISummaryDataService;
@@ -427,6 +428,23 @@ public class SummaryDataController {
 
         return summaryDataService.getWorstEqpsByHealthIndex(fabId,from,to,numberOfWorst);
 
+    }
+
+    @RequestMapping("/areas/{areaId}/eqps/{eqpId}/eqpHealthIndexTrend")
+    public List<EqpHealthIndexTrend> getEqpHealthIndexTrend(@PathVariable("fabId") String fabId,
+                                                            @PathVariable("areaId") Long area_id,
+                                                            @PathVariable("eqpId") Long eqp_id,
+                                                            @RequestParam("fromdate") Long fromdate,
+                                                            @RequestParam("todate") Long todate) throws ParseException {
+
+        Date fromDate = new Date(fromdate);
+        SimpleDateFormat df = new SimpleDateFormat("yyyyy-MM-dd hh:mm:ss");
+        String fromDateStr = df.format(fromDate);
+        Date from = new SimpleDateFormat("yyyy-MM-dd").parse(fromDateStr);
+
+        Date to = new Date(todate);
+
+        return summaryDataService.getEqpHealthIndexTrend(fabId, area_id, eqp_id, from, to);
     }
 
 }

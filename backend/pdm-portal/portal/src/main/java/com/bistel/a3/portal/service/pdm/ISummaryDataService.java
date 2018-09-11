@@ -40,4 +40,7 @@ public interface ISummaryDataService {
     Object getSummaryData(String fabId,Long paramId, Long fromdate, Long todate, List<String> adHocFucntions);
 
     List<HealthInfo> getWorstEqpsByHealthIndex(String fabId, Date from, Date to,Integer numberOfWorst);
+
+    List<EqpHealthIndexTrend> getEqpHealthIndexTrend(String fabId, Long area_id, Long eqp_id, Date fromdate, Date todate);
+
 }

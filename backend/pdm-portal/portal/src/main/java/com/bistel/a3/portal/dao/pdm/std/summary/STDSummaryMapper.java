@@ -39,6 +39,9 @@ public interface STDSummaryMapper {
     ArrayList<WorstEqupmentListChartData> selectWorstEqupmentListChartDataByAreaId(@Param("start_dtts") String start_dtts, @Param("end_dtts") String end_dtts, @Param("area_id") Long area_id, @Param("eqp_id") Long eqp_id);
 
     List<EqpHealthIndex> selectEqpHealthIndex(@Param("fromdate") Date fromdate, @Param("todate") Date todate, @Param("globalWarning") Double globalWarning);
+
+    List<EqpHealthIndexTrend> selectEqpHealthIndexTrend(@Param("fromdate") Date fromdate, @Param("todate") Date todate, @Param("area_id") Long area_id, @Param("eqp_id") Long eqp_id);
+
     List<FabMonitoringInfo> selectFabMonitoring(@Param("eqp_id") Long eqp_id, @Param("param_name") String param_name, @Param("fromdate") Date fromdate, @Param("todate") Date todate, @Param("globalWarn") Double globalWarn);
 
     List<EqpHealthIndex> selectEqpHealthAlarmCount(@Param("fromdate") Date fromdate, @Param("todate") Date todate);

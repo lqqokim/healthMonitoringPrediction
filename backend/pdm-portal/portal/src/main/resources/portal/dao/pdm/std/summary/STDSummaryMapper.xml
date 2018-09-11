@@ -2462,6 +2462,52 @@
 		order by area_id, eqp_id, eqp_name, param_id, param_name, health_logic_id, code
 
 	</select>
+
+	<select id="selectEqpHealthIndexTrend" resultType="com.bistel.a3.portal.domain.pdm.EqpHealthIndexTrend">
+		SELECT eqp.AREA_MST_RAWID AS area_id,
+		amp.name AS area_name,
+		ehdsp.eqp_mst_rawid AS eqp_id,
+		eqp.name AS eqp_name,
+		phmp.param_mst_rawid AS param_id,
+		param.name AS param_name,
+		hlmsp.rawid AS health_logic_id,
+		TO_CHAR(ehdsp.sum_dtts, 'yyyy-MM-dd') as sum_dtts,
+		hlmsp.code,
+		max(ROUND (ehdsp.score, 2)) AS score,
+		1 AS upperAlarmSpec,
+		0.8 AS upperWarningSpec
+		FROM EQP_HEALTH_DAILY_SUM_PDM ehdsp,
+		param_health_mst_pdm phmp,
+		health_logic_mst_pdm hlmsp,
+		eqp_mst_pdm eqp,
+		area_mst_pdm amp,
+		param_mst_pdm param
+		WHERE 1 = 1
+		AND TO_CHAR(ehdsp.sum_dtts, 'yyyy-MM-dd') <![CDATA[>=]]> #{fromdate}
+		AND TO_CHAR(ehdsp.sum_dtts, 'yyyy-MM-dd') <![CDATA[<]]> #{todate}
+		AND phmp.rawid = ehdsp.param_health_mst_rawid
+		AND phmp.health_logic_mst_rawid = hlmsp.rawid
+		AND phmp.param_mst_rawid = param.rawid
+		AND eqp.rawid = ehdsp.eqp_mst_rawid
+		AND eqp.area_mst_rawid = amp.rawid
+		AND eqp.area_mst_rawid = #{area_id}
+		AND EQP.RAWID = #{eqp_id}
+		group by eqp.AREA_MST_RAWID,
+		amp.name,
+		ehdsp.eqp_mst_rawid,
+		eqp.name,
+		phmp.param_mst_rawid,
+		param.name,
+		hlmsp.rawid,
+		TO_CHAR(ehdsp.sum_dtts, 'yyyy-MM-dd'),
+		hlmsp.code
+		ORDER BY
+		TO_CHAR(ehdsp.sum_dtts, 'yyyy-MM-dd'),
+		health_logic_id,
+		area_name,
+		eqp_name
+	</select>
+
 	<select id="selectFabMonitoring" resultType="com.bistel.a3.portal.domain.pdm.FabMonitoringInfo">
 		select
 		o.dimension as locationname, NVL(q.status_cd, 0),

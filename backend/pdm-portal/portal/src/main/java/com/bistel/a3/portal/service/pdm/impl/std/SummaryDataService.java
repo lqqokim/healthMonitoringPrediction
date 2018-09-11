@@ -813,6 +813,14 @@ public class SummaryDataService implements ISummaryDataService {
         return mapper.selectWorstEqps(fromdate,todate,numberOfWorst, globalWarn);
     }
 
+    @Override
+    public List<EqpHealthIndexTrend> getEqpHealthIndexTrend(String fabId, Long area_id, Long eqp_id, Date fromdate, Date todate) {
+        STDSummaryMapper stdSummaryMapper= SqlSessionUtil.getMapper(sessions, fabId, STDSummaryMapper.class);
+        List<EqpHealthIndexTrend> eqpHealthIndexTrendInfo = stdSummaryMapper.selectEqpHealthIndexTrend(fromdate, todate, area_id, eqp_id);
+
+        return eqpHealthIndexTrendInfo;
+    }
+
     private List<List<Object>> changeList(List<BasicData> data) {
         List<List<Object>> result = new ArrayList<>();
         for(BasicData d : data) {
