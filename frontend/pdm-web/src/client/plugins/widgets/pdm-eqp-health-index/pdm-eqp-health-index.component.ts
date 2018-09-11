@@ -6,6 +6,7 @@ import { ITimePeriod, WidgetChartConditionComponent } from '../../common/widget-
 import { WidgetConfigHelper, IConfigData } from '../../common/widget-config-helper/widget-config-helper';
 import { ModalPopComponent } from './components/modal-popup/modal-pop.component';
 import { LogicChartComponent } from './components/logic-chart/logic-chart.component';
+import { EqpChartComponent } from './components/eqp-chart/eqp-chart.component';
 
 // 서버 요청 데이터 포맷
 export interface IReqDataFormat {
@@ -39,6 +40,23 @@ enum chartIdx {
     ALARM,
     WARNING
 };
+
+//* Equipment
+export interface IReqDataFormat_chart_eqp {
+    area_id: number;
+    area_name: string;
+    eqp_id: number;
+    eqp_name: string;
+    score: number;
+    alarm_count: number;
+    upperAlarmSpec: number;
+    upperWarningSpec: number;
+    sum_dtts: string;
+    param_id: number;
+    param_name: string;
+    health_logic_id: number;
+    code: string;
+}
 
 //* Logic1 (Standard)
 export interface IReqDataFormat_chart_logic1 {
@@ -84,6 +102,7 @@ export class PdmEqpHealthIndex extends WidgetApi implements OnSetup, OnDestroy {
     @ViewChild('table') table: TableComponent;
     @ViewChild('modalPop') modalPop: ModalPopComponent;
     @ViewChild('logicChart') logicChart: LogicChartComponent;
+    @ViewChild('eqpChart') eqpChart: EqpChartComponent;
 
     private columnsDatas: Array<TableData> = [
         {title: 'Line', name: 'line' },
@@ -131,27 +150,26 @@ export class PdmEqpHealthIndex extends WidgetApi implements OnSetup, OnDestroy {
 
     // 모달 팝업 타이틀
     private modalPopTitle: string = '';
-    private modalPopType: string = 'logicChart';    // logicChart, trendChart 2개 타입
+    private modalPopType: string = 'logicChart';    // logicChart, trendChart, eqpChart 3개 타입
 
     // 리사이즈 용    
     private currElem: ElementRef['nativeElement'] = undefined;
     private widgetElem: ElementRef['nativeElement'] = undefined;
 
     // 트랜드 차트용
-    private
-        chartType: string = '';                 // 'alarm';
-        trendPlantId: string = '';              // 'fab1';
-        trendAreaId: (number|null) = null;  
-        trendEqpId: number = undefined;         // 21;
+    private chartType: string = '';                 // 'alarm';
+    private trendPlantId: string = '';              // 'fab1';
+    private trendAreaId: (number|null) = null;  
+    private trendEqpId: number = undefined;         // 21;
     
-        trendParamId: number = undefined;       // 1111;
-        trendFromDate: number = undefined;      // 1532962800000;
-        trendToDate: number = undefined;        // 1534690800000;
-        trendEqpName: string = '';              // 'TOHS03';
-        trendParamName: string = '';            // 'Z_RMS';
+    private trendParamId: number = undefined;       // 1111;
+    private trendFromDate: number = undefined;      // 1532962800000;
+    private trendToDate: number = undefined;        // 1534690800000;
+    private trendEqpName: string = '';              // 'TOHS03';
+    private trendParamName: string = '';            // 'Z_RMS';
     
-        trendValue: number = undefined;         // 3.044918;
-        trendSpecWarning: number = undefined;   // 0.8;
+    private trendValue: number = undefined;         // 3.044918;
+    private trendSpecWarning: number = undefined;   // 0.8;
 
     constructor(
         private _service: PdmEqpHealthIndexService,
@@ -223,7 +241,7 @@ export class PdmEqpHealthIndex extends WidgetApi implements OnSetup, OnDestroy {
         // if( columnName === 'healthIndex' ){ chartType='trendChart'; }
 
         // Health Index 해당 (LogicChart 용)
-        if( columnName === 'healthIndex' ){
+        else if( columnName === 'healthIndex' ){
             chartType='logicChart';
 
             let i: number = 1;
@@ -237,11 +255,20 @@ export class PdmEqpHealthIndex extends WidgetApi implements OnSetup, OnDestroy {
             }
         }
 
+        // Equipment
+        else if( columnName === 'equipment'){
+            chartType='eqpChart';
+        }
+
         // 차트 타입이 없다면 건너 뜀
         if( chartType === undefined ){ return; }
 
         // 해당 Logic1~4 param id, name 얻어오기
-        const logicParamID: number = <number>data.row[ columnName+'Param' ];
+        const logicParamID: number = (
+            chartType === 'logicChart'
+                ? <number>data.row[ columnName+'Param' ]
+                : <number>data.row[ 'logic1Param' ]
+        );
         const logicParamName: string = <string>(
             data.row[ columnName+'param_name' ] === (null || undefined)
                 ? ''
@@ -275,6 +302,11 @@ export class PdmEqpHealthIndex extends WidgetApi implements OnSetup, OnDestroy {
         //* 차트 데이터 불러오기 (LogicChart)
         if( chartType === 'logicChart' ){
             this.getChartData( logicParamID, <string>columnName, cellValue );
+        }
+        //* 차트 데이터 불러오기 (EqpChart)
+        else if( chartType === 'eqpChart' ){
+            this.modalPopTitle = `${data.row['line']} [${cellValue}] - ${cellName}`;
+            this.getEqpChartData( <number>data.row['area_id'], <number>data.row['eqp_id'], cellValue );
         }
         //* 차트 데이터 불러오기 (TrendChart)
         else if( chartType === 'trendChart' ){
@@ -452,6 +484,45 @@ export class PdmEqpHealthIndex extends WidgetApi implements OnSetup, OnDestroy {
                 } else {
                     // 차트 그리기
                     this.logicChart.setParam( logicType, res, this.timePeriod.fromDate, this.timePeriod.toDate, cellValue );
+
+                    // 팝업창 띄우기
+                    this.modalPop.open(); 
+                }
+
+                // 로딩 스피너 숨김
+                this.hideSpinner();
+            },
+            errorCallback: (err: any)=>{
+                this.hideSpinner();
+            }
+        });
+    }
+
+    //* equipment chart 데이터 가져오기
+    getEqpChartData( areaId: number, eqpId: number, cellValue: number ): void {
+
+        // logic1 ~ 4의 선택 값이 0이라면 
+        if( cellValue === 0 ){
+            alert('No Chart Data');
+            return;
+        }
+
+        this.showSpinner();
+
+        this._service.getEqpChartData({
+            fabId: this.fabId,
+            areaId: areaId,
+            eqpId: eqpId,
+            fromDate: this.timePeriod.fromDate,
+            toDate: this.timePeriod.toDate,
+            resultCallback: (res: Array<IReqDataFormat_chart_eqp> )=>{
+                
+                // 차트 데이터가 없을 경우 alert
+                if( res.length === 0 ){
+                    alert('No Chart Data');
+                } else {
+                    // 차트 그리기
+                    this.eqpChart.setParam( res, this.timePeriod.fromDate, this.timePeriod.toDate, cellValue );
 
                     // 팝업창 띄우기
                     this.modalPop.open(); 

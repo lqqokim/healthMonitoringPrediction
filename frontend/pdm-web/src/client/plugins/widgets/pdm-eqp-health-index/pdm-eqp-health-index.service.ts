@@ -20,6 +20,7 @@ export class PdmEqpHealthIndexService {
         }
     }
 
+    // Logic1 ~ 4
     getChartData(params:{
         logicType: string;          // Logic1 ~ 4 (1.Standard, 2.SPC, 3.Variation, 4.RUL)
         fabId: string;
@@ -65,5 +66,28 @@ export class PdmEqpHealthIndexService {
                 params.resultCallback(res);
             }, errorFunc);
         }
+    }
+
+    // Equipment
+    getEqpChartData(params:{
+        fabId: string;
+        areaId: number;
+        eqpId: number;
+        fromDate: number;
+        toDate: number;
+        resultCallback: Function;
+        errorCallback?: Function;
+    }): void {
+        params.errorCallback = ( typeof params.errorCallback !== 'function' ) ? ()=>{} : params.errorCallback;
+
+        // 에러 관련 처리 함수
+        const errorFunc = (err: any)=>{
+            console.log( err );
+            params.errorCallback( err );
+        };
+
+        this._pdmModel.getEqpHealthIndexTrend( params.fabId, params.areaId, params.eqpId, params.fromDate, params.toDate ).then((res: any)=>{
+            params.resultCallback(res);
+        }, errorFunc);
     }
 }

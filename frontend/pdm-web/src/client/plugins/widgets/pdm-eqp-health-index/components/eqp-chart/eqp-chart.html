@@ -1,0 +1,19 @@
+<div class="eqp-layer">
+    <div class="chart">
+        <a3c-bistel-chart
+            [ngStyle]="{width:'100%'}"
+            [data]="chartDatas"
+            [config]="chartConfig"
+            class="chart-body"
+        >
+        </a3c-bistel-chart>
+    </div>
+    <div class="float-wrapper" *ngIf="!chartDatas.length">
+        <dl>
+            <dt>
+                <div class="a3-spinner-data"></div>
+            </dt>
+            <dd class="message-title">Loading ...</dd>
+        </dl>
+    </div>
+</div>

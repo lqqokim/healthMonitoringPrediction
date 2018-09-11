@@ -1,0 +1,22 @@
+/* info */
+eqp-chart > .eqp-layer { width:auto !important; }
+
+/* 차트 */
+eqp-chart > .eqp-layer > .chart { position:absolute; left:10px; top:0; right:0; bottom:10px; }
+
+/* 차트 위쪽 여백 제거 */
+eqp-chart .chart-body { top:0 !important; height:100% !important; }
+eqp-chart .chart-body div.jqplot-table-legend-wrap-right { height:auto !important; bottom:0; }
+
+/* 차트 툴팁 */
+eqp-chart .jqplot-highlighter-tooltip-wrapper { margin:-5px 0 0 -5px; }
+eqp-chart .jqplot-highlighter-tooltip { margin: 0 !important; }
+eqp-chart .jqplot-highlighter-tooltip .eqpTooltip { padding:5px; }
+eqp-chart .jqplot-highlighter-tooltip .eqpTooltip > strong { display:flex; justify-content:flex-start; align-items:center; line-height:1; margin-bottom:6px; font-size:12px; }
+eqp-chart .jqplot-highlighter-tooltip .eqpTooltip > strong > i { width:8px; height:8px; display:block; margin-right:5px; }
+eqp-chart .jqplot-highlighter-tooltip .eqpTooltip > dl { margin:0; }
+eqp-chart .jqplot-highlighter-tooltip .eqpTooltip > dl > dt { background:#f3f3f3; color:#333; padding:1px 4px; }
+eqp-chart .jqplot-highlighter-tooltip .eqpTooltip > dl > dd { padding:1px 4px; margin-bottom:1px; }
+
+eqp-chart .jqplot-highlighter-tooltip .eqpTooltip > dl:hover > dt { background:#333; color:#fff; }
+eqp-chart .jqplot-highlighter-tooltip .eqpTooltip > dl:hover > dd { background:#ccc; }

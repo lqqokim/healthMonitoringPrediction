@@ -793,6 +793,13 @@ export class PdmModelService extends ModelCommonService {
 		});
 	}
 
+	// EquipmentChart
+	getEqpHealthIndexTrend(fabId: string, areaId: number, eqpId: number, fromDate: number, toDate: number): Promise<any> {
+		return this.GET({
+			uriPath: `pdm/fabs/${fabId}/areas/${areaId}/eqps/${eqpId}/eqpHealthIndexTrend/?fromdate=${fromDate}&todate=${toDate}`
+		});
+	}
+
 	// eqpHealthTrendChart (Logic1 -Standard)
 	getEqpHealthTrendChart(fabId: string, paramId: number, fromDate: number, toDate: number): Promise<any> {
 		return this.GET({
