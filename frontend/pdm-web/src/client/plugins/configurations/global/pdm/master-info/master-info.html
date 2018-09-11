@@ -1,71 +1,55 @@
-<!-- <div a3-spinner #componentSpinner [type]="'component'" style="position:relative;"></div> -->
-<div class="pdm-configuration-builder master-info clearfix">
-    <div class="pdm-wijmo-body">
-        <div class="fab-label">
-            <!-- <span class="title" style="border: 0px solid; border-radius: 5px;background-color: #25447D;width: 281px;color: white;">
-                    Master Data</span> -->
-            <label for="inputFab">Fab</label>
-            <select class="form-control" [(ngModel)]="selectedFab" (ngModelChange)="changeSelectedFab($event)" style="width:240px;margin-left:5px;display:inline-block;">
-                <option *ngFor="let plant of plants" [ngValue]="plant" [selected]="plant.fabId === selectedFab.fabId">
-                    {{plant.fabName}}
-                </option>
-            </select>
-        </div>
-        <div class="pdm-config-header clearfix">
-            <div class="header-info">
-                <span>Location</span>
-                <span class="select">{{selectedPath}}</span>
+<div class="master-info-container clearfix">
+    <split direction="horizontal" [gutterSize]="3">
+
+        <split-area class='tree' size="27">
+            <div class="tree-area">
+                <div class="fab-selector">
+                    <label for="inputFab">Fab</label>
+                    <select class="form-control fab" [(ngModel)]="selectedFab" (ngModelChange)="changeSelectedFab($event)"
+                        style="width:240px;margin-left:5px;display:inline-block;">
+                        <option *ngFor="let plant of plants" [ngValue]="plant" [selected]="plant.fabId === selectedFab.fabId">
+                            {{plant.fabName}}
+                        </option>
+                    </select>
+                </div>
+                <wj-tree #tv [datas]="initialTreeDatas" [childDatas]="childDatas" (clickNode)="selectNode($event)">
+                </wj-tree>
             </div>
-        </div>
-        <wj-tree #tv 
-            [datas]="initialTreeDatas"
-            [childDatas]="childDatas"
-            (clickNode)="selectNode($event)">
-        </wj-tree>
-    </div>
-    <div class="pdm-master-body relative">
-        <div class="pdm-master-wrapper" *ngIf="selectedItem">
-            <div class="master-list">
+        </split-area>
+
+        <split-area class='table' size="73">
+            <div class="table-area relative" *ngIf="selectedItem">
                 <div class="top-list" [ngClass]="{'top-remove': !isShowArea}" [style.height]="nodeType === 'eqp' ? '33%' : '51%'">
-                    <area-list *ngIf="nodeType === 'area' && isShowArea"
-                        [datas]="areaData" 
-                        (updateItem)="initWjTree($event)">
+                    <area-list *ngIf="nodeType === 'area' && isShowArea" [datas]="areaData" (updateItem)="initWjTree($event)">
                     </area-list>
-                    <parameter-list *ngIf="nodeType === 'eqp'" 
-                        [datas]="paramData" 
-                        [partsDatas]="partData"
-                        (updateItem)="initWjTree($event)">
+                    <parameter-list *ngIf="nodeType === 'eqp'" [datas]="paramData" [partsDatas]="partData" (updateItem)="initWjTree($event)">
                     </parameter-list>
                 </div>
 
-                <div class="bottom-list" [ngClass]="{'bottom-full': !isShowArea}" [style.height]="nodeType === 'eqp' ? '33%' : '51%'">
-                    <eqp-list *ngIf="nodeType === 'area'" 
-                        [datas]="eqpData" 
-                        (updateItem)="initWjTree($event)">
+                <div class="middle-list" [ngClass]="{'middle-full': !isShowArea}" [style.height]="nodeType === 'eqp' ? '33%' : '51%'">
+                    <eqp-list *ngIf="nodeType === 'area'" [datas]="eqpData" (updateItem)="initWjTree($event)">
                     </eqp-list>
-                    <part-list *ngIf="nodeType === 'eqp'" 
-                        [datas]="partData" 
-                        (updateItem)="initWjTree($event)">
+                    <part-list *ngIf="nodeType === 'eqp'" [datas]="partData" (updateItem)="initWjTree($event)">
                     </part-list>
                 </div>
 
-                <div class="spec-list">
-                    <master-spec-rule *ngIf="nodeType === 'eqp'" 
-                        [specCondition]="eqpSpecCondition">
+                <div class="bottom-list">
+                    <master-spec-rule *ngIf="nodeType === 'eqp'" [specCondition]="eqpSpecCondition">
                     </master-spec-rule>
                 </div>
             </div>
-        </div>
 
-        <div class="float-wrapper" *ngIf="!selectedItem" style="position:relative;">
-            <dl>
-                <dt>
-                    <i class="icon icon-nodata"></i>
-                </dt>
-                <dd class="message-title">No Data</dd>
-            </dl>
-        </div>
-    </div>
+            <div class="float-wrapper" *ngIf="!selectedItem" style="position:relative;">
+                <dl>
+                    <dt>
+                        <i class="icon icon-nodata"></i>
+                    </dt>
+                    <dd class="message-title">No Data</dd>
+                </dl>
+            </div>
+        </split-area>
+
+    </split>
 </div>
 
 <div class="float-wrapper" *ngIf="isLoading">

@@ -20,6 +20,8 @@ import { MasterSpecRuleComponent } from './partial/spec-rule/master-spec-rule.co
 
 import { MasterEqpCopyComponent } from './partial/eqp/master-eqp-copy.component';
 
+import { AngularSplitModule } from 'angular-split';
+
 // import { NgTree } from 'ng.tree';
 
 
@@ -29,6 +31,7 @@ import { MasterEqpCopyComponent } from './partial/eqp/master-eqp-copy.component'
         BISTEL_SDKModule,
         A3_CommonModule,
         WjNavModule,
+        AngularSplitModule
         
     ],
     declarations: [
