@@ -22,6 +22,9 @@ pdm-eqp-health-index ng2-Table table > tbody > tr > td:nth-child(8) {  text-alig
 /* health index cell background color */
 pdm-eqp-health-index ng2-Table table > tbody > tr > td:nth-child(3) { background:rgba(209, 239, 251, 0.4); }
 
+/* Equipment 셀 */
+pdm-eqp-health-index ng2-Table table > tbody > tr > td:nth-child(2) { cursor:pointer; }
+
 /* 해당 테이블 피드백 종 모양 */
 pdm-eqp-health-index ng2-Table table > tbody > tr > td[feedback]::before { content:'\f0f3'; display:inline-block; margin-right:3px; font:normal normal normal 14px/1 FontAwesome; -webkit-font-smoothing:antialiased; position:absolute; left:3px; }
 pdm-eqp-health-index ng2-Table table > tbody > tr > td[feedback=warning]::before { color:#ed9622; }

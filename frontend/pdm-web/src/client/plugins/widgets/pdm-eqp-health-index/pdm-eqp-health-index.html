@@ -17,7 +17,8 @@
         #modalPop
         [title]="modalPopTitle"
     >
-        <logic-chart #logicChart></logic-chart>
+        <logic-chart #logicChart *ngIf="modalPopType === 'logicChart'"></logic-chart>
+        <eqp-chart #eqpChart *ngIf="modalPopType === 'eqpChart'"></eqp-chart>
 
         <trend-chart
             *ngIf="modalPopType === 'trendChart' && trendParamId && chartType"

@@ -1,5 +1,4 @@
-
-import { Component, ViewEncapsulation, ElementRef } from '@angular/core';
+import { Component, ViewEncapsulation, ElementRef, ChangeDetectorRef } from '@angular/core';
 import { IReqDataFormat_chart_logic1 } from '../../pdm-eqp-health-index.component';
 
 @Component({
@@ -251,7 +250,8 @@ export class LogicChartComponent {
     };
 
     constructor(
-        currentElem: ElementRef
+        currentElem: ElementRef,
+        private changeDetectorRef: ChangeDetectorRef
     ){
         this.currElem = currentElem.nativeElement;
     }
@@ -606,11 +606,15 @@ export class LogicChartComponent {
             }
         }
 
-        // config 값 재설정
-        this.trendConfig = drawData.chartConfig;
+        this.changeDetectorRef.detectChanges();
 
-        // 차트 데이터 세팅
-        this.chartDatas = drawData.chartData;
+        setTimeout(()=>{
+            // config 값 재설정
+            this.trendConfig = drawData.chartConfig;
+
+            // 차트 데이터 세팅
+            this.chartDatas = drawData.chartData;
+        }, 10);
     }
 
     //* 이벤트 차트 지우기 (전부)
