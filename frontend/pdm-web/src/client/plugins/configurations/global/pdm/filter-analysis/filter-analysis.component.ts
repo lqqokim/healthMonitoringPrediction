@@ -56,7 +56,7 @@ export class FilterAnalysisComponent implements OnInit {
             'Line Chart',
             // 'Pie Chart',
             'Point Chart',
-            'Candlestick Chart'
+            // 'Candlestick Chart'
         ], value: 'Line Chart'},
         {dataType: 'select', name:'Legend Position', items: [
             'Left',
