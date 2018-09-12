@@ -3,7 +3,7 @@ import { Component, ViewEncapsulation, ViewChild, OnDestroy, AfterViewInit, Elem
 
 //MI import
 import { WidgetRefreshType, WidgetApi, ContextMenuTemplateInfo, OnSetup } from '../../../common';
-import { Translater, ContextMenuType, SpinnerComponent } from '../../../sdk';
+import { Translater, ContextMenuType, SpinnerComponent, NotifyService } from '../../../sdk';
 
 import { FabInfo } from '../../configurations/global/pdm/fabmonitoring/component/fab-editor/fabInfo';
 import { FabEditorComponent } from '../../configurations/global/pdm/fabmonitoring/component/fab-editor/fab-editor.component';
@@ -28,13 +28,16 @@ export class PdmFabMonitoringComponent extends WidgetApi implements OnInit, OnSe
     @ViewChild("fabMonitoring") fabMonitoring: FabEditorComponent;
     @ViewChild('tree') tree: FabAreaEqpParamTreeComponent;
 
-    eqpId;
+    eqpId: number;
+    param_name: string;
     searchTimePeriod = {
         from: null,
         to: null
     }
 
-    constructor(private _pdmSvc: PdmModelService) {
+    constructor(
+        private _pdmSvc: PdmModelService,
+        private notify: NotifyService) {
         super();
     }
 
@@ -85,22 +88,18 @@ export class PdmFabMonitoringComponent extends WidgetApi implements OnInit, OnSe
         this.searchTimePeriod = data;
     }
     getMonitoringInfo() {
+        if (!this.param_name) {
+            this.notify.info("PDM.NOTIFY.INFO.NOT_EXIST_PARAMETER");
+            return;
+        }
+
         this.showSpinner();
         let fabId = this.tree.selectedFab.fabId;
         // let conditionParamId = this.modelChart.getConditionParamId();
-        let node = this.tree.getSelectedNodes();
-        let param_name = "";
-        for (let index = 0; index < node.length; index++) {
-            const element = node[index];
-            if (element.nodeType == 'parameter') {
-                param_name = element.name;
-                break;
-            }
 
-        }
 
-        console.log(`getFabMonitoring Request => [fabId] ${fabId} [timePeriod] ${JSON.stringify(this.searchTimePeriod)} [paramName] ${param_name} [eqpId] ${this.eqpId}`);
-        this._pdmSvc.getFabMonitoring(fabId, this.searchTimePeriod.from, this.searchTimePeriod.to, param_name, this.eqpId)
+        console.log(`getFabMonitoring Request => [fabId] ${fabId} [timePeriod] ${JSON.stringify(this.searchTimePeriod)} [paramName] ${this.param_name} [eqpId] ${this.eqpId}`);
+        this._pdmSvc.getFabMonitoring(fabId, this.searchTimePeriod.from, this.searchTimePeriod.to, this.param_name, this.eqpId)
             .then((datas) => {
                 console.log('getFabMonitoring Response => ', datas);
                 this.hideSpinner();
@@ -118,7 +117,8 @@ export class PdmFabMonitoringComponent extends WidgetApi implements OnInit, OnSe
                 }, 500);
             }).catch((err) => {
                 this.hideSpinner();
-                alert(JSON.stringify(err));
+                this.notify.error("MESSAGE.GENERAL.ERROR");
+                // alert(JSON.stringify(err));
             })
 
         // let locationDatas = this.fabMonitoring.getLocationStatusSimul();
@@ -133,9 +133,23 @@ export class PdmFabMonitoringComponent extends WidgetApi implements OnInit, OnSe
 
     nodeClick(ev) {
         console.log('nodeClick', ev);
-        if(ev.length) {
+        if (ev.length) {
             const paramNode = ev[0];
+            if (paramNode.nodeType === 'eqp') { return; }
+
             this.eqpId = paramNode.eqpId;
+
+            let node = this.tree.getSelectedNodes();
+            let param_name = "";
+            for (let index = 0; index < node.length; index++) {
+                const element = node[index];
+                if (element.nodeType == 'parameter') {
+                    param_name = element.name;
+                    break;
+                }
+            }
+
+            this.param_name = param_name;
         }
     }
 }

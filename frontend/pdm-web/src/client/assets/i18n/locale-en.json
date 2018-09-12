@@ -560,7 +560,8 @@
                 "NOT_EXIST_PARTS": "Please register your part first.",
                 "NOT_EXIST_ALARM": "Please register an alarm.",
                 "NOT_EXIST_WARNING": "Please register an warning.",
-                "TIMEOUT_VALID": "Timeout must be greater than or equal to 3,600,000 ms(1 hour)."
+                "TIMEOUT_VALID": "Timeout must be greater than or equal to 3,600,000 ms(1 hour).",
+                "NOT_EXIST_PARAMETER": "Please select parameter."
             },
             "WARN": {
                 "DUPLICATE_NAME": "The Name already exists. Please use a different Name.",

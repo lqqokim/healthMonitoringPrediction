@@ -12,7 +12,10 @@
                         </option>
                     </select>
                 </div>
-                <wj-tree #tv [datas]="initialTreeDatas" [childDatas]="childDatas" (clickNode)="selectNode($event)">
+                <wj-tree #tv 
+                    [datas]="initialTreeDatas" 
+                    [childDatas]="childDatas" 
+                    (clickNode)="selectNode($event)">
                 </wj-tree>
             </div>
         </split-area>
@@ -20,21 +23,31 @@
         <split-area class='table' size="73">
             <div class="table-area relative" *ngIf="selectedItem">
                 <div class="top-list" [ngClass]="{'top-remove': !isShowArea}" [style.height]="nodeType === 'eqp' ? '33%' : '51%'">
-                    <area-list *ngIf="nodeType === 'area' && isShowArea" [datas]="areaData" (updateItem)="initWjTree($event)">
+                    <area-list *ngIf="nodeType === 'area' && isShowArea" 
+                        [datas]="areaData" 
+                        (updateItem)="initWjTree($event)">
                     </area-list>
-                    <parameter-list *ngIf="nodeType === 'eqp'" [datas]="paramData" [partsDatas]="partData" (updateItem)="initWjTree($event)">
+                    <parameter-list *ngIf="nodeType === 'eqp'" 
+                        [datas]="paramData" 
+                        [partsDatas]="partData" 
+                        (updateItem)="initWjTree($event)">
                     </parameter-list>
                 </div>
 
                 <div class="middle-list" [ngClass]="{'middle-full': !isShowArea}" [style.height]="nodeType === 'eqp' ? '33%' : '51%'">
-                    <eqp-list *ngIf="nodeType === 'area'" [datas]="eqpData" (updateItem)="initWjTree($event)">
+                    <eqp-list *ngIf="nodeType === 'area'" 
+                        [datas]="eqpData" 
+                        (updateItem)="initWjTree($event)">
                     </eqp-list>
-                    <part-list *ngIf="nodeType === 'eqp'" [datas]="partData" (updateItem)="initWjTree($event)">
+                    <part-list *ngIf="nodeType === 'eqp'" 
+                        [datas]="partData" 
+                        (updateItem)="initWjTree($event)">
                     </part-list>
                 </div>
 
                 <div class="bottom-list">
-                    <master-spec-rule *ngIf="nodeType === 'eqp'" [specCondition]="eqpSpecCondition">
+                    <master-spec-rule *ngIf="nodeType === 'eqp'" 
+                        [specCondition]="eqpSpecCondition">
                     </master-spec-rule>
                 </div>
             </div>

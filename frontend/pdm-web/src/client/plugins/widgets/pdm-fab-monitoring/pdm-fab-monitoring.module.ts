@@ -18,12 +18,15 @@ import { FabMonitoringModule } from '../../configurations/global/pdm/fabmonitori
 // import { FabEditorComponent } from '../../configurations/global/pdm/fabmonitoring/component/fab-editor/fab-editor.component';
 import { PluginCommonModule } from '../../common/plugins.common.module';
 
+import { AngularSplitModule } from 'angular-split';
+
 @NgModule({
     imports: [
         A3_CommonModule,
         BISTEL_SDKModule,
         FabMonitoringModule,
-        PluginCommonModule 
+        PluginCommonModule,
+        AngularSplitModule 
         
     ],
     declarations: [

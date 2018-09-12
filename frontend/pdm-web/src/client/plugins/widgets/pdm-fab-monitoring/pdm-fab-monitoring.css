@@ -1,21 +1,59 @@
-.fab-monitoring{
-    display:-webkit-box;
-    width:100%;
-    height:100%;
+.fab-monitoring {
+    display: -webkit-box;
+    width: 100%;
+    height: 100%;
 }
-.fab-monitoring .select-param{
-    width:200px;
-    height:100%;
+
+.fab-monitoring .condition .select-param {
+    /* width:200px; */
+    width: 100%;
+    height: 100%;
 }
-.fab-monitoring .fab-view{
-    height:100%;
-    width:calc(100% - 200px);
+
+.fab-monitoring .condition .select-param .a3-from-to {
+    width: 200px;
 }
-.fab-monitoring .eqp-tree{
-    height: 500px;
+
+/* .fab-monitoring .condition .select-param .eqp-tree .fab-label{
+    width: 0;
+    display: none;
+} */
+
+.fab-monitoring .condition .select-param .eqp-tree fab-area-eqp-param-tree .pdm-configuration-builder .pdm-body .fab-label .form-control {
+    width: 179px;
+    margin-left: 0;
+    display: block;
+}
+
+.fab-monitoring .condition .select-param .a3-from-to .a3-configuration-forms-wrapper {
+    display: inline-block
+}
+
+.fab-monitoring .view {
+    overflow: auto !important;
+}
+
+.fab-monitoring .view .fab-view {
+    height: 100%;
+    /* width:calc(100% - 200px); */
+    width: 100%;
+    /* min-width: 800px; */
+}
+
+.fab-monitoring .view .fab-view fab-editor .fabEditor .position-rectangle{
+    /* visibility: visible !important; */
+}
+
+.fab-monitoring .condition .select-param .eqp-tree {
+    /* height: 500px; */
+    height: 700px;
     /* overflow: auto; */
     /*border: solid 1px lightgray;*/
     padding-bottom: 8px;
     margin-bottom: 12px;
     border-bottom: 1px solid #eee;
+}
+
+.fab-monitoring .condition .select-param button {
+    width: 180px;
 }

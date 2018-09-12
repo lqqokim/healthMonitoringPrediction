@@ -559,7 +559,8 @@
 				"NOT_EXIST_PARTS": "Part 를 먼저 등록해주세요.",
 				"NOT_EXIST_ALARM": "Alarm 을 등록해주세요.",
 				"NOT_EXIST_WARNING": "Warning 을 등록해주세요.",
-				"TIMEOUT_VALID": "Timeout이 3,600,000 ms(1 hour)보다 작습니다."
+				"TIMEOUT_VALID": "Timeout이 3,600,000 ms(1 hour)보다 작습니다.",
+				"NOT_EXIST_PARAMETER": "Parameter를 선택하세요."
 			},
 			"WARN": {
 				"DUPLICATE_NAME": "이미 등록된 Name입니다.",
