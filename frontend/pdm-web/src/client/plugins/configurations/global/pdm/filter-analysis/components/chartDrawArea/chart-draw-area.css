@@ -65,6 +65,20 @@ chart-draw-area div.jqplot-table-legend-wrap-left { margin:0 5px 0 0 !important;
 /* jqplot 우측 레전드 오른쪽 마진 제거 */
 chart-draw-area div.jqplot-table-legend-wrap-right { margin:0 0 0 5px !important; }
 
+
+chart-draw-area .jqplot-highlighter-tooltip-wrapper { margin:-5px 0 0 -5px; }
+chart-draw-area .jqplot-highlighter-tooltip { margin: 0 !important; }
+chart-draw-area .jqplot-highlighter-tooltip .candleTooltip { padding:5px; }
+chart-draw-area .jqplot-highlighter-tooltip .candleTooltip > strong { display:flex; justify-content:flex-start; align-items:center; line-height:1; margin-bottom:6px; font-size:12px; }
+chart-draw-area .jqplot-highlighter-tooltip .candleTooltip > strong > i { width:8px; height:8px; display:block; margin-right:5px; }
+chart-draw-area .jqplot-highlighter-tooltip .candleTooltip > dl { margin:0; display:flex; border-bottom:1px solid #eee; }
+chart-draw-area .jqplot-highlighter-tooltip .candleTooltip > dl > dt { background:#f3f3f3; color:#333; padding:1px 4px; width:40px; }
+chart-draw-area .jqplot-highlighter-tooltip .candleTooltip > dl > dd { padding:1px 4px; }
+
+chart-draw-area .jqplot-highlighter-tooltip .candleTooltip > dl:hover { background:#ccc; }
+chart-draw-area .jqplot-highlighter-tooltip .candleTooltip > dl:hover > dt { background:#333; color:#fff; }
+
+
 /* 로딩 에니메이션 */
 chart-draw-area > .loading_spinner {
     position: absolute;

@@ -35,23 +35,9 @@ export class EqpChartComponent {
             shrinkGrid: true,
             location: 'e'    // w: 왼쪽, n: 오른쪽
         },
-        eventLine: {
-            show: true,
-            tooltip: {              // default line tooltip options
-                show: false,        // default : true
-                adjust: 5,          // right, top move - default : 5
-                formatter: null,    // content formatting callback (must return content) - default : true
-                style: '',          // tooltip container style (string or object) - default : empty string
-                classes: ''         // tooltip container classes - default : empty string
-            },
-            events: []
-        },
         seriesDefaults: {
-            showLine: false,
-            showMarker: true,
-            animation: {
-                show: true
-            }
+            showLine: true,
+            showMarker: true
         },
         seriesColors:['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728'], // 로직1 ~ 4
         series: [
@@ -63,19 +49,18 @@ export class EqpChartComponent {
         axes: {
             xaxis: {
                 // x축 랜더링 옵션 (date: DateAxisRenderer /string: CategoryAxisRenderer /number: LinearAxisRenderer)
-                // renderer: $.jqplot.DateAxisRenderer,
                 drawMajorGridlines: false,
                 drawMinorTickMarks: true,
                 showMinorTicks: true,
                 autoscale: true,
 
                 // x축 틱 랜더링 (tickOptions-angle 회전 용)
-                // tickRenderer: $.jqplot.CanvasAxisTickRenderer,
                 tickOptions: {
                     formatString: '%Y-%m-%d %H:%M:%S',
                     fontSize: '10px',
                     angle: -90
                 },
+                tickInterval: (1000*60*60*24)
                 // min: minX,
                 // max: maxX
             },
@@ -211,24 +196,8 @@ export class EqpChartComponent {
                         `<dd>${pointData.score}</dd>`+
                     `</dl>`+
                     `<dl>`+
-                        `<dt>alarm count</dt>`+
-                        `<dd>${pointData.alarm_count}</dd>`+
-                    `</dl>`+
-                    `<dl>`+
-                        `<dt>code</dt>`+
-                        `<dd>${pointData.code}</dd>`+
-                    `</dl>`+
-                    `<dl>`+
                         `<dt>param name</dt>`+
                         `<dd>${pointData.param_name}</dd>`+
-                    `</dl>`+
-                    `<dl>`+
-                        `<dt>upper Alarm Spec</dt>`+
-                        `<dd>${pointData.upperAlarmSpec}</dd>`+
-                    `</dl>`+
-                    `<dl>`+
-                        `<dt>upper Warning Spec</dt>`+
-                        `<dd>${pointData.upperWarningSpec}</dd>`+
                     `</dl>`+
                 `</div>`
             ;

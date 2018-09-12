@@ -412,7 +412,7 @@ export class ChartDrawAreaComponent implements OnInit, OnDestroy {
                     // y, y2축 데이터
                     else if( j > 0 ){
                         // 값 설정
-                        changeValue = parseFloat(currValue);
+                        changeValue = parseFloat(currValue)*0.00001;
 
                         // console.log( typeof datas.y[j-1] );
                         if( typeof datas.y[j-1] === 'undefined' ){
@@ -442,14 +442,23 @@ export class ChartDrawAreaComponent implements OnInit, OnDestroy {
             const spaceY: number = Math.abs(max_Y - min_Y) * this.spaceMargin;
             min_X -= spaceX;
             max_X += spaceX;
-            min_Y = Math.round(min_Y - spaceY);
-            max_Y = Math.round(max_Y + spaceY);
+            min_Y = min_Y - spaceY;
+            max_Y = max_Y + spaceY;
+
+            // console.log('min_Y', min_Y)
+            // console.log('min_Y', max_Y)
 
             // 차트 기본 타입 설정 값
             const rendererOpts: any = this.chartTypeOpts(chartType, legendPosition, min_X, max_X, min_Y, max_Y);
 
+            const chartData: any = (
+                chartType === 'candlestick'
+                    ? this.candlestick_chartData(this.dataTypes.x, JSON.parse(JSON.stringify(datas.y)) )
+                    :JSON.parse(JSON.stringify(datas.y))
+            );
+
             // 차트 그리기
-            const chart:any = $.jqplot( currId, JSON.parse(JSON.stringify(datas.y)), rendererOpts );
+            const chart:any = $.jqplot( currId, chartData, rendererOpts );
 
             // (함수 생성) y축 Tick 데이터 가져오기
             chart.getTicksData = (seriesIdx: number, pointIdx: number): {x: (number|string), y: number} =>{
@@ -457,6 +466,31 @@ export class ChartDrawAreaComponent implements OnInit, OnDestroy {
                 return {
                     x: data[0],
                     y: <number> data[1]
+                };
+            };
+
+            // (함수 생성) y축 Tick 데이터 가져오기 - candlestick 차트 용
+            chart.getTicksData_candleChart = (seriesIdx: number, pointIdx: number): {
+                seriesName: string,
+                x: (number|string),
+                open: number,
+                high: number,
+                low: number,
+                close: number
+            } =>{
+                if( chart.candlestickData === undefined ){
+                    chart.getCandlestickData();
+                }
+
+                const data: Array<number|string> = chart.candlestickData[seriesIdx][pointIdx];
+                const seriesName: string = this.chartSeriesOpts[seriesIdx]['label'];
+                return {
+                    seriesName: seriesName,
+                    x: data[0],
+                    open: <number> data[1],
+                    high: <number> data[2],
+                    low: <number> data[3],
+                    close: <number> data[4]
                 };
             };
 
@@ -468,6 +502,15 @@ export class ChartDrawAreaComponent implements OnInit, OnDestroy {
                     min_Y: min_Y,
                     max_Y: max_Y
                 };
+            };
+
+            // (함수 생성) 캔들차트 데이터로 가공하기
+            chart.candlestickData = undefined;
+            chart.getCandlestickData = (): ChartDatas['yticks'] => {
+                if( chart.candlestickData === undefined ){
+                    chart.candlestickData = this.candlestick_chartData(this.dataTypes.x, JSON.parse(JSON.stringify(datas.y)) );
+                }
+                return chart.candlestickData;
             };
 
             // (함수 생성) 차트 자기 자신 제거
@@ -654,6 +697,12 @@ export class ChartDrawAreaComponent implements OnInit, OnDestroy {
                     show: false
                 }
             }; break;
+            case 'candlestick': rendererType = {
+                renderer: $.jqplot.OHLCRenderer,
+                rendererOptions: {
+                    candleStick: true
+                }
+            }; break;
         }
 
         return {
@@ -736,7 +785,7 @@ export class ChartDrawAreaComponent implements OnInit, OnDestroy {
                                 }
                                 // 숫자
                                 : {
-                                    formatString: '%d',
+                                    // formatString: '%d',
                                     markSize: 6,
                                     fontSize: '10px',
                                     angle: -90
@@ -760,7 +809,7 @@ export class ChartDrawAreaComponent implements OnInit, OnDestroy {
                         markSize: 4,
                         renderer: $.jqplot.CanvasAxisTickRenderer,
                         fontSize: '10px',
-                        formatString: '%.0f'
+                        // formatString: '%.0f'
                     },
                     labelOptions: {
                         fontSize:'10pt',
@@ -784,7 +833,7 @@ export class ChartDrawAreaComponent implements OnInit, OnDestroy {
                         markSize: 4,
                         renderer: $.jqplot.CanvasAxisTickRenderer,
                         fontSize: '10px',
-                        formatString: '%.0f'
+                        // formatString: '%.0f'
                     },
                     labelOptions: {
                         fontSize:'10pt',
@@ -818,9 +867,29 @@ export class ChartDrawAreaComponent implements OnInit, OnDestroy {
                 // show: true,
                 tooltipLocation: 'ne',
                 fadeTooltip: false,
-                tooltipContentEditor: (str: string, seriesIdx: number, pointIdx: number, jqplot: any, tooltipContent: any ): void => {
-                    const tickData: {x: (number|string), y: number} = jqplot.getTicksData(seriesIdx, pointIdx);
-                    tooltipContent( `${tickData.x}, ${tickData.y}` );
+                tooltipContentEditor: (str: string, seriesIdx: number, pointIdx: number, jqplot: any, tooltipContent: Function ): void => {
+
+                    if( chartType === 'candlestick'){
+                        const tickData: { seriesName: string, x: (number|string), open: number, high: number, low: number, close: number} = jqplot.getTicksData_candleChart(seriesIdx, pointIdx);
+                        const xData: string = (
+                            this.dataTypes.x === 'date'
+                                ? moment(tickData.x).format('YYYY-MM-DD HH:mm:ss')
+                                : tickData.x +''
+                        );
+                        tooltipContent(
+                            `<div class='candleTooltip'>`+
+                                `<strong>${tickData.seriesName}</strong>`+
+                                `<dl><dt>X</dt><dd>${xData}</dd></dl>`+
+                                `<dl><dt>Open</dt><dd>${tickData.open}</dd></dl>`+
+                                `<dl><dt>High</dt><dd>${tickData.high}</dd></dl>`+
+                                `<dl><dt>Low</dt><dd>${tickData.low}</dd></dl>`+
+                                `<dl><dt>Close</dt><dd>${tickData.close}</dd></dl>`+
+                            `</div>`
+                        );
+                    } else {
+                        const tickData: {x: (number|string), y: number} = jqplot.getTicksData(seriesIdx, pointIdx);
+                        tooltipContent( `${tickData.x}, ${tickData.y}` );
+                    }
                 },
                 showTooltip: true,
                 sizeAdjust: 1,
@@ -879,12 +948,190 @@ export class ChartDrawAreaComponent implements OnInit, OnDestroy {
 
             rendererOpts = this.chartTypeOpts(chartType, legendPosition, minMax.min_X, minMax.max_X, minMax.min_Y, minMax.max_Y);
 
+            // 캔들차트 일 경우 캔들용 차트 데이터 가져오기
+            if( chartType === 'candlestick'){
+                yTicks = chart.getCandlestickData();
+            }
+
             // 차트 다시 그리기 (y축에 들어있는 x축 데이터를 1로 변환하는 문제 때문에 데이터 다시 전달)
             chart.destroy();
             chart.reInitialize(yTicks, rendererOpts);
             chart.replot();
             i++;
         }
+    }
+
+    //* candlestick 차트 데이터로 변환
+    private candlestick_chartData( xDataType: string, yTicks: ChartDatas['yticks'] ): ChartDatas['yticks'] {
+
+        let result: ChartDatas['yticks'] = [];
+        let tmpDatas: Array<{
+            [key:string]: {
+                open: number,
+                high: number,
+                low: number,
+                close: number
+            }
+        }> = [];
+        let iLen: number = yTicks.length;
+        let i: number = 0;
+        let jLen: number, j: number;
+        let series: Array< Array<string|number> >;
+        let row: Array<string|number>;
+        let yTick: number;
+
+        // x축 데이터 값이 문자열(아이디)일 경우
+        if( xDataType === 'string' ){
+            let xTick: string = '';
+
+            // 데이터 가공
+            while( i < iLen ){
+                series = yTicks[i];
+                j = 0;
+                jLen = series.length-1;
+
+                while( j <= jLen ){
+                    row = series[j];
+                    
+                    xTick = <string>row[0];
+                    yTick = <number>row[1];
+
+                    // 임시로 저장될 공간 늘리기
+                    if( tmpDatas.length === i ){
+                        tmpDatas[i] = {};
+                    }
+
+                    // 중첩된 id가 없으면 배열 생성
+                    if( !tmpDatas[i].hasOwnProperty(xTick) ){
+
+                        // 생성과 동시에 open 기록
+                        tmpDatas[i][xTick] = {
+                            open: yTick,
+                            high: undefined,
+                            low: undefined,
+                            close: undefined
+                        };
+                    }
+
+                    // 최대 값
+                    if( tmpDatas[i][xTick].high === undefined || tmpDatas[i][xTick].high < yTick ){
+                        tmpDatas[i][xTick].high = yTick;
+                    }
+                    // 최소 값
+                    if( tmpDatas[i][xTick].low === undefined || tmpDatas[i][xTick].low > yTick ){
+                        tmpDatas[i][xTick].low = yTick;
+                    }
+
+                    // 마지막 데이터
+                    tmpDatas[i][xTick].close = yTick;
+                    
+                    j++;
+                }
+
+                i++;
+            }
+
+            // 가공된 데이터 정리
+            i = 0;
+            iLen = tmpDatas.length;
+            while( i < iLen ){
+
+                // 데이터 배열이 없다면 추가
+                if( result.length === i ){
+                    result[i] = [];
+                }
+
+                // 해당 series에 맞는 데이터 저장
+                for( xTick in tmpDatas[i] ){
+
+                    result[i].push([
+                        xTick,
+                        tmpDatas[i][xTick].open,
+                        tmpDatas[i][xTick].high,
+                        tmpDatas[i][xTick].low,
+                        tmpDatas[i][xTick].close
+                    ]);
+                }
+                i++;
+            }
+        }
+        // x축 데이터 값이 날짜형태 일 경우
+        else if( xDataType === 'date' ){
+            let xTick: string = '';
+
+            // 데이터 가공
+            while( i < iLen ){
+                series = yTicks[i];
+                j = 0;
+                jLen = series.length-1;
+
+                // console.log(i, 'series', series)
+                while( j <= jLen ){
+                    row = series[j];
+                    xTick = ''+Math.floor(<number>row[0]/10000)*10000;   // 10초 단위
+                    yTick = <number>row[1];
+
+                    // 임시로 저장될 공간 늘리기
+                    if( tmpDatas.length === i ){
+                        tmpDatas[i] = {};
+                    }
+
+                    // 중첩된 id가 없으면 배열 생성
+                    if( !tmpDatas[i].hasOwnProperty(xTick) ){
+
+                        // 생성과 동시에 open 기록
+                        tmpDatas[i][xTick] = {
+                            open: yTick,
+                            high: undefined,
+                            low: undefined,
+                            close: undefined
+                        };
+                    }
+
+                    // 최대 값
+                    if( tmpDatas[i][xTick].high === undefined || tmpDatas[i][xTick].high < yTick ){
+                        tmpDatas[i][xTick].high = yTick;
+                    }
+                    // 최소 값
+                    if( tmpDatas[i][xTick].low === undefined || tmpDatas[i][xTick].low > yTick ){
+                        tmpDatas[i][xTick].low = yTick;
+                    }
+
+                    // 마지막 데이터
+                    tmpDatas[i][xTick].close = yTick;
+                    
+                    j++;
+                }
+
+                i++;
+            }
+
+            // 가공된 데이터 정리
+            i = 0;
+            iLen = tmpDatas.length;
+            while( i < iLen ){
+
+                // 데이터 배열이 없다면 추가
+                if( result.length === i ){
+                    result[i] = [];
+                }
+
+                // 해당 series에 맞는 데이터 저장
+                for( xTick in tmpDatas[i] ){
+
+                    result[i].push([
+                        parseInt(xTick, 10),
+                        tmpDatas[i][xTick].open,
+                        tmpDatas[i][xTick].high,
+                        tmpDatas[i][xTick].low,
+                        tmpDatas[i][xTick].close
+                    ]);
+                }
+                i++;
+            }
+        }
+
+        return result;
     }
 
     //* 테이블 없이 차트 한개만 그리기
