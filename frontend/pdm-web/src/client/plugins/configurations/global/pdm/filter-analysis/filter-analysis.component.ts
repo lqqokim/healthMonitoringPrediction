@@ -55,7 +55,8 @@ export class FilterAnalysisComponent implements OnInit {
             // 'Bar Chart',
             'Line Chart',
             // 'Pie Chart',
-            'Point Chart'
+            'Point Chart',
+            'Candlestick Chart'
         ], value: 'Line Chart'},
         {dataType: 'select', name:'Legend Position', items: [
             'Left',
@@ -191,7 +192,7 @@ export class FilterAnalysisComponent implements OnInit {
         // res.category.x = ['AREA_NAME'];
         // res.category.y = [];
         // res.category.x = [];
-        // res.chartData.x = [{name:"BARCODE", selected:'NORMAL'}];
+        // res.chartData.x = [{name:"DATE_TIME", selected:'NORMAL'}];
         // res.chartData.y = [{name:"Z_RMS", selected:'NORMAL'}];
         // res.chartData.y2 = [{name:"HOIST_AXIS_SPEED", selected:'NORMAL'}];
 
@@ -355,6 +356,7 @@ export class FilterAnalysisComponent implements OnInit {
                     case 'Line Chart': this.chartType = 'line'; break;
                     case 'Pie Chart': this.chartType = 'pie'; break;
                     case 'Point Chart': this.chartType = 'scatter'; break;
+                    case 'Candlestick Chart': this.chartType = 'candlestick'; break;
                 }
 
                 // 그려진 차트가 있으면 해당 차트로 변경
