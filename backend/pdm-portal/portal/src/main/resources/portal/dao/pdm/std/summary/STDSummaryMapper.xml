@@ -2464,6 +2464,7 @@
 	</select>
 
 	<select id="selectEqpHealthIndexTrend" resultType="com.bistel.a3.portal.domain.pdm.EqpHealthIndexTrend">
+		SELECT * FROM (
 		SELECT eqp.AREA_MST_RAWID AS area_id,
 		amp.name AS area_name,
 		ehdsp.eqp_mst_rawid AS eqp_id,
@@ -2475,7 +2476,8 @@
 		hlmsp.code,
 		max(ROUND (ehdsp.score, 2)) AS score,
 		1 AS upperAlarmSpec,
-		0.8 AS upperWarningSpec
+		0.8 AS upperWarningSpec,
+		RANK() OVER (PARTITION BY TO_CHAR (ehdsp.sum_dtts, 'yyyy-MM-dd'), hlmsp.rawid ORDER BY SCORE DESC ) as SCORE_RK
 		FROM EQP_HEALTH_DAILY_SUM_PDM ehdsp,
 		param_health_mst_pdm phmp,
 		health_logic_mst_pdm hlmsp,
@@ -2500,12 +2502,14 @@
 		param.name,
 		hlmsp.rawid,
 		TO_CHAR(ehdsp.sum_dtts, 'yyyy-MM-dd'),
-		hlmsp.code
+		hlmsp.code,
+		ehdsp.score
 		ORDER BY
 		TO_CHAR(ehdsp.sum_dtts, 'yyyy-MM-dd'),
 		health_logic_id,
 		area_name,
-		eqp_name
+		eqp_name) RANK
+		WHERE RANK.SCORE_RK = 1
 	</select>
 
 	<select id="selectFabMonitoring" resultType="com.bistel.a3.portal.domain.pdm.FabMonitoringInfo">
