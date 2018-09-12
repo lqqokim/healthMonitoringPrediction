@@ -39,8 +39,10 @@ export class EqpChartComponent {
             showLine: true,
             showMarker: true
         },
-        seriesColors:['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728'], // 로직1 ~ 4
+        seriesColors:['#fb6520', '#ed9622', '#1f77b4', '#9467bd', '#2ca02c', '#d62728'], // 알람, 워닝, 로직1 ~ 4
         series: [
+            { show: true, yaxis: 'yaxis', label: 'Alarm', lineWidth: 2, showMarker:false, showLine:true},
+            { show: true, yaxis: 'yaxis', label: 'Warning', lineWidth: 2, showMarker:false, showLine:true},
             { show: true, yaxis: 'yaxis', label: 'Standard', lineWidth: 1},
             { show: true, yaxis: 'yaxis', label: 'SPC', lineWidth: 1},
             { show: true, yaxis: 'yaxis', label: 'Variation', lineWidth: 1},
@@ -78,7 +80,7 @@ export class EqpChartComponent {
                     markSize: 4,
                     renderer: $.jqplot.CanvasAxisTickRenderer,
                     fontSize: '10px',
-                    formatString: '%.0f'
+                    formatString: '%.2f'
                 },
                 labelOptions: {
                     fontSize:'10pt',
@@ -117,7 +119,7 @@ export class EqpChartComponent {
         chartData: any
     }{
         // 차트 데이터 가공
-        let tmpChartData: Array<Array<any>> = [];
+        let chartData: Array<Array<any>> = [];
         let chartSeriesData: Array<Array<any>> = [];
 
         let row: IReqDataFormat_chart_eqp;
@@ -169,10 +171,46 @@ export class EqpChartComponent {
             }
         }
 
+
+        // 실제 그려질 데이터, 툴팁용 알람/워닝 공간 확보
+        chartData[0] = [];          // alaram
+        chartData[1] = [];          // warning
+        chartSeriesData[0] = [];    // alaram
+        chartSeriesData[1] = [];    // warning
+
         // 가공된 데이터 정렬
         for( const key in datas ){
-            tmpChartData.push( datas[key] );
-            chartSeriesData.push( pointDatas[key] );
+            chartData.push( datas[key] );            // 차트에 그려질 데이터
+            chartSeriesData.push( pointDatas[key] );     // 툴팁에 사용될 데이터
+        }
+
+        // alram, warning 라인 기록
+        i = 0;
+        len = chartSeriesData[2].length;
+
+        while( i < len ){
+            row = chartSeriesData[2][i];
+            timestamp = parseInt( moment(row.sum_dtts).format('x'), 10 );
+ 
+            chartData[0].push([ timestamp, row.upperAlarmSpec ]);
+            chartData[1].push([ timestamp, row.upperWarningSpec ]);
+
+            // y축 최대, 최소 값 얻어내기 
+            if( yMin > row.upperAlarmSpec ){
+                yMin = row.upperAlarmSpec;
+            }
+            if( yMin > row.upperWarningSpec ){
+                yMin = row.upperWarningSpec;
+            }
+
+            if( yMax < row.upperAlarmSpec ){
+                yMax = row.upperAlarmSpec;
+            }
+            if( yMax < row.upperWarningSpec ){
+                yMax = row.upperWarningSpec;
+            }
+
+            i++;
         }
 
         // config 데이터 설정
@@ -180,29 +218,49 @@ export class EqpChartComponent {
 
         // 툴팁
         chartConfig.highlighter.tooltipContentEditor = (str: string, seriesIndex: number, pointIndex: number, plot: any, tooltipContentProc: Function, ev: Event): void => {
-            const pointData: IReqDataFormat_chart_eqp = chartSeriesData[seriesIndex][pointIndex];
             const name: string = this.defaultChartConfig.series[seriesIndex].label;
             const color: string = this.defaultChartConfig.seriesColors[seriesIndex];
 
-            const tootip: string =
-                `<div class='eqpTooltip'>`+
-                    `<strong><i style='background:${color}'></i>${name}</strong>`+
-                    `<dl>`+
-                        `<dt>date</dt>`+
-                        `<dd>${pointData.sum_dtts}</dd>`+
-                    `</dl>`+
-                    `<dl>`+
-                        `<dt>score</dt>`+
-                        `<dd>${pointData.score}</dd>`+
-                    `</dl>`+
-                    `<dl>`+
-                        `<dt>param name</dt>`+
-                        `<dd>${pointData.param_name}</dd>`+
-                    `</dl>`+
-                `</div>`
-            ;
-            
-            tooltipContentProc( tootip );
+            // 알람, 워닝 용
+            if( name === 'Alarm' || name === 'Warning' ){
+                const pointData: Array<number> = chartData[seriesIndex][pointIndex];
+
+                tooltipContentProc(
+                    `<div class='eqpTooltip'>`+
+                        `<strong><i style='background:${color}'></i>${name}</strong>`+
+                        `<dl>`+
+                            `<dt>date</dt>`+
+                            `<dd>${moment(pointData[0]).format('YYYY-MM-DD')}</dd>`+
+                        `</dl>`+
+                        `<dl>`+
+                            `<dt>score</dt>`+
+                            `<dd>${pointData[1]}</dd>`+
+                        `</dl>`+
+                    `</div>`
+                );
+            }
+            // 로직 1 ~ 4용
+            else {
+                const pointData: IReqDataFormat_chart_eqp = chartSeriesData[seriesIndex][pointIndex];
+
+                tooltipContentProc(
+                    `<div class='eqpTooltip'>`+
+                        `<strong><i style='background:${color}'></i>${name}</strong>`+
+                        `<dl>`+
+                            `<dt>date</dt>`+
+                            `<dd>${pointData.sum_dtts}</dd>`+
+                        `</dl>`+
+                        `<dl>`+
+                            `<dt>score</dt>`+
+                            `<dd>${pointData.score}</dd>`+
+                        `</dl>`+
+                        `<dl>`+
+                            `<dt>param name</dt>`+
+                            `<dd>${pointData.param_name}</dd>`+
+                        `</dl>`+
+                    `</div>`
+                );
+            }
         }
 
         // 날짜출력 포맷 설정
@@ -232,7 +290,7 @@ export class EqpChartComponent {
             from: dateFrom,
             to: dateTo,
             chartConfig: chartConfig,
-            chartData: tmpChartData
+            chartData: chartData
         };
     }
 

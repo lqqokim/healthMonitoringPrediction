@@ -412,7 +412,7 @@ export class ChartDrawAreaComponent implements OnInit, OnDestroy {
                     // y, y2축 데이터
                     else if( j > 0 ){
                         // 값 설정
-                        changeValue = parseFloat(currValue)*0.00001;
+                        changeValue = parseFloat(currValue);
 
                         // console.log( typeof datas.y[j-1] );
                         if( typeof datas.y[j-1] === 'undefined' ){
@@ -888,7 +888,12 @@ export class ChartDrawAreaComponent implements OnInit, OnDestroy {
                         );
                     } else {
                         const tickData: {x: (number|string), y: number} = jqplot.getTicksData(seriesIdx, pointIdx);
-                        tooltipContent( `${tickData.x}, ${tickData.y}` );
+                        const xData: string = (
+                            this.dataTypes.x === 'date'
+                                ? moment(tickData.x).format('YYYY-MM-DD HH:mm:ss')
+                                : tickData.x +''
+                        );
+                        tooltipContent( `${xData}, ${tickData.y}` );
                     }
                 },
                 showTooltip: true,
