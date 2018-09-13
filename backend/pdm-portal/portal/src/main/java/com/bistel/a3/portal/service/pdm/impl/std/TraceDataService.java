@@ -44,6 +44,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
+import java.util.Collections;
 
 import static com.bistel.a3.portal.domain.pdm.enums.FaultFreqsType.*;
 
@@ -1129,6 +1130,7 @@ public class TraceDataService implements ITraceDataService {
 		STDTraceDataMapper mapper = SqlSessionUtil.getMapper(sessions, fabId, STDTraceDataMapper.class);
 
 		Boolean isGroupBy = analysisCondition.getIsGroupBy();
+		// Group by를 Query에서 하지 않고 소스에서 직접 한다.
 		analysisCondition.setIsGroupBy(false);
 
 		List<HashMap<String, Object>> selectAnalysisData = mapper.selectAnalysisData(fromDate, toDate, analysisCondition);
@@ -1149,7 +1151,6 @@ public class TraceDataService implements ITraceDataService {
 ////                }
 //                keyColumns.add(paramName);
 //            }
-
             results = pivot.getPivotDataByTimeWithAllColumn(selectAnalysisData, "EVENT_DTTS", "PARAMETER_NAME");
 
             if(isGroupBy){
@@ -1164,8 +1165,7 @@ public class TraceDataService implements ITraceDataService {
             columns.put(results.get(0).get(i),i);
         }
 		
-        System.out.println(columns);
-
+//        System.out.println(columns);
 
         AnalysisData analysisData = new AnalysisData();
 
@@ -1293,10 +1293,12 @@ public class TraceDataService implements ITraceDataService {
             columnIndex.put(results.get(0).get(i),i);
 
         }
+
         for(int ixCondition=0;ixCondition<analysisCondition.getX().size();ixCondition++) {
             AnalysisParamGroup analysisParamGroup = analysisCondition.getX().get(ixCondition);
             columnIndex.put(analysisParamGroup.getParam_name()+"_"+analysisParamGroup.getGroup_name(),columnIndex.size());
         }
+
         Map<String,List<List<String>>> groupDatas = new HashMap<>();
         for(int iDataRow=1;iDataRow<results.size();iDataRow++){
             List<String> rowData = results.get(iDataRow);
@@ -1341,7 +1343,9 @@ public class TraceDataService implements ITraceDataService {
                 }
             }
         }
+
         List<List<String>> retValue = new ArrayList<>();
+        List<List<String>> retValue2 = new ArrayList<>();
         boolean isFirst = true;
         List<String> heads = new ArrayList<>();
         for(String key:groupDatas.keySet()){
@@ -1400,13 +1404,16 @@ public class TraceDataService implements ITraceDataService {
                 rowData.add(value.toString());
             }
             if(isFirst){
-                retValue.add(heads);
+                retValue2.add(heads);
             }
             retValue.add(rowData);
             isFirst = false;
         }
 
-        return retValue;
+        Collections.sort(retValue, Comparator.comparing(e -> e.get(0)));
+        retValue2.addAll(retValue);
+
+        return retValue2;
     }
 
     private String getGroupByData(AnalysisCondition analysisCondition, Map<String, Integer> columnIndex, List<String> rowData, String key,String keyDelimeter) {
@@ -1423,24 +1430,28 @@ public class TraceDataService implements ITraceDataService {
                         Date to = transFormat.parse(value);
 
                         String toString = transFormat.format(to);
+                        toString = toString + ":00";
                         key += keyDelimeter+ analysisParamGroup.getParam_name()+"_"+analysisParamGroup.getGroup_name()+"=" + toString;
 
                     }else if(analysisParamGroup.getGroup_name().equals("HOUR")){
                         SimpleDateFormat transFormat = new SimpleDateFormat("yyyy-MM-dd HH");
                         Date to = transFormat.parse(value);
                         String toString = transFormat.format(to);
+                        toString = toString + ":00:00";
                         key += keyDelimeter+ analysisParamGroup.getParam_name()+"_"+analysisParamGroup.getGroup_name()+"=" + toString;
 
                     }else if(analysisParamGroup.getGroup_name().equals("DAY")){
                         SimpleDateFormat transFormat = new SimpleDateFormat("yyyy-MM-dd");
                         Date to = transFormat.parse(value);
                         String toString = transFormat.format(to);
+                        toString = toString + " 00:00:00";
                         key += keyDelimeter+ analysisParamGroup.getParam_name()+"_"+analysisParamGroup.getGroup_name()+"=" + toString;
 
                     }else if(analysisParamGroup.getGroup_name().equals("MONTH")){
                         SimpleDateFormat transFormat = new SimpleDateFormat("yyyy-MM");
                         Date to = transFormat.parse(value);
                         String toString = transFormat.format(to);
+                        toString = toString + "-00 00:00:00";
                         key += keyDelimeter+ analysisParamGroup.getParam_name()+"_"+analysisParamGroup.getGroup_name()+"=" + toString;
                     }
                 } catch (ParseException e) {
