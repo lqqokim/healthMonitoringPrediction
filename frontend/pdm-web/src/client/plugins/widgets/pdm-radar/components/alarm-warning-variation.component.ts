@@ -315,13 +315,13 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges, OnDest
                             const tempRadarDatasSize: number = tempRadarDatas.length;
                             const maxParamCount: number = Number(this.maxParamCount);
 
-                            //max param count만큼 splice
+                            //Max Param Count만큼 Splice
                             for (let i = 0; i < tempRadarDatasSize; i++) {
                                 const chartDataLength: number = tempRadarDatas[i].chartData.length;
                                 for (let j = 0; j < chartDataLength; j++) {
-                                    const chartData: any = tempRadarDatas[i];
-                                    if (chartData.length > maxParamCount) {
-                                        chartData.splice(maxParamCount);
+                                    const chartData: IRadar.AWRadarData['chartData'] = tempRadarDatas[i].chartData;
+                                    if (chartData[j].length > maxParamCount) {
+                                        chartData[j].splice(maxParamCount);
                                     }
                                 }
                             }
