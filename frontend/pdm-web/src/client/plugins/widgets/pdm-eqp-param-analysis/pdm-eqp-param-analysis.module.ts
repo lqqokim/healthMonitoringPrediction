@@ -19,12 +19,15 @@ import { PluginCommonModule } from '../../common/plugins.common.module';
 // import { TreeComponent } from '../../common/modeling-tree/tree/tree.component';
 // import { NgTree } from 'ng.tree';
 
+import { AngularSplitModule } from 'angular-split';
+
 @NgModule({
     imports: [
         A3_CommonModule,
         BISTEL_SDKModule,
         // BtreeComponentModule,
-        PluginCommonModule
+        PluginCommonModule,
+        AngularSplitModule
     ],
     declarations: [
         PdmEqpParamAnalysisComponent,

@@ -5,12 +5,15 @@
     position: relative;
 }
 
+.pdm-configuration-builder 
+
 .pdm-configuration-builder .pdm-wijmo-body {
     width: 300px;
     height: 100%;
     padding: 10px;
     float: left;
-    border-right: 1px solid #eee;
+    /* border-right: 1px solid #eee; */
+    border-right: none;
 }
 .pdm-configuration-builder .pdm-master-body {
     width: calc(100% - 300px);

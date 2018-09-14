@@ -6,14 +6,15 @@
     float: left;
 }
 
-.widget-pdm-eqp-param-analysis .node-tree {
+.widget-pdm-eqp-param-analysis .condition .node-tree {
     width: 300px;
     height: 100%;
     float: left;
 }
 
-.widget-pdm-eqp-param-analysis .chart-row {
-    width: calc(100% - 300px);
+.widget-pdm-eqp-param-analysis .chart .chart-row {
+    /* width: calc(100% - 300px); */
+    width: 100%;
     height: 100%;
     float: left;
     position: relative;
@@ -25,7 +26,7 @@
     width: 100% !important;
     height: 100%;
     padding-right: 10px;
-    border-right: 1px solid #ddd;
+    /* border-right: 1px solid #ddd; */
     position: relative;
     overflow: auto;
 }
@@ -124,6 +125,10 @@
     margin-bottom: 30px;
     position: relative;
     border-radius: 2px;
+}
+
+.widget-pdm-eqp-param-analysis .row-chart-group .sectrum-chr{
+    overflow: auto;
 }
 
 .widget-pdm-eqp-param-analysis .row-chart-group:last-child {
@@ -431,25 +436,25 @@ div.jqplot-table-legend-wrap {
 
 /*EQP Param Analysis chart align*/
 
-.main-body .row-chart-area {
+.chart .main-body .row-chart-area {
     width: 100%;
     height: calc(100% - 30px);
     padding: 0 5px;
 }
 
-.main-body .row-chart-area.mgin-l {
+.chart .main-body .row-chart-area.mgin-l {
     margin-left: 14px;
 }
 
-.main-body .row-chart-area.time-wave-magin {
+.chart .main-body .row-chart-area.time-wave-magin {
     margin-left: 0px;
 }
 
-.main-body .row-chart-group.haed-pad-right {
+.chart .main-body .row-chart-group.haed-pad-right {
     padding-right: 0px;
 }
 
-.main-body .row-chart-area.chr-pad-right {
+.chart .main-body .row-chart-area.chr-pad-right {
     padding-right: 2px;
 }
 
@@ -466,28 +471,28 @@ div.jqplot-table-legend-wrap {
 
 /*health contrbution new chart*/
 
-.main-body .row-chart-group .heal-wdh {
+.chart .main-body .row-chart-group .heal-wdh {
     width: 100%;
     display: inline-block;
 }
 
-.main-body .row-chart-group .hth-ctrbtn {
+.chart .main-body .row-chart-group .hth-ctrbtn {
     width: 100%;
     display: inline-block;
 }
 
-.main-body .row-chart-group .hth-chr {
+.chart .main-body .row-chart-group .hth-chr {
     width: 29%;
     display: inline-block;
 }
 
 /* widget configuration */
 
-.a3-configuration-wrapper.pdmEqpParamAnalysis .node-tree {
+.a3-configuration-wrapper.pdmEqpParamAnalysis .condition .node-tree {
     width: 30%;
 }
 
-.a3-configuration-wrapper.pdmEqpParamAnalysis .chart-row {
+.a3-configuration-wrapper.pdmEqpParamAnalysis .chart .chart-row {
     width: 70%;
 }
 

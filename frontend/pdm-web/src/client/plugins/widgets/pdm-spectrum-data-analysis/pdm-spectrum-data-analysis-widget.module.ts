@@ -20,12 +20,15 @@ import { PlotlyModule } from 'angular-plotly.js';
 import { PdmSpectrumDataAnalysisWidgetComponent } from './pdm-spectrum-data-analysis-widget.component';
 import { SpectrumDataAnalysisComponent } from './components/spectrum-data-analysis.component';
 
+import { AngularSplitModule } from 'angular-split';
+
 @NgModule({
     imports: [
         A3_CommonModule,
         BISTEL_SDKModule,
         PluginCommonModule,
-        PlotlyModule
+        PlotlyModule,
+        AngularSplitModule
     ],
     declarations: [
         PdmSpectrumDataAnalysisWidgetComponent,

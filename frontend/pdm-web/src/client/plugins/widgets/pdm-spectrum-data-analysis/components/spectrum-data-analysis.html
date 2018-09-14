@@ -1,267 +1,276 @@
-<div class="node-tree">
-    <modeling-tree #tree (nodeClick)="nodeClick($event)" [fab]="_plantId"></modeling-tree>
-</div>
-<div class="chart-row main-body">
-    <div class="pdm-chart-row-head">
-        <div class="header-period-group pull-left">
-            <div class="a3-from-to" [from]="searchTimePeriod?.from" [to]="searchTimePeriod?.to" [format]="'yyyy/MM/dd hh:mm:ss'" (changedFromTo)="fromToChange($event)">
-            </div>
-            <div class="sample-number">
-                <!-- <label for="trash_id">Sampling</label>
-                <input class="input-number" type="number" id="trash_id" value="1" placeholder="only number" step="1" /> -->
-                <button class="btn btn-default" type="button" (click)="search();">Search</button>
-            </div>
+<split direction="horizontal" [gutterSize]="3">
+    <split-area size="20" class='condition'>
+        <div class="node-tree">
+            <modeling-tree #tree (nodeClick)="nodeClick($event)" [fab]="_plantId"></modeling-tree>
         </div>
-        <div class="a3-chart-header pull-right">
-            <div class="chart-info">
-                <span class="a3-synced-title">Current Time : </span>{{formatDate(_toDate)}}
-                <span class="a3-synced-title">Fab : </span> {{_plantId}}
-            </div>
-        </div>
-    </div>
-    <div class="pdm-chart-row-body" #chartArea>
-        <div class="row-chart-group sectrum-chr" *ngIf="false" #chartHealth onselectstart="return false;">
-            <div class="row-chart-header chr-pad-height" (dblclick)="onDblClick($event, chartHealth, 0)">
-                <h3 class="panel-title">Health Index</h3>
-                <button type="button" class="btn btn-default model-button" (click)="showModeling()" (dblclick)="$event.stopPropagation();">Show Model</button>
-                <button type="button" class="btn btn-default model-button" (click)="showContributionChart()" (dblclick)="$event.stopPropagation();"
-                    style="margin-right: 7px;" [disabled]="isContributionShow">Show Contribution</button>
-            </div>
-            <div class="row-chart-area mgin-l">
-                <div class="chart">
-                    <a3c-bistel-chart [data]="healthIndexData" [config]="healthIndexConfig" [eventLines]="healthEventLines" [chartEvents]="healthIndexEventConfig"
-                        (completeChart)="healthIndexCompleteChart($event)" style="width: 100%; " class="chart-body" #trendChartEl>
-                    </a3c-bistel-chart>
-                </div>
-            </div>
-        </div>
-
-        <!-- Metrix Chart -->
-        <div class="metrix-row-chart-group" #chartHealth onselectstart="return false;">
-            <div class="row-chart-header chr-pad-height">
-                <h3 class="panel-title">Spectrum Matrix</h3>
-                <!-- <i class="fa fa-search" (click)="expandChart($event, chartHealth, 0)"></i> -->
-            </div>
-            <div class="metrix-row-chart-area metrix-row" *ngFor="let rowItem of rows;let i=index">
-                <div class="metrix-chart-col" *ngIf="i==0">
-                    <div class="metrix-chart-col-label" *ngFor="let colItem of cols">
-                        <label>{{colItem}}</label>
+    </split-area>
+    <split-area size="80" class='chart'>
+        <div class="chart-row main-body">
+            <div class="pdm-chart-row-head">
+                <div class="header-period-group pull-left">
+                    <div class="a3-from-to" [from]="searchTimePeriod?.from" [to]="searchTimePeriod?.to" [format]="'yyyy/MM/dd hh:mm:ss'" (changedFromTo)="fromToChange($event)">
+                    </div>
+                    <div class="sample-number">
+                        <!-- <label for="trash_id">Sampling</label>
+                        <input class="input-number" type="number" id="trash_id" value="1" placeholder="only number" step="1" /> -->
+                        <button class="btn btn-default" type="button" (click)="search();">Search</button>
                     </div>
                 </div>
-                <div class="metrix-row-chart">
-                    <div class="metrix-row-label">
-                        <label>{{rowItem}}</label>
+                <div class="a3-chart-header pull-right">
+                    <div class="chart-info">
+                        <span class="a3-synced-title">Current Time : </span>{{formatDate(_toDate)}}
+                        <span class="a3-synced-title">Fab : </span> {{_plantId}}
                     </div>
-                    <div class="metrix-width-calc">
-                        <!-- .metrix-warning-boder -->
-                        <div class="metrix-chart-container" (dblclick)="matrixDblClick(col_row[rowItem][colItem])"
-                            *ngFor="let colItem of cols">
-                            <div class="metrix-chart" *ngIf="col_row[rowItem][colItem] !== undefined">
-                                <div class="pull-right">
-                                    <button class="btn btn-default" id="wjPopup" (click)="openPopup(col_row[rowItem][colItem].data, col_row[rowItem][colItem].measurement)">
-                                        <i class="fa fa-search-plus"></i>
-                                    </button>
+                </div>
+            </div>
+            <div class="pdm-chart-row-body" #chartArea>
+                <div class="row-chart-group sectrum-chr" *ngIf="false" #chartHealth onselectstart="return false;">
+                    <div class="row-chart-header chr-pad-height" (dblclick)="onDblClick($event, chartHealth, 0)">
+                        <h3 class="panel-title">Health Index</h3>
+                        <button type="button" class="btn btn-default model-button" (click)="showModeling()" (dblclick)="$event.stopPropagation();">Show Model</button>
+                        <button type="button" class="btn btn-default model-button" (click)="showContributionChart()" (dblclick)="$event.stopPropagation();"
+                            style="margin-right: 7px;" [disabled]="isContributionShow">Show Contribution</button>
+                    </div>
+                    <div class="row-chart-area mgin-l">
+                        <div class="chart">
+                            <a3c-bistel-chart [data]="healthIndexData" [config]="healthIndexConfig" [eventLines]="healthEventLines" [chartEvents]="healthIndexEventConfig"
+                                (completeChart)="healthIndexCompleteChart($event)" style="width: 100%; " class="chart-body" #trendChartEl>
+                            </a3c-bistel-chart>
+                        </div>
+                    </div>
+                </div>
+        
+                <!-- Metrix Chart -->
+                <div class="metrix-row-chart-group" #chartHealth onselectstart="return false;">
+                    <div class="row-chart-header chr-pad-height">
+                        <h3 class="panel-title">Spectrum Matrix</h3>
+                        <!-- <i class="fa fa-search" (click)="expandChart($event, chartHealth, 0)"></i> -->
+                    </div>
+                    <div class="metrix-row-chart-area metrix-row" *ngFor="let rowItem of rows;let i=index">
+                        <div class="metrix-chart-col" *ngIf="i==0">
+                            <div class="metrix-chart-col-label" *ngFor="let colItem of cols">
+                                <label>{{colItem}}</label>
+                            </div>
+                        </div>
+                        <div class="metrix-row-chart">
+                            <div class="metrix-row-label">
+                                <label>{{rowItem}}</label>
+                            </div>
+                            <div class="metrix-width-calc">
+                                <!-- .metrix-warning-boder -->
+                                <div class="metrix-chart-container" (dblclick)="matrixDblClick(col_row[rowItem][colItem])"
+                                    *ngFor="let colItem of cols">
+                                    <div class="metrix-chart" *ngIf="col_row[rowItem][colItem] !== undefined">
+                                        <div class="pull-right">
+                                            <button class="btn btn-default" id="wjPopup" (click)="openPopup(col_row[rowItem][colItem].data, col_row[rowItem][colItem].measurement)">
+                                                <i class="fa fa-search-plus"></i>
+                                            </button>
+                                        </div>
+                                        <div class="a3c-chart-padding">
+                                            <a3c-bistel-chart 
+                                                [data]="col_row[rowItem][colItem].data" 
+                                                [config]="spectrumConfig" 
+                                                [eventLines]="col_row[rowItem][colItem].trendEventLines"
+                                                style="width: 100%; height: 100%;" class="chart-body">
+                                            </a3c-bistel-chart>
+                                        </div>
+                                        <div class="float-wrapper" *ngIf="col_row[rowItem][colItem].data === null">
+                                            <dl>
+                                                <dt>
+                                                    <div class="a3-spinner-data"></div>
+                                                </dt>
+                                                <dd class="message-title">Loading ...</dd>
+                                            </dl>
+                                        </div>
+                                    </div>
+                                    <!-- <div class="metrix-chart-problem chart-warning" *ngIf="col_row[rowItem][colItem]!=undefined && col_row[rowItem][colItem].analysis!=undefined"
+                                        (click)="analysisSummaryClick(col_row[rowItem][colItem])">
+                                        <label>{{col_row[rowItem][colItem].analysisSummary}}</label>
+                                    </div> -->
                                 </div>
-                                <div class="a3c-chart-padding">
-                                    <a3c-bistel-chart 
-                                        [data]="col_row[rowItem][colItem].data" 
-                                        [config]="spectrumConfig" 
-                                        [eventLines]="col_row[rowItem][colItem].trendEventLines"
-                                        style="width: 100%; height: 100%;" class="chart-body">
-                                    </a3c-bistel-chart>
-                                </div>
-                                <div class="float-wrapper" *ngIf="col_row[rowItem][colItem].data === null">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        
+                <div [ngStyle]="{'display': isContributionShow? 'block' : 'none'}" class="row-chart-group sectrum-chr" onselectstart="return false;"
+                    #chartHealthContribute>
+                    <div class="row-chart-header chr-pad-height" (dblclick)="expandChart($event, chartHealthContribute, 1)">
+                        <h3 class="panel-title">Health Contribution</h3>
+                        <span class="pull-right">
+                            <label class="checkbox-inline">
+                                <input type="checkbox" [checked]="isHealthContributionLegend" (change)="setHealthLegendStatus()" (dblclick)="$event.stopPropagation();"
+                                />
+                                <button type="button" class="btn btn-default model-button" (click)="hideContributionChart()" (dblclick)="$event.stopPropagation();">Hide Contribution</button>
+                                <span>Show legend</span>
+                            </label>
+                        </span>
+                    </div>
+                    <div class="row-chart-area mgin-l heal-wdh">
+                        <div class="chart hth-ctrbtn">
+                            <a3c-bistel-chart #healthContributeChart id="healthContributeChart" [data]="healthIndexContributeData" [config]="healthIndexContributeConfig"
+                                [eventLines]="healthContributionEventLines" [chartEvents]="healthIndexContributeEventConfig" class="chart-body"
+                                style="width: 100%;">
+                            </a3c-bistel-chart>
+                        </div>
+                    </div>
+                </div>
+        
+                <div *ngIf="nodeClickType === TYPES.PARAMETER" class="row-chart-group sectrum-chr" #chartTrend>
+                    <div class="row-chart-header chr-pad-height">
+                        <h3 class="panel-title">Trend Chart</h3>
+                        <span class="pull-right">
+                            <button *ngIf="isShowExpandBtn" class="btn btn-default" id="wjPopup" (click)="expandChart($event, chartTrend, 2)">
+                                <i class="fa fa-search-plus"></i>
+                            </button>
+        
+                            <button class="btn btn-default" (click)="isShowTrendLegend = !isShowTrendLegend; showLegend($event, 2, isShowTrendLegend);">
+                                <i aria-hidden="true" aria-labelledby="dropdownMenu2" class="fa fa-bar-chart" data-toggle="dropdown" role="menu" aria-expanded="false"></i>
+                                <!--Legend checkbox dropdown-->
+                                <!-- <ul aria-labelledby="dropdownMenu" class="dropdown-menu configuration-multi-menu a3-categorization pull-right">
+                                            <ul class="checkbox-list">
+                                                <li>
+                                                    <a class="custom-control custom-checkbox">
+                                                        <input class="custom-control-input" type="checkbox">
+                                                        <span class="custom-control-indicator" style="background-color: rgb(251, 90, 60);"></span>
+                                                        <span aria-hidden="true" class="fa fa-check"></span>
+                                                        <span class="custom-control-description">Legend name 1</span>
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a class="custom-control custom-checkbox">
+                                                        <input class="custom-control-input" type="checkbox">
+                                                        <span class="custom-control-indicator" style="background-color: #fcb419"></span>
+                                                        <span aria-hidden="true" class="fa fa-check"></span>
+                                                        <span class="custom-control-description">Legend name 2</span>
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a class="custom-control custom-checkbox">
+                                                        <input class="custom-control-input" type="checkbox">
+                                                        <span class="custom-control-indicator" style="background-color: #2196f3;"></span>
+                                                        <span aria-hidden="true" class="fa fa-check"></span>
+                                                        <span class="custom-control-description">Legend name 3</span>
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a class="custom-control custom-checkbox">
+                                                        <input class="custom-control-input" type="checkbox">
+                                                        <span class="custom-control-indicator" style="background-color: #13ce66;"></span>
+                                                        <span aria-hidden="true" class="fa fa-check"></span>
+                                                        <span class="custom-control-description">Legend name 4</span>
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </ul> -->
+                            </button>
+                        </span>
+                    </div>
+                    <div class="row-chart-area chr-pad-right">
+                        <div class="chart">
+                            <a3c-bistel-chart #trendChartPlot [data]="trendData" [config]="trendConfig" [eventLines]="trendEventLines" [chartEvents]="trendEventConfig"
+                                style="width: 100%;" class="chart-body">
+                            </a3c-bistel-chart>
+                        </div>
+                        <!-- <div class="float-wrapper" *ngIf="!trendData.length">
                                     <dl>
                                         <dt>
                                             <div class="a3-spinner-data"></div>
                                         </dt>
                                         <dd class="message-title">Loading ...</dd>
                                     </dl>
-                                </div>
-                            </div>
-                            <!-- <div class="metrix-chart-problem chart-warning" *ngIf="col_row[rowItem][colItem]!=undefined && col_row[rowItem][colItem].analysis!=undefined"
-                                (click)="analysisSummaryClick(col_row[rowItem][colItem])">
-                                <label>{{col_row[rowItem][colItem].analysisSummary}}</label>
-                            </div> -->
+                                </div> -->
+                    </div>
+                </div>
+                <div *ngIf="nodeClickType === TYPES.PARAMETER && isVibration" class="row-chart-group sectrum-chr" #chartSpectra onselectstart="return false;">
+                    <div class="row-chart-header chr-pad-height">
+                        <h3 class="panel-title">Spectrum Chart </h3>
+                        <span class="timedate">{{timewavedate}}</span>
+        
+                        <span class="pull-right">
+        
+                            <wj-multi-select class="form-control" placeholder="Select 1X Item" title="You can select multiple 1x items" checkedMemberPath="selected"
+                                headerFormat="{count} selected" displayMemberPath="display" [itemsSource]="rpmscombo" (checkedItemsChanged)="multiComboCheckedItemsChanged($event);"
+                                (dblclick)="$event.stopPropagation();">
+                            </wj-multi-select>
+                            <button *ngIf="isShowExpandBtn" class="btn btn-default" id="wjPopup" (click)="expandChart($event, chartSpectra, 3);">
+                                <i class="fa fa-search-plus"></i>
+                            </button>
+                            <button class="btn btn-default" (click)="isShowSpectrumLegend = !isShowSpectrumLegend; showLegend($event, 3, isShowSpectrumLegend);">
+                                <i aria-hidden="true" aria-labelledby="dropdownMenu2" class="fa fa-bar-chart" data-toggle="dropdown" role="menu" aria-expanded="false"></i>
+                            </button>
+                        </span>
+                    </div>
+        
+                    <div class="row-chart-area">
+                        <div class="chart spectrum-chart">
+                            <a3c-bistel-chart [data]="spectrumData" [config]="spectrumConfig" [chartEvents]="chartEvents" [eventLines]="eventLines" style="width: 100%;"
+                                class="chart-body">
+                            </a3c-bistel-chart>
+                        </div>
+                        <!-- <div class="float-wrapper" *ngIf="!spectrumData.length">
+                                    <dl>
+                                        <dt>
+                                            <div class="a3-spinner-data"></div>
+                                        </dt>
+                                        <dd class="message-title">Loading ...</dd>
+                                    </dl>
+                                </div> -->
+                        <div class="rootcause" *ngIf="rootcause">
+                            <label>Reference: {{rootcause}}</label>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <div [ngStyle]="{'display': isContributionShow? 'block' : 'none'}" class="row-chart-group sectrum-chr" onselectstart="return false;"
-            #chartHealthContribute>
-            <div class="row-chart-header chr-pad-height" (dblclick)="expandChart($event, chartHealthContribute, 1)">
-                <h3 class="panel-title">Health Contribution</h3>
-                <span class="pull-right">
-                    <label class="checkbox-inline">
-                        <input type="checkbox" [checked]="isHealthContributionLegend" (change)="setHealthLegendStatus()" (dblclick)="$event.stopPropagation();"
-                        />
-                        <button type="button" class="btn btn-default model-button" (click)="hideContributionChart()" (dblclick)="$event.stopPropagation();">Hide Contribution</button>
-                        <span>Show legend</span>
-                    </label>
-                </span>
-            </div>
-            <div class="row-chart-area mgin-l heal-wdh">
-                <div class="chart hth-ctrbtn">
-                    <a3c-bistel-chart #healthContributeChart id="healthContributeChart" [data]="healthIndexContributeData" [config]="healthIndexContributeConfig"
-                        [eventLines]="healthContributionEventLines" [chartEvents]="healthIndexContributeEventConfig" class="chart-body"
-                        style="width: 100%;">
-                    </a3c-bistel-chart>
-                </div>
-            </div>
-        </div>
-
-        <div *ngIf="nodeClickType === TYPES.PARAMETER" class="row-chart-group sectrum-chr" #chartTrend>
-            <div class="row-chart-header chr-pad-height">
-                <h3 class="panel-title">Trend Chart</h3>
-                <span class="pull-right">
-                    <button *ngIf="isShowExpandBtn" class="btn btn-default" id="wjPopup" (click)="expandChart($event, chartTrend, 2)">
-                        <i class="fa fa-search-plus"></i>
-                    </button>
-
-                    <button class="btn btn-default" (click)="isShowTrendLegend = !isShowTrendLegend; showLegend($event, 2, isShowTrendLegend);">
-                        <i aria-hidden="true" aria-labelledby="dropdownMenu2" class="fa fa-bar-chart" data-toggle="dropdown" role="menu" aria-expanded="false"></i>
-                        <!--Legend checkbox dropdown-->
-                        <!-- <ul aria-labelledby="dropdownMenu" class="dropdown-menu configuration-multi-menu a3-categorization pull-right">
-                                    <ul class="checkbox-list">
-                                        <li>
-                                            <a class="custom-control custom-checkbox">
-                                                <input class="custom-control-input" type="checkbox">
-                                                <span class="custom-control-indicator" style="background-color: rgb(251, 90, 60);"></span>
-                                                <span aria-hidden="true" class="fa fa-check"></span>
-                                                <span class="custom-control-description">Legend name 1</span>
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a class="custom-control custom-checkbox">
-                                                <input class="custom-control-input" type="checkbox">
-                                                <span class="custom-control-indicator" style="background-color: #fcb419"></span>
-                                                <span aria-hidden="true" class="fa fa-check"></span>
-                                                <span class="custom-control-description">Legend name 2</span>
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a class="custom-control custom-checkbox">
-                                                <input class="custom-control-input" type="checkbox">
-                                                <span class="custom-control-indicator" style="background-color: #2196f3;"></span>
-                                                <span aria-hidden="true" class="fa fa-check"></span>
-                                                <span class="custom-control-description">Legend name 3</span>
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a class="custom-control custom-checkbox">
-                                                <input class="custom-control-input" type="checkbox">
-                                                <span class="custom-control-indicator" style="background-color: #13ce66;"></span>
-                                                <span aria-hidden="true" class="fa fa-check"></span>
-                                                <span class="custom-control-description">Legend name 4</span>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </ul> -->
-                    </button>
-                </span>
-            </div>
-            <div class="row-chart-area chr-pad-right">
-                <div class="chart">
-                    <a3c-bistel-chart #trendChartPlot [data]="trendData" [config]="trendConfig" [eventLines]="trendEventLines" [chartEvents]="trendEventConfig"
-                        style="width: 100%;" class="chart-body">
-                    </a3c-bistel-chart>
-                </div>
-                <!-- <div class="float-wrapper" *ngIf="!trendData.length">
-                            <dl>
-                                <dt>
-                                    <div class="a3-spinner-data"></div>
-                                </dt>
-                                <dd class="message-title">Loading ...</dd>
-                            </dl>
-                        </div> -->
-            </div>
-        </div>
-        <div *ngIf="nodeClickType === TYPES.PARAMETER && isVibration" class="row-chart-group sectrum-chr" #chartSpectra onselectstart="return false;">
-            <div class="row-chart-header chr-pad-height">
-                <h3 class="panel-title">Spectrum Chart </h3>
-                <span class="timedate">{{timewavedate}}</span>
-
-                <span class="pull-right">
-
-                    <wj-multi-select class="form-control" placeholder="Select 1X Item" title="You can select multiple 1x items" checkedMemberPath="selected"
-                        headerFormat="{count} selected" displayMemberPath="display" [itemsSource]="rpmscombo" (checkedItemsChanged)="multiComboCheckedItemsChanged($event);"
-                        (dblclick)="$event.stopPropagation();">
-                    </wj-multi-select>
-                    <button *ngIf="isShowExpandBtn" class="btn btn-default" id="wjPopup" (click)="expandChart($event, chartSpectra, 3);">
-                        <i class="fa fa-search-plus"></i>
-                    </button>
-                    <button class="btn btn-default" (click)="isShowSpectrumLegend = !isShowSpectrumLegend; showLegend($event, 3, isShowSpectrumLegend);">
-                        <i aria-hidden="true" aria-labelledby="dropdownMenu2" class="fa fa-bar-chart" data-toggle="dropdown" role="menu" aria-expanded="false"></i>
-                    </button>
-                </span>
-            </div>
-
-            <div class="row-chart-area">
-                <div class="chart spectrum-chart">
-                    <a3c-bistel-chart [data]="spectrumData" [config]="spectrumConfig" [chartEvents]="chartEvents" [eventLines]="eventLines" style="width: 100%;"
-                        class="chart-body">
-                    </a3c-bistel-chart>
-                </div>
-                <!-- <div class="float-wrapper" *ngIf="!spectrumData.length">
-                            <dl>
-                                <dt>
-                                    <div class="a3-spinner-data"></div>
-                                </dt>
-                                <dd class="message-title">Loading ...</dd>
-                            </dl>
-                        </div> -->
-                <div class="rootcause" *ngIf="rootcause">
-                    <label>Reference: {{rootcause}}</label>
-                </div>
-            </div>
-        </div>
-
-        <div *ngIf="nodeClickType === TYPES.PARAMETER && isVibration" class="row-chart-group sectrum-chr" #chartTimeWave onselectstart="return false;">
-            <div class="row-chart-header chr-pad-height">
-                <h3 class="panel-title">Time Wave Chart </h3>
-                <span class="timedate">{{timewavedate}}</span>
-                <span class="pull-right">
-                    <button *ngIf="isShowExpandBtn" class="btn btn-default" id="wjPopup" (click)="expandChart($event, chartTimeWave, 4);">
-                        <i class="fa fa-search-plus"></i>
-                    </button>
-                    <button class="btn btn-default" (click)="isShowTimeWaveLegend = !isShowTimeWaveLegend; showLegend($event, 4, isShowTimeWaveLegend);">
-                        <i aria-hidden="true" aria-labelledby="dropdownMenu2" class="fa fa-bar-chart" data-toggle="dropdown" role="menu" aria-expanded="false"></i>
-                    </button>
-                </span>
-            </div>
-            <div class="row-chart-area time-wave-magin">
-                <div class="chart">
-                    <a3c-bistel-chart [data]="timeWaveData" [config]="timeWaveConfig" style="width: 100%; " class="chart-body">
-                    </a3c-bistel-chart>
-                </div>
-                <!-- <div class="float-wrapper" *ngIf="!timeWaveData.length">
-                            <dl>
-                                <dt>
-                                    <div class="a3-spinner-data"></div>
-                                </dt>
-                                <dd class="message-title">Loading ...</dd>
-                            </dl>
-                        </div> -->
-            </div>
-        </div>
-        <!-- <div class="row-chart-group" #chartProblem onselectstart="return false;">
-                <div class="row-chart-header" (dblclick)="onDblClick($event, chartProblem)">
-                    <h3 class="panel-title">Problem Index(5년)</h3>
-                </div>
-                <div class="row-chart-area">
-                    <div class="chart100">
-                        <a3c-bistel-chart [data]="problemIndexData"
-                                            [config]="problemIndexConfig"
-                                            [chartEvents]="problemIndexEventConfig"
-                                            style="width: 100%;" class="chart-body">
-                        </a3c-bistel-chart>
+        
+                <div *ngIf="nodeClickType === TYPES.PARAMETER && isVibration" class="row-chart-group sectrum-chr" #chartTimeWave onselectstart="return false;">
+                    <div class="row-chart-header chr-pad-height">
+                        <h3 class="panel-title">Time Wave Chart </h3>
+                        <span class="timedate">{{timewavedate}}</span>
+                        <span class="pull-right">
+                            <button *ngIf="isShowExpandBtn" class="btn btn-default" id="wjPopup" (click)="expandChart($event, chartTimeWave, 4);">
+                                <i class="fa fa-search-plus"></i>
+                            </button>
+                            <button class="btn btn-default" (click)="isShowTimeWaveLegend = !isShowTimeWaveLegend; showLegend($event, 4, isShowTimeWaveLegend);">
+                                <i aria-hidden="true" aria-labelledby="dropdownMenu2" class="fa fa-bar-chart" data-toggle="dropdown" role="menu" aria-expanded="false"></i>
+                            </button>
+                        </span>
+                    </div>
+                    <div class="row-chart-area time-wave-magin">
+                        <div class="chart">
+                            <a3c-bistel-chart [data]="timeWaveData" [config]="timeWaveConfig" style="width: 100%; " class="chart-body">
+                            </a3c-bistel-chart>
+                        </div>
+                        <!-- <div class="float-wrapper" *ngIf="!timeWaveData.length">
+                                    <dl>
+                                        <dt>
+                                            <div class="a3-spinner-data"></div>
+                                        </dt>
+                                        <dd class="message-title">Loading ...</dd>
+                                    </dl>
+                                </div> -->
                     </div>
                 </div>
-            </div> -->
-    </div>
-</div>
+                <!-- <div class="row-chart-group" #chartProblem onselectstart="return false;">
+                        <div class="row-chart-header" (dblclick)="onDblClick($event, chartProblem)">
+                            <h3 class="panel-title">Problem Index(5년)</h3>
+                        </div>
+                        <div class="row-chart-area">
+                            <div class="chart100">
+                                <a3c-bistel-chart [data]="problemIndexData"
+                                                    [config]="problemIndexConfig"
+                                                    [chartEvents]="problemIndexEventConfig"
+                                                    style="width: 100%;" class="chart-body">
+                                </a3c-bistel-chart>
+                            </div>
+                        </div>
+                    </div> -->
+            </div>
+        </div>
+    </split-area>
+</split>
+
+
+
 
 
 <div #plotlyChart class="modal" id="plotlyChart" style="overflow: hidden;" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
