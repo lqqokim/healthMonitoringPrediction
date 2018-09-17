@@ -129,17 +129,18 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
     //Rule Grid에서 첫번째 Row 선택
     selectFirstRule(): void {
         setTimeout(() => {
-            if (this.RuleGrid.itemsSource && this.RuleGrid.itemsSource.length > 0) {
+            // if (this.RuleGrid.itemsSource && this.RuleGrid.itemsSource.length > 0) {
                 this.selectedRule = this.RuleGrid.itemsSource[0];
                 // console.log('selectFirstRule', this.RuleGrid)
                 this.getParamsByEqpRule();
-            }
+            // }
         });
     }
 
     // rule을 클릭해서 가져오는 parameter
     getParamsByEqpRule(): void {
-        this._pdmConfigService.getParamsByEqpRule(this.fabId, this.eqp.eqpId, this.selectedRule.rule_id)
+        let selectedRule = JSON.parse(JSON.stringify(this.selectedRule));
+        this._pdmConfigService.getParamsByEqpRule(this.fabId, this.eqp.eqpId, selectedRule.rule_id)
             .then((params: IRule.ParameterResponse[]) => {
                 console.log('getParamsByRule', params);
                 let parameters: IRule.ParameterByRule[] = [];
@@ -359,6 +360,7 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
         console.log('Parameter Request', paramRequest);
         this.updateRevertToModelSpec();
         this.updateEqpRuleParams(paramRequest);
+        this.selectFirstRule();
         this._showModal(false);
     }
 
@@ -370,9 +372,9 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
     updateEqpRuleParams(request: IRule.ParamRequest[]): void {
         this._pdmConfigService.updateEqpRuleParams(this.fabId, request)
             .then((res) => {
-                // console.log('updateEqpRuleParams res', res);
-                this.getRules();
-                this.notify.success("MESSAGE.USER_CONFIG.UPDATE_SUCCESS");
+                console.log('updateEqpRuleParams res', res);
+                // this.getRules();
+                // this.notify.success("MESSAGE.USER_CONFIG.UPDATE_SUCCESS");
             }).catch((err) => {
                 console.log(err);           
                 this.getRules();

@@ -199,6 +199,7 @@ export class ModelingTreeComponent implements OnInit, AfterViewInit, OnChanges {
                             this.initialTreeDatas = tempTree;
                         }
 
+                        this.initialTreeDatas[0]['isOpen'] = true;
                         this.nodeDataRes.emit();
                     });
             }).catch((error: any) => {
@@ -246,7 +247,7 @@ export class ModelingTreeComponent implements OnInit, AfterViewInit, OnChanges {
             // const children = node.children;
             const children = this.selectedItem.children;
 
-            if (!children.length || this.selectedItem.isChildLoaded == undefined || this.selectedItem.isChildLoaded == false) { // api call
+            if ((!children.length || this.selectedItem.isChildLoaded === undefined || this.selectedItem.isChildLoaded === false) && this.selectedItem.parentId !== 0) { // api call
                 this.selectedItem.isChildLoaded = true;
                 return this._getChildByType();
             } else { // exist data

@@ -7,6 +7,8 @@ import { PdmModelService } from './../../../common/model/app/pdm/pdm-model.servi
 import { FabAreaEqpParamTreeService } from './fab-area-eqp-param-tree.service';
 import { SpinnerComponent } from './../../../sdk';
 
+import * as IType from './model/tree.interface';
+
 @Component({
     moduleId: module.id,
     selector: 'fab-area-eqp-param-tree',
@@ -17,13 +19,15 @@ import { SpinnerComponent } from './../../../sdk';
 export class FabAreaEqpParamTreeComponent implements OnInit, AfterViewInit, OnChanges {
     @ViewChild('componentSpinner') componentSpinner: SpinnerComponent;
     @ViewChild('tv') tv;
-    @Input() singleSelect = false;
+    @Input() singleSelect: boolean = false;
     @Output() nodeClick: EventEmitter<any> = new EventEmitter();
     @Output() changeParamSelection: EventEmitter<any> = new EventEmitter();
     @Input() fab: any;
 
-    public selectedFab: any;
-    selectedPath: any;
+    public selectedFab: IType.Fab;
+    plants: IType.Fab[];
+
+    selectedPath: string;
     selectedItem: any;
     selectedNode: any;
     selectedEv: any;
@@ -38,12 +42,17 @@ export class FabAreaEqpParamTreeComponent implements OnInit, AfterViewInit, OnCh
     eqpData: any;
     paramData: any;
     partData: any;
-    plants: any;
     isChildLoaded: boolean = false;
 
     autoscroll = false;
 
-    readonly TYPES: any = { FAB: 'fab', AREA: 'area', EQP: 'eqp', PARAMETER: 'parameter', PART: 'part' };
+    readonly TYPES: IType.NodeType = {
+        FAB: 'fab',
+        AREA: 'area',
+        EQP: 'eqp',
+        PARAMETER: 'parameter',
+        PART: 'part'
+    };
 
     constructor(
         private pdmConfigService: FabAreaEqpParamTreeService,
@@ -55,34 +64,39 @@ export class FabAreaEqpParamTreeComponent implements OnInit, AfterViewInit, OnCh
     ngOnInit() {
         this._getPlants();
     }
+
     ngAfterViewInit() {
     }
+
     ngOnChanges(changes: any) {
         if (changes && changes.fab && changes.fab.currentValue) {
             this.selectedFab = changes.fab.currentValue;
         }
     }
-    public getSelectedNodes(){
 
-        return this.getSelectedNodeList( this.initialTreeDatas[0]);
+    public getSelectedNodes() {
+
+        return this.getSelectedNodeList(this.initialTreeDatas[0]);
 
     }
-    private getSelectedNodeList(node){
+
+    private getSelectedNodeList(node) {
         let selectedItems = [];
-        if(node.children==null){
+        if (node.children == null) {
             return selectedItems;
         }
-        for(let i=0;i<node.children.length;i++){
-            if(node.children[i].isChecked){
+        for (let i = 0; i < node.children.length; i++) {
+            if (node.children[i].isChecked) {
                 selectedItems.push(node.children[i]);
             }
             let retval = this.getSelectedNodeList(node.children[i]);
-            if(retval.length>0){
+            if (retval.length > 0) {
                 selectedItems = selectedItems.concat(retval);
             }
         }
         return selectedItems;
     }
+
     public setSelectNode(areaId, eqpId, paramId) {
         this.autoscroll = true;
         let areaNode: any;
@@ -93,11 +107,11 @@ export class FabAreaEqpParamTreeComponent implements OnInit, AfterViewInit, OnCh
         if (areaNode != null) {
             if (areaNode.children && areaNode.children.length > 0) {
                 let eqpNode = this.findNode(areaNode, eqpId);
-                if(eqpNode==null){
-                    this.selectNode({ treeview: areaNode }).then(()=>{
-                        this.setSelectNode(areaId,eqpId,paramId);
+                if (eqpNode == null) {
+                    this.selectNode({ treeview: areaNode }).then(() => {
+                        this.setSelectNode(areaId, eqpId, paramId);
                     });
-                    return 
+                    return
                 }
                 if (paramId != '' && paramId != null) {
                     if (eqpNode.children && eqpNode.children.length > 0) {
@@ -150,6 +164,7 @@ export class FabAreaEqpParamTreeComponent implements OnInit, AfterViewInit, OnCh
             }
         }
     }
+
     findNode(node, value) {
         if (node.children == undefined) {
             return null;
@@ -166,9 +181,10 @@ export class FabAreaEqpParamTreeComponent implements OnInit, AfterViewInit, OnCh
         }
         return null;
     }
+
     _getPlants(): void {
         this.pdmModelService.getPlants()
-            .then((plants: any) => {
+            .then((plants: IType.Fab[]) => {
                 this.plants = plants;
                 this.selectedFab = this.plants[0];
                 this._getInitTree();
@@ -185,23 +201,19 @@ export class FabAreaEqpParamTreeComponent implements OnInit, AfterViewInit, OnCh
 
     _getInitTree() {
         this.pdmConfigService.getAreas(this.selectedFab.fabId)
-            .then((areas: any) => {
+            .then((areas: IType.AreaResponse[]) => {
                 this.nodeType = this.TYPES.AREA;
                 this.setTreeDatas(areas, this.nodeType);
                 this.areasTree = areas;
 
-                // let tempTree = JSON.parse(JSON.stringify(this.areasTree)); // deep copy
-                let tempTree = this.areasTree.slice(0);
-                // this.setTreeDepth(tempTree);
-                // this.initialTreeDatas = tempTree;
-                let eqpDatas;
+                const tempTree = this.areasTree.slice(0);
                 this.pdmConfigService.getEqps(this.selectedFab.fabId, areas[0].areaId)
                     .then((eqps: any) => {
                         if (eqps.length > 0) {
                             eqps.map((node: any) => {
                                 node.nodeName = node.eqpName;
                                 node.nodeId = node.eqpId;
-                                node.id =areas[0].areaId+":"+ node.eqpId;
+                                node.id = areas[0].areaId + ":" + node.eqpId;
                                 node.nodeType = this.TYPES.EQP;
                                 node.iconClass = this._getImagePath(node.nodeType);
                                 node.children = [];
@@ -222,82 +234,85 @@ export class FabAreaEqpParamTreeComponent implements OnInit, AfterViewInit, OnCh
                         } else {
                             this.initialTreeDatas = tempTree;
                         }
+
+                        this.initialTreeDatas[0]['isOpen'] = true;
                     });
             }).catch((error: any) => {
 
             });
     }
-    autoScroll(){
-        if(this.autoscroll){
-            try{
-                
+
+    autoScroll() {
+        if (this.autoscroll) {
+            try {
+
                 setTimeout(() => {
-                    let itemTop = $('.ngtree_node_name:contains("'+this.selectedItem.eqpName+'")').offset().top;
-                    console.log('********************'+itemTop);
-                    $('tree .container').animate({ scrollTop: $('tree .container').scrollTop()+itemTop -300 }, 500);
+                    let itemTop = $('.ngtree_node_name:contains("' + this.selectedItem.eqpName + '")').offset().top;
+                    console.log('********************' + itemTop);
+                    $('tree .container').animate({ scrollTop: $('tree .container').scrollTop() + itemTop - 300 }, 500);
                     this.autoscroll = false;
                     this.autoScroll();
                 }, 1000);
-    
-            }catch(err){
+
+            } catch (err) {
                 console.log(err);
             }
-    
+
         }
 
     }
-    clearCheck(node,excludeId){
+
+    clearCheck(node, excludeId) {
         node.isChecked = false;
-        if(node.children==null) return;
-        for(let i=0;i<node.children.length;i++){
-            if(node.children[i].id!=excludeId){
+        if (node.children == null) return;
+        for (let i = 0; i < node.children.length; i++) {
+            if (node.children[i].id != excludeId) {
                 node.children[i].isChecked = false;
-                this.clearCheck(node.children[i],excludeId);
+                this.clearCheck(node.children[i], excludeId);
             }
         }
     }
-    changeChecked(node,isChecked){
-        if(node.children==null) return;
-        for(let i=0;i<node.children.length;i++){
+
+    changeChecked(node, isChecked) {
+        if (node.children == null) return;
+        for (let i = 0; i < node.children.length; i++) {
             node.children[i].isChecked = isChecked;
-            this.changeChecked(node.children[i],isChecked);
+            this.changeChecked(node.children[i], isChecked);
         }
     }
+
     selectNode(ev: any): Promise<any> {
-        // if (this.selectedItem != null) {
-        //     this.selectedItem.isChecked = false;
-        // }
         this.selectedItem = ev.treeview;
+        this.nodeType = ev.treeview.nodeType;
         this.selectedItem.isOpen = true;
         this.selectedEv = ev;
-        if(ev.type=="node"){
-            if(this.selectedItem.nodeType=="eqp" || this.selectedItem.nodeType=="parameter"){
+
+        const nodeType: string = this.nodeType;
+        if (ev.type == "node") {
+            if (nodeType == "eqp" || nodeType == "parameter") {
                 this.selectedItem.isChecked = !this.selectedItem.isChecked;
-                if(this.selectedItem.isChecked){
-                    if(this.selectedItem.nodeType=="parameter" && !this.singleSelect){
-                        this.clearCheck(this.tv.getRootNode(),this.selectedItem.parentnode.id);
-                    }else{
-                        this.clearCheck(this.tv.getRootNode(),this.selectedItem.id);
+                if (this.selectedItem.isChecked) {
+                    if (this.selectedItem.nodeType == "parameter" && !this.singleSelect) {
+                        this.clearCheck(this.tv.getRootNode(), this.selectedItem.parentnode.id);
+                    } else {
+                        this.clearCheck(this.tv.getRootNode(), this.selectedItem.id);
                     }
-                    
+
                 }
-                if(!this.singleSelect){
-                    this.changeChecked(this.selectedItem,this.selectedItem.isChecked);
-                }else if(this.selectedItem.nodeType=="eqp"){
+                if (!this.singleSelect) {
+                    this.changeChecked(this.selectedItem, this.selectedItem.isChecked);
+                } else if (this.selectedItem.nodeType == "eqp") {
                     this.selectedItem.isChecked = false;
                 }
-                
+
             }
             this.changeParamSelection.emit([this.selectedItem]);
         }
-       
-        // this.selectedNode = ev.treeview.selectedNode;
-        this.nodeClick.emit(ev);
-        
 
+        this.nodeClick.emit(ev);
         this.autoScroll();
 
-        if (this.selectedItem.nodeType === this.TYPES.AREA || this.selectedItem.nodeType === this.TYPES.EQP) {
+        if (nodeType === this.TYPES.AREA || nodeType === this.TYPES.EQP) {
             // this.isChildLoaded = true;
             // this.selectedPath = ev.treeview.selectedPath.join(' > ');
             // let treeData = ev.treeview.itemsSource;
@@ -305,11 +320,11 @@ export class FabAreaEqpParamTreeComponent implements OnInit, AfterViewInit, OnCh
             // const children = node.children;
             const children = this.selectedItem.children;
 
-            if (!children.length || this.selectedItem.isChildLoaded == undefined || this.selectedItem.isChildLoaded == false) { // api call
+            if ((!children.length || this.selectedItem.isChildLoaded === undefined || this.selectedItem.isChildLoaded === false) && this.selectedItem.parentId !== 0) { // api call
                 this.selectedItem.isChildLoaded = true;
                 return this._getChildByType(this.selectedItem.isChecked);
             } else { // exist data
-                if (this.selectedItem.nodeType === this.TYPES.AREA) {
+                if (nodeType === this.TYPES.AREA) {
                     this.nodeType = this.TYPES.AREA;
                     let areas = [];
                     let eqps = [];
@@ -401,7 +416,7 @@ export class FabAreaEqpParamTreeComponent implements OnInit, AfterViewInit, OnCh
             areaId: this.selectedItem.areaId
         };
 
-        return this._getEqps(isChecked,nodeChildren);
+        return this._getEqps(isChecked, nodeChildren);
     }
 
     searchTree(field, data, value): any { // Search data about nodeId
@@ -431,14 +446,7 @@ export class FabAreaEqpParamTreeComponent implements OnInit, AfterViewInit, OnCh
             }
         }
     }
-    // setTreeDepth(areasTree): void {
-    //     for (let i = 0; i < areasTree.length; i++) {
-    //         if (areasTree[i].children !== undefined && areasTree[i].children.length > 0) {
-    //             areasTree[i].isOpen = true;
-    //             this.setTreeDepth(areasTree[i].children);
-    //         }
-    //     }
-    // }
+
     setTreeDatas(tree: any, type?: string, datas?: any): void {
         if (tree.length > 0) {
             if (this.nodeType === this.TYPES.AREA) { // area
@@ -505,13 +513,13 @@ export class FabAreaEqpParamTreeComponent implements OnInit, AfterViewInit, OnCh
         }
     }
 
-    _getEqps(isChecked,areas?): Promise<any> {
+    _getEqps(isChecked, areas?): Promise<any> {
         return this.pdmConfigService.getEqps(this.selectedFab.fabId, this.selectedItem.areaId)
             .then((eqps: any) => {
                 eqps.map((node: any) => {
                     node.nodeName = node.eqpName;
                     node.nodeId = node.eqpId;
-                    node.id = this.selectedItem.areaId+":"+node.eqpId;
+                    node.id = this.selectedItem.areaId + ":" + node.eqpId;
                     node.nodeType = this.TYPES.EQP;
                     node.iconClass = this._getImagePath(node.nodeType);
                     node.children = [];
@@ -548,7 +556,7 @@ export class FabAreaEqpParamTreeComponent implements OnInit, AfterViewInit, OnCh
                 params.map((node: any) => {
                     node.nodeName = node.paramName;
                     node.nodeId = node.paramId;
-                    node.id = this.selectedItem.id +":"+  node.paramId;
+                    node.id = this.selectedItem.id + ":" + node.paramId;
                     node.nodeType = this.TYPES.PARAMETER;
                     node.iconClass = this._getImagePath(node.nodeType);
                     node.name = node.paramName;
@@ -580,7 +588,7 @@ export class FabAreaEqpParamTreeComponent implements OnInit, AfterViewInit, OnCh
                 parts.map((node: any) => {
                     node.nodeName = node.name;
                     node.nodeId = node.partId;
-                    node.id = this.selectedItem.id+":"+ node.partId;
+                    node.id = this.selectedItem.id + ":" + node.partId;
                     node.nodeType = this.TYPES.PART;
                     node.iconClass = this._getImagePath(node.nodeType);
                     node.name = node.name;

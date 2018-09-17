@@ -91,10 +91,7 @@ export class MasterInfoComponent implements OnInit, AfterViewInit {
                 this.setTreeDatas(areas, this.nodeType);
                 this.areasTree = areas;
 
-                let tempTree = JSON.parse(JSON.stringify(this.areasTree)); // deep copy
-                // this.setTreeDepth(tempTree);
-                // this.initialTreeDatas = tempTree;
-                let eqpDatas;
+                const tempTree = JSON.parse(JSON.stringify(this.areasTree)); // deep copy
                 this.pdmConfigService.getEqps(this.selectedFab.fabId, areas[0].areaId)
                     .then((eqps: any) => {
                         if (eqps.length > 0) {

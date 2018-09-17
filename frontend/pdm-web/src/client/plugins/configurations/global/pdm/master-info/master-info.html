@@ -12,11 +12,15 @@
                         </option>
                     </select>
                 </div>
-                <wj-tree #tv 
+                <!-- <wj-tree #tv 
                     [datas]="initialTreeDatas" 
                     [childDatas]="childDatas" 
                     (clickNode)="selectNode($event)">
-                </wj-tree>
+                </wj-tree> -->
+                <wj-tree #tv 
+                    [datas]="initialTreeDatas" 
+                    (clickNode)="selectNode($event)">
+            </wj-tree>
             </div>
         </split-area>
 
