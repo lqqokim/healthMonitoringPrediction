@@ -160,6 +160,8 @@ export class FabEditorComponent implements OnInit, OnChanges, AfterViewInit{
                 this.rateWidth = this.currWidth/this.fabInfo.width;
                 this.rateHeight = this.currHeight/this.fabInfo.height;
             }
+
+            this.onResize();
         },500);
     }
 
