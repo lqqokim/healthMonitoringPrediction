@@ -169,7 +169,7 @@ export class TableComponent implements AfterViewInit, OnChanges, OnDestroy {
     public scroll(e?: any, customY?: number): void {
 
         // 셀 전체 높이 계산 (헤더 +1)
-        this.vsFullHeight = this.vsCellOnceHeight * this.length;
+        this.vsFullHeight = this.vsCellOnceHeight * (this.length+1);
 
         // 스크롤 된 높이
         const y: number = (e === undefined) ? ((customY === undefined) ? 0 : customY) : e.target.scrollTop;
