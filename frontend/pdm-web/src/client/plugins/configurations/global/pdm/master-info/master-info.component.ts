@@ -83,7 +83,7 @@ export class MasterInfoComponent implements OnInit, AfterViewInit {
     }
 
     _getInitTree() {
-        this.initialTreeDatas = [];
+        this.initialTreeDatas = []; //for tree init
         this.pdmConfigService.getAreas(this.selectedFab.fabId)
             .then((areas: any) => {
                 this.areaList = areas;

@@ -200,6 +200,7 @@ export class FabAreaEqpParamTreeComponent implements OnInit, AfterViewInit, OnCh
     }
 
     _getInitTree() {
+        this.initialTreeDatas = [];//for tree init
         this.pdmConfigService.getAreas(this.selectedFab.fabId)
             .then((areas: IType.AreaResponse[]) => {
                 this.nodeType = this.TYPES.AREA;

@@ -6,7 +6,7 @@ import { Component, OnInit, Input, Output, EventEmitter, ViewChild, OnChanges, V
     selector: 'check-tree',
     templateUrl: './check-tree.html',
     styleUrls: ['./check-tree.css'],
-    encapsulation:ViewEncapsulation.None
+    encapsulation: ViewEncapsulation.None
 })
 export class CheckTreeComponent implements OnInit, OnChanges {
     @Input() datas: any[];
@@ -19,13 +19,13 @@ export class CheckTreeComponent implements OnInit, OnChanges {
     treeDatas: any[];
     lazyLoadFunction: Function;
 
-    treeConfig={};
+    treeConfig = {};
     selectedNode = null;
 
     constructor() {
         // this.lazyLoadFunction = this._lazyLoadFunction.bind(this); // wijmo tree lazy load
-        this.treeConfig={
-            onClick:(node)=>{
+        this.treeConfig = {
+            onClick: (node) => {
                 // if(this.selectedNode!=null){
                 //     this.selectedNode.isChecked = false;
                 // }
@@ -35,31 +35,31 @@ export class CheckTreeComponent implements OnInit, OnChanges {
                 // console.log(node);
                 this.clickNode.emit({
                     treeview: node,
-                    type:'node'
+                    type: 'node'
                 });
             },
-            onFold:(node)=>{
+            onFold: (node) => {
                 // if(this.selectedNode!=null){
                 //     this.selectedNode.isChecked = false;
                 // }
                 // node.isChecked = true;
                 // this.selectedNode = node;
                 console.log(node);
-                if(node.isOpen==undefined ||node.isOpen==false){
+                if (node.isOpen == undefined || node.isOpen == false) {
                     this.clickNode.emit({
                         treeview: node,
-                        type:'fold'
+                        type: 'fold'
                     });
-                }else{
+                } else {
                     node.isOpen = !node.isOpen;
                 }
 
-                
 
-                
+
+
             }
         };
-    
+
     }
     ngOnInit() {
 
@@ -71,7 +71,8 @@ export class CheckTreeComponent implements OnInit, OnChanges {
         // } else if (changes && changes.childDatas) {
         //     this.childDatas = changes.childDatas.currentValue;
         // }
-        if(changes && changes.datas && changes.datas.currentValue &&changes.datas.currentValue.length>0){
+        if (changes && changes.datas && changes.datas.currentValue) {
+            // if (changes && changes.datas && changes.datas.currentValue && changes.datas.currentValue.length > 0) {
             this.treeDatas = changes.datas.currentValue;
         }
     }
@@ -114,7 +115,7 @@ export class CheckTreeComponent implements OnInit, OnChanges {
     //         treeNode.isDisabled = isDisabled;
     //     }
     // }
-    getRootNode(){
+    getRootNode() {
         return this.treeview.treeRoot[0];
     }
 }
