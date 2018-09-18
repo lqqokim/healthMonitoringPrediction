@@ -2485,8 +2485,8 @@
 		area_mst_pdm amp,
 		param_mst_pdm param
 		WHERE 1 = 1
-		AND TO_CHAR(ehdsp.sum_dtts, 'yyyy-MM-dd') <![CDATA[>=]]> #{fromdate}
-		AND TO_CHAR(ehdsp.sum_dtts, 'yyyy-MM-dd') <![CDATA[<]]> #{todate}
+		AND ehdsp.sum_dtts <![CDATA[>=]]> #{fromdate}
+		AND ehdsp.sum_dtts <![CDATA[<]]> #{todate}
 		AND phmp.rawid = ehdsp.param_health_mst_rawid
 		AND phmp.health_logic_mst_rawid = hlmsp.rawid
 		AND phmp.param_mst_rawid = param.rawid
