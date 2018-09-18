@@ -2390,7 +2390,7 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
         if( !this.isDataLoaded ){ return; }
 
         // 첫번째 트리 오픈
-        this.tree.initialTreeDatas[0].isChecked = true;
+        this.tree.initialTreeDatas[0].isChecked = false;
         this.tree.initialTreeDatas[0].isChildLoaded = true;
         this.tree.initialTreeDatas[0].isOpen = true;
 
@@ -2404,8 +2404,8 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
         for( i=0; i<len; i++ ){
             row = treeChilds[i];
             if( row.areaId === this._areaId ){
-                row.isChecked = true;
-                row.isChildLoaded = true;
+                row.isChecked = false;
+                row.isChildLoaded = false;
                 row.isOpen = true;
                 areaRow = row;
                 break;
@@ -2416,8 +2416,8 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
         // 3번째 eqp 오픈
         for( i=0; i<areaLen; i++ ){
             if( areaRow[i].eqpId === this._eqpId ){
-                areaRow[i].isChecked = true;
-                areaRow[i].isChildLoaded = true;
+                areaRow[i].isChecked = false;
+                areaRow[i].isChildLoaded = false;
                 areaRow[i].isOpen = true;
             }
         }
