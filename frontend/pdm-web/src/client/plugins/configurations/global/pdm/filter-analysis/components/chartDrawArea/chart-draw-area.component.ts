@@ -264,8 +264,9 @@ export class ChartDrawAreaComponent implements OnInit, OnDestroy {
         }
 
         // 차트 시리즈 옵션 설정
+        const y1Len: number = this.drawChartData.chartData.y.length;
         let i: number = 0;
-        let len: number = this.drawChartData.chartData.y.length;
+        let len: number = y1Len;
         let yData: ChartDataItem = undefined;
 
         // 데이터가 있으면 날림
@@ -338,8 +339,11 @@ export class ChartDrawAreaComponent implements OnInit, OnDestroy {
             // min max
             let min_X = undefined;
             let min_Y = undefined;
+            let min_Y2 = undefined;
+
             let max_X = undefined;
             let max_Y = undefined;
+            let max_Y2 = undefined;
 
             // 가공 시작 currValues[i][]
             iLen = currValues.length;
@@ -412,7 +416,7 @@ export class ChartDrawAreaComponent implements OnInit, OnDestroy {
                     // y, y2축 데이터
                     else if( j > 0 ){
                         // 값 설정
-                        changeValue = parseFloat(currValue);
+                        changeValue = (currValue === null ) ? 0 : parseFloat(currValue);
 
                         // console.log( typeof datas.y[j-1] );
                         if( typeof datas.y[j-1] === 'undefined' ){
@@ -420,18 +424,37 @@ export class ChartDrawAreaComponent implements OnInit, OnDestroy {
                         }
                         datas.y[j-1].push([ tmpXData, changeValue ]);
 
-                        // y축 최소 값
-                        if( min_Y === undefined ){
-                            min_Y = <number>changeValue;
-                        } else {
-                            min_Y = (min_Y > changeValue) ? <number>changeValue : min_Y;
-                        }
+                        // y1 범위
+                        if( j <= y1Len ){
+                            // y축 최소 값
+                            if( min_Y === undefined ){
+                                min_Y = <number>changeValue;
+                            } else {
+                                min_Y = (min_Y > changeValue) ? <number>changeValue : min_Y;
+                            }
 
-                        // y축 최대 값
-                        if( max_Y === undefined ){
-                            max_Y = <number>changeValue;
-                        } else {
-                            max_Y = (max_Y < changeValue) ? <number>changeValue : max_Y;
+                            // y축 최대 값
+                            if( max_Y === undefined ){
+                                max_Y = <number>changeValue;
+                            } else {
+                                max_Y = (max_Y < changeValue) ? <number>changeValue : max_Y;
+                            }
+                        }
+                        // y2 범위
+                        else {
+                            // y2축 최소 값
+                            if( min_Y2 === undefined ){
+                                min_Y2 = <number>changeValue;
+                            } else {
+                                min_Y2 = (min_Y2 > changeValue) ? <number>changeValue : min_Y2;
+                            }
+
+                            // y2축 최대 값
+                            if( max_Y2 === undefined ){
+                                max_Y2 = <number>changeValue;
+                            } else {
+                                max_Y2 = (max_Y2 < changeValue) ? <number>changeValue : max_Y2;
+                            }
                         }
                     }
                 }
@@ -440,16 +463,19 @@ export class ChartDrawAreaComponent implements OnInit, OnDestroy {
             // x, y축 여백
             const spaceX: number = Math.abs(max_X - min_X) * this.spaceMargin;
             const spaceY: number = Math.abs(max_Y - min_Y) * this.spaceMargin;
+            const spaceY2: number = Math.abs(max_Y2 - min_Y2) * this.spaceMargin;
             min_X -= spaceX;
             max_X += spaceX;
             min_Y = min_Y - spaceY;
             max_Y = max_Y + spaceY;
+            min_Y2 = min_Y2 - spaceY2;
+            max_Y2 = max_Y2 + spaceY2;
 
-            // console.log('min_Y', min_Y)
-            // console.log('min_Y', max_Y)
+            console.log('Y', min_Y, max_Y);
+            console.log('Y2', min_Y2, max_Y2);
 
             // 차트 기본 타입 설정 값
-            const rendererOpts: any = this.chartTypeOpts(chartType, legendPosition, min_X, max_X, min_Y, max_Y);
+            const rendererOpts: any = this.chartTypeOpts(chartType, legendPosition, min_X, max_X, min_Y, max_Y, min_Y2, max_Y2);
 
             const chartData: any = (
                 chartType === 'candlestick'
@@ -495,12 +521,14 @@ export class ChartDrawAreaComponent implements OnInit, OnDestroy {
             };
 
             // (함수 생성) min, max 값 가져오기
-            chart.getMinMax = (): { min_X: number; max_X: number; min_Y: number; max_Y: number; } => {
+            chart.getMinMax = (): { min_X: number; max_X: number; min_Y: number; max_Y: number; min_Y2: number; max_Y2: number; } => {
                 return {
                     min_X: min_X,
                     max_X: max_X,
                     min_Y: min_Y,
-                    max_Y: max_Y
+                    max_Y: max_Y,
+                    min_Y2: min_Y2,
+                    max_Y2: max_Y2
                 };
             };
 
@@ -537,7 +565,7 @@ export class ChartDrawAreaComponent implements OnInit, OnDestroy {
     }
 
     //* jqplot 차트 시리즈 옵션 타입별 기본 값 가져오기
-    private chartTypeOpts( chartType: string, legendPosition: string, minX: number, maxX: number, minY: number, maxY: number ): any {
+    private chartTypeOpts( chartType: string, legendPosition: string, minX: number, maxX: number, minY: number, maxY: number, minY2: number, maxY2: number ): any {
         let rendererType: any = {};
 
         switch( chartType ){
@@ -840,8 +868,8 @@ export class ChartDrawAreaComponent implements OnInit, OnDestroy {
                         fontFamily: 'arial, sans-serif'
                     },
                     useSeriesColor: false,
-                    min: minY,
-                    max: maxY
+                    min: minY2,
+                    max: maxY2
                 }
             },
             noDataIndicator: {
@@ -857,6 +885,7 @@ export class ChartDrawAreaComponent implements OnInit, OnDestroy {
                 }
             },
             cursor: {
+                show: true,
                 zoom: true,
                 style: 'auto',
                 showTooltip: false,
@@ -865,10 +894,14 @@ export class ChartDrawAreaComponent implements OnInit, OnDestroy {
             },
             highlighter: {
                 // show: true,
+                // 툴팁 보일 위치
                 tooltipLocation: 'ne',
+                // 툴팁 페이드 효과
                 fadeTooltip: false,
+                // 툴팁 내용
                 tooltipContentEditor: (str: string, seriesIdx: number, pointIdx: number, jqplot: any, tooltipContent: Function ): void => {
 
+                    // candlestick 툴팁
                     if( chartType === 'candlestick'){
                         const tickData: { seriesName: string, x: (number|string), open: number, high: number, low: number, close: number} = jqplot.getTicksData_candleChart(seriesIdx, pointIdx);
                         const xData: string = (
@@ -886,7 +919,9 @@ export class ChartDrawAreaComponent implements OnInit, OnDestroy {
                                 `<dl><dt>Close</dt><dd>${tickData.close}</dd></dl>`+
                             `</div>`
                         );
-                    } else {
+                    }
+                    // 그 외 툴팁
+                    else {
                         const tickData: {x: (number|string), y: number} = jqplot.getTicksData(seriesIdx, pointIdx);
                         const xData: string = (
                             this.dataTypes.x === 'date'
@@ -896,6 +931,7 @@ export class ChartDrawAreaComponent implements OnInit, OnDestroy {
                         tooltipContent( `${xData}, ${tickData.y}` );
                     }
                 },
+                // 툴팁 보이기 여부
                 showTooltip: true,
                 sizeAdjust: 1,
                 size: 2,
@@ -903,6 +939,7 @@ export class ChartDrawAreaComponent implements OnInit, OnDestroy {
                 strokeStyle: '#cccccc',
                 clearTooltipOnClickOutside: false,
                 isMultiTooltop: false,
+
                 // 마우스 오버 효과
                 overTooltip: true,
                 overTooltipOptions: {
@@ -939,7 +976,7 @@ export class ChartDrawAreaComponent implements OnInit, OnDestroy {
         let rendererOpts: any;
         let chart: any;
         let yTicks: ChartDatas['yticks'];
-        let minMax: { min_X: number; max_X: number; min_Y: number; max_Y: number; };
+        let minMax: { min_X: number; max_X: number; min_Y: number; max_Y: number; min_Y2: number; max_Y2: number; };
 
         // 차트 총 개수
         const len: number = this.drawChartObj.length;
@@ -951,7 +988,12 @@ export class ChartDrawAreaComponent implements OnInit, OnDestroy {
             yTicks = JSON.parse(JSON.stringify(this.drawChartObj[i].yticks));
             minMax = chart.getMinMax();
 
-            rendererOpts = this.chartTypeOpts(chartType, legendPosition, minMax.min_X, minMax.max_X, minMax.min_Y, minMax.max_Y);
+            rendererOpts = this.chartTypeOpts(
+                chartType, legendPosition,
+                minMax.min_X, minMax.max_X,
+                minMax.min_Y, minMax.max_Y,
+                minMax.min_Y2, minMax.max_Y2
+            );
 
             // 캔들차트 일 경우 캔들용 차트 데이터 가져오기
             if( chartType === 'candlestick'){
