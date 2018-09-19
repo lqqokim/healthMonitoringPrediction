@@ -4,8 +4,8 @@
             <!-- <span class="title" style="border: 0px solid; border-radius: 5px;background-color: #25447D;width: 281px;color: white;">
                     Master Data</span> -->
             <label for="inputFab">Fab</label>
-            <select class="form-control" [(ngModel)]="selectedFab" (ngModelChange)="changeSelectedFab($event)" style="width:240px;margin-left:5px;display:inline-block;">
-                <option *ngFor="let plant of plants" [ngValue]="plant" [selected]="plant.fabId === selectedFab.fabId">
+            <select class="form-control" [(ngModel)]="selectedFabId" (ngModelChange)="changeSelectedFab($event)" style="width:240px;margin-left:5px;display:inline-block;">
+                <option *ngFor="let plant of plants" [ngValue]="plant" [selected]="plant.fabId === selectedFabId">
                     {{plant.fabName}}
                 </option>
             </select>

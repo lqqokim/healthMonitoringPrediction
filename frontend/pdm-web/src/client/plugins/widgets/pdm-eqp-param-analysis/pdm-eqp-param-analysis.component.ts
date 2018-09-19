@@ -216,7 +216,9 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
 
         if (type === A3_WIDGET.APPLY_CONFIG_REFRESH) {
             this._props = data;
+            this._plant = data[CD.PLANT];
             if (this._plantId !== data[CD.PLANT][CD.PLANT_ID]) {
+                // this._plantId = data[CD.PLANT][CD.PLANT_ID];
                 this._init(true);
             }
             this._setProperties(this._props);
@@ -2832,6 +2834,7 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
     private _init(isRefresh: boolean = false) {
         if (this._plant) {
             this._plantId = this._plant[CD.PLANT_ID];
+            console.log('_init plantId', this._plantId);
             this.chartInit();
             // this._service.getNodeTree(this._plantId).then(data => {
             //     const tempTree = JSON.parse(JSON.stringify(data));
