@@ -1152,7 +1152,7 @@
 
 
     <select id="selectAlarmHistoryByEqpId" resultType="com.bistel.a3.portal.domain.pdm.AlarmHistory">
-        select alarm.alarm_dtts,eqp.name as eqp_name,param.name as param_name,
+        select alarm.alarm_dtts,eqp.name as eqp_name,param.name as param_name,alarm.value as value,
         case ALARM_TYPE_CD when '256' then 'Alarm' when '128' then 'Warning' end as category,
         fault_class
         from alarm_trx_pdm alarm,eqp_mst_pdm eqp,param_mst_pdm param

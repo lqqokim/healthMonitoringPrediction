@@ -18,6 +18,7 @@ export interface IReqDataFormat {
     fault_class: string;
     condition: string;
     rule_name: string;
+    value: string;
 }
 
 // Rule에 대한 Condition
@@ -47,8 +48,9 @@ export class PdmAlarmHistoryComponent extends WidgetApi implements OnSetup, OnDe
         { title: 'Param', name: 'Param' },
         { title: 'Category', name: 'Category' },
         { title: 'Fault Class', name: 'FaultClass' },
+        { title: 'Value', name: 'value' },
         { title: 'Rule', name: 'Rule' },
-        { title: 'Condition', name: 'Condition' }
+        { title: 'Condition', name: 'Condition' }       
     ];
 
     // public data:Array<any> = [
@@ -176,7 +178,8 @@ export class PdmAlarmHistoryComponent extends WidgetApi implements OnSetup, OnDe
                     Category: row.category,
                     FaultClass: row.fault_class,
                     Rule: row.rule_name,
-                    Condition: this.convertCondition(row.condition)
+                    Condition: this.convertCondition(row.condition),
+                    value: row.value
                 };
             }
 
