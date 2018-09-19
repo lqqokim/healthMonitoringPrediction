@@ -701,7 +701,7 @@
 
     <select id="selectAlarmHistoryAll" resultType="com.bistel.a3.portal.domain.pdm.AlarmHistory" databaseId="oracle">
 		select areaeqp.areagroupname as area_name, areaeqp.area_id as area_id,  areaeqp.eqp_mst_rawid as eqp_id  ,areaeqp.eqp_name ,alarmhistory.alarm_dtts, alarmhistory.param_mst_rawid as param_id, alarmhistory.param_name, alarmhistory.category, alarmhistory.fault_class
-		,alarmhistory.condition, alarmhistory.rule_name
+		,alarmhistory.value, alarmhistory.condition, alarmhistory.rule_name
 		from
 		(
 			select areagroupname,area_id,eqp.name as eqp_name,eqp.rawid as eqp_mst_rawid
@@ -756,10 +756,10 @@
 
 
 		(
-		select alarm_dtts,eqp_mst_rawid, eqp_name, param_mst_rawid, param_name, DECODE(category,'256', 'Alarm','128','Warning') as category, fault_class, condition, rule_name
+		select alarm_dtts,eqp_mst_rawid, eqp_name, param_mst_rawid, param_name, DECODE(category,'256', 'Alarm','128','Warning') as category, fault_class, value, condition, rule_name
 		from
 		(
-			select emp.rawid as eqp_mst_rawid, emp.name as eqp_name, pmp.rawid as param_mst_rawid, pmp.name as param_name, atp.ALARM_TYPE_CD as category, atp.fault_class, atp.ALARM_DTTS as alarm_dtts, atp.condition, atp.rule_name
+			select emp.rawid as eqp_mst_rawid, emp.name as eqp_name, pmp.rawid as param_mst_rawid, pmp.name as param_name, atp.ALARM_TYPE_CD as category, atp.fault_class, atp.ALARM_DTTS as alarm_dtts, atp.value as value, atp.condition, atp.rule_name
 			from alarm_trx_pdm atp, eqp_mst_pdm emp, param_mst_pdm pmp
 			where 1=1
 			and atp.alarm_dtts <![CDATA[>=]]> #{fromdate}
@@ -911,11 +911,11 @@
 
 
     <select id="selectAlarmHistoryByAreaId" resultType="com.bistel.a3.portal.domain.pdm.AlarmHistory" databaseId="oracle">
-		select area_name, area_id, eqp_id, eqp_name, alarm_dtts, param_id, param_name, category, fault_class , condition, rule_name
+		select area_name, area_id, eqp_id, eqp_name, alarm_dtts, param_id, param_name, category, fault_class , value, condition, rule_name
 		from
 		(
 		select areaeqp.areagroupname as area_name, areaeqp.area_id as area_id,  areaeqp.eqp_mst_rawid as eqp_id  ,areaeqp.eqp_name ,alarmhistory.alarm_dtts, alarmhistory.param_mst_rawid as param_id, alarmhistory.param_name, alarmhistory.category, alarmhistory.fault_class
-		, alarmhistory.condition, alarmhistory.rule_name
+		, alarmhistory.value, alarmhistory.condition, alarmhistory.rule_name
 		from
 		(
 		select areagroupname,area_id,eqp.name as eqp_name,eqp.rawid as eqp_mst_rawid
@@ -982,10 +982,10 @@
 
 
 		(
-		select alarm_dtts,eqp_mst_rawid, eqp_name, param_mst_rawid, param_name, DECODE(category,'256', 'Alarm','128','Warning') as category, fault_class, condition, rule_name
+		select alarm_dtts,eqp_mst_rawid, eqp_name, param_mst_rawid, param_name, DECODE(category,'256', 'Alarm','128','Warning') as category, fault_class, value, condition, rule_name
 		from
 		(
-		select emp.rawid as eqp_mst_rawid, emp.name as eqp_name, pmp.rawid as param_mst_rawid, pmp.name as param_name, atp.ALARM_TYPE_CD as category, atp.fault_class, atp.ALARM_DTTS as alarm_dtts, atp.condition, atp.rule_name
+		select emp.rawid as eqp_mst_rawid, emp.name as eqp_name, pmp.rawid as param_mst_rawid, pmp.name as param_name, atp.ALARM_TYPE_CD as category, atp.fault_class, atp.ALARM_DTTS as alarm_dtts, atp.value as value, atp.condition, atp.rule_name
 		from alarm_trx_pdm atp, eqp_mst_pdm emp, param_mst_pdm pmp
 		where 1=1
 		and atp.alarm_dtts <![CDATA[>=]]> #{fromdate}

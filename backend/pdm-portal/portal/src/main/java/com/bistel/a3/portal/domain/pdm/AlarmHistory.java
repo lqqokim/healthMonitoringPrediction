@@ -13,6 +13,7 @@ public class AlarmHistory {
     private String param_name;
     private String category;
     private String fault_class;
+    private String value;
     private String condition;
     private String rule_name;
 
@@ -107,6 +108,13 @@ public class AlarmHistory {
         this.fault_class = fault_class;
     }
 
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
+    }
 
 
 
