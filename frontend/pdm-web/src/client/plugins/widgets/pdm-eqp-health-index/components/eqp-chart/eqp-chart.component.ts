@@ -67,6 +67,9 @@ export class EqpChartComponent {
                 // max: maxX
             },
             yaxis: {
+                label: 'Health Score',
+                labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
+
                 showMinorTicks: true,
                 drawMajorGridlines: false,
                 renderer: $.jqplot.LinearAxisRenderer,

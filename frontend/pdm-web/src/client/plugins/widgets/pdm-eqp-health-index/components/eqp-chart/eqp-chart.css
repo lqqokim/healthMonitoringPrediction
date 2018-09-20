@@ -20,3 +20,7 @@ eqp-chart .jqplot-highlighter-tooltip .eqpTooltip > dl > dd { padding:1px 4px; m
 
 eqp-chart .jqplot-highlighter-tooltip .eqpTooltip > dl:hover > dt { background:#333; color:#fff; }
 eqp-chart .jqplot-highlighter-tooltip .eqpTooltip > dl:hover > dd { background:#ccc; }
+
+/* 차트 왼쪽 y축 라벨 회전 */
+eqp-chart .jqplot-axis.jqplot-yaxis { width:52px !important; }
+eqp-chart .jqplot-axis.jqplot-yaxis > .jqplot-yaxis-label { transform:rotate(-90deg); left:-40px !important; width:100px !important; text-align:center; }
