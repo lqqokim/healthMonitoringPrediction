@@ -97,7 +97,7 @@ export class WidgetConfigHelper {
     setConfigInfo( type: string, syncData?: any ): void {
 
         // console.log( 'setConfigInfo', type, this.widget.getProp('cutoffType'), this.widget.getProp('dayPeriod'), syncData );
-
+        
         // 새로고침 (이전 컨피그 상태로 되돌림)
         if( type === A3_WIDGET.JUST_REFRESH ){
             this.fabId = this.prevData.fabId;
@@ -134,7 +134,7 @@ export class WidgetConfigHelper {
             if( type === 'init' ){
                 this.prevData = {
                     fabId: this.fabId,
-                    timePeriod: this.timePeriod,
+                    timePeriod: JSON.parse(JSON.stringify(this.timePeriod)),
                     targetName: this.targetName,
                     dayPeriod: dayPeriod,
                     cutoffType: cutoffType
