@@ -131,7 +131,7 @@ export class WidgetConfigHelper {
             }
 
             // 초기 설정 저장용
-            if( type === 'init' ){
+            // if( type === 'init' ){
                 this.prevData = {
                     fabId: this.fabId,
                     timePeriod: JSON.parse(JSON.stringify(this.timePeriod)),
@@ -139,7 +139,7 @@ export class WidgetConfigHelper {
                     dayPeriod: dayPeriod,
                     cutoffType: cutoffType
                 };
-            }
+            // }
         }
         // 다른 위젯 데이터 싱크
         else if( type === A3_WIDGET.SYNC_INCONDITION_REFRESH ){
