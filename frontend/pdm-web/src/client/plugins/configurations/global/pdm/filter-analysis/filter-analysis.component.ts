@@ -52,9 +52,8 @@ export class FilterAnalysisComponent implements OnInit {
     //* 설정 값
     private configData: Array<FilterAnalysisConfig> = [
         {dataType: 'select', name:'Chart Type', items: [
-            // 'Bar Chart',
+            'Bar Chart',
             'Line Chart',
-            // 'Pie Chart',
             'Point Chart',
             // 'Candlestick Chart'
         ], value: 'Line Chart'},
@@ -199,8 +198,8 @@ export class FilterAnalysisComponent implements OnInit {
         // this.timePeriod.from = 1536104540000;
         // this.timePeriod.to = 1536104840000;
 
-        console.log('this.timePeriod.from', moment(this.timePeriod.from).format('YYYY-MM-DD HH:mm:ss'));
-        console.log('this.timePeriod.to', moment(this.timePeriod.to).format('YYYY-MM-DD HH:mm:ss'));
+        // console.log('this.timePeriod.from', moment(this.timePeriod.from).format('YYYY-MM-DD HH:mm:ss'));
+        // console.log('this.timePeriod.to', moment(this.timePeriod.to).format('YYYY-MM-DD HH:mm:ss'));
         
         // 차트 관련 데이터 가져오기
         this._pdmModel
