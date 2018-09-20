@@ -160,20 +160,24 @@ export class StatusChangeComponent implements OnInit, OnDestroy {
         
         // status 시간 기준 그려질 폭 퍼센트(%) 계산
         len = this.statusData.length;
-        for( i=0; i<len; i++ ){
+        i = 0;
+        while( i < len ){
             this.drawData.data.push({
                 type: this.statusData[i].type,
                 min: (this.statusData[i].start - this.timePeriod.fromDate) / this.drawData.period.max,
                 max: (this.statusData[i].end - this.timePeriod.fromDate) / this.drawData.period.max
             });
+            i++;
         }
 
         // 그러질 타입의 색상 설정
         len = this.drawColors.length;
-        for( i=0; i<len; i++ ){
+        i = 0;
+        while( i < len ){
             this.drawData.colors[
                 this.drawColors[i].name
             ] = this.drawColors[i].color;
+            i++;
         }
     }
 
@@ -183,7 +187,8 @@ export class StatusChangeComponent implements OnInit, OnDestroy {
             i: number,
             max: number = customMakerCount,
             markerMargin: number = this.drawData.period.max / max,
-            margin: number = 0
+            margin: number = 0,
+            markerFormat: string
         ;
 
         // 마커 수가 변경되었으면 설정
@@ -197,7 +202,11 @@ export class StatusChangeComponent implements OnInit, OnDestroy {
             this.markerInfo.splice( 0, this.markerInfo.length );
         }
 
-        for( i=0; i<=max; i++ ){
+        // 마커 포맷 설정 (기간이 하루 이상일 경우 월-일 표기, 미만은 시:분 표기 )
+        markerFormat = ( this.drawData.period.max / 86400000 > 0 ) ? 'MM-DD' : 'HH:mm';        
+
+        i = 0;
+        while( i <= max ){
             margin = markerMargin*i;
 
             // 마커 위치 설정
@@ -205,8 +214,10 @@ export class StatusChangeComponent implements OnInit, OnDestroy {
 
             // 마커 위치 표기될 내용 설정
             this.markerInfo.push(
-                moment(this.timePeriod.fromDate + Math.round(margin)).format('HH:mm')
+                moment(this.timePeriod.fromDate + Math.round(margin)).format(markerFormat)
             );
+
+            i++;
         }
     }
 
