@@ -75,6 +75,9 @@ export class StatusChangeComponent implements OnInit, OnDestroy {
     private ctx: CanvasRenderingContext2D;
     private graphTop: number = 20;
 
+    // 새로 그릴 당시에 저장해 둘 임시 이미지 공간
+    private copyImg: ImageData = undefined;
+
     // 그려질 정보
     private drawData:DrawData = {
         period : undefined,
@@ -139,6 +142,8 @@ export class StatusChangeComponent implements OnInit, OnDestroy {
         this.canvasElem.nativeElement.removeEventListener('mouseout', this.m_outCallback);
         this.canvasElem.nativeElement.removeEventListener('mousedown', this.m_downCallback);
         this.canvasElem.nativeElement.removeEventListener('mouseup', this.m_upCallback);
+
+        delete this.copyImg;
     }
 
     //* 그려질 정보로 변환
@@ -221,18 +226,26 @@ export class StatusChangeComponent implements OnInit, OnDestroy {
             (markerCount < 1 ? 1 : markerCount)
         );
 
-        this.onDraw();
+        // 리사이징 된 크기만큼 다시 그리기
+        this.onDraw( true );
     }
 
     //* 그리기
-    onDraw(): void {
+    onDraw( newDraw: boolean = false ): void {
         let x, y, w, h, i, len;
 
         this.ctx.clearRect(0, 0, this.cSize.w, this.cSize.h);
 
+        // 새로 다시 그리는게 아니라면 이미 그렸던 이미지로 대체
+        if( !newDraw ){
+            this.ctx.putImageData( this.copyImg, 0, 0);
+            return;
+        }
+
         // status 그리기
         len = this.drawData.data.length;
-        for( i=0; i<len; i++){
+        i = 0;
+        while( i < len ){
             x = this.cSize.w * this.drawData.data[i].min;
             w = (this.cSize.w * this.drawData.data[i].max) - x;
             y = this.graphTop;
@@ -242,11 +255,13 @@ export class StatusChangeComponent implements OnInit, OnDestroy {
                 this.drawData.colors[this.drawData.data[i].type] : '#ffffff'
             ;
             this.ctx.fillRect(x, y, w, h);
+            i++;
         }
 
         // marker 그리기
         len = this.markerCount;
-        for( i=0; i<=len; i++ ){
+        i = 0;
+        while( i <= len ){
             x = (this.cSize.w * this.markerPosition[i]) - (i==len ? this.markerSize.w : 0);
             y = this.markerTopPosition;
             w = this.markerSize.w;
@@ -259,15 +274,23 @@ export class StatusChangeComponent implements OnInit, OnDestroy {
             this.ctx.fillStyle = "#333333";
             this.ctx.textAlign = (i == 0) ? 'left' : (i == len) ? 'right' : 'center';
             this.ctx.fillText(this.markerInfo[i], x, 12);
+            i++;
         }
+
+        // 캔버스 이미지 임시 저장
+        this.copyImg = this.ctx.getImageData(0, 0, this.cSize.w, this.cSize.h);
     }
 
-    //* status 해당영역(x축:%) index 알아오기 
+    //* status 해당영역(x축:%) index 알아오기 - (이진탐색)
     getCurrentIdx(percentX:number): number {
         let
-            i: number,
+            // i: number,
             len: number = this.statusData.length,
-            data = this.drawData.data
+            data = this.drawData.data,
+
+            start: number,
+            end: number,
+            mid: number
         ;
 
         // 퍼센트값이 마이너스 라면 0 전달
@@ -280,10 +303,34 @@ export class StatusChangeComponent implements OnInit, OnDestroy {
             return 1;
         }
 
-        for( i=0; i<len; i++ ){
-            if( data[i].min <= percentX && data[i].max >= percentX ){
-                return i;
+        // console.time("loop");
+        // for( i=0; i<len; i++ ){
+        //     if( data[i].min <= percentX && data[i].max >= percentX ){
+        //         console.log( 'count', i );
+        //         console.timeEnd("loop");
+        //         return i;
+        //     }
+        // }
+        // console.log( data );
+        // console.log( len, percentX );
+
+        start = 0;
+        end = len - 1;
+        // i = 0;
+
+        while( start <= end ){
+            mid = Math.floor((start + end) * 0.5);
+
+            if( data[mid].min <= percentX && data[mid].max >= percentX ){
+                return mid;
+            } else {
+                if( data[mid].min > percentX ){
+                    end = mid - 1;
+                } else {
+                    start = mid + 1;
+                }
             }
+            // i++;
         }
 
         return undefined;
