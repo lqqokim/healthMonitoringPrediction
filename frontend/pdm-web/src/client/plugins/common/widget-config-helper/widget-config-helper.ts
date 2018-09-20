@@ -101,7 +101,7 @@ export class WidgetConfigHelper {
         // 새로고침 (이전 컨피그 상태로 되돌림)
         if( type === A3_WIDGET.JUST_REFRESH ){
             this.fabId = this.prevData.fabId;
-            this.timePeriod = this.prevData.timePeriod;
+            this.timePeriod = JSON.parse(JSON.stringify(this.prevData.timePeriod));
             this.targetName = this.prevData.targetName;
             this.areaId = undefined;
 
