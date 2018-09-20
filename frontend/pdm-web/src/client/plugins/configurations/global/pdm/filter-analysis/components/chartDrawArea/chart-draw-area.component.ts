@@ -27,6 +27,13 @@ interface ChartDatas {
     yticks: Array<Array< Array<string|number> >>;
 };
 
+//* 차트 시리즈 저장용
+interface ChartSeriesOpts {
+    show: boolean;
+    label: string;
+    yaxis: string;
+};
+
 //* 실제 그려질 테이블 정보
 export interface TableDrawDataInfo {
     name: string;
@@ -110,7 +117,7 @@ export class ChartDrawAreaComponent implements OnInit, OnDestroy {
     private spaceMargin: number = 0.05;   // 간격 여백 5%
 
     // 차트 시리즈 옵션 설정 용
-    private chartSeriesOpts: Array<any> = [];
+    private chartSeriesOpts: Array<ChartSeriesOpts> = [];
     
     constructor(
         private currentElem: ElementRef,
@@ -480,11 +487,14 @@ export class ChartDrawAreaComponent implements OnInit, OnDestroy {
             const chartData: any = (
                 chartType === 'candlestick'
                     ? this.candlestick_chartData(this.dataTypes.x, JSON.parse(JSON.stringify(datas.y)) )
-                    :JSON.parse(JSON.stringify(datas.y))
+                    : JSON.parse(JSON.stringify(datas.y))
             );
 
             // 차트 그리기
             const chart:any = $.jqplot( currId, chartData, rendererOpts );
+
+            // 차트 시리즈 옵션 값 저장
+            chart.seriesOpts = JSON.parse(JSON.stringify(this.chartSeriesOpts));
 
             // (함수 생성) y축 Tick 데이터 가져오기
             chart.getTicksData = (seriesIdx: number, pointIdx: number): {x: (number|string), y: number} =>{
@@ -509,7 +519,7 @@ export class ChartDrawAreaComponent implements OnInit, OnDestroy {
                 }
 
                 const data: Array<number|string> = chart.candlestickData[seriesIdx][pointIdx];
-                const seriesName: string = this.chartSeriesOpts[seriesIdx]['label'];
+                const seriesName: string = chart.seriesOpts[seriesIdx]['label'];
                 return {
                     seriesName: seriesName,
                     x: data[0],
@@ -540,6 +550,7 @@ export class ChartDrawAreaComponent implements OnInit, OnDestroy {
                 }
                 return chart.candlestickData;
             };
+
 
             // (함수 생성) 차트 자기 자신 제거
             chart.rm = (): void => {
@@ -626,45 +637,6 @@ export class ChartDrawAreaComponent implements OnInit, OnDestroy {
                 strokeStyle: 'rgba(100,100,100,1)',
                 breakOnNull: true,
                 highlightMouseOver: true,
-                markerOptions: {
-                    shadow: false,
-                    style: 'filledCircle',
-                    fillRect: false,
-                    strokeRect: false,
-                    lineWidth: 1,
-                    stroke: true,
-                    size: 7,
-                    allowZero: true,
-                    printSize: false
-                },
-                dragable: {
-                    constrainTo: 'x'
-                },
-                trendline: {
-                    show: false
-                },
-                pointLabels: {
-                    show: false
-                }
-            }; break;
-            case 'pie': rendererType = {
-                renderer: $.jqplot.PieRenderer,
-                rendererOptions: {
-                    highlightMouseOver: false,
-                    highlightMouseDown: false
-                },
-                shadow: false,
-                showLine: true,
-                showMarker: true,
-                lineWidth: 1,
-                isDragable: false,
-                stackSeries: false,
-                showHighlight: true,
-                xaxis: 'xaxis',
-                yaxis: 'yaxis',
-                strokeStyle: 'rgba(100,100,100,1)',
-                breakOnNull: true,
-                highlightMouseOver: false,
                 markerOptions: {
                     shadow: false,
                     style: 'filledCircle',
@@ -963,7 +935,7 @@ export class ChartDrawAreaComponent implements OnInit, OnDestroy {
             multiSelect: {
                 show: true
             }
-        }
+        };
     }
 
     //* jqplot으로 그려진 타입 변경
@@ -996,7 +968,7 @@ export class ChartDrawAreaComponent implements OnInit, OnDestroy {
             );
 
             // 캔들차트 일 경우 캔들용 차트 데이터 가져오기
-            if( chartType === 'candlestick'){
+            if( chartType === 'candlestick' ){
                 yTicks = chart.getCandlestickData();
             }
 
