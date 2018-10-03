@@ -25,12 +25,12 @@
                         </option>
                     </select>
                     <input type="number" class="conditionValue" style="margin-left: 49px; display:block;" [(ngModel)]="conditionValue" (input)="onChange($event,param)"/>
-                    <span>End</span>
+                    <!-- <span>End</span>
                     <select class="form-control conditionOperator" [(ngModel)]="conditionEndOperator" name="conditionEndOperator">
                         <option *ngFor="let item of endOperators" [ngValue]="item.value">
                             {{item.name}}
                         </option>
-                    </select>
+                    </select> -->
 
 
                     <span>Timeout</span>

@@ -239,8 +239,21 @@ export class ModelSimulatorComponent implements OnInit {
     getStartCondition() {
         return "value" + this.modelChart.getConditionStartOperator() + this.modelChart.getConditionValue();
     }
-    getEndCondition() {
-        return "value" + this.modelChart.getConditionEndOperator() + this.modelChart.getConditionValue();
+    getEndCondition(): string {
+        const startCondition: string = this.modelChart.getConditionStartOperator();
+        let endCondition: string = '';
+
+        if (startCondition === '>') {
+            endCondition = '<=';
+        } else if (startCondition === '<') {
+            endCondition = '>=';
+        } else if (startCondition === '>=') {
+            endCondition = '<';
+        } else if (startCondition === '<=') {
+            endCondition = '>';
+        }
+
+        return "value" + endCondition + this.modelChart.getConditionValue();
     }
     getTimeout() {
         return this.modelChart.getTimeoutValue();
