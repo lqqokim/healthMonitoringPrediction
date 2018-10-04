@@ -553,17 +553,17 @@
        
 
             <if test="aggregationData.groupUnit=='seconds'" >
-                    to_char(event_dtts,'yyyy-MM-dd HH24:mi:') || trim(to_char(round(to_number( to_char(event_dtts,'ss'))/${aggregationData.groupValue}-0.4),'00')) as event_dtts
+                    to_char(event_dtts,'yyyy-MM-dd HH24:mi:') || trim(to_char(round(to_number( to_char(event_dtts,'ss'))/${aggregationData.groupValue}-0.4),'00.000')) as event_dtts
             </if>
             <if test="aggregationData.groupUnit=='minutes'" >
                 
-                    to_char(event_dtts,'yyyy-MM-dd HH24:') || trim(to_char(round(to_number( to_char(event_dtts,'mi'))/${aggregationData.groupValue}-0.4),'00'))||':00' as event_dtts
+                    to_char(event_dtts,'yyyy-MM-dd HH24:') || trim(to_char(round(to_number( to_char(event_dtts,'mi'))/${aggregationData.groupValue}-0.4),'00'))||':00.000' as event_dtts
             </if>
             <if test="aggregationData.groupUnit=='hours'" >
-                to_char(event_dtts,'yyyy-MM-dd ') || trim(to_char(round(to_number( to_char(event_dtts,'HH24'))/${aggregationData.groupValue}-0.4),'00'))||':00:00' as event_dtts
+                to_char(event_dtts,'yyyy-MM-dd ') || trim(to_char(round(to_number( to_char(event_dtts,'HH24'))/${aggregationData.groupValue}-0.4),'00'))||':00:00.000' as event_dtts
             </if>
             <if test="aggregationData.groupUnit=='days'" >
-                to_char(event_dtts,'yyyy-MM-') || trim(to_char(round(to_number( to_char(event_dtts,'dd'))/${aggregationData.groupValue}-0.4+1),'00'))||' 00:00:00'  as event_dtts
+                to_char(event_dtts,'yyyy-MM-') || trim(to_char(round(to_number( to_char(event_dtts,'dd'))/${aggregationData.groupValue}-0.4+1),'00'))||' 00:00:00.000'  as event_dtts
             </if>
 
       </if>
@@ -721,17 +721,17 @@
             group by   eqp.name,
             param.name,
             <if test="aggregationData.groupUnit=='seconds'" >
-                    to_char(event_dtts,'yyyy-MM-dd HH24:mi:') || trim(to_char(round(to_number( to_char(event_dtts,'ss'))/${aggregationData.groupValue}-0.4),'00'))
+                    to_char(event_dtts,'yyyy-MM-dd HH24:mi:') || trim(to_char(round(to_number( to_char(event_dtts,'ss'))/${aggregationData.groupValue}-0.4),'00.000'))
             </if>
         
             <if test="aggregationData.groupUnit=='minutes'" >
-                to_char(event_dtts,'yyyy-MM-dd HH24:') || trim(to_char(round(to_number( to_char(event_dtts,'mi'))/${aggregationData.groupValue}-0.4),'00'))||':00'
+                to_char(event_dtts,'yyyy-MM-dd HH24:') || trim(to_char(round(to_number( to_char(event_dtts,'mi'))/${aggregationData.groupValue}-0.4),'00'))||':00.000'
             </if>
             <if test="aggregationData.groupUnit=='hours'" >
-                to_char(event_dtts,'yyyy-MM-dd ') || trim(to_char(round(to_number( to_char(event_dtts,'HH24'))/${aggregationData.groupValue}-0.4),'00'))||':00:00'
+                to_char(event_dtts,'yyyy-MM-dd ') || trim(to_char(round(to_number( to_char(event_dtts,'HH24'))/${aggregationData.groupValue}-0.4),'00'))||':00:00.000'
             </if>
             <if test="aggregationData.groupUnit=='days'" >
-                to_char(event_dtts,'yyyy-MM-') || trim(to_char(round(to_number( to_char(event_dtts,'dd'))/${aggregationData.groupValue}-0.4+1),'00'))||' 00:00:00'
+                to_char(event_dtts,'yyyy-MM-') || trim(to_char(round(to_number( to_char(event_dtts,'dd'))/${aggregationData.groupValue}-0.4+1),'00'))||' 00:00:00.000'
             </if>
         
    </if>

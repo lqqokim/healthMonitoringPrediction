@@ -34,10 +34,9 @@ public class Pivot {
         	try {
 				String keyData = data.get(timeColumn).toString();
 
-				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 				Date date = sdf.parse(keyData);
 				long millisecond = date.getTime();
-
 
 				String preFix = data.get(headPreFixColumn).toString();
 				if (pivotDatas.containsKey(keyData)) { //Pivot에 TimeData가 있으면
