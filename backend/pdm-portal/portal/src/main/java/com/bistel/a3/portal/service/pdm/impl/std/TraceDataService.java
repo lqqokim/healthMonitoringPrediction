@@ -1328,10 +1328,13 @@ public class TraceDataService implements ITraceDataService {
                 }
 
             }else{
-                key = getGroupByData(analysisCondition, columnIndex, rowData, key,keyDelimeter);
+                key = getGroupByData(analysisCondition, columnIndex, rowData, key, keyDelimeter);
             }
 
-            if (key != "") {
+            String keyName = key.substring(keyDelimeter.length());
+            String keyValue = keyName.split("=")[1];
+
+            if (!keyValue.equals("null")) {
                 key = key.substring(keyDelimeter.length());
 
                 if (groupDatas.containsKey(key)) {
