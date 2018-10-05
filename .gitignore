@@ -89,3 +89,5 @@ oauth/src/test/
 .settings
 .classpath
 target/
+
+backend/pdm-portal/portal/src/main/webapp/resources/
