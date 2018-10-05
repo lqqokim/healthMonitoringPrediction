@@ -68,7 +68,7 @@ export class AnalysisToolComponent implements OnInit {
         { operator: 'AND', fieldName: '-none-', functionName: 'count', condition: 'equal', value: '' },
     ]
 
-    aggregationDatas = { functions: ['count'], groupValue: '1', groupUnit: 'minutes', use: true };
+    aggregationDatas = { functions: ['count'], groupValue: 1, groupUnit: 'minutes', use: true };
     useAggregation = true;
 
     searchTimePeriod = {
@@ -198,7 +198,9 @@ export class AnalysisToolComponent implements OnInit {
         // 초기값이 없을 경우 Aggregation 시간 부분
         if( this.aggregationDatas.groupUnit === null ){
             this.aggregationDatas.groupUnit = 'seconds';
-            this.aggregationDatas.groupValue = '1';
+        }
+        if( this.aggregationDatas.groupValue === null ){
+            this.aggregationDatas.groupValue = 1;
         }
     }
 
