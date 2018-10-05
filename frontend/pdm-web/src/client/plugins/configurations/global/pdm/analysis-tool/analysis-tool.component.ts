@@ -159,7 +159,10 @@ export class AnalysisToolComponent implements OnInit {
             strokeStyle: '#acafaa',
             // tslint:disable-next-line:max-line-length
             tooltipContentEditor: (str: string, seriesIndex: number, pointIndex: number, plot: any, tooltipContentProc: any, ev: Event) => {
-                tooltipContentProc(this.trendConfig['series'][seriesIndex].label + ': ' + moment(parseInt(str.split(',')[0])).format('YYYY/MM/DD HH:mm:ss') + ' [' + (+str.split(',')[1]).toFixed(2) + ']');
+                tooltipContentProc(
+                    this.trendConfig['series'][seriesIndex].label + ': ' +
+                    moment(parseInt(str.split(',')[0])).format('YYYY/MM/DD HH:mm:ss.SSS') + ' [' + (+str.split(',')[1]).toFixed(2) + ']'
+                );
             },
         }
     };
@@ -192,7 +195,11 @@ export class AnalysisToolComponent implements OnInit {
         let groupValue = localStorage.getItem("filter-analysis-aggregation-groupValue");
         this.aggregationDatas.groupValue = JSON.parse(groupValue);
 
-
+        // 초기값이 없을 경우 Aggregation 시간 부분
+        if( this.aggregationDatas.groupUnit === null ){
+            this.aggregationDatas.groupUnit = 'seconds';
+            this.aggregationDatas.groupValue = 'seconds';
+        }
     }
 
     ngOnInit() {

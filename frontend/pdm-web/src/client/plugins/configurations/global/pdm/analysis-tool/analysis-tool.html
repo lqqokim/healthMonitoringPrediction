@@ -72,7 +72,7 @@
                                         </td>
                                         <td class="aggregation_groupUnit">
                                             <select class="form-control" [(ngModel)]="aggregationDatas.groupUnit" name="group">
-                                                <option *ngFor="let item of groups" [ngValue]="item.value">
+                                                <option *ngFor="let item of groups" [ngValue]="item.value" [selected]="item.display === aggregationDatas.groupUnit">
                                                     {{item.display}}
                                                 </option>
                                             </select>
@@ -169,8 +169,7 @@
         <div class="panel-body" id="chart">
             <div>
                 <div class="chart">
-                    <a3c-bistel-chart [data]="trendData" [config]="trendConfig">
-                    </a3c-bistel-chart>
+                    <a3c-bistel-chart [data]="trendData" [config]="trendConfig"></a3c-bistel-chart>
                 </div>
             </div>
         </div>
