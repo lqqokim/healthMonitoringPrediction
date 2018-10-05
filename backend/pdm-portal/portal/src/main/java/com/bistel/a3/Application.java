@@ -89,8 +89,7 @@ public class Application extends SpringBootServletInitializer {
             clients.inMemory().
                     withClient("acubed-trusted-frontend").authorizedGrantTypes("password").
                     scopes("read", "write").resourceIds(RESOURCE_ID).
-                    accessTokenValiditySeconds(3600 * 24).secret("bistel01")
-            ;
+                    accessTokenValiditySeconds(3600 * 24).secret("bistel01");
         }
     }
 

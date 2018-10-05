@@ -66,7 +66,11 @@ public class SummaryDataService implements ISummaryDataService {
     @Autowired
     private MasterService codeService;
 
+    @Value("${GlobalAWSpec.upperWarningSpec}")
+    private Double upperWarningSpec;
 
+    @Value("${GlobalAWSpec.upperAlarmSpec}")
+    private Double upperAlarmSpec;
 
 
     @Override
@@ -816,7 +820,7 @@ public class SummaryDataService implements ISummaryDataService {
     @Override
     public List<EqpHealthIndexTrend> getEqpHealthIndexTrend(String fabId, Long area_id, Long eqp_id, Date fromdate, Date todate) {
         STDSummaryMapper stdSummaryMapper= SqlSessionUtil.getMapper(sessions, fabId, STDSummaryMapper.class);
-        List<EqpHealthIndexTrend> eqpHealthIndexTrendInfo = stdSummaryMapper.selectEqpHealthIndexTrend(fromdate, todate, area_id, eqp_id);
+        List<EqpHealthIndexTrend> eqpHealthIndexTrendInfo = stdSummaryMapper.selectEqpHealthIndexTrend(fromdate, todate, area_id, eqp_id, upperWarningSpec, upperAlarmSpec);
 
         return eqpHealthIndexTrendInfo;
     }

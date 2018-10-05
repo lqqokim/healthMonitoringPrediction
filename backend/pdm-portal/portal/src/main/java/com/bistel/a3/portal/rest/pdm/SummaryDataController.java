@@ -7,6 +7,7 @@ import com.bistel.a3.portal.service.pdm.ISummaryDataService;
 import com.bistel.a3.portal.service.pdm.ITraceDataService;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
@@ -24,7 +25,8 @@ public class SummaryDataController {
     @Autowired
     private ITraceDataService traceDataService;
 
-
+    @Value("${GlobalVariationPrevious}")
+    private int globalVariationPrevious;
 
     //Done
     @RequestMapping("alarmCountSummary")
@@ -348,7 +350,7 @@ public class SummaryDataController {
 
         Date to = new Date(todate);
 
-        Date previous=DateUtils.addDays(from, -90);
+        Date previous=DateUtils.addDays(from, -globalVariationPrevious);
         Date lPrevious_date=new Date(previous.getTime());
 
 

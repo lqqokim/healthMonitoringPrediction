@@ -276,7 +276,7 @@ public class ImageChart {
 		colors.add("#808080");                 //Gray
 		colors.add("#800000");                 //Maroon
 		colors.add("#808000");                 //Olive
-		colors.add("#008000");                 //Green
+		colors.add("#008000");                 // Green
 		colors.add("#800080");                 //Purple
 		colors.add("#008080");                 //Teal
 		colors.add("#000080");                 //Navy

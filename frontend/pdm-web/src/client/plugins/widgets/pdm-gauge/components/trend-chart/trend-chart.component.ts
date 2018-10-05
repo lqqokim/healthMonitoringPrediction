@@ -135,7 +135,7 @@ export class TrendChartComponent implements OnInit, OnChanges,AfterViewInit {
                                 top: 0,
                                 left: 0
                             }
-                        }
+                        }               
                     }
                 });
             }
@@ -346,7 +346,26 @@ export class TrendChartComponent implements OnInit, OnChanges,AfterViewInit {
                     label: 'RUL3'
                 }
             ],
+            // highlighter: {
+            //     isMultiTooltip: false,
+            //     clearTooltipOnClickOutside: false,
+            //     overTooltip: true,
+            //     overTooltipOptions: {
+            //         showMarker: true,
+            //         showTooltip: true,
+            //         lineOver: false
+            //     },
+            //     size: 2,
+            //     sizeAdjust: 1,
+            //     stroke: true,
+            //     strokeStyle: '#acafaa',
+            //     // tslint:disable-next-line:max-line-length
+            //     tooltipContentEditor: (str: string, seriesIndex: number, pointIndex: number, plot: any, tooltipContentProc: any, ev: Event) => {
+            //         tooltipContentProc(moment(parseInt(str.split(',')[0])).format('YYYY/MM/DD HH:mm:ss') + ' [' + (+str.split(',')[1]).toFixed(2) + ']');
+            //     },
+            // }
             highlighter: {
+                show: true,
                 isMultiTooltip: false,
                 clearTooltipOnClickOutside: false,
                 overTooltip: true,
@@ -354,15 +373,25 @@ export class TrendChartComponent implements OnInit, OnChanges,AfterViewInit {
                     showMarker: true,
                     showTooltip: true,
                     lineOver: false
-                },
-                size: 2,
-                sizeAdjust: 1,
-                stroke: true,
-                strokeStyle: '#acafaa',
-                // tslint:disable-next-line:max-line-length
-                tooltipContentEditor: (str: string, seriesIndex: number, pointIndex: number, plot: any, tooltipContentProc: any, ev: Event) => {
-                    tooltipContentProc(moment(parseInt(str.split(',')[0])).format('YYYY/MM/DD HH:mm:ss') + ' [' + (+str.split(',')[1]).toFixed(2) + ']');
-                },
+                },               
+                tooltipContentEditor: function (str: string, seriesIndex: number, pointIndex: number, plot: any, tooltipContentProc: any) {  
+                    let date: string = plot.data[seriesIndex][pointIndex][0]; 
+                    let score: any = plot.data[seriesIndex][pointIndex][1]; 
+                    date = moment(date).format('YYYY/MM/DD HH:mm:ss')
+                    score = score.toFixed(2)   
+                    tooltipContentProc(
+                    `<div class='bisTooltip'>`+               
+                        `<dl>`+
+                            `<dt>date</dt>`+
+                            `<dd>${date}</dd>`+
+                        `</dl>`+
+                        `<dl>`+
+                            `<dt>score</dt>`+
+                            `<dd>${score}</dd>`+
+                        `</dl>`+
+                    `</div>`
+                    )
+                },       
             }
         };
         return Object.assign(curConfig, config);

@@ -89,6 +89,7 @@ export class SpecRuleComponent implements OnInit, OnDestroy {
 
     //선택된 Fab에 대한 Models 정보를 가져온다.
     getModels(): void {
+        this.selectedPlant.fabId =  (this.selectedPlant.fabId);
         this._pdmConfigService.getModels(this.selectedPlant.fabId)
             .then((models: IRule.Model[]) => {
                 console.log('getModels', models);

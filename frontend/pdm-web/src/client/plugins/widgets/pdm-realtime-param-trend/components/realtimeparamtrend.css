@@ -47,4 +47,15 @@
     text-align: center;
     height: 30px;
 }
+/* 차트 툴팁 */
+.jqplot-highlighter-tooltip-wrapper { margin:-5px 0 0 -5px; }
+.jqplot-highlighter-tooltip { margin: 0 !important; }
+.jqplot-highlighter-tooltip .bisTooltip { padding:5px; }
+.jqplot-highlighter-tooltip .bisTooltip > strong { display:-webkit-flex; display:-ms-flexbox; display:flex; -webkit-justify-content:flex-start; -ms-flex-pack:start; justify-content:flex-start; -webkit-align-items:center; -ms-flex-align:center; align-items:center; line-height:1; margin-bottom:6px; font-size:12px; }
+.jqplot-highlighter-tooltip .bisTooltip > strong > i { width:8px; height:8px; display:block; margin-right:5px; }
+.jqplot-highlighter-tooltip .bisTooltip > dl { margin:0; }
+.jqplot-highlighter-tooltip .bisTooltip > dl > dt { background:#f3f3f3; color:#333; padding:1px 4px; }
+.jqplot-highlighter-tooltip .bisTooltip > dl > dd { padding:1px 4px; margin-bottom:1px; }
+.jqplot-highlighter-tooltip .bisTooltip > dl:hover > dt { background:#333; color:#fff; }
+.jqplot-highlighter-tooltip .bisTooltip > dl:hover > dd { background:#ccc; }
 
