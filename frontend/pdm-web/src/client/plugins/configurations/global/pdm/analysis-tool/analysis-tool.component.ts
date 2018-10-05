@@ -198,7 +198,7 @@ export class AnalysisToolComponent implements OnInit {
         // 초기값이 없을 경우 Aggregation 시간 부분
         if( this.aggregationDatas.groupUnit === null ){
             this.aggregationDatas.groupUnit = 'seconds';
-            this.aggregationDatas.groupValue = 'seconds';
+            this.aggregationDatas.groupValue = '1';
         }
     }
 
