@@ -542,7 +542,7 @@
             param.name as paramName,
         <if test="aggregationData.use==false" >
             value,
-            event_dtts
+            to_char(event_dtts,'yyyy-MM-dd HH24:mi:ss.ff3') as event_dtts
         </if>
          <if test="aggregationData.use==true" >
             sum(value) as sum,
