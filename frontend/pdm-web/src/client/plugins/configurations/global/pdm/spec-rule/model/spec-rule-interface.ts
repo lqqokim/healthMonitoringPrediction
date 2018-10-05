@@ -1,5 +1,5 @@
 export interface Plant {
-    fabId: number;
+    fabId: any;
     fabName: string;
 }
 

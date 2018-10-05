@@ -723,6 +723,11 @@ export class SeedConfig {
                     [`${this.APP_BASE.replace(/\/$/, '')}/node_modules`]: 'node_modules',
                     [`${this.APP_BASE.replace(/\/$/, '')}`]: this.APP_DEST
                 }
+            },
+            socket: {
+                clients:{
+                    heartbeatTimeot: 86400000 //1000*60*60*24
+                }
             }
         },
 

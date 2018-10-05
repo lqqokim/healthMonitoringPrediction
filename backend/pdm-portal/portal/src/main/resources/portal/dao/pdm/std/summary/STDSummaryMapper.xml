@@ -2475,8 +2475,8 @@
 		TO_CHAR(ehdsp.sum_dtts, 'yyyy-MM-dd') as sum_dtts,
 		hlmsp.code,
 		max(ROUND (ehdsp.score, 2)) AS score,
-		1 AS upperAlarmSpec,
-		0.8 AS upperWarningSpec,
+		${upperAlarmSpec} AS upperAlarmSpec,
+		${upperWarningSpec} AS upperWarningSpec,
 		RANK() OVER (PARTITION BY TO_CHAR (ehdsp.sum_dtts, 'yyyy-MM-dd'), hlmsp.rawid ORDER BY SCORE DESC ) as SCORE_RK
 		FROM EQP_HEALTH_DAILY_SUM_PDM ehdsp,
 		param_health_mst_pdm phmp,
@@ -2565,6 +2565,7 @@
 		) q
 		where o.dimension=q.dimension(+) and o.eqp_mst_rawid=q.eqp_mst_rawid(+) and o.name=q.name(+)
 	</select>
+
 
 
     <select id="selectEqpHealthIndexByAreaId" resultType="com.bistel.a3.portal.domain.pdm.EqpHealthIndex">

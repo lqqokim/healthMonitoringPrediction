@@ -243,8 +243,26 @@ export class LogicChartComponent {
             stroke: true,
             strokeStyle: '#acafaa',
             // tslint:disable-next-line:max-line-length
-            tooltipContentEditor: (str: string, seriesIndex: number, pointIndex: number, plot: any, tooltipContentProc: any, ev: Event) => {
-                tooltipContentProc( moment(parseInt(str.split(',')[0])).format('MM/DD HH:mm:ss') + ' [' + (+str.split(',')[1]).toFixed(2) + ']');
+            // tooltipContentEditor: (str: string, seriesIndex: number, pointIndex: number, plot: any, tooltipContentProc: any, ev: Event) => {
+            //     tooltipContentProc( moment(parseInt(str.split(',')[0])).format('MM/DD HH:mm:ss') + ' [' + (+str.split(',')[1]).toFixed(2) + ']');
+            // },
+            tooltipContentEditor: function (str: string, seriesIndex: number, pointIndex: number, plot: any, tooltipContentProc: any) {  
+                let date: string = plot.data[seriesIndex][pointIndex][0]; 
+                let score: any = plot.data[seriesIndex][pointIndex][1]; 
+                date = moment(date).format('YYYY/MM/DD HH:mm:ss')
+                score = score.toFixed(2)   
+                tooltipContentProc(
+                `<div class='bisTooltip'>`+               
+                    `<dl>`+
+                        `<dt>date</dt>`+
+                        `<dd>${date}</dd>`+
+                    `</dl>`+
+                    `<dl>`+
+                        `<dt>score</dt>`+
+                        `<dd>${score}</dd>`+
+                    `</dl>`+
+                `</div>`
+                )
             },
         }
     };
@@ -310,7 +328,23 @@ export class LogicChartComponent {
         let chartConfig: any = JSON.parse(JSON.stringify(this.defaultChartConfig));
 
         chartConfig.highlighter.tooltipContentEditor = (str: string, seriesIndex: number, pointIndex: number, plot: any, tooltipContentProc: any, ev: Event) => {
-            tooltipContentProc( moment(parseInt(str.split(',')[0])).format('YY-MM-DD HH:mm:ss') + ' [' + (+str.split(',')[1]).toFixed(2) + ']');
+            // tooltipContentProc( moment(parseInt(str.split(',')[0])).format('YY-MM-DD HH:mm:ss') + ' [' + (+str.split(',')[1]).toFixed(2) + ']');
+            let date: string = plot.data[seriesIndex][pointIndex][0]; 
+            let score: any = plot.data[seriesIndex][pointIndex][1]; 
+            date = moment(date).format('YYYY/MM/DD HH:mm:ss')
+            score = score.toFixed(2)   
+            tooltipContentProc(
+            `<div class='bisTooltip'>`+               
+                `<dl>`+
+                    `<dt>date</dt>`+
+                    `<dd>${date}</dd>`+
+                `</dl>`+
+                `<dl>`+
+                    `<dt>score</dt>`+
+                    `<dd>${score}</dd>`+
+                `</dl>`+
+            `</div>`
+            )
         }
 
         // 날짜출력 포맷 설정

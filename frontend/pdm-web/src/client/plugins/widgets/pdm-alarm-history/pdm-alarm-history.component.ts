@@ -50,7 +50,7 @@ export class PdmAlarmHistoryComponent extends WidgetApi implements OnSetup, OnDe
         { title: 'Fault Class', name: 'FaultClass' },
         { title: 'Value', name: 'value' },
         { title: 'Rule', name: 'Rule' },
-        { title: 'Condition', name: 'Condition' }       
+        { title: 'Condition', name: 'Condition' }        
     ];
 
     // public data:Array<any> = [

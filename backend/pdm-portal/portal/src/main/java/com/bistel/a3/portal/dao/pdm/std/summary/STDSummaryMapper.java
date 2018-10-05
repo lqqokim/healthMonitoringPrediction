@@ -40,7 +40,7 @@ public interface STDSummaryMapper {
 
     List<EqpHealthIndex> selectEqpHealthIndex(@Param("fromdate") Date fromdate, @Param("todate") Date todate, @Param("globalWarning") Double globalWarning);
 
-    List<EqpHealthIndexTrend> selectEqpHealthIndexTrend(@Param("fromdate") Date fromdate, @Param("todate") Date todate, @Param("area_id") Long area_id, @Param("eqp_id") Long eqp_id);
+    List<EqpHealthIndexTrend> selectEqpHealthIndexTrend(@Param("fromdate") Date fromdate, @Param("todate") Date todate, @Param("area_id") Long area_id, @Param("eqp_id") Long eqp_id,@Param("upperWarningSpec") Double upperWarningSpec, @Param("upperAlarmSpec") Double upperAlarmSpec);
 
     List<FabMonitoringInfo> selectFabMonitoring(@Param("eqp_id") Long eqp_id, @Param("param_name") String param_name, @Param("fromdate") Date fromdate, @Param("todate") Date todate, @Param("globalWarn") Double globalWarn);
 
