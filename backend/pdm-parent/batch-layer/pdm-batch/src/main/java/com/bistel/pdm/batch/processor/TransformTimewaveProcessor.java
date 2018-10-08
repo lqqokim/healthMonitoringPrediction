@@ -19,7 +19,7 @@ import java.util.concurrent.ExecutionException;
  */
 public class TransformTimewaveProcessor extends AbstractProcessor<String, byte[]> {
     private static final Logger log = LoggerFactory.getLogger(TransformTimewaveProcessor.class);
-    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+//    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
     private final static String SEPARATOR = ",";
 
     @Override
@@ -48,6 +48,8 @@ public class TransformTimewaveProcessor extends AbstractProcessor<String, byte[]
                 return;
             }
 
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+
             String paramName = columns[1];
 
             List<ParameterMaster> parameterMasterDataSets = MasterCache.Parameter.get(partitionKey);
@@ -65,6 +67,9 @@ public class TransformTimewaveProcessor extends AbstractProcessor<String, byte[]
                     // frequency,
                     // timewave
 
+                    Date parsedDate = dateFormat.parse(columns[0]);
+                    Long nowMessageTime = new Timestamp(parsedDate.getTime()).getTime();
+
                     // time, param_name, param_value(rms), freq.value, timewave, freq. count, max freq, rpm, sampling time(sec)
                     String sbValue = String.valueOf(paramInfo.getParameterRawId()) + "," +
                             columns[2] + "," + //value
@@ -73,7 +78,7 @@ public class TransformTimewaveProcessor extends AbstractProcessor<String, byte[]
                             "," + //target
                             "," + //lower_alarm
                             "," + //lower_warning
-                            parseStringToTimestamp(columns[0]) + "," +
+                            nowMessageTime + "," +
                             columns[5] + "," + // freq count
                             columns[6] + "," + // max frequency
                             columns[7] + "," + // rpm
@@ -93,20 +98,6 @@ public class TransformTimewaveProcessor extends AbstractProcessor<String, byte[]
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
-    }
-
-    private static Long parseStringToTimestamp(String item) {
-        Long time = 0L;
-
-        try {
-            Date parsedDate = dateFormat.parse(item);
-            Timestamp timestamp = new Timestamp(parsedDate.getTime());
-            time = timestamp.getTime();
-        } catch (Exception e) {
-            log.error(e.getMessage() + " : " + item, e);
-        }
-
-        return time;
     }
 
     private void refreshMasterCache(String partitionKey) throws ExecutionException {

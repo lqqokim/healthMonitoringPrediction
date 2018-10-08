@@ -1,21 +1,22 @@
 package com.bistel.pdm.datastore.model;
 
 public class SensorTraceData {
-    public long rawid;
-    public long param_mst_rawid;
-    public float value;
-    public Float upperAlarmSpec;
-    public Float upperWarningSpec;
-    public Float target;
-    public Float lowerAlarmSpec;
-    public Float lowerWarningSpec;
-    public String statusCode;
-    public long event_dtts;
-    public String reserved_col1;
-    public String reserved_col2;
-    public String reserved_col3;
-    public String reserved_col4;
-    public String reserved_col5;
+    private long rawid;
+    private long param_mst_rawid;
+    private float value;
+    private Float upperAlarmSpec;
+    private Float upperWarningSpec;
+    private Float target;
+    private Float lowerAlarmSpec;
+    private Float lowerWarningSpec;
+    private String statusCode;
+    private long event_dtts;
+    private String reserved_col1;
+    private String reserved_col2;
+    private String reserved_col3;
+    private String reserved_col4;
+    private String reserved_col5;
+    private Float rpm;
 
     public long getRawid() {
         return rawid;
@@ -138,5 +139,13 @@ public class SensorTraceData {
 
     public void setReservedCol5(String reserved_col5) {
         this.reserved_col5 = reserved_col5;
+    }
+
+    public Float getRpm() {
+        return rpm;
+    }
+
+    public void setRpm(Float rpm) {
+        this.rpm = rpm;
     }
 }

@@ -46,7 +46,7 @@ public class FaultTrxDao implements FaultDataDao {
                     byte[] features = record.value();
                     String valueString = new String(features);
 
-                    String[] values = valueString.split(",");
+                    String[] values = valueString.split(",", -1);
                     // time, param_rawid, health_rawid, value, alarm type, alarm_spec, warning_spec, fault_class, rulename, condition
 
                     Timestamp timestamp = new Timestamp(Long.parseLong(values[0]));

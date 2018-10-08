@@ -293,7 +293,7 @@ public class TimewaveConsumerRunnable implements Runnable {
         std.setEventDtts(Long.parseLong(values[7]));
         std.setParamMstRawid(Long.parseLong(values[0]));
         std.setValue(Float.parseFloat(values[1]));
-        //std.setRpm(Float.parseFloat(values[10]));
+        std.setRpm(Float.parseFloat(values[10]));
 
         if (values[2].length() <= 0) {
             std.setUpperAlarmSpec(null);

@@ -108,7 +108,7 @@ public class TraceTrxDao implements SensorTraceDataDao {
 
                         String strValue = values[paramInfo.getParamParseIndex()];
                         if (strValue.length() <= 0) {
-                            log.debug("key:{}, param:{}, index:{} - value is empty.",
+                            log.trace("key:{}, param:{}, index:{} - value is empty.",
                                     record.key(), paramInfo.getParameterName(), paramInfo.getParamParseIndex());
                             pstmt.setFloat(2, Types.FLOAT); //value
                         } else {
@@ -187,6 +187,7 @@ public class TraceTrxDao implements SensorTraceDataDao {
                     "MESSAGE_GROUP, " +
                     //"RULE_NAME, " +
                     //"CONDITION, " +
+                    "RPM, " +
                     "RESERVED_COL1, RESERVED_COL2, RESERVED_COL3, RESERVED_COL4, RESERVED_COL5) " +
                     "values (?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
@@ -242,13 +243,14 @@ public class TraceTrxDao implements SensorTraceDataDao {
                     pstmt.setTimestamp(7, new Timestamp(sensorData.getEventDtts()));
 
                     pstmt.setString(8, "TIMEWAVE"); //message group
+                    pstmt.setFloat(9, sensorData.getRpm()); //rpm
 
                     //reserved columns
-                    pstmt.setString(9, sensorData.getReservedCol1());
-                    pstmt.setString(10, sensorData.getReservedCol2());
-                    pstmt.setString(11, sensorData.getReservedCol3());
-                    pstmt.setString(12, sensorData.getReservedCol4());
-                    pstmt.setString(13, sensorData.getReservedCol5());
+                    pstmt.setString(10, sensorData.getReservedCol1());
+                    pstmt.setString(11, sensorData.getReservedCol2());
+                    pstmt.setString(12, sensorData.getReservedCol3());
+                    pstmt.setString(13, sensorData.getReservedCol4());
+                    pstmt.setString(14, sensorData.getReservedCol5());
 
                     pstmt.addBatch();
 

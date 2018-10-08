@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 /**
  *
@@ -29,8 +30,10 @@ public class TraceTrxPostgreDao implements SensorTraceDataDao {
                     "STATUS_CD, " +
                     "EVENT_DTTS, " +
                     "MESSAGE_GROUP, " +
+                    "RULE_NAME, " +
+                    "CONDITION, " +
                     "RESERVED_COL1, RESERVED_COL2, RESERVED_COL3, RESERVED_COL4, RESERVED_COL5) " +
-                    "values (?,?,?,?,?,?,?,?,?,?,?,?)";
+                    "values (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
     private static final String INSERT_SQL_WITH_RAW =
             "insert into trace_trx_pdm (RAWID, PARAM_MST_RAWID, VALUE, RPM, " +
@@ -79,15 +82,14 @@ public class TraceTrxPostgreDao implements SensorTraceDataDao {
                     byte[] sensorData = record.value();
                     String valueString = new String(sensorData);
 
-                    // 2018-08-27 22:08:26.092,7005,0,0,950,14,2,-51,2,1,R:1535375306092,R:1535375306092,null,,DEFAULT
-                    // time, P1, P2, P3, P4, ... Pn, now status:time, prev status:time, groupid, refresh flag, rulename
+                    // time, P1, P2, P3, P4, ... Pn, {status, groupid, rulename}
                     String[] values = valueString.split(",", -1);
 
                     String ruleName = values[values.length - 1];
-                    String msgGroup = values[values.length - 3];
+                    String msgGroup = values[values.length - 2];
+                    String status = values[values.length - 3];
 
                     List<ParameterMaster> paramData = MasterCache.Parameter.get(record.key());
-                    List<ParameterWithSpecMaster> paramWithSpec = MasterCache.ParameterWithSpec.get(record.key());
 
                     for (ParameterMaster paramInfo : paramData) {
                         if (paramInfo.getParamParseIndex() == -1) continue;
@@ -96,51 +98,50 @@ public class TraceTrxPostgreDao implements SensorTraceDataDao {
 
                         String strValue = values[paramInfo.getParamParseIndex()];
                         if (strValue.length() <= 0) {
-                            log.debug("key:{}, param:{}, index:{} - value is empty.",
+                            log.trace("key:{}, param:{}, index:{} - value is empty.",
                                     record.key(), paramInfo.getParameterName(), paramInfo.getParamParseIndex());
                             pstmt.setFloat(2, Types.FLOAT); //value
                         } else {
                             pstmt.setFloat(2, Float.parseFloat(strValue)); //value
                         }
 
-                        for (ParameterWithSpecMaster pws : paramWithSpec) {
-                            if (pws.getParameterName().equalsIgnoreCase(paramInfo.getParameterName())) {
-                                if (pws.getRuleName().equalsIgnoreCase(ruleName)) {
-                                    if (pws.getUpperAlarmSpec() != null) {
-                                        pstmt.setFloat(3, pws.getUpperAlarmSpec()); //upper alarm spec
-                                    } else {
-                                        pstmt.setNull(3, Types.FLOAT);
-                                    }
+                        ParameterWithSpecMaster paramSpec = getParamSpec(record.key(), paramInfo.getParameterName(), ruleName);
 
-                                    if (pws.getUpperWarningSpec() != null) {
-                                        pstmt.setFloat(4, pws.getUpperWarningSpec()); //upper warning spec
-                                    } else {
-                                        pstmt.setNull(4, Types.FLOAT);
-                                    }
-                                } else {
-                                    pstmt.setNull(3, Types.FLOAT);
-                                    pstmt.setNull(4, Types.FLOAT);
-                                }
-
-                                break;
+                        if(paramSpec != null) {
+                            if (paramSpec.getUpperAlarmSpec() != null) {
+                                pstmt.setFloat(3, paramSpec.getUpperAlarmSpec()); //upper alarm spec
+                            } else {
+                                pstmt.setNull(3, Types.FLOAT);
                             }
+
+                            if (paramSpec.getUpperWarningSpec() != null) {
+                                pstmt.setFloat(4, paramSpec.getUpperWarningSpec()); //upper warning spec
+                            } else {
+                                pstmt.setNull(4, Types.FLOAT);
+                            }
+
+                            pstmt.setString(8, paramSpec.getRuleName());
+                            pstmt.setString(9, paramSpec.getCondition().replaceAll(",", ";"));
+
+                        } else {
+                            pstmt.setNull(3, Types.FLOAT);
+                            pstmt.setNull(4, Types.FLOAT);
+
+                            pstmt.setNull(8, Types.VARCHAR);
+                            pstmt.setNull(9, Types.VARCHAR);
                         }
 
-                        //status
-                        String statusCodeAndTime = values[values.length - 5];
-                        String[] nowStatusCodeAndTime = statusCodeAndTime.split(":");
-                        pstmt.setString(5, nowStatusCodeAndTime[0]);
-
+                        pstmt.setString(5, status); // status code : R / I
                         ts = getTimeStampFromString(values[0]);
-                        pstmt.setTimestamp(6, ts);
+                        pstmt.setTimestamp(6, ts); // event_dtts
 
                         pstmt.setString(7, msgGroup);
 
-                        pstmt.setNull(8, Types.VARCHAR);
-                        pstmt.setNull(9, Types.VARCHAR);
                         pstmt.setNull(10, Types.VARCHAR);
                         pstmt.setNull(11, Types.VARCHAR);
                         pstmt.setNull(12, Types.VARCHAR);
+                        pstmt.setNull(13, Types.VARCHAR);
+                        pstmt.setNull(14, Types.VARCHAR);
 
                         pstmt.addBatch();
                         ++totalCount;
@@ -163,6 +164,22 @@ public class TraceTrxPostgreDao implements SensorTraceDataDao {
         } catch (SQLException e) {
             log.error(e.getMessage(), e);
         }
+    }
+
+    private ParameterWithSpecMaster getParamSpec(String key, String paramName, String ruleName) throws ExecutionException {
+        List<ParameterWithSpecMaster> paramWithSpec = MasterCache.ParameterWithSpec.get(key);
+
+        ParameterWithSpecMaster paramInfo = null;
+        for (ParameterWithSpecMaster pws : paramWithSpec) {
+            if(ruleName.equalsIgnoreCase(pws.getRuleName())){
+                if (paramName.equalsIgnoreCase(pws.getParameterName())){
+                    paramInfo = pws;
+                    break;
+                }
+            }
+        }
+
+        return paramInfo;
     }
 
     @Override

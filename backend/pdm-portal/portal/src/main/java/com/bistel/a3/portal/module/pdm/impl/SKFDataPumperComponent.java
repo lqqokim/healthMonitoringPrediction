@@ -77,6 +77,9 @@ public class SKFDataPumperComponent implements IDataPumperComponent {
 
         //OverallMinuteTrx
         ParamMapper paramMapper = SqlSessionUtil.getMapper(sessions, fabId, ParamMapper.class);
+
+
+
         List<Param> paramList = paramMapper.selectByEqpId(eqpId);
         pumpOverall(getMapper, putMapper, manager, from, to, paramList);
     }

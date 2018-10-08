@@ -3,9 +3,7 @@ APPNAME="File Connector Layer"
 APPPID=connector.pid
 APPJAR=pdm-file-connector-1.0-SNAPSHOT.jar
 APPOPTS=" -watchDir ./data/
--clientId EQP$2
--topicPrefix pdm-input
--partition $2
+-clientId TEST_EQP
 -kafkaConf ./config/producer.properties
 -log4jConf ./config/log4j.properties"
 
