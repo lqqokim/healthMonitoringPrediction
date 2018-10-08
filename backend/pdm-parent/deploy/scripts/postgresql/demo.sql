@@ -3,7 +3,7 @@ Insert into AREA_MST_PDM (NAME,DESCRIPTION,PARENT_RAWID,CREATE_BY,CREATE_DTTS,UP
     values ('BISTel',null,0,'demo',current_timestamp,'demo',current_timestamp);
 
 Insert into AREA_MST_PDM (NAME,DESCRIPTION,PARENT_RAWID,CREATE_BY,CREATE_DTTS,UPDATE_BY,UPDATE_DTTS)
-    values ('Demo_Area',null,0,'demo',current_timestamp,'demo',current_timestamp);
+    values ('TEST',null,0,'demo',current_timestamp,'demo',current_timestamp);
 
 commit;
 
@@ -11,8 +11,9 @@ CREATE FUNCTION create_eqp() RETURNS VOID AS
 $$
 BEGIN
     FOR i IN 1..500 LOOP
-        Insert into EQP_MST_PDM (AREA_MST_RAWID,NAME,DESCRIPTION,DATA_TYPE_CD,CREATE_BY,CREATE_DTTS,UPDATE_BY,UPDATE_DTTS)
-		select rawid,'Demo' || i,null,'STD','demo',current_timestamp,'demo',current_timestamp from area_mst_pdm where name='Demo_Area';
+        Insert into EQP_MST_PDM (AREA_MST_RAWID,MODEL_NAME,NAME,DESCRIPTION,DATA_TYPE_CD,CREATE_BY,CREATE_DTTS,UPDATE_BY,UPDATE_DTTS)
+		select rawid, 'TEST_MODEL', 'TEST' || i, null,'STD','demo',current_timestamp,'demo',current_timestamp
+		from area_mst_pdm where name='TEST';
     END LOOP;
 END;
 $$
@@ -20,51 +21,41 @@ LANGUAGE plpgsql;
 
 select create_eqp();
 
-commit;
-
 
 CREATE FUNCTION create_param() RETURNS VOID AS
 $$
 BEGIN
     FOR i IN 1..500 LOOP
-        Insert into PARAM_MST_PDM (EQP_MST_RAWID,PARTS_MST_RAWID,NAME,DESCRIPTION,PARAM_TYPE_CD,UNIT_CD,CREATE_BY,CREATE_DTTS,UPDATE_BY,UPDATE_DTTS)
-        values ((select rawid from eqp_mst_pdm where name='Demo' || i),1,'Fan DE1 Acceleration',null,'Acceleration','g Rms','demo',current_timestamp,'demo',current_timestamp);
+        Insert into PARAM_MST_PDM (EQP_MST_RAWID,PARTS_MST_RAWID,NAME,DESCRIPTION,PARAM_TYPE_CD,UNIT_CD,PARSE_INDEX, CREATE_BY,CREATE_DTTS,UPDATE_BY,UPDATE_DTTS)
+        values ((select rawid from eqp_mst_pdm where name='TEST' || i),1,'VEHICLE_CURRENT_POSITION(POINT)',null,'TRACE','-',1,'demo',current_timestamp,'demo',current_timestamp);
 
-        Insert into PARAM_MST_PDM (EQP_MST_RAWID,PARTS_MST_RAWID,NAME,DESCRIPTION,PARAM_TYPE_CD,UNIT_CD,CREATE_BY,CREATE_DTTS,UPDATE_BY,UPDATE_DTTS)
-        values ((select rawid from eqp_mst_pdm where name='Demo' || i),1,'Fan DE1 Velocity',null,'Velocity','mm/s Rms','demo',current_timestamp,'demo',current_timestamp);
+        Insert into PARAM_MST_PDM (EQP_MST_RAWID,PARTS_MST_RAWID,NAME,DESCRIPTION,PARAM_TYPE_CD,UNIT_CD,PARSE_INDEX, CREATE_BY,CREATE_DTTS,UPDATE_BY,UPDATE_DTTS)
+        values ((select rawid from eqp_mst_pdm where name='TEST' || i),1,'REGULATOR_TEMPERATURE',null,'TRACE','-',2,'demo',current_timestamp,'demo',current_timestamp);
 
-        Insert into PARAM_MST_PDM (EQP_MST_RAWID,PARTS_MST_RAWID,NAME,DESCRIPTION,PARAM_TYPE_CD,UNIT_CD,CREATE_BY,CREATE_DTTS,UPDATE_BY,UPDATE_DTTS)
-        values ((select rawid from eqp_mst_pdm where name='Demo' || i),1,'Fan DE1 Enveloping',null,'Enveloping','gE PtP','demo',current_timestamp,'demo',current_timestamp);
+        Insert into PARAM_MST_PDM (EQP_MST_RAWID,PARTS_MST_RAWID,NAME,DESCRIPTION,PARAM_TYPE_CD,UNIT_CD,PARSE_INDEX, CREATE_BY,CREATE_DTTS,UPDATE_BY,UPDATE_DTTS)
+        values ((select rawid from eqp_mst_pdm where name='TEST' || i),1,'FRONT_AXIS_TORQUE',null,'TRACE','-',3,'demo',current_timestamp,'demo',current_timestamp);
 
-        Insert into PARAM_MST_PDM (EQP_MST_RAWID,PARTS_MST_RAWID,NAME,DESCRIPTION,PARAM_TYPE_CD,UNIT_CD,CREATE_BY,CREATE_DTTS,UPDATE_BY,UPDATE_DTTS)
-        values ((select rawid from eqp_mst_pdm where name='Demo' || i),1,'Fan DE2 Acceleration',null,'Acceleration','g Rms','demo',current_timestamp,'demo',current_timestamp);
+        Insert into PARAM_MST_PDM (EQP_MST_RAWID,PARTS_MST_RAWID,NAME,DESCRIPTION,PARAM_TYPE_CD,UNIT_CD,PARSE_INDEX, CREATE_BY,CREATE_DTTS,UPDATE_BY,UPDATE_DTTS)
+        values ((select rawid from eqp_mst_pdm where name='TEST' || i),1,'REAR_AXIS_TORQUE',null,'TRACE','-',4,'demo',current_timestamp,'demo',current_timestamp);
 
-        Insert into PARAM_MST_PDM (EQP_MST_RAWID,PARTS_MST_RAWID,NAME,DESCRIPTION,PARAM_TYPE_CD,UNIT_CD,CREATE_BY,CREATE_DTTS,UPDATE_BY,UPDATE_DTTS)
-        values ((select rawid from eqp_mst_pdm where name='Demo' || i),1,'Fan DE2 Enveloping',null,'Enveloping','gE PtP','demo',current_timestamp,'demo',current_timestamp);
+        Insert into PARAM_MST_PDM (EQP_MST_RAWID,PARTS_MST_RAWID,NAME,DESCRIPTION,PARAM_TYPE_CD,UNIT_CD,PARSE_INDEX, CREATE_BY,CREATE_DTTS,UPDATE_BY,UPDATE_DTTS)
+        values ((select rawid from eqp_mst_pdm where name='TEST' || i),1,'HOIST_AXIS_TORQUE',null,'TRACE','-',5,'demo',current_timestamp,'demo',current_timestamp);
 
-        Insert into PARAM_MST_PDM (EQP_MST_RAWID,PARTS_MST_RAWID,NAME,DESCRIPTION,PARAM_TYPE_CD,UNIT_CD,CREATE_BY,CREATE_DTTS,UPDATE_BY,UPDATE_DTTS)
-        values ((select rawid from eqp_mst_pdm where name='Demo' || i),1,'Fan DE2 Velocity',null,'Velocity','mm/s Rms','demo',current_timestamp,'demo',current_timestamp);
+        Insert into PARAM_MST_PDM (EQP_MST_RAWID,PARTS_MST_RAWID,NAME,DESCRIPTION,PARAM_TYPE_CD,UNIT_CD,PARSE_INDEX, CREATE_BY,CREATE_DTTS,UPDATE_BY,UPDATE_DTTS)
+        values ((select rawid from eqp_mst_pdm where name='TEST' || i),1,'REAR_RIGHT_STEER_UP',null,'TRACE','-',6,'demo',current_timestamp,'demo',current_timestamp);
 
-        Insert into PARAM_MST_PDM (EQP_MST_RAWID,PARTS_MST_RAWID,NAME,DESCRIPTION,PARAM_TYPE_CD,UNIT_CD,CREATE_BY,CREATE_DTTS,UPDATE_BY,UPDATE_DTTS)
-        values ((select rawid from eqp_mst_pdm where name='Demo' || i),1,'Fan NDE Acceleration',null,'Acceleration','g Rms','demo',current_timestamp,'demo',current_timestamp);
+        Insert into PARAM_MST_PDM (EQP_MST_RAWID,PARTS_MST_RAWID,NAME,DESCRIPTION,PARAM_TYPE_CD,UNIT_CD,PARSE_INDEX, CREATE_BY,CREATE_DTTS,UPDATE_BY,UPDATE_DTTS)
+        values ((select rawid from eqp_mst_pdm where name='TEST' || i),1,'TRANSFER_WAIT_BEFORE_START',null,'TRACE','-',7,'demo',current_timestamp,'demo',current_timestamp);
 
-        Insert into PARAM_MST_PDM (EQP_MST_RAWID,PARTS_MST_RAWID,NAME,DESCRIPTION,PARAM_TYPE_CD,UNIT_CD,CREATE_BY,CREATE_DTTS,UPDATE_BY,UPDATE_DTTS)
-        values ((select rawid from eqp_mst_pdm where name='Demo' || i),1,'Fan NDE Enveloping',null,'Enveloping','gE PtP','demo',current_timestamp,'demo',current_timestamp);
+        Insert into PARAM_MST_PDM (EQP_MST_RAWID,PARTS_MST_RAWID,NAME,DESCRIPTION,PARAM_TYPE_CD,UNIT_CD,PARSE_INDEX, CREATE_BY,CREATE_DTTS,UPDATE_BY,UPDATE_DTTS)
+        values ((select rawid from eqp_mst_pdm where name='TEST' || i),1,'Z_RMS',null,'TRACE','-',8,'demo',current_timestamp,'demo',current_timestamp);
 
-        Insert into PARAM_MST_PDM (EQP_MST_RAWID,PARTS_MST_RAWID,NAME,DESCRIPTION,PARAM_TYPE_CD,UNIT_CD,CREATE_BY,CREATE_DTTS,UPDATE_BY,UPDATE_DTTS)
-        values ((select rawid from eqp_mst_pdm where name='Demo' || i),1,'Fan NDE Velocity',null,'Velocity','mm/s Rms','demo',current_timestamp,'demo',current_timestamp);
+        Insert into PARAM_MST_PDM (EQP_MST_RAWID,PARTS_MST_RAWID,NAME,DESCRIPTION,PARAM_TYPE_CD,UNIT_CD,PARSE_INDEX, CREATE_BY,CREATE_DTTS,UPDATE_BY,UPDATE_DTTS)
+        values ((select rawid from eqp_mst_pdm where name='TEST' || i),1,'X_RMS',null,'TRACE','-',9,'demo',current_timestamp,'demo',current_timestamp);
 
-        Insert into PARAM_MST_PDM (EQP_MST_RAWID,PARTS_MST_RAWID,NAME,DESCRIPTION,PARAM_TYPE_CD,UNIT_CD,CREATE_BY,CREATE_DTTS,UPDATE_BY,UPDATE_DTTS)
-        values ((select rawid from eqp_mst_pdm where name='Demo' || i),1,'Motor DE Acceleration',null,'Acceleration','g Rms','demo',current_timestamp,'demo',current_timestamp);
+        Insert into PARAM_MST_PDM (EQP_MST_RAWID,PARTS_MST_RAWID,NAME,DESCRIPTION,PARAM_TYPE_CD,UNIT_CD,PARSE_INDEX, CREATE_BY,CREATE_DTTS,UPDATE_BY,UPDATE_DTTS)
+        values ((select rawid from eqp_mst_pdm where name='TEST' || i),1,'TEMP',null,'TRACE','-',10,'demo',current_timestamp,'demo',current_timestamp);
 
-        Insert into PARAM_MST_PDM (EQP_MST_RAWID,PARTS_MST_RAWID,NAME,DESCRIPTION,PARAM_TYPE_CD,UNIT_CD,CREATE_BY,CREATE_DTTS,UPDATE_BY,UPDATE_DTTS)
-        values ((select rawid from eqp_mst_pdm where name='Demo' || i),1,'Motor DE Enveloping',null,'Enveloping','gE PtP','demo',current_timestamp,'demo',current_timestamp);
-
-        Insert into PARAM_MST_PDM (EQP_MST_RAWID,PARTS_MST_RAWID,NAME,DESCRIPTION,PARAM_TYPE_CD,UNIT_CD,CREATE_BY,CREATE_DTTS,UPDATE_BY,UPDATE_DTTS)
-        values ((select rawid from eqp_mst_pdm where name='Demo' || i),1,'Motor DE Velocity','34444','Velocity','mm/s Rms','demo',current_timestamp,'demo',current_timestamp);
-
-        Insert into PARAM_MST_PDM (EQP_MST_RAWID,PARTS_MST_RAWID,NAME,DESCRIPTION,PARAM_TYPE_CD,UNIT_CD,CREATE_BY,CREATE_DTTS,UPDATE_BY,UPDATE_DTTS)
-        values ((select rawid from eqp_mst_pdm where name='Demo' || i),1,'Motor Temperature',null,'Temperature','''C','demo',current_timestamp,'demo',current_timestamp);
 	END LOOP;
 END;
 $$
@@ -72,53 +63,38 @@ LANGUAGE plpgsql;
 
 select create_param();
 
-commit;
 
-CREATE FUNCTION create_param_spec() RETURNS VOID AS
-$$
-BEGIN
-    FOR i IN 1..500 LOOP
-        Insert into TRACE_SPEC_MST_PDM (PARAM_MST_RAWID,ALARM_SPEC,WARNING_SPEC,CREATE_BY,CREATE_DTTS,UPDATE_BY,UPDATE_DTTS)
-	values ((select p.rawid from param_mst_pdm p, eqp_mst_pdm e where p.eqp_mst_rawid=e.rawid and e.name='Demo' || i and p.name='Fan DE1 Velocity'),5.5,5,'demo',current_timestamp,'demo',current_timestamp);
+INSERT INTO PARAM_HEALTH_MST_PDM (PARAM_MST_RAWID, HEALTH_LOGIC_MST_RAWID, APPLY_LOGIC_YN, CREATE_BY)
+SELECT P.RAWID AS PARAM_MST_RAWID, H.RAWID AS HEALTH_LOGIC_MST_RAWID,
+	CASE WHEN H.RAWID = 1 OR H.RAWID=2 THEN 'Y' ELSE 'N' END APPLY_LOGIC_YN, 'Demo' as CREATE_BY
+FROM PARAM_MST_PDM P, HEALTH_LOGIC_MST_PDM H;
 
-	Insert into TRACE_SPEC_MST_PDM (PARAM_MST_RAWID,ALARM_SPEC,WARNING_SPEC,CREATE_BY,CREATE_DTTS,UPDATE_BY,UPDATE_DTTS)
-	values ((select p.rawid from param_mst_pdm p, eqp_mst_pdm e where p.eqp_mst_rawid=e.rawid and e.name='Demo' || i and p.name='Fan DE2 Acceleration'),1,0.9,'demo',current_timestamp,'demo',current_timestamp);
+INSERT INTO PARAM_HEALTH_OPTION_MST_PDM(PARAM_HEALTH_MST_RAWID, OPTION_NAME, OPTION_VALUE, CREATE_BY)
+SELECT H.RAWID PARAM_HEALTH_MST_RAWID, L.OPTION_NAME, L.OPTION_VALUE, 'Demo' CREATE_BY
+FROM PARAM_HEALTH_MST_PDM H, HEALTH_LOGIC_OPTION_MST_PDM L WHERE H.HEALTH_LOGIC_MST_RAWID=2;
 
-	Insert into TRACE_SPEC_MST_PDM (PARAM_MST_RAWID,ALARM_SPEC,WARNING_SPEC,CREATE_BY,CREATE_DTTS,UPDATE_BY,UPDATE_DTTS)
-	values ((select p.rawid from param_mst_pdm p, eqp_mst_pdm e where p.eqp_mst_rawid=e.rawid and e.name='Demo' || i and p.name='Fan DE2 Enveloping'),0.2,0.1,'demo',current_timestamp,'demo',current_timestamp);
 
-	Insert into TRACE_SPEC_MST_PDM (PARAM_MST_RAWID,ALARM_SPEC,WARNING_SPEC,CREATE_BY,CREATE_DTTS,UPDATE_BY,UPDATE_DTTS)
-	values ((select p.rawid from param_mst_pdm p, eqp_mst_pdm e where p.eqp_mst_rawid=e.rawid and e.name='Demo' || i and p.name='Fan DE2 Velocity'),5.5,5,'demo',current_timestamp,'demo',current_timestamp);
+INSERT INTO EQP_EVENT_MST_PDM (EQP_MST_RAWID, EVENT_GROUP, EVENT_NAME, EVENT_TYPE_CD, PROCESS_YN, PARAM_MST_RAWID, CONDITION, TIME_INTERVAL_YN, CREATE_BY)
+SELECT EQP_MST_RAWID, 'PROCESS_EVENT' EVENT_GROUP, 'PROCESS START' EVENT_NAME, 'S' EVENT_TYPE_CD, 'Y' PROCESS_YN,
+RAWID PARAM_MST_RAWID, 'value>=0.5' CONDITION, 'N' TIME_INTERVAL_YN, 'Demo' CREATE_BY
+FROM PARAM_MST_PDM WHERE NAME='REAR_RIGHT_STEER_UP';
 
-	Insert into TRACE_SPEC_MST_PDM (PARAM_MST_RAWID,ALARM_SPEC,WARNING_SPEC,CREATE_BY,CREATE_DTTS,UPDATE_BY,UPDATE_DTTS)
-	values ((select p.rawid from param_mst_pdm p, eqp_mst_pdm e where p.eqp_mst_rawid=e.rawid and e.name='Demo' || i and p.name='Fan NDE Acceleration'),1,0.9,'demo',current_timestamp,'demo',current_timestamp);
+INSERT INTO EQP_EVENT_MST_PDM (EQP_MST_RAWID, EVENT_GROUP, EVENT_NAME, EVENT_TYPE_CD, PROCESS_YN, PARAM_MST_RAWID, CONDITION, TIME_INTERVAL_YN, CREATE_BY)
+SELECT EQP_MST_RAWID, 'PROCESS_EVENT' EVENT_GROUP, 'PROCESS END' EVENT_NAME, 'E' EVENT_TYPE_CD, 'Y' PROCESS_YN,
+RAWID PARAM_MST_RAWID, 'value<0.5' CONDITION, 'N' TIME_INTERVAL_YN, 'Demo' CREATE_BY
+FROM PARAM_MST_PDM WHERE NAME='REAR_RIGHT_STEER_UP';
 
-	Insert into TRACE_SPEC_MST_PDM (PARAM_MST_RAWID,ALARM_SPEC,WARNING_SPEC,CREATE_BY,CREATE_DTTS,UPDATE_BY,UPDATE_DTTS)
-	values ((select p.rawid from param_mst_pdm p, eqp_mst_pdm e where p.eqp_mst_rawid=e.rawid and e.name='Demo' || i and p.name='Fan NDE Enveloping'),0.2,0.1,'demo',current_timestamp,'demo',current_timestamp);
 
-	Insert into TRACE_SPEC_MST_PDM (PARAM_MST_RAWID,ALARM_SPEC,WARNING_SPEC,CREATE_BY,CREATE_DTTS,UPDATE_BY,UPDATE_DTTS)
-	values ((select p.rawid from param_mst_pdm p, eqp_mst_pdm e where p.eqp_mst_rawid=e.rawid and e.name='Demo' || i and p.name='Fan NDE Velocity'),5.5,5,'demo',current_timestamp,'demo',current_timestamp);
+Insert into CONDITIONAL_SPEC_MST_PDM (MODEL_NAME,RULE_NAME,EXPRESSION,EXPRESSION_VALUE,CONDITION,CREATE_BY) values ('TEST_MODEL','DEFAULT',null,null,null,'demo');
 
-	Insert into TRACE_SPEC_MST_PDM (PARAM_MST_RAWID,ALARM_SPEC,WARNING_SPEC,CREATE_BY,CREATE_DTTS,UPDATE_BY,UPDATE_DTTS)
-	values ((select p.rawid from param_mst_pdm p, eqp_mst_pdm e where p.eqp_mst_rawid=e.rawid and e.name='Demo' || i and p.name='Motor DE Acceleration'),1,0.9,'demo',current_timestamp,'demo',current_timestamp);
+INSERT INTO MODEL_PARAM_SPEC_MST_PDM (CONDITIONAL_SPEC_MST_RAWID, PARAM_NAME, UPPER_ALARM_SPEC, UPPER_WARNING_SPEC, CREATE_BY)
+VALUES(1, 'Z_RMS', 5000.0, 4000.0, 'Demo');
 
-	Insert into TRACE_SPEC_MST_PDM (PARAM_MST_RAWID,ALARM_SPEC,WARNING_SPEC,CREATE_BY,CREATE_DTTS,UPDATE_BY,UPDATE_DTTS)
-	values ((select p.rawid from param_mst_pdm p, eqp_mst_pdm e where p.eqp_mst_rawid=e.rawid and e.name='Demo' || i and p.name='Motor DE Enveloping'),0.2,0.1,'demo',current_timestamp,'demo',current_timestamp);
+INSERT INTO EQP_SPEC_LINK_MST_PDM (EQP_MST_RAWID, CONDITIONAL_SPEC_MST_RAWID, ORDERING, CREATE_BY)
+SELECT RAWID EQP_MST_RAWID, 1 CONDITIONAL_SPEC_MST_RAWID, 1 ORDERING, 'Demo' CREATE_BY
+FROM EQP_MST_PDM;
 
-	Insert into TRACE_SPEC_MST_PDM (PARAM_MST_RAWID,ALARM_SPEC,WARNING_SPEC,CREATE_BY,CREATE_DTTS,UPDATE_BY,UPDATE_DTTS)
-	values ((select p.rawid from param_mst_pdm p, eqp_mst_pdm e where p.eqp_mst_rawid=e.rawid and e.name='Demo' || i and p.name='Motor DE Velocity'),5.5,5,'demo',current_timestamp,'demo',current_timestamp);
-
-	Insert into TRACE_SPEC_MST_PDM (PARAM_MST_RAWID,ALARM_SPEC,WARNING_SPEC,CREATE_BY,CREATE_DTTS,UPDATE_BY,UPDATE_DTTS)
-	values ((select p.rawid from param_mst_pdm p, eqp_mst_pdm e where p.eqp_mst_rawid=e.rawid and e.name='Demo' || i and p.name='Motor Temperature'),70,50,'demo',current_timestamp,'demo',current_timestamp);
-
-	end loop;
-END;
-$$
-LANGUAGE plpgsql;
-
-select create_param_spec();
-
-commit;
+COMMIT;
 
 
 

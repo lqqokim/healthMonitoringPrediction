@@ -23,9 +23,8 @@ public class FeatureTrxPostgreDao implements FeatureDataDao {
             "insert into param_feature_trx_pdm " +
                     "(PARAM_MST_RAWID, BEGIN_DTTS, END_DTTS, " +
                     "COUNT, MIN, MAX, MEDIAN, MEAN, STDDEV, Q1, Q3, " +
-                    "UPPER_ALARM_SPEC, UPPER_WARNING_SPEC, TARGET, " +
-                    "LOWER_ALARM_SPEC, LOWER_WARNING_SPEC) " +
-                    "values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+                    "MESSAGE_GROUP) " +
+                    "values (?,?,?,?,?,?,?,?,?,?,?,?)";
 
     @Override
     public void storeRecords(List<ConsumerRecord<String, byte[]>> records) {
@@ -40,12 +39,10 @@ public class FeatureTrxPostgreDao implements FeatureDataDao {
                 for (ConsumerRecord<String, byte[]> record : records) {
                     byte[] features = record.value();
                     String valueString = new String(features);
+
                     String[] values = valueString.split(",", -1);
 
-                    log.trace("[{}] - from : {}, end : {}, param : {}", record.key(),
-                            values[0], values[1], values[2]);
-
-                    // startDtts, endDtts, param rawid, count, min, max, median, avg, stddev, q1, q3
+                    // startDtts, endDtts, param rawid, count, max, min, median, avg, stddev, q1, q3, group, specs
                     Long param_rawid = Long.parseLong(values[2]);
                     Timestamp beginDtts = new Timestamp(Long.parseLong(values[0]));
                     Timestamp endDtts = new Timestamp(Long.parseLong(values[1]));
@@ -54,45 +51,15 @@ public class FeatureTrxPostgreDao implements FeatureDataDao {
                     pstmt.setTimestamp(2, beginDtts);
                     pstmt.setTimestamp(3, endDtts);
 
-                    pstmt.setInt(4, Integer.parseInt(values[3]));
-                    pstmt.setFloat(5, Float.parseFloat(values[4]));
-                    pstmt.setFloat(6, Float.parseFloat(values[5]));
-                    pstmt.setFloat(7, Float.parseFloat(values[6]));
-                    pstmt.setFloat(8, Float.parseFloat(values[7]));
-                    pstmt.setFloat(9, Float.parseFloat(values[8]));
-                    pstmt.setFloat(10, Float.parseFloat(values[9]));
-                    pstmt.setFloat(11, Float.parseFloat(values[10]));
-
-                    // SPEC
-                    if (values[11].length() > 0) {
-                        pstmt.setFloat(12, Float.parseFloat(values[11])); //upper alarm spec
-                    } else {
-                        pstmt.setNull(12, Types.FLOAT);
-                    }
-
-                    if (values[12].length() > 0) {
-                        pstmt.setFloat(13, Float.parseFloat(values[12])); //upper warning spec
-                    } else {
-                        pstmt.setNull(13, Types.FLOAT);
-                    }
-
-                    if (values[13].length() > 0) {
-                        pstmt.setFloat(14, Float.parseFloat(values[13])); //target
-                    } else {
-                        pstmt.setNull(14, Types.FLOAT);
-                    }
-
-                    if (values[14].length() > 0) {
-                        pstmt.setFloat(15, Float.parseFloat(values[14])); //lower alarm spec
-                    } else {
-                        pstmt.setNull(15, Types.FLOAT);
-                    }
-
-                    if (values[15].length() > 0) {
-                        pstmt.setFloat(16, Float.parseFloat(values[15])); //lower warning spec
-                    } else {
-                        pstmt.setNull(16, Types.FLOAT);
-                    }
+                    pstmt.setInt(4, Integer.parseInt(values[3]));   // count
+                    pstmt.setFloat(5, Float.parseFloat(values[4])); // min
+                    pstmt.setFloat(6, Float.parseFloat(values[5])); // max
+                    pstmt.setFloat(7, Float.parseFloat(values[6])); // median
+                    pstmt.setFloat(8, Float.parseFloat(values[7])); // mean
+                    pstmt.setFloat(9, Float.parseFloat(values[8])); // stddev
+                    pstmt.setFloat(10, Float.parseFloat(values[9])); // q1
+                    pstmt.setFloat(11, Float.parseFloat(values[10])); // q3
+                    pstmt.setString(12, values[11]); // message group
 
                     ts = endDtts;
 

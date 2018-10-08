@@ -74,7 +74,7 @@ public class ParamHealthConsumerRunnable implements Runnable {
                         byte[] healthData = record.value();
                         String valueString = new String(healthData);
 
-                        log.debug("[{}] - {}", record.key(), valueString);
+                        //log.debug("[{}] - health -- partition:{}, offset:{}", record.key(), record.partition(), record.offset());
 
                         // time, eqpRawid, param_rawid, param_health_rawid, status_cd, data_count, index, specs, group
                         String[] values = valueString.split(",", -1);

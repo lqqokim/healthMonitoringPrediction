@@ -30,14 +30,14 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
     private static final Logger log = LoggerFactory.getLogger(SpeedProcessor.class);
 
-    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+    //    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
     private final static String SEPARATOR = ",";
 
     private WindowStore<String, Double> kvNormalizedParamValueStore;
 
     private final StatusDefineFunction statusDefineFunction = new StatusDefineFunction();
-    private IndividualDetection individualDetection = new IndividualDetection();
-    private RuleBasedDetection ruleBasedDetection = new RuleBasedDetection();
+    private final IndividualDetection individualDetection = new IndividualDetection();
+    private final RuleBasedDetection ruleBasedDetection = new RuleBasedDetection();
 
     private final ConcurrentHashMap<String, StatusWindow> statusContextMap = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, String> messageGroupMap = new ConcurrentHashMap<>();
@@ -58,50 +58,60 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
         String recordValue = new String(streamByteRecord);
         String[] recordColumns = recordValue.split(SEPARATOR, -1);
 
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+
         try {
             // refresh cache
             if (recordColumns[1].equalsIgnoreCase("CMD-REFRESH-CACHE")) {
                 refreshCacheFlagMap.put(partitionKey, "Y");
                 context().commit();
-                log.debug("[{}-{}] - Refresh Order were issued.", partitionKey, context().partition());
+                log.debug("[{}] - Refresh Order were issued.", partitionKey);
                 return;
             }
 
             // filter by master
             if (MasterCache.Equipment.get(partitionKey) == null) {
-                log.debug("[{}-{}] - Not existed.", partitionKey, context().partition());
+                log.debug("[{}] - Not existed.", partitionKey);
                 context().commit();
                 return;
             }
 
             Pair<EventMaster, EventMaster> eventInfo = MasterCache.IntervalEvent.get(partitionKey);
-            if (eventInfo != null && eventInfo.getFirst() != null) {
+            if (eventInfo != null && eventInfo.getFirst() != null && eventInfo.getFirst().getParamParseIndex() != null) {
 
-                final Long msgLongTime = parseStringToTimestamp(recordColumns[0]);
-                double statusValue = Double.parseDouble(recordColumns[eventInfo.getFirst().getParamParseIndex()]);
-                String nowStatusCode = statusDefineFunction.evaluateStatusCode(eventInfo.getFirst(), statusValue);
+                Date parsedDate = dateFormat.parse(recordColumns[0]);
+                Long nowMessageTime = new Timestamp(parsedDate.getTime()).getTime();
 
-                //log.debug("[{}] - value:{}, status:{}", partitionKey, statusValue, nowStatusCode);
+                String nowStatusCode = "I";
+
+                String strValue = recordColumns[eventInfo.getFirst().getParamParseIndex()];
+                if (strValue.length() > 0) {
+                    double statusValue = Double.parseDouble(strValue);
+                    nowStatusCode = statusDefineFunction.evaluateStatusCode(eventInfo.getFirst(), statusValue);
+                }
 
                 StatusWindow statusWindow;
                 if (statusContextMap.get(partitionKey) == null) {
                     statusWindow = new StatusWindow();
-                    statusWindow.addPrevious(nowStatusCode, msgLongTime);
-                    statusWindow.addCurrent(nowStatusCode, msgLongTime);
+                    statusWindow.addPrevious(nowStatusCode, nowMessageTime);
+                    statusWindow.addCurrent(nowStatusCode, nowMessageTime);
                     statusContextMap.put(partitionKey, statusWindow);
                 } else {
                     statusWindow = statusContextMap.get(partitionKey);
-                    statusWindow.addCurrent(nowStatusCode, msgLongTime);
+                    statusWindow.addCurrent(nowStatusCode, nowMessageTime);
                 }
 
-                intervalLongTime.putIfAbsent(partitionKey, msgLongTime);
-                messageGroupMap.putIfAbsent(partitionKey, msgLongTime.toString());
+                intervalLongTime.putIfAbsent(partitionKey, nowMessageTime);
+                messageGroupMap.putIfAbsent(partitionKey, nowMessageTime.toString());
+
+                log.debug("[{}] - status:{}, partition:{}, offset:{}", partitionKey,
+                        statusWindow.getCurrentStatusCode(), context().partition(), context().offset());
 
                 if (statusWindow.getCurrentStatusCode().equalsIgnoreCase("R")
                         && statusWindow.getPreviousStatusCode().equalsIgnoreCase("I")) {
                     // process start (IR)
 
-                    String msgGroup = msgLongTime.toString(); // define group id
+                    String msgGroup = nowMessageTime.toString(); // define group id
                     messageGroupMap.put(partitionKey, msgGroup);
 
                     // event started. ------------------------------------------
@@ -110,9 +120,9 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
                                     + eventInfo.getFirst().getEventRawId() + ","
                                     + eventInfo.getFirst().getEventTypeCD();
 
-                    log.info("[{}-{}] - process started.", partitionKey, context().partition());
+                    log.info("[{}] - process started.", partitionKey);
                     context().forward(partitionKey, eventMsg.getBytes(), "output-event");
-                    context().commit();
+//                    context().commit();
                     // event started. ------------------------------------------
 
                     intervalLongTime.put(partitionKey, statusWindow.getCurrentLongTime());
@@ -124,6 +134,8 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
 
                     // check conditional spec.
                     String ruleName = ConditionSpecFunction.evaluateCondition(partitionKey, recordColumns);
+                    log.debug("[{}] - rule : {}", partitionKey, ruleName);
+
                     if (ruleName.length() > 0) {
                         conditionRuleMap.put(partitionKey, ruleName);
 
@@ -132,7 +144,7 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
                         // time, P1, P2, P3, P4, ... Pn, {status, groupid, rulename}
                         String traceMsg = recordValue + ",R," + msgGroup + "," + ruleName;
                         context().forward(partitionKey, traceMsg.getBytes(), "output-trace");
-                        context().commit();
+//                        context().commit();
 
                         List<ParameterWithSpecMaster> paramList = MasterCache.ParameterWithSpec.get(partitionKey);
                         // check OOS
@@ -142,29 +154,29 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
                             if (ruleName.equalsIgnoreCase(paramInfo.getRuleName())) {
                                 if (paramInfo.getUpperAlarmSpec() == null) continue;
 
-                                String strValue = recordColumns[paramInfo.getParamParseIndex()];
+                                String strParamValue = recordColumns[paramInfo.getParamParseIndex()];
 
-                                if (strValue.length() > 0) {
+                                if (strParamValue.length() > 0) {
                                     String paramKey = partitionKey + ":" + paramInfo.getParameterRawId();
 
-                                    Double paramDblValue = Double.parseDouble(strValue);
-                                    Long time = parseStringToTimestamp(recordColumns[0]);
+                                    Double paramDblValue = Double.parseDouble(strParamValue);
                                     Double normalizedValue = paramDblValue / paramInfo.getUpperAlarmSpec();
 
-                                    kvNormalizedParamValueStore.put(paramKey, normalizedValue, time);
+                                    kvNormalizedParamValueStore.put(paramKey, normalizedValue, nowMessageTime);
 
+                                    log.debug("[{}] - {} fault detecting...", partitionKey, paramInfo.getParameterName());
                                     // fault detection
                                     String faultMsg = individualDetection.detect(partitionKey, paramKey, paramInfo,
                                             recordColumns[0], paramDblValue);
 
                                     if (faultMsg.length() > 0) {
                                         context().forward(partitionKey, faultMsg.getBytes(), "output-fault");
-                                        context().commit();
-                                        log.debug("[{}-{}] - individual fault occurred.", partitionKey, context().partition());
+//                                        context().commit();
+                                        log.debug("[{}] - individual fault occurred.", partitionKey);
                                     }
                                 } else {
-                                    log.debug("[{}-{}] - index {} empty.",
-                                            partitionKey, context().partition(), paramInfo.getParamParseIndex());
+                                    log.debug("[{}] - index {} empty.",
+                                            partitionKey, paramInfo.getParamParseIndex());
                                 }
                             }
                         }
@@ -183,9 +195,9 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
                                                 + eventInfo.getSecond().getEventRawId() + ","
                                                 + eventInfo.getSecond().getEventTypeCD();
 
-                                log.info("[{}-{}] - process ended.", partitionKey, context().partition());
+                                log.info("[{}] - process ended.", partitionKey);
                                 context().forward(partitionKey, eventMsg.getBytes(), "output-event");
-                                context().commit();
+//                                context().commit();
                                 // event ended. ------------------------------------------
 
                                 // event started. ------------------------------------------
@@ -194,14 +206,18 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
                                                 + eventInfo.getFirst().getEventRawId() + ","
                                                 + eventInfo.getFirst().getEventTypeCD();
 
-                                log.info("[{}-{}] - process started.", partitionKey, context().partition());
+                                log.info("[{}] - process started.", partitionKey);
                                 context().forward(partitionKey, eventMsg.getBytes(), "output-event");
-                                context().commit();
+//                                context().commit();
                                 // event started. ------------------------------------------
 
 
                                 // logic-2 -----------------------------------------------
                                 Long endTime = statusWindow.getPreviousLongTime();
+
+                                String sts = new SimpleDateFormat("MMdd HH:mm:ss.SSS").format(new Timestamp(startTime));
+                                String ets = new SimpleDateFormat("MMdd HH:mm:ss.SSS").format(new Timestamp(endTime));
+                                log.debug("[{}] - fetch data from {} to {}.", partitionKey, sts, ets);
 
                                 for (ParameterWithSpecMaster paramInfo : paramList) {
                                     if (paramInfo.getParamParseIndex() <= 0) continue;
@@ -212,15 +228,12 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
                                         String paramKey = partitionKey + ":" + paramInfo.getParameterRawId();
 
                                         List<Double> normalizedValueList = new ArrayList<>();
-
-                                        String sts = new SimpleDateFormat("MMdd HH:mm:ss.SSS").format(new Timestamp(startTime));
-                                        String ets = new SimpleDateFormat("MMdd HH:mm:ss.SSS").format(new Timestamp(endTime));
-                                        log.debug("[{}-{}] - fetch data from {} to {}.", partitionKey, context().partition(), sts, ets);
-
                                         WindowStoreIterator<Double> storeIterator = kvNormalizedParamValueStore.fetch(paramKey, startTime, endTime);
                                         while (storeIterator.hasNext()) {
                                             KeyValue<Long, Double> kv = storeIterator.next();
-                                            normalizedValueList.add(kv.value);
+                                            if (!kv.value.isNaN()) {
+                                                normalizedValueList.add(kv.value);
+                                            }
                                         }
                                         storeIterator.close();
 
@@ -233,8 +246,8 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
                                         if (health1Msg.length() > 0) {
                                             health1Msg = health1Msg + "," + msgGroup; // with group
                                             context().forward(partitionKey, health1Msg.getBytes(), "output-health");
-                                            context().commit();
-                                            log.debug("[{}-{}] - logic 1 health : {}", paramKey, context().partition(), health1Msg);
+//                                            context().commit();
+                                            log.debug("[{}] - logic 1 health : {}", paramKey, health1Msg);
                                         }
 
                                         // Rule based detection
@@ -243,8 +256,8 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
                                         String faultMsg = ruleBasedDetection.getOutOfSpecMsg();
                                         if (faultMsg.length() > 0) {
                                             context().forward(partitionKey, faultMsg.getBytes(), "output-fault");
-                                            context().commit();
-                                            log.debug("[{}-{}] - rule fault occurred.", partitionKey, context().partition());
+//                                            context().commit();
+                                            log.debug("[{}] - rule fault occurred.", partitionKey);
                                         }
 
                                         // Logic 2 health
@@ -252,8 +265,8 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
                                         if (health2Msg.length() > 0) {
                                             health2Msg = health2Msg + "," + msgGroup; // with group
                                             context().forward(partitionKey, health2Msg.getBytes(), "output-health");
-                                            context().commit();
-                                            log.debug("[{}-{}] - logic 2 health : {}", paramKey, context().partition(), health2Msg);
+//                                            context().commit();
+                                            log.debug("[{}] - logic 2 health : {}", paramKey, health2Msg);
                                         }
 
                                         individualDetection.resetAlarmCount(paramKey);
@@ -270,7 +283,7 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
                         // time, P1, P2, P3, P4, ... Pn, {status, groupid, rulename}
                         String traceMsg = recordValue + ",R," + msgGroup + "," + "NORULE"; // append rule name
                         context().forward(partitionKey, traceMsg.getBytes(), "output-trace");
-                        context().commit();
+//                        context().commit();
                     }
 
                 } else if (statusWindow.getCurrentStatusCode().equalsIgnoreCase("I")
@@ -285,9 +298,9 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
                                     + eventInfo.getSecond().getEventRawId() + ","
                                     + eventInfo.getSecond().getEventTypeCD();
 
-                    log.info("[{}-{}] - process ended.", partitionKey, context().partition());
+                    log.info("[{}] - process ended.", partitionKey);
                     context().forward(partitionKey, eventMsg.getBytes(), "output-event");
-                    context().commit();
+//                    context().commit();
                     // event ended. ------------------------------------------
 
                     // logic-2 -----------------------------------------------
@@ -298,6 +311,10 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
                     String ruleName = conditionRuleMap.get(partitionKey);
                     if (ruleName != null && ruleName.length() > 0) {
 
+                        String sts = new SimpleDateFormat("MMdd HH:mm:ss.SSS").format(new Timestamp(startTime));
+                        String ets = new SimpleDateFormat("MMdd HH:mm:ss.SSS").format(new Timestamp(endTime));
+                        log.debug("[{}] - fetch data from {} to {}.", partitionKey, sts, ets);
+
                         for (ParameterWithSpecMaster paramInfo : paramList) {
                             if (paramInfo.getParamParseIndex() <= 0) continue;
 
@@ -307,15 +324,12 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
                                 String paramKey = partitionKey + ":" + paramInfo.getParameterRawId();
 
                                 List<Double> normalizedValueList = new ArrayList<>();
-
-                                String sts = new SimpleDateFormat("MMdd HH:mm:ss.SSS").format(new Timestamp(startTime));
-                                String ets = new SimpleDateFormat("MMdd HH:mm:ss.SSS").format(new Timestamp(endTime));
-                                log.debug("[{}-{}] - fetch data from {} to {}.", partitionKey, context().partition(), sts, ets);
-
                                 WindowStoreIterator<Double> storeIterator = kvNormalizedParamValueStore.fetch(paramKey, startTime, endTime);
                                 while (storeIterator.hasNext()) {
                                     KeyValue<Long, Double> kv = storeIterator.next();
-                                    normalizedValueList.add(kv.value);
+                                    if (!kv.value.isNaN()) {
+                                        normalizedValueList.add(kv.value);
+                                    }
                                 }
                                 storeIterator.close();
 
@@ -328,28 +342,28 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
                                 if (health1Msg.length() > 0) {
                                     health1Msg = health1Msg + "," + msgGroup; // with group
                                     context().forward(partitionKey, health1Msg.getBytes(), "output-health");
-                                    context().commit();
-                                    log.debug("[{}-{}] - logic 1 health : {}", paramKey, context().partition(), health1Msg);
+//                                    context().commit();
+                                    log.debug("[{}] - logic 1 health : {}", paramKey, health1Msg);
                                 }
 
-                                // Rule based detection
-                                ruleBasedDetection.detect(partitionKey, paramKey, endTime, paramInfo, normalizedValueList, existAlarm, existWarning);
-
-                                String faultMsg = ruleBasedDetection.getOutOfSpecMsg();
-                                if (faultMsg.length() > 0) {
-                                    context().forward(partitionKey, faultMsg.getBytes(), "output-fault");
-                                    context().commit();
-                                    log.debug("[{}-{}] - rule fault occurred.", partitionKey, context().partition());
-                                }
-
-                                // Logic 2 health
-                                String health2Msg = ruleBasedDetection.getHealthMsg();
-                                if (health2Msg.length() > 0) {
-                                    health2Msg = health2Msg + "," + msgGroup; // with group
-                                    context().forward(partitionKey, health2Msg.getBytes(), "output-health");
-                                    context().commit();
-                                    log.debug("[{}-{}] - logic 2 health : {}", paramKey, context().partition(), health2Msg);
-                                }
+//                                // Rule based detection
+//                                ruleBasedDetection.detect(partitionKey, paramKey, endTime, paramInfo, normalizedValueList, existAlarm, existWarning);
+//
+//                                String faultMsg = ruleBasedDetection.getOutOfSpecMsg();
+//                                if (faultMsg.length() > 0) {
+//                                    context().forward(partitionKey, faultMsg.getBytes(), "output-fault");
+//                                    context().commit();
+//                                    log.debug("[{}] - rule fault occurred.", partitionKey);
+//                                }
+//
+//                                // Logic 2 health
+//                                String health2Msg = ruleBasedDetection.getHealthMsg();
+//                                if (health2Msg.length() > 0) {
+//                                    health2Msg = health2Msg + "," + msgGroup; // with group
+//                                    context().forward(partitionKey, health2Msg.getBytes(), "output-health");
+//                                    context().commit();
+//                                    log.debug("[{}] - logic 2 health : {}", paramKey, health2Msg);
+//                                }
 
                                 individualDetection.resetAlarmCount(paramKey);
                                 individualDetection.resetWarningCount(paramKey);
@@ -361,7 +375,7 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
                     // time, P1, P2, P3, P4, ... Pn, {status, groupid, rulename}
                     String traceMsg = recordValue + ",I,IDLE," + "NORULE";
                     context().forward(partitionKey, traceMsg.getBytes(), "output-trace");
-                    context().commit();
+//                    context().commit();
 
                     // refresh cache
                     if (refreshCacheFlagMap.get(partitionKey) != null
@@ -370,9 +384,9 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
                         Timestamp timestamp = new Timestamp(System.currentTimeMillis());
                         String msg = dateFormat.format(timestamp) + ",CMD-REFRESH-CACHE";
                         context().forward(partitionKey, msg.getBytes(), "output-reload");
-                        context().commit();
+//                        context().commit();
 
-                        refreshMasterCache(partitionKey, context().partition());
+                        refreshMasterCache(partitionKey);
                         refreshCacheFlagMap.put(partitionKey, "N");
                     }
                 } else {
@@ -380,23 +394,23 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
                     // time, P1, P2, P3, P4, ... Pn, {status, groupid, rulename}
                     String traceMsg = recordValue + ",I,IDLE," + "NORULE";
                     context().forward(partitionKey, traceMsg.getBytes(), "output-trace");
-                    context().commit();
+//                    context().commit();
 
                     // refresh cache
                     if (refreshCacheFlagMap.get(partitionKey) != null
                             && refreshCacheFlagMap.get(partitionKey).equalsIgnoreCase("Y")) {
 
-                        refreshMasterCache(partitionKey, context().partition());
+                        refreshMasterCache(partitionKey);
                         refreshCacheFlagMap.put(partitionKey, "N");
 
                         Timestamp timestamp = new Timestamp(System.currentTimeMillis());
                         String msg = dateFormat.format(timestamp) + ",CMD-REFRESH-CACHE";
                         context().forward(partitionKey, msg.getBytes(), "output-reload");
-                        context().commit();
+//                        context().commit();
                     }
                 }
 
-                statusWindow.addPrevious(nowStatusCode, msgLongTime);
+                statusWindow.addPrevious(nowStatusCode, nowMessageTime);
                 statusContextMap.put(partitionKey, statusWindow);
 
             } else {
@@ -404,43 +418,32 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
                 if (refreshCacheFlagMap.get(partitionKey) != null
                         && refreshCacheFlagMap.get(partitionKey).equalsIgnoreCase("Y")) {
 
-                    refreshMasterCache(partitionKey, context().partition());
+                    refreshMasterCache(partitionKey);
                     refreshCacheFlagMap.put(partitionKey, "N");
 
                     Timestamp timestamp = new Timestamp(System.currentTimeMillis());
                     String msg = dateFormat.format(timestamp) + ",CMD-REFRESH-CACHE";
                     context().forward(partitionKey, msg.getBytes(), "output-reload");
-                    context().commit();
+//                    context().commit();
                 }
 
                 // time, P1, P2, P3, P4, ... Pn, {status, groupid, rulename}
                 String traceMsg = recordValue + ",I,NOEVENT," + "NORULE";
                 context().forward(partitionKey, traceMsg.getBytes(), "output-trace");
-                context().commit();
+//                context().commit();
 
-                log.debug("[{}-{}] - No event registered.", partitionKey, context().partition());
+                log.debug("[{}] - No event registered.", partitionKey);
             }
+
+            context().commit();
+
         } catch (Exception e) {
-            log.debug("[{}-{}] - {}", partitionKey, context().partition(), recordValue);
+            log.debug("[{}] - {}", partitionKey, recordValue);
             log.error(e.getMessage(), e);
         }
     }
 
-    private static Long parseStringToTimestamp(String item) {
-        Long time = 0L;
-
-        try {
-            Date parsedDate = dateFormat.parse(item);
-            Timestamp timestamp = new Timestamp(parsedDate.getTime());
-            time = timestamp.getTime();
-        } catch (Exception e) {
-            log.error(e.getMessage() + " : " + item, e);
-        }
-
-        return time;
-    }
-
-    private void refreshMasterCache(String partitionKey, int partition) {
+    private void refreshMasterCache(String partitionKey) {
         // refresh master info.
         try {
             MasterCache.Equipment.refresh(partitionKey);
@@ -452,7 +455,7 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
             MasterCache.Health.refresh(partitionKey);
             MasterCache.Mail.refresh(partitionKey);
 
-            log.debug("[{}-{}] - all cache refreshed.", partitionKey, partition);
+            log.debug("[{}] - all cache refreshed.", partitionKey);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }

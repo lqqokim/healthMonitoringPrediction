@@ -27,7 +27,7 @@ import java.util.concurrent.TimeUnit;
 public class Main {
     private final static Logger log = LoggerFactory.getLogger(Main.class);
 
-    private static final String TOPIC_PREFIX = "topicPrefix";
+//    private static final String TOPIC_PREFIX = "topicPrefix";
     private static final String WATCH_DIR = "watchDir";
     private static final String CLIENT_ID = "clientId";
     private static final String START_INDEX = "startIndex";
@@ -36,7 +36,7 @@ public class Main {
 
     private static final Options options = new Options();
 
-    private static ExecutorService executor = Executors.newFixedThreadPool(10);
+    private static ExecutorService executor = Executors.newFixedThreadPool(50);
 
     public static void main(String args[]) {
 
@@ -45,10 +45,9 @@ public class Main {
         String watchDir = commandLine.getOptionValue(WATCH_DIR);
         String startIndex = commandLine.getOptionValue(START_INDEX);
         String clientIdPrefix = commandLine.getOptionValue(CLIENT_ID);
-        String destTopicPrefix = commandLine.getOptionValue(TOPIC_PREFIX);
         String configPath = commandLine.getOptionValue(PROP_KAFKA_CONF);
         String logPath = commandLine.getOptionValue(LOG_PATH);
-        String topicName = destTopicPrefix + "-trace";
+        String topicName = "pdm-input-trace";
 
         try {
             Properties logProperties = new Properties();
@@ -61,27 +60,30 @@ public class Main {
         log.debug("topic : {}", topicName);
         log.debug("client id : {}", clientIdPrefix);
 
+        int idx = 1;
         int start = Integer.parseInt(startIndex);
-        for (int i = start; i < start + 10; i++) {
+        for (int i = start; i <= start + 49; i++) {
             executor.submit(new MessageSenderRunnable(configPath,
-                    watchDir + "/" + ((i-start)+1),
+                    watchDir + "/" + idx++,
                     clientIdPrefix + i, topicName));
         }
     }
 
     private static CommandLine parseCommandLine(String[] args) {
-        Option topicPrefix = new Option(TOPIC_PREFIX, true, "kafka topic for input messages");
+//        Option topicPrefix = new Option(TOPIC_PREFIX, true, "kafka topic for input messages");
         Option watchDir = new Option(WATCH_DIR, true, "directory to monitor");
         Option clientId = new Option(CLIENT_ID, true, "client id prefix");
         Option config = new Option(PROP_KAFKA_CONF, true, "kafka config path");
         Option logConfig = new Option(LOG_PATH, true, "log config path");
         Option startIndex = new Option(START_INDEX, true, "start index");
 
-        options.addOption(topicPrefix)
-                .addOption(watchDir).addOption(clientId)
-                .addOption(startIndex).addOption(config).addOption(logConfig);
+        options.addOption(watchDir)
+                .addOption(clientId)
+                .addOption(startIndex)
+                .addOption(config)
+                .addOption(logConfig);
 
-        if (args.length < 6) {
+        if (args.length < 5) {
             printUsageAndExit();
         }
         CommandLineParser parser = new DefaultParser();

@@ -24,6 +24,7 @@ public class SpeedStreamAppBootstrap {
     private static final String LOG_PATH = "log4jConf";
     private static final String PIPELINE = "pipeline";
     private static final String STREAM_THREADS = "streamThreads";
+//    private static final String RECORD_TYPE = "recordType";
 
     private static final Options options = new Options();
 
@@ -38,6 +39,7 @@ public class SpeedStreamAppBootstrap {
         String logPath = commandLine.getOptionValue(LOG_PATH);
         String pipeline = commandLine.getOptionValue(PIPELINE);
         String streamThreads = commandLine.getOptionValue(STREAM_THREADS, "1");
+//        String recordType = commandLine.getOptionValue(RECORD_TYPE, "MP");
 
         Properties logProperties = new Properties();
         logProperties.load(new FileInputStream(logPath));
@@ -66,6 +68,7 @@ public class SpeedStreamAppBootstrap {
         Option pipeline = new Option(PIPELINE, true, "streaming pipeline");
         Option logPath = new Option(LOG_PATH, true, "config path");
         Option streamThreads = new Option(STREAM_THREADS, true, "stream thread count");
+//        Option recordType = new Option(RECORD_TYPE, true, "record type");
 
         options.addOption(appId)
                 .addOption(broker)

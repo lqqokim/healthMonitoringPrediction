@@ -45,7 +45,7 @@ public class LogMonitor extends Thread {
 
         this.tailerThreadManager = getTailerThreadManager(producerProperties);
 
-        MasterCache.ServingAddress = "http://192.168.7.230:28000";
+        MasterCache.ServingAddress = "http://localhost:28000";
     }
 
     public void run() {

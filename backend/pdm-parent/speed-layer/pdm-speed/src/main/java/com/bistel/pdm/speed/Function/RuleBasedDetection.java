@@ -119,7 +119,7 @@ public class RuleBasedDetection {
                 alarmTypeCode + "," +
                 paramInfo.getUpperAlarmSpec() + "," +
                 paramInfo.getUpperWarningSpec() + "," +
-                "N/A" + "," +
+                paramInfo.getParameterName() + "," +
                 paramInfo.getRuleName() + "," +
                 paramInfo.getCondition().replaceAll(",", ";");
     }

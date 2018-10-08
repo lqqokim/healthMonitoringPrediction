@@ -18,7 +18,7 @@ public class RepositorySinker {
     private final String groupId;
     private final String servingAddress;
 
-    private ExecutorService executor = Executors.newFixedThreadPool(8);
+    private ExecutorService executor = Executors.newFixedThreadPool(8 * 100);
 
     public RepositorySinker(final String groupId, String servingAddr, String configPath) {
         this.groupId = groupId;
@@ -36,29 +36,32 @@ public class RepositorySinker {
         final String outputReloadTopic = "pdm-output-reload";
         final String outputDimensionTopic = "pdm-output-dimension";
 
-        executor.submit(new TimewaveConsumerRunnable(
-                this.configPath, this.groupId + "-raw", outputTimewaveTopic));
+        for (int i = 1; i <= 100; i++) {
 
-        executor.submit(new TraceConsumerRunnable(
-                this.configPath, this.groupId + "-trace", outputTraceTopic));
+            executor.submit(new TimewaveConsumerRunnable(
+                    this.configPath, this.groupId + "-raw", outputTimewaveTopic));
 
-        executor.submit(new FeatureConsumerRunnable(
-                this.configPath, this.groupId + "-feature", outputFeatureTopic));
+            executor.submit(new TraceConsumerRunnable(
+                    this.configPath, this.groupId + "-trace", outputTraceTopic));
 
-        executor.submit(new FaultConsumerRunnable(
-                this.configPath, this.groupId + "-fault", outputFaultTopic));
+            executor.submit(new FeatureConsumerRunnable(
+                    this.configPath, this.groupId + "-feature", outputFeatureTopic));
 
-        executor.submit(new EventConsumerRunnable(
-                this.configPath, this.groupId + "-event", outputEventTopic));
+            executor.submit(new FaultConsumerRunnable(
+                    this.configPath, this.groupId + "-fault", outputFaultTopic));
 
-        executor.submit(new ParamHealthConsumerRunnable(
-                this.configPath, this.groupId + "-health", outputParamHealthTopic));
+            executor.submit(new EventConsumerRunnable(
+                    this.configPath, this.groupId + "-event", outputEventTopic));
 
-        executor.submit(new DimensionConsumerRunnable(
-                this.configPath, this.groupId + "-dimension", outputDimensionTopic));
+            executor.submit(new ParamHealthConsumerRunnable(
+                    this.configPath, this.groupId + "-health", outputParamHealthTopic));
 
-        executor.submit(new ReloadConsumerRunnable(
-                this.configPath, this.groupId + "-reload", outputReloadTopic, this.servingAddress));
+            executor.submit(new DimensionConsumerRunnable(
+                    this.configPath, this.groupId + "-dimension", outputDimensionTopic));
+
+            executor.submit(new ReloadConsumerRunnable(
+                    this.configPath, this.groupId + "-reload", outputReloadTopic, this.servingAddress));
+        }
     }
 
     public void awaitTerminationAfterShutdown() {

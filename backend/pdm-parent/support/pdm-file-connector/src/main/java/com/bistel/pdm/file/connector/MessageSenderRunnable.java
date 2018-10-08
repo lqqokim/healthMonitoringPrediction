@@ -1,13 +1,10 @@
 package com.bistel.pdm.file.connector;
 
 import com.bistel.pdm.lambda.kafka.master.MasterCache;
-import com.bistel.pdm.lambda.kafka.partitioner.CustomStreamPartitioner;
-import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.common.PartitionInfo;
+import org.apache.kafka.clients.producer.RecordMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,7 +12,6 @@ import java.io.*;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Properties;
 
 /**
@@ -36,8 +32,7 @@ public class MessageSenderRunnable implements Runnable {
         this.clientId = clientId;
         this.topicName = topicName;
 
-        MasterCache.ServingAddress = "http://192.168.0.102:28000";
-
+        MasterCache.ServingAddress = "http://192.168.7.228:28000";
         log.debug("[{}] - watch dir : {}", clientId, watchDir);
     }
 
@@ -133,41 +128,54 @@ public class MessageSenderRunnable implements Runnable {
 
                     String[] column = line.split(",");
                     if (!column[0].equalsIgnoreCase("INDEX")) {
-
                         StringBuilder sbMsg = new StringBuilder();
 
                         Timestamp ts = new Timestamp(System.currentTimeMillis());
                         String timeStamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(ts);
                         sbMsg.append(timeStamp).append(",");
 
-                        for (int i = 7; i < 69; i++) {
-                            sbMsg.append(column[i]).append(",");
+
+                        sbMsg.append(column[7]).append(",")
+                                .append(column[8]).append(",")
+                                .append(column[9]).append(",")
+                                .append(column[10]).append(",")
+                                .append(column[11]).append(",")
+                                .append(column[64]).append(",")
+                                .append(column[65]).append(",")
+                                .append(column[66]).append(",")
+                                .append(column[67]).append(",")
+                                .append(column[68]);
+
+//                        if (rcount <= runCount) {
+//                            sbMsg.append("1"); //status
+//                            icount = 0;
+//                        } else {
+//                            if (icount <= idleCount) {
+//                                sbMsg.append("0"); //status
+//                            } else {
+//                                sbMsg.append("0"); //status
+//                                rcount = 0;
+//                                icount = 0;
+//                            }
+//                        }
+
+//                        List<PartitionInfo> partitions = producer.partitionsFor(topicName);
+//                        CustomStreamPartitioner csp = new CustomStreamPartitioner();
+//                        int partitionNum = csp.partition(clientId, sbMsg.toString().getBytes(), partitions.size());
+//                        RecordMetadata meta = producer.send(new ProducerRecord<>(topicName, partitionNum,
+//                                clientId, sbMsg.toString().getBytes())).get();
+
+                        RecordMetadata meta = producer.send(new ProducerRecord<>(topicName,
+                                clientId, sbMsg.toString().getBytes())).get();
+
+                        if(clientId.equalsIgnoreCase("TEST99")){
+                            log.debug("[{}] - {}, partition:{}, offset:{}", clientId, timeStamp, meta.partition(), meta.offset());
+                        } else if(clientId.equalsIgnoreCase("TEST149")){
+                            log.debug("[{}] - {}, partition:{}, offset:{}", clientId, timeStamp, meta.partition(), meta.offset());
                         }
-
-                        if (rcount <= runCount) {
-                            sbMsg.append("1"); //status
-                            icount = 0;
-                        } else {
-                            if (icount <= idleCount) {
-                                sbMsg.append("0"); //status
-                            } else {
-                                sbMsg.append("0"); //status
-                                rcount = 0;
-                                icount = 0;
-                            }
-                        }
-
-                        List<PartitionInfo> partitions = producer.partitionsFor(topicName);
-                        CustomStreamPartitioner csp = new CustomStreamPartitioner();
-                        int partitionNum = csp.partition(clientId, sbMsg.toString().getBytes(), partitions.size());
-
-                        producer.send(new ProducerRecord<>(topicName, partitionNum,
-                                clientId, sbMsg.toString().getBytes()));
-
-                        log.debug("[{}] - {}", clientId, timeStamp);
 
                         try {
-                            Thread.sleep(1000);
+                            Thread.sleep(100);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
@@ -178,6 +186,8 @@ public class MessageSenderRunnable implements Runnable {
 
             } catch (Exception e) {
                 log.error(e.getMessage(), e);
+            } finally {
+                //producer.close();
             }
         }
     }

@@ -8,6 +8,7 @@ APPOPTS="-appId pdm-speed-realtime-v1.1.0
 -servingAddr http://192.168.7.227:28000
 -pipeline REALTIME
 -streamThreads 9
+-recordType MP
 -log4jConf ./config/log4j-realtime.properties"
 
 case $1 in

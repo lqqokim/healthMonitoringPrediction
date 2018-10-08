@@ -28,7 +28,8 @@ public class SpeedRealTimeTaskDef extends AbstractPipeline {
     private final int streamThreadCount;
 
     public SpeedRealTimeTaskDef(String applicationId, String brokers,
-                        String schemaUrl, String servingAddr, String streamThreadCount) {
+                                String schemaUrl, String servingAddr,
+                                String streamThreadCount) {
 
         super(brokers, schemaUrl, servingAddr);
         this.applicationId = applicationId;
@@ -59,53 +60,59 @@ public class SpeedRealTimeTaskDef extends AbstractPipeline {
                                 TimeUnit.HOURS.toMillis(1),
                                 false),
                         Serdes.String(),
-                        Serdes.Double());
+                        Serdes.Double()).withCachingEnabled();
 
-        CustomStreamPartitioner partitioner = new CustomStreamPartitioner();
+//        CustomStreamPartitioner partitioner = new CustomStreamPartitioner();
 
         topology.addSource("input-trace", this.getInputTraceTopic())
                 .addProcessor("speed", SpeedProcessor::new, "input-trace")
                 .addStateStore(normalizedParamValueStoreSupplier, "speed")
 
-                .addSink("output-trace", this.getOutputTraceTopic(), partitioner, "speed")
-                .addSink("output-event", this.getOutputEventTopic(), partitioner, "speed")
-                .addSink("output-fault", this.getOutputFaultTopic(), partitioner, "speed")
-                .addSink("output-health", this.getOutputHealthTopic(), partitioner, "speed")
-                .addSink("output-reload", this.getOutputReloadTopic(), partitioner, "speed")
-                .addSink("output-raw", this.getInputTimewaveTopic(), partitioner, "speed");
+                .addSink("output-trace", this.getOutputTraceTopic(), "speed")
+                .addSink("output-event", this.getOutputEventTopic(), "speed")
+                .addSink("output-fault", this.getOutputFaultTopic(), "speed")
+                .addSink("output-health", this.getOutputHealthTopic(), "speed")
+                .addSink("output-reload", this.getOutputReloadTopic(), "speed")
+                .addSink("output-raw", this.getInputTimewaveTopic(), "speed");
 
         return new KafkaStreams(topology, getStreamProperties());
     }
 
     private Properties getStreamProperties() {
-        Properties streamProps = new Properties();
+        Properties streamProperty = new Properties();
         // Give the Streams application a unique name. The name must be unique in the Kafka cluster
         // against which the application is run.
-        streamProps.put(StreamsConfig.APPLICATION_ID_CONFIG, this.applicationId);
+        streamProperty.put(StreamsConfig.APPLICATION_ID_CONFIG, this.applicationId);
 
         // An ID string to pass to the server when making requests.
         // (This setting is passed to the consumer/producer clients used internally by Kafka Streams.)
         //streamsConfiguration.put(StreamsConfig.CLIENT_ID_CONFIG, "pdm-client-speed-1");
 
         // Where to find Kafka broker(s).
-        streamProps.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, this.getBroker());
+        streamProperty.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, this.getBroker());
 
         //streamsConfiguration.put(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, this.getSchemaRegistryUrl());
 
         // Specify default (de)serializers for record keys and for record values.
-        streamProps.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
-        streamProps.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.ByteArray().getClass().getName());
+        streamProperty.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
+        streamProperty.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.ByteArray().getClass().getName());
 
-        streamProps.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, AUTO_OFFSET_RESET_CONFIG);
+        streamProperty.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, AUTO_OFFSET_RESET_CONFIG);
 
-        streamProps.put(StreamsConfig.PROCESSING_GUARANTEE_CONFIG, StreamsConfig.EXACTLY_ONCE);
+        streamProperty.put(StreamsConfig.PROCESSING_GUARANTEE_CONFIG, StreamsConfig.EXACTLY_ONCE);
 
         // The number of threads to execute stream processing. default is 1.
-        streamProps.put(StreamsConfig.NUM_STREAM_THREADS_CONFIG, streamThreadCount);
+        streamProperty.put(StreamsConfig.NUM_STREAM_THREADS_CONFIG, streamThreadCount);
 
-        streamProps.put(StreamsConfig.STATE_DIR_CONFIG, stateDir);
+        // Enable record cache of size 10 MB.
+        streamProperty.put(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, 10 * 1024 * 1024L);
 
-        return streamProps;
+        // Set commit interval to 1 second.
+        streamProperty.put(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, 1000);
+
+        streamProperty.put(StreamsConfig.STATE_DIR_CONFIG, stateDir);
+
+        return streamProperty;
     }
 
     @Override

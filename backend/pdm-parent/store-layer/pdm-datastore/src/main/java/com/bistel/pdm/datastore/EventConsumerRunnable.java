@@ -65,6 +65,7 @@ public class EventConsumerRunnable implements Runnable {
         while (true) {
             ConsumerRecords<String, byte[]> records = consumer.poll(TimeUnit.MILLISECONDS.toMillis(PollingDurations));
             for (ConsumerRecord<String, byte[]> record : records) {
+                //log.debug("[{}] - event -- partition:{}, offset:{}", record.key(), record.partition(), record.offset());
                 buffer.add(record);
             }
 

@@ -19,6 +19,9 @@ public class EventMaster {
     @JsonProperty("eventRawId")
     private Long eventRawId;
 
+    @JsonProperty("paramRawId")
+    private Long paramRawId;
+
     @JsonProperty("eventName")
     private String eventName;
 
@@ -46,7 +49,17 @@ public class EventMaster {
     @JsonProperty("timeoutMs")
     private Long timeoutMs;
 
-//    public String toKey(){
+    @JsonProperty("useHolidayYn")
+    private String useHolidayYn;
+
+    public String getUseHolidayYn() {
+        return useHolidayYn;
+    }
+
+    public void setUseHolidayYn(String useHolidayYn) {
+        this.useHolidayYn = useHolidayYn;
+    }
+    //    public String toKey(){
 //        return this.areaName  + "," + this.equipmentName;
 //    }
 
@@ -156,5 +169,13 @@ public class EventMaster {
 
     public void setTimeoutMs(Long timeoutMs) {
         this.timeoutMs = timeoutMs;
+    }
+
+    public Long getParamRawId() {
+        return paramRawId;
+    }
+
+    public void setParamRawId(Long paramRawId) {
+        this.paramRawId = paramRawId;
     }
 }

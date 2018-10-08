@@ -69,8 +69,8 @@ public class StreamingMasterDataDao {
                     "    select " +
                     "        e.name eqp_name, e.rawid eqp_rawid, m.param_name, " +
                     "        c.rule_name, c.expression, c.expression_value, " +
-                    "        nvl(s.upper_alarm_spec, m.upper_alarm_spec) as alarm_spec, " +
-                    "        nvl(s.upper_warning_spec, m.upper_warning_spec) as warning_spec, " +
+                    "        COALESCE(s.upper_alarm_spec, m.upper_alarm_spec) as alarm_spec, " +
+                    "        COALESCE(s.upper_warning_spec, m.upper_warning_spec) as warning_spec, " +
                     "        c.condition " +
                     "    from eqp_mst_pdm e inner join eqp_spec_link_mst_pdm l " +
                     "    on e.rawid=l.eqp_mst_rawid and e.name=? " +
@@ -240,7 +240,8 @@ public class StreamingMasterDataDao {
                     "param.parse_index, " +
                     "event.time_interval_yn, " +
                     "event.interval_time_ms, " +
-                    "event.timeout " +
+                    "event.timeout," +
+                    "param.rawid " +
                     "from area_mst_pdm area, eqp_mst_pdm eqp, param_mst_pdm param, eqp_event_mst_pdm event " +
                     "where area.rawid=eqp.area_mst_rawid " +
                     "and eqp.rawid=param.eqp_mst_rawid " +
@@ -272,6 +273,7 @@ public class StreamingMasterDataDao {
                 ds.setTimeIntervalYn(rs.getString(11));
                 ds.setIntervalTimeMs(rs.getLong(12));
                 ds.setTimeoutMs(rs.getLong(13));
+                ds.setParamRawId(rs.getLong(14));
 
                 resultRows.add(ds);
             }
@@ -297,7 +299,8 @@ public class StreamingMasterDataDao {
                     "param.parse_index, " +
                     "event.time_interval_yn," +
                     "event.interval_time_ms," +
-                    "event.timeout " +
+                    "event.timeout, " +
+                    "param.rawid " +
                     "from area_mst_pdm area, eqp_mst_pdm eqp, param_mst_pdm param, eqp_event_mst_pdm event " +
                     "where area.rawid=eqp.area_mst_rawid " +
                     "and eqp.rawid=param.eqp_mst_rawid " +
@@ -330,6 +333,7 @@ public class StreamingMasterDataDao {
                         ds.setTimeIntervalYn(rs.getString(11));
                         ds.setIntervalTimeMs(rs.getLong(12));
                         ds.setTimeoutMs(rs.getLong(13));
+                        ds.setParamRawId(rs.getLong(14));
 
                         resultRows.add(ds);
                     }

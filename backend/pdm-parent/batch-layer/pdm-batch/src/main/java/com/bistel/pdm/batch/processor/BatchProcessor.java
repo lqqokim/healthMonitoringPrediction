@@ -28,7 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class BatchProcessor extends AbstractProcessor<String, byte[]> {
     private static final Logger log = LoggerFactory.getLogger(BatchProcessor.class);
 
-    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+//    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
     private final static String SEPARATOR = ",";
 
     private WindowStore<String, Double> kvContValueWindowStore;
@@ -55,51 +55,63 @@ public class BatchProcessor extends AbstractProcessor<String, byte[]> {
         String recordValue = new String(streamByteRecord);
         String[] recordColumns = recordValue.split(SEPARATOR, -1);
 
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+
         try {
             // refresh cache
             if (recordColumns[1].equalsIgnoreCase("CMD-REFRESH-CACHE")) {
                 refreshCacheFlagMap.put(partitionKey, "Y");
                 context().commit();
-                log.debug("[{}-{}] - Refresh Order were issued.", partitionKey, context().partition());
+                log.debug("[{}] - Refresh Order were issued.", partitionKey);
                 return;
             }
 
             // filter by master
             if (MasterCache.Equipment.get(partitionKey) == null) {
-                log.debug("[{}-{}] - Not existed.", partitionKey, context().partition());
+                log.debug("[{}] - Not existed.", partitionKey);
                 context().commit();
                 return;
             }
 
             Pair<EventMaster, EventMaster> eventInfo = MasterCache.IntervalEvent.get(partitionKey);
-            if (eventInfo != null && eventInfo.getFirst() != null) {
+            if (eventInfo != null && eventInfo.getFirst() != null && eventInfo.getFirst().getParamParseIndex() != null) {
 
-                final Long msgLongTime = parseStringToTimestamp(recordColumns[0]);
-                double paramValue = Double.parseDouble(recordColumns[eventInfo.getFirst().getParamParseIndex()]);
-                String nowStatusCode = statusDefineFunction.evaluateStatusCode(eventInfo.getFirst(), paramValue);
+                Date parsedDate = dateFormat.parse(recordColumns[0]);
+                Long nowMessageTime = new Timestamp(parsedDate.getTime()).getTime();
+
+                String nowStatusCode = "I";
+
+                String strValue = recordColumns[eventInfo.getFirst().getParamParseIndex()];
+                if (strValue.length() > 0) {
+                    double statusValue = Double.parseDouble(strValue);
+                    nowStatusCode = statusDefineFunction.evaluateStatusCode(eventInfo.getFirst(), statusValue);
+                }
 
                 StatusWindow statusWindow;
                 if (statusContextMap.get(partitionKey) == null) {
                     statusWindow = new StatusWindow();
-                    statusWindow.addPrevious(nowStatusCode, msgLongTime);
-                    statusWindow.addCurrent(nowStatusCode, msgLongTime);
+                    statusWindow.addPrevious(nowStatusCode, nowMessageTime);
+                    statusWindow.addCurrent(nowStatusCode, nowMessageTime);
                     statusContextMap.put(partitionKey, statusWindow);
                 } else {
                     statusWindow = statusContextMap.get(partitionKey);
-                    statusWindow.addCurrent(nowStatusCode, msgLongTime);
+                    statusWindow.addCurrent(nowStatusCode, nowMessageTime);
                 }
 
-                intervalLongTime.putIfAbsent(partitionKey, msgLongTime);
-                messageGroupMap.putIfAbsent(partitionKey, msgLongTime.toString());
+                intervalLongTime.putIfAbsent(partitionKey, nowMessageTime);
+                messageGroupMap.putIfAbsent(partitionKey, nowMessageTime.toString());
+
+                log.debug("[{}] - status:{}, partition:{}, offset:{}", partitionKey,
+                        statusWindow.getCurrentStatusCode(), context().partition(), context().offset());
 
                 if (statusWindow.getCurrentStatusCode().equalsIgnoreCase("R")
                         && statusWindow.getPreviousStatusCode().equalsIgnoreCase("I")) {
+                    log.debug("[{}] process started.", partitionKey);
                     // process start (IR)
-                    String msgGroup = msgLongTime.toString(); // define group id
+                    String msgGroup = nowMessageTime.toString(); // define group id
                     messageGroupMap.put(partitionKey, msgGroup);
 
                     intervalLongTime.put(partitionKey, statusWindow.getCurrentLongTime());
-
                 }
 
                 if (statusWindow.getCurrentStatusCode().equalsIgnoreCase("R")) {
@@ -115,8 +127,15 @@ public class BatchProcessor extends AbstractProcessor<String, byte[]> {
                         String paramKey = partitionKey + ":" + paramInfo.getParameterRawId();
 
                         if (paramInfo.getDataType().equalsIgnoreCase("CONTINUOUS")) {
-                            Double dValue = Double.parseDouble(recordColumns[paramInfo.getParamParseIndex()]);
-                            kvContValueWindowStore.put(paramKey, dValue, paramTime);
+                            String parsingValue = recordColumns[paramInfo.getParamParseIndex()];
+
+                            if(parsingValue.length() > 0){
+                                Double dValue = Double.parseDouble(parsingValue);
+                                kvContValueWindowStore.put(paramKey, dValue, paramTime);
+                            } else {
+                                kvContValueWindowStore.put(paramKey, Double.NaN, paramTime);
+                            }
+
                         } else {
                             String catValue = recordColumns[paramInfo.getParamParseIndex()];
                             kvCatValueWindowStore.put(paramKey, catValue, paramTime);
@@ -143,7 +162,9 @@ public class BatchProcessor extends AbstractProcessor<String, byte[]> {
                                     DescriptiveStatistics stats = new DescriptiveStatistics();
                                     while (storeIterator.hasNext()) {
                                         KeyValue<Long, Double> kv = storeIterator.next();
-                                        stats.addValue(kv.value);
+                                        if(!kv.value.isNaN()){
+                                            stats.addValue(kv.value);
+                                        }
                                     }
                                     storeIterator.close();
 
@@ -163,11 +184,11 @@ public class BatchProcessor extends AbstractProcessor<String, byte[]> {
                                                 msgGroup;
 
                                         context().forward(partitionKey, summaryMsg.getBytes(), "output-feature");
-                                        context().commit();
+//                                        context().commit();
 
                                     } else {
-                                        log.debug("[{}-{}] - skip {} because value is empty.",
-                                                partitionKey, context().partition(), paramMaster.getParameterName());
+                                        log.debug("[{}] - skip {} because value is empty.",
+                                                partitionKey, paramMaster.getParameterName());
                                     }
                                 } else {
                                     // for dimensional
@@ -189,12 +210,12 @@ public class BatchProcessor extends AbstractProcessor<String, byte[]> {
                                                 msgGroup;
 
                                         context().forward(partitionKey, categoricalMsg.getBytes(), "output-dimension");
-                                        context().commit();
+//                                        context().commit();
                                     }
                                 }
                             }
-                            log.debug("[{}-{}] - aggregated interval ({} to {}).",
-                                    partitionKey, context().partition(), sts, ets);
+                            log.debug("[{}] - aggregated interval ({} to {}).",
+                                    partitionKey, sts, ets);
 
                             intervalLongTime.put(partitionKey, paramTime);
                         }
@@ -222,7 +243,9 @@ public class BatchProcessor extends AbstractProcessor<String, byte[]> {
                             DescriptiveStatistics stats = new DescriptiveStatistics();
                             while (contStoreIterator.hasNext()) {
                                 KeyValue<Long, Double> kv = contStoreIterator.next();
-                                stats.addValue(kv.value);
+                                if(!kv.value.isNaN()){
+                                    stats.addValue(kv.value);
+                                }
                             }
                             contStoreIterator.close();
 
@@ -242,11 +265,11 @@ public class BatchProcessor extends AbstractProcessor<String, byte[]> {
                                         msgGroup;
 
                                 context().forward(partitionKey, summaryMsg.getBytes(), "output-feature");
-                                context().commit();
+//                                context().commit();
 
                             } else {
-                                log.debug("[{}-{}] - skip {} because value is empty.",
-                                        partitionKey, context().partition(), paramMaster.getParameterName());
+                                log.debug("[{}] - skip {} because value is empty.",
+                                        partitionKey, paramMaster.getParameterName());
                             }
                         } else {
                             // for dimensional
@@ -268,57 +291,46 @@ public class BatchProcessor extends AbstractProcessor<String, byte[]> {
                                         msgGroup;
 
                                 context().forward(partitionKey, categoricalMsg.getBytes(), "output-dimension");
-                                context().commit();
+//                                context().commit();
                             }
                         }
                     }
 
-                    log.debug("[{}-{}] - aggregated interval ({} to {}).",
-                            partitionKey, context().partition(), sts, ets);
+                    log.debug("[{}] - aggregated interval ({} to {}).",
+                            partitionKey, sts, ets);
                 } else {
                     // idle (II)
                     // refresh cache
                     if (refreshCacheFlagMap.get(partitionKey) != null
                             && refreshCacheFlagMap.get(partitionKey).equalsIgnoreCase("Y")) {
-                        refreshMasterCache(partitionKey, context().partition());
+                        refreshMasterCache(partitionKey);
                         refreshCacheFlagMap.put(partitionKey, "N");
                     }
                 }
 
-                statusWindow.addPrevious(nowStatusCode, msgLongTime);
+                statusWindow.addPrevious(nowStatusCode, nowMessageTime);
                 statusContextMap.put(partitionKey, statusWindow);
 
             } else {
                 // refresh cache
                 if (refreshCacheFlagMap.get(partitionKey) != null
                         && refreshCacheFlagMap.get(partitionKey).equalsIgnoreCase("Y")) {
-                    refreshMasterCache(partitionKey, context().partition());
+                    refreshMasterCache(partitionKey);
                     refreshCacheFlagMap.put(partitionKey, "N");
                 }
 
-                log.debug("[{}-{}] - No event registered.", partitionKey, context().partition());
+                log.debug("[{}] - No event registered.", partitionKey);
             }
+
+            context().commit();
+
         } catch (Exception e) {
-            log.debug("[{}-{}] - {}", partitionKey, context().partition(), recordValue);
+            log.debug("[{}] - {}", partitionKey, recordValue);
             log.error(e.getMessage(), e);
         }
     }
 
-    private static Long parseStringToTimestamp(String item) {
-        Long time = 0L;
-
-        try {
-            Date parsedDate = dateFormat.parse(item);
-            Timestamp timestamp = new Timestamp(parsedDate.getTime());
-            time = timestamp.getTime();
-        } catch (Exception e) {
-            log.error(e.getMessage() + " : " + item, e);
-        }
-
-        return time;
-    }
-
-    private void refreshMasterCache(String partitionKey, int partition) {
+    private void refreshMasterCache(String partitionKey) {
         // refresh master info.
         try {
             MasterCache.Equipment.refresh(partitionKey);
@@ -330,7 +342,7 @@ public class BatchProcessor extends AbstractProcessor<String, byte[]> {
             MasterCache.Health.refresh(partitionKey);
             MasterCache.Mail.refresh(partitionKey);
 
-            log.debug("[{}-{}] - all cache refreshed.", partitionKey, partition);
+            log.debug("[{}] - all cache refreshed.", partitionKey);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }

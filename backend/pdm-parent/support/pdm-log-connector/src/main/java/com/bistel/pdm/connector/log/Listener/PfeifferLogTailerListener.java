@@ -43,7 +43,8 @@ public class PfeifferLogTailerListener extends TailerListenerAdapter {
 
         final String partitionKey = "TP8016901"; //eqp
 
-        final String[] paramName = new String[]{"F1 CH1 V",
+        final String[] paramName = new String[]{
+                "F1 CH1 V",
                 "F1 CH2 V",
                 "F2 CH1 V",
                 "F2 CH2 V",
@@ -75,32 +76,29 @@ public class PfeifferLogTailerListener extends TailerListenerAdapter {
                 + columns[3].trim() + "," + columns[4].trim() + ","
                 + columns[5].trim() + "," + columns[6].trim() + ","
                 + columns[7].trim() + "," + columns[8].trim() + ","
-                + columns[9].trim() + "," + columns[10].trim() + ","
-                + columns[11].trim() + "," + columns[12].trim() + ","
-                + columns[13].trim() + "," + columns[14].trim() + ","
-                + columns[15].trim() + "," + columns[16].trim() + ","
-                + columns[16].trim() + "," + columns[17].trim() + ","
-                + columns[18].trim() + "," + columns[19].trim() + ","
-                + columns[20].trim();
-
-        log.debug("[{}] - {}", partitionKey, msg);
+                + columns[9].trim() + "," + columns[10].trim();// + ","
+//                + columns[11].trim() + "," + columns[12].trim() + ","
+//                + columns[13].trim() + "," + columns[14].trim() + ","
+//                + columns[15].trim() + "," + columns[16].trim() + ","
+//                + columns[16].trim() + "," + columns[17].trim() + ","
+//                + columns[18].trim() + "," + columns[19].trim() + ","
+//                + columns[20].trim();
 
         try {
             List<PartitionInfo> partitions = rmsProducer.partitionsFor(topicName);
             CustomStreamPartitioner csp = new CustomStreamPartitioner();
             int partitionNum = csp.partition(partitionKey, msg.getBytes(), partitions.size());
 
-            log.debug("partition Number : {}", partitionNum);
             rmsProducer.send(new ProducerRecord<>(topicName, partitionNum,
                     partitionKey, msg.getBytes()));
 
-            log.info("send {}", msg);
+            log.info("[{}-{}] - {}", partitionKey, partitionNum, msg);
         } catch (Exception e){
             log.error(e.getMessage(), e);
         }
 
         try {
-            Thread.sleep(100);
+            Thread.sleep(1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

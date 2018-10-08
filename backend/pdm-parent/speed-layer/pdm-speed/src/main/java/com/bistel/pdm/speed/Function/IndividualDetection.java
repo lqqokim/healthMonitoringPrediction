@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Timestamp;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -16,21 +17,19 @@ import java.util.concurrent.ExecutionException;
 public class IndividualDetection {
     private static final Logger log = LoggerFactory.getLogger(IndividualDetection.class);
 
-    private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+//    private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
     private final ConcurrentHashMap<String, Integer> alarmCountMap = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, Integer> warningCountMap = new ConcurrentHashMap<>();
 
     public String detect(String partitionKey, String paramKey,
-                              ParameterWithSpecMaster paramInfo, String time, Double paramValue)
-            throws ExecutionException {
+                         ParameterWithSpecMaster paramInfo, String time, Double paramValue)
+            throws ExecutionException, ParseException {
 
         String msg = "";
 
         ParameterHealthMaster fd01Health = getParamHealth(partitionKey, paramInfo.getParameterRawId(), "FD_OOS");
         if (fd01Health != null && fd01Health.getApplyLogicYN().equalsIgnoreCase("Y")) {
-
-            //log.debug("[{}] - value:{}, alarm:{}, warning:{}", partitionKey, paramValue, paramInfo.getUpperAlarmSpec(), paramInfo.getUpperWarningSpec());
 
             if (evaluateAlarm(paramInfo, paramValue)) {
                 // Alarm
@@ -55,7 +54,7 @@ public class IndividualDetection {
                 msg = makeOutOfWarningMsg(time, paramInfo, fd01Health, paramValue);
             }
         } else {
-            log.debug("[{}] - Skip the logic 1.", paramKey);
+            log.debug("[{}] - Skip the logic 1. because No health Info.", paramKey);
         }
 
         return msg;
@@ -126,6 +125,8 @@ public class IndividualDetection {
                     + (paramInfo.getTarget() == null ? "" : paramInfo.getTarget()) + ","
                     + (paramInfo.getLowerAlarmSpec() == null ? "" : paramInfo.getLowerAlarmSpec()) + ","
                     + (paramInfo.getLowerWarningSpec() == null ? "" : paramInfo.getLowerWarningSpec());
+        } else {
+            log.debug("[{}] - No health Info. : {}", partitionKey, paramInfo.getParameterName());
         }
 
         return msg;
@@ -146,7 +147,6 @@ public class IndividualDetection {
 
         return healthData;
     }
-
 
 
     private boolean evaluateAlarm(ParameterWithSpecMaster param, Double paramValue) {
@@ -172,19 +172,21 @@ public class IndividualDetection {
     }
 
     private String makeOutOfAlarmMsg(String longTime, ParameterWithSpecMaster param,
-                                           ParameterHealthMaster healthData, Double paramValue) {
+                                     ParameterHealthMaster healthData, Double paramValue) throws ParseException {
 
-        //log.trace("[{}] : check the out of individual spec. - {}", paramKey, paramValue);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+        Date parsedDate = dateFormat.parse(longTime);
+        Timestamp timestamp = new Timestamp(parsedDate.getTime());
 
         // time, param_rawid, health_rawid, value, alarm type, alarm_spec, warning_spec, fault_class
-        String sbMsg = parseStringToTimestamp(longTime) + "," +
+        String sbMsg = timestamp.getTime() + "," +
                 param.getParameterRawId() + "," +
                 healthData.getParamHealthRawId() + ',' +
                 paramValue + "," +
                 "256" + "," +
                 param.getUpperAlarmSpec() + "," +
                 param.getUpperWarningSpec() + "," +
-                "N/A" + "," +
+                param.getParameterName() + "," +
                 param.getRuleName() + "," +
                 param.getCondition().replaceAll(",", ";");
 
@@ -220,17 +222,21 @@ public class IndividualDetection {
 
 
     private String makeOutOfWarningMsg(String longTime, ParameterWithSpecMaster param,
-                                             ParameterHealthMaster healthData, Double paramValue) {
+                                       ParameterHealthMaster healthData, Double paramValue) throws ParseException {
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+        Date parsedDate = dateFormat.parse(longTime);
+        Timestamp timestamp = new Timestamp(parsedDate.getTime());
 
         // time, param_rawid, health_rawid, value, alarm type, alarm_spec, warning_spec, fault_class
-        String sbMsg = parseStringToTimestamp(longTime) + "," +
+        String sbMsg = timestamp.getTime() + "," +
                 param.getParameterRawId() + "," +
                 healthData.getParamHealthRawId() + ',' +
                 paramValue + "," +
                 "128" + "," +
                 param.getUpperAlarmSpec() + "," +
                 param.getUpperWarningSpec() + "," +
-                "N/A" + "," +
+                param.getParameterName() + "," +
                 param.getRuleName() + "," +
                 param.getCondition().replaceAll(",", ";");
 
@@ -249,20 +255,6 @@ public class IndividualDetection {
         return sbMsg;
     }
 
-    private Long parseStringToTimestamp(String item) {
-        Long time = 0L;
-
-        try {
-            Date parsedDate = dateFormat.parse(item);
-            Timestamp timestamp = new Timestamp(parsedDate.getTime());
-            time = timestamp.getTime();
-        } catch (Exception e) {
-            log.error(e.getMessage() + " : " + item, e);
-        }
-
-        return time;
-    }
-
     public boolean existAlarm(String paramKey) {
         return alarmCountMap.get(paramKey) != null && alarmCountMap.get(paramKey) > 0;
     }
@@ -271,11 +263,11 @@ public class IndividualDetection {
         return warningCountMap.get(paramKey) != null && warningCountMap.get(paramKey) > 0;
     }
 
-    public void resetAlarmCount(String paramKey){
+    public void resetAlarmCount(String paramKey) {
         alarmCountMap.put(paramKey, 0);
     }
 
-    public void resetWarningCount(String paramKey){
+    public void resetWarningCount(String paramKey) {
         warningCountMap.put(paramKey, 0);
     }
 }
