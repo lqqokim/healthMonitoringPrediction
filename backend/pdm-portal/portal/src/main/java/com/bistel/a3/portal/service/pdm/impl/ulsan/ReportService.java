@@ -80,7 +80,8 @@ public class ReportService implements com.bistel.a3.portal.service.pdm.IReportSe
     @Value("${rms.summary.period}")
     private int rmsSummaryPeriod;
 
-
+    @Value("${GlobalVariationPrevious}")
+    private int globalVariationPrevious;
 
     @Override
     public List<Fab> getFabs() {
@@ -210,7 +211,7 @@ public class ReportService implements com.bistel.a3.portal.service.pdm.IReportSe
 
         Date start = new Date(fromdate);
         Date end = new Date(todate);
-        Date from90 = DateUtils.addDays(start, -90);
+        Date from90 = DateUtils.addDays(start, -globalVariationPrevious);
 
         List<EqpStatus> allStatus = new ArrayList<>();
         for(EqpWithArea eqp: eqps) {

@@ -159,9 +159,12 @@
                 tid = 'jqplot_target_' + $.jqplot.targetCounter++;
                 $this.attr('id', tid);
             }
-
+       
             plot = $.jqplot(tid, data, opts);
-
+            
+            $('.button-reset').click(function() { 
+                 plot.resetZoom() 
+            });
             $this.data('jqplot', plot);
         });
     };

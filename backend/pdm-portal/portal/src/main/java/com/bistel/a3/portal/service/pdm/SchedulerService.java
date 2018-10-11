@@ -40,6 +40,9 @@ public class SchedulerService {
     @Autowired
     private ApacheHttpClientGet apacheHttpClientGet;
 
+    @Value("${GlobalRulPrevious}")
+    private int globalRulPrevious;
+
     private static FastDateFormat ff = FastDateFormat.getDateInstance(DateFormat.LONG);
 
     @Scheduled(cron="${schedule.partition}")
@@ -105,7 +108,7 @@ public class SchedulerService {
 //        Date end=DateUtils.truncate(new Date(), Calendar.DATE);
 //        end=DateUtils.addDays(end,1);
 
-            Date rulStart_dtts = DateUtils.addDays(end, -7);
+            Date rulStart_dtts = DateUtils.addDays(end, -globalRulPrevious);
             logger.info("START scheduled summaryHealth [{} ~ {}]", ff.format(start_dtts), ff.format(end));
 
             batchTaskService.deleteHealthDailySum(fabsComponent.scheduleFabs(), start_dtts, end);
@@ -159,7 +162,7 @@ public class SchedulerService {
             Date end = DateUtils.addDays(start_dtts, 1);               // 2018-08-28 29 30   //********************************************************
 
 
-        Date rulStart_dtts = DateUtils.addDays(end, -7);
+        Date rulStart_dtts = DateUtils.addDays(end, -globalRulPrevious);
         logger.info("START scheduled summaryHealth [{} ~ {}]", ff.format(start_dtts), ff.format(end));
 
         batchTaskService.deleteHealthDailySum(fabsComponent.scheduleFabs(), start_dtts, end);

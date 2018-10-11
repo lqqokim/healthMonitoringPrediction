@@ -93,6 +93,9 @@ public class ReportService implements IReportService {
     @Value("${summary.hampelFilter.enable}")
     private boolean hampelFilterEnable;
 
+    @Value("${GlobalVariationPrevious}")
+    private int globalVariationPrevious;
+
 
     public List<Fab> getFabs() {
         List<Fab> result = new ArrayList<>();
@@ -220,7 +223,7 @@ public class ReportService implements IReportService {
 
         Date start = new Date(fromdate);
         Date end = new Date(todate);
-        Date from90 = DateUtils.addDays(start, -90);
+        Date from90 = DateUtils.addDays(start, -globalVariationPrevious);
 
         List<EqpStatus> allStatus = new ArrayList<>();
         for(EqpWithArea eqp: eqps) {

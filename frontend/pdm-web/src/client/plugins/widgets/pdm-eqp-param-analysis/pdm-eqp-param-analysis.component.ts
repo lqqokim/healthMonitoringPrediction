@@ -812,6 +812,7 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
                     autoscale: true,
                 },
                 yaxis: {
+                    min : -0.1,
                     labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
                     tickOptions: {
                         formatString: '%.2f'
@@ -1687,8 +1688,7 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
                 const dataSize = data.data.length;
                 for (let i = 0; i < dataSize; i++) {
                     trendData.push([data.data[i][0], data.data[i][1]]);
-                }
-
+                }            
                 this.healthIndexData = [];
                 if (trendData.length) {
                     this.healthIndexData.push(trendData);
@@ -1836,7 +1836,7 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
                                 warning.push([data[i][0], data[i][3]]);
                             }
                         }
-                    }
+                    }                   
                     // if (alarm.length > 0 && alarm[alarm.length - 1][0] != data[data.length - 1][0]) {
                     //     if (data[data.length - 1][2] != null)
                     //         alarm.push([data[data.length - 1][0], data[data.length - 1][2]]);
@@ -2294,7 +2294,9 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
                         dataType: 'date'
                     }
                 },
-                yaxis: {
+                yaxis: {              
+                     min : -0.1,
+                    // max : -1,
                     drawMajorGridlines: true,
                     labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
                     tickOptions: {
