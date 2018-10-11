@@ -65,6 +65,9 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges, OnDest
     paramClickEvent: MouseEvent;
 
     maxParamCount: number;
+    jeopardyThreshold: number;
+    goodThreshold: number;
+
 
     readonly TYPE: IRadar.Type = {
         ALARM: 'alarm',
@@ -88,6 +91,8 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges, OnDest
             this.fabId = currentValue['fabId'];
             this.timePeriod = currentValue['timePeriod'];
             this.maxParamCount = currentValue['maxParamCount'];
+            this.jeopardyThreshold = currentValue['threshold']['jeopardy'];
+            this.goodThreshold = currentValue['threshold']['good'];
             // this._initData();
 
             this.getRadarDatas(this.TYPE.AW);
@@ -271,8 +276,10 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges, OnDest
         if (type === this.TYPE.AW) {
             this.getAWDatas(radarEqpParams);
         } else if (type === this.TYPE.B5) {
+            radarEqpParams.params['threshold'] = Number(this.jeopardyThreshold);
             this.getB5Datas(radarEqpParams);
         } else if (type === this.TYPE.G5) {
+            radarEqpParams.params['threshold'] = Number(this.goodThreshold);
             this.getG5Datas(radarEqpParams);
         }
     }

@@ -252,7 +252,9 @@ export const ConditionConstant = {
 	MONITORING_ID: 'rawId',
 	MONITORING_NAME: 'name',
 	MAX_PARAM_COUNT: 'maxParamCount',
-	SPECTRUM_COUNT: 'spectrumCount', 
+	SPECTRUM_COUNT: 'spectrumCount',
+	JEOPARDY_THRESHOLD: 'jeopardyThreshold',
+	GOOD_THRESHOLD: 'goodThreshold', 
 	
 
 	TIME_PERIOD_30: 'timePeriod30',

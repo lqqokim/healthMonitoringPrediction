@@ -113,6 +113,8 @@ export const LabelConstant = {
 	MONITORING: 'monitoring',
 	MAX_PARAM_COUNT: 'maxParamCount',
 	SPECTRUM_COUNT: 'spectrumCount',
+	JEOPARDY_THRESHOLD: 'jeopardyThreshold',
+	GOOD_THRESHOLD: 'goodThreshold', 
 
 	STEP_DRIFT: 'stepDrift',
 	STEP_DOWN_TREND: 'stepDownTrend',

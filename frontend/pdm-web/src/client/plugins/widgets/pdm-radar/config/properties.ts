@@ -9,7 +9,7 @@ import { FormConfigType } from '../../../../sdk';
 export class Properties extends ConditionApi {
 
 	preInit(): Array<string> {
-		return [CD.PLANT, CD.MAX_PARAM_COUNT];
+		return [CD.PLANT, CD.MAX_PARAM_COUNT, CD.JEOPARDY_THRESHOLD, CD.GOOD_THRESHOLD];
 	}
 
 	// properties 초기값 설정
@@ -18,18 +18,20 @@ export class Properties extends ConditionApi {
 	}
 
 	// In Condition 조건
-	config(): [ConditionType] {
+	config(): ConditionType[] {
 		return [
 			Condic.Tool.plant(),
 			Condic.Common.time_period(),
 			Condic.Tool.max_param_count(),
+			Condic.Tool.jeopardy_threshold(),
+			Condic.Tool.good_threshold()
 		];
 	}
 
 	/**
 	 * Form config 
 	 */
-	form(): [FormConfigType] {
+	form(): FormConfigType[] {
 		const newConfig: FormConfigType = {
 			config: {
 				// isTimePeriod: false,
@@ -41,6 +43,8 @@ export class Properties extends ConditionApi {
 			Formcfg.Factory.plant(),
 			Formcfg.Common.time_period(newConfig),
 			Formcfg.Factory.max_param_count(),
+			Formcfg.Factory.jeopardy_threshold(),
+			Formcfg.Factory.good_threshold(),
 			Formcfg.Common.communication()
 			
 		];

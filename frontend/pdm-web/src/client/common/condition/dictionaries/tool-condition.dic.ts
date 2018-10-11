@@ -648,4 +648,22 @@ export class ToolConditionDic {
             },
             newCondition);
     }
+
+    static jeopardy_threshold( newCondition: ConditionValueType = {} ): ConditionType {
+        return compose(
+            CD.JEOPARDY_THRESHOLD,
+            {
+                required: true
+            },
+            newCondition);
+    }
+
+    static good_threshold( newCondition: ConditionValueType = {} ): ConditionType {
+        return compose(
+            CD.GOOD_THRESHOLD,
+            {
+                required: true
+            },
+            newCondition);
+    }
 }

@@ -77,7 +77,11 @@ export class PdmRadarWidgetComponent extends WidgetApi implements OnSetup, OnDes
                 from: this._props[CD.TIME_PERIOD][CD.FROM],
                 to: new Date(this._props[CD.TIME_PERIOD].to).setHours(0, 0, 0, 0)
             },
-            maxParamCount: this._props[CD.MAX_PARAM_COUNT]
+            maxParamCount: this._props[CD.MAX_PARAM_COUNT],
+            threshold: {
+                jeopardy: this._props[CD.JEOPARDY_THRESHOLD],
+                good: this._props[CD.GOOD_THRESHOLD]
+            }
         };
 
         this.condition = condition;

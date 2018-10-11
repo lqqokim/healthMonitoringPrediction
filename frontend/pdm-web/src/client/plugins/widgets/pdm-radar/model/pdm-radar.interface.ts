@@ -6,6 +6,7 @@ export interface RadarEqpReqParams {
         toDate: number;
         radarType?: string;
         numberOfWorst?: number;
+        threshold?: number;
     }
 }
 
@@ -150,6 +151,12 @@ export interface Condition {
     fabId: number;
     timePeriod: TimePeriod;
     maxParamCount: number;
+    threshold: threshold;
+}
+
+export type threshold = {
+    jeopardy: number;
+    good: number;
 }
 
 export interface TimePeriod {
@@ -206,7 +213,7 @@ export interface AvgDaily {
     value: number;
     data?: RadarParamRes;
 
-    index?:number;
+    index?: number;
 }
 
 

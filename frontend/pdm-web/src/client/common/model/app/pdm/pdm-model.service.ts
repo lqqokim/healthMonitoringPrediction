@@ -504,15 +504,20 @@ export class PdmModelService extends ModelCommonService {
 	}
 
 	getRadarEqps(param: IRadar.RadarEqpReqParams): Promise<any> {
-		return this.GET({
-			uriPath: `pdm/fabs/${param.fabId}/radareqps`,
-			querystring: {
-				fromdate: param.params.fromDate,
+		let querystring = {
+			fromdate: param.params.fromDate,
 				todate: param.params.toDate,
 				type: param.params.radarType,
 				numberOfWorst: param.params.numberOfWorst === undefined ? 0 : param.params.numberOfWorst
+		};
 
-			}
+		if(param.params.radarType === 'B5' || param.params.radarType === 'G5') {
+			querystring['threshold'] = param.params.threshold;
+		}
+		
+		return this.GET({
+			uriPath: `pdm/fabs/${param.fabId}/radareqps`,
+			querystring: querystring
 		});
 	}
 

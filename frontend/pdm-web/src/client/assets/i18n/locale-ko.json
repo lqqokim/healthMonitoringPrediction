@@ -525,7 +525,9 @@
 		"WORST_TOP": "Worst Top",
 		"MONITORING": "Monitoring",
 		"MAX_PARAM_COUNT": "Display max parameter count",
-		"SPECTRUM_COUNT": "Display spectrum count"
+		"SPECTRUM_COUNT": "Display spectrum count",
+		"JEOPARDY_THRESHOLD": "Jeopardy Threshold",
+        "GOOD_THRESHOLD": "Good Threshold"
 	},
 	"CONTEXT": {
 		"BUTTON": {

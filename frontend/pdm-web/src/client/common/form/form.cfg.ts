@@ -21,6 +21,8 @@ import { worst_top } from './configs/pdm/worst-top.cfg';
 import { monitoring } from './configs/pdm/monitoring.cfg';
 import { max_param_count } from './configs/pdm/max-param-count.cfg';
 import { spectrum_count } from './configs/pdm/spectrum-count.cfg';
+import { jeopardy_threshold } from './configs/pdm/jeopardy-threshold.cfg';
+import { good_threshold } from './configs/pdm/good-threshold.cfg';
 
 export const Formcfg: any = {
     Tool: {
@@ -49,6 +51,8 @@ export const Formcfg: any = {
         worst_top,
         monitoring,
         max_param_count,
-        spectrum_count
+        spectrum_count,
+        jeopardy_threshold,
+        good_threshold
     }
 };

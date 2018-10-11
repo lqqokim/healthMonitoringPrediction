@@ -1239,4 +1239,22 @@ export class LabelConditionDic {
 			},
 			newCondition);
 	}
+
+	static jeopardyThreshold(newCondition: ConditionValueType = {}): ConditionType {
+		return labelCompose(
+			LB.JEOPARDY_THRESHOLD,
+			{
+				i18n: 'DATA_LABEL.JEOPARDY_THRESHOLD'
+			},
+			newCondition);
+	}
+
+	static goodThreshold(newCondition: ConditionValueType = {}): ConditionType {
+		return labelCompose(
+			LB.GOOD_THRESHOLD,
+			{
+				i18n: 'DATA_LABEL.GOOD_THRESHOLD'
+			},
+			newCondition);
+	} 
 }

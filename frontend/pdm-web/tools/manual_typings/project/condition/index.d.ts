@@ -251,6 +251,8 @@ interface ICONDITION {
 	MONITORING_NAME: string;
 	MAX_PARAM_COUNT: string;
 	SPECTRUM_COUNT: string;	
+	JEOPARDY_THRESHOLD: string;
+	GOOD_THRESHOLD: string;
 
 	TIME_PERIOD_30: string;
 	CUTOFF_TYPE_DAY: string;

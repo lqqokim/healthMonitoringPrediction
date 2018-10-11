@@ -115,6 +115,8 @@ interface ILABEL {
 	MONITORING_NAME: string;
 	MAX_PARAM_COUNT: string;
 	SPECTRUM_COUNT: string;
+	JEOPARDY_THRESHOLD: string;
+	GOOD_THRESHOLD: string; 
 
 	STEP_DRIFT: string;
 	STEP_DOWN_TREND: string;

@@ -39,6 +39,10 @@ export const getPreConditionFromAjax = (cd: string): Promise<PreInitConditionTyp
             return _setMaxParamCount(cd);
         case CD.SPECTRUM_COUNT:
             return _setSpectrumCount(cd);
+        case CD.JEOPARDY_THRESHOLD:
+            return _setJeopardyThreshold(cd);
+        case CD.GOOD_THRESHOLD:
+            return _setGoodThreshold(cd);
         default:
             return _setDefault(cd);
     }
@@ -242,5 +246,19 @@ function _setSpectrumCount(cd: string): Promise<PreInitConditionType> {
     return Promise.resolve({
         condition: CD.SPECTRUM_COUNT,
         data: 5
+    });
+}
+
+function _setJeopardyThreshold(cd: string): Promise<PreInitConditionType> {
+    return Promise.resolve({
+        condition: CD.JEOPARDY_THRESHOLD,
+        data: 0.1
+    });
+}
+
+function _setGoodThreshold(cd: string): Promise<PreInitConditionType> {
+    return Promise.resolve({
+        condition: CD.GOOD_THRESHOLD,
+        data: 0.1
     });
 }
