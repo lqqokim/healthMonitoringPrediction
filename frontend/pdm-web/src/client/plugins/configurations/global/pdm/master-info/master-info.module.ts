@@ -5,7 +5,7 @@ import { BISTEL_SDKModule } from '../../../../../sdk/sdk.module';
 import { WjNavModule } from 'wijmo/wijmo.angular2.nav';
 
 import { MasterInfoComponent } from './master-info.component';
-import { WjTreeComponent } from './tree/wj-tree.component';
+import { NgTreeComponent } from './tree/ng-tree.component';
 
 import { MasterAreaListComponent } from './partial/area/master-area-list.component';
 import { MasterEqpListComponent } from './partial/eqp/master-eqp-list.component';
@@ -36,7 +36,7 @@ import { AngularSplitModule } from 'angular-split';
     ],
     declarations: [
         MasterInfoComponent,
-        WjTreeComponent,
+        NgTreeComponent,
         
         MasterAreaListComponent,
         MasterEqpListComponent,

@@ -1,19 +1,13 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewChild, OnChanges, ViewEncapsulation } from '@angular/core';
 
-//Wijmo
-import { FlexGrid, CellRangeEventArgs } from 'wijmo/wijmo.grid';
-import * as wjcNav from 'wijmo/wijmo.nav';
-import * as wjcCore from 'wijmo/wijmo';
-import * as wjcGrid from 'wijmo/wijmo.grid';
-
 @Component({
     moduleId: module.id,
-    selector: 'wj-tree',
-    templateUrl: './wj-tree.html',
-    styleUrls: ['./wj-tree.css'],
-    encapsulation:ViewEncapsulation.None
+    selector: 'ng-tree',
+    templateUrl: './ng-tree.html',
+    styleUrls: ['./ng-tree.css'],
+    encapsulation: ViewEncapsulation.None
 })
-export class WjTreeComponent implements OnInit, OnChanges {
+export class NgTreeComponent implements OnInit, OnChanges {
     @Input() datas: any[];
     @Input() childDatas: any[];
     @Output() clickNode: EventEmitter<any> = new EventEmitter();
@@ -24,45 +18,43 @@ export class WjTreeComponent implements OnInit, OnChanges {
     treeDatas: any[];
     lazyLoadFunction: Function;
 
-    treeConfig={};
+    treeConfig = {};
     selectedNode = null;
 
     constructor() {
         // this.lazyLoadFunction = this._lazyLoadFunction.bind(this); // wijmo tree lazy load
-        this.treeConfig={
-            onClick:(node)=>{
-                if(this.selectedNode!=null){
+        this.treeConfig = {
+            onClick: (node) => {
+                if (this.selectedNode !== null) {
                     this.selectedNode.isChecked = false;
                 }
+
                 node.isChecked = true;
                 this.selectedNode = node;
-                console.log(node);
                 this.clickNode.emit({
                     treeview: node
                 });
             },
-            onFold:(node)=>{
-                if(this.selectedNode!=null){
+            onFold: (node) => {
+                if (this.selectedNode !== null) {
                     this.selectedNode.isChecked = false;
                 }
+
                 node.isChecked = true;
                 this.selectedNode = node;
-                console.log(node);
-                if(node.isOpen==undefined ||node.isOpen==false){
+                
+                if (node.isOpen == undefined || node.isOpen == false) {
                     this.clickNode.emit({
                         treeview: node
                     });
-                }else{
+                } else {
                     node.isOpen = !node.isOpen;
                 }
-
-                
-
-                
             }
         };
-    
+
     }
+    
     ngOnInit() {
 
     }
@@ -73,7 +65,7 @@ export class WjTreeComponent implements OnInit, OnChanges {
         // } else if (changes && changes.childDatas) {
         //     this.childDatas = changes.childDatas.currentValue;
         // }
-        if(changes && changes.datas && changes.datas.currentValue ){
+        if (changes && changes.datas && changes.datas.currentValue) {
             this.treeDatas = changes.datas.currentValue;
         }
     }

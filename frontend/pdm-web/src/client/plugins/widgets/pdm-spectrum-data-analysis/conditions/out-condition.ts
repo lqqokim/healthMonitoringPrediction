@@ -9,7 +9,7 @@ export class SpectrumDataAnalysisOutCondition extends ConditionApi {
 	// tslint:disable-next-line:no-empty
 	init() {}
 
-	config(): ConditionType {
+	config(): ConditionType[] {
 		return [
 			Condic.Common.time_period(),
 			//selected
