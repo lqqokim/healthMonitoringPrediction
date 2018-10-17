@@ -55,7 +55,6 @@ export class MasterParameterListComponent extends WijmoApi implements OnInit, On
     }
 
     ngOnInit(): void {
-        this._getCodes();
         $('#paramModal').on('hidden.bs.modal', () => {
             this.paramForm.form.reset();
         })
@@ -76,6 +75,8 @@ export class MasterParameterListComponent extends WijmoApi implements OnInit, On
                 this.btnDisabled = false;
                 this._firstSelectedData();
             }
+
+            this._getCodes();
         }
 
         // this.setFormValidator();
@@ -161,15 +162,15 @@ export class MasterParameterListComponent extends WijmoApi implements OnInit, On
         const paramWarning = paramData.warning;
         // console.log('paramData', paramData);
 
-        if(paramAlarm !== undefined && paramAlarm !== null && paramAlarm !== '') {
-            if(paramWarning === undefined || paramWarning === null || paramWarning === '') {
+        if (paramAlarm !== undefined && paramAlarm !== null && paramAlarm !== '') {
+            if (paramWarning === undefined || paramWarning === null || paramWarning === '') {
                 this.notify.info("PDM.NOTIFY.INFO.NOT_EXIST_WARNING");
                 return;
             }
         }
 
-        if(paramWarning !== undefined && paramWarning !== null && paramWarning !== '') {
-            if(paramAlarm === undefined || paramAlarm === null || paramAlarm === '') {
+        if (paramWarning !== undefined && paramWarning !== null && paramWarning !== '') {
+            if (paramAlarm === undefined || paramAlarm === null || paramAlarm === '') {
                 this.notify.info("PDM.NOTIFY.INFO.NOT_EXIST_ALARM");
                 return;
             }

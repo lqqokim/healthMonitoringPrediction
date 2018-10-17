@@ -8,6 +8,7 @@ import { FabAreaEqpParamTreeService } from './fab-area-eqp-param-tree.service';
 import { SpinnerComponent } from './../../../sdk';
 
 import * as IType from './model/tree.interface';
+import * as IMaster from './../../configurations/global/pdm/master-info/model/master-interface';
 
 @Component({
     moduleId: module.id,
@@ -399,17 +400,10 @@ export class FabAreaEqpParamTreeComponent implements OnInit, AfterViewInit, OnCh
     }
 
     _getAreas(isChecked): Promise<any> {
-        // const selectedNodeId: number = this.selectedItem.nodeId;
-        // const selectedNode: any = this.searchTree('nodeId', this.areasTree[0], selectedNodeId);
-        // const selectedChildren = selectedNode.children;
-        // const nodeChildren = JSON.parse(JSON.stringify(selectedChildren));
-        const nodeChildren = this.selectedItem.children;
-
-        for (let i = 0; i < nodeChildren.length; i++) {
-            if (nodeChildren[i].children !== undefined && nodeChildren[i].children.length > 0) {
-                nodeChildren[i].children = [];
-            }
-        }
+        const selectedNode: IMaster.Treeview = this.selectedItem;
+        const nodeId: number = selectedNode.nodeId;
+        const node: IMaster.Treeview = this.searchTree('nodeId', this.areasTree[0], nodeId);
+        const nodeChildren: IMaster.Treeview[] = node.children.length > 0 ? node.children : [];
 
         this.areaData = {
             areas: nodeChildren,
@@ -417,7 +411,7 @@ export class FabAreaEqpParamTreeComponent implements OnInit, AfterViewInit, OnCh
             areaId: this.selectedItem.areaId
         };
 
-        return this._getEqps(isChecked, nodeChildren);
+        return this._getEqps(isChecked ,nodeChildren);
     }
 
     searchTree(field, data, value): any { // Search data about nodeId

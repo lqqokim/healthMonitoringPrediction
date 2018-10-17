@@ -4,7 +4,7 @@
     <split direction="horizontal" [gutterSize]="3">
         <split-area size="20" class='condition'>  
             <div class="node-tree" *ngIf="_plantId">
-                <modeling-tree #tree (nodeClick)="nodeClick($event)" (nodeDataRes)="nodeDataRes($event)" [fab]="_plantId"></modeling-tree>
+                <modeling-tree #tree (nodeClick)="nodeClick($event)" (nodeDataRes)="nodeDataRes($event)" [fabId]="_plantId"></modeling-tree>
             </div>
         </split-area>
         <split-area size="80" class='chart'>

@@ -20,7 +20,7 @@ export class TreeComponent implements OnInit, OnChanges {
     lazyLoadFunction: Function;
 
     treeConfig = {};
-    selectedNode = null;
+selectedNode = null;
 
     constructor() {
         // this.lazyLoadFunction = this._lazyLoadFunction.bind(this); // wijmo tree lazy load
@@ -29,9 +29,9 @@ export class TreeComponent implements OnInit, OnChanges {
                 if (this.selectedNode != null) {
                     this.selectedNode.isChecked = false;
                 }
+
                 node.isChecked = true;
                 this.selectedNode = node;
-                console.log(node);
                 this.clickNode.emit({
                     treeview: node
                 });
@@ -40,9 +40,10 @@ export class TreeComponent implements OnInit, OnChanges {
                 if (this.selectedNode != null) {
                     this.selectedNode.isChecked = false;
                 }
+
                 node.isChecked = true;
                 this.selectedNode = node;
-                console.log(node);
+
                 if (node.isOpen == undefined || node.isOpen == false) {
                     this.clickNode.emit({
                         treeview: node

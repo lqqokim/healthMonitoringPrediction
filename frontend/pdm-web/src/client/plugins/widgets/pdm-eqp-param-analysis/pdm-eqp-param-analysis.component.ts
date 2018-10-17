@@ -188,6 +188,7 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
         this.showSpinner();
         this.setGlobalLabel();
         this._props = this.getProperties();
+        this._plant = this._props[CD.PLANT]
         console.log('Analysis props', this._props);
         this._setProperties(this._props);
         const fromDt = this.addDays(this._toDate.getTime(), -this._dayPeriod);
@@ -276,6 +277,7 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
                     this._paramId = '';
                 }
 
+                console.log('Sync In ==> ', data);
                 // tree 자동 오픈 (_eqpId, _areaId) 활용
                 this.autoTreeOpen();
 
@@ -1994,7 +1996,7 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
                 // console.log('getMeasurements : ', data);
                 let measurement = [];
                 for (let i = 0; i < data.length; i++) {
-                    measurement.push([data[i].measureDtts, this.mesaurementValue]);
+                    measurement.push([data[i].measure_dtts, this.mesaurementValue]);
                 }
                 this.trendConfig = this.getTrendDataConfig(this.trendConfig);
                 this.trendConfig.axes.yaxis.label = this._paramEuType;
@@ -2136,7 +2138,7 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
         let measurementId = this.measureDatas[pointIndex].measurementId;
         console.log('getTimeWaveNSpectrum : ', this.measureDatas[pointIndex], measurementId);
 
-        this.timewavedate = moment(this.measureDatas[pointIndex].measureDtts).format('YYYY/MM/DD HH:mm:ss');
+        this.timewavedate = moment(this.measureDatas[pointIndex].measure_dtts).format('YYYY/MM/DD HH:mm:ss');
 
         calls.push(this._service.getTimewave(this._plantId, this._areaId, this._eqpId, measurementId).then(data => {
             this.timeWaveData = [data];

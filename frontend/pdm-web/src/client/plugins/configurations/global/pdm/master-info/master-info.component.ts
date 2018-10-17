@@ -88,12 +88,10 @@ export class MasterInfoComponent implements OnInit, AfterViewInit {
                 this.areaList = areas;
                 this.setTreeDatas(areas, this.nodeType);
                 areas[0]['isOpen'] = true;
-                
-                this.initialTreeDatas = JSON.parse(JSON.stringify(<[IMaster.InitTree]>areas));
-                this.tempInitTree = JSON.parse(JSON.stringify(areas));
 
+                this.initialTreeDatas = <[IMaster.InitTree]>areas;
                 console.log('initialTreeDatas => ', this.initialTreeDatas);
-                console.log('tempInitTree => ', this.tempInitTree);
+                this.tempInitTree = JSON.parse(JSON.stringify(areas));
                 this.isLoading = false;
             }).catch((error: any) => {
                 this.isLoading = false;
@@ -101,15 +99,19 @@ export class MasterInfoComponent implements OnInit, AfterViewInit {
             });
     }
 
-    // _getInitTree() {
+    // _getInitTree(): void { //Fab's Eqp
+    //     this.initialTreeDatas = [] as null;
     //     this.nodeType = this.TYPES.AREA;
-
     //     this.pdmConfigService.getAreas(this.selectedFab.fabId)
     //         .then((areas: [IMaster.MasterAreasResponse]) => {
     //             this.areaList = areas;
     //             this.setTreeDatas(areas, this.nodeType);
+    //             areas[0]['isOpen'] = true;
 
-    //             const tempTree: [IMaster.InitTree] = JSON.parse(JSON.stringify(areas)); // deep copy
+    //             // this.initialTreeDatas = <[IMaster.InitTree]>areas;
+    //             const tempTree = JSON.parse(JSON.stringify(areas));
+    //             this.tempInitTree = JSON.parse(JSON.stringify(areas));
+
     //             this.pdmConfigService.getEqps(this.selectedFab.fabId, areas[0].areaId)
     //                 .then((eqps: IMaster.MasterEqpResponse[]) => {
     //                     if (eqps.length > 0) {
@@ -137,11 +139,14 @@ export class MasterInfoComponent implements OnInit, AfterViewInit {
 
     //                     console.log('initTreeDatas => ', this.initialTreeDatas);
     //                     this.initialTreeDatas[0].isOpen = true;
+
+    //                     console.log('tv => ', this.tv);
+    //                     this.isLoading = false;
     //                 });
-    //             console.log('tv => ', this.tv);
-    //             this.isLoading = false;
+            
     //         }).catch((error: any) => {
     //             this.isLoading = false;
+    //             console.log(error);
     //         });
     // }
 
@@ -393,7 +398,7 @@ export class MasterInfoComponent implements OnInit, AfterViewInit {
     }
 
     initWjTree(ev: any): void {
-        console.log('initWjTree => ', this.nodeType, this.selectedItem);
+        // console.log('initWjTree => ', this.nodeType, this.selectedItem);
         if (this.nodeType === this.TYPES.AREA) {
             this._initConditions();
             this._getInitTree();

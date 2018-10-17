@@ -270,6 +270,7 @@ export class PdmRadarWidgetComponent extends WidgetApi implements OnSetup, OnDes
         }
 
         outCd[CD.CATEGORY] = 'radar';
+        console.log('[Radar] out ==> ', outCd);
         this.syncOutCondition(outCd);
     }
 

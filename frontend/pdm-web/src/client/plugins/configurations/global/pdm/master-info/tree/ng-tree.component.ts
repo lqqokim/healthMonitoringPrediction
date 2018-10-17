@@ -52,7 +52,6 @@ export class NgTreeComponent implements OnInit, OnChanges {
                 }
             }
         };
-
     }
     
     ngOnInit() {

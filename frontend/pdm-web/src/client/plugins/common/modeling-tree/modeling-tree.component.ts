@@ -1,11 +1,11 @@
 
 import { Component, OnInit, OnChanges, ViewChild, AfterViewInit, Input, Output, EventEmitter } from '@angular/core';
 
-import { TreeComponent } from './tree/tree.component';
-
 import { PdmModelService } from './../../../common/model/app/pdm/pdm-model.service';
 import { ModelingTreeService } from './modeling-tree.service';
 import { SpinnerComponent } from './../../../sdk';
+
+import * as IMaster from './../../configurations/global/pdm/master-info/model/master-interface';
 
 @Component({
     moduleId: module.id,
@@ -19,17 +19,14 @@ export class ModelingTreeComponent implements OnInit, AfterViewInit, OnChanges {
     @ViewChild('tv') tv;
     @Output() nodeClick: EventEmitter<any> = new EventEmitter();
     @Output() nodeDataRes: EventEmitter<any> = new EventEmitter();
-    @Input() fab: any;
+    @Input() fabId: IMaster.Fab['fabId'];
 
-    selectedFab: any;
-    selectedPath: any;
-    selectedItem: any;
-    selectedNode: any;
-    selectedEv: any;
+    selectedFabId: IMaster.Fab;
+    selectedItem: IMaster.TreeEvent['treeview'];
+    selectedEv: IMaster.TreeEvent;
 
     nodeType: string;
     initialTreeDatas: any;
-    childDatas: any;
 
     tempTree: any;
     areasTree: any;
@@ -47,20 +44,23 @@ export class ModelingTreeComponent implements OnInit, AfterViewInit, OnChanges {
     constructor(
         private pdmConfigService: ModelingTreeService,
         private pdmModelService: PdmModelService
-    ) {
-
-    }
+    ) { }
 
     ngOnInit() {
         this._getPlants();
     }
+
     ngAfterViewInit() {
+
     }
+
     ngOnChanges(changes: any) {
-        if (changes && changes.fab && changes.fab.currentValue) {
-            this.selectedFab = changes.fab.currentValue;
+        if (changes && changes.fabId && changes.fabId.currentValue) {
+            this.selectedFabId = changes.fabId.currentValue;
+            this._getInitTree();
         }
     }
+
     public setSelectNode(areaId, eqpId, paramId) {
         this.autoscroll = true;
         let areaNode: any;
@@ -71,11 +71,11 @@ export class ModelingTreeComponent implements OnInit, AfterViewInit, OnChanges {
         if (areaNode != null) {
             if (areaNode.children && areaNode.children.length > 0) {
                 let eqpNode = this.findNode(areaNode, eqpId);
-                if(eqpNode==null){
-                    this.selectNode({ treeview: areaNode }).then(()=>{
-                        this.setSelectNode(areaId,eqpId,paramId);
+                if (eqpNode == null) {
+                    this.selectNode({ treeview: areaNode }).then(() => {
+                        this.setSelectNode(areaId, eqpId, paramId);
                     });
-                    return 
+                    return
                 }
                 if (paramId != '' && paramId != null) {
                     if (eqpNode.children && eqpNode.children.length > 0) {
@@ -128,6 +128,7 @@ export class ModelingTreeComponent implements OnInit, AfterViewInit, OnChanges {
             }
         }
     }
+
     findNode(node, value) {
         if (node.children == undefined) {
             return null;
@@ -144,11 +145,12 @@ export class ModelingTreeComponent implements OnInit, AfterViewInit, OnChanges {
         }
         return null;
     }
+
     _getPlants(): void {
         this.pdmModelService.getPlants()
             .then((plants: any) => {
                 this.plants = plants;
-                this.selectedFab = this.plants[0];
+                this.selectedFabId = this.plants[0].fabId;
                 this._getInitTree();
             }).catch((error: any) => {
 
@@ -156,13 +158,14 @@ export class ModelingTreeComponent implements OnInit, AfterViewInit, OnChanges {
     }
 
     changeSelectedFab(ev: any): void {
-        this.selectedFab = ev;
+        this.selectedFabId = ev;
         this._initConditions();
         this._getInitTree();
     }
 
     _getInitTree() {
-        this.pdmConfigService.getAreas(this.selectedFab.fabId)
+        this.initialTreeDatas = [];
+        this.pdmConfigService.getAreas(this.selectedFabId)
             .then((areas: any) => {
                 this.nodeType = this.TYPES.AREA;
                 this.setTreeDatas(areas, this.nodeType);
@@ -173,7 +176,7 @@ export class ModelingTreeComponent implements OnInit, AfterViewInit, OnChanges {
                 // this.setTreeDepth(tempTree);
                 // this.initialTreeDatas = tempTree;
                 let eqpDatas;
-                this.pdmConfigService.getEqps(this.selectedFab.fabId, areas[0].areaId)
+                this.pdmConfigService.getEqps(this.selectedFabId, areas[0].areaId)
                     .then((eqps: any) => {
                         if (eqps.length > 0) {
                             eqps.map((node: any) => {
@@ -206,6 +209,7 @@ export class ModelingTreeComponent implements OnInit, AfterViewInit, OnChanges {
 
             });
     }
+
     autoScroll(){
         if(this.autoscroll){
             try{
@@ -225,16 +229,18 @@ export class ModelingTreeComponent implements OnInit, AfterViewInit, OnChanges {
         }
 
     }
-    selectNode(ev: any): Promise<any> {
-        console.log('selectNode-ev', ev);
+
+    selectNode(ev: IMaster.TreeEvent): Promise<any> {
+        console.log('selectedItem => ', ev.treeview);
+        // console.log('this item', this.selectedItem);
         if (this.selectedItem != null) {
             this.selectedItem.isChecked = false;
         }
+
         this.selectedItem = ev.treeview;
         this.selectedItem.isOpen = true;
         this.selectedEv = ev;
         this.selectedItem.isChecked = true;
-        // this.selectedNode = ev.treeview.selectedNode;
         this.nodeClick.emit(ev);
 
         this.autoScroll();
@@ -266,13 +272,13 @@ export class ModelingTreeComponent implements OnInit, AfterViewInit, OnChanges {
 
                     this.areaData = {
                         areas: areas,
-                        fabId: this.selectedFab.fabId,
+                        fabId: this.selectedFabId,
                         areaId: this.selectedItem.areaId
                     };
 
                     this.eqpData = {
                         eqps: eqps,
-                        fabId: this.selectedFab.fabId,
+                        fabId: this.selectedFabId,
                         areaId: this.selectedItem.areaId,
                         areaName: this.selectedItem.areaName
                     };
@@ -290,7 +296,6 @@ export class ModelingTreeComponent implements OnInit, AfterViewInit, OnChanges {
                         // }
                     }
 
-
                     // this.partData = {
                     //     parts: parts,
                     //     fabId: this.selectedFab.fabId,
@@ -299,7 +304,7 @@ export class ModelingTreeComponent implements OnInit, AfterViewInit, OnChanges {
                     // };
                     this.paramData = {
                         params: params,
-                        fabId: this.selectedFab.fabId,
+                        fabId: this.selectedFabId,
                         eqpId: this.selectedItem.eqpId,
                         eqpName: this.selectedItem.eqpName,
                     };
@@ -311,13 +316,7 @@ export class ModelingTreeComponent implements OnInit, AfterViewInit, OnChanges {
 
     _getChildByType(): Promise<any> {
         if (this.selectedItem.nodeType === this.TYPES.AREA) {
-            // if (this.selectedNode.level === 3) {
-            this.areaData = undefined;
             return this._getAreas();
-            // this._getEqps();
-            // } else {
-            //     this._getAreas();
-            // }
         } else if (this.selectedItem.nodeType === this.TYPES.EQP) {
             return this._getParams();
         }
@@ -325,21 +324,14 @@ export class ModelingTreeComponent implements OnInit, AfterViewInit, OnChanges {
     }
 
     _getAreas(): Promise<any> {
-        // const selectedNodeId: number = this.selectedItem.nodeId;
-        // const selectedNode: any = this.searchTree('nodeId', this.areasTree[0], selectedNodeId);
-        // const selectedChildren = selectedNode.children;
-        // const nodeChildren = JSON.parse(JSON.stringify(selectedChildren));
-        const nodeChildren = this.selectedItem.children;
-
-        for (let i = 0; i < nodeChildren.length; i++) {
-            if (nodeChildren[i].children !== undefined && nodeChildren[i].children.length > 0) {
-                nodeChildren[i].children = [];
-            }
-        }
+        const selectedNode: IMaster.Treeview = this.selectedItem;
+        const nodeId: number = selectedNode.nodeId;
+        const node: IMaster.Treeview = this.searchTree('nodeId', this.areasTree[0], nodeId);
+        const nodeChildren: IMaster.Treeview[] = node.children.length > 0 ? node.children : [];
 
         this.areaData = {
             areas: nodeChildren,
-            fabId: this.selectedFab.fabId,
+            fabId: this.selectedFabId,
             areaId: this.selectedItem.areaId
         };
 
@@ -444,7 +436,7 @@ export class ModelingTreeComponent implements OnInit, AfterViewInit, OnChanges {
     }
 
     _getEqps(areas?): Promise<any> {
-        return this.pdmConfigService.getEqps(this.selectedFab.fabId, this.selectedItem.areaId)
+        return this.pdmConfigService.getEqps(this.selectedFabId, this.selectedItem.areaId)
             .then((eqps: any) => {
                 eqps.map((node: any) => {
                     node.nodeName = node.eqpName;
@@ -460,16 +452,14 @@ export class ModelingTreeComponent implements OnInit, AfterViewInit, OnChanges {
                 this.nodeType = this.TYPES.AREA;
                 this.eqpData = {
                     eqps: eqps,
-                    fabId: this.selectedFab.fabId,
+                    fabId: this.selectedFabId,
                     areaId: this.selectedItem.areaId,
                     areaName: this.selectedItem.areaName
                 };
 
                 if (areas) {
-                    this.childDatas = areas.concat(eqps);
                     this.selectedItem.children = areas.concat(eqps);
                 } else {
-                    this.childDatas = eqps;
                     this.selectedItem.children = eqps;
                 }
                 return Promise.resolve('');
@@ -479,7 +469,7 @@ export class ModelingTreeComponent implements OnInit, AfterViewInit, OnChanges {
     }
 
     _getParams(): Promise<any> {
-        return this.pdmConfigService.getParams(this.selectedFab.fabId, this.selectedItem.eqpId)
+        return this.pdmConfigService.getParams(this.selectedFabId, this.selectedItem.eqpId)
             .then((params: any) => {
                 params.map((node: any) => {
                     node.nodeName = node.paramName;
@@ -494,7 +484,7 @@ export class ModelingTreeComponent implements OnInit, AfterViewInit, OnChanges {
                 this.nodeType = this.TYPES.EQP;
                 this.paramData = {
                     params: params,
-                    fabId: this.selectedFab.fabId,
+                    fabId: this.selectedFabId,
                     eqpId: this.selectedItem.eqpId,
                     eqpName: this.selectedItem.eqpName
                 };
@@ -507,7 +497,7 @@ export class ModelingTreeComponent implements OnInit, AfterViewInit, OnChanges {
     }
 
     _getParts(params?): void {
-        this.pdmConfigService.getParts(this.selectedFab.fabId, this.selectedItem.eqpId)
+        this.pdmConfigService.getParts(this.selectedFabId, this.selectedItem.eqpId)
             .then((parts: any[]) => {
                 parts.map((node: any) => {
                     node.nodeName = node.name;
@@ -522,24 +512,13 @@ export class ModelingTreeComponent implements OnInit, AfterViewInit, OnChanges {
                 this.nodeType = this.TYPES.EQP;
                 this.partData = {
                     parts: parts,
-                    fabId: this.selectedFab.fabId,
+                    fabId: this.selectedFabId,
                     eqpId: this.selectedItem.eqpId,
                     eqpName: this.selectedItem.eqpName
                 };
 
-                this.childDatas = params.concat(parts);
                 this.selectedItem.children = params.concat(parts);
-                // this._getSpeedParam();
             }).catch((error: any) => {
-
-            });
-    }
-
-    _getSpeedParam(): void {
-        this.pdmConfigService.getSpeedParam(this.selectedFab.fabId, this.selectedItem.eqpId)
-            .then((speedParam: any) => {
-
-            }).catch((err: any) => {
 
             });
     }
@@ -573,9 +552,7 @@ export class ModelingTreeComponent implements OnInit, AfterViewInit, OnChanges {
     }
 
     private _initConditions(): void {
-        this.selectedPath = undefined;
         this.selectedItem = undefined;
-        this.selectedNode = undefined;
         this.areaData = undefined;
         this.eqpData = undefined;
         this.paramData = undefined;

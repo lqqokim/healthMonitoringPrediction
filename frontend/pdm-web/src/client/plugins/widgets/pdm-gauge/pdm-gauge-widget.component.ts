@@ -266,6 +266,7 @@ export class PdmGaugeWidgetComponent extends WidgetApi implements OnSetup, OnDes
         }
 
         outCd[CD.CATEGORY] = 'radar';
+        console.log('[Gauge] out ==> ', outCd);
         this.syncOutCondition(outCd);
     }
 
