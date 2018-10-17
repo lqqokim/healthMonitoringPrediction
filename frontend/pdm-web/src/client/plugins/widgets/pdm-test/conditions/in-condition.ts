@@ -9,7 +9,7 @@ export class InCondition extends ConditionApi {
 
 	init() {}
 
-	config(): [ConditionType] {
+	config(): ConditionType[] {
 		return [
 			{
 				name: CD.LOCATION, // location..

@@ -6,7 +6,7 @@ import {
 
 export class ViewConfig extends ViewApi {
 
-    displayContext(): [ConditionType] {
+    displayContext(): ConditionType[] {
         return [
             // Condic.Label.tool(),
             // Condic.Label.module()
@@ -14,20 +14,20 @@ export class ViewConfig extends ViewApi {
         ];
     }
 
-    paramDisplayContext(): [ConditionType] {
+    paramDisplayContext(): ConditionType[] {
         return [
             Condic.Label.paramName()
         ];
     }
 
-    displayConfiguration(): [ConditionType] {
+    displayConfiguration(): ConditionType[] {
         return [
             Condic.Label.from(),
             Condic.Label.to()
         ];
     }
 
-    displaySync(): [ConditionType] {
+    displaySync(): ConditionType[] {
         return [
             Condic.Label.from(),
             Condic.Label.to()

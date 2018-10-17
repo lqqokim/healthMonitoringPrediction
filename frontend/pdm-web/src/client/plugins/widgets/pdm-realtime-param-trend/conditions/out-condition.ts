@@ -9,7 +9,7 @@ export class OutCondition extends ConditionApi {
 
 	init() { }
 
-	config(): [ConditionType] { // not used
+	config(): ConditionType[] { // not used
 		return [
 			Condic.Tool.plant({
 				required: true

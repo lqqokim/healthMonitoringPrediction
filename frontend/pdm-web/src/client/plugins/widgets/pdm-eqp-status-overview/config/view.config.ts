@@ -6,20 +6,20 @@ import {
 
 export class ViewConfig extends ViewApi {
 
-    displayContext(): [ConditionType] {
+    displayContext(): ConditionType[] {
         return [
             Condic.Label.eqpName()
         ];
     }
 
-    displayParamContext(): [ConditionType] {
+    displayParamContext(): ConditionType[] {
         return [
             Condic.Label.eqpName(),
             Condic.Label.paramName()
         ];
     }
 
-    displayEffectContext(): [ConditionType] {
+    displayEffectContext(): ConditionType[] {
         return [
             Condic.Label.eqpName(),
             Condic.Label.time(),
@@ -27,13 +27,13 @@ export class ViewConfig extends ViewApi {
         ];
     }
 
-    displayConfiguration(): [ConditionType] {
+    displayConfiguration(): ConditionType[] {
         return [
             Condic.Label.time_period()
         ];
     }
 
-    displaySync(): [ConditionType] {
+    displaySync(): ConditionType[] {
         return [
             Condic.Label.from(),
             Condic.Label.to()
@@ -41,7 +41,7 @@ export class ViewConfig extends ViewApi {
         ];
     }
 
-    displaySync1(): [ConditionType] {
+    displaySync1(): ConditionType[] {
         return [
             Condic.Label.from(),
             Condic.Label.to()

@@ -19,7 +19,7 @@ export class SpectrumDataAnalysisProperties extends ConditionApi {
 	}
 
 	// In Condition 조건
-	config(): [ConditionType] {
+	config(): ConditionType[] {
 		return [
 			Condic.Tool.plant(),
 			Condic.Tool.area_id(),
@@ -36,7 +36,7 @@ export class SpectrumDataAnalysisProperties extends ConditionApi {
 	/**
 	 * Form config 
 	 */
-	form(): [FormConfigType] {
+	form(): FormConfigType[] {
 		const newConfig: FormConfigType = {
 			config: {
 				isTimePeriod: false,

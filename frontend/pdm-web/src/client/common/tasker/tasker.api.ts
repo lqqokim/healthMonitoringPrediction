@@ -568,7 +568,7 @@ export abstract class TaskerApi extends ModalApi {
     }
 
     _getConditionTypes(type: string, config: string): any {
-        let conditionTypes: [ConditionType];
+        let conditionTypes: ConditionType[];
         try {
             if (type === 'in') {
                 conditionTypes = this._inConditionConfig[config]();

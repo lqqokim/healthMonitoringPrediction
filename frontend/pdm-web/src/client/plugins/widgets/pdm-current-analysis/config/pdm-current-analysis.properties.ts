@@ -19,7 +19,7 @@ export class PdmCurrentAnalysisProperties extends ConditionApi {
 	}
 
 	// In Condition 조건
-	config(): [ConditionType] {
+	config(): ConditionType[] {
 		return [
 			{
 				name: CD.LOCATION, // location..

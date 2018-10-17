@@ -20,7 +20,7 @@ export class Properties extends ConditionApi {
 	}
 
 	// In Condition 조건
-	config(): [ConditionType] {
+	config(): ConditionType[] {
 		return [
 			Condic.Tool.plant(),
 			Condic.Tool.worst_top()
@@ -30,7 +30,7 @@ export class Properties extends ConditionApi {
 	/**
 	 * Form config 
 	 */
-	form(): [FormConfigType] {
+	form(): FormConfigType[] {
 		return [
 			Formcfg.Factory.plant(),
 			Formcfg.Factory.worst_top(),

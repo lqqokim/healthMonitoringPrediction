@@ -9,7 +9,7 @@ export class ConditionGroup {
     private _name: string;
     private _formatter: any;
 
-    constructor(conditionTypes: [ConditionType], groupName?: string, formatter?: any) {
+    constructor(conditionTypes: ConditionType[], groupName?: string, formatter?: any) {
         this._name = groupName;
         this._formatter = formatter;
         this._conditionsMap = new Map<string, ConditionControl | ConditionGroup>();
@@ -32,7 +32,7 @@ export class ConditionGroup {
         return this._formatter;
     }
 
-    private _createConditionControl(conditionTypes: [ConditionType]) {
+    private _createConditionControl(conditionTypes: ConditionType[]) {
         conditionTypes.forEach((conditionType: ConditionType) => {
             if (conditionType.isGroup) {
                 const cg = new ConditionGroup(conditionType.value, conditionType.name, conditionType.formatter);

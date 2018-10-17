@@ -4,7 +4,7 @@ import { ConditionType } from '../condition.type';
 
 export class ConditionBuilder {
 
-	static createConditionGroup(conditionTypes: [ConditionType], name?: string): ConditionGroup {
+	static createConditionGroup(conditionTypes: ConditionType[], name?: string): ConditionGroup {
 		return new ConditionGroup(conditionTypes, name ? name : 'rootConditionGroup');
 	}
 	

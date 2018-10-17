@@ -6,20 +6,20 @@ import {
 
 export class ViewConfig extends ViewApi {
 
-    displayContext(): [ConditionType] {
+    displayContext(): ConditionType[] {
         return [
             Condic.Label.from(),
             Condic.Label.to(),
         ];
     }
 
-    displayConfiguration(): [ConditionType] {
+    displayConfiguration(): ConditionType[] {
         return [
             Condic.Label.plantName()
         ];
     }
 
-    displaySync(): [ConditionType] {
+    displaySync(): ConditionType[] {
         return [
             Condic.Label.plantName()
             // Condic.Label.from(),
@@ -28,7 +28,7 @@ export class ViewConfig extends ViewApi {
         ];
     }
 
-    displaySync1(): [ConditionType] {
+    displaySync1(): ConditionType[] {
         return [
             Condic.Label.from(),
             Condic.Label.to()

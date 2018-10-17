@@ -9,7 +9,7 @@ export class InCondition extends ConditionApi {
 	// tslint:disable-next-line:no-empty
 	init() {}
 
-	config(): [ConditionType] {
+	config(): ConditionType[] {
 		return [
 			Condic.Tool.plant({
 				required: true

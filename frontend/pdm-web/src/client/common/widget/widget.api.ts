@@ -584,7 +584,7 @@ export abstract class WidgetApi extends ModalApi {
     }
 
     _createPropertiesGroup() {
-        let conditionTypes: [ConditionType];
+        let conditionTypes: ConditionType[];
         try {
             conditionTypes = this._propertiesConfig.config();
             this._addCommunicationInProperties(conditionTypes);
@@ -603,7 +603,7 @@ export abstract class WidgetApi extends ModalApi {
         }
     }
 
-    _addCommunicationInProperties(conditionTypes: [ConditionType]) {
+    _addCommunicationInProperties(conditionTypes: ConditionType[]) {
         let isComm: boolean = false;
         conditionTypes.forEach((ct) => {
             if (ct.name === 'communication') {
@@ -695,7 +695,7 @@ export abstract class WidgetApi extends ModalApi {
     }
 
     _sendOutCondition(condition: CommonCondition) {
-        const conditionTypes: [ConditionType] = this._outConditionConfig[condition.config]();
+        const conditionTypes: ConditionType[] = this._outConditionConfig[condition.config]();
         if (!conditionTypes) { return; }
         this._outConditionConfig.setCondition(condition.data);
 
@@ -820,7 +820,7 @@ export abstract class WidgetApi extends ModalApi {
     }
 
     _getConditionTypes(type: string, config: string): any {
-        let conditionTypes: [ConditionType];
+        let conditionTypes: ConditionType[];
         try {
             if (type === 'in') {
                 conditionTypes = this._inConditionConfig[config]();

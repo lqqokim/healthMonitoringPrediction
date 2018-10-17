@@ -11,7 +11,7 @@ export class OutCondition extends ConditionApi {
 
 	init() {}
 
-	config(): [ConditionType] {
+	config(): ConditionType[] {
 		return [
 			Condic.Tool.tool_model(),
 			Condic.Tool.tools(),
@@ -21,7 +21,7 @@ export class OutCondition extends ConditionApi {
 		];
 	}
 
-	config2(): [ConditionType] {
+	config2(): ConditionType[] {
 		return [
 			Condic.Tool.tool_model(),
 			Condic.Tool.tools(),

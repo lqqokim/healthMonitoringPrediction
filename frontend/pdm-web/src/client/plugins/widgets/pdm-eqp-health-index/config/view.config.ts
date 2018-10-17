@@ -31,7 +31,7 @@ export class ViewConfig extends ViewApi {
         ];
     }
 
-    // displayParamContext(): [ConditionType] {
+    // displayParamContext(): ConditionType[] {
     //     const newConfig: ConditionValueType = {
     // 		config: {
     // 			format: 'YYYY/MM/DD'
@@ -44,7 +44,7 @@ export class ViewConfig extends ViewApi {
     //     ];
     // }
 
-    // displayEffectContext(): [ConditionType] {
+    // displayEffectContext(): ConditionType[] {
     //     return [
     //         Condic.Label.eqpName(),
     //         Condic.Label.time(),
@@ -60,7 +60,7 @@ export class ViewConfig extends ViewApi {
         ];
     }
 
-    // displaySync1(): [ConditionType] {
+    // displaySync1(): ConditionType[] {
     //     return [
     //         Condic.Label.from(),
     //         Condic.Label.to()

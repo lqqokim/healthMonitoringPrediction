@@ -18,7 +18,7 @@ export class Properties extends ConditionApi {
 	}
 
 	// In Condition 조건
-	config(): [ConditionType] {
+	config(): ConditionType[] {
 		return [
 			Condic.Tool.plant(),
 			Condic.Common.time_period()

@@ -7,14 +7,14 @@ import {
 
 export class ViewConfig extends ViewApi {
 
-    displayContext(): [ConditionType] {
+    displayContext(): ConditionType[] {
         return [
             Condic.Label.plantName(),
             Condic.Label.time_period()
         ];
     }
 
-    displayConfiguration(): [ConditionType] {
+    displayConfiguration(): ConditionType[] {
         const newConfig: ConditionValueType = {
 			config: {
 				format: 'YYYY/MM/DD'
@@ -26,7 +26,7 @@ export class ViewConfig extends ViewApi {
         ];
     }
 
-    displaySync(): [ConditionType] {
+    displaySync(): ConditionType[] {
         return [
             Condic.Label.from(),
             Condic.Label.to()
@@ -34,7 +34,7 @@ export class ViewConfig extends ViewApi {
         ];
     }
 
-    displaySync1(): [ConditionType] {
+    displaySync1(): ConditionType[] {
         return [
             Condic.Label.from(),
             Condic.Label.to()

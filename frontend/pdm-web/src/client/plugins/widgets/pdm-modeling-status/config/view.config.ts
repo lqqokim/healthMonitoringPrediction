@@ -6,25 +6,25 @@ import {
 
 export class ViewConfig extends ViewApi {
 
-    displayContext(): [ConditionType] {
+    displayContext(): ConditionType[] {
         return [
             Condic.Label.plantName()
         ];
     }
 
-    displayConfiguration(): [ConditionType] {
+    displayConfiguration(): ConditionType[] {
         return [
             Condic.Label.plantName()
         ];
     }
 
-    displaySync(): [ConditionType] {
+    displaySync(): ConditionType[] {
         return [
             Condic.Label.plantName()
         ];
     }
 
-    displaySync1(): [ConditionType] {
+    displaySync1(): ConditionType[] {
         return [
             Condic.Label.plantName()
         ];

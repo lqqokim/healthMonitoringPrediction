@@ -19,14 +19,14 @@ export class Properties extends ConditionApi {
     }
 
 	// In Condition 조건
-	config(): [ConditionType] {
+	config(): ConditionType[] {
 		return [
             Condic.Common.manualTimeline(),
 		    Condic.Common.dateType()
         ];
 	}
 
-	form(): [FormConfigType] {
+	form(): FormConfigType[] {
         return [
 			Formcfg.Common.manual_timeline(),
 			Formcfg.Common.spec_alarming()

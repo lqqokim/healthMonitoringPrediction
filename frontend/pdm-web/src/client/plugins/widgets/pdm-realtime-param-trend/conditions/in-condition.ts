@@ -9,7 +9,7 @@ export class InCondition extends ConditionApi {
 
 	init() {}
 
-	config(): [ConditionType] {
+	config(): ConditionType[] {
 		return [
 			// Condic.Common.time_period({
 			// 	required: true
