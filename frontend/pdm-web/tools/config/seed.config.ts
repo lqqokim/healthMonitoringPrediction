@@ -713,6 +713,12 @@ export class SeedConfig {
             startPath: this.APP_BASE,
             open: argv['b'] ? false : true,
             injectChanges: false,
+
+            // prevent to the auto reload of browser-sync
+            reloadDelay: 86400000,
+            reloadDebounce: 86400000,
+            codeSync: false,
+
             server: {
                 baseDir: `${this.DIST_DIR}/empty/`,
                 middleware: [],
@@ -722,11 +728,13 @@ export class SeedConfig {
                     [`${this.APP_BASE.replace(/\/$/, '')}/${this.APP_DEST}`]: this.APP_DEST,
                     [`${this.APP_BASE.replace(/\/$/, '')}/node_modules`]: 'node_modules',
                     [`${this.APP_BASE.replace(/\/$/, '')}`]: this.APP_DEST
-                }
-            },
-            socket: {
-                clients:{
-                    heartbeatTimeot: 86400000 //1000*60*60*24
+                },
+
+                 // prevent to the auto reload of browser-sync
+                socket: {
+                    clients: {
+                        heartbeatTimeout: 86400000 //1000*60*60*24
+                    }
                 }
             }
         },
