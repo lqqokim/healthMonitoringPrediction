@@ -18,7 +18,7 @@ public class RepositorySinker {
     private final String groupId;
     private final String servingAddress;
 
-    private ExecutorService executor = Executors.newFixedThreadPool(8 * 100);
+    private ExecutorService executor = Executors.newFixedThreadPool(8);
 
     public RepositorySinker(final String groupId, String servingAddr, String configPath) {
         this.groupId = groupId;
@@ -36,7 +36,7 @@ public class RepositorySinker {
         final String outputReloadTopic = "pdm-output-reload";
         final String outputDimensionTopic = "pdm-output-dimension";
 
-        for (int i = 1; i <= 100; i++) {
+        for (int i = 1; i <= 1; i++) {
 
             executor.submit(new TimewaveConsumerRunnable(
                     this.configPath, this.groupId + "-raw", outputTimewaveTopic));

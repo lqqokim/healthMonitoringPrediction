@@ -1,7 +1,6 @@
 package com.bistel.pdm.speed;
 
 import com.bistel.pdm.lambda.kafka.AbstractPipeline;
-import com.bistel.pdm.lambda.kafka.partitioner.CustomStreamPartitioner;
 import com.bistel.pdm.speed.processor.SpeedProcessor;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.Serdes;
@@ -42,6 +41,11 @@ public class SpeedRealTimeTaskDef extends AbstractPipeline {
         }
 
         KafkaStreams streams = processStreams();
+        streams.setUncaughtExceptionHandler((Thread thread, Throwable throwable) -> {
+            // here you should examine the throwable/exception and perform an appropriate action!
+            log.error(throwable.getMessage(), throwable);
+        });
+
         //streams.cleanUp(); //don't do this in prod as it clears your state stores
         streams.start();
 
@@ -60,7 +64,7 @@ public class SpeedRealTimeTaskDef extends AbstractPipeline {
                                 TimeUnit.HOURS.toMillis(1),
                                 false),
                         Serdes.String(),
-                        Serdes.Double()).withCachingEnabled();
+                        Serdes.Double());
 
 //        CustomStreamPartitioner partitioner = new CustomStreamPartitioner();
 
@@ -108,7 +112,7 @@ public class SpeedRealTimeTaskDef extends AbstractPipeline {
         streamProperty.put(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, 10 * 1024 * 1024L);
 
         // Set commit interval to 1 second.
-        streamProperty.put(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, 1000);
+        //streamProperty.put(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, 1000);
 
         streamProperty.put(StreamsConfig.STATE_DIR_CONFIG, stateDir);
 

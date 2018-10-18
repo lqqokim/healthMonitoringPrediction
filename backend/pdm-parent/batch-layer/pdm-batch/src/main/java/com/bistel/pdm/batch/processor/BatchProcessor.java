@@ -110,7 +110,6 @@ public class BatchProcessor extends AbstractProcessor<String, byte[]> {
                     // process start (IR)
                     String msgGroup = nowMessageTime.toString(); // define group id
                     messageGroupMap.put(partitionKey, msgGroup);
-
                     intervalLongTime.put(partitionKey, statusWindow.getCurrentLongTime());
                 }
 

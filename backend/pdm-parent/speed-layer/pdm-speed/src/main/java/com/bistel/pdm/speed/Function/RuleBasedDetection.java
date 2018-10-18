@@ -21,7 +21,7 @@ public class RuleBasedDetection {
     private String outOfSpecMsg = "";
     private String healthMsg = "";
 
-    public void detect(String partitionKey, String paramKey, Long longTime,
+    public synchronized void detect(String partitionKey, String paramKey, Long longTime,
                        ParameterWithSpecMaster paramInfo, List<Double> paramHealthValues,
                        boolean existAlarm, boolean existWarning) throws ExecutionException {
 

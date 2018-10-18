@@ -36,6 +36,11 @@ public class BatchTimewaveTaskDef extends AbstractPipeline {
         }
 
         KafkaStreams streams = processStreams();
+        streams.setUncaughtExceptionHandler((Thread thread, Throwable throwable) -> {
+            // here you should examine the throwable/exception and perform an appropriate action!
+            log.error(throwable.getMessage(), throwable);
+        });
+
         //streams.cleanUp(); //don't do this in prod as it clears your state stores
         streams.start();
 
@@ -84,7 +89,7 @@ public class BatchTimewaveTaskDef extends AbstractPipeline {
         streamProperty.put(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, 10 * 1024 * 1024L);
 
         // Set commit interval to 1 second.
-        streamProperty.put(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, 1000);
+        //streamProperty.put(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, 1000);
 
         streamProperty.put(StreamsConfig.STATE_DIR_CONFIG, stateDir);
 

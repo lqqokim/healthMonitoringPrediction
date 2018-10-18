@@ -139,7 +139,7 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
                     if (ruleName.length() > 0) {
                         conditionRuleMap.put(partitionKey, ruleName);
 
-                        Long paramTime = statusWindow.getCurrentLongTime();
+                        //Long paramTime = statusWindow.getCurrentLongTime();
 
                         // time, P1, P2, P3, P4, ... Pn, {status, groupid, rulename}
                         String traceMsg = recordValue + ",R," + msgGroup + "," + ruleName;
@@ -162,6 +162,7 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
                                     Double paramDblValue = Double.parseDouble(strParamValue);
                                     Double normalizedValue = paramDblValue / paramInfo.getUpperAlarmSpec();
 
+                                    //log.debug("[{}] - put value : {}", partitionKey, normalizedValue);
                                     kvNormalizedParamValueStore.put(paramKey, normalizedValue, nowMessageTime);
 
                                     log.debug("[{}] - {} fault detecting...", partitionKey, paramInfo.getParameterName());
@@ -187,11 +188,11 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
                             Long startTime = intervalLongTime.get(partitionKey);
                             Long interval = startTime + eventInfo.getFirst().getIntervalTimeMs();
 
-                            if (paramTime >= interval) {
+                            if (statusWindow.getCurrentLongTime() >= interval) {
 
                                 // event ended. ------------------------------------------
-                                String eventMsg =
-                                        statusWindow.getPreviousLongTime() + ","
+                                Long endTime = statusWindow.getPreviousLongTime();
+                                String eventMsg = endTime + ","
                                                 + eventInfo.getSecond().getEventRawId() + ","
                                                 + eventInfo.getSecond().getEventTypeCD();
 
@@ -213,8 +214,6 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
 
 
                                 // logic-2 -----------------------------------------------
-                                Long endTime = statusWindow.getPreviousLongTime();
-
                                 String sts = new SimpleDateFormat("MMdd HH:mm:ss.SSS").format(new Timestamp(startTime));
                                 String ets = new SimpleDateFormat("MMdd HH:mm:ss.SSS").format(new Timestamp(endTime));
                                 log.debug("[{}] - fetch data from {} to {}.", partitionKey, sts, ets);
@@ -275,7 +274,7 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
                                 }
                                 // logic-2 -----------------------------------------------
 
-                                intervalLongTime.put(partitionKey, paramTime);
+                                intervalLongTime.put(partitionKey, statusWindow.getCurrentLongTime());
                             }
                         }
 
@@ -346,24 +345,24 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
                                     log.debug("[{}] - logic 1 health : {}", paramKey, health1Msg);
                                 }
 
-//                                // Rule based detection
-//                                ruleBasedDetection.detect(partitionKey, paramKey, endTime, paramInfo, normalizedValueList, existAlarm, existWarning);
-//
-//                                String faultMsg = ruleBasedDetection.getOutOfSpecMsg();
-//                                if (faultMsg.length() > 0) {
-//                                    context().forward(partitionKey, faultMsg.getBytes(), "output-fault");
-//                                    context().commit();
-//                                    log.debug("[{}] - rule fault occurred.", partitionKey);
-//                                }
-//
-//                                // Logic 2 health
-//                                String health2Msg = ruleBasedDetection.getHealthMsg();
-//                                if (health2Msg.length() > 0) {
-//                                    health2Msg = health2Msg + "," + msgGroup; // with group
-//                                    context().forward(partitionKey, health2Msg.getBytes(), "output-health");
-//                                    context().commit();
-//                                    log.debug("[{}] - logic 2 health : {}", paramKey, health2Msg);
-//                                }
+                                // Rule based detection
+                                ruleBasedDetection.detect(partitionKey, paramKey, endTime, paramInfo, normalizedValueList, existAlarm, existWarning);
+
+                                String faultMsg = ruleBasedDetection.getOutOfSpecMsg();
+                                if (faultMsg.length() > 0) {
+                                    context().forward(partitionKey, faultMsg.getBytes(), "output-fault");
+                                    context().commit();
+                                    log.debug("[{}] - rule fault occurred.", partitionKey);
+                                }
+
+                                // Logic 2 health
+                                String health2Msg = ruleBasedDetection.getHealthMsg();
+                                if (health2Msg.length() > 0) {
+                                    health2Msg = health2Msg + "," + msgGroup; // with group
+                                    context().forward(partitionKey, health2Msg.getBytes(), "output-health");
+                                    context().commit();
+                                    log.debug("[{}] - logic 2 health : {}", paramKey, health2Msg);
+                                }
 
                                 individualDetection.resetAlarmCount(paramKey);
                                 individualDetection.resetWarningCount(paramKey);
