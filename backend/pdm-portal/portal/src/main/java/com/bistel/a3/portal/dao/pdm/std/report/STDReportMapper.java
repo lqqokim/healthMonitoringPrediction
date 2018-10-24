@@ -58,9 +58,9 @@ public interface STDReportMapper {
 
     List<EqpStatusData> selectAlarmWarningEqps(@Param("eqpId") Long eqpId, @Param("start") Date start, @Param("end") Date end, @Param("globalWarn") Double globalWarn);
 
-    List<EqpStatusData> selectGoodFiveEqps(@Param("start") Date start, @Param("end") Date end);
+    List<EqpStatusData> selectGoodFiveEqps(@Param("start") Date start, @Param("end") Date end, @Param("threshold") Double threshold);
 
-    List<EqpStatusData> selectBadFiveEqps(@Param("start") Date start, @Param("end") Date end);
+    List<EqpStatusData> selectBadFiveEqps(@Param("start") Date start, @Param("end") Date end, @Param("threshold") Double threshold);
 
     List<EqpStatusData> selectNumberOfWorstEqps(@Param("start") Date start, @Param("end") Date end,@Param("numberOfWorst") Integer numberOfWorst);
 

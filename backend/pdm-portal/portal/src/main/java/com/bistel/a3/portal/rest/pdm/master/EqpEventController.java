@@ -32,8 +32,8 @@ public class EqpEventController {
         for (int i = 0; i < eqpEvents.size(); i++) {
             if(eqpEvents.get(i).getRawId() == null) {
 
-                eqpEvents.get(i).setCreateBy(user.getName());
-            }
+             }
+
             eqpEvents.get(i).setUpdateBy(user.getName());
             service.setEpqEvent(fabId, eqpEvents.get(i));
 

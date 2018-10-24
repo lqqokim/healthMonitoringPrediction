@@ -323,4 +323,17 @@
         from param_mst_pdm
     </select>
 
+    <select id="selectParamEqpList" resultType="com.bistel.a3.portal.domain.pdm.db.Param">
+        select eqp_mst_rawid eqp_id, rawid param_id
+        from param_mst_pdm
+        order by eqp_id, param_id
+    </select>
+
+    <select id="selectEqpList" resultType="com.bistel.a3.portal.domain.pdm.db.Param">
+        select eqp_mst_rawid eqp_id
+        from param_mst_pdm
+        group by eqp_mst_rawid
+        order by eqp_mst_rawid
+    </select>
+
 </mapper>

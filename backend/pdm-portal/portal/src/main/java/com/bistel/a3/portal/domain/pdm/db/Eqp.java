@@ -1,8 +1,13 @@
 package com.bistel.a3.portal.domain.pdm.db;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.Base64;
+
 public class Eqp {
+
+
     @JsonProperty("eqpId")
     private Long eqp_id;
     @JsonProperty("eqpName")
@@ -19,6 +24,26 @@ public class Eqp {
     private String userName;
     private String offline_yn;
     private String model_name;
+    private String areaEqp_name;
+    private String area_name;
+
+    public String getAreaEqp_name() {
+        return this.area_name+"_"+this.name;
+    }
+
+    public void setAreaEqp_name(String areaEqp_name) {
+        this.areaEqp_name = areaEqp_name;
+    }
+
+
+
+    public String getArea_name() {
+        return area_name;
+    }
+
+    public void setArea_name(String area_name) {
+        this.area_name = area_name;
+    }
 
     public String getModel_name() {
         return model_name;
@@ -99,4 +124,38 @@ public class Eqp {
     public void setData_type_cd(String data_type_cd) {
         this.data_type_cd = data_type_cd;
     }
+
+
+    private String image;
+
+    @JsonIgnore
+    private byte[] binary;
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+
+        if(image==null)
+        {
+            this.image=null;
+        }
+        else
+        {
+            this.image = image;
+            this.binary = Base64.getDecoder().decode(image);
+        }
+
+    }
+
+    public byte[] getBinary() {
+        return binary;
+    }
+
+    public void setBinary(byte[] binary) {
+        this.binary = binary;
+        this.image = Base64.getEncoder().encodeToString(binary);
+    }
+
 }

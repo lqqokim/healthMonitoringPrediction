@@ -21,7 +21,7 @@ public interface ISummaryDataService {
 
     List<AreaFaultCountSummary> lineStatusTrend(String fabId, Long areaId, Date fromdate, Date todate);
 
-    List<WorstEquipmentList> worstEquipmentList(String fabId, Long areaId ,Long eqpId, Date fromdate, Date todate);
+    List<WorstEquipmentList> worstEquipmentList(String fabId, Long areaId ,Long eqpId, Date fromdate, Date todate, Integer limit);
 
     List<FabMonitoringInfo> getFabMonitoringInfo(String fabId, Long eqp_id, String param_name,Date fromdate, Date todate);
 

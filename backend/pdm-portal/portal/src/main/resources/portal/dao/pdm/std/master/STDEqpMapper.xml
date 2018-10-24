@@ -218,17 +218,37 @@
 
 
     <select id="selectOne" resultType="com.bistel.a3.portal.domain.pdm.master.EqpWithEtc">
-        select a.rawid as eqp_id,
-            a.name,
-            a.description,
-            a.area_mst_rawid as area_id,
-            a.image as binary,
-            a.data_type_cd,
-            b.name as data_type,
-            a.model_name,
-            a.offline_yn
-        from eqp_mst_pdm a left outer join code_mst_pdm b
+        <!--select a.rawid as eqp_id,-->
+            <!--a.name,-->
+            <!--a.description,-->
+            <!--a.area_mst_rawid as area_id,-->
+            <!--a.image as binary,-->
+            <!--a.data_type_cd,-->
+            <!--b.name as data_type,-->
+            <!--a.model_name,-->
+            <!--a.offline_yn-->
+        <!--from eqp_mst_pdm a left outer join code_mst_pdm b-->
+        <!--on a.data_type_cd = b.code-->
+        <!--where a.rawid = #{eqpId}-->
+
+        select
+
+        a.area_mst_rawid as area_id,
+        c.name as area_name,
+        a.rawid as eqp_id,
+        a.name,
+        a.description,
+
+        a.image as binary,
+        a.data_type_cd,
+        b.name as data_type,
+        a.model_name,
+        a.offline_yn
+        from eqp_mst_pdm a
+        left outer join code_mst_pdm b
         on a.data_type_cd = b.code
+        join area_mst_pdm c
+        on a.area_mst_rawid=c.rawid
         where a.rawid = #{eqpId}
     </select>
 
@@ -353,8 +373,10 @@
         a.description,
         <!--a.image,-->
         b.name as data_type
+        ,a.data_type_cd
         from eqp_mst_pdm a left outer join code_mst_pdm b
         on a.data_type_cd = b.code
+        order by a.rawid
 
     </select>
     <select id="selectEqpsByArea" resultType="com.bistel.a3.portal.domain.pdm.EqpWithArea" databaseId="oracle">

@@ -615,10 +615,8 @@ public class MasterService implements IMasterService {
             mapper.update(eqpEvent);
         }
 
-        if (eqpEvent.getTimeout()!=36000L)
-        {
-            mapper.updateEqpTimeout(eqpEvent.getEqpId(),eqpEvent.getTimeout());
-        }
+
+       mapper.updateEqpTimeout(eqpEvent.getEqpId(),eqpEvent.getTimeout());
 
 
         //request to Kafka

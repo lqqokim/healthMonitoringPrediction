@@ -138,7 +138,7 @@ public class TraceDataService implements ITraceDataService {
         RpmWithPart rpmWithPart = new RpmWithPart();
         if(traceRpms.size()>0){
             for (int i = 0; i < traceRpms.size(); i++) {
-                rpmWithPart.getPartsNameRPMs().put((String)traceRpms.get(i).get("NAME"),(Double) traceRpms.get(i).get("RPM"));
+                rpmWithPart.getPartsNameRPMs().put((String)traceRpms.get(i).get("NAME"), Double.parseDouble(traceRpms.get(i).get("RPM").toString()));
             }
         }else {
 

@@ -75,7 +75,6 @@ public class SummaryDataService implements ISummaryDataService {
 
         STDSummaryMapper stdSummaryMapper= SqlSessionUtil.getMapper(sessions, fabId, STDSummaryMapper.class);
 
-
         return stdSummaryMapper.selectStatusCountSummary(fromdate, todate);
 
 
@@ -139,6 +138,7 @@ public class SummaryDataService implements ISummaryDataService {
 
         if(areaId==null && eqpId == null)//전체
         {
+            List<AlarmHistory> alarmHistories=stdSummaryMapper.selectAlarmHistoryAll(fromdate, todate);
             return stdSummaryMapper.selectAlarmHistoryAll(fromdate, todate);
         }
         else if(areaId!=null && eqpId==null)//Area기준
@@ -173,8 +173,8 @@ public class SummaryDataService implements ISummaryDataService {
 
         Date end = DateUtils.addDays(DateUtils.truncate(todate, Calendar.DATE), -1);
 
-        String sFrom=dtDate.format(fromdate);
-        String sTo=dtDate.format(end);
+        String sFrom=dtDate.format(fromdate); // Date from --> String from
+        String sTo=dtDate.format(end); //from -1
 
 
         if(areaId==null)
@@ -198,7 +198,7 @@ public class SummaryDataService implements ISummaryDataService {
     }
 
     @Override
-    public List<WorstEquipmentList> worstEquipmentList(String fabId, Long areaId,Long eqpId, Date fromdate, Date todate) {
+    public List<WorstEquipmentList> worstEquipmentList(String fabId, Long areaId,Long eqpId, Date fromdate, Date todate, Integer limit) {
 
         STDSummaryMapper stdSummaryMapper= SqlSessionUtil.getMapper(sessions, fabId, STDSummaryMapper.class);
 
@@ -209,7 +209,7 @@ public class SummaryDataService implements ISummaryDataService {
 
         if (areaId==null)
         {
-            List<WorstEquipmentList> worstEquipmentLists = stdSummaryMapper.selectWorstEquipmentList(start_dtts,end_dtts,eqpId);
+            List<WorstEquipmentList> worstEquipmentLists = stdSummaryMapper.selectWorstEquipmentList(start_dtts,end_dtts,eqpId, limit);
             ArrayList<WorstEqupmentListChartData> worstEqupmentListChartData=stdSummaryMapper.selectWorstEqupmentListChartData(start_dtts,end_dtts, eqpId);
 
 
@@ -234,12 +234,13 @@ public class SummaryDataService implements ISummaryDataService {
                 worstEquipmentLists.get(i).setDatas(worstEqupmentListChartDataArray);
             }
 
+
             return worstEquipmentLists;
         }
         else
         {
 
-            List<WorstEquipmentList> worstEquipmentLists = stdSummaryMapper.selectWorstEquipmentListByAreaId(start_dtts,end_dtts,areaId,eqpId);
+            List<WorstEquipmentList> worstEquipmentLists = stdSummaryMapper.selectWorstEquipmentListByAreaId(start_dtts,end_dtts,areaId,eqpId,limit);
             ArrayList<WorstEqupmentListChartData> worstEqupmentListChartData=stdSummaryMapper.selectWorstEqupmentListChartDataByAreaId(start_dtts,end_dtts,areaId,eqpId);
 
             WorstEqupmentListChartData worstEqupmentListChartData1=null;

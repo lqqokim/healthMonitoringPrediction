@@ -9,7 +9,8 @@ public class OverallMinuteTrx {
     @JsonProperty("problem_data_rawid")
     private Long problem_data_rawid;
 
-
+    private String area_name;
+    private String eqp_name;
 
     @JsonProperty("paramId")
     private Long param_id;
@@ -20,6 +21,8 @@ public class OverallMinuteTrx {
     private Double alarm;
     private Double warn;
 
+    private String group_dtts;
+
 
     private Long rawid;
     private String reserved_col1;
@@ -28,6 +31,21 @@ public class OverallMinuteTrx {
     private String reserved_col4;
     private String reserved_col5;
 
+    public String getArea_name() {
+        return area_name;
+    }
+
+    public void setArea_name(String area_name) {
+        this.area_name = area_name;
+    }
+
+    public String getEqp_name() {
+        return eqp_name;
+    }
+
+    public void setEqp_name(String eqp_name) {
+        this.eqp_name = eqp_name;
+    }
 
     public Long getRawid() {
         return rawid;
@@ -131,6 +149,14 @@ public class OverallMinuteTrx {
 
     public void setWarn(Double warn) {
         this.warn = warn;
+    }
+
+    public String getGroup_dtts() {
+        return group_dtts;
+    }
+
+    public void setGroup_dtts(String group_dtts) {
+        this.group_dtts = group_dtts;
     }
 
     @Override

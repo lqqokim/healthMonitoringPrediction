@@ -442,6 +442,21 @@ public class ReportService implements com.bistel.a3.portal.service.pdm.IReportSe
         }
     }
 
+    @Override
+    public List<EqpStatusData> getAlarmWarningEqps(String fabId, Date from, Date to) {
+        return null;
+    }
+
+    @Override
+    public List<EqpStatusData> getGoodFiveEqps(String fabId, Date from, Date to, Double threshold) {
+        return null;
+    }
+
+    @Override
+    public List<EqpStatusData> getBadFiveEqps(String fabId, Date from, Date to, Double threshold) {
+        return null;
+    }
+
     private void createPartitionByTableName(Date from, ProcedureMapper mapper, String tableName) {
         String partitionDate = DateFormatUtils.format(from, "yyyyMM");
         mapper.createPartition(partitionDate, tableName);
@@ -461,25 +476,25 @@ public class ReportService implements com.bistel.a3.portal.service.pdm.IReportSe
     }
 
 
-    @Override
-    public List<EqpStatusData> getAlarmWarningEqps(String fabId, Date from, Date to) {
-        EqpMapper mapper = SqlSessionUtil.getMapper(sessions, fabId, EqpMapper.class);
-        return mapper.selectAlarmWarningEqps(null, from, to);
-    }
-
-
-    @Override
-    public List<EqpStatusData> getGoodFiveEqps(String fabId, Date from, Date to) {
-        EqpMapper mapper = SqlSessionUtil.getMapper(sessions, fabId, EqpMapper.class);
-        return mapper.selectGoodFiveEqps(from, to);
-    }
-
-
-    @Override
-    public List<EqpStatusData> getBadFiveEqps(String fabId, Date from, Date to) {
-        EqpMapper mapper = SqlSessionUtil.getMapper(sessions, fabId, EqpMapper.class);
-        return mapper.selectBadFiveEqps(from, to);
-    }
+//    @Override
+//    public List<EqpStatusData> getAlarmWarningEqps(String fabId, Date from, Date to) {
+//        EqpMapper mapper = SqlSessionUtil.getMapper(sessions, fabId, EqpMapper.class);
+//        return mapper.selectAlarmWarningEqps(null, from, to);
+//    }
+//
+//
+//    @Override
+//    public List<EqpStatusData> getGoodFiveEqps(String fabId, Date from, Date to) {
+//        EqpMapper mapper = SqlSessionUtil.getMapper(sessions, fabId, EqpMapper.class);
+//        return mapper.selectGoodFiveEqps(from, to);
+//    }
+//
+//
+//    @Override
+//    public List<EqpStatusData> getBadFiveEqps(String fabId, Date from, Date to) {
+//        EqpMapper mapper = SqlSessionUtil.getMapper(sessions, fabId, EqpMapper.class);
+//        return mapper.selectBadFiveEqps(from, to);
+//    }
 
 
     @Override

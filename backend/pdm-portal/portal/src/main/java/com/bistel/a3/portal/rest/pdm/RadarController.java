@@ -33,26 +33,29 @@ public class RadarController {
 
     @RequestMapping("radareqps")
     public Object radarEqps(@PathVariable("fabId") String fabId, @RequestParam("type") String stringType,
-                            @RequestParam("fromdate") Long fromdate, @RequestParam("todate") Long todate, @RequestParam("numberOfWorst") Integer numberOfWorst) {
+                            @RequestParam("fromdate") Long fromdate, @RequestParam("todate") Long todate, @RequestParam("numberOfWorst") Integer numberOfWorst
+            , @RequestParam("threshold") Double threshold)
+                            {
         TYPE type = TYPE.valueOf(stringType);
         Date from = new Date(fromdate);
         Date to = new Date(todate);
 
         List<EqpStatusData> result = Collections.EMPTY_LIST;
 
+//        Double threshold=0.1;
 
         switch (type) {
             case AW:
                 result = reportService.getAlarmWarningEqps(fabId, from, to);
                 break;
             case G5:
-                result = reportService.getGoodFiveEqps(fabId, from, to); //90일 대비 Diff
+                result = reportService.getGoodFiveEqps(fabId, from, to, threshold); //90일 대비 Diff
                 break;
             case B5:
-                result = reportService.getBadFiveEqps(fabId, from, to); // 90일 대비 Diff
+                result = reportService.getBadFiveEqps(fabId, from, to, threshold); // 90일 대비 Diff
                 break;
             case NW:
-                result = reportService.getNumberOfWorstEqps(fabId, from, to,numberOfWorst);// 
+                result = reportService.getNumberOfWorstEqps(fabId, from, to, numberOfWorst);//
         }
         reportService.getDuration(fabId, result, from, to);
 

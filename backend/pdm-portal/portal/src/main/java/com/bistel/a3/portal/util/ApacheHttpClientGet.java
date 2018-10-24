@@ -30,6 +30,10 @@ public class ApacheHttpClientGet {
         try {
 
             DefaultHttpClient httpClient = new DefaultHttpClient();
+            eqp_name=eqp_name.replaceAll(" ","%20");
+            eqp_name=eqp_name.replaceAll("#","%23");
+            eqp_name=eqp_name.replaceAll("/","%2F");
+
             HttpGet getRequest = new HttpGet(this.url+"/"+eqp_name);
             getRequest.addHeader("accept", "application/json");
 

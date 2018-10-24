@@ -374,46 +374,30 @@
     </select>
 
     <select id="selectAlarmWarningEqps" resultType="com.bistel.a3.portal.domain.pdm.EqpStatusData">
-        <!--select-->
-        <!--a.rawid as eqp_id,-->
-        <!--a.area_mst_rawid as area_id,-->
-        <!--a.name,-->
-        <!--min(b.sum_dtts) as start_dtts,-->
-        <!--max(b.status_cd) as status,-->
-        <!--max(b.value) as value-->
-        <!--from eqp_mst_pdm a-->
-        <!--join eqp_alarm_daily_sum_pdm b-->
-        <!--on a.rawid = b.eqp_mst_rawid-->
-        <!--where-->
-        <!--b.sum_dtts <![CDATA[>=]]> #{start}-->
-        <!--and b.sum_dtts <![CDATA[<]]> #{end}-->
-        <!--<if test="eqpId != null">-->
-            <!--and a.rawid = #{eqpId}-->
-        <!--</if>-->
-        <!--and b.status_cd in (128, 256)-->
-        <!--group by a.area_mst_rawid,a.rawid, a.name-->
-        <!--order by status desc, value desc-->
-    
+
+
+
         select * from
-            (
-            select
-                eqp.area_mst_rawid as area_id,
-                eqp_health.EQP_MST_RAWID as eqp_id,
-                eqp.name,
-                min(eqp_health.SUM_DTTS) as start_dtts,
-                max(eqp_health.score) as value,
-                case when max(eqp_health.score)>=1 then 'alarm' when max(eqp_health.score) <![CDATA[>=]]> #{globalWarn} then 'warning' end as type,
-                case when max(eqp_health.score)>=1 then '256' when max(eqp_health.score) <![CDATA[>=]]> #{globalWarn} then '128' end as status
-            from EQP_HEALTH_DAILY_SUM_PDM eqp_health,param_health_mst_pdm param_health,eqp_mst_pdm eqp
-            where eqp_health.param_health_mst_rawid = param_health.rawid
-                AND eqp.rawid = eqp_health.eqp_mst_rawid
-                AND eqp_health.SUM_DTTS <![CDATA[>=]]> #{start}
-                And eqp_health.SUM_DTTS <![CDATA[<]]> #{end}
-                AND param_health.health_logic_mst_rawid = 2
-                AND eqp.offline_yn='N'
-            group by eqp.area_mst_rawid ,
-                eqp_health.EQP_MST_RAWID,eqp.name
-            )
+        (
+        select
+        eqp.area_mst_rawid as area_id,
+        eqp_health.EQP_MST_RAWID as eqp_id,
+        area.name|| ','  ||eqp.name as name,
+        min(eqp_health.SUM_DTTS) as start_dtts,
+        max(eqp_health.score) as value,
+        case when max(eqp_health.score)>=1 then 'alarm' when max(eqp_health.score) >= 0.8 then 'warning' end as type,
+        case when max(eqp_health.score)>=1 then '256' when max(eqp_health.score) >= 0.8 then '128' end as status
+        from EQP_HEALTH_DAILY_SUM_PDM eqp_health,param_health_mst_pdm param_health,eqp_mst_pdm eqp, area_mst_pdm area
+        where eqp_health.param_health_mst_rawid = param_health.rawid
+        and area.rawid=eqp.area_mst_rawid
+        AND eqp.rawid = eqp_health.eqp_mst_rawid
+        AND eqp_health.SUM_DTTS <![CDATA[>=]]> #{start}
+        And eqp_health.SUM_DTTS <![CDATA[<]]> #{end}
+        AND param_health.health_logic_mst_rawid = 2
+        AND eqp.offline_yn='N'
+        group by eqp.area_mst_rawid ,
+        eqp_health.EQP_MST_RAWID,area.name,eqp.name
+        )
         where status in ('256','128')
         order by status desc,value desc
         
@@ -421,125 +405,46 @@
     
     
     <select id="selectGoodFiveEqps" resultType="com.bistel.a3.portal.domain.pdm.EqpStatusData" databaseId="oracle">
-        <!--SELECT-->
-        <!--*-->
-        <!--FROM-->
-        <!--(-->
-           <!--SELECT-->
-           <!--eqp.rawid AS eqp_id,-->
-           <!--eqp.area_mst_rawid as area_id,-->
-           <!--eqp.name,-->
-           <!--c.status_cd-->
-           <!--FROM-->
-           <!--(-->
-              <!--SELECT-->
-              <!--param.eqp_mst_rawid AS eqp_id,-->
-              <!--MIN(a.variation) AS variation-->
-              <!--FROM-->
-              <!--(-->
-                 <!--SELECT-->
-                 <!--param_mst_rawid AS param_id,-->
-                 <!--AVG(variation / alarm_spec) AS variation-->
-                 <!--FROM trace_daily_sum_pdm-->
-                 <!--WHERE sum_dtts <![CDATA[>=]]> #{start}-->
-                 <!--AND sum_dtts <![CDATA[<]]> #{end}-->
-                 <!--AND variation IS NOT NULL-->
-                 <!--GROUP BY param_mst_rawid-->
-              <!--)-->
-              <!--a-->
-              <!--JOIN param_mst_pdm param ON a.param_id = param.rawid-->
-              <!--GROUP BY param.eqp_mst_rawid-->
-           <!--)-->
-           <!--a-->
-           <!--JOIN eqp_mst_pdm eqp ON a.eqp_id = eqp.rawid-->
-           <!--LEFT JOIN-->
-           <!--(-->
-              <!--SELECT-->
-              <!--eqp_mst_rawid AS eqp_id,-->
-              <!--MAX(status_cd) AS status_cd-->
-              <!--FROM eqp_alarm_daily_sum_pdm-->
-              <!--WHERE sum_dtts <![CDATA[>=]]> #{start}-->
-              <!--AND sum_dtts<![CDATA[<]]> #{end}-->
-              <!--GROUP BY eqp_mst_rawid-->
-           <!--)-->
-           <!--c ON eqp.rawid = c.eqp_id-->
-           <!--ORDER BY a.variation-->
-        <!--)-->
-        <!--where rownum <![CDATA[<=]]> 5-->
-    
-        <!--SELECT-->
-            <!--*-->
-        <!--FROM-->
-            <!--(-->
-                <!--SELECT-->
-                    <!--*-->
-                <!--FROM-->
-                    <!--(-->
-                        <!--SELECT-->
-                            <!--eqp.area_mst_rawid AS area_id,-->
-                            <!--eqp_health.eqp_mst_rawid AS eqp_id,-->
-                            <!--eqp.name,-->
-                            <!--MIN(eqp_health.sum_dtts) AS start_dtts,-->
-                            <!--MAX(eqp_health.score) AS value,-->
-                            <!--CASE-->
-                                    <!--WHEN MAX(eqp_health.score) >= 1     THEN '256'-->
-                                    <!--WHEN MAX(eqp_health.score) >= 0.8 THEN '128'-->
-                                <!--END-->
-                            <!--AS status-->
-                        <!--FROM-->
-                            <!--eqp_health_daily_sum_pdm eqp_health,-->
-                            <!--param_health_mst_pdm param_health,-->
-                            <!--eqp_mst_pdm eqp-->
-                        <!--WHERE-->
-                            <!--eqp_health.param_health_mst_rawid = param_health.rawid-->
-                            <!--and   eqp.rawid = eqp_health.eqp_mst_rawid-->
-                            <!--and   eqp_health.sum_dtts <![CDATA[>=]]> #{start}-->
-                            <!--and   eqp_health.sum_dtts <![CDATA[<]]> #{end}-->
-                            <!--and   param_health.health_logic_mst_rawid=2-->
-                            <!--and   eqp.offline_yn='N'-->
-                        <!--GROUP BY-->
-                            <!--eqp.area_mst_rawid,-->
-                            <!--eqp_health.eqp_mst_rawid,-->
-                            <!--eqp.name-->
-                    <!--)-->
-                <!--WHERE-->
-                    <!--status IS NULL-->
-                <!--ORDER BY-->
-                    <!--value ASC-->
-            <!--)-->
-        <!--WHERE-->
-            <!--ROWNUM <![CDATA[<=]]> 5-->
-        SELECT
-            *
+
+
+
+
+
+        select area_id ,eqp_id, eqp_name as name, value, start_dtts
+        from
+        (
+        select
+        area_id ,eqp_id, eqp_name, abs(value) value, start_dtts
+        from
+        (
+        SELECT area_id, eqp_id, eqp_name, min(VALUE) value, start_dtts
         FROM
-            (
-                SELECT
-                    area_mst_rawid AS area_id,
-                    eqp_mst_rawid AS eqp_id,
-                    eqp.name,
-                    MAX(score) AS value,
-                    MIN(sum_dtts) AS start_dtts
-                FROM
-                    eqp_health_daily_sum_pdm eqp_health,
-                    param_health_mst_pdm param_health,
-                    eqp_mst_pdm eqp
-                WHERE
-                    eqp.offline_yn = 'N'
-                    and   eqp_health.sum_dtts <![CDATA[>=]]> #{start}
-                    and   eqp_health.sum_dtts <![CDATA[<]]> #{end}
-                    AND   score IS NOT NULL
-                    AND   eqp_health.param_health_mst_rawid = param_health.rawid
-                    and   eqp.rawid=eqp_mst_rawid
-                    AND   health_logic_mst_rawid = 3
-                GROUP BY
-                    area_mst_rawid,
-                    eqp_mst_rawid,
-                    eqp.name
-                ORDER BY
-                    MAX(score) ASC
-            )
-        WHERE
-            rownum <![CDATA[<=]]> 5
+        (
+        SELECT
+        area_id, eqp_id, eqp_name, VALUE, start_dtts
+        FROM
+        (
+        SELECT
+        a.rawid AS area_id, e.rawid AS eqp_id, a.name || ',' || e.name as eqp_name,
+        (avg(h.today_avg)-avg(h.previous_avg)) as value, MIN(h.sum_dtts) AS start_dtts
+        FROM eqp_health_daily_sum_pdm h, param_health_mst_pdm m, eqp_mst_pdm e, area_mst_pdm a
+        WHERE e.offline_yn = 'N'
+        and   h.sum_dtts <![CDATA[>=]]>  #{start}
+        and   h.sum_dtts <![CDATA[<]]>  #{end}
+        AND   h.score IS NOT NULL
+        AND   h.param_health_mst_rawid = m.rawid
+        and   e.rawid=h.eqp_mst_rawid
+        and   a.rawid=e.area_mst_rawid
+        AND   m.health_logic_mst_rawid = 3
+        GROUP BY
+        a.rawid, e.rawid, a.name, e.name, m.param_mst_rawid
+        )
+        where value<![CDATA[<]]> 0.0
+        ORDER BY VALUE asc
+        ) group by area_id, eqp_id, eqp_name, start_dtts
+        ) order by value asc
+        ) where value <![CDATA[>=]]> #{threshold}
+        order by value desc
 
     </select>
     <select id="selectGoodFiveEqps" resultType="com.bistel.a3.portal.domain.pdm.EqpStatusData" databaseId="postgresql">
@@ -592,130 +497,78 @@
     </select>
     
     <select id="selectBadFiveEqps" resultType="com.bistel.a3.portal.domain.pdm.EqpStatusData" databaseId="oracle">
-        <!--SELECT-->
-        <!--*-->
-        <!--FROM-->
+
+      <!-- -->
+        <!--select area_id ,eqp_id, eqp_name as name, value, start_dtts-->
+        <!--from-->
         <!--(-->
-           <!--SELECT-->
-           <!--eqp.rawid AS eqp_id,-->
-           <!--eqp.area_mst_rawid as area_id,-->
-           <!--eqp.name,-->
-           <!--c.status_cd-->
-           <!--FROM-->
-           <!--(-->
-              <!--SELECT-->
-              <!--param.eqp_mst_rawid AS eqp_id,-->
-              <!--MAX(a.variation) AS variation-->
-              <!--FROM-->
-              <!--(-->
-                 <!--SELECT-->
-                 <!--param_mst_rawid AS param_id,-->
-                 <!--AVG(variation / alarm_spec) AS variation-->
-                 <!--FROM trace_daily_sum_pdm-->
-                 <!--WHERE sum_dtts <![CDATA[>=]]> #{start}-->
-                 <!--AND sum_dtts <![CDATA[<]]> #{end}-->
-                 <!--AND variation IS NOT NULL-->
-                 <!--GROUP BY param_mst_rawid-->
-              <!--)-->
-              <!--a-->
-              <!--JOIN param_mst_pdm param ON a.param_id = param.rawid-->
-              <!--GROUP BY param.eqp_mst_rawid-->
-           <!--)-->
-           <!--a-->
-           <!--JOIN eqp_mst_pdm eqp ON a.eqp_id = eqp.rawid-->
-           <!--LEFT JOIN-->
-           <!--(-->
-              <!--SELECT-->
-              <!--eqp_mst_rawid AS eqp_id,-->
-              <!--MAX(status_cd) AS status_cd-->
-              <!--FROM eqp_alarm_daily_sum_pdm-->
-              <!--WHERE sum_dtts <![CDATA[>=]]> #{start}-->
-              <!--AND sum_dtts <![CDATA[<]]> #{end}-->
-              <!--GROUP BY eqp_mst_rawid-->
-           <!--)-->
-           <!--c ON eqp.rawid = c.eqp_id-->
-           <!--ORDER BY a.variation DESC-->
-        <!--)-->
-        <!--where rownum <![CDATA[<=]]> 5-->
-    
-        <!--SELECT-->
-            <!--*-->
-        <!--FROM-->
+            <!--select-->
+            <!--area_id ,eqp_id, eqp_name, abs(value) value, start_dtts-->
+            <!--from-->
             <!--(-->
-                <!--SELECT-->
-                    <!--*-->
+                <!--SELECT area_id, eqp_id, eqp_name, min(VALUE) value, start_dtts-->
                 <!--FROM-->
+                <!--(-->
+                    <!--SELECT-->
+                    <!--area_id, eqp_id, eqp_name, VALUE value, start_dtts-->
+                    <!--FROM-->
                     <!--(-->
                         <!--SELECT-->
-                            <!--eqp.area_mst_rawid AS area_id,-->
-                            <!--eqp_health.eqp_mst_rawid AS eqp_id,-->
-                            <!--eqp.name,-->
-                            <!--MIN(eqp_health.sum_dtts) AS start_dtts,-->
-                            <!--MAX(eqp_health.score) AS value,-->
-                            <!--CASE-->
-                                    <!--WHEN MAX(eqp_health.score) >= 1     THEN '256'-->
-                                    <!--WHEN MAX(eqp_health.score) >= 0.8 THEN '128'-->
-                                <!--END-->
-                            <!--AS status-->
-                        <!--FROM-->
-                            <!--eqp_health_daily_sum_pdm eqp_health,-->
-                            <!--param_health_mst_pdm param_health,-->
-                            <!--eqp_mst_pdm eqp-->
-                        <!--WHERE-->
-                            <!--eqp_health.param_health_mst_rawid = param_health.rawid-->
-                            <!--and   eqp.rawid = eqp_health.eqp_mst_rawid-->
-                            <!--and   eqp_health.sum_dtts <![CDATA[>=]]> #{start}-->
-                            <!--and   eqp_health.sum_dtts <![CDATA[<]]> #{end}-->
-                            <!--and   param_health.health_logic_mst_rawid=2-->
-                            <!--and   eqp.offline_yn='N'-->
-                        <!--GROUP BY-->
-                            <!--eqp.area_mst_rawid,-->
-                            <!--eqp_health.eqp_mst_rawid,-->
-                            <!--eqp.name-->
-                    <!--)-->
-                <!--WHERE-->
-                    <!--status IS NULL-->
-                <!--ORDER BY-->
-                    <!--value DESC-->
-            <!--)-->
-        <!--WHERE-->
-            <!--ROWNUM <![CDATA[<=]]> 5-->
-        <!---->
-    
-    
-    
-        SELECT
-            *
+                        <!--a.rawid AS area_id, e.rawid AS eqp_id, a.name || ',' || e.name as eqp_name,-->
+                        <!--avg(h.previous_avg) - avg(h.today_avg) as value, MIN(h.sum_dtts) AS start_dtts-->
+                        <!--FROM eqp_health_daily_sum_pdm h, param_health_mst_pdm m, eqp_mst_pdm e, area_mst_pdm a-->
+                        <!--WHERE e.offline_yn = 'N'-->
+                        <!--and   h.sum_dtts <![CDATA[>=]]>  #{start}-->
+                        <!--and   h.sum_dtts <![CDATA[<]]>  #{end}-->
+                        <!--AND   h.score IS NOT NULL-->
+                        <!--AND   h.param_health_mst_rawid = m.rawid-->
+                        <!--and   e.rawid=h.eqp_mst_rawid-->
+                        <!--and   a.rawid=e.area_mst_rawid-->
+                        <!--AND   m.health_logic_mst_rawid = 3-->
+                        <!--GROUP BY a.rawid, e.rawid, a.name, e.name, m.param_mst_rawid-->
+                    <!--) ORDER BY VALUE ASC-->
+                <!--)-->
+                <!--where value <![CDATA[<]]> 0-->
+                <!--group by area_id, eqp_id, eqp_name, start_dtts-->
+            <!--) order by value desc-->
+        <!--)-->
+        <!--where value <![CDATA[>=]]> #{threshold}-->
+
+        select area_id ,eqp_id, eqp_name as name, value, start_dtts
+        from
+        (
+        select
+        area_id ,eqp_id, eqp_name, abs(value) value, start_dtts
+        from
+        (
+        SELECT area_id, eqp_id, eqp_name, min(VALUE) value, start_dtts
         FROM
-            (
-                SELECT
-                    area_mst_rawid AS area_id,
-                    eqp_mst_rawid AS eqp_id,
-                    eqp.name,
-                    MAX(score) AS value,
-                    MIN(sum_dtts) AS start_dtts
-                FROM
-                    eqp_health_daily_sum_pdm eqp_health,
-                    param_health_mst_pdm param_health,
-                    eqp_mst_pdm eqp
-                WHERE
-                    eqp.offline_yn = 'N'
-                    and   eqp_health.sum_dtts <![CDATA[>=]]> #{start}
-                    and   eqp_health.sum_dtts <![CDATA[<]]> #{end}
-                    AND   score IS NOT NULL
-                    AND   eqp_health.param_health_mst_rawid = param_health.rawid
-                    and   eqp.rawid=eqp_mst_rawid
-                    AND   health_logic_mst_rawid = 3
-                GROUP BY
-                    area_mst_rawid,
-                    eqp_mst_rawid,
-                    eqp.name
-                ORDER BY
-                    MAX(score) DESC
-            )
-        WHERE
-            rownum <![CDATA[<=]]> 5
-        
+        (
+        SELECT
+        area_id, eqp_id, eqp_name, VALUE value, start_dtts
+        FROM
+        (
+        SELECT
+        a.rawid AS area_id, e.rawid AS eqp_id, a.name || ',' || e.name as eqp_name,
+        avg(h.previous_avg) - avg(h.today_avg) as value, MIN(h.sum_dtts) AS start_dtts
+        FROM eqp_health_daily_sum_pdm h, param_health_mst_pdm m, eqp_mst_pdm e, area_mst_pdm a
+        WHERE e.offline_yn = 'N'
+        and   h.sum_dtts <![CDATA[>=]]>  #{start}
+        and   h.sum_dtts <![CDATA[<]]>  #{end}
+        AND   h.score IS NOT NULL
+        AND   h.param_health_mst_rawid = m.rawid
+        and   e.rawid=h.eqp_mst_rawid
+        and   a.rawid=e.area_mst_rawid
+        AND   m.health_logic_mst_rawid = 3
+        GROUP BY a.rawid, e.rawid, a.name, e.name, m.param_mst_rawid
+        ) ORDER BY VALUE ASC
+        )
+        where value <![CDATA[<]]> 0
+        group by area_id, eqp_id, eqp_name, start_dtts
+        ) order by value desc
+        )
+        where value <![CDATA[>=]]> #{threshold}
+
     </select>
     <select id="selectBadFiveEqps" resultType="com.bistel.a3.portal.domain.pdm.EqpStatusData" databaseId="postgresql">
         <!--TODO-->
@@ -941,10 +794,10 @@
             select
                 param_health.PARAM_MST_RAWID as param_id,
                 param.name,
-                avg(eqp_health.score) avg_daily,
+                max(eqp_health.score) avg_daily,
                 avg(1) as alarm ,
                 avg(#{globalWarn}) as warn,
-                avg(eqp_health.score)*(#{globalWarn}) as avg_spec
+                max(eqp_health.score)*(#{globalWarn}) as avg_spec
             from EQP_HEALTH_DAILY_SUM_PDM eqp_health,param_health_mst_pdm param_health,param_mst_pdm param
             where
                 eqp_health.EQP_MST_RAWID = #{eqpId}
@@ -1040,20 +893,45 @@
      <select id="selectHealthIndexTrend" resultType="com.bistel.a3.portal.domain.pdm.BasicData">
         select
         trx.create_dtts as x
-        , score*upper_alarm_spec as y
-        , upper_alarm_spec as alarm
-        , upper_warning_spec as warn
-
+         , score as y
+        <!--, score*upper_alarm_spec as y-->
+        <!--, upper_alarm_spec as alarm-->
+        <!--, upper_warning_spec as warn-->
+         , 1 as alarm
+         , 0.8 as warn
         from param_health_trx_pdm trx,param_health_mst_pdm mst
         where
         trx.param_mst_rawid = #{paramId}
-        and trx.create_dtts <![CDATA[>=]]> #{fromDate}
+        and trx.create_dtts <![CDATA[>=]]> #{fromDate} -90
         and trx.create_dtts <![CDATA[<]]> #{toDate}
          and trx.param_health_mst_rawid = mst.rawid
          and mst.param_mst_rawid = trx.param_mst_rawid
          and mst.health_logic_mst_rawid =2
         order by trx.create_dtts
         
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     </select>
     
 </mapper>

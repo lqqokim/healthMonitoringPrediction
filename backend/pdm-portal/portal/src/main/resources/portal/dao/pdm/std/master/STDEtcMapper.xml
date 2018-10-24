@@ -121,6 +121,16 @@
         where rawid=#{param_health_mst_rawid}
     </delete>
 
+    <delete id="deleteParamHealthMstAll">
+        delete
+        from param_health_mst_pdm
+    </delete>
+
+    <delete id="deleteParamHealthOptMstAll">
+        delete
+        from PARAM_HEALTH_OPTION_MST_PDM
+    </delete>
+
 
 
     <insert id="insertParamHealth" databaseId="oracle">

@@ -30,11 +30,11 @@ public interface STDSummaryMapper {
 
     List<AreaFaultCountSummary> selectLineStatusTrendByAreaId(@Param("fromdate") Date fromdate, @Param("todate") Date todate, @Param("area_id") Long area_id, @Param("sFrom") String sFrom, @Param("sTo") String sTo);
 
-    List<WorstEquipmentList> selectWorstEquipmentList(@Param("start_dtts") String start_dtts, @Param("end_dtts") String end_dtts,@Param("eqp_id") Long eqp_id );
+    List<WorstEquipmentList> selectWorstEquipmentList(@Param("start_dtts") String start_dtts, @Param("end_dtts") String end_dtts,@Param("eqp_id") Long eqp_id, @Param("limit") Integer limit );
 
     ArrayList<WorstEqupmentListChartData> selectWorstEqupmentListChartData(@Param("start_dtts") String start_dtts, @Param("end_dtts") String end_dtts, @Param("eqp_id") Long eqp_id);
 
-    List<WorstEquipmentList> selectWorstEquipmentListByAreaId(@Param("start_dtts") String start_dtts, @Param("end_dtts") String end_dtts, @Param("area_id") Long area_id, @Param("eqp_id") Long eqp_id);
+    List<WorstEquipmentList> selectWorstEquipmentListByAreaId(@Param("start_dtts") String start_dtts, @Param("end_dtts") String end_dtts, @Param("area_id") Long area_id, @Param("eqp_id") Long eqp_id, @Param("limit") Integer limit);
 
     ArrayList<WorstEqupmentListChartData> selectWorstEqupmentListChartDataByAreaId(@Param("start_dtts") String start_dtts, @Param("end_dtts") String end_dtts, @Param("area_id") Long area_id, @Param("eqp_id") Long eqp_id);
 

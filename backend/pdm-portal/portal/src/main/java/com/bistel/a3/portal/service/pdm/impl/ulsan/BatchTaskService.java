@@ -37,8 +37,7 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -76,22 +75,21 @@ public class BatchTaskService implements IBatchTaskService {
     @Value("${rms.summary.period}")
     private int rmsSummaryPeriod;
 
-    private Map<String, IDataPumperComponent> pumperMap;
+    private final Map<String, IDataPumperComponent> pumperMap = new HashMap<>();
 
     private static FastDateFormat ffM = FastDateFormat.getDateInstance(DateFormat.DEFAULT);
     private static FastDateFormat ffL = FastDateFormat.getDateInstance(DateFormat.LONG);
 
     @PostConstruct
     public void init() {
-        pumperMap = new HashMap<>();
         pumperMap.put("SKF", BeanFactoryAnnotationUtils.qualifiedBeanOfType(factory, IDataPumperComponent.class, "SKFDataPumperComponent"));
         pumperMap.put("STD", BeanFactoryAnnotationUtils.qualifiedBeanOfType(factory, IDataPumperComponent.class, "STDDataPumperComponent"));
     }
 
     @Override
     public void createPartition(Date from, int count, Set<String> fabs, JOB_TYPE jobStart) {
-        for(String fab : fabs) {
-            logger.info("START {} createPartition .. {}, {} ", fab, ffM.format(from) , count);
+        for (String fab : fabs) {
+            logger.info("START {} createPartition .. {}, {} ", fab, ffM.format(from), count);
             saveJobHst(fab, from, JOB.createpartition, null, JOB_STATUS.start, jobStart, fab);
             reportService.createPartiton(fab, from, count);
             logger.info("END   {} createPartition .. ", fab);
@@ -105,12 +103,12 @@ public class BatchTaskService implements IBatchTaskService {
         TransactionStatus status = TransactionUtil.getTransactionStatus(manager);
 
         try {
-            if(eqpIds == null) {
+            if (eqpIds == null) {
                 BatchJobHst batchJobHst = new BatchJobHst(date, job.name(), null, jobStatus.name(), jobType.name(), userId);
                 mapper.deleteBatchJobHst(batchJobHst);
                 mapper.insertBatchJobHst(batchJobHst);
             } else {
-                for(Long eqpId: eqpIds) {
+                for (Long eqpId : eqpIds) {
                     BatchJobHst batchJobHst = new BatchJobHst(date, job.name(), eqpId, jobStatus.name(), jobType.name(), userId);
                     mapper.deleteBatchJobHst(batchJobHst);
                     mapper.insertBatchJobHst(batchJobHst);
@@ -131,24 +129,24 @@ public class BatchTaskService implements IBatchTaskService {
         List<HealthStat> records = new ArrayList<>();
         int size = models.size();
         int index = 0;
-        for(HealthModel model : models) {
-            if(!eqpIds.isEmpty() && !eqpIds.contains(model.getEqp_id())) continue;
+        for (HealthModel model : models) {
+            if (!eqpIds.isEmpty() && !eqpIds.contains(model.getEqp_id())) continue;
 
             HealthStat healthStat = healthService.getDailyScore(fabId, model.getEqp_id(), from, to, from90);
             healthStat.setMeasure_dtts(DateUtils.truncate(from, Calendar.DATE));
             setExpectedAlarm(fabId, healthStat, from, to, 7);
 
             List<ParamWithCommon> params = reportService.getParamWtihTypeByEqp(fabId, model.getEqp_id());
-            if(params.isEmpty()) continue;
+            if (params.isEmpty()) continue;
 
             List<CauseAnalysisResult> causes = getCauseAnalysisResults(from, to, fabId, params);
-            if(causes.size() > 0) {
+            if (causes.size() > 0) {
                 setCauseData(model, healthStat, causes);
             }
 
             reportService.checkOverSpec(fabId, from, to, healthStat);
 
-            index ++;
+            index++;
             logger.info("model: {}, {}/{}", model.getEqp_id(), index, size);
             records.add(healthStat);
         }
@@ -156,25 +154,25 @@ public class BatchTaskService implements IBatchTaskService {
     }
 
     private void setExpectedAlarm(String fabId, HealthStat healthStat, Date pFrom, Date pTo, Integer regressionDays) {
-        if(healthStat.getScore() < 0.8 || healthStat.getScore() >= 0.9) return;
+        if (healthStat.getScore() < 0.8 || healthStat.getScore() >= 0.9) return;
 
         HealthModel model = healthService.getModelByEqpId(fabId, healthStat.getEqp_id());
-        if(model.getAlarm_spec() == null) return;
+        if (model.getAlarm_spec() == null) return;
 
         Date to = pTo;
         Date from = DateUtils.addDays(to, regressionDays * -1);
 
         List<HealthDaily> health = healthService.getHealth(fabId, healthStat.getEqp_id(), from, to);
         SimpleRegression regression = new SimpleRegression();
-        for(HealthDaily indexPDM : health) {
+        for (HealthDaily indexPDM : health) {
             regression.addData(indexPDM.getMeasure_dtts().getTime(), indexPDM.getValue());
             logger.debug("{ {}, {} },", indexPDM.getMeasure_dtts().getTime(), indexPDM.getValue());
         }
         double intercept = regression.getIntercept();
         double slope = regression.getSlope();
-            if(Double.isNaN(intercept) || Double.isNaN(slope) || slope <=0) return;
+        if (Double.isNaN(intercept) || Double.isNaN(slope) || slope <= 0) return;
 
-        double x = (model.getAlarm_spec() - intercept)/slope;
+        double x = (model.getAlarm_spec() - intercept) / slope;
         logger.debug("spec: {}, slope: {}, intercept: {}", model.getAlarm_spec(), slope, intercept);
         logger.debug("x: {}, pFrom: {}, pTo: {}", x, pFrom.getTime(), pTo.getTime());
         logger.debug("{}", (long) x - pTo.getTime());
@@ -184,27 +182,27 @@ public class BatchTaskService implements IBatchTaskService {
     }
 
     private void setCauseData(HealthModel model, HealthStat h, List<CauseAnalysisResult> causes) {
-        if(h.getScore() < 0.9) return;
+        if (h.getScore() < 0.9) return;
 
         h.setEqp_id(model.getEqp_id());
         int size = causes.size();
 
         int index = 0;
-        if(size > index) {
+        if (size > index) {
             CauseAnalysisResult cause = causes.get(index);
             h.setCause1(cause.toString());
             h.setParamId(cause.getParamId());
             h.setMeasureTrxId(cause.getMeasureTrxId());
 
-            index ++;
+            index++;
         }
-        if(size > index) {
+        if (size > index) {
             h.setCause2(causes.get(index).toString());
-            index ++;
+            index++;
         }
 
         StringBuilder sb = new StringBuilder();
-        for(;index < size; index++) {
+        for (; index < size; index++) {
             sb.append(causes.get(index).toString()).append('\n');
         }
         h.setCause3(sb.toString());
@@ -212,12 +210,12 @@ public class BatchTaskService implements IBatchTaskService {
 
     private List<CauseAnalysisResult> getCauseAnalysisResults(Date from, Date to, String fabId, List<ParamWithCommon> paramWithComms) {
         List<CauseAnalysisResult> causes = new ArrayList<>();
-        for(ParamWithCommon param : paramWithComms) {
+        for (ParamWithCommon param : paramWithComms) {
             MeasureTrx measureTrx = traceDataService.getLastMeasureTrx(fabId, param.getParam_id(), from.getTime(), to.getTime());
-            if(measureTrx == null) continue;
+            if (measureTrx == null) continue;
 
             CauseAnalysisResult causeAnalysis = traceDataService.getCauseAnalysis(fabId, param, measureTrx.getMeasure_trx_id());
-            if(causeAnalysis == null || causeAnalysis.getCauses().isEmpty()) continue;
+            if (causeAnalysis == null || causeAnalysis.getCauses().isEmpty()) continue;
             causes.add(causeAnalysis);
         }
         return causes;
@@ -225,7 +223,7 @@ public class BatchTaskService implements IBatchTaskService {
 
     @Override
     public void dataPumpBase(Set<String> fabs, Date date, JOB_TYPE jobType, String userId) throws NoSuchMethodException {
-        for(String fab : fabs) {
+        for (String fab : fabs) {
             long start = System.currentTimeMillis();
             logger.info("START {} dataPumpBase .. ", fab);
             saveJobHst(fab, date, JOB.datapumpbase, null, JOB_STATUS.start, jobType, userId);
@@ -236,40 +234,75 @@ public class BatchTaskService implements IBatchTaskService {
         }
     }
 
+//    ExecutorService executorService = Executors.newFixedThreadPool(10);
+    ExecutorService executorService =
+            new ThreadPoolExecutor(4, 100, 0L, TimeUnit.MILLISECONDS,
+                    new LinkedBlockingQueue<Runnable>());
 
     @Override
     public void dataPump(Date from, Date to, Set<String> fabs, JOB_TYPE jobType, String userId) throws NoSuchMethodException {
-        for(String fab : fabs) {
-            long start = System.currentTimeMillis();
-            logger.info("START {} dataPump .. [{} ~ {})", fab, ffL.format(from) , ffL.format(to));
-            saveJobHst(fab, from, JOB.datapump, null, JOB_STATUS.start, jobType, userId);
-
-            List<Eqp> eqps = reportService.getEqps(fab);
-            int iCount = 1;
-            Date startDate = new Date();
-            for(Eqp eqp: eqps) {
-                pumperMap.get(eqp.getData_type()).dataPump(fab, fabsComponent.getLegacy(fab), from, to, eqp.getEqp_id());
-                iCount = printProgress(fab,eqps.size(),iCount,startDate,"DataPump");
-            }
-            logger.info("END   {} dataPump .. [{} ~ {}), {}ms", fab, ffL.format(from) , ffL.format(to), System.currentTimeMillis() - start);
-            saveJobHst(fab, from, JOB.datapump, null, JOB_STATUS.done, jobType, userId);
-        }
+//        for (String fab : fabs) {
+////            long start = System.currentTimeMillis();
+////            logger.info("START {} dataPump .. [{} ~ {})", fab, ffL.format(from), ffL.format(to));
+////            saveJobHst(fab, from, JOB.datapump, null, JOB_STATUS.start, jobType, userId);
+//
+//            List<Eqp> eqps = reportService.getEqps(fab);
+////            int iCount = 1;
+////            Date startDate = new Date();
+////            for (Eqp eqp : eqps) {
+////                pumperMap.get(eqp.getData_type()).dataPump(fab, fabsComponent.getLegacy(fab), from, to, eqp.getEqp_id());
+////                iCount = printProgress(fab, eqps.size(), iCount, startDate, "DataPump");
+////            }
+//
+//            for(Eqp eqp : eqps){
+//                Runnable runnableTask = () -> {
+//                    try {
+//                        long start = System.currentTimeMillis();
+//                        logger.info("START {} dataPump .. [{} ~ {})", fab, ffL.format(from), ffL.format(to));
+//                        saveJobHst(fab, from, JOB.datapump, null, JOB_STATUS.start, jobType, userId);
+//
+//                        pumperMap.get(eqp.getData_type()).dataPump(fab, fabsComponent.getLegacy(fab), from, to, eqp.getEqp_id());
+//
+//                        logger.info("END   {} dataPump .. [{} ~ {}), {}ms", fab, ffL.format(from), ffL.format(to), System.currentTimeMillis() - start);
+//                        saveJobHst(fab, from, JOB.datapump, null, JOB_STATUS.done, jobType, userId);
+//
+//                    } catch (Exception e) {
+//                        e.printStackTrace();
+//                    }
+//                };
+//
+//                executorService.execute(runnableTask);
+//            }
+//
+////            logger.info("END   {} dataPump .. [{} ~ {}), {}ms", fab, ffL.format(from), ffL.format(to), System.currentTimeMillis() - start);
+////            saveJobHst(fab, from, JOB.datapump, null, JOB_STATUS.done, jobType, userId);
+//        }
+//
+//        executorService.shutdown();
+//        try {
+//            if (!executorService.awaitTermination(12, TimeUnit.HOURS)) {
+//                executorService.shutdownNow();
+//            }
+//        } catch (InterruptedException e) {
+//            executorService.shutdownNow();
+//        }
     }
+
     @Override
     public void alarmUpdate(Date from, Date to, Set<String> fabs, JOB_TYPE jobType, String userId) throws NoSuchMethodException {
-        for(String fab : fabs) {
+        for (String fab : fabs) {
             long start = System.currentTimeMillis();
-            logger.info("START {} alarmUpdate .. [{} ~ {})", fab, ffL.format(from) , ffL.format(to));
+            logger.info("START {} alarmUpdate .. [{} ~ {})", fab, ffL.format(from), ffL.format(to));
             saveJobHst(fab, from, JOB.datapump, null, JOB_STATUS.start, jobType, userId);
 
             List<Eqp> eqps = reportService.getEqps(fab);
             int iCount = 1;
             Date startDate = new Date();
-            for(Eqp eqp: eqps) {
+            for (Eqp eqp : eqps) {
                 pumperMap.get(eqp.getData_type()).alarmUpdate(fab, fabsComponent.getLegacy(fab), from, to, eqp.getEqp_id());
-                iCount = printProgress(fab,eqps.size(),iCount,startDate,"alarmUpdate");
+                iCount = printProgress(fab, eqps.size(), iCount, startDate, "alarmUpdate");
             }
-            logger.info("END   {} alarmUpdate .. [{} ~ {}), {}ms", fab, ffL.format(from) , ffL.format(to), System.currentTimeMillis() - start);
+            logger.info("END   {} alarmUpdate .. [{} ~ {}), {}ms", fab, ffL.format(from), ffL.format(to), System.currentTimeMillis() - start);
             saveJobHst(fab, from, JOB.datapump, null, JOB_STATUS.done, jobType, userId);
         }
     }
@@ -310,7 +343,6 @@ public class BatchTaskService implements IBatchTaskService {
     }
 
 
-
     @Override
     public void deleteParamHealthRUL(Set<String> fabs, Date from, Date to) {
 
@@ -318,22 +350,22 @@ public class BatchTaskService implements IBatchTaskService {
 
 
     private int printProgress(String fab, int totalCount, int iCount, Date startDate, String jobName) {
-        try{
+        try {
             long diff = new Date().getTime() - startDate.getTime();
 
             long diffTotalSeconds = diff / 1000 % 60;
-            long diffTotalMinutes = diff / (60*1000) % 60;
-            long diffTotalHours = diff /(60 *60 * 1000) %24;
-            long diffTotalDays = diff / (24*60*60*1000);
+            long diffTotalMinutes = diff / (60 * 1000) % 60;
+            long diffTotalHours = diff / (60 * 60 * 1000) % 24;
+            long diffTotalDays = diff / (24 * 60 * 60 * 1000);
 
-            diff =(long) ((totalCount - iCount)/(double)iCount*diff);
+            diff = (long) ((totalCount - iCount) / (double) iCount * diff);
             long diffSeconds = diff / 1000 % 60;
-            long diffMinutes = diff / (60*1000) % 60;
-            long diffHours = diff /(60 *60 * 1000) %24;
-            long diffDays = diff / (24*60*60*1000);
-            int percentage = (int)((double) iCount/totalCount*100);
-            logger.info("Processing {} ... Fab:{} {}/{} {}% Estimate=>{}:{}:{} Total=>{}:{}:{}",jobName,fab,iCount++,totalCount,percentage,diffHours,diffMinutes,diffSeconds,diffTotalHours,diffTotalMinutes,diffTotalSeconds);
-        }catch(Exception err){
+            long diffMinutes = diff / (60 * 1000) % 60;
+            long diffHours = diff / (60 * 60 * 1000) % 24;
+            long diffDays = diff / (24 * 60 * 60 * 1000);
+            int percentage = (int) ((double) iCount / totalCount * 100);
+            logger.info("Processing {} ... Fab:{} {}/{} {}% Estimate=>{}:{}:{} Total=>{}:{}:{}", jobName, fab, iCount++, totalCount, percentage, diffHours, diffMinutes, diffSeconds, diffTotalHours, diffTotalMinutes, diffTotalSeconds);
+        } catch (Exception err) {
 
         }
         return iCount;
@@ -341,9 +373,9 @@ public class BatchTaskService implements IBatchTaskService {
     }
 
     @Override
-    public void summaryData(String userName,Date from, Date to, Set<String> fabs, Set<Long> passEqpIds, JOB_TYPE jobType, String userId) throws InterruptedException, ExecutionException, ParseException, IOException {
-        for(String fab : fabs) {
-            logger.info("START {} create health .. [{} ~ {}), eqpIds:{}", fab, ffM.format(from) , ffM.format(to), passEqpIds);
+    public void summaryData(String userName, Date from, Date to, Set<String> fabs, Set<Long> passEqpIds, JOB_TYPE jobType, String userId) throws InterruptedException, ExecutionException, ParseException, IOException {
+        for (String fab : fabs) {
+            logger.info("START {} create health .. [{} ~ {}), eqpIds:{}", fab, ffM.format(from), ffM.format(to), passEqpIds);
             saveJobHst(fab, from, JOB.summarydata, passEqpIds.isEmpty() ? null : passEqpIds, JOB_STATUS.start, jobType, userId);
 //            createHealthByFab(from, to, fab, eqpIds);
 //            createStatByFab(from, to, fab, eqpIds);
@@ -351,23 +383,24 @@ public class BatchTaskService implements IBatchTaskService {
             Date overallSummarySpecDate = DateUtils.addDays(from, -1 * rmsSummaryPeriod);
 //            fabService.caculateAvg90(fab, overallSummarySpecDate, from, eqpIds);
             Set<Long> eqpIds = passEqpIds;
-            if(passEqpIds.isEmpty()) {
+            if (passEqpIds.isEmpty()) {
                 eqpIds = reportService.getEqps(fab).stream().mapToLong(x -> x.getEqp_id()).boxed().collect(Collectors.toSet());
             }
             int iCount = 1;
             Date startDate = new Date();
-            for(Long eqp: eqpIds) {
-                reportService.calculateSummary(userName,fab, overallSummarySpecDate, from, to, eqp);
-                iCount = printProgress(fab,eqpIds.size(),iCount,startDate,"calculateSummary");
+            for (Long eqp : eqpIds) {
+                reportService.calculateSummary(userName, fab, overallSummarySpecDate, from, to, eqp);
+                iCount = printProgress(fab, eqpIds.size(), iCount, startDate, "calculateSummary");
 
             }
 
-            logger.info("END   {} create health .. [{} ~ {})", fab, ffM.format(from) , ffM.format(to));
+            logger.info("END   {} create health .. [{} ~ {})", fab, ffM.format(from), ffM.format(to));
             saveJobHst(fab, from, JOB.summarydata, eqpIds.isEmpty() ? null : eqpIds, JOB_STATUS.done, jobType, userId);
         }
     }
+
     @Override
-    public void summaryRealTimeData(String userName,Date from, Date to, Set<String> fabs, Set<Long> passEqpIds, JOB_TYPE jobType, String userId) throws InterruptedException, ExecutionException, ParseException, IOException {
+    public void summaryRealTimeData(String userName, Date from, Date to, Set<String> fabs, Set<Long> passEqpIds, JOB_TYPE jobType, String userId) throws InterruptedException, ExecutionException, ParseException, IOException {
 //        for(String fab : fabs) {
 //            logger.info("START {} create health .. [{} ~ {}), eqpIds:{}", fab, ffM.format(from) , ffM.format(to), passEqpIds);
 //            saveJobHst(fab, from, JOB.summarydata, passEqpIds.isEmpty() ? null : passEqpIds, JOB_STATUS.start, jobType, userId);
@@ -401,9 +434,9 @@ public class BatchTaskService implements IBatchTaskService {
         List<Code> jobCodes = codeService.getCode("PDM", "JOB", true);
         List<Code> statusCodes = codeService.getCode("PDM", "JOB_STATUS", true);
         List<Code> typeCode = codeService.getCode("PDM", "JOB_TYPE", true);
-        List<BatchJobHst> hsts =  mapper.selectJobHst(start, end, jobType == JOB_TYPE.NONE ? null : jobType.name());
+        List<BatchJobHst> hsts = mapper.selectJobHst(start, end, jobType == JOB_TYPE.NONE ? null : jobType.name());
 
-        for(BatchJobHst hst : hsts) {
+        for (BatchJobHst hst : hsts) {
             hst.setJob_name(codeService.getCode(jobCodes, hst.getJob_cd()));
             hst.setJob_status_name(codeService.getCode(statusCodes, hst.getJob_status_cd()));
             hst.setJob_type_name(codeService.getCode(typeCode, hst.getJob_type_cd()));
@@ -414,8 +447,8 @@ public class BatchTaskService implements IBatchTaskService {
 
     @Override
     public void createFeature(Date from, Date to, Set<String> fabs) {
-        for(String fab : fabs) {
-            logger.info("START {} calc feature .. [{} ~ {})", fab, ffM.format(from) , ffM.format(to));
+        for (String fab : fabs) {
+            logger.info("START {} calc feature .. [{} ~ {})", fab, ffM.format(from), ffM.format(to));
             createFeatureByFab(from, to, fab);
             logger.info("END   {} calc feature .. ");
         }
@@ -426,10 +459,10 @@ public class BatchTaskService implements IBatchTaskService {
 
         int lastIndex = measureTrx.size() - 1;
         int startIndex = 0;
-        int endIndex = startIndex+9999;
+        int endIndex = startIndex + 9999;
 
 //        IMeasureTrxBinService binaryService = BeanFactoryAnnotationUtils.qualifiedBeanOfType(factory, IMeasureTrxBinService.class, "STDMeasureTrxBinService");
-        while(lastIndex > startIndex) {
+        while (lastIndex > startIndex) {
             endIndex = endIndex > lastIndex ? lastIndex : endIndex;
             List<MeasureTrx> sub = measureTrx.subList(startIndex, endIndex);
             Map<Long, List<List<Object>>> timewaveMap = traceRawDataService.getTimewaveMap(fabId, sub);
@@ -448,10 +481,10 @@ public class BatchTaskService implements IBatchTaskService {
         Date now = new Date();
         Feature d = null;
         try {
-            for(MeasureTrx m : measureTrx) {
+            for (MeasureTrx m : measureTrx) {
                 Long measureTrxId = m.getMeasure_trx_id();
                 List<List<Object>> timewave = timewaveMap.get(measureTrxId);
-                if(timewave.isEmpty()) continue;
+                if (timewave.isEmpty()) continue;
 
                 d = makeFeature(timewave, m.getValue(), measureTrxId, now);
                 mapper.deleteFeature(d);
@@ -481,14 +514,14 @@ public class BatchTaskService implements IBatchTaskService {
         double sumOfabsSqrt = Arrays.stream(data).map(d -> Math.sqrt(Math.abs(d))).sum();
         double sumOfabs = Arrays.stream(data).map(Math::abs).sum();
 
-        double pv = (max-min)/2;
-        double rms = Math.sqrt(sumsq/length);
+        double pv = (max - min) / 2;
+        double rms = Math.sqrt(sumsq / length);
         double skewness = (sumOf3 / length) / Math.pow(sumOf2 / length, 1.5);
         double kutosis = length * sumOf4 / Math.pow(sumOf2, 2);
-        double crest = pv/rms;
-        double clearance = pv/Math.pow(sumOfabsSqrt/length, 2);
-        double impulse = pv/(sumOfabs/length);
-        double shape = rms/(sumOfabs/length);
+        double crest = pv / rms;
+        double clearance = pv / Math.pow(sumOfabsSqrt / length, 2);
+        double impulse = pv / (sumOfabs / length);
+        double shape = rms / (sumOfabs / length);
 
         Feature d = new Feature();
         d.setMeasure_trx_id(measureTrxId);
@@ -507,11 +540,11 @@ public class BatchTaskService implements IBatchTaskService {
 
     private void createHealthByFab(Date from, Date to, String fabId, Set<Long> eqpIds) throws IOException, ParseException, ExecutionException, InterruptedException {
         List<HealthModel> models = healthService.getModels(fabId);
-        for(HealthModel model : models) {
-            if(!eqpIds.isEmpty() && !eqpIds.contains(model.getEqp_id())) continue;
+        for (HealthModel model : models) {
+            if (!eqpIds.isEmpty() && !eqpIds.contains(model.getEqp_id())) continue;
 
-            List<List<Object>> data = healthService.getHealthByAlgo(fabId, model.getEqp_id(), from.getTime(), to.getTime(),model);
-            if(data == null) continue;
+            List<List<Object>> data = healthService.getHealthByAlgo(fabId, model.getEqp_id(), from.getTime(), to.getTime(), model);
+            if (data == null) continue;
 
             healthService.saveHealth(fabId, model, data);
         }

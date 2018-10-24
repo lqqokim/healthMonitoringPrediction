@@ -5,33 +5,68 @@
         select modelNumber as model_number, manufacture, description, bpfo, bpfi, bsf, ftf from Bearing
     </select>
     <delete id="deleteBearing">
-        delete from BEARING_PDM
+        delete from BEARING_MST_PDM
     </delete>
     <insert id="insertBearing">
-        insert into BEARING_PDM (model_number,manufacture,bpfo,bpfi,bsf,ftf,description)
-        values (#{model_number,jdbcType=VARCHAR},#{manufacture,jdbcType=VARCHAR},#{bpfo,jdbcType=NUMERIC},#{bpfi,jdbcType=NUMERIC},#{bsf,jdbcType=NUMERIC},#{ftf,jdbcType=NUMERIC},#{description,jdbcType=VARCHAR})
+        insert into BEARING_MST_PDM (RAWID, MODEL_NUMBER,  MANUFACTURE,  BPFO,  BPFI, BSF, FTF, DESCRIPTION, CREATE_BY, CREATE_DTTS, UPDATE_BY, UPDATE_DTTS)
+        values (seq_bearing_mst_pdm.nextval, #{model_number,jdbcType=VARCHAR},#{manufacture,jdbcType=VARCHAR},#{bpfo,jdbcType=NUMERIC},#{bpfi,jdbcType=NUMERIC},#{bsf,jdbcType=NUMERIC},#{ftf,jdbcType=NUMERIC},#{description,jdbcType=VARCHAR}, 'SYSTEM', SYSTIMESTAMP, 'SYSTEM', SYSTIMESTAMP)
     </insert>
 
     <select id="selectArea" resultType="com.bistel.a3.portal.domain.pdm.db.Area">
-        select idnode as area_id, nodename as name, idparent as parent_id, nodedescription as description, sortorderid as sort_order from node where nodetype = 0 and treetype = 1
+        select idnode as area_id, nodename as name, idparent as parent_id, nodedescription as description
+        <!--, sortorderid as sort_order -->
+        from node where nodetype = 0 and treetype = 1
     </select>
     <delete id="deleteArea">
-        delete from AREA_PDM
+        delete from AREA_MST_PDM
     </delete>
     <insert id="insertArea">
-        insert into AREA_PDM (area_id,name,description,parent_id,sort_order)
-        values (#{area_id,jdbcType=NUMERIC},#{name,jdbcType=VARCHAR},#{description,jdbcType=VARCHAR},#{parent_id,jdbcType=NUMERIC},#{sort_order,jdbcType=NUMERIC})
+        insert into AREA_MST_PDM (RAWID, NAME,  DESCRIPTION, PARENT_RAWID, CREATE_BY, CREATE_DTTS, UPDATE_BY,  UPDATE_DTTS)
+        values (#{area_id,jdbcType=NUMERIC},#{name,jdbcType=VARCHAR},#{description,jdbcType=VARCHAR},#{parent_id,jdbcType=NUMERIC}, 'SYSTEM', SYSTIMESTAMP, 'SYSTEM', SYSTIMESTAMP)
     </insert>
 
     <select id="selectEqp" resultType="com.bistel.a3.portal.domain.pdm.db.Eqp">
-        select idnode as eqp_id, nodename as name, idparent as area_id, nodedescription as description, sortorderid as sort_order, 'SKF' as data_type from node where nodetype = 1 and treetype = 1
+        <!--select idnode as eqp_id, nodename as name, idparent as area_id, nodedescription as description, sortorderid as sort_order, 'SKF' as data_type from node where nodetype = 1 and treetype = 1-->
+        <!--select b.eqp_id, b.name, b.area_id, b.description, b.data_type-->
+        <!--&lt;!&ndash;, a.image&ndash;&gt;-->
+        <!--from-->
+        <!--(-->
+            <!--select-->
+            <!--a.idnode as eqp_id_img,-->
+            <!--b.filedata as image-->
+            <!--from nodepicture a-->
+            <!--join picture b-->
+            <!--on a.idpicture = b.idpicture-->
+            <!--join node c-->
+            <!--on a.idnode = c.idnode-->
+            <!--where-->
+            <!--c.treetype = 1-->
+            <!--and c.nodetype = 1-->
+        <!--) a-->
+        <!--right outer join-->
+        <!--(-->
+            <!--select idnode as eqp_id, nodename as name, idparent as area_id, nodedescription as description, sortorderid as sort_order, 'SKF' as data_type from node where nodetype = 1 and treetype = 1-->
+        <!--) b-->
+        <!--on a.eqp_id_img = b.eqp_id-->
+        select d.idnode as area_id ,d.nodename as area_name, c.idnode as eqp_id, replace(c.nodename,',','_') as name,
+        c.idparent as area_id, c.nodedescription as description, c.sortorderid as sort_order, 'SKF' as data_type
+        from node c
+        join node d
+        on c.idparent=d.idnode
+        where c.nodetype = 1 and c.treetype = 1
+        and d.nodetype=0 and d.treetype=1
+
     </select>
     <delete id="deleteEqp">
-        delete from EQP_PDM
+        delete from EQP_MST_PDM
     </delete>
     <insert id="insertEqp">
-        insert into EQP_PDM (eqp_id,name,description,area_id,sort_order,data_type)
-        values (#{eqp_id,jdbcType=NUMERIC},#{name,jdbcType=VARCHAR},#{description,jdbcType=VARCHAR},#{area_id,jdbcType=NUMERIC},#{sort_order,jdbcType=NUMERIC},#{data_type,jdbcType=VARCHAR})
+        insert into EQP_MST_PDM (MODEL_NAME,RAWID,AREA_MST_RAWID,NAME,DATA_TYPE_CD,DESCRIPTION
+        <!--, IMAGE-->
+        , CREATE_BY,CREATE_DTTS,UPDATE_BY,UPDATE_DTTS)
+        values (#{areaEqp_name,jdbcType=VARCHAR},#{eqp_id,jdbcType=NUMERIC},#{area_id,jdbcType=NUMERIC}, #{name,jdbcType=VARCHAR}, #{data_type,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}
+        <!--, #{image,jdbcType=BLOB}-->
+        ,'SYSTEM', SYSTIMESTAMP, 'SYSTEM', SYSTIMESTAMP)
     </insert>
 
     <select id="selectEqpEtc" resultType="com.bistel.a3.portal.domain.pdm.db.EqpEtc">
@@ -56,28 +91,59 @@
     </insert>
 
     <select id="selectParam" resultType="com.bistel.a3.portal.domain.pdm.db.Param">
+        <!--select a.idnode as param_id,-->
+          <!--a.nodename as name,-->
+          <!--a.nodetype as param_type,-->
+          <!--a.idparent as eqp_id,-->
+          <!--a.nodedescription as description,-->
+          <!--a.sortorderid as sort_order-->
+        <!--from node a-->
+          <!--join node b-->
+            <!--on a.idparent = b.idnode-->
+        <!--where a.nodetype in (10001, 10201, 10202)-->
+          <!--and a.treetype = 1-->
+          <!--and b.nodetype = 1-->
+
         select a.idnode as param_id,
-          a.nodename as name,
-          a.nodetype as param_type,
-          a.idparent as eqp_id,
-          a.nodedescription as description,
-          a.sortorderid as sort_order
+        a.nodename as name,
+        a.idparent as eqp_id,
+        a.nodedescription as description,
+        a.sortorderid as sort_order,
+        CASE a.nodetype WHEN '10201' THEN
+        CASE RIGHT(a.nodename,3)
+        WHEN '가속도' THEN 'Acceleration'
+        ELSE 'Velocity' END
+        WHEN '10202' THEN 'Enveloping' ELSE 'Speed' END  AS param_type,
+        rank() over (partition by a.idparent order by a.idnode) parse_index
         from node a
-          join node b
-            on a.idparent = b.idnode
+        join node b
+        on a.idparent = b.idnode
         where a.nodetype in (10001, 10201, 10202)
-          and a.treetype = 1
-          and b.nodetype = 1
+        and a.treetype = 1
+        and b.nodetype = 1
+
     </select>
     <select id="selectParamByPDM" resultType="com.bistel.a3.portal.domain.pdm.db.Param">
         select * from param_pdm where eqp_id=#{eqp_id}
     </select>
     <delete id="deleteParam">
-        delete from PARAM_PDM
+        delete from PARAM_MST_PDM
     </delete>
     <insert id="insertParam">
-        insert into PARAM_PDM (param_id,eqp_id,name,description,param_type,sort_order)
-        values (#{param_id,jdbcType=NUMERIC},#{eqp_id,jdbcType=NUMERIC},#{name,jdbcType=VARCHAR},#{description,jdbcType=VARCHAR},#{param_type,jdbcType=NUMERIC},#{sort_order,jdbcType=NUMERIC})
+        insert into PARAM_MST_PDM (
+        DATA_TYPE,
+        RAWID,
+        EQP_MST_RAWID,
+        NAME,
+        DESCRIPTION,
+        PARAM_TYPE_CD,
+        UNIT_CD,
+        PARSE_INDEX,
+        CREATE_BY,
+        CREATE_DTTS,
+        UPDATE_BY,
+        UPDATE_DTTS)
+        values ('CONTINUOUS',#{param_id,jdbcType=NUMERIC},#{eqp_id,jdbcType=NUMERIC},#{name,jdbcType=VARCHAR},#{description,jdbcType=VARCHAR},#{param_type,jdbcType=VARCHAR}, '-',#{parse_index,jdbcType=NUMERIC},'SYSTEM', SYSTIMESTAMP, 'SYSTEM', SYSTIMESTAMP)
     </insert>
 
     <select id="selectParamWithCommon" resultType="com.bistel.a3.portal.domain.pdm.master.ParamWithCommon">
@@ -114,11 +180,32 @@
           and c.nodetype = 1
     </select>
     <delete id="deleteManualRpm">
-        delete from MANUAL_RPM_PDM
+        delete from MANUAL_RPM_MST_PDM
     </delete>
     <insert id="insertManualRpm">
-        insert into MANUAL_RPM_PDM (param_id,rpm)
-        values (#{param_id,jdbcType=NUMERIC},#{rpm,jdbcType=NUMERIC})
+        <!--insert into MANUAL_RPM_PDM (param_id,rpm)-->
+        <!--values (#{param_id,jdbcType=NUMERIC},#{rpm,jdbcType=NUMERIC})-->
+        insert into MANUAL_RPM_MST_PDM
+        (
+        RAWID,
+        PARAM_MST_RAWID,
+        RPM,
+        CREATE_BY,
+        CREATE_DTTS,
+        UPDATE_BY,
+        UPDATE_DTTS
+        )
+        values
+        (
+            seq_MANUAL_RPM_MST_PDM.nextval,
+            #{param_id,jdbcType=NUMERIC},
+            #{rpm,jdbcType=NUMERIC},
+            'SYSTEM',
+            SYSTIMESTAMP,
+            'SYSTEM',
+            SYSTIMESTAMP
+        )
+
     </insert>
 
     <select id="selectPart" resultType="com.bistel.a3.portal.domain.pdm.db.Part">
@@ -145,26 +232,122 @@
         ) aa
     </select>
     <delete id="deletePart">
-        delete from PART_PDM
+        delete from PARTS_MST_PDM
     </delete>
     <insert id="insertPart">
-        insert into part_pdm (part_id,name,eqp_id,part_type_id,speed_param_id,ratio,sort_order,npar1,npar2,model_number,manufacture)
-        values (#{part_id,jdbcType=NUMERIC},#{name,jdbcType=VARCHAR},#{eqp_id,jdbcType=NUMERIC},#{part_type_id,jdbcType=NUMERIC},#{speed_param_id,jdbcType=NUMERIC},#{ratio,jdbcType=NUMERIC},#{sort_order,jdbcType=NUMERIC},#{npar1,jdbcType=NUMERIC},#{npar2,jdbcType=VARCHAR},#{model_number,jdbcType=VARCHAR},#{manufacture,jdbcType=VARCHAR})
+        <!--insert into part_pdm (part_id,name,eqp_id,part_type_id,speed_param_id,ratio,sort_order,npar1,npar2,model_number,manufacture)-->
+        <!--values (#{part_id,jdbcType=NUMERIC},#{name,jdbcType=VARCHAR},#{eqp_id,jdbcType=NUMERIC},#{part_type_id,jdbcType=NUMERIC},#{speed_param_id,jdbcType=NUMERIC},#{ratio,jdbcType=NUMERIC},#{sort_order,jdbcType=NUMERIC},#{npar1,jdbcType=NUMERIC},#{npar2,jdbcType=VARCHAR},#{model_number,jdbcType=VARCHAR},#{manufacture,jdbcType=VARCHAR})-->
+        insert into parts_mst_pdm (
+        RAWID,
+        EQP_MST_RAWID,
+        <!--BEARING_MST_RAWID,-->
+        NAME,
+        PARTS_TYPE_CD,
+        <!--RPM,-->
+        RATIO,
+        <!--BASE_RATIO_YN,-->
+        CREATE_BY,
+        CREATE_DTTS,
+        UPDATE_BY,
+        UPDATE_DTTS)
+        values (
+        #{part_id,jdbcType=NUMERIC},
+        #{eqp_id,jdbcType=NUMERIC},
+        #{name,jdbcType=VARCHAR},
+        'axis',
+        <!--#{part_type_id,jdbcType=NUMERIC},-->
+        <!--#{speed_param_id,jdbcType=NUMERIC},-->
+        #{ratio,jdbcType=NUMERIC},
+        <!--#{sort_order,jdbcType=NUMERIC},-->
+        <!--#{npar1,jdbcType=NUMERIC},-->
+        <!--#{npar2,jdbcType=VARCHAR},-->
+        <!--#{model_number,jdbcType=VARCHAR},-->
+        <!--#{manufacture,jdbcType=VARCHAR}-->
+        'SYSTEM',
+        SYSTIMESTAMP,
+        'SYSTEM',
+        SYSTIMESTAMP
+        )
+
     </insert>
 
     <select id="selectOverallSpec" resultType="com.bistel.a3.portal.domain.pdm.db.OverallSpec">
+        <!--select-->
+            <!--a.idnode as param_id,-->
+            <!--b.nodename as param_name,-->
+            <!--a.TrendWarningF4 as warn,-->
+            <!--a.TrendAlarmF4 as alarm-->
+        <!--from PointMasConVibration a-->
+            <!--join node b-->
+                <!--on a.idnode = b.idnode-->
+            <!--join node c-->
+                <!--on b.idparent = c.idnode-->
+        <!--where b.treetype = 1-->
+          <!--and b.nodetype in (10001, 10201, 10202)-->
+          <!--and c.nodetype = 1-->
+
+
+        <!--select-->
+        <!--c.idnode as eqp_id,-->
+        <!--c.nodename as eqp_name,-->
+        <!--a.idnode as param_id,-->
+        <!--b.nodename as param_name,-->
+        <!--a.TrendWarningF4 as warn,-->
+        <!--a.TrendAlarmF4 as alarm-->
+        <!--from PointMasConVibration a-->
+        <!--join node b-->
+        <!--on a.idnode = b.idnode-->
+        <!--join node c-->
+        <!--on b.idparent = c.idnode-->
+        <!--where b.treetype = 1-->
+        <!--and b.nodetype in (10001, 10201, 10202)-->
+        <!--and c.nodetype = 1-->
+        <!--order by c.idnode,a.idnode-->
+
         select
-            a.idnode as param_id,
-            a.TrendWarningF4 as warn,
-            a.TrendAlarmF4 as alarm
+        d.idnode as area_id,
+        d.nodename as area_name,
+        c.idnode as eqp_id,
+        c.nodename as eqp_name,
+        a.idnode as param_id,
+        b.nodename as param_name,
+        a.TrendWarningF4 as warn,
+        a.TrendAlarmF4 as alarm
+
         from PointMasConVibration a
-            join node b
-                on a.idnode = b.idnode
-            join node c
-                on b.idparent = c.idnode
+        join node b
+        on a.idnode = b.idnode
+        join node c
+        on b.idparent = c.idnode
+        join node d
+        on c.idparent=d.idnode
         where b.treetype = 1
-          and b.nodetype in (10001, 10201, 10202)
-          and c.nodetype = 1
+        and b.nodetype in (10001, 10201, 10202)
+        and c.nodetype = 1
+        and d.nodetype=0 and d.treetype=1
+        order by d.idnode, d.nodename, c.idnode, c.nodename
+
+    </select>
+
+    <select id="selectEqps" resultType="com.bistel.a3.portal.domain.pdm.db.OverallSpec">
+        select      d.idnode as area_id,
+        d.nodename as area_name,
+        c.idnode as eqp_id
+        ,c.nodename as eqp_name
+
+        from PointMasConVibration a
+        join node b
+        on a.idnode = b.idnode
+        join node c
+        on b.idparent = c.idnode
+        join node d
+        on c.idparent=d.idnode
+        where b.treetype = 1
+        and b.nodetype in (10001, 10201, 10202)
+        and c.nodetype = 1
+        and d.nodetype=0 and d.treetype=1
+        group by d.idnode, d.nodename, c.idnode, c.nodename
+        order by d.idnode, d.nodename, c.idnode, c.nodename
     </select>
 
     <select id="selectOverallSpecByPdM" resultType="com.bistel.a3.portal.domain.pdm.db.OverallSpec">
@@ -239,21 +422,55 @@
     </insert>
 
     <select id="selectMeasureTrx" resultType="com.bistel.a3.portal.domain.pdm.db.MeasureTrx">
+        <!--select-->
+            <!--idmeasurement as measure_trx_id,-->
+            <!--idnode as param_id,-->
+            <!--dateadd(hour,9,measdate) as measure_dtts,-->
+            <!--measvalue as value,-->
+            <!--endfreq as end_freq,-->
+            <!--spectralines as spectra_line,-->
+            <!--speed as rpm-->
+        <!--from Measurement-->
+        <!--where MeasDate <![CDATA[>=]]> dateadd(hour,-9,#{start})-->
+          <!--and MeasDate <![CDATA[<]]> dateadd(hour,-9,#{end})-->
+          <!--and idnode in (select idnode from node where idparent=#{eqpId} and nodetype in (10201,10202))-->
+
         select
-            idmeasurement as measure_trx_id,
-            idnode as param_id,
-            dateadd(hour,9,measdate) as measure_dtts,
-            measvalue as value,
-            endfreq as end_freq,
-            spectralines as spectra_line,
-            speed as rpm
-        from Measurement
-        where MeasDate <![CDATA[>=]]> dateadd(hour,-9,#{start})
-          and MeasDate <![CDATA[<]]> dateadd(hour,-9,#{end})
-          and idnode in (select idnode from node where idparent=#{eqpId} and nodetype in (10201,10202))
+        a.param_id, a.measure_dtts as event_dtts, a.value, a.max_freq, a.freq_count, a.rpm, a.sample_time ,a.scale_factor, a.frequency, b.timewave
+        from
+        (
+        select
+        b.idnode as param_id, b.endfreq as max_freq, b.spectralines as freq_count, b.speed as rpm, '' as sample_time,
+        dateadd(hour, 9, b.measdate) as measure_dtts,
+        b.measvalue as value,
+        a.ScaleFactor as scale_factor,
+        a.rawData frequency,
+        a.idmeasurement
+        from MeasurementBinaryRaw a
+        join Measurement b
+        on a.idmeasurement = b.idmeasurement
+        where b.measdate <![CDATA[>=]]> dateadd(hour,-9,#{start})
+        and b.measdate <![CDATA[<]]> dateadd(hour,-9,#{end})
+        and a.datatype=0
+        and b.idnode in (select idnode from node where idparent=#{eqpId} and nodetype in (10201,10202))
+        ) a,
+        (
+        select
+        a.rawData timewave,
+        a.idmeasurement
+        from MeasurementBinaryRaw a
+        join Measurement b
+        on a.idmeasurement = b.idmeasurement
+        where b.measdate <![CDATA[>=]]> dateadd(hour,-9,#{start})
+        and b.measdate <![CDATA[<]]> dateadd(hour,-9,#{end})
+        and a.datatype=2
+        and b.idnode in (select idnode from node where idparent=#{eqpId} and nodetype in (10201,10202))
+        ) b
+        where a.idmeasurement=b.idmeasurement
+
     </select>
     <delete id="deleteMeasureTrx">
-        delete from measure_trx_pdm
+        delete from trace_raw_trx_pdm
         where measure_dtts <![CDATA[>=]]> #{start}
           and measure_dtts <![CDATA[<]]> #{end}
           and param_id in (select param_id from param_pdm where eqp_id = #{eqpId})
@@ -297,16 +514,89 @@
     </insert>
 
     <select id="selectOverallMinuteTrx" resultType="com.bistel.a3.portal.domain.pdm.db.OverallMinuteTrx">
+        <!--select-->
+            <!--IDPoint as param_id,-->
+            <!--dateadd(hour,9,ReadingTime) as read_dtts,-->
+            <!--F5Amp as value,-->
+            <!--speed as rpm-->
+        <!--from TrendMultiple-->
+        <!--where lvl = 1-->
+          <!--and ReadingTime <![CDATA[>=]]> dateadd(hour,-9,#{start})-->
+          <!--and ReadingTime <![CDATA[<]]> dateadd(hour,-9,#{end})-->
+
+        <!--select a.*-->
+        <!--from-->
+        <!--(-->
+        <!--select-->
+        <!--IDPoint as param_id,-->
+        <!--dateadd(hour,9,ReadingTime) as read_dtts,-->
+        <!--format(dateadd(hour,9,ReadingTime), N'yyMMddHHmm') group_dtts,-->
+        <!--F5Amp as value,-->
+        <!--speed as rpm-->
+        <!--from TrendMultiple-->
+        <!--where idpoint in #{params}-->
+        <!--and lvl = 1-->
+        <!--and ReadingTime <![CDATA[>=]]> dateadd(hour,-9, #{start})-->
+        <!--and ReadingTime <![CDATA[<]]> dateadd(hour,-9, #{end})-->
+        <!--) a-->
+        <!--order by group_dtts, param_id-->
+
+        select a.*
+        from
+        (
         select
-            IDPoint as param_id,
-            dateadd(hour,9,ReadingTime) as read_dtts,
-            F5Amp as value,
-            speed as rpm
+        IDPoint as param_id,
+        dateadd(hour,9,ReadingTime) as read_dtts,
+        format(dateadd(hour,9,ReadingTime), N'yyMMddHHmm') group_dtts,
+        F5Amp as value,
+        speed as rpm
         from TrendMultiple
-        where lvl = 1
-          and ReadingTime <![CDATA[>=]]> dateadd(hour,-9,#{start})
-          and ReadingTime <![CDATA[<]]> dateadd(hour,-9,#{end})
+        where idpoint in (select param.idnode
+        from node eqp
+        join node param
+        on param.idparent=eqp.idnode
+        where 1=1
+        and eqp.nodetype = 1
+        and param.treetype = 1
+        and param.nodetype in (10001, 10201, 10202)
+        and eqp.idnode=#{eqpId}
+        )
+        and lvl = 1
+        and ReadingTime <![CDATA[>=]]> dateadd(hour,-9,#{start})
+        and ReadingTime <![CDATA[<]]> dateadd(hour,-9,#{end})
+        ) a
+        order by group_dtts, param_id
+
+
     </select>
+
+    <select id="selectAreaEqpNameByParams" resultType="com.bistel.a3.portal.domain.pdm.db.OverallMinuteTrx">
+        select
+        d.nodename as area_name,
+        c.nodename as eqp_name
+
+        from node b
+        join node c
+        on b.idparent = c.idnode
+        join node d
+        on c.idparent=d.idnode
+        where b.treetype = 1
+        and b.nodetype in (10001, 10201, 10202)
+        and c.nodetype = 1
+        and d.nodetype=0 and d.treetype=1
+        and b.idnode in (select param.idnode
+        from node eqp
+        join node param
+        on param.idparent=eqp.idnode
+        where 1=1
+        and eqp.nodetype = 1
+        and param.treetype = 1
+        and param.nodetype in (10001, 10201, 10202)
+        and eqp.idnode=#{eqpId}
+        )
+        group by d.nodename, c.nodename;
+    </select>
+
     <update id="updateOverallMinuteTrxByPDM">
         update overall_minute_trx_pdm
         set alarm=#{alarm},

@@ -239,7 +239,8 @@
         and p.eqp_mst_rawid = b.eqp_rawid
         and t.event_dtts  <![CDATA[>=]]> b.event_dtts + interval '-10' minute
         and t.event_dtts  <![CDATA[<]]> b.event_dtts + interval '10' minute
-        and p.parts_mst_rawid = parts.rawid
+        and parts.eqp_mst_rawid=p.eqp_mst_rawid
+        <!--and p.parts_mst_rawid = parts.rawid-->
         and t.rpm is not null
         and t.rpm != 0
         group by parts.rawid,parts.name

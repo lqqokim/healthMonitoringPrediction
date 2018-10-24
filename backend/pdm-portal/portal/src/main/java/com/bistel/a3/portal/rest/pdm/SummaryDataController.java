@@ -198,6 +198,9 @@ public class SummaryDataController {
 
         Date to = new Date(todate);
 
+
+
+
         return summaryDataService.lineStatusTrend(fabId,areaId, from, to);
     }
 
@@ -228,8 +231,9 @@ public class SummaryDataController {
         Long areaId=null;
         Date from = new Date(fromdate);
         Date to = new Date(todate);
+        Integer limit=5;
 
-        return summaryDataService.worstEquipmentList(fabId,areaId,null, from, to);
+        return summaryDataService.worstEquipmentList(fabId,areaId,null, from, to, limit);
     }
 
     @RequestMapping("/areas/{areaId}/worstEquipmentListByAreaId")
@@ -240,8 +244,9 @@ public class SummaryDataController {
 
         Date from = new Date(fromdate);
         Date to = new Date(todate);
+        Integer limit=5;
 
-        return summaryDataService.worstEquipmentList(fabId,areaId,null, from, to);
+        return summaryDataService.worstEquipmentList(fabId,areaId,null, from, to, limit);
     }
 
     @RequestMapping("/eqps/{eqpId}/worstEquipmentInfo")
@@ -253,8 +258,9 @@ public class SummaryDataController {
         Long areaId=null;
         Date from = new Date(fromdate);
         Date to = new Date(todate);
+        Integer limit=5;
 //
-        return summaryDataService.worstEquipmentList(fabId,areaId,eqpId, from, to);
+        return summaryDataService.worstEquipmentList(fabId,areaId,eqpId, from, to, limit);
     }
 
 

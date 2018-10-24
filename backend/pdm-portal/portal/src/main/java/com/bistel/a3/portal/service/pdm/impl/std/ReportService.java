@@ -467,15 +467,15 @@ public class ReportService implements IReportService {
     }
 
 
-    public List<EqpStatusData> getGoodFiveEqps(String fabId, Date from, Date to) {
+    public List<EqpStatusData> getGoodFiveEqps(String fabId, Date from, Date to, Double threshold) {
         STDReportMapper mapper = SqlSessionUtil.getMapper(sessions, fabId, STDReportMapper.class);
-        return mapper.selectGoodFiveEqps(from, to);
+        return mapper.selectGoodFiveEqps(from, to, threshold);
     }
 
 
-    public List<EqpStatusData> getBadFiveEqps(String fabId, Date from, Date to) {
+    public List<EqpStatusData> getBadFiveEqps(String fabId, Date from, Date to, Double threshold) {
         STDReportMapper mapper = SqlSessionUtil.getMapper(sessions, fabId, STDReportMapper.class);
-        return mapper.selectBadFiveEqps(from, to);
+        return mapper.selectBadFiveEqps(from, to, threshold);
     }
 
     @Override
@@ -691,8 +691,10 @@ public class ReportService implements IReportService {
     public List<List<Object>> getHealthIndexTrend(String fabId, Long paramId, Long fromdate, Long todate) {
         STDReportMapper mapper = SqlSessionUtil.getMapper(sessions, fabId, STDReportMapper.class);
 
+        Date from=new Date(fromdate);
+        Date to=new Date(todate);
 
-        List<BasicData> datas = mapper.selectHealthIndexTrend(paramId,new Date(fromdate),new Date(todate));
+        List<BasicData> datas = mapper.selectHealthIndexTrend(paramId,from ,to);
         return changeList(datas);
     }
     private List<List<Object>> changeList(List<BasicData> data) {

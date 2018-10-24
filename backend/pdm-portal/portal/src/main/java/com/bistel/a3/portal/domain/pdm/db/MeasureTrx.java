@@ -11,14 +11,20 @@ public class MeasureTrx {
 
 
     private Long param_id;
-    @JsonProperty("measureDtts")
     private Date measure_dtts;
+    private Date event_dtts;
     private Double value;
     private Double rpm;
     @JsonProperty("endFreq")
     private Long end_freq;
+    private Long max_freq;
+    private Integer freq_count;
+
     @JsonProperty("spectraLine")
     private Integer spectra_line;
+
+
+
     @JsonProperty("measurementId")
     private Long measure_trx_id;
     @JsonProperty("paramId")
@@ -29,6 +35,89 @@ public class MeasureTrx {
     private String reserved_col3;
     private String reserved_col4;
     private String reserved_col5;
+
+
+    @JsonProperty("binDataTypeCd")
+    private String bin_data_type_cd;
+    @JsonProperty("scaleFactor")
+    private Double scale_factor;
+    private byte[] binary;
+    private byte[] frequency;
+    private byte[] timewave;
+
+    public Date getMeasure_dtts() {
+        return measure_dtts;
+    }
+
+    public void setMeasure_dtts(Date measure_dtts) {
+        this.measure_dtts = measure_dtts;
+    }
+
+    public Integer getFreq_count() {
+        return freq_count;
+    }
+
+    public void setFreq_count(Integer freq_count) {
+        this.freq_count = freq_count;
+    }
+
+    public Date getEvent_dtts() {
+        return event_dtts;
+    }
+
+    public void setEvent_dtts(Date event_dtts) {
+        this.event_dtts = event_dtts;
+    }
+
+    public Long getMax_freq() {
+        return max_freq;
+    }
+
+    public void setMax_freq(Long max_freq) {
+        this.max_freq = max_freq;
+    }
+
+
+
+    public byte[] getFrequency() {
+        return frequency;
+    }
+
+    public void setFrequency(byte[] frequency) {
+        this.frequency = frequency;
+    }
+
+    public byte[] getTimewave() {
+        return timewave;
+    }
+
+    public void setTimewave(byte[] timewave) {
+        this.timewave = timewave;
+    }
+
+    public String getBin_data_type_cd() {
+        return bin_data_type_cd;
+    }
+
+    public void setBin_data_type_cd(String bin_data_type_cd) {
+        this.bin_data_type_cd = bin_data_type_cd;
+    }
+
+    public Double getScale_factor() {
+        return scale_factor;
+    }
+
+    public void setScale_factor(Double scale_factor) {
+        this.scale_factor = scale_factor;
+    }
+
+    public byte[] getBinary() {
+        return binary;
+    }
+
+    public void setBinary(byte[] binary) {
+        this.binary = binary;
+    }
 
 
     public String getReserved_col1() {
@@ -104,13 +193,6 @@ public class MeasureTrx {
         this.param_id = param_id;
     }
 
-    public Date getMeasure_dtts() {
-        return measure_dtts;
-    }
-
-    public void setMeasure_dtts(Date measure_dtts) {
-        this.measure_dtts = measure_dtts;
-    }
 
     public Double getValue() {
         return value;
@@ -148,7 +230,7 @@ public class MeasureTrx {
     public String toString() {
         return "MeasureTrx{" +
                 "param_id=" + param_id +
-                ", measure_dtts=" + measure_dtts +
+                ", measure_dtts=" + event_dtts +
                 ", value=" + value +
                 ", rpm=" + rpm +
                 ", end_freq=" + end_freq +
