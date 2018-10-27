@@ -4,6 +4,7 @@ import com.bistel.pdm.lambda.kafka.partitioner.CustomStreamPartitioner;
 import org.apache.commons.io.input.TailerListenerAdapter;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.PartitionInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,14 +86,18 @@ public class PfeifferLogTailerListener extends TailerListenerAdapter {
 //                + columns[20].trim();
 
         try {
-            List<PartitionInfo> partitions = rmsProducer.partitionsFor(topicName);
-            CustomStreamPartitioner csp = new CustomStreamPartitioner();
-            int partitionNum = csp.partition(partitionKey, msg.getBytes(), partitions.size());
+//            List<PartitionInfo> partitions = rmsProducer.partitionsFor(topicName);
+//            CustomStreamPartitioner csp = new CustomStreamPartitioner();
+//            int partitionNum = csp.partition(partitionKey, msg.getBytes(), partitions.size());
+//
+//            rmsProducer.send(new ProducerRecord<>(topicName, partitionNum,
+//                    partitionKey, msg.getBytes()));
 
-            rmsProducer.send(new ProducerRecord<>(topicName, partitionNum,
-                    partitionKey, msg.getBytes()));
 
-            log.info("[{}-{}] - {}", partitionKey, partitionNum, msg);
+            RecordMetadata meta = rmsProducer.send(new ProducerRecord<>(topicName,
+                    partitionKey, msg.getBytes())).get();
+
+            log.info("[{}] - {}, partition:{}, offset:{}", partitionKey, timeStamp, meta.partition(), meta.offset());
         } catch (Exception e){
             log.error(e.getMessage(), e);
         }

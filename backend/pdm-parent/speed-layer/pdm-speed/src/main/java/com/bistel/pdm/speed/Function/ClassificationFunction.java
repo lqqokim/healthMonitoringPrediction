@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 public class ClassificationFunction {
     private static final Logger log = LoggerFactory.getLogger(ClassificationFunction.class);
 
-    public static boolean evaluate(ParameterMaster param) {
+    public synchronized static boolean evaluate(ParameterMaster param) {
         // fault classifications
         if (param.getParameterType().equalsIgnoreCase("Acceleration") ||
                 param.getParameterType().equalsIgnoreCase("Velocity") ||

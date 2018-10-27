@@ -22,7 +22,7 @@ public class IndividualDetection {
     private final ConcurrentHashMap<String, Integer> alarmCountMap = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, Integer> warningCountMap = new ConcurrentHashMap<>();
 
-    public String detect(String partitionKey, String paramKey,
+    public synchronized String detect(String partitionKey, String paramKey,
                          ParameterWithSpecMaster paramInfo, String time, Double paramValue)
             throws ExecutionException, ParseException {
 
@@ -60,7 +60,7 @@ public class IndividualDetection {
         return msg;
     }
 
-    public String calculate(String partitionKey, String paramKey, ParameterWithSpecMaster paramInfo,
+    public synchronized String calculate(String partitionKey, String paramKey, ParameterWithSpecMaster paramInfo,
                             Long longTime, List<Double> paramHealthValues) throws ExecutionException {
         String msg = "";
 

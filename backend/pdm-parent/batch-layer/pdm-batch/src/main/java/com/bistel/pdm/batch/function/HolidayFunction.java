@@ -39,7 +39,7 @@ public class HolidayFunction {
      * @param date
      * @return
      */
-    public static boolean isHoliday(long date) {
+    public synchronized static boolean isHoliday(long date) {
         return isLegalHoliday(date) || isWeekend(date) || isAlternative(date);
     }
 

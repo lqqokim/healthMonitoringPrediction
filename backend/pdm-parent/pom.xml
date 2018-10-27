@@ -12,7 +12,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.0.2.RELEASE</version>
+        <version>2.0.5.RELEASE</version>
     </parent>
 
     <modules>
@@ -24,6 +24,7 @@
         <module>common/pdm-spark-stream</module>
         <module>common/pdm-kafka-utils</module>
         <module>common/pdm-expression</module>
+        <module>common/pdm-data</module>
         <module>common/pdm-kafka-test</module>
         <module>serving-layer/pdm-serving</module>
         <module>batch-layer/pdm-batch</module>
@@ -39,7 +40,6 @@
         <module>support/pdm-log-connector</module>
         <module>support/pdm-datagen</module>
         <module>support/pdm-file-connector</module>
-        <module>common/pdm-data</module>
         <module>support/pdm-simulator</module>
 
     </modules>
@@ -80,7 +80,8 @@
         <sqlite-jdbc.version>3.8.11.2</sqlite-jdbc.version>
         <postgresql.version>42.2.2</postgresql.version>
         <oracle.version>12.1.0.1-atlassian-hosted</oracle.version>
-        <HikariCP.version>2.7.8</HikariCP.version>
+        <!--<HikariCP.version>2.7.8</HikariCP.version>-->
+        <HikariCP.version>3.2.0</HikariCP.version>
         <flywaydb.version>5.0.7</flywaydb.version>
         <querydsl.version>4.2.1</querydsl.version>
         <guice.version>4.2.0</guice.version>

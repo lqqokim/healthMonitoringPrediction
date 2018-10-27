@@ -36,6 +36,10 @@ public class TimewaveConsumerRunnable implements Runnable {
     private SensorTraceDataDao trxDao;
     private SensorRawDataDao trxRawDao;
 
+    public void shutdown() {
+        consumer.wakeup();
+    }
+
     public TimewaveConsumerRunnable(String configPath, String groupId, String topicName) {
 
         this.consumer = new KafkaConsumer<>(createConsumerConfig(groupId, configPath));

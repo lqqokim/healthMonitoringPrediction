@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 public class StatusDefineFunction {
     private static final Logger log = LoggerFactory.getLogger(StatusDefineFunction.class);
 
-    public String evaluateStatusCode(EventMaster eventInfo, double paramValue) {
+    public synchronized String evaluateStatusCode(EventMaster eventInfo, double paramValue) {
         String nowStatusCode = "I";
 
         RuleVariables ruleVariables = new RuleVariables();
