@@ -60,7 +60,7 @@ public class BatchSummaryTaskDef extends AbstractPipeline {
                 Stores.windowStoreBuilder(
                         Stores.persistentWindowStore("batch-continuous-summary",
                                 TimeUnit.DAYS.toMillis(1),
-                                24,
+                                2,
                                 TimeUnit.DAYS.toMillis(1),
                                 true),
                         Serdes.String(),
@@ -70,7 +70,7 @@ public class BatchSummaryTaskDef extends AbstractPipeline {
                 Stores.windowStoreBuilder(
                         Stores.persistentWindowStore("batch-categorical-summary",
                                 TimeUnit.DAYS.toMillis(1),
-                                24,
+                                2,
                                 TimeUnit.DAYS.toMillis(1),
                                 true),
                         Serdes.String(),

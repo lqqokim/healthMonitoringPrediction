@@ -45,20 +45,28 @@ public class RuleBasedDetection {
             if (existAlarm) {
                 List<Double> outHealthIndex = evaluate(paramHealthValues, windowSize, outCount, 1.0F);
                 if (outHealthIndex.size() > 0) {
-                    outOfSpecMsg = makeOutOfRuleMsg(longTime, paramInfo, fd02Health, outHealthIndex.size(), "256");
+                    outOfSpecMsg = makeOutOfRuleMsg(longTime, paramInfo, fd02Health, outHealthIndex, "256");
                     Double healthScore = calculateHealth(outHealthIndex);
                     healthMsg = makeHealthMsg(longTime, "A", paramInfo, fd02Health, healthScore, outHealthIndex.size());
+                } else {
+                    Double healthScore = calculateHealth(paramHealthValues);
+                    healthMsg = makeHealthMsg(longTime, "N", paramInfo, fd02Health, healthScore, 0);
+                    outOfSpecMsg = "";
                 }
             } else if (existWarning) {
                 List<Double> outWarningValues = evaluate(paramHealthValues, windowSize, outCount, 0.8F);
                 if (outWarningValues.size() > 0) {
-                    outOfSpecMsg = makeOutOfRuleMsg(longTime, paramInfo, fd02Health, outWarningValues.size(), "128");
+                    outOfSpecMsg = makeOutOfRuleMsg(longTime, paramInfo, fd02Health, outWarningValues, "128");
                     healthMsg = "";
+                } else {
+                    Double healthScore = calculateHealth(paramHealthValues);
+                    healthMsg = makeHealthMsg(longTime, "N", paramInfo, fd02Health, healthScore, 0);
+                    outOfSpecMsg = "";
                 }
             } else {
                 // Logic 2 health without alarm, warning - If no alarm goes off, calculate the average of the intervals.
                 Double healthScore = calculateHealth(paramHealthValues);
-                healthMsg = makeHealthMsg(longTime, "N", paramInfo, fd02Health, healthScore, paramHealthValues.size());
+                healthMsg = makeHealthMsg(longTime, "N", paramInfo, fd02Health, healthScore, 0);
                 outOfSpecMsg = "";
             }
         } else {
@@ -109,13 +117,19 @@ public class RuleBasedDetection {
     }
 
     private String makeOutOfRuleMsg(Long longTime, ParameterWithSpecMaster paramInfo,
-                                    ParameterHealthMaster healthInfo, int outCount, String alarmTypeCode) {
+                                    ParameterHealthMaster healthInfo, List<Double> values, String alarmTypeCode) {
+
+        Double sumValue = 0D;
+        for (Double dValue : values) {
+            sumValue += dValue;
+        }
+        Double index = sumValue / values.size();
 
         // time, param_rawid, health_rawid, value, alarm type, alarm_spec, warning_spec, fault_class
         return longTime + "," +
                 paramInfo.getParameterRawId() + "," +
                 healthInfo.getParamHealthRawId() + ',' +
-                outCount + "," +
+                index + "," +
                 alarmTypeCode + "," +
                 paramInfo.getUpperAlarmSpec() + "," +
                 paramInfo.getUpperWarningSpec() + "," +

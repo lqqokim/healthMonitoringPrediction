@@ -4,6 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -18,7 +20,11 @@ public class RepositorySinker {
     private final String groupId;
     private final String servingAddress;
 
-    private ExecutorService executor = Executors.newFixedThreadPool(8);
+    private int numConsumers = 8;
+
+    private ExecutorService executor = Executors.newFixedThreadPool(numConsumers);
+
+//    final List<TimewaveConsumerRunnable> TimewaveConsumers = new ArrayList<>();
 
     public RepositorySinker(final String groupId, String servingAddr, String configPath) {
         this.groupId = groupId;
@@ -35,6 +41,15 @@ public class RepositorySinker {
         final String outputParamHealthTopic = "pdm-output-health";
         final String outputReloadTopic = "pdm-output-reload";
         final String outputDimensionTopic = "pdm-output-dimension";
+
+
+//        for (int i = 0; i < numConsumers; i++) {
+//            TimewaveConsumerRunnable consumer = new TimewaveConsumerRunnable(
+//                            this.configPath, this.groupId + "-raw", outputTimewaveTopic);
+//            TimewaveConsumers.add(consumer);
+//            executor.submit(consumer);
+//        }
+
 
         for (int i = 1; i <= 1; i++) {
 

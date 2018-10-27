@@ -60,7 +60,7 @@ public class SpeedRealTimeTaskDef extends AbstractPipeline {
                 Stores.windowStoreBuilder(
                         Stores.persistentWindowStore("speed-normalized-value",
                                 TimeUnit.DAYS.toMillis(1),
-                                24,
+                                2,
                                 TimeUnit.HOURS.toMillis(1),
                                 false),
                         Serdes.String(),

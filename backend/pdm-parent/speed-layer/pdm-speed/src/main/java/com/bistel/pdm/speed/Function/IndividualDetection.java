@@ -60,7 +60,7 @@ public class IndividualDetection {
         return msg;
     }
 
-    public String calculate(String partitionKey, String paramKey, ParameterWithSpecMaster paramInfo,
+    public synchronized String calculate(String partitionKey, String paramKey, ParameterWithSpecMaster paramInfo,
                             Long longTime, List<Double> paramHealthValues) throws ExecutionException {
         String msg = "";
 

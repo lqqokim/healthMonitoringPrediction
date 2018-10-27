@@ -12,6 +12,7 @@ import com.bistel.pdm.speed.model.StatusWindow;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.processor.AbstractProcessor;
 import org.apache.kafka.streams.processor.ProcessorContext;
+import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.state.WindowStore;
 import org.apache.kafka.streams.state.WindowStoreIterator;
 import org.slf4j.Logger;
@@ -21,7 +22,9 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -29,11 +32,10 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
     private static final Logger log = LoggerFactory.getLogger(SpeedProcessor.class);
-
-    //    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
     private final static String SEPARATOR = ",";
 
     private WindowStore<String, Double> kvNormalizedParamValueStore;
+//    private final HashMap<String, ArrayList<Double>> kvParamStore = new HashMap<>();
 
     private final StatusDefineFunction statusDefineFunction = new StatusDefineFunction();
     private final IndividualDetection individualDetection = new IndividualDetection();
@@ -122,7 +124,6 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
 
                     log.info("[{}] - process started.", partitionKey);
                     context().forward(partitionKey, eventMsg.getBytes(), "output-event");
-//                    context().commit();
                     // event started. ------------------------------------------
 
                     intervalLongTime.put(partitionKey, statusWindow.getCurrentLongTime());
@@ -134,17 +135,14 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
 
                     // check conditional spec.
                     String ruleName = ConditionSpecFunction.evaluateCondition(partitionKey, recordColumns);
-                    log.debug("[{}] - rule : {}", partitionKey, ruleName);
+                    //log.debug("[{}] - rule : {}", partitionKey, ruleName);
 
                     if (ruleName.length() > 0) {
                         conditionRuleMap.put(partitionKey, ruleName);
 
-                        //Long paramTime = statusWindow.getCurrentLongTime();
-
                         // time, P1, P2, P3, P4, ... Pn, {status, groupid, rulename}
                         String traceMsg = recordValue + ",R," + msgGroup + "," + ruleName;
                         context().forward(partitionKey, traceMsg.getBytes(), "output-trace");
-//                        context().commit();
 
                         List<ParameterWithSpecMaster> paramList = MasterCache.ParameterWithSpec.get(partitionKey);
                         // check OOS
@@ -162,8 +160,17 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
                                     Double paramDblValue = Double.parseDouble(strParamValue);
                                     Double normalizedValue = paramDblValue / paramInfo.getUpperAlarmSpec();
 
-                                    //log.debug("[{}] - put value : {}", partitionKey, normalizedValue);
+                                    log.debug("[{}] - put value : {}", partitionKey, normalizedValue);
                                     kvNormalizedParamValueStore.put(paramKey, normalizedValue, nowMessageTime);
+
+//                                    if(!kvParamStore.containsKey(paramKey)){
+//                                        ArrayList<Double> value = new ArrayList<>();
+//                                        value.add(normalizedValue);
+//                                        kvParamStore.put(paramKey, value);
+//                                    } else {
+//                                        ArrayList<Double> value = kvParamStore.get(paramKey);
+//                                        value.add(normalizedValue);
+//                                    }
 
                                     log.debug("[{}] - {} fault detecting...", partitionKey, paramInfo.getParameterName());
                                     // fault detection
@@ -172,7 +179,6 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
 
                                     if (faultMsg.length() > 0) {
                                         context().forward(partitionKey, faultMsg.getBytes(), "output-fault");
-//                                        context().commit();
                                         log.debug("[{}] - individual fault occurred.", partitionKey);
                                     }
                                 } else {
@@ -198,7 +204,6 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
 
                                 log.info("[{}] - process ended.", partitionKey);
                                 context().forward(partitionKey, eventMsg.getBytes(), "output-event");
-//                                context().commit();
                                 // event ended. ------------------------------------------
 
                                 // event started. ------------------------------------------
@@ -209,7 +214,6 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
 
                                 log.info("[{}] - process started.", partitionKey);
                                 context().forward(partitionKey, eventMsg.getBytes(), "output-event");
-//                                context().commit();
                                 // event started. ------------------------------------------
 
 
@@ -236,6 +240,8 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
                                         }
                                         storeIterator.close();
 
+//                                        normalizedValueList = kvParamStore.get(paramKey);
+
                                         boolean existAlarm = individualDetection.existAlarm(paramKey);
                                         boolean existWarning = individualDetection.existWarning(paramKey);
 
@@ -245,31 +251,30 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
                                         if (health1Msg.length() > 0) {
                                             health1Msg = health1Msg + "," + msgGroup; // with group
                                             context().forward(partitionKey, health1Msg.getBytes(), "output-health");
-//                                            context().commit();
                                             log.debug("[{}] - logic 1 health : {}", paramKey, health1Msg);
                                         }
 
                                         // Rule based detection
                                         ruleBasedDetection.detect(partitionKey, paramKey, endTime, paramInfo, normalizedValueList, existAlarm, existWarning);
 
-                                        String faultMsg = ruleBasedDetection.getOutOfSpecMsg();
-                                        if (faultMsg.length() > 0) {
-                                            context().forward(partitionKey, faultMsg.getBytes(), "output-fault");
-//                                            context().commit();
-                                            log.debug("[{}] - rule fault occurred.", partitionKey);
-                                        }
+//                                        String faultMsg = ruleBasedDetection.getOutOfSpecMsg();
+//                                        if (faultMsg.length() > 0) {
+//                                            context().forward(partitionKey, faultMsg.getBytes(), "output-fault");
+//                                            log.debug("[{}] - rule fault occurred.", partitionKey);
+//                                        }
 
                                         // Logic 2 health
                                         String health2Msg = ruleBasedDetection.getHealthMsg();
                                         if (health2Msg.length() > 0) {
                                             health2Msg = health2Msg + "," + msgGroup; // with group
                                             context().forward(partitionKey, health2Msg.getBytes(), "output-health");
-//                                            context().commit();
                                             log.debug("[{}] - logic 2 health : {}", paramKey, health2Msg);
                                         }
 
                                         individualDetection.resetAlarmCount(paramKey);
                                         individualDetection.resetWarningCount(paramKey);
+
+//                                        kvParamStore.get(paramKey).clear();
                                     }
                                 }
                                 // logic-2 -----------------------------------------------
@@ -282,7 +287,6 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
                         // time, P1, P2, P3, P4, ... Pn, {status, groupid, rulename}
                         String traceMsg = recordValue + ",R," + msgGroup + "," + "NORULE"; // append rule name
                         context().forward(partitionKey, traceMsg.getBytes(), "output-trace");
-//                        context().commit();
                     }
 
                 } else if (statusWindow.getCurrentStatusCode().equalsIgnoreCase("I")
@@ -299,7 +303,6 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
 
                     log.info("[{}] - process ended.", partitionKey);
                     context().forward(partitionKey, eventMsg.getBytes(), "output-event");
-//                    context().commit();
                     // event ended. ------------------------------------------
 
                     // logic-2 -----------------------------------------------
@@ -332,6 +335,8 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
                                 }
                                 storeIterator.close();
 
+//                                normalizedValueList = kvParamStore.get(paramKey);
+
                                 boolean existAlarm = individualDetection.existAlarm(paramKey);
                                 boolean existWarning = individualDetection.existWarning(paramKey);
 
@@ -341,31 +346,30 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
                                 if (health1Msg.length() > 0) {
                                     health1Msg = health1Msg + "," + msgGroup; // with group
                                     context().forward(partitionKey, health1Msg.getBytes(), "output-health");
-//                                    context().commit();
                                     log.debug("[{}] - logic 1 health : {}", paramKey, health1Msg);
                                 }
 
                                 // Rule based detection
                                 ruleBasedDetection.detect(partitionKey, paramKey, endTime, paramInfo, normalizedValueList, existAlarm, existWarning);
 
-                                String faultMsg = ruleBasedDetection.getOutOfSpecMsg();
-                                if (faultMsg.length() > 0) {
-                                    context().forward(partitionKey, faultMsg.getBytes(), "output-fault");
-                                    context().commit();
-                                    log.debug("[{}] - rule fault occurred.", partitionKey);
-                                }
+//                                String faultMsg = ruleBasedDetection.getOutOfSpecMsg();
+//                                if (faultMsg.length() > 0) {
+//                                    context().forward(partitionKey, faultMsg.getBytes(), "output-fault");
+//                                    log.debug("[{}] - rule fault occurred.", partitionKey);
+//                                }
 
                                 // Logic 2 health
                                 String health2Msg = ruleBasedDetection.getHealthMsg();
                                 if (health2Msg.length() > 0) {
                                     health2Msg = health2Msg + "," + msgGroup; // with group
                                     context().forward(partitionKey, health2Msg.getBytes(), "output-health");
-                                    context().commit();
                                     log.debug("[{}] - logic 2 health : {}", paramKey, health2Msg);
                                 }
 
                                 individualDetection.resetAlarmCount(paramKey);
                                 individualDetection.resetWarningCount(paramKey);
+
+//                                kvParamStore.get(paramKey).clear();
                             }
                         }
                     }
@@ -374,7 +378,6 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
                     // time, P1, P2, P3, P4, ... Pn, {status, groupid, rulename}
                     String traceMsg = recordValue + ",I,IDLE," + "NORULE";
                     context().forward(partitionKey, traceMsg.getBytes(), "output-trace");
-//                    context().commit();
 
                     // refresh cache
                     if (refreshCacheFlagMap.get(partitionKey) != null
@@ -383,7 +386,6 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
                         Timestamp timestamp = new Timestamp(System.currentTimeMillis());
                         String msg = dateFormat.format(timestamp) + ",CMD-REFRESH-CACHE";
                         context().forward(partitionKey, msg.getBytes(), "output-reload");
-//                        context().commit();
 
                         refreshMasterCache(partitionKey);
                         refreshCacheFlagMap.put(partitionKey, "N");
@@ -393,7 +395,6 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
                     // time, P1, P2, P3, P4, ... Pn, {status, groupid, rulename}
                     String traceMsg = recordValue + ",I,IDLE," + "NORULE";
                     context().forward(partitionKey, traceMsg.getBytes(), "output-trace");
-//                    context().commit();
 
                     // refresh cache
                     if (refreshCacheFlagMap.get(partitionKey) != null
@@ -405,7 +406,6 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
                         Timestamp timestamp = new Timestamp(System.currentTimeMillis());
                         String msg = dateFormat.format(timestamp) + ",CMD-REFRESH-CACHE";
                         context().forward(partitionKey, msg.getBytes(), "output-reload");
-//                        context().commit();
                     }
                 }
 
@@ -423,13 +423,11 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
                     Timestamp timestamp = new Timestamp(System.currentTimeMillis());
                     String msg = dateFormat.format(timestamp) + ",CMD-REFRESH-CACHE";
                     context().forward(partitionKey, msg.getBytes(), "output-reload");
-//                    context().commit();
                 }
 
                 // time, P1, P2, P3, P4, ... Pn, {status, groupid, rulename}
                 String traceMsg = recordValue + ",I,NOEVENT," + "NORULE";
                 context().forward(partitionKey, traceMsg.getBytes(), "output-trace");
-//                context().commit();
 
                 log.debug("[{}] - No event registered.", partitionKey);
             }

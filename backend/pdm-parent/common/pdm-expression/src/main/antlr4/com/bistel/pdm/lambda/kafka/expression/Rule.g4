@@ -71,10 +71,14 @@ DECIMAL_CONSTANT
 PT  :   '.'
     ;
 
+MINUS: '-' ;
+
 DOUBLE_CONSTANT
     :   DIGIT+ PT DIGIT+
     |   PT DIGIT+
     |   DIGIT+
+    |   MINUS DIGIT+
+    |   MINUS DIGIT+ PT DIGIT+
     ;
 
 fragment
