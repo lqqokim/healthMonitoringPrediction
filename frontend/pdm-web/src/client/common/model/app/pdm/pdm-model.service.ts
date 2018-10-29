@@ -513,6 +513,8 @@ export class PdmModelService extends ModelCommonService {
 
 		if(param.params.radarType === 'B5' || param.params.radarType === 'G5') {
 			querystring['threshold'] = param.params.threshold;
+		} else {
+			querystring['threshold'] = 0;
 		}
 		
 		return this.GET({

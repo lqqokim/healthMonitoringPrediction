@@ -254,6 +254,7 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
         } else if (type === A3_WIDGET.SYNC_INCONDITION_REFRESH) {
             //Object.assign(this._props, data);
             this._plant = data[CD.PLANT];
+            this._plantId = this._plant[CD.PLANT_ID];
             // TODO : tree를 다시 가져와야 하므로.
             // this._init();
             this._eqpId = data[CD.EQP_ID];
@@ -316,8 +317,11 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
             this._setProperties(this._props);
             this._chRef.detectChanges();
             this.chartInit();
-            this.tree.setSelectNode(this._areaId, this._eqpId, this._paramId);
-            // this.nodeData(this._nodeType, this._areaId, this._eqpId, this._paramId);
+
+            setTimeout(() => {
+                this.tree.setSelectNode(this._areaId, this._eqpId, this._paramId);
+                this.nodeData(this._nodeType, this._areaId, this._eqpId, this._paramId);
+            }, 300);
         } else if (type === A3_WIDGET.JUST_REFRESH) {
             if (this.isSetupState) {
                 // this._props = this.getProperties();
