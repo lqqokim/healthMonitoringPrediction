@@ -470,7 +470,7 @@ export class AlarmWarningVariationComponent implements OnInit, OnChanges, OnDest
                 let avgWithAWs: IRadar.AvgWithAW[] = [];
                 let AWwithAvgs: number[] = [];
                 let variations: number[] = [];
-                let data: [IRadar.Alarm[], IRadar.Warn[], IRadar.AvgDaily[], IRadar.AvgWithAW[]] = [[], [], [], []];
+                let data: [IRadar.Alarm[], IRadar.Warn[], IRadar.AvgDaily[], IRadar.AvgWithAW[]];
 
                 const paramsLength: number = params.length;
                 for (let i: number = 0; i < paramsLength; i++) {
