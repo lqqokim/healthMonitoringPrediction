@@ -8,7 +8,7 @@ public class RuleEvaluateTest {
 
     @Test
     public void process() {
-        String text = "p1>=11.0 AND p2==100.0";
+        String text = "p1>=-11.867989 AND p2==100.0";
 
         RuleVariables ruleVariables = new RuleVariables();
         ruleVariables.putValue("p1", 11.0);

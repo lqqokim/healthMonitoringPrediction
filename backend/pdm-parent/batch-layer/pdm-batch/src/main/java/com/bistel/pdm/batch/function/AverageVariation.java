@@ -17,7 +17,7 @@ public class AverageVariation {
     private final ConcurrentHashMap<Long, Double> sumOfValue = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<Long, Integer> countOfValue = new ConcurrentHashMap<>();
 
-    public String calculate(String partitionKey, String paramKey,
+    public synchronized String calculate(String partitionKey, String paramKey,
                             String[] record, SummarizedFeatureData feature, Long longTime)
             throws ExecutionException {
 

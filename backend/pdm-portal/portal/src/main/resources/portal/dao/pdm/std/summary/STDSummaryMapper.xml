@@ -669,23 +669,23 @@
 		,alarmhistory.value, alarmhistory.condition, alarmhistory.rule_name
 		from
 		(
-			select areagroupname,area_id,eqp.name as eqp_name,eqp.rawid as eqp_mst_rawid
-			from eqp_mst_pdm eqp,
-			(
-				select * from
-				(
-					SELECT
-					name as areagroupname, rawid AS area_id, level, name, parent_rawid AS parent_id, CONNECT_BY_ISLEAF AS leaf
-					FROM
-					area_mst_pdm
-					where level=2
-					START WITH
-					parent_rawid = 0
-					CONNECT BY
-					PRIOR rawid = parent_rawid
-					ORDER BY leaf, parent_id
-				)
-			where leaf =1
+		select areagroupname,area_id,eqp.name as eqp_name,eqp.rawid as eqp_mst_rawid
+		from eqp_mst_pdm eqp,
+		(
+		select * from
+		(
+		SELECT
+		name as areagroupname, rawid AS area_id, level, name, parent_rawid AS parent_id, CONNECT_BY_ISLEAF AS leaf
+		FROM
+		area_mst_pdm
+		where level=2
+		START WITH
+		parent_rawid = 0
+		CONNECT BY
+		PRIOR rawid = parent_rawid
+		ORDER BY leaf, parent_id
+		)
+		where leaf =1
 
 		union all
 
@@ -693,18 +693,18 @@
 		FROM
 		area_mst_pdm area,
 		(
-			SELECT
-			rawid AS area_id, name,	parent_rawid AS parent_id,	CONNECT_BY_ISLEAF AS leaf
-			FROM
-			area_mst_pdm
-			where level=2
-			START WITH
-			parent_rawid = 0
-			CONNECT BY
-			PRIOR rawid = parent_rawid
-			ORDER BY
-			leaf,
-			parent_id
+		SELECT
+		rawid AS area_id, name,	parent_rawid AS parent_id,	CONNECT_BY_ISLEAF AS leaf
+		FROM
+		area_mst_pdm
+		where level=2
+		START WITH
+		parent_rawid = 0
+		CONNECT BY
+		PRIOR rawid = parent_rawid
+		ORDER BY
+		leaf,
+		parent_id
 		) areagroup
 
 		START WITH
@@ -724,21 +724,22 @@
 		select alarm_dtts,eqp_mst_rawid, eqp_name, param_mst_rawid, param_name, DECODE(category,'256', 'Alarm','128','Warning') as category, fault_class, value, condition, rule_name
 		from
 		(
-			select emp.rawid as eqp_mst_rawid, emp.name as eqp_name, pmp.rawid as param_mst_rawid, pmp.name as param_name, atp.ALARM_TYPE_CD as category, atp.fault_class, atp.ALARM_DTTS as alarm_dtts, atp.value as value, atp.condition, atp.rule_name
-			from alarm_trx_pdm atp, eqp_mst_pdm emp, param_mst_pdm pmp,  param_health_mst_pdm ph
-			where 1=1
-			and atp.alarm_dtts <![CDATA[>=]]> #{fromdate}
-			and atp.alarm_dtts <![CDATA[<]]> #{todate}
-			and atp.PARAM_MST_RAWID=pmp.rawid
-			and pmp.eqp_mst_rawid=emp.rawid
-			and ph.rawid=atp.param_health_mst_rawid
-			and ph.health_logic_mst_rawid=1
+
+		select emp.rawid as eqp_mst_rawid, emp.name as eqp_name, pmp.rawid as param_mst_rawid, pmp.name as param_name, atp.ALARM_TYPE_CD as category, atp.fault_class, atp.ALARM_DTTS as alarm_dtts, atp.value as value, atp.condition, atp.rule_name
+		from alarm_trx_pdm atp, eqp_mst_pdm emp, param_mst_pdm pmp,  param_health_mst_pdm ph
+		where 1=1
+		and atp.alarm_dtts <![CDATA[>=]]> #{fromdate}
+		and atp.alarm_dtts <![CDATA[<]]> #{todate}
+		and atp.PARAM_MST_RAWID=pmp.rawid
+		and pmp.eqp_mst_rawid=emp.rawid
+		and ph.rawid=atp.param_health_mst_rawid
+		and ph.health_logic_mst_rawid=1
+
 		)
 		) alarmhistory
 		where 1=1
 		and alarmhistory.eqp_mst_rawid=areaeqp.eqp_mst_rawid
 		order by alarmhistory.alarm_dtts
-
     </select>
     <select id="selectAlarmHistoryAll" resultType="com.bistel.a3.portal.domain.pdm.AlarmHistory" databaseId="postgresql">
 		SELECT   areaeqp.areagroupname AS area_name,
@@ -953,7 +954,9 @@
 		select alarm_dtts,eqp_mst_rawid, eqp_name, param_mst_rawid, param_name, DECODE(category,'256', 'Alarm','128','Warning') as category, fault_class, value, condition, rule_name
 		from
 		(
-		select emp.rawid as eqp_mst_rawid, emp.name as eqp_name, pmp.rawid as param_mst_rawid, pmp.name as param_name, atp.ALARM_TYPE_CD as category, atp.fault_class, atp.ALARM_DTTS as alarm_dtts, atp.value as value, atp.condition, atp.rule_name
+
+		select emp.rawid as eqp_mst_rawid, emp.name as eqp_name, pmp.rawid as param_mst_rawid, pmp.name as param_name, atp.ALARM_TYPE_CD as category, atp.fault_class, atp.ALARM_DTTS as alarm_dtts, atp.condition,atp.value as value, atp.rule_name
+
 		from alarm_trx_pdm atp, eqp_mst_pdm emp, param_mst_pdm pmp, area_mst_pdm area, param_health_mst_pdm ph
 		where 1=1
 		and emp.area_mst_rawid=area.rawid
@@ -970,7 +973,7 @@
 		and alarmhistory.eqp_mst_rawid=areaeqp.eqp_mst_rawid
 		order by alarmhistory.alarm_dtts
 		)
-		
+
 
     </select>
     <select id="selectAlarmHistoryByAreaId" resultType="com.bistel.a3.portal.domain.pdm.AlarmHistory" databaseId="postgresql">
@@ -1660,6 +1663,7 @@
     <select id="selectWorstEquipmentList" resultType="com.bistel.a3.portal.domain.pdm.WorstEquipmentList" databaseId="oracle">
 
 
+
 select *
 		from
 		(
@@ -1676,12 +1680,12 @@ select *
 		end status, start_dtts, end_dtts
 		from
 		(
-		select
-		eqp_id, eqp_name, start_cd, end_cd, start_dtts, end_dtts,
-		extract( day from end_dtts-start_dtts )*24*60*60 +
-		extract( hour from end_dtts-start_dtts )*60*60 +
-		extract( minute from end_dtts-start_dtts )*60 +
-		round(extract( second from end_dtts-start_dtts )) as diff_sec
+			select
+			eqp_id, eqp_name, start_cd, end_cd, start_dtts, end_dtts,
+			extract( day from end_dtts-start_dtts )*24*60*60 +
+			extract( hour from end_dtts-start_dtts )*60*60 +
+			extract( minute from end_dtts-start_dtts )*60 +
+			round(extract( second from end_dtts-start_dtts )) as diff_sec
 		from
 		(
 		select eqp_id,eqp_name, event_type_cd as start_cd,
@@ -1730,6 +1734,7 @@ select *
 		where 1=1
 		and eqpstatus.eqp_id=score.eqp_id
 		order by score desc
+
 		)
 		where rownum<![CDATA[<=]]> #{limit}
 
@@ -1909,9 +1914,11 @@ select *
     <select id="selectWorstEquipmentListByAreaId"  resultType="com.bistel.a3.portal.domain.pdm.WorstEquipmentList" databaseId="oracle">
 
 
+
 		select *
 		from
 		(
+
 		select distinct eqpstatus.eqp_id, eqpstatus.eqp_name, score.score
 		from
 		(
@@ -1981,10 +1988,15 @@ select *
 		where 1=1
 		and eqpstatus.eqp_id=score.eqp_id
 		order by score desc
+
 		)
 		where rownum<![CDATA[<=]]> #{limit}
 
-    </select>
+
+
+
+
+	</select>
     <select id="selectWorstEquipmentListByAreaId"  resultType="com.bistel.a3.portal.domain.pdm.WorstEquipmentList" databaseId="postgresql">
 		select distinct worsteqp.eqp_id, worsteqp.eqp_name, worsteqp.score
 		from

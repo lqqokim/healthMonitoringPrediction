@@ -16,7 +16,7 @@ import java.util.Map;
 public class ConditionSpecFunction {
     private static final Logger log = LoggerFactory.getLogger(ConditionSpecFunction.class);
 
-    public static String evaluateCondition(String partitionKey, String[] record) {
+    public synchronized static String evaluateCondition(String partitionKey, String[] record) {
 
         String conditionName = "";
 

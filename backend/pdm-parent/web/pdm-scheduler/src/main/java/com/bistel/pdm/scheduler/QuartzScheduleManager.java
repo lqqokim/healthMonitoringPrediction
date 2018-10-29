@@ -1,9 +1,13 @@
-package com.bistel.pdm.scheduler.quartz;
+package com.bistel.pdm.scheduler;
+
+//import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
 
 import org.quartz.*;
-import org.quartz.impl.StdSchedulerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.quartz.QuartzJobBean;
+import org.springframework.stereotype.Component;
 
 import static org.quartz.CronScheduleBuilder.cronSchedule;
 import static org.quartz.CronScheduleBuilder.dailyAtHourAndMinute;
@@ -12,24 +16,13 @@ import static org.quartz.JobKey.jobKey;
 import static org.quartz.TriggerBuilder.newTrigger;
 import static org.quartz.TriggerKey.triggerKey;
 
-/**
- *
- *
- */
-public final class QuartzScheduleManager implements IScheduleManager {
-
+@Component
+public class QuartzScheduleManager implements IScheduleManager {
     private static final Logger logger = LoggerFactory.getLogger(QuartzScheduleManager.class);
 
-    private Scheduler scheduler;
+    private final Scheduler scheduler;
 
-    public QuartzScheduleManager() {
-        try {
-            this.scheduler = StdSchedulerFactory.getDefaultScheduler();
-        } catch (SchedulerException e) {
-            logger.error(e.getMessage(), e);
-        }
-    }
-
+    @Autowired
     public QuartzScheduleManager(Scheduler scheduler) {
         this.scheduler = scheduler;
     }
@@ -41,8 +34,8 @@ public final class QuartzScheduleManager implements IScheduleManager {
     public boolean execute() {
         boolean isOk = true;
         try {
-            if (!this.scheduler.isStarted()) {
-                this.scheduler.start();
+            if (!scheduler.isStarted()) {
+                scheduler.start();
             }
         } catch (Exception e) {
             isOk = false;
@@ -58,7 +51,7 @@ public final class QuartzScheduleManager implements IScheduleManager {
     public boolean shutdown(boolean waitForJobsToComplete) {
         boolean isOk = true;
         try {
-            this.scheduler.shutdown(waitForJobsToComplete);
+            scheduler.shutdown(waitForJobsToComplete);
         } catch (SchedulerException e) {
             isOk = false;
             logger.error(e.getMessage(), e);
@@ -73,7 +66,7 @@ public final class QuartzScheduleManager implements IScheduleManager {
     public boolean deleteJob(String jobName, String jobGroup) {
         boolean isOk = true;
         try {
-            isOk = this.scheduler.deleteJob(jobKey(jobName, jobGroup));
+            isOk = scheduler.deleteJob(jobKey(jobName, jobGroup));
             logger.info(jobName + " job deleted and unscheduled all of its triggers.");
         } catch (SchedulerException e) {
             isOk = false;
@@ -86,7 +79,7 @@ public final class QuartzScheduleManager implements IScheduleManager {
      * Define a durable job instance (durable jobs can exist without triggers)
      */
     @Override
-    public boolean registerJob(String jobName, String jobGroup, JobDataMap jobDataMap, Class<? extends Job> jobClass) {
+    public boolean registerJob(String jobName, String jobGroup, JobDataMap jobDataMap, Class<? extends QuartzJobBean> jobClass) {
         boolean isOk = true;
         try {
             JobDetail job = newJob(jobClass)
@@ -95,9 +88,9 @@ public final class QuartzScheduleManager implements IScheduleManager {
                     .storeDurably()
                     .build();
 
-            if (!this.scheduler.checkExists(job.getKey())) {
+            if (!scheduler.checkExists(job.getKey())) {
                 // Add the the job to the scheduler's store
-                this.scheduler.addJob(job, false);
+                scheduler.addJob(job, false);
                 logger.info(jobName + " job stored.");
             } else {
                 logger.info(jobName + " job already existed.");
@@ -110,7 +103,7 @@ public final class QuartzScheduleManager implements IScheduleManager {
     }
 
     @Override
-    public boolean updateJob(String jobName, String jobGroup, JobDataMap jobDataMap, Class<? extends Job> jobClass) {
+    public boolean updateJob(String jobName, String jobGroup, JobDataMap jobDataMap, Class<? extends QuartzJobBean> jobClass) {
         boolean isOk = true;
         try {
             JobDetail job = newJob(jobClass)
@@ -119,7 +112,7 @@ public final class QuartzScheduleManager implements IScheduleManager {
                     .storeDurably()
                     .build();
 
-            this.scheduler.addJob(job, true);
+            scheduler.addJob(job, true);
         } catch (SchedulerException e) {
             isOk = false;
             logger.error(e.getMessage(), e);
@@ -146,12 +139,12 @@ public final class QuartzScheduleManager implements IScheduleManager {
 
             if (!this.scheduler.checkExists(triggerKey(triggerName, jobGroup))) {
                 // Schedule the trigger
-                this.scheduler.scheduleJob(trigger);
+                scheduler.scheduleJob(trigger);
                 logger.info(triggerName + " trigger was scheduled.");
             } else {
                 logger.info(triggerName + " trigger already existed.");
-                this.scheduler.unscheduleJob(triggerKey(triggerName, jobGroup));
-                this.scheduler.scheduleJob(trigger);
+                scheduler.unscheduleJob(triggerKey(triggerName, jobGroup));
+                scheduler.scheduleJob(trigger);
                 logger.info(triggerName + " trigger was rescheduled.");
             }
         } catch (SchedulerException e) {
@@ -178,12 +171,12 @@ public final class QuartzScheduleManager implements IScheduleManager {
 
             if (!this.scheduler.checkExists(triggerKey(triggerName, jobGroup))) {
                 // Schedule the trigger
-                this.scheduler.scheduleJob(trigger);
+                scheduler.scheduleJob(trigger);
                 logger.info(triggerName + " trigger was scheduled.");
             } else {
                 logger.info(triggerName + " trigger already existed.");
-                this.scheduler.unscheduleJob(triggerKey(triggerName, jobGroup));
-                this.scheduler.scheduleJob(trigger);
+                scheduler.unscheduleJob(triggerKey(triggerName, jobGroup));
+                scheduler.scheduleJob(trigger);
                 logger.info(triggerName + " trigger was rescheduled.");
             }
         } catch (SchedulerException e) {
@@ -207,7 +200,7 @@ public final class QuartzScheduleManager implements IScheduleManager {
 
             // tell the scheduler to remove the old trigger with the given key, and
             // put the new one in its place
-            this.scheduler.rescheduleJob(triggerKey(triggerName, jobGroup), trigger);
+            scheduler.rescheduleJob(triggerKey(triggerName, jobGroup), trigger);
         } catch (SchedulerException e) {
             isOk = false;
             logger.error(e.getMessage(), e);
@@ -223,7 +216,7 @@ public final class QuartzScheduleManager implements IScheduleManager {
         boolean isOk = true;
         try {
             // retrieve the trigger
-            Trigger oldTrigger = this.scheduler.getTrigger(triggerKey(oldTriggerName, oldTriggerGroupName));
+            Trigger oldTrigger = scheduler.getTrigger(triggerKey(oldTriggerName, oldTriggerGroupName));
 
             // obtain a builder that would produce the trigger
             @SuppressWarnings("rawtypes")
@@ -236,7 +229,7 @@ public final class QuartzScheduleManager implements IScheduleManager {
                     .startNow()
                     .build();
 
-            this.scheduler.rescheduleJob(oldTrigger.getKey(), newTrigger);
+            scheduler.rescheduleJob(oldTrigger.getKey(), newTrigger);
         } catch (SchedulerException e) {
             isOk = false;
             logger.error(e.getMessage(), e);
@@ -250,7 +243,7 @@ public final class QuartzScheduleManager implements IScheduleManager {
         boolean isOk = true;
         try {
             // retrieve the trigger
-            Trigger oldTrigger = this.scheduler.getTrigger(triggerKey(oldTriggerName, oldTriggerGroupName));
+            Trigger oldTrigger = scheduler.getTrigger(triggerKey(oldTriggerName, oldTriggerGroupName));
 
             // obtain a builder that would produce the trigger
             @SuppressWarnings("rawtypes")
@@ -263,7 +256,7 @@ public final class QuartzScheduleManager implements IScheduleManager {
                     .startNow()
                     .build();
 
-            this.scheduler.rescheduleJob(oldTrigger.getKey(), newTrigger);
+            scheduler.rescheduleJob(oldTrigger.getKey(), newTrigger);
         } catch (SchedulerException e) {
             isOk = false;
             logger.error(e.getMessage(), e);
@@ -276,7 +269,7 @@ public final class QuartzScheduleManager implements IScheduleManager {
         boolean isOk = true;
         try {
             // Unschedule a particular trigger from the job (a job may have more than one trigger)
-            this.scheduler.unscheduleJob(triggerKey(triggerName, jobGroup));
+            scheduler.unscheduleJob(triggerKey(triggerName, jobGroup));
         } catch (SchedulerException e) {
             isOk = false;
             logger.error(e.getMessage(), e);
