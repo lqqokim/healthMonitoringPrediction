@@ -55,14 +55,20 @@ public interface STDConditionalSpecMapper {
 
     void deleteModelParamSpec(@Param("rawid") Long rawid);
 
+    void deleteModelParamSpecAll();
+
     void deleteModelParamSpecOne(@Param("rule_id") Long rule_id, @Param("param_name") String param_name);
 
     void deleteConditionalSpec(@Param("rule_id") Long rule_id);
+
+    void deleteConditionalSpecAll();
 
     void insertEqpSpecLink(@Param("eqp_id") Long eqp_id, @Param("rule_id") Long rule_id, @Param("ordering") Long ordering,
                             @Param("description") String description, @Param("userName") String userName);
 
     void deleteEqpSpecLink(@Param("eqp_id") Long eqp_id, @Param("rule_id") Long rule_id );
+
+    void deleteEqpSpecLinkAll();
 
     void deleteParamSpec(@Param("eqp_spec_link_mst_rawid") Long eqp_spec_link_mst_rawid);
 

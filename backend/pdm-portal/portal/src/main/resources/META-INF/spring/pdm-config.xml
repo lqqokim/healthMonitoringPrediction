@@ -79,85 +79,236 @@
     </bean>
 
     <!--Ulsan-->
-    <!--&lt;!&ndash; fab 1&ndash;&gt;-->
-    <!--<bean class="org.apache.commons.dbcp.BasicDataSource" id="fab1DataSource" >-->
-    <!--<property name="driverClassName" value="${db.fab1.driverClassName}" />-->
-    <!--<property name="url" value="${db.fab1.url}" />-->
-    <!--<property name="username" value="${db.fab1.username}" />-->
-    <!--<property name="password" value="${db.fab1.password}" />-->
+     <!--&lt;!&ndash;fab 1&ndash;&gt;-->
+    <!--<bean class="org.apache.commons.dbcp.BasicDataSource" id="fab1DataSource">-->
+        <!--<property name="driverClassName" value="${db.fab1.driverClassName}"/>-->
+        <!--<property name="url" value="${db.fab1.url}"/>-->
+        <!--<property name="username" value="${db.fab1.username}"/>-->
+        <!--<property name="password" value="${db.fab1.password}"/>-->
+        <!--<property name="maxActive" value="50"/>-->
+        <!--<property name="maxIdle" value="20" />-->
     <!--</bean>-->
     <!--<bean id="fab1SqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">-->
-    <!--<property name="dataSource" ref="fab1DataSource" />-->
-    <!--<property name="configLocation" value="classpath:/META-INF/spring/mybatis-config.xml"/>-->
-    <!--<property name="mapperLocations" value="classpath:/portal/dao/pdm/**/*.xml" />-->
-    <!--<property name="databaseIdProvider" ref="databaseIdProvider"/>-->
+        <!--<property name="dataSource" ref="fab1DataSource"/>-->
+        <!--<property name="configLocation" value="classpath:/META-INF/spring/mybatis-config.xml"/>-->
+        <!--<property name="mapperLocations" value="classpath:/portal/dao/pdm/**/*.xml"/>-->
+        <!--<property name="databaseIdProvider" ref="databaseIdProvider"/>-->
     <!--</bean>-->
-    <!--<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer" p:basePackage="com.bistel.a3.portal.dao.pdm" p:sqlSessionFactoryBeanName="fab1SqlSessionFactory" />-->
+    <!--<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer" p:basePackage="com.bistel.a3.portal.dao.pdm"-->
+          <!--p:sqlSessionFactoryBeanName="fab1SqlSessionFactory"/>-->
     <!--<bean id="fab1TR" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">-->
-    <!--<property name="dataSource" ref="fab1DataSource" />-->
+        <!--<property name="dataSource" ref="fab1DataSource"/>-->
     <!--</bean>-->
     <!--<bean id="fab1" class="org.mybatis.spring.SqlSessionTemplate">-->
-    <!--<constructor-arg index="0" ref="fab1SqlSessionFactory" />-->
+        <!--<constructor-arg index="0" ref="fab1SqlSessionFactory"/>-->
+    <!--</bean>-->
+    <!--<bean class="com.bistel.a3.portal.util.ApacheHttpClientGet" id="requestURL">-->
+        <!--<property name="url" value="${requestURL}"/>-->
+    <!--</bean>-->
+    <!--<bean class="com.bistel.a3.portal.domain.pdm.GlobalAWSpec" id="GlobalAWSpec">-->
+        <!--<property name="normalized_upper_alarm_spec" value="${GlobalAWSpec.upperAlarmSpec}"/>-->
+        <!--<property name="normalized_upper_warning_spec" value="${GlobalAWSpec.upperWarningSpec}"/>-->
+        <!--<property name="normalized_lower_alarm_spec" value="${GlobalAWSpec.lowerWarningSpec}"/>-->
+        <!--<property name="normalized_lower_warning_spec" value="${GlobalAWSpec.lowerWarningSpec}"/>-->
     <!--</bean>-->
 
-    <!--&lt;!&ndash; fab 2&ndash;&gt;-->
-    <!--<bean class="org.apache.commons.dbcp.BasicDataSource" id="fab2DataSource" >-->
-    <!--<property name="driverClassName" value="${db.fab2.driverClassName}" />-->
-    <!--<property name="url" value="${db.fab2.url}" />-->
-    <!--<property name="username" value="${db.fab2.username}" />-->
-    <!--<property name="password" value="${db.fab2.password}" />-->
+
+    <!--&lt;!&ndash; hmc1legacy &ndash;&gt;-->
+    <!--<bean class="org.apache.commons.dbcp.BasicDataSource" id="hmc1legacyDataSource" >-->
+        <!--<property name="driverClassName" value="${db.hmc1legacy.driverClassName}" />-->
+        <!--<property name="url" value="${db.hmc1legacy.url}" />-->
+        <!--<property name="username" value="${db.hmc1legacy.username}" />-->
+        <!--<property name="password" value="${db.hmc1legacy.password}" />-->
+    <!--</bean>-->
+    <!--<bean id="hmc1legacySqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">-->
+        <!--<property name="dataSource" ref="hmc1legacyDataSource" />-->
+        <!--<property name="configLocation" value="classpath:/META-INF/spring/mybatis-config.xml"/>-->
+        <!--<property name="mapperLocations" value="classpath:/portal/dao/pdm/db/**/*.xml" />-->
+    <!--</bean>-->
+    <!--<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer" p:basePackage="com.bistel.a3.portal.dao.pdm" p:sqlSessionFactoryBeanName="hmc1legacySqlSessionFactory" />-->
+    <!--<bean id="hmc1legacyTR" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">-->
+        <!--<property name="dataSource" ref="hmc1legacyDataSource" />-->
+    <!--</bean>-->
+    <!--<bean id="hmc1legacy" class="org.mybatis.spring.SqlSessionTemplate">-->
+        <!--<constructor-arg index="0" ref="hmc1legacySqlSessionFactory" />-->
+    <!--</bean>-->
+
+    <!--&lt;!&ndash; nhmc2 &ndash;&gt;-->
+    <!--&lt;!&ndash;fab 2&ndash;&gt;-->
+    <!--<bean class="org.apache.commons.dbcp.BasicDataSource" id="fab2DataSource">-->
+        <!--<property name="driverClassName" value="${db.fab2.driverClassName}"/>-->
+        <!--<property name="url" value="${db.fab2.url}"/>-->
+        <!--<property name="username" value="${db.fab2.username}"/>-->
+        <!--<property name="password" value="${db.fab2.password}"/>-->
+        <!--<property name="maxActive" value="50"/>-->
+        <!--<property name="maxIdle" value="20" />-->
     <!--</bean>-->
     <!--<bean id="fab2SqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">-->
-    <!--<property name="dataSource" ref="fab2DataSource" />-->
-    <!--<property name="configLocation" value="classpath:/META-INF/spring/mybatis-config.xml"/>-->
-    <!--<property name="mapperLocations" value="classpath:/portal/dao/pdm/**/*.xml" />-->
-    <!--<property name="databaseIdProvider" ref="databaseIdProvider"/>-->
+        <!--<property name="dataSource" ref="fab2DataSource"/>-->
+        <!--<property name="configLocation" value="classpath:/META-INF/spring/mybatis-config.xml"/>-->
+        <!--<property name="mapperLocations" value="classpath:/portal/dao/pdm/**/*.xml"/>-->
+        <!--<property name="databaseIdProvider" ref="databaseIdProvider"/>-->
     <!--</bean>-->
-    <!--<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer" p:basePackage="com.bistel.a3.portal.dao.pdm" p:sqlSessionFactoryBeanName="fab2SqlSessionFactory" />-->
+    <!--<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer" p:basePackage="com.bistel.a3.portal.dao.pdm"-->
+          <!--p:sqlSessionFactoryBeanName="fab2SqlSessionFactory"/>-->
     <!--<bean id="fab2TR" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">-->
-    <!--<property name="dataSource" ref="fab2DataSource" />-->
+        <!--<property name="dataSource" ref="fab2DataSource"/>-->
     <!--</bean>-->
     <!--<bean id="fab2" class="org.mybatis.spring.SqlSessionTemplate">-->
-    <!--<constructor-arg index="0" ref="fab2SqlSessionFactory" />-->
+        <!--<constructor-arg index="0" ref="fab2SqlSessionFactory"/>-->
+    <!--</bean>-->
+    <!--&lt;!&ndash; hmc2legacy &ndash;&gt;-->
+    <!--<bean class="org.apache.commons.dbcp.BasicDataSource" id="hmc2legacyDataSource" >-->
+        <!--<property name="driverClassName" value="${db.hmc2legacy.driverClassName}" />-->
+        <!--<property name="url" value="${db.hmc2legacy.url}" />-->
+        <!--<property name="username" value="${db.hmc2legacy.username}" />-->
+        <!--<property name="password" value="${db.hmc2legacy.password}" />-->
+    <!--</bean>-->
+    <!--<bean id="hmc2legacySqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">-->
+        <!--<property name="dataSource" ref="hmc2legacyDataSource" />-->
+        <!--<property name="configLocation" value="classpath:/META-INF/spring/mybatis-config.xml"/>-->
+        <!--<property name="mapperLocations" value="classpath:/portal/dao/pdm/db/**/*.xml" />-->
+    <!--</bean>-->
+    <!--<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer" p:basePackage="com.bistel.a3.portal.dao.pdm" p:sqlSessionFactoryBeanName="hmc2legacySqlSessionFactory" />-->
+    <!--<bean id="hmc2legacyTR" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">-->
+        <!--<property name="dataSource" ref="hmc2legacyDataSource" />-->
+    <!--</bean>-->
+    <!--<bean id="hmc2legacy" class="org.mybatis.spring.SqlSessionTemplate">-->
+        <!--<constructor-arg index="0" ref="hmc2legacySqlSessionFactory" />-->
     <!--</bean>-->
 
-    <!--&lt;!&ndash; legacy 1 &ndash;&gt;-->
-    <!--<bean class="org.apache.commons.dbcp.BasicDataSource" id="legacy1DataSource" >-->
-    <!--<property name="driverClassName" value="${db.legacy1.driverClassName}" />-->
-    <!--<property name="url" value="${db.legacy1.url}" />-->
-    <!--<property name="username" value="${db.legacy1.username}" />-->
-    <!--<property name="password" value="${db.legacy1.password}" />-->
+    <!--&lt;!&ndash; nhmc3 &ndash;&gt;-->
+    <!--&lt;!&ndash;fab 3&ndash;&gt;-->
+    <!--<bean class="org.apache.commons.dbcp.BasicDataSource" id="fab3DataSource">-->
+        <!--<property name="driverClassName" value="${db.fab3.driverClassName}"/>-->
+        <!--<property name="url" value="${db.fab3.url}"/>-->
+        <!--<property name="username" value="${db.fab3.username}"/>-->
+        <!--<property name="password" value="${db.fab3.password}"/>-->
+        <!--<property name="maxActive" value="50"/>-->
+        <!--<property name="maxIdle" value="20" />-->
     <!--</bean>-->
-    <!--<bean id="legacy1SqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">-->
-    <!--<property name="dataSource" ref="legacy1DataSource" />-->
-    <!--<property name="configLocation" value="classpath:/META-INF/spring/mybatis-config.xml"/>-->
-    <!--<property name="mapperLocations" value="classpath:/portal/dao/pdm/db/**/*.xml" />-->
+    <!--<bean id="fab3SqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">-->
+        <!--<property name="dataSource" ref="fab3DataSource"/>-->
+        <!--<property name="configLocation" value="classpath:/META-INF/spring/mybatis-config.xml"/>-->
+        <!--<property name="mapperLocations" value="classpath:/portal/dao/pdm/**/*.xml"/>-->
+        <!--<property name="databaseIdProvider" ref="databaseIdProvider"/>-->
     <!--</bean>-->
-    <!--<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer" p:basePackage="com.bistel.a3.portal.dao.pdm" p:sqlSessionFactoryBeanName="legacy1SqlSessionFactory" />-->
-    <!--<bean id="legacy1TR" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">-->
-    <!--<property name="dataSource" ref="legacy1DataSource" />-->
+    <!--<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer" p:basePackage="com.bistel.a3.portal.dao.pdm"-->
+          <!--p:sqlSessionFactoryBeanName="fab3SqlSessionFactory"/>-->
+    <!--<bean id="fab3TR" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">-->
+        <!--<property name="dataSource" ref="fab3DataSource"/>-->
     <!--</bean>-->
-    <!--<bean id="legacy1" class="org.mybatis.spring.SqlSessionTemplate">-->
-    <!--<constructor-arg index="0" ref="legacy1SqlSessionFactory" />-->
+    <!--<bean id="fab3" class="org.mybatis.spring.SqlSessionTemplate">-->
+        <!--<constructor-arg index="0" ref="fab3SqlSessionFactory"/>-->
+    <!--</bean>-->
+    <!--&lt;!&ndash; hmc3legacy &ndash;&gt;-->
+    <!--<bean class="org.apache.commons.dbcp.BasicDataSource" id="hmc3legacyDataSource" >-->
+        <!--<property name="driverClassName" value="${db.hmc3legacy.driverClassName}" />-->
+        <!--<property name="url" value="${db.hmc3legacy.url}" />-->
+        <!--<property name="username" value="${db.hmc3legacy.username}" />-->
+        <!--<property name="password" value="${db.hmc3legacy.password}" />-->
+    <!--</bean>-->
+    <!--<bean id="hmc3legacySqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">-->
+        <!--<property name="dataSource" ref="hmc3legacyDataSource" />-->
+        <!--<property name="configLocation" value="classpath:/META-INF/spring/mybatis-config.xml"/>-->
+        <!--<property name="mapperLocations" value="classpath:/portal/dao/pdm/db/**/*.xml" />-->
+    <!--</bean>-->
+    <!--<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer" p:basePackage="com.bistel.a3.portal.dao.pdm" p:sqlSessionFactoryBeanName="hmc3legacySqlSessionFactory" />-->
+    <!--<bean id="hmc3legacyTR" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">-->
+        <!--<property name="dataSource" ref="hmc3legacyDataSource" />-->
+    <!--</bean>-->
+    <!--<bean id="hmc3legacy" class="org.mybatis.spring.SqlSessionTemplate">-->
+        <!--<constructor-arg index="0" ref="hmc3legacySqlSessionFactory" />-->
     <!--</bean>-->
 
-    <!--&lt;!&ndash; legacy 2 &ndash;&gt;-->
-    <!--<bean class="org.apache.commons.dbcp.BasicDataSource" id="legacy2DataSource" >-->
-    <!--<property name="driverClassName" value="${db.legacy2.driverClassName}" />-->
-    <!--<property name="url" value="${db.legacy2.url}" />-->
-    <!--<property name="username" value="${db.legacy2.username}" />-->
-    <!--<property name="password" value="${db.legacy2.password}" />-->
+
+    <!--&lt;!&ndash; nhmc4 &ndash;&gt;-->
+    <!--&lt;!&ndash;fab4&ndash;&gt;-->
+    <!--<bean class="org.apache.commons.dbcp.BasicDataSource" id="fab4DataSource">-->
+        <!--<property name="driverClassName" value="${db.fab4.driverClassName}"/>-->
+        <!--<property name="url" value="${db.fab4.url}"/>-->
+        <!--<property name="username" value="${db.fab4.username}"/>-->
+        <!--<property name="password" value="${db.fab4.password}"/>-->
+        <!--<property name="maxActive" value="50"/>-->
+        <!--<property name="maxIdle" value="20" />-->
     <!--</bean>-->
-    <!--<bean id="legacy2SqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">-->
-    <!--<property name="dataSource" ref="legacy2DataSource" />-->
-    <!--<property name="configLocation" value="classpath:/META-INF/spring/mybatis-config.xml"/>-->
-    <!--<property name="mapperLocations" value="classpath:/portal/dao/pdm/db/**/*.xml" />-->
+    <!--<bean id="fab4SqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">-->
+        <!--<property name="dataSource" ref="fab4DataSource"/>-->
+        <!--<property name="configLocation" value="classpath:/META-INF/spring/mybatis-config.xml"/>-->
+        <!--<property name="mapperLocations" value="classpath:/portal/dao/pdm/**/*.xml"/>-->
+        <!--<property name="databaseIdProvider" ref="databaseIdProvider"/>-->
     <!--</bean>-->
-    <!--<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer" p:basePackage="com.bistel.a3.portal.dao.pdm" p:sqlSessionFactoryBeanName="legacy2SqlSessionFactory" />-->
-    <!--<bean id="legacy2TR" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">-->
-    <!--<property name="dataSource" ref="legacy2DataSource" />-->
+    <!--<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer" p:basePackage="com.bistel.a3.portal.dao.pdm"-->
+          <!--p:sqlSessionFactoryBeanName="fab4SqlSessionFactory"/>-->
+    <!--<bean id="fab4TR" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">-->
+        <!--<property name="dataSource" ref="fab4DataSource"/>-->
     <!--</bean>-->
-    <!--<bean id="legacy2" class="org.mybatis.spring.SqlSessionTemplate">-->
-    <!--<constructor-arg index="0" ref="legacy2SqlSessionFactory" />-->
+    <!--<bean id="fab4" class="org.mybatis.spring.SqlSessionTemplate">-->
+        <!--<constructor-arg index="0" ref="fab4SqlSessionFactory"/>-->
     <!--</bean>-->
+    <!--&lt;!&ndash; hmc4legacy &ndash;&gt;-->
+    <!--<bean class="org.apache.commons.dbcp.BasicDataSource" id="hmc4legacyDataSource" >-->
+        <!--<property name="driverClassName" value="${db.hmc4legacy.driverClassName}" />-->
+        <!--<property name="url" value="${db.hmc4legacy.url}" />-->
+        <!--<property name="username" value="${db.hmc4legacy.username}" />-->
+        <!--<property name="password" value="${db.hmc4legacy.password}" />-->
+    <!--</bean>-->
+    <!--<bean id="hmc4legacySqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">-->
+        <!--<property name="dataSource" ref="hmc4legacyDataSource" />-->
+        <!--<property name="configLocation" value="classpath:/META-INF/spring/mybatis-config.xml"/>-->
+        <!--<property name="mapperLocations" value="classpath:/portal/dao/pdm/db/**/*.xml" />-->
+    <!--</bean>-->
+    <!--<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer" p:basePackage="com.bistel.a3.portal.dao.pdm" p:sqlSessionFactoryBeanName="hmc4legacySqlSessionFactory" />-->
+    <!--<bean id="hmc4legacyTR" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">-->
+        <!--<property name="dataSource" ref="hmc4legacyDataSource" />-->
+    <!--</bean>-->
+    <!--<bean id="hmc4legacy" class="org.mybatis.spring.SqlSessionTemplate">-->
+        <!--<constructor-arg index="0" ref="hmc4legacySqlSessionFactory" />-->
+    <!--</bean>-->
+
+
+    <!--&lt;!&ndash; nhmc5 &ndash;&gt;-->
+    <!--&lt;!&ndash;fab5&ndash;&gt;-->
+    <!--<bean class="org.apache.commons.dbcp.BasicDataSource" id="fab5DataSource">-->
+        <!--<property name="driverClassName" value="${db.fab5.driverClassName}"/>-->
+        <!--<property name="url" value="${db.fab5.url}"/>-->
+        <!--<property name="username" value="${db.fab5.username}"/>-->
+        <!--<property name="password" value="${db.fab5.password}"/>-->
+        <!--<property name="maxActive" value="50"/>-->
+        <!--<property name="maxIdle" value="20" />-->
+    <!--</bean>-->
+    <!--<bean id="fab5SqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">-->
+        <!--<property name="dataSource" ref="fab5DataSource"/>-->
+        <!--<property name="configLocation" value="classpath:/META-INF/spring/mybatis-config.xml"/>-->
+        <!--<property name="mapperLocations" value="classpath:/portal/dao/pdm/**/*.xml"/>-->
+        <!--<property name="databaseIdProvider" ref="databaseIdProvider"/>-->
+    <!--</bean>-->
+    <!--<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer" p:basePackage="com.bistel.a3.portal.dao.pdm"-->
+          <!--p:sqlSessionFactoryBeanName="fab5SqlSessionFactory"/>-->
+    <!--<bean id="fab5TR" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">-->
+        <!--<property name="dataSource" ref="fab5DataSource"/>-->
+    <!--</bean>-->
+    <!--<bean id="fab5" class="org.mybatis.spring.SqlSessionTemplate">-->
+        <!--<constructor-arg index="0" ref="fab5SqlSessionFactory"/>-->
+    <!--</bean>-->
+    <!--&lt;!&ndash; hmc5legacy &ndash;&gt;-->
+    <!--<bean class="org.apache.commons.dbcp.BasicDataSource" id="hmc5legacyDataSource" >-->
+        <!--<property name="driverClassName" value="${db.hmc5legacy.driverClassName}" />-->
+        <!--<property name="url" value="${db.hmc5legacy.url}" />-->
+        <!--<property name="username" value="${db.hmc5legacy.username}" />-->
+        <!--<property name="password" value="${db.hmc5legacy.password}" />-->
+    <!--</bean>-->
+    <!--<bean id="hmc5legacySqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">-->
+        <!--<property name="dataSource" ref="hmc5legacyDataSource" />-->
+        <!--<property name="configLocation" value="classpath:/META-INF/spring/mybatis-config.xml"/>-->
+        <!--<property name="mapperLocations" value="classpath:/portal/dao/pdm/db/**/*.xml" />-->
+    <!--</bean>-->
+    <!--<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer" p:basePackage="com.bistel.a3.portal.dao.pdm" p:sqlSessionFactoryBeanName="hmc5legacySqlSessionFactory" />-->
+    <!--<bean id="hmc5legacyTR" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">-->
+        <!--<property name="dataSource" ref="hmc5legacyDataSource" />-->
+    <!--</bean>-->
+    <!--<bean id="hmc5legacy" class="org.mybatis.spring.SqlSessionTemplate">-->
+        <!--<constructor-arg index="0" ref="hmc5legacySqlSessionFactory" />-->
+    <!--</bean>-->
+
 </beans>

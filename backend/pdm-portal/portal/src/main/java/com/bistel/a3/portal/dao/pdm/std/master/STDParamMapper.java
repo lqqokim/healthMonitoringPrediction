@@ -46,6 +46,9 @@ public interface STDParamMapper {
 
     void deleteSpec(@Param("param_id") Long param_id);
 
+    List<com.bistel.a3.portal.domain.pdm.db.Param> selectParamEqpList();
+
+    List<com.bistel.a3.portal.domain.pdm.db.Param> selectEqpList();
 
     @MapKey("param_id")
     Map<Long, ManualRpm> selectManualRpm();

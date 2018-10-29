@@ -60,6 +60,7 @@ public interface SKFPumpMapper {
 
     //region OverallSpec
     List<OverallSpec> selectOverallSpec();
+    List<OverallSpec> selectEqps();
     void deleteOverallSpec();
     void insertOverallSpec(OverallSpec r);
     OverallSpec selectOverallSpecByPdM(@Param("param_id") Long param_id);
@@ -97,12 +98,16 @@ public interface SKFPumpMapper {
     //endregion
 
     //region OverallMinuteTrx
-    List<OverallMinuteTrx> selectOverallMinuteTrx(@Param("start") Date start, @Param("end") Date end);
+    List<OverallMinuteTrx> selectOverallMinuteTrx(@Param("start") Date start, @Param("end") Date end, @Param("eqpId") Long eqpId);
     void deleteOverallMinuteTrx(@Param("start") Date start, @Param("end") Date end);
     void insertOverallMinuteTrx(OverallMinuteTrx r);
     List<OverallMinuteTrx> selectOverallMinuteTrxByParamId(@Param("paramId") Long paramId, @Param("start") Date start, @Param("end") Date end);
     void deleteOverallMinuteTrxByParamId(@Param("paramId") Long paramId, @Param("start") Date start, @Param("end") Date end);
 
     void updateOverallMinuteTrxByPDM(@Param("param_id") Long param_id, @Param("start") Date start, @Param("end") Date end, @Param("alarm") Double alarm,@Param("warn") Double warn);
+
+    OverallMinuteTrx selectAreaEqpNameByParams(@Param("eqpId") Long eqpId);
+
+
     //endregion
 }

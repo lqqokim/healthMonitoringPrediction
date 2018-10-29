@@ -92,107 +92,72 @@
     
     <select id="selectStatusCountSummary" resultType="com.bistel.a3.portal.domain.pdm.AreaFaultCountSummary"  databaseId="oracle">
 		select
-		area_id, area_name,
-		nvl(sum(decode(status, 'offline', cnt, '')), 0) offline_count,
-		nvl(sum(decode(status, 'normal', cnt, '')), 0) normal_count,
-		nvl(sum(decode(status, 'alarm', cnt, '')), 0) alarm_count,
-		nvl(sum(decode(status, 'warning', cnt, '')), 0) warning_count,
-		sum(cnt) total_count
+		t.area_id,
+		t.root_name as area_name,
+		sum(NVL(DECODE(t.status, 'offline', cnt, ''), 0)) offline_count,
+		sum(NVL(DECODE(t.status, 'normal', cnt, ''), 0)) normal_count,
+		sum(NVL(DECODE(t.status, 'alarm', cnt, ''), 0)) alarm_count,
+		sum(NVL(DECODE(t.status, 'warning', cnt, ''), 0)) warning_count,
+		SUM(t.cnt) total_count
 		from
 		(
-
-		select  b.area_id,b.areagroupname area_name, a.status, count(a.name) cnt from
-		(
-		<!--select e.rawid, e.name, e.offline_yn,-->
-		<!--case when e.offline_yn='Y' then 'offline'-->
-		<!--when a.status_cd = '256' then 'alarm'-->
-		<!--when a.status_cd = '128' then 'warning'-->
-		<!--when a.status_cd is null and e.offline_yn='Y' then 'offline'-->
-		<!--when a.status_cd is null then 'normal'-->
-		<!--end status-->
-		<!--from-->
-		<!--(-->
-		<!--select eqp_mst_rawid, max(status_cd) as status_cd-->
-		<!--from-->
-		<!--(-->
-		<!--select eqp_mst_rawid, status_cd-->
-		<!--from eqp_alarm_daily_sum_pdm-->
-		<!--where sum_dtts <![CDATA[>=]]> #{fromdate}-->
-		<!--and sum_dtts <![CDATA[<]]> #{todate}-->
-		<!--)-->
-		<!--group by eqp_mst_rawid-->
-		<!--) a, eqp_mst_pdm e-->
-		<!--where e.rawid=a.eqp_mst_rawid(+)-->
-
-		select e.rawid, e.name, e.offline_yn, a.max_status, b.data_count,
-		case when e.offline_yn='Y' then 'offline'
-		when a.max_status = '256' then 'alarm'
-		when a.max_status = '128' then 'warning'
-		when a.max_status is null and e.offline_yn='Y' then 'offline'
-		when a.max_status is null and data_count is not null then 'normal'
-		when a.max_status is null and data_count is null then 'offline'
-		end status
+		select
+		area_id, root_name, status, count(name) cnt
 		from
 		(
-		select eqp_mst_rawid, max(status_cd) as max_status
+		select
+		area.area_id, area.parent_rawid, area.root_name, area.full_name, area.lvl, st.name, st.status
 		from
 		(
-		select eqp_mst_rawid, status_cd
-		from eqp_alarm_daily_sum_pdm
-		where sum_dtts <![CDATA[>=]]> #{fromdate}
-		and sum_dtts <![CDATA[<]]> #{todate}
-		)
-		group by eqp_mst_rawid
-		) a,
+		select rawid, name, parent_rawid, level as lvl, connect_by_root name root_name, connect_by_root rawid area_id,
+		sys_connect_by_path(name, '/') full_name
+		from area_mst_pdm
+		start with parent_rawid = 1
+		connect by prior rawid = parent_rawid
+		order siblings by name
+		) area,
 		(
-		select eqp_mst_rawid, count(*) data_count
-		from eqp_health_daily_sum_pdm
-		where sum_dtts <![CDATA[>=]]> #{fromdate}
-		and sum_dtts <![CDATA[<]]> #{todate}
-		group by eqp_mst_rawid
-		) b,
-		eqp_mst_pdm e
-		where e.rawid=b.eqp_mst_rawid(+)
-		and e.rawid=a.eqp_mst_rawid(+)
-
-
-
-		)a,
-		(
-		SELECT areagroupname, area_id, eqp.name, eqp.rawid
-		FROM eqp_mst_pdm eqp,
-		(
-		SELECT *
+		SELECT e.area_mst_rawid, e.name,
+		CASE
+		WHEN e.offline_yn='Y' THEN 'offline'
+		WHEN aa.max_status = '256' THEN 'alarm'
+		WHEN aa.max_status = '128' THEN 'warning'
+		WHEN aa.max_status IS NULL AND e.offline_yn ='Y'
+		THEN 'offline' WHEN aa.max_status IS NULL AND data_count IS NOT NULL THEN 'normal'
+		WHEN aa.max_status IS NULL AND data_count IS NULL THEN 'offline'
+		END status
 		FROM
 		(
-		SELECT name AS areagroupname, rawid AS area_id, LEVEL, name,
-		parent_rawid AS parent_id, CONNECT_BY_ISLEAF AS leaf
-		FROM area_mst_pdm
-		WHERE LEVEL=2 START WITH parent_rawid = 0 CONNECT BY PRIOR rawid = parent_rawid
-		ORDER BY leaf, parent_id
-		)
-		WHERE leaf=1
-		UNION ALL
-		SELECT areagroup.name AS areagroupname, area.rawid AS area_id, LEVEL,
-		area.name, area.parent_rawid AS parent_id, CONNECT_BY_ISLEAF AS leaf
-		FROM area_mst_pdm area,
+		SELECT eqp_mst_rawid, MAX(status_cd) AS max_status
+		FROM
 		(
-		SELECT rawid AS area_id, name, parent_rawid AS parent_id, CONNECT_BY_ISLEAF AS leaf
-		FROM area_mst_pdm
-		WHERE LEVEL=2 START WITH parent_rawid = 0 CONNECT BY PRIOR rawid = parent_rawid
-		ORDER BY leaf, parent_id
-		) areagroup
-		START WITH area.parent_rawid = areagroup.area_id
-		CONNECT BY PRIOR area.rawid = area.parent_rawid
-		) area_info
-		WHERE eqp.area_mst_rawid = area_info.area_id
-		ORDER BY areagroupname DESC
-		) b
-		where a.name=b.name
-		group by b.area_id,b.areagroupname, a.status
+		SELECT eqp_mst_rawid, status_cd
+		FROM eqp_alarm_daily_sum_pdm
+		WHERE sum_dtts <![CDATA[>=]]> #{fromdate}
+		AND sum_dtts    <![CDATA[<]]> #{todate}
+		)
+		GROUP BY eqp_mst_rawid
+		) aa,
+		(
+		SELECT eqp_mst_rawid,
+		COUNT(*) data_count
+		FROM eqp_health_daily_sum_pdm
+		WHERE sum_dtts <![CDATA[>=]]> #{fromdate}
+		AND sum_dtts   <![CDATA[<]]> #{todate}
+		GROUP BY eqp_mst_rawid
+		) bb,
+		eqp_mst_pdm e
+		WHERE e.rawid=bb.eqp_mst_rawid(+)
+		AND e.rawid=aa.eqp_mst_rawid(+)
+		) st
+		where area.rawid=st.area_mst_rawid
+		)
+		group by area_id, root_name, status
+		) t
+		group by t.area_id, t.root_name
 
-		) group by area_id, area_name
-    </select>
+
+	</select>
 
 	<!-- TODO: Chris oracle query에 맞게 수정 -->
     <select id="selectStatusCountSummary" resultType="com.bistel.a3.portal.domain.pdm.AreaFaultCountSummary"  databaseId="postgresql">
@@ -760,12 +725,14 @@
 		from
 		(
 			select emp.rawid as eqp_mst_rawid, emp.name as eqp_name, pmp.rawid as param_mst_rawid, pmp.name as param_name, atp.ALARM_TYPE_CD as category, atp.fault_class, atp.ALARM_DTTS as alarm_dtts, atp.value as value, atp.condition, atp.rule_name
-			from alarm_trx_pdm atp, eqp_mst_pdm emp, param_mst_pdm pmp
+			from alarm_trx_pdm atp, eqp_mst_pdm emp, param_mst_pdm pmp,  param_health_mst_pdm ph
 			where 1=1
 			and atp.alarm_dtts <![CDATA[>=]]> #{fromdate}
 			and atp.alarm_dtts <![CDATA[<]]> #{todate}
 			and atp.PARAM_MST_RAWID=pmp.rawid
 			and pmp.eqp_mst_rawid=emp.rawid
+			and ph.rawid=atp.param_health_mst_rawid
+			and ph.health_logic_mst_rawid=1
 		)
 		) alarmhistory
 		where 1=1
@@ -922,7 +889,8 @@
 		from eqp_mst_pdm eqp,
 		(
 		select * from
-		(SELECT
+		(
+		SELECT
 		name as areagroupname,
 		rawid AS area_id,
 		level,
@@ -986,20 +954,23 @@
 		from
 		(
 		select emp.rawid as eqp_mst_rawid, emp.name as eqp_name, pmp.rawid as param_mst_rawid, pmp.name as param_name, atp.ALARM_TYPE_CD as category, atp.fault_class, atp.ALARM_DTTS as alarm_dtts, atp.value as value, atp.condition, atp.rule_name
-		from alarm_trx_pdm atp, eqp_mst_pdm emp, param_mst_pdm pmp
+		from alarm_trx_pdm atp, eqp_mst_pdm emp, param_mst_pdm pmp, area_mst_pdm area, param_health_mst_pdm ph
 		where 1=1
+		and emp.area_mst_rawid=area.rawid
+		and (area.parent_rawid=#{area_id} or area.rawid=#{area_id})
 		and atp.alarm_dtts <![CDATA[>=]]> #{fromdate}
 		and atp.alarm_dtts <![CDATA[<]]> #{todate}
 		and atp.PARAM_MST_RAWID=pmp.rawid
 		and pmp.eqp_mst_rawid=emp.rawid
+		and ph.rawid=atp.param_health_mst_rawid
+		and ph.health_logic_mst_rawid=1
 		)
 		) alarmhistory
 		where 1=1
 		and alarmhistory.eqp_mst_rawid=areaeqp.eqp_mst_rawid
 		order by alarmhistory.alarm_dtts
 		)
-		where 1=1
-		and area_id= #{area_id}
+		
 
     </select>
     <select id="selectAlarmHistoryByAreaId" resultType="com.bistel.a3.portal.domain.pdm.AlarmHistory" databaseId="postgresql">
@@ -1332,96 +1303,71 @@
 
 
 		select
-		datetime as day,  nvl(sum(decode(status, 'offline', cnt, '')), 0) offline_count, nvl(sum(decode(status, 'normal', cnt, '')), 0) normal_count,
+		datetime as day, nvl(sum(decode(status, 'offline', cnt, '')), 0) offline_count, nvl(sum(decode(status, 'normal', cnt, '')), 0) normal_count,
 		nvl(sum(decode(status, 'alarm', cnt, '')), 0) alarm_count, nvl(sum(decode(status, 'warning', cnt, '')), 0) warning_count,
 		sum(cnt) total_count
 		from
 		(
-		select a.datetime, b.areagroupname area, a.status, count(a.name) cnt from
+		select a.datetime, a.status, count(a.name) cnt from
 		(
-					SELECT e.name, a.datetime, e.offline_yn, CASE WHEN e.offline_yn='Y' THEN 'offline'
-					WHEN a.status_cd = '256' THEN 'alarm'
-					WHEN a.status_cd = '128' THEN 'warning'
-					WHEN a.status_cd IS NULL AND e.offline_yn='Y' THEN 'offline'
-					WHEN a.status_cd IS NULL and data_value <![CDATA[>]]> 0 THEN 'normal'
-					WHEN a.status_cd IS NULL and data_value <![CDATA[<=]]> 0 THEN 'offline'
-					END status
-					FROM
-					(
-					SELECT datetime, eqp_mst_rawid, max(status_cd) AS status_cd, count(datavalue) as data_value
-					FROM
-					(
-					SELECT d1.datetime,
-					d1.eqp_mst_rawid,
-					d2.status_cd,
-					d2.value,
-					d3.value as datavalue
-					FROM
-					(
-					SELECT a.datetime, b.rawid AS eqp_mst_rawid
-					FROM
-					(
-					SELECT TO_CHAR(TO_DATE(#{sFrom}, 'YYYY-MM-DD')+LEVEL-1, 'YYYY-MM-DD') AS datetime
-					FROM DUAL CONNECT BY LEVEL <![CDATA[<=]]> (TO_DATE(#{sTo}, 'YYYY-MM-DD')-TO_DATE(#{sFrom}, 'YYYY-MM-DD')+1)
-					) a,
-					eqp_mst_pdm b
-					) d1,
-					(
-					SELECT eqp_mst_rawid, status_cd, value, to_char(sum_dtts,'YYYY-MM-DD') AS datetime
-					FROM eqp_alarm_daily_sum_pdm
-					WHERE sum_dtts <![CDATA[>=]]> #{fromdate} and sum_dtts <![CDATA[<]]> #{todate}
-					) d2,
-					(
-					SELECT eqp_mst_rawid, score value, to_char(sum_dtts,'YYYY-MM-DD') AS datetime
-					FROM eqp_health_daily_sum_pdm
-					WHERE sum_dtts <![CDATA[>=]]> #{fromdate} and sum_dtts <![CDATA[<]]> #{todate}
-					) d3
-					WHERE 1=1
-					AND d1.datetime=d2.datetime(+)
-					AND d1.eqp_mst_rawid=d2.eqp_mst_rawid(+)
-					AND d1.datetime=d3.datetime(+)
-					AND d1.eqp_mst_rawid=d3.eqp_mst_rawid(+)
-					order by d1.datetime, d1.eqp_mst_rawid
-					)
-					GROUP BY datetime, eqp_mst_rawid
-					) a, eqp_mst_pdm e
-					WHERE e.rawid=a.eqp_mst_rawid(+)
-		)a,
-
-		(
-		SELECT areagroupname, area_id, eqp.name, eqp.rawid
-		FROM eqp_mst_pdm eqp,
-		(
-		SELECT *
+		SELECT name, datetime, offline_yn,
+		CASE
+		WHEN offline_yn='Y' THEN 'offline'
+		WHEN status_cd = '256' THEN 'alarm'
+		WHEN status_cd = '128' THEN 'warning'
+		WHEN status_cd IS NULL AND offline_yn ='Y' THEN 'offline'
+		WHEN status_cd IS NULL AND datavalue IS NOT NULL THEN 'normal'
+		WHEN status_cd IS NULL AND datavalue IS NULL THEN 'offline'
+		END status, area_mst_rawid
 		FROM
 		(
-		SELECT name AS areagroupname, rawid AS area_id, LEVEL, name,
-		parent_rawid AS parent_id, CONNECT_BY_ISLEAF AS leaf
-		FROM area_mst_pdm
-		WHERE LEVEL=2 START WITH parent_rawid = 0 CONNECT BY PRIOR rawid = parent_rawid
-		ORDER BY leaf, parent_id
-		)
-		WHERE leaf=1
-		UNION ALL
-		SELECT areagroup.name AS areagroupname, area.rawid AS area_id, LEVEL,
-		area.name, area.parent_rawid AS parent_id, CONNECT_BY_ISLEAF AS leaf
-		FROM area_mst_pdm area,
+		SELECT d1.datetime, d1.area_mst_rawid, d1.eqp_mst_rawid, d2.status_cd, d3.value as datavalue, d1.name, d1.offline_yn
+		FROM
 		(
-		SELECT rawid AS area_id, name, parent_rawid AS parent_id, CONNECT_BY_ISLEAF AS leaf
-		FROM area_mst_pdm
-		WHERE LEVEL=2 START WITH parent_rawid = 0 CONNECT BY PRIOR rawid = parent_rawid
-		ORDER BY leaf, parent_id
-		) areagroup
-		START WITH area.parent_rawid = areagroup.area_id
-		CONNECT BY PRIOR area.rawid = area.parent_rawid
-		) area_info
-		WHERE eqp.area_mst_rawid = area_info.area_id
-		ORDER BY areagroupname DESC
+		SELECT a.datetime, b.rawid AS eqp_mst_rawid, b.area_mst_rawid, b.name, b.offline_yn
+		FROM
+		(
+		SELECT TO_CHAR(TO_DATE(#{sFrom}, 'YYYY-MM-DD')+LEVEL-1, 'YYYY-MM-DD') AS datetime
+		FROM DUAL CONNECT BY LEVEL <![CDATA[<=]]> (TO_DATE(#{sTo}, 'YYYY-MM-DD')-TO_DATE(#{sFrom}, 'YYYY-MM-DD')+1)
+		) a,
+		eqp_mst_pdm b
+		) d1,
+		(
+		select eqp_mst_rawid, MAX(status_cd) status_cd, datetime
+		FROM (
+		SELECT eqp_mst_rawid, status_cd, value, to_char(sum_dtts,'YYYY-MM-DD') AS datetime
+		FROM eqp_alarm_daily_sum_pdm
+		WHERE sum_dtts <![CDATA[>=]]> #{fromdate} and sum_dtts <![CDATA[<]]> #{todate}
+		) group by datetime, eqp_mst_rawid
+		) d2,
+		(
+		select eqp_mst_rawid, count(*) value, datetime
+		FROM
+		(
+			SELECT eqp_mst_rawid, to_char(sum_dtts,'YYYY-MM-DD') AS datetime
+			FROM eqp_health_daily_sum_pdm
+			WHERE sum_dtts <![CDATA[>=]]> #{fromdate} and sum_dtts <![CDATA[<]]> #{todate}
+		) group by datetime, eqp_mst_rawid
+		) d3
+		WHERE 1=1
+		AND d1.datetime=d2.datetime(+)
+		AND d1.datetime=d3.datetime(+)
+		AND d1.eqp_mst_rawid=d2.eqp_mst_rawid(+)
+		AND d1.eqp_mst_rawid=d3.eqp_mst_rawid(+)
+		) u
+		)a,
+		(
+			select rawid, name, parent_rawid, level as lvl, connect_by_root name root_name, connect_by_root rawid area_id,
+			sys_connect_by_path(name, '/') full_name
+			from area_mst_pdm
+			start with parent_rawid = 1
+			connect by prior rawid = parent_rawid
+			order siblings by name
 		) b
-		where a.name=b.name
-		group by a.datetime, a.status, b.areagroupname
-		) group by datetime
-
+		where b.rawid=a.area_mst_rawid
+		group by a.datetime, a.status
+		)
+		group by datetime
 
 	</select>
 	<select id="selectLineStatusTrend" resultType="com.bistel.a3.portal.domain.pdm.AreaFaultCountSummary" databaseId="postgresql">
@@ -1539,91 +1485,67 @@
 		sum(cnt) total_count
 		from
 		(
-		select a.datetime, b.areagroupname area, a.status, count(a.name) cnt from
+		select a.datetime, a.status, count(a.name) cnt from
 		(
-
-				SELECT e.name, a.datetime, e.offline_yn, CASE WHEN e.offline_yn='Y' THEN 'offline'
-				WHEN a.status_cd = '256' THEN 'alarm'
-				WHEN a.status_cd = '128' THEN 'warning'
-				WHEN a.status_cd IS NULL AND e.offline_yn='Y' THEN 'offline'
-				WHEN a.status_cd IS NULL and data_value <![CDATA[>]]> 0 THEN 'normal'
-				WHEN a.status_cd IS NULL and data_value <![CDATA[<=]]> 0 THEN 'offline'
-				END status
-				FROM
-				(
-				SELECT datetime, eqp_mst_rawid, max(status_cd) AS status_cd, count(datavalue) as data_value
-				FROM
-				(
-				SELECT d1.datetime,
-				d1.eqp_mst_rawid,
-				d2.status_cd,
-				d2.value,
-				d3.value as datavalue
-				FROM
-				(
-				SELECT a.datetime, b.rawid AS eqp_mst_rawid
-				FROM
-				(
-				SELECT TO_CHAR(TO_DATE(#{sFrom}, 'YYYY-MM-DD')+LEVEL-1, 'YYYY-MM-DD') AS datetime
-				FROM DUAL CONNECT BY LEVEL <![CDATA[<=]]> (TO_DATE(#{sTo}, 'YYYY-MM-DD')-TO_DATE(#{sFrom}, 'YYYY-MM-DD')+1)
-				) a,
-				eqp_mst_pdm b
-				) d1,
-				(
-				SELECT eqp_mst_rawid, status_cd, value, to_char(sum_dtts,'YYYY-MM-DD') AS datetime
-				FROM eqp_alarm_daily_sum_pdm
-				WHERE sum_dtts <![CDATA[>=]]> #{fromdate} and sum_dtts <![CDATA[<]]> #{todate}
-				) d2,
-				(
-				SELECT eqp_mst_rawid, score value, to_char(sum_dtts,'YYYY-MM-DD') AS datetime
-				FROM eqp_health_daily_sum_pdm
-				WHERE sum_dtts <![CDATA[>=]]> #{fromdate} and sum_dtts <![CDATA[<]]> #{todate}
-				) d3
-				WHERE 1=1
-				AND d1.datetime=d2.datetime(+)
-				AND d1.eqp_mst_rawid=d2.eqp_mst_rawid(+)
-				AND d1.datetime=d3.datetime(+)
-				AND d1.eqp_mst_rawid=d3.eqp_mst_rawid(+)
-				order by d1.datetime, d1.eqp_mst_rawid
-				)
-				GROUP BY datetime, eqp_mst_rawid
-				) a, eqp_mst_pdm e
-				WHERE e.rawid=a.eqp_mst_rawid(+)
-		)a,
-		(
-		SELECT areagroupname, area_id, eqp.name, eqp.rawid
-		FROM eqp_mst_pdm eqp,
-		(
-		SELECT *
+		SELECT name, datetime, offline_yn,
+		CASE
+		WHEN offline_yn='Y' THEN 'offline'
+		WHEN status_cd = '256' THEN 'alarm'
+		WHEN status_cd = '128' THEN 'warning'
+		WHEN status_cd IS NULL AND offline_yn ='Y' THEN 'offline'
+		WHEN status_cd IS NULL AND datavalue IS NOT NULL THEN 'normal'
+		WHEN status_cd IS NULL AND datavalue IS NULL THEN 'offline'
+		END status, area_mst_rawid
 		FROM
 		(
-		SELECT name AS areagroupname, rawid AS area_id, LEVEL, name,
-		parent_rawid AS parent_id, CONNECT_BY_ISLEAF AS leaf
-		FROM area_mst_pdm
-		WHERE LEVEL=2 START WITH parent_rawid = 0 CONNECT BY PRIOR rawid = parent_rawid
-		ORDER BY leaf, parent_id
-		)
-		WHERE leaf=1
-		UNION ALL
-		SELECT areagroup.name AS areagroupname, area.rawid AS area_id, LEVEL,
-		area.name, area.parent_rawid AS parent_id, CONNECT_BY_ISLEAF AS leaf
-		FROM area_mst_pdm area,
+		SELECT d1.datetime, d1.area_mst_rawid, d1.eqp_mst_rawid, d2.status_cd, d3.value as datavalue, d1.name, d1.offline_yn
+		FROM
 		(
-		SELECT rawid AS area_id, name, parent_rawid AS parent_id, CONNECT_BY_ISLEAF AS leaf
-		FROM area_mst_pdm
-		WHERE LEVEL=2 START WITH parent_rawid = 0 CONNECT BY PRIOR rawid = parent_rawid
-		ORDER BY leaf, parent_id
-		) areagroup
-		START WITH area.parent_rawid = areagroup.area_id
-		CONNECT BY PRIOR area.rawid = area.parent_rawid
-		) area_info
-		WHERE eqp.area_mst_rawid = area_info.area_id
-		and eqp.area_mst_rawid=#{area_id}
-		ORDER BY areagroupname DESC
+		SELECT a.datetime, b.rawid AS eqp_mst_rawid, b.area_mst_rawid, b.name, b.offline_yn
+		FROM
+		(
+		SELECT TO_CHAR(TO_DATE(#{sFrom}, 'YYYY-MM-DD')+LEVEL-1, 'YYYY-MM-DD') AS datetime
+		FROM DUAL CONNECT BY LEVEL <![CDATA[<=]]> (TO_DATE(#{sTo}, 'YYYY-MM-DD')-TO_DATE('2018-10-01', 'YYYY-MM-DD')+1)
+		) a,
+		eqp_mst_pdm b
+		) d1,
+		(
+		select eqp_mst_rawid, MAX(status_cd) status_cd, datetime
+		FROM (
+		SELECT eqp_mst_rawid, status_cd, value, to_char(sum_dtts,'YYYY-MM-DD') AS datetime
+		FROM eqp_alarm_daily_sum_pdm
+		WHERE sum_dtts <![CDATA[>=]]> #{fromdate} and sum_dtts <![CDATA[<]]> #{todate}
+		) group by datetime, eqp_mst_rawid
+		) d2,
+		(
+		select eqp_mst_rawid, count(*) value, datetime
+		FROM
+		(
+		SELECT eqp_mst_rawid, to_char(sum_dtts,'YYYY-MM-DD') AS datetime
+		FROM eqp_health_daily_sum_pdm
+		WHERE sum_dtts <![CDATA[>=]]> #{fromdate} and sum_dtts <![CDATA[<]]> #{todate}
+		) group by datetime, eqp_mst_rawid
+		) d3
+		WHERE 1=1
+		AND d1.datetime=d2.datetime(+)
+		AND d1.datetime=d3.datetime(+)
+		AND d1.eqp_mst_rawid=d2.eqp_mst_rawid(+)
+		AND d1.eqp_mst_rawid=d3.eqp_mst_rawid(+)
+		) u
+		)a,
+		(
+		select rawid, name, parent_rawid, level as lvl, connect_by_root name root_name, connect_by_root rawid area_id,
+		sys_connect_by_path(name, '/') full_name
+		from area_mst_pdm
+		start with parent_rawid = 1
+		connect by prior rawid = parent_rawid
+		order siblings by name
 		) b
-		where a.name=b.name
-		group by a.datetime, a.status, b.areagroupname
-		) group by datetime
+		where b.rawid=a.area_mst_rawid
+		and (b.parent_rawid=#{area_id} or b.rawid=#{area_id})
+		group by a.datetime, a.status
+		)
+		group by datetime
 	</select>
     <select id="selectLineStatusTrendByAreaId" resultType="com.bistel.a3.portal.domain.pdm.AreaFaultCountSummary" databaseId="postgresql">
 		select total.groupdate as day, total.total_count, alarm.alarm_count, warning.warning_count, offlines.offline_count , total.total_count-(alarm.alarm_count+warning.warning_count+offlines.offline_count) as normal_count
@@ -1738,7 +1660,9 @@
     <select id="selectWorstEquipmentList" resultType="com.bistel.a3.portal.domain.pdm.WorstEquipmentList" databaseId="oracle">
 
 
-
+select *
+		from
+		(
 		select distinct eqpstatus.eqp_id, eqpstatus.eqp_name, score.score
 		from
 		(
@@ -1746,7 +1670,7 @@
 		case when start_cd is null and end_cd = 'S' then 'IDLE'
 		when start_cd is null and end_cd = 'E' then 'RUN'
 		when start_cd is not null and end_cd is null then 'NODATA'
-		when start_cd is not null and diff_sec > 600 then 'NODATA'
+		when start_cd is not null and diff_sec > 18450 then 'NODATA'
 		when start_cd is not null and start_cd = 'S' then 'RUN'
 		when start_cd is not null and start_cd = 'E' then 'IDLE'
 		end status, start_dtts, end_dtts
@@ -1805,7 +1729,9 @@
 		) score
 		where 1=1
 		and eqpstatus.eqp_id=score.eqp_id
-		order by eqpstatus.eqp_id
+		order by score desc
+		)
+		where rownum<![CDATA[<=]]> #{limit}
 
 
     </select>
@@ -1983,6 +1909,9 @@
     <select id="selectWorstEquipmentListByAreaId"  resultType="com.bistel.a3.portal.domain.pdm.WorstEquipmentList" databaseId="oracle">
 
 
+		select *
+		from
+		(
 		select distinct eqpstatus.eqp_id, eqpstatus.eqp_name, score.score
 		from
 		(
@@ -2018,6 +1947,7 @@
 		<if test="eqp_id != null">
 			and e.rawid = #{eqp_id}
 		</if>
+
 		and v.process_yn='Y'
 		and t.event_dtts between TO_TIMESTAMP(#{start_dtts} , 'YYYY-MM-DD HH24:MI:SS')
 		and TO_TIMESTAMP(#{end_dtts} , 'YYYY-MM-DD HH24:MI:SS') + 0.01
@@ -2025,10 +1955,10 @@
 		select rawid as eqp_id, name as eqp_name, 'start', '' as typ, event_dtts from eqp_mst_pdm a,
 		(select TO_TIMESTAMP( #{start_dtts} , 'YYYY-MM-DD HH24:MI:SS') as event_dtts from dual) b
 		where 1=1
-
 		<if test="eqp_id != null">
 			and a.rawid = #{eqp_id}
 		</if>
+
 		order by eqp_name, event_dtts
 		)
 		) where start_dtts <![CDATA[<]]> TO_TIMESTAMP(#{end_dtts}, 'YYYY-MM-DD HH24:MI:SS') and
@@ -2037,11 +1967,12 @@
 		) eqpstatus,
 		(
 		select e.rawid as eqp_id, e.name as eqp_name, max(h.score) as score
-		from eqp_mst_pdm e, param_mst_pdm p, param_health_trx_pdm h
-		where e.rawid = p.eqp_mst_rawid
+		from eqp_mst_pdm e, param_mst_pdm p, param_health_trx_pdm h, area_mst_pdm a
+		where e.area_mst_rawid=a.rawid
+		and e.rawid = p.eqp_mst_rawid
 		and p.rawid = h.param_mst_rawid
 		and e.offline_yn='N'
-		and e.area_mst_rawid=#{area_id}
+		and (a.parent_rawid=#{area_id} or e.area_mst_rawid=#{area_id})
 		and h.create_dtts between TO_TIMESTAMP(#{start_dtts} , 'YYYY-MM-DD HH24:MI:SS')
 		and TO_TIMESTAMP(#{end_dtts} , 'YYYY-MM-DD HH24:MI:SS')
 		group by e.rawid, e.name
@@ -2049,8 +1980,9 @@
 		) score
 		where 1=1
 		and eqpstatus.eqp_id=score.eqp_id
-		order by eqpstatus.eqp_id
-
+		order by score desc
+		)
+		where rownum<![CDATA[<=]]> #{limit}
 
     </select>
     <select id="selectWorstEquipmentListByAreaId"  resultType="com.bistel.a3.portal.domain.pdm.WorstEquipmentList" databaseId="postgresql">
@@ -2170,11 +2102,12 @@
 		) eqpstatus,
 		(
 		select e.rawid as eqp_id, e.name as eqp_name, max(h.score) as score
-		from eqp_mst_pdm e, param_mst_pdm p, param_health_trx_pdm h
+		from eqp_mst_pdm e, param_mst_pdm p, param_health_trx_pdm h, area_mst_pdm a
 		where e.rawid = p.eqp_mst_rawid
+		and e.area_mst_rawid=a.rawid
 		and p.rawid = h.param_mst_rawid
 		and e.offline_yn='N'
-		and e.area_mst_rawid=#{area_id}
+		and (a.parent_rawid=#{area_id} or e.area_mst_rawid=#{area_id})
 		and h.create_dtts between TO_TIMESTAMP(#{start_dtts} , 'YYYY-MM-DD HH24:MI:SS')
 		and TO_TIMESTAMP(#{end_dtts} , 'YYYY-MM-DD HH24:MI:SS')
 		group by e.rawid, e.name
@@ -2903,7 +2836,7 @@
 		AND to_timestamp(#{todate}, 'YYYY-MM-DD HH24:MI:SS.FF')
 		GROUP BY p.eqp_mst_rawid, p.rawid, h.rawid, p.name
 		) b
-		WHERE a.eqp_mst_rawid=b.eqp_mst_rawid and a.rawid=b.rawid
+		WHERE a.eqp_mst_rawid=b.eqp_mst_rawid and a.rawid=b.rawid and a.sigma <![CDATA[<>]]> 0
 		) k,
 		(
 		SELECT p.eqp_mst_rawid, p.rawid, h.rawid param_health_mst_rawid, p.name
@@ -2941,7 +2874,7 @@
 
     <insert id="insertEqpAlarmDailySum" databaseId="oracle">
         insert into eqp_alarm_daily_sum_pdm
-        select seq_eqp_alarm_daily_sum_pdm.nextval, eqp_mst_rawid, status_cd, value, #{fromdate} as sum_dtts, 'SYSTEM' as create_by, systimestamp as create_dtts
+        select seq_eqp_alarm_daily_sum_pdm.nextval, eqp_mst_rawid, status_cd, value, #{fromdate} as sum_dtts, 'SYSTEM' as create_by, systimestamp as create_dtts, null as alarm_type_cd
         from
         (
 			select eqp_mst_rawid, max(alarm_type_cd) as status_cd , max(param_score)as value
@@ -3203,7 +3136,7 @@
 
 	<insert id="insertParamHealthRULTRX">
 		insert into param_health_rul_trx_pdm(rawid, param_health_mst_rawid, intercept, slope, xvalue, create_dtts)
-		values(seq_param_health_rul_trx_pdm.nextval, #{param_health_mst_rawid}, #{intercept,jdbcType=NUMERIC}, #{slope,jdbcType=NUMERIC}, #{xvalue,jdbcType=NUMERIC}, #{create_dtts} )
+		values(seq_param_health_rul_trx_pdm.nextval, #{param_health_mst_rawid}, #{intercept,jdbcType=FLOAT}, #{slope,jdbcType=FLOAT}, #{xvalue,jdbcType=FLOAT}, #{create_dtts} )
 
 	</insert>
 

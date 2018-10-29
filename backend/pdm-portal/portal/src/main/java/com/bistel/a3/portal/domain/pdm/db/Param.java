@@ -13,7 +13,8 @@ public class Param {
     private String eqp_name;
 
     @JsonProperty("paramType")
-    private Long param_type;
+    //private Long param_type;
+	private String param_type;
 
     @JsonProperty("paramName")
     private String name;
@@ -134,13 +135,22 @@ public class Param {
         this.param_id = param_id;
     }
 
-    public Long getParam_type() {
+    //public Long getParam_type() {
+    //    return param_type;
+    //}
+	//
+    //public void setParam_type(Long param_type) {
+    //    this.param_type = param_type;
+    //}
+
+	public String getParam_type() {
         return param_type;
     }
 
-    public void setParam_type(Long param_type) {
+    public void setParam_type(String param_type) {
         this.param_type = param_type;
     }
+
 
     public Long getEqp_id() {
         return eqp_id;

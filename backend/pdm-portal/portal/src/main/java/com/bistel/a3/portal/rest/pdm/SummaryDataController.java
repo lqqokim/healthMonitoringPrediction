@@ -231,8 +231,9 @@ public class SummaryDataController {
         Long areaId=null;
         Date from = new Date(fromdate);
         Date to = new Date(todate);
+		Integer limit=5;
 
-        return summaryDataService.worstEquipmentList(fabId,areaId,null, from, to);
+        return summaryDataService.worstEquipmentList(fabId,areaId,null, from, to, limit);
     }
 
     @RequestMapping("/areas/{areaId}/worstEquipmentListByAreaId")
@@ -243,8 +244,9 @@ public class SummaryDataController {
 
         Date from = new Date(fromdate);
         Date to = new Date(todate);
+        Integer limit=5;
 
-        return summaryDataService.worstEquipmentList(fabId,areaId,null, from, to);
+        return summaryDataService.worstEquipmentList(fabId,areaId,null, from, to, limit);
     }
 
     @RequestMapping("/eqps/{eqpId}/worstEquipmentInfo")
@@ -256,8 +258,9 @@ public class SummaryDataController {
         Long areaId=null;
         Date from = new Date(fromdate);
         Date to = new Date(todate);
+		Integer limit=5;
 //
-        return summaryDataService.worstEquipmentList(fabId,areaId,eqpId, from, to);
+        return summaryDataService.worstEquipmentList(fabId,areaId,eqpId, from, to, limit);
     }
 
 
@@ -340,7 +343,7 @@ public class SummaryDataController {
                                       @RequestParam("fromdate") Long fromdate,
                                       @RequestParam("todate") Long todate) throws ParseException {
 
-        // Variation(3번) Logic에서는  Trend를 보기위해 2번 로직을 사용한다.
+        // Variation
         Long lHealthLogic=2L;
 
         Date fromDate = new Date(fromdate);
@@ -378,7 +381,7 @@ public class SummaryDataController {
         Date previous=DateUtils.addDays(from, -7);
         Date lPrevious=new Date(previous.getTime());
 
-        //RUL(4번) Logic에서는  param health index를 저장하지 않는다. Trend를 보기위해 2번 로직을 사용한다.
+        //RUL
         Long lHealthLogic=2L;
 
         List<List<Object>> eqpHealthFeatureData= summaryDataService.getSummaryDataForHealth(fabId, paramId, lHealthLogic ,lPrevious, to);

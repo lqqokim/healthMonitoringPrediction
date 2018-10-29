@@ -61,6 +61,7 @@ public class ParamHealthTrxDao implements HealthDataDao {
                 int batchCount = 0;
 
                 for(ParamHealthData health : records){
+
                     pstmt.setLong(1, health.getRawId());
                     pstmt.setLong(2, health.getParamRawId()); //param_mst_rawid
                     pstmt.setLong(3, health.getParamHealthRawId()); //param_health_rawid

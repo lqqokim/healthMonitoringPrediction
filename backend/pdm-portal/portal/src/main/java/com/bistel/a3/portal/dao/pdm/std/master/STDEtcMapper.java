@@ -35,6 +35,10 @@ public interface STDEtcMapper {
 
     void deleteParamHealthMstPdmByRawId(@Param("param_health_mst_rawid") Long param_health_mst_rawid);
 
+    void deleteParamHealthMstAll();
+
+    void deleteParamHealthOptMstAll();
+
     void insertParamHealth( @Param("param_mst_rawid") Long param_mst_rawid ,@Param("health_logic_mst_rawid") Long health_logic_mst_rawid, @Param("apply_logic_yn") String apply_logic_yn, @Param("userName") String userName);
 
     void insertParamHealthOptionTotal(@Param("param_health_mst_rawid") Long param_health_mst_rawid

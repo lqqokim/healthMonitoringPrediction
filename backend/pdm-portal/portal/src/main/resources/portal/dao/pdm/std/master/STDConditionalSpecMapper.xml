@@ -144,6 +144,11 @@
         where rawid= #{rawid}
     </delete>
 
+    <delete id="deleteModelParamSpecAll" databaseId="oracle">
+        delete
+        from model_param_spec_mst_pdm
+    </delete>
+
     <delete id="deleteModelParamSpecOne" databaseId="oracle">
         delete
         from model_param_spec_mst_pdm
@@ -155,6 +160,11 @@
         delete
         from conditional_spec_mst_pdm
         where rawid=#{rule_id}
+    </delete>
+
+    <delete id="deleteConditionalSpecAll" databaseId="oracle">
+        delete
+        from conditional_spec_mst_pdm
     </delete>
 
 
@@ -203,6 +213,11 @@
         from eqp_spec_link_mst_pdm
         where eqp_mst_rawid= #{eqp_id}
         and conditional_spec_mst_rawid =#{rule_id}
+    </delete>
+
+    <delete id="deleteEqpSpecLinkAll" databaseId="oracle">
+        delete
+        from eqp_spec_link_mst_pdm
     </delete>
 
     <select id="selectParamSpecByeqpIdAndRule" resultType="com.bistel.a3.portal.domain.pdm.std.master.STDConditionalSpec">

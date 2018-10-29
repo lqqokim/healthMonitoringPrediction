@@ -2,7 +2,27 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.bistel.a3.portal.dao.pdm.ulsan.master.ParamMapper">
     <select id="selectByEqpId" resultType="com.bistel.a3.portal.domain.pdm.db.Param">
-        select * from param_pdm where eqp_id = #{eqpId}
+        <!--select * from param_mst_pdm where eqp_mst_rawid = #{eqpId}-->
+
+        select
+        a.rawid as param_id,
+        e.rawid as eqp_id, e.name as eqp_name,
+        a.name,
+        a.description,
+        (select name from code_mst_pdm where code=a.param_type_cd and category='param_type' and used_yn='Y') as param_type_name,
+        (select name from code_mst_pdm where code=a.unit_cd and category='unit_type' and used_yn='Y') as unit_name,
+
+        a.param_type_cd
+        ,a.unit_cd
+        ,a.parts_mst_rawid as parts_id
+        ,parts.name as parts_name
+
+        ,parse_index
+        from param_mst_pdm a
+        join eqp_mst_pdm e on a.eqp_mst_rawid = e.rawid
+        left join parts_mst_pdm parts on parts.rawid = a.parts_mst_rawid
+        where a.eqp_mst_rawid = #{eqpId}
+        order by a.name
     </select>
     <select id="selectList" resultType="com.bistel.a3.portal.domain.pdm.master.ParamWithCommonWithRpm">
         select

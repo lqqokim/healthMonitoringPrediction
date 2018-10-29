@@ -92,7 +92,7 @@
 
     <update id="updateEqpTimeout" databaseId="oracle">
         update eqp_event_mst_pdm
-        set timeout = #{timeout}
+        set timeout = #{timeout, jdbcType=NUMERIC}
         where eqp_mst_rawid = #{eqpId}
     </update>
 

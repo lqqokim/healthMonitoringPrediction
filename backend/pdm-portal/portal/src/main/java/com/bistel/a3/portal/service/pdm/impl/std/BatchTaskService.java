@@ -33,6 +33,7 @@ import com.bistel.a3.portal.domain.common.Code;
 import com.bistel.a3.portal.domain.pdm.BatchJobHst;
 import com.bistel.a3.portal.domain.pdm.CauseAnalysisResult;
 import com.bistel.a3.portal.domain.pdm.ParamRULSummary;
+import com.bistel.a3.portal.domain.pdm.db.*;
 import com.bistel.a3.portal.domain.pdm.db.Feature;
 import com.bistel.a3.portal.domain.pdm.db.HealthDaily;
 import com.bistel.a3.portal.domain.pdm.db.HealthModel;
@@ -44,6 +45,8 @@ import com.bistel.a3.portal.enums.JOB;
 import com.bistel.a3.portal.enums.JOB_STATUS;
 import com.bistel.a3.portal.enums.JOB_TYPE;
 import com.bistel.a3.portal.module.pdm.FabsComponent;
+import com.bistel.a3.portal.module.pdm.IDataPumperComponent;
+import com.bistel.a3.portal.service.pdm.*;
 import com.bistel.a3.portal.service.pdm.IBatchTaskService;
 import com.bistel.a3.portal.service.pdm.IHealthService;
 import com.bistel.a3.portal.service.pdm.IPDMCodeService;
@@ -52,6 +55,38 @@ import com.bistel.a3.portal.service.pdm.ITraceDataService;
 import com.bistel.a3.portal.service.pdm.ITraceRawDataService;
 import com.bistel.a3.portal.util.SqlSessionUtil;
 import com.bistel.a3.portal.util.TransactionUtil;
+import org.apache.commons.lang3.time.DateUtils;
+import org.apache.commons.lang3.time.FastDateFormat;
+import org.apache.commons.math3.stat.StatUtils;
+import org.apache.commons.math3.stat.regression.SimpleRegression;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.Producer;
+import org.mybatis.spring.SqlSessionTemplate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.BeanFactoryAnnotationUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+
+import javax.annotation.PostConstruct;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Service
 @ConditionalOnExpression("${run.standard}")
@@ -88,22 +123,22 @@ public class BatchTaskService implements IBatchTaskService {
     @Value("${rms.summary.period}")
     private int rmsSummaryPeriod;
 
-//    private Map<String, IDataPumperComponent> pumperMap;
+    private Map<String, IDataPumperComponent> pumperMap;
 
     private static FastDateFormat ffM = FastDateFormat.getDateInstance(DateFormat.DEFAULT);
     private static FastDateFormat ffL = FastDateFormat.getDateInstance(DateFormat.LONG);
 
-//    @PostConstruct
-//    public void init() {
-//        pumperMap = new HashMap<>();
-//        pumperMap.put("SKF", BeanFactoryAnnotationUtils.qualifiedBeanOfType(factory, IDataPumperComponent.class, "SKFDataPumperComponent"));
-//        pumperMap.put("STD", BeanFactoryAnnotationUtils.qualifiedBeanOfType(factory, IDataPumperComponent.class, "STDDataPumperComponent"));
-//    }
+    @PostConstruct
+    public void init() {
+        pumperMap = new HashMap<>();
+        pumperMap.put("SKF", BeanFactoryAnnotationUtils.qualifiedBeanOfType(factory, IDataPumperComponent.class, "SKFDataPumperComponent"));
+        pumperMap.put("STD", BeanFactoryAnnotationUtils.qualifiedBeanOfType(factory, IDataPumperComponent.class, "STDDataPumperComponent"));
+    }
 
     @Override
     public void createPartition(Date from, int count, Set<String> fabs, JOB_TYPE jobStart) {
-        for(String fab : fabs) {
-            logger.info("START {} createPartition .. {}, {} ", fab, ffM.format(from) , count);
+        for (String fab : fabs) {
+            logger.info("START {} createPartition .. {}, {} ", fab, ffM.format(from), count);
             saveJobHst(fab, from, JOB.createpartition, null, JOB_STATUS.start, jobStart, fab);
             reportService.createPartiton(fab, from, count);
             logger.info("END   {} createPartition .. ", fab);
@@ -237,35 +272,76 @@ public class BatchTaskService implements IBatchTaskService {
 
     @Override
     public void dataPumpBase(Set<String> fabs, Date date, JOB_TYPE jobType, String userId) throws NoSuchMethodException {
-//        for(String fab : fabs) {
-//            long start = System.currentTimeMillis();
-//            logger.info("START {} dataPumpBase .. ", fab);
-//            saveJobHst(fab, date, JOB.datapumpbase, null, JOB_STATUS.start, jobType, userId);
-//
-//            pumperMap.get("SKF").dataPumpBase(fab, fabsComponent.getLegacy(fab));
-//            logger.info("END   {} dataPumpBase .. {}ms", fab, System.currentTimeMillis() - start);
-//            saveJobHst(fab, date, JOB.datapumpbase, null, JOB_STATUS.done, jobType, userId);
-//        }
+        for (String fab : fabs) {
+            long start = System.currentTimeMillis();
+            logger.info("START {} dataPumpBase .. ", fab);
+            saveJobHst(fab, date, JOB.datapumpbase, null, JOB_STATUS.start, jobType, userId);
+            logger.info("END   {} dataPumpBase .. {}ms", fab, System.currentTimeMillis() - start);
+
+            String url = "";
+            if (fab.equals("fab1")) {
+                url = "http://10.59.180.61:28000/pdm/api/master/latest/reload";
+            } else if (fab.equals("fab2")) {
+                url = "http://10.59.180.61:28001/pdm/api/master/latest/reload";
+            } else if (fab.equals("fab3")) {
+                url = "http://10.59.180.61:28002/pdm/api/master/latest/reload";
+            } else if (fab.equals("fab4")) {
+                url = "http://10.59.180.61:28003/pdm/api/master/latest/reload";
+            } else if (fab.equals("fab5")) {
+                url = "http://10.59.180.61:28004/pdm/api/master/latest/reload";
+            }
+            pumperMap.get("SKF").dataPumpBase(fab, fabsComponent.getLegacy(fab), url);
+            saveJobHst(fab, date, JOB.datapumpbase, null, JOB_STATUS.done, jobType, userId);
+        }
     }
 
+    ExecutorService executorService = Executors.newFixedThreadPool(4);
 
     @Override
-    public void dataPump(Date from, Date to, Set<String> fabs, JOB_TYPE jobType, String userId) throws NoSuchMethodException {
-//        for(String fab : fabs) {
-//            long start = System.currentTimeMillis();
-//            logger.info("START {} dataPump .. [{} ~ {})", fab, ffL.format(from) , ffL.format(to));
-//            saveJobHst(fab, from, JOB.datapump, null, JOB_STATUS.start, jobType, userId);
-//
-//            List<Eqp> eqps = reportService.getEqps(fab);
-//            int iCount = 1;
-//            Date startDate = new Date();
-//            for(Eqp eqp: eqps) {
-//                pumperMap.get(eqp.getData_type()).dataPump(fab, fabsComponent.getLegacy(fab), from, to, eqp.getEqp_id());
-//                iCount = printProgress(fab,eqps.size(),iCount,startDate,"DataPump");
-//            }
-//            logger.info("END   {} dataPump .. [{} ~ {}), {}ms", fab, ffL.format(from) , ffL.format(to), System.currentTimeMillis() - start);
-//            saveJobHst(fab, from, JOB.datapump, null, JOB_STATUS.done, jobType, userId);
-//        }
+    public void dataPump(final Date from, final Date to, Set<String> fabs, JOB_TYPE jobType, String userId) throws NoSuchMethodException {
+
+        //fab2
+        String fab = "fab2";
+        List<Eqp> eqps = reportService.getEqps(fab);
+        logger.debug("fab:{}, eqp size:{}", fab, eqps.size());
+        String propertyFileName = fab + "-producer.properties";
+        String legacy = fabsComponent.getLegacy(fab);
+
+        Properties prop = new Properties();
+        ClassLoader classLoader = getClass().getClassLoader();
+        File f1 = new File(classLoader.getResource(String.format("./config/%s", propertyFileName)).getFile());
+        try (InputStream confStream = new FileInputStream(f1)) {
+            prop.load(confStream);
+            logger.debug("loaded config file : {}", ""); //"configPath"
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        }
+
+        int idx = 1;
+        for (Eqp eqp : eqps) {
+            try {
+                long start = System.currentTimeMillis();
+                logger.info("START {} dataPump .. [{} ~ {})", fab, ffL.format(from), ffL.format(to));
+                //saveJobHst(fab, from, JOB.datapump, null, JOB_STATUS.start, jobType, userId);
+
+                final Producer<String, byte[]> producer = new KafkaProducer<>(prop);
+                pumperMap.get(eqp.getData_type_cd()).dataPump(fab, fabsComponent.getLegacy(fab), from, to, eqp.getEqp_id(), producer);
+
+                logger.info("processing... {}/{}", idx++, eqps.size());
+                producer.close();
+
+                logger.info("END   {} dataPump .. [{} ~ {}), {}ms", fab, ffL.format(from), ffL.format(to), System.currentTimeMillis() - start);
+                //saveJobHst(fab, from, JOB.datapump, null, JOB_STATUS.done, jobType, userId);
+
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
+            }
+        }
+
+
+
+
+   
     }
     @Override
     public void alarmUpdate(Date from, Date to, Set<String> fabs, JOB_TYPE jobType, String userId) throws NoSuchMethodException {
@@ -306,16 +382,16 @@ public class BatchTaskService implements IBatchTaskService {
             int percentage = (int)((double) iCount/totalCount*100);
             logger.info("Processing {} ... Fab:{} {}/{} {}% Estimate=>{}:{}:{} Total=>{}:{}:{}",jobName,fab,iCount++,totalCount,percentage,diffHours,diffMinutes,diffSeconds,diffTotalHours,diffTotalMinutes,diffTotalSeconds);
         }catch(Exception err){
-
+			logger.error(err.getMessage(), err);
         }
         return iCount;
 
     }
 
     @Override
-    public void summaryData(String userName,Date from, Date to, Set<String> fabs, Set<Long> passEqpIds, JOB_TYPE jobType, String userId) throws InterruptedException, ExecutionException, ParseException, IOException {
-        for(String fab : fabs) {
-            logger.info("START {} create health .. [{} ~ {}), eqpIds:{}", fab, ffM.format(from) , ffM.format(to), passEqpIds);
+    public void summaryData(String userName, Date from, Date to, Set<String> fabs, Set<Long> passEqpIds, JOB_TYPE jobType, String userId) throws InterruptedException, ExecutionException, ParseException, IOException {
+        for (String fab : fabs) {
+            logger.info("START {} create health .. [{} ~ {}), eqpIds:{}", fab, ffM.format(from), ffM.format(to), passEqpIds);
             saveJobHst(fab, from, JOB.summarydata, passEqpIds.isEmpty() ? null : passEqpIds, JOB_STATUS.start, jobType, userId);
 //            createHealthByFab(from, to, fab, eqpIds);
 //            createStatByFab(from, to, fab, eqpIds);
@@ -323,36 +399,36 @@ public class BatchTaskService implements IBatchTaskService {
             Date overallSummarySpecDate = DateUtils.addDays(from, -1 * rmsSummaryPeriod);
 //            fabService.caculateAvg90(fab, overallSummarySpecDate, from, eqpIds);
             Set<Long> eqpIds = passEqpIds;
-            if(passEqpIds.isEmpty()) {
+            if (passEqpIds.isEmpty()) {
                 eqpIds = reportService.getEqps(fab).stream().mapToLong(x -> x.getEqp_id()).boxed().collect(Collectors.toSet());
             }
+
             int iCount = 1;
             Date startDate = new Date();
-            for(Long eqp: eqpIds) {
-                reportService.calculateSummary(userName,fab, overallSummarySpecDate, from, to, eqp);
-                iCount = printProgress(fab,eqpIds.size(),iCount,startDate,"calculateSummary");
-
+            for (Long eqp : eqpIds) {
+                reportService.calculateSummary(userName, fab, overallSummarySpecDate, from, to, eqp);
+                iCount = printProgress(fab, eqpIds.size(), iCount, startDate, "calculateSummary");
             }
 
-            logger.info("END   {} create health .. [{} ~ {})", fab, ffM.format(from) , ffM.format(to));
+            logger.info("END   {} create health .. [{} ~ {})", fab, ffM.format(from), ffM.format(to));
             saveJobHst(fab, from, JOB.summarydata, eqpIds.isEmpty() ? null : eqpIds, JOB_STATUS.done, jobType, userId);
         }
     }
+
     @Override
-    public void summaryRealTimeData(String userName,Date from, Date to, Set<String> fabs, Set<Long> passEqpIds, JOB_TYPE jobType, String userId) throws InterruptedException, ExecutionException, ParseException, IOException {
-        //Realtime은 alarm만 Summary 함.
-        for(String fab : fabs) {
-            logger.info("START {} create summaryRealTimeData.. [{} ~ {}), eqpIds:{}", fab, ffM.format(from) , ffM.format(to), passEqpIds);
+    public void summaryRealTimeData(String userName, Date from, Date to, Set<String> fabs, Set<Long> passEqpIds, JOB_TYPE jobType, String userId) throws InterruptedException, ExecutionException, ParseException, IOException {
+        //Realtime
+        for (String fab : fabs) {
+            logger.info("START {} create summaryRealTimeData.. [{} ~ {}), eqpIds:{}", fab, ffM.format(from), ffM.format(to), passEqpIds);
             saveJobHst(fab, from, JOB.summaryRealTimeData, passEqpIds.isEmpty() ? null : passEqpIds, JOB_STATUS.start, jobType, userId);
 
             Date rmsSummaryFromDate = DateUtils.addDays(from, -1 * rmsSummaryPeriod);
 
             Set<Long> eqpIds = passEqpIds;
-            if(passEqpIds.isEmpty()) {
-                //Alarm 장비만 가져와서 Summary 진행
+            if (passEqpIds.isEmpty()) {
+                //Alarm
 //                eqpIds = reportService.getEqps(fab).stream().mapToLong(x -> x.getEqp_id()).boxed().collect(Collectors.toSet());
-                eqpIds = reportService.selectExpectedAlarmWarningEqps(fab,from,to);
-
+                eqpIds = reportService.selectExpectedAlarmWarningEqps(fab, from, to);
             }
             int iCount = 1;
             Date startDate = new Date();
@@ -663,14 +739,15 @@ public class BatchTaskService implements IBatchTaskService {
                     score=0.0;
                 }
 
-                STDParamHealth stdParamHealth=stdSummaryMapper.selectEqpIdandParamHealthMSTRawId(rawid);
-                Long eqpId=stdParamHealth.getEqp_mst_rawid();
-                Long paramHealthMstRawId=stdParamHealth.getParam_health_mst_rawid();
+                STDParamHealth stdParamHealth = stdSummaryMapper.selectEqpIdandParamHealthMSTRawId(rawid);
+                Long eqpId = stdParamHealth.getEqp_mst_rawid();
+                Long paramHealthMstRawId = stdParamHealth.getParam_health_mst_rawid();
 
-                stdSummaryMapper.insertParamHealthRULTRX(paramHealthMstRawId, intercept, slope, xValue, from);
+                if (!(intercept.isNaN() || slope.isNaN() )) {
+                    stdSummaryMapper.insertParamHealthRULTRX(paramHealthMstRawId, intercept, slope, xValue, from);
 
-                stdSummaryMapper.insertSummaryHealthRUL(eqpId,paramHealthMstRawId, score, from);
-
+                    stdSummaryMapper.insertSummaryHealthRUL(eqpId, paramHealthMstRawId, score, from);
+                }
             }
 
 

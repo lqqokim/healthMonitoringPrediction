@@ -37,6 +37,7 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.*;
+import java.util.concurrent.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -76,14 +77,14 @@ public class BatchTaskService implements IBatchTaskService {
     @Value("${rms.summary.period}")
     private int rmsSummaryPeriod;
 
-    private Map<String, IDataPumperComponent> pumperMap;
+    private final Map<String, IDataPumperComponent> pumperMap = new HashMap<>();
 
     private static FastDateFormat ffM = FastDateFormat.getDateInstance(DateFormat.DEFAULT);
     private static FastDateFormat ffL = FastDateFormat.getDateInstance(DateFormat.LONG);
 
     @PostConstruct
     public void init() {
-        pumperMap = new HashMap<>();
+        
         pumperMap.put("SKF", BeanFactoryAnnotationUtils.qualifiedBeanOfType(factory, IDataPumperComponent.class, "SKFDataPumperComponent"));
         pumperMap.put("STD", BeanFactoryAnnotationUtils.qualifiedBeanOfType(factory, IDataPumperComponent.class, "STDDataPumperComponent"));
     }
@@ -236,25 +237,60 @@ public class BatchTaskService implements IBatchTaskService {
         }
     }
 
+//    ExecutorService executorService = Executors.newFixedThreadPool(10);
+    ExecutorService executorService =
+            new ThreadPoolExecutor(4, 100, 0L, TimeUnit.MILLISECONDS,
+                    new LinkedBlockingQueue<Runnable>());
 
     @Override
     public void dataPump(Date from, Date to, Set<String> fabs, JOB_TYPE jobType, String userId) throws NoSuchMethodException {
-        for(String fab : fabs) {
-            long start = System.currentTimeMillis();
-            logger.info("START {} dataPump .. [{} ~ {})", fab, ffL.format(from) , ffL.format(to));
-            saveJobHst(fab, from, JOB.datapump, null, JOB_STATUS.start, jobType, userId);
-
-            List<Eqp> eqps = reportService.getEqps(fab);
-            int iCount = 1;
-            Date startDate = new Date();
-            for(Eqp eqp: eqps) {
-                pumperMap.get(eqp.getData_type()).dataPump(fab, fabsComponent.getLegacy(fab), from, to, eqp.getEqp_id());
-                iCount = printProgress(fab,eqps.size(),iCount,startDate,"DataPump");
-            }
-            logger.info("END   {} dataPump .. [{} ~ {}), {}ms", fab, ffL.format(from) , ffL.format(to), System.currentTimeMillis() - start);
-            saveJobHst(fab, from, JOB.datapump, null, JOB_STATUS.done, jobType, userId);
-        }
+//        for (String fab : fabs) {
+////            long start = System.currentTimeMillis();
+////            logger.info("START {} dataPump .. [{} ~ {})", fab, ffL.format(from), ffL.format(to));
+////            saveJobHst(fab, from, JOB.datapump, null, JOB_STATUS.start, jobType, userId);
+//
+//            List<Eqp> eqps = reportService.getEqps(fab);
+////            int iCount = 1;
+////            Date startDate = new Date();
+////            for (Eqp eqp : eqps) {
+////                pumperMap.get(eqp.getData_type()).dataPump(fab, fabsComponent.getLegacy(fab), from, to, eqp.getEqp_id());
+////                iCount = printProgress(fab, eqps.size(), iCount, startDate, "DataPump");
+////            }
+//
+//            for(Eqp eqp : eqps){
+//                Runnable runnableTask = () -> {
+//                    try {
+//                        long start = System.currentTimeMillis();
+//                        logger.info("START {} dataPump .. [{} ~ {})", fab, ffL.format(from), ffL.format(to));
+//                        saveJobHst(fab, from, JOB.datapump, null, JOB_STATUS.start, jobType, userId);
+//
+//                        pumperMap.get(eqp.getData_type()).dataPump(fab, fabsComponent.getLegacy(fab), from, to, eqp.getEqp_id());
+//
+//                        logger.info("END   {} dataPump .. [{} ~ {}), {}ms", fab, ffL.format(from), ffL.format(to), System.currentTimeMillis() - start);
+//                        saveJobHst(fab, from, JOB.datapump, null, JOB_STATUS.done, jobType, userId);
+//
+//                    } catch (Exception e) {
+//                        e.printStackTrace();
+//                    }
+//                };
+//
+//                executorService.execute(runnableTask);
+//            }
+//
+////            logger.info("END   {} dataPump .. [{} ~ {}), {}ms", fab, ffL.format(from), ffL.format(to), System.currentTimeMillis() - start);
+////            saveJobHst(fab, from, JOB.datapump, null, JOB_STATUS.done, jobType, userId);
+//        }
+//
+//        executorService.shutdown();
+//        try {
+//            if (!executorService.awaitTermination(12, TimeUnit.HOURS)) {
+//                executorService.shutdownNow();
+//            }
+//        } catch (InterruptedException e) {
+//            executorService.shutdownNow();
+//        }
     }
+
     @Override
     public void alarmUpdate(Date from, Date to, Set<String> fabs, JOB_TYPE jobType, String userId) throws NoSuchMethodException {
         for(String fab : fabs) {

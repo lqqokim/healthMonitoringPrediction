@@ -141,15 +141,15 @@ public class SummaryDataService implements ISummaryDataService {
 
         STDSummaryMapper stdSummaryMapper= SqlSessionUtil.getMapper(sessions, fabId, STDSummaryMapper.class);
 
-        if(areaId==null && eqpId == null)//전체
+        if(areaId==null && eqpId == null)//
         {
             return stdSummaryMapper.selectAlarmHistoryAll(fromdate, todate);
         }
-        else if(areaId!=null && eqpId==null)//Area기준
+        else if(areaId!=null && eqpId==null)//Area
         {
             return stdSummaryMapper.selectAlarmHistoryByAreaId(fromdate, todate, areaId);
         }
-        else if(eqpId!=null)//eqp기준
+        else if(eqpId!=null)//eqp
         {
             return stdSummaryMapper.selectAlarmHistoryByEqpId(fromdate, todate, null, eqpId);
         }
@@ -202,7 +202,7 @@ public class SummaryDataService implements ISummaryDataService {
     }
 
     @Override
-    public List<WorstEquipmentList> worstEquipmentList(String fabId, Long areaId,Long eqpId, Date fromdate, Date todate) {
+    public List<WorstEquipmentList> worstEquipmentList(String fabId, Long areaId,Long eqpId, Date fromdate, Date todate, Integer limit) {
 
         STDSummaryMapper stdSummaryMapper= SqlSessionUtil.getMapper(sessions, fabId, STDSummaryMapper.class);
 
@@ -213,7 +213,7 @@ public class SummaryDataService implements ISummaryDataService {
 
         if (areaId==null)
         {
-            List<WorstEquipmentList> worstEquipmentLists = stdSummaryMapper.selectWorstEquipmentList(start_dtts,end_dtts,eqpId);
+            List<WorstEquipmentList> worstEquipmentLists = stdSummaryMapper.selectWorstEquipmentList(start_dtts,end_dtts,eqpId, limit);
             ArrayList<WorstEqupmentListChartData> worstEqupmentListChartData=stdSummaryMapper.selectWorstEqupmentListChartData(start_dtts,end_dtts, eqpId);
 
 
@@ -243,7 +243,7 @@ public class SummaryDataService implements ISummaryDataService {
         else
         {
 
-            List<WorstEquipmentList> worstEquipmentLists = stdSummaryMapper.selectWorstEquipmentListByAreaId(start_dtts,end_dtts,areaId,eqpId);
+            List<WorstEquipmentList> worstEquipmentLists = stdSummaryMapper.selectWorstEquipmentListByAreaId(start_dtts,end_dtts,areaId,eqpId,limit);
             ArrayList<WorstEqupmentListChartData> worstEqupmentListChartData=stdSummaryMapper.selectWorstEqupmentListChartDataByAreaId(start_dtts,end_dtts,areaId,eqpId);
 
             WorstEqupmentListChartData worstEqupmentListChartData1=null;
@@ -302,14 +302,14 @@ public class SummaryDataService implements ISummaryDataService {
                             params.put(eqpHealthIndex.getParam_id(),eqpHealthIndices);
                         }
 
-                    }else{//Logic 없음
+                    }else{//Logic
                         HashMap<Long,List<EqpHealthIndex>> params = new HashMap<>();
                         List<EqpHealthIndex> eqpHealthIndices = new ArrayList<>();
                         eqpHealthIndices.add(eqpHealthIndex);
                         params.put(eqpHealthIndex.getParam_id(),eqpHealthIndices);
                         logicParam.put(eqpHealthIndex.getHealth_logic_id(),params);
                     }
-                }else{ //eqp 없음
+                }else{ //eqp
 
                     HashMap<Long,List<EqpHealthIndex>> params = new HashMap<>();
                     List<EqpHealthIndex> eqpHealthIndices = new ArrayList<>();
@@ -510,7 +510,7 @@ public class SummaryDataService implements ISummaryDataService {
         }
         else
         {
-        	// 현재 사용하지 않음.
+        	//
             return stdSummaryMapper.selectEqpHealthIndexByAreaId(fromdate, todate, areaId);
         }
 
@@ -555,7 +555,7 @@ public class SummaryDataService implements ISummaryDataService {
 //        STDParamMapper stdParamMapper= SqlSessionUtil.getMapper(sessions, fabId, STDParamMapper.class);
         EqpHealthRUL eqpHealthRULData=stdSummaryMapper.selectRUL(from,to,paramId);
 
-        //Allen trace_spec_mst_pdm제거작업(2018-08-24)
+        //Allen trace_spec_mst_pdm
 //        Spec spec =stdParamMapper.selectSpec(paramId);
 
 
@@ -567,10 +567,10 @@ public class SummaryDataService implements ISummaryDataService {
         Long xValue=eqpHealthRULData.getxValue();
         Double yValue=intercept+(slope*xValue);
 
-        //Allen trace_spec_mst_pdm제거작업(2018-08-24)
+        //Allen trace_spec_mst_pdm
         //yValue = yValue/spec.getAlarm();
 
-        if (slope<0) //기울기가 음수일 경우  모두 null
+        if (slope<0) //
         {
             slope=null;
             xValue=null;
@@ -603,14 +603,14 @@ public class SummaryDataService implements ISummaryDataService {
     }
 
     @Override
-    public Long eqpHealthIndexGetWorstParam(String fabId, Long eqpId, Date from, Date to) { //장비에서 가장 상태가 않좋은 Param_id return
+    public Long eqpHealthIndexGetWorstParam(String fabId, Long eqpId, Date from, Date to) { //
 
         STDReportMapper mapper = SqlSessionUtil.getMapper(sessions, fabId, STDReportMapper.class);
 
         Double globalWarn=globalAWSpec.getNormalized_upper_warning_spec();
         List<ParamClassificationData> paramList = mapper.selectRadar(eqpId, from, to, globalWarn);
 
-        //avg_with_aw기준으로 paramList정렬 --> 가장 큰값(Worst)을 찾기위해서
+
         Collections.sort(paramList, new Comparator<ParamClassificationData>() {
             @Override
             public int compare(ParamClassificationData o1, ParamClassificationData o2) {
@@ -639,7 +639,7 @@ public class SummaryDataService implements ISummaryDataService {
         EqpHealthSPC eqpHealthSPC=new EqpHealthSPC();
         eqpHealthSPC.setEqpHealthTrendData(eqpHealthTrendData);
 
-//하드코딩~~~~
+//
 //        List<List<Object>> specPeriodList=new ArrayList<>();
 //
 //        SPCPeriod spcPeriod1=new SPCPeriod();
@@ -675,7 +675,7 @@ public class SummaryDataService implements ISummaryDataService {
 //        specPeriodList.add(Arrays.asList(spcPeriod1.getStart_dtts().getTime(), spcPeriod1.getEnd_dtts().getTime()));
 //        specPeriodList.add(Arrays.asList(spcPeriod2.getStart_dtts().getTime(), spcPeriod2.getEnd_dtts().getTime()));
 //        eqpHealthSPC.setScpPeriod(specPeriodList);
-//하드코딩~~~~~~~
+//
         return eqpHealthSPC;
     }
 

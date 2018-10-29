@@ -28,11 +28,16 @@ public class HMCSchedulerService {
 
     private static FastDateFormat ff = FastDateFormat.getDateInstance(DateFormat.DEFAULT);
 
-    @Scheduled(cron="${schedule.datapumpbase}")
-    public void datepumpBase() throws NoSuchMethodException {
-        Date date = DateUtils.truncate(new Date(), Calendar.DATE);
-        logger.info("START scheduled datepump base {}", ff.format(date));
-        batchTaskService.dataPumpBase(fabsComponent.scheduleFabs(), date, JOB_TYPE.SCHEDULER, "SCHEDULER");
-        logger.info("END   scheduled datepump base {}", ff.format(date));
+//    @Scheduled(cron="${schedule.datapumpbase}")
+//    public void datepumpBase() throws NoSuchMethodException {
+//        Date date = DateUtils.truncate(new Date(), Calendar.DATE);
+//        logger.info("START scheduled datepump base {}", ff.format(date));
+//        batchTaskService.dataPumpBase(fabsComponent.scheduleFabs(), date, JOB_TYPE.SCHEDULER, "SCHEDULER");
+//        logger.info("END   scheduled datepump base {}", ff.format(date));
+//    }
+
+
+
+
     }
-}
+

@@ -470,15 +470,15 @@ public class ReportService implements IReportService {
     }
 
 
-    public List<EqpStatusData> getGoodFiveEqps(String fabId, Date from, Date to) {
+    public List<EqpStatusData> getGoodFiveEqps(String fabId, Date from, Date to, Double threshold) {
         STDReportMapper mapper = SqlSessionUtil.getMapper(sessions, fabId, STDReportMapper.class);
-        return mapper.selectGoodFiveEqps(from, to);
+        return mapper.selectGoodFiveEqps(from, to, threshold);
     }
 
 
-    public List<EqpStatusData> getBadFiveEqps(String fabId, Date from, Date to) {
+    public List<EqpStatusData> getBadFiveEqps(String fabId, Date from, Date to, Double threshold) {
         STDReportMapper mapper = SqlSessionUtil.getMapper(sessions, fabId, STDReportMapper.class);
-        return mapper.selectBadFiveEqps(from, to);
+        return mapper.selectBadFiveEqps(from, to, threshold);
     }
 
     @Override
@@ -694,8 +694,10 @@ public class ReportService implements IReportService {
     public List<List<Object>> getHealthIndexTrend(String fabId, Long paramId, Long fromdate, Long todate) {
         STDReportMapper mapper = SqlSessionUtil.getMapper(sessions, fabId, STDReportMapper.class);
 
+		Date from=new Date(fromdate);
+        Date to=new Date(todate);
 
-        List<BasicData> datas = mapper.selectHealthIndexTrend(paramId,new Date(fromdate),new Date(todate));
+        List<BasicData> datas = mapper.selectHealthIndexTrend(paramId,from ,to);
         return changeList(datas);
     }
     private List<List<Object>> changeList(List<BasicData> data) {
@@ -793,7 +795,7 @@ public class ReportService implements IReportService {
     public List<ParamWithCommon> getParamWtihTypeByEqp(String fabId, Long eqpId) {
         STDParamMapper mapper = SqlSessionUtil.getMapper(sessions, fabId, STDParamMapper.class);
 
-        //Allen trace_spec_mst_pdm제거작업(2018-08-24)
+        //Allen trace_spec_mst_pdm
         Double globalWarn=globalAWSpec.getNormalized_upper_warning_spec();
 
         List<ParamWithCommon> paramWithCommonList=mapper.selectParamWtihInfoByEqp(eqpId);
@@ -809,7 +811,7 @@ public class ReportService implements IReportService {
 
     public ParamWithCommon getParamWithComm(String fabId, Long paramId) {
 
-//Allen trace_spec_mst_pdm제거작업(2018-08-24)
+//Allen trace_spec_mst_pdm
         STDParamMapper mapper = SqlSessionUtil.getMapper(sessions, fabId, STDParamMapper.class);
 
         Double globalWarn=globalAWSpec.getNormalized_upper_warning_spec();
@@ -843,7 +845,7 @@ public class ReportService implements IReportService {
         STDParamMapper mapper = SqlSessionUtil.getMapper(sessions, fabId, STDParamMapper.class);
 
 
-        //Allen trace_spec_mst_pdm제거작업(2018-08-24)
+        //Allen trace_spec_mst_pdm?
         Double upperWarn=globalAWSpec.getNormalized_upper_warning_spec();
         Spec spec=new Spec();
         spec.setAlarm(1.0);
@@ -861,7 +863,7 @@ public class ReportService implements IReportService {
         STDAlarmTrxMapper alarmTrxMapper = SqlSessionUtil.getMapper(sessions, fabId, STDAlarmTrxMapper.class);
         List<ParamWithCommon> params = paramMapper.selectParamWtihInfoByEqp(eqpId);
 
-        //Allen trace_spec_mst_pdm제거작업(2018-08-24)
+        //Allen trace_spec_mst_pdm?
         Double globalWarn=globalAWSpec.getNormalized_upper_warning_spec();
 
         for (int i = 0; i < params.size(); i++) {
@@ -906,7 +908,7 @@ public class ReportService implements IReportService {
         STDParamMapper paramMapper = SqlSessionUtil.getMapper(sessions, fabId, STDParamMapper.class);
         STDReportMapper reportMapper = SqlSessionUtil.getMapper(sessions, fabId, STDReportMapper.class);
 
-        //Allen trace_spec_mst_pdm제거작업(2018-08-24)
+        //Allen trace_spec_mst_pdm
         Double globalWarn=globalAWSpec.getNormalized_upper_warning_spec();
 
         List<ParamWithCommon> params = paramMapper.selectParamWtihInfoByEqp(eqpId);
@@ -934,7 +936,7 @@ public class ReportService implements IReportService {
 
     public OverallSpec getOverallSpec(String fabId, Long paramId) {
 
-        //Allen trace_spec_mst_pdm제거작업(2018-08-24)
+        //Allen trace_spec_mst_pdm
 //        STDParamMapper paramMapper= SqlSessionUtil.getMapper(sessions, fabId, STDParamMapper.class);
 //        return paramMapper.selectTraceDataSpec(paramId);
         return null;
@@ -1174,7 +1176,7 @@ public class ReportService implements IReportService {
             if(tmpOverValues.size() >= rmsOverCount) {
                 overValues.addAll(tmpOverValues);
                 overTimes.addAll(tmpOverTimes);
-            }else if(tmpOverValues.size() == targetData.size() ){ //총 Data가 overallOverCount이하인 경우 모두가 Alarm이나 Warning이면 반영 해 줌
+            }else if(tmpOverValues.size() == targetData.size() ){ //
                 overValues.addAll(tmpOverValues);
                 overTimes.addAll(tmpOverTimes);
             }

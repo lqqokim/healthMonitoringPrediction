@@ -43,9 +43,9 @@ public interface IReportService {
 
     List<EqpStatusData> getAlarmWarningEqps(String fabId, Date from, Date to);
 
-    List<EqpStatusData> getGoodFiveEqps(String fabId, Date from, Date to);
+    List<EqpStatusData> getGoodFiveEqps(String fabId, Date from, Date to, Double threshold);
 
-    List<EqpStatusData> getBadFiveEqps(String fabId, Date from, Date to);
+    List<EqpStatusData> getBadFiveEqps(String fabId, Date from, Date to, Double threshold);
 
     List<ParamClassificationData> getParamClassifications(String fabId, Long eqpId, Date from, Date to);
 
