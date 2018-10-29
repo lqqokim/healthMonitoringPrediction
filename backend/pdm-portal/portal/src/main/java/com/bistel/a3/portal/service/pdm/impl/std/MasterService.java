@@ -661,43 +661,6 @@ public class MasterService implements IMasterService {
 
         List<STDConditionalSpec> conditionsList=conditionalSpecMapper.selectConditionsByModel(model);
 
-//        STDConditionalSpec conditionalSpec=new STDConditionalSpec();
-
-//        JSONParser jsonParser=null;
-//
-//        String condition=null;
-//        for(int i=0; i<conditionsList.size(); i++){
-//            condition=conditionsList.get(i).getCondition();
-//            condition="{\"condition\":[{\"param_name\":\"ADP Speed\", \"operand\":\">=\", \"param_value\":50},{\"param_name\":\"Roots1 W\", \"operand\":\">\", \"param_value\":1000}]}";
-//            condition="[{param_name:\"ADP Speed\", operand:\">=\", param_value:50},{param_name:\"Roots1 W\", operand:\">\", param_value:1000}]";
-
-//            condition="{\"param_name\":\"ADP Speed\", \"operand\":\">=\", \"param_value\":50},{\"param_name\":\"Roots1 W\", \"operand\":\">\", \"param_value\":1000}";
-//            String[] conditionArray=condition.split("}");
-//
-//            jsonParser=new JSONParser();
-//            try {
-//                JSONObject jsonObject=(JSONObject) jsonParser.parse(condition);
-//
-//                conditionsList.get(i).setConditionsJSON(jsonObject);
-//            } catch (net.bitnine.agensgraph.deps.org.json.simple.parser.ParseException e) {
-//                e.printStackTrace();
-//            }
-//            System.out.println("Hi");
-//        }
-
-//        String expression=null;
-//        String expressionValue=null;
-//        for(int i=0; i<conditionsList.size(); i++){
-//            expression=conditionsList.get(i).getExpression();
-//            expressionValue=conditionsList.get(i).getExpression_value();
-//            String[] expressionValueArray=expressionValue.split(",");
-//            int expressionArguSize=expressionValueArray.length;
-//
-//            for (int j = 0; j < expressionArguSize; j++) {
-//                int idx=expression.indexOf("p"+i);
-//            }
-//
-//        }
 
         String expressionValue="";
         String[] expression_values=null;

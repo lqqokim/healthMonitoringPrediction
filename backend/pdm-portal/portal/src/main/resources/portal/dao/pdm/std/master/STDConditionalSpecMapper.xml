@@ -25,15 +25,7 @@
 
     </select>
 
-    <!--<select id="selectParamSpec" resultType="com.bistel.a3.portal.domain.pdm.std.master.STDConditionalSpec">-->
-        <!--select  p.rawid param_id ,m.rawid model_param_spec_mst_rawid, param_name, upper_alarm_spec, upper_warning_spec-->
-        <!--from model_param_spec_mst_pdm m, conditional_spec_mst_pdm c, EQP_SPEC_LINK_MST_PDM l, param_mst_pdm p-->
-        <!--where c.rawid=m.conditional_spec_mst_rawid-->
-        <!--and c.rawid=l.conditional_spec_mst_rawid-->
-        <!--and l.eqp_mst_rawid=p.eqp_mst_rawid-->
-        <!--and c.model_name=#{model}-->
-        <!--and c.condition_name=#{rule}-->
-    <!--</select>-->
+
 
     <select id="selectModelNameByRuleName" resultType="String">
         select model_name
@@ -48,6 +40,8 @@
     </select>
 
     <select id="selectParamSpec" resultType="com.bistel.a3.portal.domain.pdm.std.master.STDConditionalSpec">
+
+        <![CDATA[
         select b.model_param_spec_mst_rawid, a.param_name, b.upper_alarm_spec, b.upper_warning_spec
         from
         (
@@ -69,7 +63,7 @@
             and c.rawid=#{rule_id}
         )b
         where a.param_name = b.param_name(+)
-
+        ]]>
     </select>
 
     <select id="selectParamListByModelName" resultType="com.bistel.a3.portal.domain.pdm.std.master.STDConditionalSpec">

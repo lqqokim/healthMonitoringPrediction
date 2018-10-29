@@ -1661,10 +1661,7 @@
 
 
     <select id="selectWorstEquipmentList" resultType="com.bistel.a3.portal.domain.pdm.WorstEquipmentList" databaseId="oracle">
-
-
-
-select *
+		select *
 		from
 		(
 		select distinct eqpstatus.eqp_id, eqpstatus.eqp_name, score.score

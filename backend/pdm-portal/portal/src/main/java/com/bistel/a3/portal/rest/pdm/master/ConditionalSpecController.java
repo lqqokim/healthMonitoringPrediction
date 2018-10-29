@@ -34,7 +34,7 @@ public class ConditionalSpecController {
         return service.getModels(fabId);
     }
     //3
-    @RequestMapping(value="models/{model}",method = RequestMethod.GET)
+    @RequestMapping(value="models/{model:.+}",method = RequestMethod.GET)
     public Object getConditionsByModel(@PathVariable String fabId, @PathVariable String model) {
         return service.getConditionsByModel(fabId, model);
     }
