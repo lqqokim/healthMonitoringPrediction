@@ -31,8 +31,6 @@ public class FaultDetectionProcessor extends AbstractProcessor<String, String> {
         // input : time, param_rawid, value, alarm_spec, warning_spec, fault_class, rulename, condition
         String[] columns = record.split(SEPARATOR, -1);
 
-        log.debug("[{}] - fault detecting...", key);
-
         try {
             Long paramRawId = Long.parseLong(columns[1]);
             Double paramValue = Double.parseDouble(columns[2]);
@@ -42,6 +40,8 @@ public class FaultDetectionProcessor extends AbstractProcessor<String, String> {
             // fault detection
             ParameterHealthMaster fd01Health = getParamHealth(key, paramRawId, "FD_OOS");
             if (fd01Health != null && fd01Health.getApplyLogicYN().equalsIgnoreCase("Y")) {
+
+                log.debug("[{}] - id:{} value:{}, alarm:{}, warning:{}", paramRawId, paramValue, alarmSpec, warningSpec);
 
                 if (evaluateAlarm(alarmSpec, paramValue)) {
                     // Alarm
@@ -62,7 +62,7 @@ public class FaultDetectionProcessor extends AbstractProcessor<String, String> {
                             columns[7];
 
                     context().forward(key, faultMsg.getBytes(), To.child(NEXT_OUT_STREAM_NODE));
-                    log.debug("[{}] - individual fault(alarm) occurred.", key);
+                    log.info("[{}] - individual fault(alarm) occurred.", key);
 
                 } else if (evaluateWarning(warningSpec, paramValue)) {
                     //warning
@@ -83,10 +83,10 @@ public class FaultDetectionProcessor extends AbstractProcessor<String, String> {
                             columns[7];
 
                     context().forward(key, faultMsg.getBytes(), To.child(NEXT_OUT_STREAM_NODE));
-                    log.debug("[{}] - individual fault(warning) occurred.", key);
+                    log.info("[{}] - individual fault(warning) occurred.", key);
                 }
             } else {
-                log.debug("[{}] - No health information registered.", key);
+                log.info("[{}] - No health information registered.", key);
             }
 
         } catch (Exception e) {

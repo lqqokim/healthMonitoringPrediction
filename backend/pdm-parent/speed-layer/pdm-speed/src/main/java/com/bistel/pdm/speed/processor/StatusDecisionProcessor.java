@@ -15,6 +15,7 @@ public class StatusDecisionProcessor extends AbstractProcessor<String, String> {
     private static final Logger log = LoggerFactory.getLogger(StatusDecisionProcessor.class);
     private final static String SEPARATOR = ",";
     private final static String NEXT_STREAM_NODE = "EventProcessor";
+
     @Override
     @SuppressWarnings("unchecked")
     public void init(ProcessorContext processorContext) {
@@ -30,7 +31,8 @@ public class StatusDecisionProcessor extends AbstractProcessor<String, String> {
 
         try {
             eventInfo = MasterCache.IntervalEvent.get(key);
-            if (eventInfo != null && eventInfo.getFirst() != null && eventInfo.getFirst().getParamParseIndex() != null) {
+            if (eventInfo != null && eventInfo.getFirst() != null
+                    && eventInfo.getFirst().getParamParseIndex() != null) {
 
                 String strValue = columns[eventInfo.getFirst().getParamParseIndex()];
                 if (strValue.length() > 0) {
@@ -45,8 +47,7 @@ public class StatusDecisionProcessor extends AbstractProcessor<String, String> {
             String nextMessage = record + "," + nowStatusCode;
             context().forward(key, nextMessage, To.child(NEXT_STREAM_NODE));
 
-            log.debug("[{}] - status:{}, partition:{}, offset:{}", key, nowStatusCode,
-                    context().partition(), context().offset());
+            log.debug("[{}] - status:{}", key, nowStatusCode);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }

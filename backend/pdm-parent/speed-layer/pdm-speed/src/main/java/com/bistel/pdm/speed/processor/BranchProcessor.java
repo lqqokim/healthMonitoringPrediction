@@ -1,6 +1,8 @@
 package com.bistel.pdm.speed.processor;
 
+import com.bistel.pdm.common.collection.Pair;
 import com.bistel.pdm.data.stream.ConditionalSpecMaster;
+import com.bistel.pdm.data.stream.EventMaster;
 import com.bistel.pdm.data.stream.ParameterWithSpecMaster;
 import com.bistel.pdm.expression.RuleEvaluator;
 import com.bistel.pdm.expression.RuleVariables;
@@ -51,9 +53,10 @@ public class BranchProcessor extends AbstractProcessor<String, String> {
 
             String conditionRuleName = evaluateCondition(key, columns);
 
+            // event end
             if(columns[0].equalsIgnoreCase("END")){
 
-                log.debug("[{}] - fetch data from {} to {}.", key, columns[1], columns[2]);
+                log.info("[{}] - fetch data from {} to {}.", key, columns[1], columns[2]);
 
                 Date startDate = dateFormat.parse(columns[1]);
                 Long startEpochTime = new Timestamp(startDate.getTime()).getTime();
@@ -95,12 +98,12 @@ public class BranchProcessor extends AbstractProcessor<String, String> {
 
                         //farward health
                         context().forward(key, nextMsg, To.child(NEXT_HEALTH_STREAM_NODE));
-
                     }
                 }
 
             } else {
 
+                log.debug("[{}] - spec rule name:{}", key, conditionRuleName);
                 if (conditionRuleName.length() > 0) {
                     // time, P1, P2, P3, P4, ... Pn,status,groupid, +rulename
                     String nextMessage = record + "," + conditionRuleName;
@@ -126,7 +129,6 @@ public class BranchProcessor extends AbstractProcessor<String, String> {
                                 Double paramValue = Double.parseDouble(strParamValue);
                                 Double normalizedValue = paramValue / paramInfo.getUpperAlarmSpec();
 
-                                log.debug("[{}] - put value : {}", key, normalizedValue);
                                 kvNormalizedParamValueStore.put(paramKey, normalizedValue, nowEpochTime);
 
                                 // time, param_rawid, value, alarm_spec, warning_spec, fault_class, rulename, condition
@@ -148,6 +150,8 @@ public class BranchProcessor extends AbstractProcessor<String, String> {
                     // time, P1, P2, P3, P4, ... Pn,status,groupid,rulename
                     String nextMessage = record + "," + "NORULE"; // append rule name
                     context().forward(key, nextMessage.getBytes(), To.child(NEXT_OUT_STREAM_NODE));
+
+                    log.info("[{}] - There is no rule information.", key);
                 }
             }
         } catch(Exception e){

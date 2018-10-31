@@ -20,6 +20,7 @@ public class RecordParserProcessor extends AbstractProcessor<String, byte[]> {
     @Override
     public void process(String key, byte[] bytes) {
         String record = new String(bytes);
+        log.debug("[{}] - partition:{}, offset:{}", key, context().partition(), context().offset());
         context().forward(key, record, To.child(NEXT_STREAM_NODE));
     }
 }

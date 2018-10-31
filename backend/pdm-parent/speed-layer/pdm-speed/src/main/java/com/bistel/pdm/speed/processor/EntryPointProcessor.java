@@ -28,7 +28,7 @@ public class EntryPointProcessor extends AbstractProcessor<String, byte[]> {
                 context().forward(key, bytes, To.child(NEXT_STREAM_NODE));
 
             } else {
-                log.debug("[{}] - Not existed.", key);
+                log.debug("[{}] - There are no matching equipment.", key);
                 context().commit();
             }
         } catch (Exception e) {

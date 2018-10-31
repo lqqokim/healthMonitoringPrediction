@@ -90,6 +90,9 @@ public class IndividualHealthProcessor extends AbstractProcessor<String, String>
                     statusCode = "W";
                 }
 
+                log.debug("[{}] - id:{}, data count:{}, score:{}, alarm:{}, warning:{}",
+                        key, dataCount, index, alarmSpec, warningSpec);
+
                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
                 Date parsedDate = dateFormat.parse(columns[0]);
                 Timestamp timestamp = new Timestamp(parsedDate.getTime());
@@ -111,7 +114,7 @@ public class IndividualHealthProcessor extends AbstractProcessor<String, String>
                 context().forward(key, nextMsg.getBytes(), To.child(NEXT_OUT_STREAM_NODE));
 
             } else {
-                log.debug("[{}] - No health.", key);
+                log.debug("[{}] - There is no health information.", key);
             }
         } catch (Exception e){
             log.error(e.getMessage(), e);
