@@ -1,17 +1,14 @@
 package com.bistel.pdm.connector.log.Listener;
 
-import com.bistel.pdm.lambda.kafka.partitioner.CustomStreamPartitioner;
 import org.apache.commons.io.input.TailerListenerAdapter;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
-import org.apache.kafka.common.PartitionInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import java.util.List;
 
 /**
  *
@@ -40,7 +37,7 @@ public class PfeifferLogTailerListener extends TailerListenerAdapter {
         if (line.length() <= 0) return;
 
         String[] columns = line.split("/");
-        if(columns[0].equalsIgnoreCase("time")) return;
+        if (columns[0].equalsIgnoreCase("time")) return;
 
         final String partitionKey = "TP8016901"; //eqp
 
@@ -98,7 +95,7 @@ public class PfeifferLogTailerListener extends TailerListenerAdapter {
                     partitionKey, msg.getBytes())).get();
 
             log.info("[{}] - {}, partition:{}, offset:{}", partitionKey, timeStamp, meta.partition(), meta.offset());
-        } catch (Exception e){
+        } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
 

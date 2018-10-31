@@ -19,7 +19,6 @@ public class SpeedStreamAppBootstrap {
 
     private static final String APPLICATION_ID = "appId";
     private static final String BROKERS = "brokers";
-    private static final String SCHEMA_REGISTRY_URL = "registryUrl";
     private static final String SERVING_ADDR = "servingAddr";
     private static final String LOG_PATH = "log4jConf";
     private static final String PIPELINE = "pipeline";
@@ -34,7 +33,6 @@ public class SpeedStreamAppBootstrap {
         CommandLine commandLine = parseCommandLine(args);
         String appId = commandLine.getOptionValue(APPLICATION_ID);
         String brokers = commandLine.getOptionValue(BROKERS);
-        String schemaUrl = commandLine.getOptionValue(SCHEMA_REGISTRY_URL);
         String servingAddr = commandLine.getOptionValue(SERVING_ADDR);
         String logPath = commandLine.getOptionValue(LOG_PATH);
         String pipeline = commandLine.getOptionValue(PIPELINE);
@@ -47,12 +45,12 @@ public class SpeedStreamAppBootstrap {
 
         if (pipeline.equalsIgnoreCase("REALTIME")) {
             try (SpeedRealTimeTaskDef processor =
-                         new SpeedRealTimeTaskDef(appId, brokers, schemaUrl, servingAddr, streamThreads)) {
+                         new SpeedRealTimeTaskDef(appId, brokers, servingAddr, streamThreads)) {
                 processor.start();
             }
         } else if (pipeline.equalsIgnoreCase("TIMEOUT")) {
             try (SpeedTimeOutTaskDef processor =
-                         new SpeedTimeOutTaskDef(appId, brokers, schemaUrl, servingAddr, streamThreads)) {
+                         new SpeedTimeOutTaskDef(appId, brokers, servingAddr, streamThreads)) {
                 processor.start();
             }
         } else {
@@ -63,7 +61,6 @@ public class SpeedStreamAppBootstrap {
     private static CommandLine parseCommandLine(String[] args) {
         Option appId = new Option(APPLICATION_ID, true, "application id");
         Option broker = new Option(BROKERS, true, "input/output broker");
-        Option schemaUrl = new Option(SCHEMA_REGISTRY_URL, true, "schema registry url");
         Option servingAddr = new Option(SERVING_ADDR, true, "serving address");
         Option pipeline = new Option(PIPELINE, true, "streaming pipeline");
         Option logPath = new Option(LOG_PATH, true, "config path");
@@ -72,13 +69,12 @@ public class SpeedStreamAppBootstrap {
 
         options.addOption(appId)
                 .addOption(broker)
-                .addOption(schemaUrl)
                 .addOption(servingAddr)
                 .addOption(pipeline)
                 .addOption(logPath)
                 .addOption(streamThreads);
 
-        if (args.length < 7) {
+        if (args.length < 6) {
             printUsageAndExit();
         }
         CommandLineParser parser = new DefaultParser();

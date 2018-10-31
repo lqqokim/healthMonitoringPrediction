@@ -12,7 +12,7 @@ import com.bistel.pdm.speed.model.StatusWindow;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.processor.AbstractProcessor;
 import org.apache.kafka.streams.processor.ProcessorContext;
-import org.apache.kafka.streams.state.KeyValueStore;
+import org.apache.kafka.streams.processor.To;
 import org.apache.kafka.streams.state.WindowStore;
 import org.apache.kafka.streams.state.WindowStoreIterator;
 import org.slf4j.Logger;
@@ -22,9 +22,7 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -142,7 +140,7 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
 
                         // time, P1, P2, P3, P4, ... Pn, {status, groupid, rulename}
                         String traceMsg = recordValue + ",R," + msgGroup + "," + ruleName;
-                        context().forward(partitionKey, traceMsg.getBytes(), "output-trace");
+                        context().forward(partitionKey, traceMsg.getBytes(), To.child("output-trace"));
 
                         List<ParameterWithSpecMaster> paramList = MasterCache.ParameterWithSpec.get(partitionKey);
                         // check OOS

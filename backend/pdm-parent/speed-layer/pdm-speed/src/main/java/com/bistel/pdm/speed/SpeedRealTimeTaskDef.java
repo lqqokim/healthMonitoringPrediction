@@ -1,12 +1,13 @@
 package com.bistel.pdm.speed;
 
 import com.bistel.pdm.lambda.kafka.AbstractPipeline;
-import com.bistel.pdm.speed.processor.SpeedProcessor;
+import com.bistel.pdm.speed.processor.*;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.Topology;
+import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.state.StoreBuilder;
 import org.apache.kafka.streams.state.Stores;
 import org.apache.kafka.streams.state.WindowStore;
@@ -26,11 +27,10 @@ public class SpeedRealTimeTaskDef extends AbstractPipeline {
     private final String applicationId;
     private final int streamThreadCount;
 
-    public SpeedRealTimeTaskDef(String applicationId, String brokers,
-                                String schemaUrl, String servingAddr,
+    public SpeedRealTimeTaskDef(String applicationId, String brokers, String servingAddr,
                                 String streamThreadCount) {
 
-        super(brokers, schemaUrl, servingAddr);
+        super(brokers, servingAddr);
         this.applicationId = applicationId;
         this.streamThreadCount = Integer.parseInt(streamThreadCount);
     }
@@ -56,28 +56,70 @@ public class SpeedRealTimeTaskDef extends AbstractPipeline {
     private KafkaStreams processStreams() {
         final Topology topology = new Topology();
 
+        StoreBuilder<KeyValueStore<String, String>> statusContextStoreSupplier =
+                Stores.keyValueStoreBuilder(
+                        Stores.persistentKeyValueStore("speed-status-context-store"),
+                        Serdes.String(),
+                        Serdes.String());
+
+        StoreBuilder<KeyValueStore<String, String>> recordGroupStoreSupplier =
+                Stores.keyValueStoreBuilder(
+                        Stores.persistentKeyValueStore("speed-record-group-store"),
+                        Serdes.String(),
+                        Serdes.String());
+
         StoreBuilder<WindowStore<String, Double>> normalizedParamValueStoreSupplier =
                 Stores.windowStoreBuilder(
-                        Stores.persistentWindowStore("speed-normalized-value",
-                                TimeUnit.DAYS.toMillis(1),
+                        Stores.persistentWindowStore("speed-normalized-value-store",
+                                TimeUnit.DAYS.toMillis(5),
                                 2,
                                 TimeUnit.HOURS.toMillis(1),
                                 false),
                         Serdes.String(),
                         Serdes.Double());
 
-//        CustomStreamPartitioner partitioner = new CustomStreamPartitioner();
-
         topology.addSource("input-trace", this.getInputTraceTopic())
-                .addProcessor("speed", SpeedProcessor::new, "input-trace")
-                .addStateStore(normalizedParamValueStoreSupplier, "speed")
+                .addProcessor("EntryPointProcessor", EntryPointProcessor::new, "input-trace")
+                .addProcessor("RecordParserProcessor", RecordParserProcessor::new, "EntryPointProcessor")
+                .addProcessor("StatusDecisionProcessor", StatusDecisionProcessor::new, "RecordParserProcessor")
 
-                .addSink("output-trace", this.getOutputTraceTopic(), "speed")
-                .addSink("output-event", this.getOutputEventTopic(), "speed")
-                .addSink("output-fault", this.getOutputFaultTopic(), "speed")
-                .addSink("output-health", this.getOutputHealthTopic(), "speed")
-                .addSink("output-reload", this.getOutputReloadTopic(), "speed")
-                .addSink("output-raw", this.getInputTimewaveTopic(), "speed");
+                .addProcessor("EventProcessor", EventProcessor::new, "StatusDecisionProcessor")
+                .addStateStore(statusContextStoreSupplier, "EventProcessor")
+                .addStateStore(recordGroupStoreSupplier, "EventProcessor")
+                .addSink("output-event", this.getOutputEventTopic(), "EventProcessor")
+
+                .addProcessor("BranchProcessor", BranchProcessor::new, "EventProcessor")
+                .addStateStore(normalizedParamValueStoreSupplier, "BranchProcessor")
+                .addSink("output-trace", this.getOutputTraceTopic(), "BranchProcessor")
+
+                .addProcessor("FaultDetectionProcessor", FaultDetectionProcessor::new, "BranchProcessor")
+                .addSink("output-fault", this.getOutputTraceTopic(), "FaultDetectionProcessor")
+                .addProcessor("IndividualHealthProcessor", IndividualHealthProcessor::new, "BranchProcessor")
+                .addSink("output-health", this.getOutputTraceTopic(), "IndividualHealthProcessor");
+
+
+//        StoreBuilder<WindowStore<String, Double>> normalizedParamValueStoreSupplier =
+//                Stores.windowStoreBuilder(
+//                        Stores.persistentWindowStore("speed-normalized-value",
+//                                TimeUnit.DAYS.toMillis(5),
+//                                2,
+//                                TimeUnit.HOURS.toMillis(1),
+//                                false),
+//                        Serdes.String(),
+//                        Serdes.Double());
+//
+////        CustomStreamPartitioner partitioner = new CustomStreamPartitioner();
+//
+//        topology.addSource("input-trace", this.getInputTraceTopic())
+//                .addProcessor("speed", SpeedProcessor::new, "input-trace")
+//                .addStateStore(normalizedParamValueStoreSupplier, "speed")
+//
+//                .addSink("output-trace", this.getOutputTraceTopic(), "speed")
+//                .addSink("output-event", this.getOutputEventTopic(), "speed")
+//                .addSink("output-fault", this.getOutputFaultTopic(), "speed")
+//                .addSink("output-health", this.getOutputHealthTopic(), "speed")
+//                .addSink("output-reload", this.getOutputReloadTopic(), "speed")
+//                .addSink("output-raw", this.getInputTimewaveTopic(), "speed");
 
         return new KafkaStreams(topology, getStreamProperties());
     }

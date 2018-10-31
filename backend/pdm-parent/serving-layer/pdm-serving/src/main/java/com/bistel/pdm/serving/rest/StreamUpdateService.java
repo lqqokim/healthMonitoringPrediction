@@ -1,10 +1,7 @@
 package com.bistel.pdm.serving.rest;
 
 import com.bistel.pdm.data.stream.EquipmentMaster;
-import com.bistel.pdm.lambda.kafka.master.MasterCache;
-import com.bistel.pdm.lambda.kafka.partitioner.CustomStreamPartitioner;
 import com.bistel.pdm.serving.Exception.Message;
-import com.bistel.pdm.serving.HostInfo;
 import com.bistel.pdm.serving.jdbc.dao.StreamingMasterDataDao;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;

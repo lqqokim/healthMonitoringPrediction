@@ -19,7 +19,6 @@ public final class BatchStreamAppBootstrap {
 
     private static final String APPLICATION_ID = "appId";
     private static final String BROKERS = "brokers";
-    private static final String SCHEMA_REGISTRY_URL = "registryUrl";
     private static final String SERVING_ADDR = "servingAddr";
     private static final String PIPELINE = "pipeline";
     private static final String LOG_PATH = "log4jConf";
@@ -33,7 +32,6 @@ public final class BatchStreamAppBootstrap {
         CommandLine commandLine = parseCommandLine(args);
         String appId = commandLine.getOptionValue(APPLICATION_ID);
         String brokers = commandLine.getOptionValue(BROKERS);
-        String schemaUrl = commandLine.getOptionValue(SCHEMA_REGISTRY_URL);
         String servingAddr = commandLine.getOptionValue(SERVING_ADDR);
         String pipeline = commandLine.getOptionValue(PIPELINE);
         String logPath = commandLine.getOptionValue(LOG_PATH);
@@ -45,12 +43,12 @@ public final class BatchStreamAppBootstrap {
 
         if (pipeline.equalsIgnoreCase("SUMMARY")) {
             try (BatchSummaryTaskDef processor =
-                         new BatchSummaryTaskDef(appId, brokers, schemaUrl, servingAddr, streamThreads)) {
+                         new BatchSummaryTaskDef(appId, brokers, servingAddr, streamThreads)) {
                 processor.start();
             }
         } else if (pipeline.equalsIgnoreCase("VIBRATION")) {
             try (BatchTimewaveTaskDef processor =
-                         new BatchTimewaveTaskDef(appId, brokers, schemaUrl, servingAddr, streamThreads)) {
+                         new BatchTimewaveTaskDef(appId, brokers, servingAddr, streamThreads)) {
                 processor.start();
             }
         } else {
@@ -61,7 +59,6 @@ public final class BatchStreamAppBootstrap {
     private static CommandLine parseCommandLine(String[] args) {
         Option appId = new Option(APPLICATION_ID, true, "application id");
         Option broker = new Option(BROKERS, true, "input/output broker");
-        Option schemaUrl = new Option(SCHEMA_REGISTRY_URL, true, "schema registry url");
         Option servingAddr = new Option(SERVING_ADDR, true, "serving address");
         Option pipeline = new Option(PIPELINE, true, "streaming pipeline");
         Option logPath = new Option(LOG_PATH, true, "config path");
@@ -69,13 +66,12 @@ public final class BatchStreamAppBootstrap {
 
         options.addOption(appId)
                 .addOption(broker)
-                .addOption(schemaUrl)
                 .addOption(servingAddr)
                 .addOption(pipeline)
                 .addOption(logPath)
                 .addOption(streamThreads);
 
-        if (args.length < 7) {
+        if (args.length < 6) {
             printUsageAndExit();
         }
         CommandLineParser parser = new DefaultParser();

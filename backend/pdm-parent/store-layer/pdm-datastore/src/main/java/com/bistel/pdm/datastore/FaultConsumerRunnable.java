@@ -14,11 +14,11 @@ import org.slf4j.LoggerFactory;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.TimeUnit;
 
 /**
  *
@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
 public class FaultConsumerRunnable implements Runnable {
     private static final Logger log = LoggerFactory.getLogger(FaultConsumerRunnable.class);
 
-    private final static int PollingDurations = 100; // sec
+    private final static long PollingDurations = 100; // sec
 
     private final KafkaConsumer<String, byte[]> consumer;
     private final String topicName;
@@ -63,9 +63,8 @@ public class FaultConsumerRunnable implements Runnable {
         List<ConsumerRecord<String, byte[]>> buffer = new ArrayList<>();
 
         while (true) {
-            ConsumerRecords<String, byte[]> records = consumer.poll(TimeUnit.MILLISECONDS.toMillis(PollingDurations));
+            ConsumerRecords<String, byte[]> records = consumer.poll(Duration.ofMillis(PollingDurations));
             for (ConsumerRecord<String, byte[]> record : records) {
-                //log.debug("[{}] - fault -- partition:{}, offset:{}", record.key(), record.partition(), record.offset());
                 buffer.add(record);
             }
 

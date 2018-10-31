@@ -22,10 +22,9 @@ public class BatchTimewaveTaskDef extends AbstractPipeline {
     private final String applicationId;
     private final int streamThreadCount;
 
-    public BatchTimewaveTaskDef(String applicationId, String brokers,
-                                String schemaUrl, String servingAddr, String streamThreadCount) {
+    public BatchTimewaveTaskDef(String applicationId, String brokers, String servingAddr, String streamThreadCount) {
 
-        super(brokers, schemaUrl, servingAddr);
+        super(brokers, servingAddr);
         this.applicationId = applicationId;
         this.streamThreadCount = Integer.parseInt(streamThreadCount);
     }

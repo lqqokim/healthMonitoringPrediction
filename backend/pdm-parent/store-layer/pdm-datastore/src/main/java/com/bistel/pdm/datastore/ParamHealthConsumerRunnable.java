@@ -6,7 +6,6 @@ import com.bistel.pdm.datastore.jdbc.dao.HealthDataDao;
 import com.bistel.pdm.datastore.jdbc.dao.oracle.ParamHealthTrxDao;
 import com.bistel.pdm.datastore.jdbc.dao.postgres.ParamHealthTrxPostgreDao;
 import com.bistel.pdm.datastore.model.ParamHealthData;
-import com.bistel.pdm.datastore.model.ParamHealthRULData;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -16,11 +15,11 @@ import org.slf4j.LoggerFactory;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.TimeUnit;
 
 /**
  *
@@ -31,7 +30,7 @@ public class ParamHealthConsumerRunnable implements Runnable {
     private final KafkaConsumer<String, byte[]> consumer;
     private final String topicName;
 
-    private final static int PollingDurations = 100; // milliseconds
+    private final static long PollingDurations = 100; // milliseconds
 
     private HealthDataDao trxDao;
 
@@ -63,7 +62,7 @@ public class ParamHealthConsumerRunnable implements Runnable {
 
         try {
             while (true) {
-                ConsumerRecords<String, byte[]> records = consumer.poll(TimeUnit.MILLISECONDS.toMillis(PollingDurations));
+                ConsumerRecords<String, byte[]> records = consumer.poll(Duration.ofMillis(PollingDurations));
                 if (records.count() > 0) {
                     log.debug(" polling {} records", records.count());
 
@@ -76,11 +75,8 @@ public class ParamHealthConsumerRunnable implements Runnable {
 
                         //log.debug("[{}] - health -- partition:{}, offset:{}", record.key(), record.partition(), record.offset());
 
-                        // time, eqpRawid, param_rawid, param_health_rawid, status_cd, data_count, index, specs, group
+                        // time, param_rawid, param_health_rawid, status_cd, data_count, index, specs
                         String[] values = valueString.split(",", -1);
-
-                        log.trace("[{}] - time : {}, eqp : {}, param : {}, health : {}", record.key(),
-                                values[0], values[1], values[2], values[3]);
 
                         Long rawId = trxDao.getTraceRawId();
 
@@ -88,36 +84,36 @@ public class ParamHealthConsumerRunnable implements Runnable {
 
                         data.setRawId(rawId);
                         data.setTime(Long.parseLong(values[0]));
-                        data.setParamRawId(Long.parseLong(values[2]));
-                        data.setParamHealthRawId(Long.parseLong(values[3]));
-                        data.setStatus(values[4]);
-                        data.setDataCount(Integer.parseInt(values[5]));
-                        data.setIndex(Double.parseDouble(values[6]));
+                        data.setParamRawId(Long.parseLong(values[1]));
+                        data.setParamHealthRawId(Long.parseLong(values[2]));
+                        data.setStatus(values[3]);
+                        data.setDataCount(Integer.parseInt(values[4]));
+                        data.setIndex(Double.parseDouble(values[5]));
 
                         //spec
+                        if (values[6].length() > 0) {
+                            data.setUpperAlarmSpec(Float.parseFloat(values[6]));
+                        }
+
                         if (values[7].length() > 0) {
-                            data.setUpperAlarmSpec(Float.parseFloat(values[7]));
+                            data.setUpperWarningSpec(Float.parseFloat(values[7]));
                         }
 
                         if (values[8].length() > 0) {
-                            data.setUpperWarningSpec(Float.parseFloat(values[8]));
+                            data.setTarget(Float.parseFloat(values[8]));
                         }
 
                         if (values[9].length() > 0) {
-                            data.setTarget(Float.parseFloat(values[9]));
+                            data.setLowerAlarmSpec(Float.parseFloat(values[9]));
                         }
 
                         if (values[10].length() > 0) {
-                            data.setLowerAlarmSpec(Float.parseFloat(values[10]));
-                        }
-
-                        if (values[11].length() > 0) {
-                            data.setLowerWarningSpec(Float.parseFloat(values[11]));
+                            data.setLowerWarningSpec(Float.parseFloat(values[10]));
                         }
 
                         // message group
-                        if(values[12].length() > 0){
-                            data.setMessageGroup(values[12]);
+                        if (values[11].length() > 0) {
+                            data.setMessageGroup(values[11]);
                         }
 
                         dataList.add(data);

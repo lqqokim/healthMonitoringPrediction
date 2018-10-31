@@ -2,7 +2,6 @@ package com.bistel.pdm.batch;
 
 import com.bistel.pdm.batch.processor.BatchProcessor;
 import com.bistel.pdm.lambda.kafka.AbstractPipeline;
-import com.bistel.pdm.lambda.kafka.partitioner.CustomStreamPartitioner;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KafkaStreams;
@@ -27,10 +26,9 @@ public class BatchSummaryTaskDef extends AbstractPipeline {
     private final String applicationId;
     private final int streamThreadCount;
 
-    public BatchSummaryTaskDef(String applicationId, String brokers,
-                             String schemaUrl, String servingAddr, String streamThreadCount) {
+    public BatchSummaryTaskDef(String applicationId, String brokers, String servingAddr, String streamThreadCount) {
 
-        super(brokers, schemaUrl, servingAddr);
+        super(brokers, servingAddr);
         this.applicationId = applicationId;
         this.streamThreadCount = Integer.parseInt(streamThreadCount);
     }

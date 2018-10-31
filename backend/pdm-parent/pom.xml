@@ -66,21 +66,19 @@
         <scala.minor.version>2.11</scala.minor.version>
         <scala.complete.version>${scala.minor.version}.8</scala.complete.version>
         <jackson.version>2.9.1</jackson.version>
-        <confluent.version>4.1.0</confluent.version>
-        <kafka.version>1.1.0</kafka.version>
+        <confluent.version>5.0.0</confluent.version>
+        <kafka.version>2.0.0</kafka.version>
         <avro.version>1.8.2</avro.version>
-        <zookeeper.version>3.4.10</zookeeper.version>
+        <zookeeper.version>3.4.13</zookeeper.version>
         <netlib.java.version>1.1.2</netlib.java.version>
         <snappy.version>1.1.4</snappy.version>
         <undertow.version>2.0.1.Final</undertow.version>
         <resteasy.version>3.5.0.Final</resteasy.version>
         <weld-servlet.version>2.4.3.Final</weld-servlet.version>
         <guava.version>20.0</guava.version>
-        <quartz.version>2.2.1</quartz.version>
         <sqlite-jdbc.version>3.8.11.2</sqlite-jdbc.version>
         <postgresql.version>42.2.2</postgresql.version>
         <oracle.version>12.1.0.1-atlassian-hosted</oracle.version>
-        <!--<HikariCP.version>2.7.8</HikariCP.version>-->
         <HikariCP.version>3.2.0</HikariCP.version>
         <flywaydb.version>5.0.7</flywaydb.version>
         <querydsl.version>4.2.1</querydsl.version>
