@@ -43,7 +43,7 @@ public class IndividualHealthProcessor extends AbstractProcessor<String, String>
 
             String[] strValue = columns[2].split("^");
             double[] doubleValues = new double[strValue.length];
-            for (int i = 0; i < strValue.length - 1; i++) {
+            for (int i = 0; i < strValue.length; i++) {
                 doubleValues[i] = Double.parseDouble(strValue[i]);
             }
 
