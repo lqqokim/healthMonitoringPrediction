@@ -41,7 +41,8 @@ public class FaultDetectionProcessor extends AbstractProcessor<String, String> {
             ParameterHealthMaster fd01Health = getParamHealth(key, paramRawId, "FD_OOS");
             if (fd01Health != null && fd01Health.getApplyLogicYN().equalsIgnoreCase("Y")) {
 
-                log.debug("[{}] - id:{} value:{}, alarm:{}, warning:{}", paramRawId, paramValue, alarmSpec, warningSpec);
+                log.debug("[{}] - id:{} value:{}, alarm:{}, warning:{}, offset:{}",
+                        key, paramRawId, paramValue, alarmSpec, warningSpec, context().offset());
 
                 if (evaluateAlarm(alarmSpec, paramValue)) {
                     // Alarm

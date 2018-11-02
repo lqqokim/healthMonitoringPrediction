@@ -93,9 +93,9 @@ public class SpeedRealTimeTaskDef extends AbstractPipeline {
                 .addSink("output-trace", this.getOutputTraceTopic(), "BranchProcessor")
 
                 .addProcessor("FaultDetectionProcessor", FaultDetectionProcessor::new, "BranchProcessor")
-                .addSink("output-fault", this.getOutputTraceTopic(), "FaultDetectionProcessor")
+                .addSink("output-fault", this.getOutputFaultTopic(), "FaultDetectionProcessor")
                 .addProcessor("IndividualHealthProcessor", IndividualHealthProcessor::new, "BranchProcessor")
-                .addSink("output-health", this.getOutputTraceTopic(), "IndividualHealthProcessor");
+                .addSink("output-health", this.getOutputHealthTopic(), "IndividualHealthProcessor");
 
 
 //        StoreBuilder<WindowStore<String, Double>> normalizedParamValueStoreSupplier =

@@ -10,11 +10,7 @@ import org.apache.kafka.streams.processor.To;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
@@ -40,18 +36,16 @@ public class IndividualHealthProcessor extends AbstractProcessor<String, String>
         String[] columns = record.split(SEPARATOR, -1);
 
         try {
+            Long epochTime = Long.parseLong(columns[0]);
             Long paramRawId = Long.parseLong(columns[1]);
             Double alarmSpec = Double.parseDouble(columns[3]);
             Double warningSpec = Double.parseDouble(columns[4]);
 
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-            Date parsedDate = dateFormat.parse(columns[0]);
-            Timestamp timestamp = new Timestamp(parsedDate.getTime());
-
             String[] strValue = columns[2].split("^");
-            double[] doubleValues = Arrays.stream(strValue)
-                    .mapToDouble(Double::parseDouble)
-                    .toArray();
+            double[] doubleValues = new double[strValue.length];
+            for (int i = 0; i < strValue.length - 1; i++) {
+                doubleValues[i] = Double.parseDouble(strValue[i]);
+            }
 
             AlarmExistence.put(key, false);
             WarningExistence.put(key, false);
@@ -59,10 +53,12 @@ public class IndividualHealthProcessor extends AbstractProcessor<String, String>
             ParameterHealthMaster fd01Health = getParamHealth(key, paramRawId, "FD_OOS");
             if (fd01Health != null && fd01Health.getApplyLogicYN().equalsIgnoreCase("Y")) {
 
-                String nextMsg = getHealthString(key, timestamp.getTime(), paramRawId,
+                String nextMsg = getHealthString(key, epochTime, paramRawId,
                         alarmSpec, warningSpec, doubleValues, fd01Health);
 
+                nextMsg = nextMsg + "," + columns[8]; // with group
                 context().forward(key, nextMsg.getBytes(), To.child(NEXT_OUT_STREAM_NODE));
+                log.debug("[{}] - forwarding logic 1 health, offset:{}", key, context().offset());
 
             } else {
                 log.debug("[{}] - There is no health information.", key);
@@ -117,7 +113,7 @@ public class IndividualHealthProcessor extends AbstractProcessor<String, String>
                         // logic 2 health
                         Double healthScore = calculateHealth(outHealthIndex);
 
-                        healthMsg = timestamp.getTime() + ","
+                        healthMsg = epochTime + ","
                                 + paramRawId + ","
                                 + fd02Health.getParamHealthRawId() + ','
                                 + "A" + ","
@@ -132,7 +128,7 @@ public class IndividualHealthProcessor extends AbstractProcessor<String, String>
                     } else {
                         Double healthScore = calculateHealth(doubleValues);
 
-                        healthMsg = timestamp.getTime() + ","
+                        healthMsg = epochTime + ","
                                 + paramRawId + ","
                                 + fd02Health.getParamHealthRawId() + ','
                                 + "N" + ","
@@ -169,7 +165,7 @@ public class IndividualHealthProcessor extends AbstractProcessor<String, String>
                         // logic 2 health
                         Double healthScore = calculateHealth(outWarningValues);
 
-                        healthMsg = timestamp.getTime() + ","
+                        healthMsg = epochTime + ","
                                 + paramRawId + ","
                                 + fd02Health.getParamHealthRawId() + ','
                                 + "A" + ","
@@ -184,7 +180,7 @@ public class IndividualHealthProcessor extends AbstractProcessor<String, String>
                     } else {
                         Double healthScore = calculateHealth(doubleValues);
 
-                        healthMsg = timestamp.getTime() + ","
+                        healthMsg = epochTime + ","
                                 + paramRawId + ","
                                 + fd02Health.getParamHealthRawId() + ','
                                 + "N" + ","
@@ -200,7 +196,7 @@ public class IndividualHealthProcessor extends AbstractProcessor<String, String>
                     // Logic 2 health without alarm, warning - If no alarm goes off, calculate the average of the intervals.
                     Double healthScore = calculateHealth(doubleValues);
 
-                    healthMsg = timestamp.getTime() + ","
+                    healthMsg = epochTime + ","
                             + paramRawId + ","
                             + fd02Health.getParamHealthRawId() + ','
                             + "N" + ","
@@ -217,7 +213,7 @@ public class IndividualHealthProcessor extends AbstractProcessor<String, String>
                 if (healthMsg.length() > 0) {
                     healthMsg = healthMsg + "," + columns[8]; // with group
                     context().forward(key, healthMsg.getBytes(), To.child("output-health"));
-                    log.debug("[{}] - logic 2 health : {}", key, healthMsg);
+                    log.debug("[{}] - forwarding logic 2 health, offset:{}", key, context().offset());
                 }
 
 //                if (faultMsg.length() > 0) {

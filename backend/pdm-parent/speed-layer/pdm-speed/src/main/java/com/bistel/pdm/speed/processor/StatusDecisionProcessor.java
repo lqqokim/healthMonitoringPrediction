@@ -11,6 +11,8 @@ import org.apache.kafka.streams.processor.To;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class StatusDecisionProcessor extends AbstractProcessor<String, String> {
@@ -33,6 +35,8 @@ public class StatusDecisionProcessor extends AbstractProcessor<String, String> {
         String nowStatusCode = "I";
 
         try {
+            cacheReloadFlagMap.putIfAbsent(key, false);
+
             if (columns[1].equalsIgnoreCase("CMD-REFRESH-CACHE")) {
                 cacheReloadFlagMap.put(key, true);
                 return;
@@ -52,16 +56,21 @@ public class StatusDecisionProcessor extends AbstractProcessor<String, String> {
             }
 
             // when status is idle, refresh.
-            if(nowStatusCode.equalsIgnoreCase("I") && cacheReloadFlagMap.get(key)){
+            if (nowStatusCode.equalsIgnoreCase("I") && cacheReloadFlagMap.get(key)) {
                 refreshMasterCache(key);
                 cacheReloadFlagMap.put(key, false);
+
+                Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+                String msg = dateFormat.format(timestamp) + ",CMD-REFRESH-CACHE";
+                context().forward(key, msg.getBytes(), To.child("output-reload"));
             }
 
             // time, P1, P2, P3, P4, ... Pn, +status
             String nextMessage = record + "," + nowStatusCode;
             context().forward(key, nextMessage, To.child(NEXT_STREAM_NODE));
 
-            log.debug("[{}] - status:{}", key, nowStatusCode);
+            log.debug("[{}] - status:{}, offset:{}", key, nowStatusCode, context().offset());
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }

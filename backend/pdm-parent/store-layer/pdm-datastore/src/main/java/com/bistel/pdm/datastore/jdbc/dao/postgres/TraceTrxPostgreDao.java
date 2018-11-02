@@ -78,12 +78,10 @@ public class TraceTrxPostgreDao implements SensorTraceDataDao {
                 Timestamp ts = null;
 
                 for (ConsumerRecord<String, byte[]> record : records) {
-                    //log.debug("offset={}, key={}, value={}", record.offset(), record.key(), record.value());
-
                     byte[] sensorData = record.value();
                     String valueString = new String(sensorData);
 
-                    // time, P1, P2, P3, P4, ... Pn, {status, groupid, rulename}
+                    // time, P1, P2, P3, P4, ... Pn,status,groupid,rulename
                     String[] values = valueString.split(",", -1);
 
                     String ruleName = values[values.length - 1];
@@ -113,7 +111,7 @@ public class TraceTrxPostgreDao implements SensorTraceDataDao {
 
                         ParameterWithSpecMaster paramSpec = getParamSpec(record.key(), paramInfo.getParameterName(), ruleName);
 
-                        if(paramSpec != null) {
+                        if (paramSpec != null) {
                             if (paramSpec.getUpperAlarmSpec() != null) {
                                 pstmt.setFloat(3, paramSpec.getUpperAlarmSpec()); //upper alarm spec
                             } else {
@@ -177,8 +175,8 @@ public class TraceTrxPostgreDao implements SensorTraceDataDao {
 
         ParameterWithSpecMaster paramInfo = null;
         for (ParameterWithSpecMaster pws : paramWithSpec) {
-            if(ruleName.equalsIgnoreCase(pws.getRuleName())){
-                if (paramName.equalsIgnoreCase(pws.getParameterName())){
+            if (ruleName.equalsIgnoreCase(pws.getRuleName())) {
+                if (paramName.equalsIgnoreCase(pws.getParameterName())) {
                     paramInfo = pws;
                     break;
                 }

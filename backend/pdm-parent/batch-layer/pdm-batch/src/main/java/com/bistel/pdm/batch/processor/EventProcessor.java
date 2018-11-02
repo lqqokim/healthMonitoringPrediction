@@ -40,12 +40,12 @@ public class EventProcessor extends AbstractProcessor<String, String> {
             String nowStatusTime = columns[0];
             String nowStatusCode = columns[columns.length - 1];
 
+            kvStatusContextStore.putIfAbsent(key, columns[0] + "," + columns[columns.length - 1]);
+            kvRecordGroupStore.putIfAbsent(key, nowStatusTime);
+
             String[] statusContext = kvStatusContextStore.get(key).split(",");
             String prevStatusTime = statusContext[0];
             String prevStatusCode = statusContext[1];
-
-            kvStatusContextStore.putIfAbsent(key, columns[0] + "," + columns[columns.length - 1]);
-            kvRecordGroupStore.putIfAbsent(key, nowStatusTime);
 
             Pair<EventMaster, EventMaster> eventInfo = MasterCache.IntervalEvent.get(key);
 

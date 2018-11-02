@@ -28,7 +28,7 @@ public class BranchProcessor extends AbstractProcessor<String, String> {
 
     private final static String NEXT_FAULT_STREAM_NODE = "FaultDetectionProcessor";
     private final static String NEXT_HEALTH_STREAM_NODE = "IndividualHealthProcessor";
-    private final static String NEXT_OUT_STREAM_NODE = "output-trace";
+    private final static String NEXT_OUT_TRACE_STREAM_NODE = "output-trace";
 
     private WindowStore<String, Double> kvNormalizedParamValueStore;
 
@@ -81,6 +81,8 @@ public class BranchProcessor extends AbstractProcessor<String, String> {
                         }
                         storeIterator.close();
 
+                        log.debug("[{}] - value size:{}", paramKey, normalizedValueList.size());
+
                         String normalizedString = StringUtils.join(normalizedValueList, '^');
 
                         //out : time, param_rawid, value, alarm_spec, warning_spec, fault_class, rulename, condition, groupid
@@ -101,11 +103,11 @@ public class BranchProcessor extends AbstractProcessor<String, String> {
 
             } else {
 
-                log.debug("[{}] - spec rule name:{}", key, conditionRuleName);
+                log.debug("[{}] - spec rule name:{}, offset:{}", key, conditionRuleName, context().offset());
                 if (conditionRuleName.length() > 0) {
                     // time, P1, P2, P3, P4, ... Pn,status,groupid, +rulename
                     String nextMessage = record + "," + conditionRuleName;
-                    context().forward(key, nextMessage.getBytes(), To.child(NEXT_OUT_STREAM_NODE));
+                    context().forward(key, nextMessage.getBytes(), To.child(NEXT_OUT_TRACE_STREAM_NODE));
 
                     Date parsedDate = dateFormat.parse(columns[0]);
                     Timestamp nowTimestamp = new Timestamp(parsedDate.getTime());
@@ -147,7 +149,7 @@ public class BranchProcessor extends AbstractProcessor<String, String> {
                 } else {
                     // time, P1, P2, P3, P4, ... Pn,status,groupid,rulename
                     String nextMessage = record + "," + "NORULE"; // append rule name
-                    context().forward(key, nextMessage.getBytes(), To.child(NEXT_OUT_STREAM_NODE));
+                    context().forward(key, nextMessage.getBytes(), To.child(NEXT_OUT_TRACE_STREAM_NODE));
 
                     log.info("[{}] - There is no rule information.", key);
                 }

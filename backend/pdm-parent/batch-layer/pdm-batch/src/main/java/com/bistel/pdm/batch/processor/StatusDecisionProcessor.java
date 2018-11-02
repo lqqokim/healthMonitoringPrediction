@@ -33,6 +33,8 @@ public class StatusDecisionProcessor extends AbstractProcessor<String, String> {
         String nowStatusCode = "I";
 
         try {
+            cacheReloadFlagMap.putIfAbsent(key, false);
+
             if (columns[1].equalsIgnoreCase("CMD-REFRESH-CACHE")) {
                 cacheReloadFlagMap.put(key, true);
                 return;

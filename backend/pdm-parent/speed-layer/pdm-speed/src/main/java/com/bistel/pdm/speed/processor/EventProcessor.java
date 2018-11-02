@@ -19,7 +19,7 @@ public class EventProcessor extends AbstractProcessor<String, String> {
     private final static String SEPARATOR = ",";
 
     private final static String NEXT_STREAM_NODE = "BranchProcessor";
-    private final static String NEXT_OUT_STREAM_NODE = "output-event";
+    private final static String NEXT_OUT_EVENT_STREAM_NODE = "output-event";
 
     private KeyValueStore<String, String> kvStatusContextStore;
     private KeyValueStore<String, String> kvRecordGroupStore;
@@ -41,12 +41,12 @@ public class EventProcessor extends AbstractProcessor<String, String> {
             String nowStatusTime = columns[0];
             String nowStatusCode = columns[columns.length - 1];
 
+            kvStatusContextStore.putIfAbsent(key, columns[0] + "," + columns[columns.length - 1]);
+            kvRecordGroupStore.putIfAbsent(key, nowStatusTime);
+
             String[] statusContext = kvStatusContextStore.get(key).split(",");
             String prevStatusTime = statusContext[0];
             String prevStatusCode = statusContext[1];
-
-            kvStatusContextStore.putIfAbsent(key, columns[0] + "," + columns[columns.length - 1]);
-            kvRecordGroupStore.putIfAbsent(key, nowStatusTime);
 
             Pair<EventMaster, EventMaster> eventInfo = MasterCache.IntervalEvent.get(key);
 
@@ -72,7 +72,7 @@ public class EventProcessor extends AbstractProcessor<String, String> {
                             + eventInfo.getSecond().getEventTypeCD();
 
                     log.info("[{}] - {} process ended.", key, prevStatusTime);
-                    context().forward(key, eventMsg.getBytes(), To.child(NEXT_OUT_STREAM_NODE));
+                    context().forward(key, eventMsg.getBytes(), To.child(NEXT_OUT_EVENT_STREAM_NODE));
                     // event ended. ------------------------------------------
 
                     String nextMessage = "END," + originalStartTime + "," + prevStatusTime;
@@ -84,7 +84,7 @@ public class EventProcessor extends AbstractProcessor<String, String> {
                             + eventInfo.getFirst().getEventTypeCD();
 
                     log.info("[{}] - {} process started.", key, nowStatusTime);
-                    context().forward(key, eventMsg.getBytes(), To.child(NEXT_OUT_STREAM_NODE));
+                    context().forward(key, eventMsg.getBytes(), To.child(NEXT_OUT_EVENT_STREAM_NODE));
                     // event started. ----------------------------------------
 
                     kvRecordGroupStore.put(key, nowStatusTime);
@@ -104,7 +104,7 @@ public class EventProcessor extends AbstractProcessor<String, String> {
                                 + eventInfo.getFirst().getEventTypeCD();
 
                 log.info("[{}] - {} process started.", key, nowStatusTime);
-                context().forward(key, eventMsg.getBytes(), To.child(NEXT_OUT_STREAM_NODE));
+                context().forward(key, eventMsg.getBytes(), To.child(NEXT_OUT_EVENT_STREAM_NODE));
                 // event started. ------------------------------------------
 
             } else if (prevStatusCode.equalsIgnoreCase("R")
@@ -120,7 +120,7 @@ public class EventProcessor extends AbstractProcessor<String, String> {
                                 + eventInfo.getSecond().getEventTypeCD();
 
                 log.info("[{}] - {} process ended.", key, prevStatusTime);
-                context().forward(key, eventMsg.getBytes(), To.child(NEXT_OUT_STREAM_NODE));
+                context().forward(key, eventMsg.getBytes(), To.child(NEXT_OUT_EVENT_STREAM_NODE));
                 // event ended. ------------------------------------------
 
                 String nextMessage = "END," + startEventTime + "," + prevStatusTime;
@@ -137,7 +137,7 @@ public class EventProcessor extends AbstractProcessor<String, String> {
                 context().forward(key, nextMessage, To.child(NEXT_STREAM_NODE));
             } else {
                 // time, P1, P2, P3, P4, ... Pn,status, +groupid
-                String nextMessage = record + ",IDLE";
+                String nextMessage = record + "," + nowStatusTime;
                 context().forward(key, nextMessage, To.child(NEXT_STREAM_NODE));
             }
 
