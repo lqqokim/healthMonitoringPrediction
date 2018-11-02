@@ -1,4 +1,4 @@
-package com.bistel.pdm.speed.processor;
+package com.bistel.pdm.batch.processor;
 
 import com.bistel.pdm.common.collection.Pair;
 import com.bistel.pdm.data.stream.EventMaster;

@@ -1,4 +1,4 @@
-package com.bistel.pdm.speed.processor;
+package com.bistel.pdm.batch.processor;
 
 import com.bistel.pdm.common.collection.Pair;
 import com.bistel.pdm.data.stream.EventMaster;
@@ -18,8 +18,7 @@ public class EventProcessor extends AbstractProcessor<String, String> {
     private static final Logger log = LoggerFactory.getLogger(EventProcessor.class);
     private final static String SEPARATOR = ",";
 
-    private final static String NEXT_STREAM_NODE = "BranchProcessor";
-    private final static String NEXT_OUT_STREAM_NODE = "output-event";
+    private final static String NEXT_STREAM_NODE = "SummaryProcessor";
 
     private KeyValueStore<String, String> kvStatusContextStore;
     private KeyValueStore<String, String> kvRecordGroupStore;
@@ -67,24 +66,10 @@ public class EventProcessor extends AbstractProcessor<String, String> {
                 if (nowEpochTime.getTime() >= interval) {
 
                     // event ended. ------------------------------------------
-                    String eventMsg = prevStatusTime + ","
-                            + eventInfo.getSecond().getEventRawId() + ","
-                            + eventInfo.getSecond().getEventTypeCD();
-
-                    log.info("[{}] - {} process ended.", key, prevStatusTime);
-                    context().forward(key, eventMsg.getBytes(), To.child(NEXT_OUT_STREAM_NODE));
-                    // event ended. ------------------------------------------
 
                     String nextMessage = "END," + originalStartTime + "," + prevStatusTime;
                     context().forward(key, nextMessage, To.child(NEXT_STREAM_NODE));
 
-                    // event started. ----------------------------------------
-                    eventMsg = nowStatusTime + ","
-                            + eventInfo.getFirst().getEventRawId() + ","
-                            + eventInfo.getFirst().getEventTypeCD();
-
-                    log.info("[{}] - {} process started.", key, nowStatusTime);
-                    context().forward(key, eventMsg.getBytes(), To.child(NEXT_OUT_STREAM_NODE));
                     // event started. ----------------------------------------
 
                     kvRecordGroupStore.put(key, nowStatusTime);
@@ -96,15 +81,6 @@ public class EventProcessor extends AbstractProcessor<String, String> {
                 // process start (IR)
 
                 kvRecordGroupStore.put(key, nowStatusTime);
-
-                // event started. ------------------------------------------
-                String eventMsg =
-                        nowStatusTime + ","
-                                + eventInfo.getFirst().getEventRawId() + ","
-                                + eventInfo.getFirst().getEventTypeCD();
-
-                log.info("[{}] - {} process started.", key, nowStatusTime);
-                context().forward(key, eventMsg.getBytes(), To.child(NEXT_OUT_STREAM_NODE));
                 // event started. ------------------------------------------
 
             } else if (prevStatusCode.equalsIgnoreCase("R")
@@ -113,14 +89,6 @@ public class EventProcessor extends AbstractProcessor<String, String> {
 
                 String startEventTime = kvRecordGroupStore.get(key);
 
-                // event ended. ------------------------------------------
-                String eventMsg =
-                        prevStatusTime + ","
-                                + eventInfo.getSecond().getEventRawId() + ","
-                                + eventInfo.getSecond().getEventTypeCD();
-
-                log.info("[{}] - {} process ended.", key, prevStatusTime);
-                context().forward(key, eventMsg.getBytes(), To.child(NEXT_OUT_STREAM_NODE));
                 // event ended. ------------------------------------------
 
                 String nextMessage = "END," + startEventTime + "," + prevStatusTime;
@@ -131,14 +99,8 @@ public class EventProcessor extends AbstractProcessor<String, String> {
             kvStatusContextStore.put(key, nowStatusTime + "," + nowStatusCode);
 
             if (nowStatusCode.equalsIgnoreCase("R")) {
-                // time, P1, P2, P3, P4, ... Pn,status, +groupid
-                String eventStartDtts = kvRecordGroupStore.get(key);
-                String nextMessage = record + "," + eventStartDtts;
-                context().forward(key, nextMessage, To.child(NEXT_STREAM_NODE));
-            } else {
-                // time, P1, P2, P3, P4, ... Pn,status, +groupid
-                String nextMessage = record + ",IDLE";
-                context().forward(key, nextMessage, To.child(NEXT_STREAM_NODE));
+                // time, P1, P2, P3, P4, ... Pn
+                context().forward(key, record, To.child(NEXT_STREAM_NODE));
             }
 
         } catch (Exception e) {

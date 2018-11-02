@@ -1,4 +1,4 @@
-package com.bistel.pdm.speed.processor;
+package com.bistel.pdm.batch.processor;
 
 import com.bistel.pdm.lambda.kafka.master.MasterCache;
 import org.apache.kafka.streams.processor.AbstractProcessor;

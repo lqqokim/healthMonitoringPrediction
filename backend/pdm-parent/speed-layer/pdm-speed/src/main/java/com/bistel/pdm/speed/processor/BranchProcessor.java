@@ -1,8 +1,6 @@
 package com.bistel.pdm.speed.processor;
 
-import com.bistel.pdm.common.collection.Pair;
 import com.bistel.pdm.data.stream.ConditionalSpecMaster;
-import com.bistel.pdm.data.stream.EventMaster;
 import com.bistel.pdm.data.stream.ParameterWithSpecMaster;
 import com.bistel.pdm.expression.RuleEvaluator;
 import com.bistel.pdm.expression.RuleVariables;
@@ -12,7 +10,6 @@ import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.processor.AbstractProcessor;
 import org.apache.kafka.streams.processor.ProcessorContext;
 import org.apache.kafka.streams.processor.To;
-import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.state.WindowStore;
 import org.apache.kafka.streams.state.WindowStoreIterator;
 import org.slf4j.Logger;
@@ -54,7 +51,7 @@ public class BranchProcessor extends AbstractProcessor<String, String> {
             String conditionRuleName = evaluateCondition(key, columns);
 
             // event end
-            if(columns[0].equalsIgnoreCase("END")){
+            if (columns[0].equalsIgnoreCase("END")) {
 
                 log.info("[{}] - fetch data from {} to {}.", key, columns[1], columns[2]);
 
@@ -86,7 +83,7 @@ public class BranchProcessor extends AbstractProcessor<String, String> {
 
                         String normalizedString = StringUtils.join(normalizedValueList, '^');
 
-                        // time, param_rawid, value, alarm_spec, warning_spec, fault_class, rulename, condition
+                        //out : time, param_rawid, value, alarm_spec, warning_spec, fault_class, rulename, condition, groupid
                         String nextMsg = endEpochTime + "," +
                                 paramInfo.getParameterRawId() + "," +
                                 normalizedString + "," +
@@ -94,7 +91,8 @@ public class BranchProcessor extends AbstractProcessor<String, String> {
                                 paramInfo.getUpperWarningSpec() + "," +
                                 paramInfo.getParameterName() + "," +
                                 paramInfo.getRuleName() + "," +
-                                paramInfo.getCondition().replaceAll(",", ";");
+                                paramInfo.getCondition().replaceAll(",", ";") + "," +
+                                startEpochTime;
 
                         //farward health
                         context().forward(key, nextMsg, To.child(NEXT_HEALTH_STREAM_NODE));
@@ -154,7 +152,7 @@ public class BranchProcessor extends AbstractProcessor<String, String> {
                     log.info("[{}] - There is no rule information.", key);
                 }
             }
-        } catch(Exception e){
+        } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
     }
@@ -174,7 +172,7 @@ public class BranchProcessor extends AbstractProcessor<String, String> {
                 }
 
                 Map<String, Integer> expr = MasterCache.ExprParameter.get(partitionKey).get(cs.getRuleName());
-                if(expr.size() > 0) {
+                if (expr.size() > 0) {
                     String[] params = cs.getExpressionValue().split(",");
                     for (int i = 1; i <= params.length; i++) {
                         Integer index = expr.get(params[i - 1]);

@@ -89,6 +89,9 @@ public class FaultDetectionProcessor extends AbstractProcessor<String, String> {
                 log.info("[{}] - No health information registered.", key);
             }
 
+            //transaction commit.
+            context().commit();
+
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
