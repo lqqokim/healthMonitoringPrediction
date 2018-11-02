@@ -179,7 +179,9 @@ public class IndividualDetection {
         Timestamp timestamp = new Timestamp(parsedDate.getTime());
 
         // time, param_rawid, health_rawid, value, alarm type, alarm_spec, warning_spec, fault_class
-        String sbMsg = timestamp.getTime() + "," +
+
+        //[{\"param_name\":\"BARCODE\",\"operand\":\"=\",\"param_value\":\"7005\"}]
+        return timestamp.getTime() + "," +
                 param.getParameterRawId() + "," +
                 healthData.getParamHealthRawId() + ',' +
                 paramValue + "," +
@@ -189,9 +191,6 @@ public class IndividualDetection {
                 param.getParameterName() + "," +
                 param.getRuleName() + "," +
                 param.getCondition().replaceAll(",", ";");
-
-        //[{\"param_name\":\"BARCODE\",\"operand\":\"=\",\"param_value\":\"7005\"}]
-        return sbMsg;
 
         //send mail
                 /*

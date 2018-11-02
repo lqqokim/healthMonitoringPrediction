@@ -3,14 +3,8 @@ package com.bistel.pdm.speed.Function;
 import com.bistel.pdm.data.stream.EventMaster;
 import com.bistel.pdm.expression.RuleEvaluator;
 import com.bistel.pdm.expression.RuleVariables;
-import com.bistel.pdm.speed.model.StatusWindow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class StatusDefineFunction {
     private static final Logger log = LoggerFactory.getLogger(StatusDefineFunction.class);

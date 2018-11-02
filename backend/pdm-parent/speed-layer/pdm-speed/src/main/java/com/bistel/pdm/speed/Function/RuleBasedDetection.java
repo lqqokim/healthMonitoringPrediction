@@ -57,7 +57,8 @@ public class RuleBasedDetection {
                 List<Double> outWarningValues = evaluate(paramHealthValues, windowSize, outCount, 0.8F);
                 if (outWarningValues.size() > 0) {
                     outOfSpecMsg = makeOutOfRuleMsg(longTime, paramInfo, fd02Health, outWarningValues, "128");
-                    healthMsg = "";
+                    Double healthScore = calculateHealth(outWarningValues);
+                    healthMsg = makeHealthMsg(longTime, "W", paramInfo, fd02Health, healthScore, outWarningValues.size());
                 } else {
                     Double healthScore = calculateHealth(paramHealthValues);
                     healthMsg = makeHealthMsg(longTime, "N", paramInfo, fd02Health, healthScore, 0);
@@ -78,9 +79,7 @@ public class RuleBasedDetection {
         ArrayList<Double> outOfSpecValueList = new ArrayList<>();
         List<Double> slidingWindow = new ArrayList<>(windowSize);
 
-        for (int i = 0; i < paramHealthValues.size(); i++) {
-            Double healthScore = paramHealthValues.get(i);
-
+        for (Double healthScore : paramHealthValues) {
             if (slidingWindow.size() == windowSize) {
                 //check alarm
                 int alarmCount = 0;
@@ -140,7 +139,8 @@ public class RuleBasedDetection {
 
     private String makeHealthMsg(Long longTime, String statusCode, ParameterWithSpecMaster paramInfo,
                                  ParameterHealthMaster healthInfo, Double index, int alarmCount) {
-        String newMsg = longTime + ","
+
+        return longTime + ","
                 + paramInfo.getEquipmentRawId() + ","
                 + paramInfo.getParameterRawId() + ","
                 + healthInfo.getParamHealthRawId() + ','
@@ -152,8 +152,6 @@ public class RuleBasedDetection {
                 + (paramInfo.getTarget() == null ? "" : paramInfo.getTarget()) + ","
                 + (paramInfo.getLowerAlarmSpec() == null ? "" : paramInfo.getLowerAlarmSpec()) + ","
                 + (paramInfo.getLowerWarningSpec() == null ? "" : paramInfo.getLowerWarningSpec());
-
-        return newMsg;
     }
 
     private ParameterHealthMaster getParamHealth(String partitionKey, Long paramkey, String code)
