@@ -6,12 +6,14 @@ import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
 
+@Configuration
 public class MybatisConfig {
 
     private DataSource dataSource;
@@ -19,10 +21,15 @@ public class MybatisConfig {
     private PlatformTransactionManager transactionManager;
 
     @Autowired
-    public MybatisConfig(@Qualifier("quartzDataSource") DataSource dataSource,
-                         @Qualifier("schedulerTransactionManager") PlatformTransactionManager transactionManager) {
+    public MybatisConfig(@Qualifier("mybatisDataSource") DataSource dataSource,
+                         @Qualifier("mybatisTransactionManager") PlatformTransactionManager transactionManager) {
         this.dataSource = dataSource;
         this.transactionManager = transactionManager;
+    }
+
+    @Bean(name="myBatisTransactionManager")
+    public PlatformTransactionManager getTransactionManager() {
+        return transactionManager;
     }
 
     @Bean

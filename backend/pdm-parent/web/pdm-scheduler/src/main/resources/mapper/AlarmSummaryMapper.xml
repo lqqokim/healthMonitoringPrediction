@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+       Copyright 2015-2016 the original author or authors.
+       Licensed under the Apache License, Version 2.0 (the "License");
+       you may not use this file except in compliance with the License.
+       You may obtain a copy of the License at
+          http://www.apache.org/licenses/LICENSE-2.0
+       Unless required by applicable law or agreed to in writing, software
+       distributed under the License is distributed on an "AS IS" BASIS,
+       WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+       See the License for the specific language governing permissions and
+       limitations under the License.
+-->
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bistel.pdm.scheduler.job.mapper.AlarmSummaryMapper">
+
+    <delete id="deleteSummarizedAlarm" databaseId="oracle">
+        <![CDATA[
+        DELETE FROM EQP_ALARM_DAILY_SUM_PDM WHERE SUM_DTTS >= #{FROMDATE} AND SUM_DTTS < #{TODATE}
+        ]]>
+    </delete>
+
+    <insert id="insertSummarizedAlarm" databaseId="oracle">
+        <![CDATA[
+        INSERT INTO EQP_ALARM_DAILY_SUM_PDM
+        SELECT SEQ_EQP_ALARM_DAILY_SUM_PDM.NEXTVAL, EQP_MST_RAWID, STATUS_CD, VALUE, #{FROMDATE} AS SUM_DTTS,
+        'SCHEDULER' AS CREATE_BY, SYSTIMESTAMP AS CREATE_DTTS, NULL AS ALARM_TYPE_CD
+        FROM
+        (
+            SELECT EQP_MST_RAWID, MAX(ALARM_TYPE_CD) AS STATUS_CD, MAX(PARAM_SCORE)AS VALUE
+            FROM
+            (
+                SELECT A.EQP_MST_RAWID, A.PARAM_MST_RAWID, A.ALARM_TYPE_CD, A.PARAM_SCORE
+                FROM
+                EQP_MST_PDM EQP,
+                (
+                    SELECT PARAM.EQP_MST_RAWID AS EQP_MST_RAWID, ALARM.PARAM_MST_RAWID AS PARAM_MST_RAWID,
+                        MAX(ALARM_TYPE_CD) ALARM_TYPE_CD, MAX(VALUE) PARAM_SCORE
+                    FROM ALARM_TRX_PDM ALARM, PARAM_MST_PDM PARAM
+                    WHERE 1=1
+                    AND ALARM.ALARM_DTTS >= #{FROMDATE}
+                    AND ALARM.ALARM_DTTS < #{TODATE}
+                    AND PARAM.RAWID=ALARM.PARAM_MST_RAWID
+                    GROUP BY PARAM.EQP_MST_RAWID, ALARM.PARAM_MST_RAWID
+                ) A
+                WHERE 1=1
+                AND EQP.RAWID=A.EQP_MST_RAWID
+            )
+            GROUP BY EQP_MST_RAWID
+        )
+        ]]>
+    </insert>
+    
+</mapper>

@@ -2,6 +2,7 @@ package com.bistel.pdm.scheduler.datasource;
 
 import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
+import org.springframework.boot.autoconfigure.quartz.QuartzDataSource;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,21 +28,28 @@ public class ApplicationDatasource {
     }
 
     @Bean
-    @ConfigurationProperties("mybatis.datasource")
     public HikariDataSource mybatisDataSource() {
         return mybatisDataSourceProperties().initializeDataSourceBuilder().type(HikariDataSource.class)
                 .build();
     }
 
     @Bean
-    @ConfigurationProperties("quartz.datasource")
+    @QuartzDataSource
     public HikariDataSource quartzDataSource() {
         return quartzDataSourceProperties().initializeDataSourceBuilder().type(HikariDataSource.class)
                 .build();
     }
 
     @Bean
-    public PlatformTransactionManager schedulerTransactionManager() {
+    public PlatformTransactionManager mybatisTransactionManager() {
+        final DataSourceTransactionManager transactionManager = new DataSourceTransactionManager();
+        transactionManager.setDataSource(mybatisDataSource());
+
+        return transactionManager;
+    }
+
+    @Bean
+    public PlatformTransactionManager quartzTransactionManager() {
         final DataSourceTransactionManager transactionManager = new DataSourceTransactionManager();
         transactionManager.setDataSource(quartzDataSource());
 
