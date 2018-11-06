@@ -108,7 +108,7 @@
                         </div>
                     </div>
         
-                    <div *ngIf="nodeClickType === TYPES.PARAMETER" class="row-chart-group sectrum-chr" #chartTrend>
+                    <div *ngIf="nodeClickType === NODE_TYPE_CODE.PARAMETER" class="row-chart-group sectrum-chr" #chartTrend>
                         <div class="row-chart-header chr-pad-height">
                             <h3 class="panel-title">Health Trend Chart (SPC)</h3>
                             <span class="pull-right">
@@ -174,7 +174,7 @@
                                     </div> -->
                         </div>
                     </div>
-                    <div *ngIf="nodeClickType === TYPES.PARAMETER && isVibration" class="row-chart-group sectrum-chr" #chartSpectra onselectstart="return false;">
+                    <div *ngIf="nodeClickType === NODE_TYPE_CODE.PARAMETER && isVibration" class="row-chart-group sectrum-chr" #chartSpectra onselectstart="return false;">
                         <div class="row-chart-header chr-pad-height">
                             <h3 class="panel-title">Spectrum Chart </h3>
                             <span class="timedate">{{timewavedate}}</span>
@@ -196,7 +196,7 @@
         
                         <div class="row-chart-area">
                             <div class="chart spectrum-chart">
-                                <a3c-bistel-chart [data]="spectrumData" [config]="spectrumConfig" [chartEvents]="chartEvents" [eventLines]="eventLines" style="width: 100%;"
+                                <a3c-bistel-chart [data]="spectrumData" [config]="spectrumConfig" [chartEvents]="chartEvents" [eventLines]="spectrumEventLines" style="width: 100%;"
                                     class="chart-body">
                                 </a3c-bistel-chart>
                             </div>
@@ -214,7 +214,7 @@
                         </div>
                     </div>
         
-                    <div *ngIf="nodeClickType === TYPES.PARAMETER && isVibration" class="row-chart-group sectrum-chr" #chartTimeWave onselectstart="return false;">
+                    <div *ngIf="nodeClickType === NODE_TYPE_CODE.PARAMETER && isVibration" class="row-chart-group sectrum-chr" #chartTimeWave onselectstart="return false;">
                         <div class="row-chart-header chr-pad-height">
                             <h3 class="panel-title">Time Wave Chart </h3>
                             <span class="timedate">{{timewavedate}}</span>
