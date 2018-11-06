@@ -108,6 +108,11 @@ export interface EqpList {
     areaName: Area['areaName'];
 }
 
+export interface SpinnerType {
+    SHOW: string;
+    HIDE: string;
+}
+
 // export interface PartList {
 // }
 

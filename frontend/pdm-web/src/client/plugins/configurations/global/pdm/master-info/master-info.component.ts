@@ -16,7 +16,6 @@ import * as IMaster from './model/master-interface';
 })
 export class MasterInfoComponent implements OnInit, AfterViewInit {
     @ViewChild('componentSpinner') componentSpinner: SpinnerComponent;
-    @ViewChild('tv') tv;
 
     selectedFab: IMaster.Fab;
     selectedItem: IMaster.TreeEvent['treeview'];
@@ -406,6 +405,14 @@ export class MasterInfoComponent implements OnInit, AfterViewInit {
             this.selectedEv.treeview.isChildLoaded = false;
             this.selectedEv.treeview.children = [];
             this.selectNode(this.selectedEv);
+        }
+    }
+    
+    controleSpinner(type: string): void {
+        if(type === 'show') {
+            this.componentSpinner.showSpinner();
+        } else {
+            this.componentSpinner.hideSpinner();
         }
     }
 

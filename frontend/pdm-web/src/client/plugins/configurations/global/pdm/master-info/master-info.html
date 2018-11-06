@@ -1,3 +1,5 @@
+<div a3-spinner #componentSpinner [type]="'component'"></div>
+
 <div class="master-info-container clearfix">
     <split direction="horizontal" [gutterSize]="3">
 
@@ -74,7 +76,8 @@
 
                 <div class="bottom-list">
                     <master-spec-rule *ngIf="nodeType === 'eqp'" 
-                        [specCondition]="eqpSpecCondition">
+                        [specCondition]="eqpSpecCondition"
+                        (controleSpinner)="controleSpinner($event);">
                     </master-spec-rule>
                 </div>
             </div>
