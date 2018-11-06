@@ -12,7 +12,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.0.5.RELEASE</version>
+        <version>2.1.0.RELEASE</version>
     </parent>
 
     <modules>
@@ -66,22 +66,21 @@
         <scala.minor.version>2.11</scala.minor.version>
         <scala.complete.version>${scala.minor.version}.8</scala.complete.version>
         <jackson.version>2.9.1</jackson.version>
-        <confluent.version>4.1.0</confluent.version>
-        <kafka.version>1.1.0</kafka.version>
+        <confluent.version>5.0.0</confluent.version>
+        <kafka.version>2.0.0</kafka.version>
         <avro.version>1.8.2</avro.version>
-        <zookeeper.version>3.4.10</zookeeper.version>
+        <zookeeper.version>3.4.13</zookeeper.version>
         <netlib.java.version>1.1.2</netlib.java.version>
         <snappy.version>1.1.4</snappy.version>
-        <undertow.version>2.0.1.Final</undertow.version>
-        <resteasy.version>3.5.0.Final</resteasy.version>
-        <weld-servlet.version>2.4.3.Final</weld-servlet.version>
+        <undertow.version>2.0.14.Final</undertow.version>
+        <resteasy.version>3.6.1.Final</resteasy.version>
+        <weld-servlet.version>2.4.8.Final</weld-servlet.version>
         <guava.version>20.0</guava.version>
-        <quartz.version>2.2.1</quartz.version>
         <sqlite-jdbc.version>3.8.11.2</sqlite-jdbc.version>
         <postgresql.version>42.2.2</postgresql.version>
         <oracle.version>12.1.0.1-atlassian-hosted</oracle.version>
-        <!--<HikariCP.version>2.7.8</HikariCP.version>-->
         <HikariCP.version>3.2.0</HikariCP.version>
+        <h2.version>1.4.197</h2.version>
         <flywaydb.version>5.0.7</flywaydb.version>
         <querydsl.version>4.2.1</querydsl.version>
         <guice.version>4.2.0</guice.version>
@@ -90,9 +89,6 @@
         <assertj.version>3.8.0</assertj.version>
         <curator-test.version>4.0.1</curator-test.version>
         <surefire.version>2.20.1</surefire.version>
-        <!--<hadoop.version>2.7.5</hadoop.version>-->
-        <!--<koloboke.version>1.0.0</koloboke.version>-->
-        <!--<spark.version>2.2.1</spark.version>-->
         <shadePhase>package</shadePhase>
     </properties>
 
@@ -464,6 +460,7 @@
                 <groupId>com.oracle</groupId>
                 <artifactId>ojdbc6</artifactId>
                 <version>${oracle.version}</version>
+                <!--<scope>runtime</scope>-->
             </dependency>
             <dependency>
                 <groupId>org.flywaydb</groupId>
@@ -648,6 +645,11 @@
                     </configuration>
                 </plugin>
                 <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                    <version>2.1.0.RELEASE</version>
+                </plugin>
+                <plugin>
                     <groupId>org.maven.apache.plugins</groupId>
                     <artifactId>maven-resources-plugin</artifactId>
                     <version>3.0.2</version>
@@ -661,11 +663,6 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
                     <version>3.0.2</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-maven-plugin</artifactId>
-                    <version>2.0.2.RELEASE</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>

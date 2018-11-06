@@ -2,7 +2,7 @@
 APPNAME="Serving Layer"
 APPPID=serving.pid
 APPJAR=pdm-serving-bundle-1.0-SNAPSHOT.jar
-APPOPTS="-server 192.168.7.230 -port 28000 -log4jConf ./config/log4j.properties"
+APPOPTS="-server 192.168.7.230 -port 8089 -log4jConf ./config/log4j.properties"
 
 case $1 in
     start)

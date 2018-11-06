@@ -1,24 +1,17 @@
 package com.bistel.pdm.speed;
 
 import com.bistel.pdm.lambda.kafka.AbstractPipeline;
-import com.bistel.pdm.lambda.kafka.partitioner.CustomStreamPartitioner;
-import com.bistel.pdm.speed.processor.*;
+import com.bistel.pdm.speed.processor.TimeoutProcessor;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.Topology;
-import org.apache.kafka.streams.state.KeyValueStore;
-import org.apache.kafka.streams.state.StoreBuilder;
-import org.apache.kafka.streams.state.Stores;
-import org.apache.kafka.streams.state.WindowStore;
-import org.omg.CORBA.TIMEOUT;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Properties;
-import java.util.concurrent.TimeUnit;
 
 /**
  *
@@ -29,10 +22,9 @@ public class SpeedTimeOutTaskDef extends AbstractPipeline {
     private final String applicationId;
     private final int streamThreadCount;
 
-    public SpeedTimeOutTaskDef(String applicationId, String brokers,
-                               String schemaUrl, String servingAddr, String streamThreadCount) {
+    public SpeedTimeOutTaskDef(String applicationId, String brokers, String servingAddr, String streamThreadCount) {
 
-        super(brokers, schemaUrl, servingAddr);
+        super(brokers, servingAddr);
         this.applicationId = applicationId;
         this.streamThreadCount = Integer.parseInt(streamThreadCount);
     }

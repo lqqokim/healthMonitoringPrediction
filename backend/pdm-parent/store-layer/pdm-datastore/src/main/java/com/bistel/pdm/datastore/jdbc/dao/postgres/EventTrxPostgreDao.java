@@ -10,6 +10,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -38,9 +40,13 @@ public class EventTrxPostgreDao implements EventDataDao {
                     String[] values = valueString.split(",");
                     // time, event mst rawid, event type cd
 
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+                    Date parsedDate = dateFormat.parse(values[0]);
+                    Timestamp timestamp = new Timestamp(parsedDate.getTime());
+
                     pstmt.setLong(1, Long.parseLong(values[1])); //eqp_event_mst_rawid
                     pstmt.setString(2, values[2]); //event type cd (S,E)
-                    pstmt.setTimestamp(3, new Timestamp(Long.parseLong(values[0])));
+                    pstmt.setTimestamp(3, timestamp);
 
                     pstmt.addBatch();
                     ++totalCount;

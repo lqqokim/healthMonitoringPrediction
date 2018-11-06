@@ -14,11 +14,11 @@ import org.slf4j.LoggerFactory;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.TimeUnit;
 
 /**
  *
@@ -29,7 +29,7 @@ public class EventConsumerRunnable implements Runnable {
     private final KafkaConsumer<String, byte[]> consumer;
     private final String topicName;
 
-    private final static int PollingDurations = 100; // milliseconds
+    private final static long PollingDurations = 100; // milliseconds
 
     private EventDataDao trxDao;
 
@@ -63,9 +63,8 @@ public class EventConsumerRunnable implements Runnable {
         List<ConsumerRecord<String, byte[]>> buffer = new ArrayList<>();
 
         while (true) {
-            ConsumerRecords<String, byte[]> records = consumer.poll(TimeUnit.MILLISECONDS.toMillis(PollingDurations));
+            ConsumerRecords<String, byte[]> records = consumer.poll(Duration.ofMillis(PollingDurations));
             for (ConsumerRecord<String, byte[]> record : records) {
-                //log.debug("[{}] - event -- partition:{}, offset:{}", record.key(), record.partition(), record.offset());
                 buffer.add(record);
             }
 

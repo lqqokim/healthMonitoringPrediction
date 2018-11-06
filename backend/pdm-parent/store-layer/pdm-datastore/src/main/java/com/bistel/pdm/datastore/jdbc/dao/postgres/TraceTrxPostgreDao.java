@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -77,16 +78,19 @@ public class TraceTrxPostgreDao implements SensorTraceDataDao {
                 Timestamp ts = null;
 
                 for (ConsumerRecord<String, byte[]> record : records) {
-                    //log.debug("offset={}, key={}, value={}", record.offset(), record.key(), record.value());
-
                     byte[] sensorData = record.value();
                     String valueString = new String(sensorData);
 
-                    // time, P1, P2, P3, P4, ... Pn, {status, groupid, rulename}
+                    // time, P1, P2, P3, P4, ... Pn,status,groupid,rulename
                     String[] values = valueString.split(",", -1);
 
                     String ruleName = values[values.length - 1];
-                    String msgGroup = values[values.length - 2];
+
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+                    Date parsedDate = dateFormat.parse(values[values.length - 2]);
+                    Timestamp timestamp = new Timestamp(parsedDate.getTime());
+                    String msgGroup = Long.toString(timestamp.getTime());
+
                     String status = values[values.length - 3];
 
                     List<ParameterMaster> paramData = MasterCache.Parameter.get(record.key());
@@ -107,7 +111,7 @@ public class TraceTrxPostgreDao implements SensorTraceDataDao {
 
                         ParameterWithSpecMaster paramSpec = getParamSpec(record.key(), paramInfo.getParameterName(), ruleName);
 
-                        if(paramSpec != null) {
+                        if (paramSpec != null) {
                             if (paramSpec.getUpperAlarmSpec() != null) {
                                 pstmt.setFloat(3, paramSpec.getUpperAlarmSpec()); //upper alarm spec
                             } else {
@@ -171,8 +175,8 @@ public class TraceTrxPostgreDao implements SensorTraceDataDao {
 
         ParameterWithSpecMaster paramInfo = null;
         for (ParameterWithSpecMaster pws : paramWithSpec) {
-            if(ruleName.equalsIgnoreCase(pws.getRuleName())){
-                if (paramName.equalsIgnoreCase(pws.getParameterName())){
+            if (ruleName.equalsIgnoreCase(pws.getRuleName())) {
+                if (paramName.equalsIgnoreCase(pws.getParameterName())) {
                     paramInfo = pws;
                     break;
                 }

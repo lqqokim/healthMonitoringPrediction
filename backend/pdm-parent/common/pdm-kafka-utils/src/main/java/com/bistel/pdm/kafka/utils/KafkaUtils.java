@@ -130,7 +130,7 @@ public final class KafkaUtils {
         // versions; seems to still not exist in CDH 0.11 distro (?)
         zkUtils.updatePersistentPath(partitionOffsetPath,
                                      Long.toString(offset),
-                                     ZkUtils$.MODULE$.DefaultAcls(false));
+                                     ZkUtils$.MODULE$.defaultAcls(false, partitionOffsetPath));
       });
     } finally {
       zkUtils.close();

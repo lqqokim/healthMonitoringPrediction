@@ -4,11 +4,9 @@ APPPID=speed-realtime.pid
 APPJAR=pdm-speed-bundle-1.0-SNAPSHOT.jar
 APPOPTS="-appId pdm-speed-realtime-v1.1.0
 -brokers 192.168.7.228:29092,192.168.7.228:39092,192.168.7.228:49092
--registryUrl http://192.168.7.228:8081
--servingAddr http://192.168.7.227:28000
+-servingAddr http://192.168.7.227:8089
 -pipeline REALTIME
--streamThreads 9
--recordType MP
+-streamThreads 2
 -log4jConf ./config/log4j-realtime.properties"
 
 case $1 in
