@@ -23,6 +23,7 @@ import { LineChartComponent }  from './line-chart/line-chart.component';
 
 import { Ng2C3Component } from './ng2-c3/ng2-c3.component';
 import { GaugeChartComponent } from './gauge-chart/gaugeChart.component';
+import { FilterConditionComponent } from './filter-condition/filter-condition';
 
 // import { PlotlyModule } from 'angular-plotly.js';
 
@@ -47,7 +48,8 @@ import { GaugeChartComponent } from './gauge-chart/gaugeChart.component';
         WidgetChartConditionComponent,
         StatusChangeComponent,
         LineChartComponent,
-        Ng2C3Component
+        Ng2C3Component,
+        FilterConditionComponent
     ],
     exports: [
         ModelingTreeComponent,
@@ -61,7 +63,8 @@ import { GaugeChartComponent } from './gauge-chart/gaugeChart.component';
         WidgetChartConditionComponent,
         StatusChangeComponent,
         LineChartComponent,
-        Ng2C3Component
+        Ng2C3Component,
+        FilterConditionComponent
     ]
     // ,
     // entryComponents: [

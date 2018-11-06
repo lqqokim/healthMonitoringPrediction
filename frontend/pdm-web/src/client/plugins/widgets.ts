@@ -22,6 +22,7 @@ import { PdmAlarmClassSummaryModule } from './widgets/pdm-alarm-class-summary/pd
 import { PdmAlarmHistoryModule } from './widgets/pdm-alarm-history/pdm-alarm-history.module';
 import { PdmEqpHealthIndexModule } from './widgets/pdm-eqp-health-index/pdm-eqp-health-index.module';
 import { PdmSpectrumDataAnalysisWidgetModule } from './widgets/pdm-spectrum-data-analysis/pdm-spectrum-data-analysis-widget.module';
+import { PdmAnovaWidgetModule } from './widgets/pdm-anova/pdm-anova-widget.module';
 
 export const getWidgetClassInfo = (widgetName: string): any => {
     console.log('getWidgetClassInfo => ', widgetName);
@@ -74,6 +75,8 @@ export const getWidgetClassInfo = (widgetName: string): any => {
             return PdmEqpHealthIndexModule;
         case 'pdmSpectrumDataAnalysis':
             return PdmSpectrumDataAnalysisWidgetModule;
+        case 'pdmAnova':
+            return PdmAnovaWidgetModule;
         default:
             // TODO: change Module Empty chart
             return PdmAreaStatusOverviewModule;

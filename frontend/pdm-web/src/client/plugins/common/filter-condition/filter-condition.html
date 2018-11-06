@@ -1,0 +1,41 @@
+
+    <div
+        class="a3-from-to"
+        [from]="selectedTimePeriod?.from"
+        [to]="selectedTimePeriod?.to"
+        format='yyyy/MM/dd hh:mm:ss'
+        (changedFromTo)="changeSelectedTimePeroid($event)"
+    ></div>
+
+    <label>Period</label>
+    <select
+        class="form-control"
+        name="period"
+        [(ngModel)]="selectedPeriod"
+        (ngModelChange)="changeSelectedPeriod($event)"
+    >
+        <option *ngFor="let item of periods" [ngValue]="item.value" >{{item.name}}</option>
+    </select>
+
+    <!-- <div sbox>
+        <div>
+            <label for="inputFab">Fab</label>
+            <select class="form-control" [(ngModel)]="selectedFab" name="fab" (ngModelChange)="changeSelectedFab($event)">
+                <option *ngFor="let plant of plants" [ngValue]="plant" [selected]="plant.fabId === selectedFab.fabId">
+                    {{plant.fabName}}
+                </option>
+            </select>
+        </div>
+        <div>
+            <label for="area">Area</label>
+            <multi-select-combo [datas]="areas" displayName='areaName' (changeData)="onChangeArea($event)" [selectedItems]="selectedAreaDatas"></multi-select-combo>
+        </div>
+        <div>
+            <label for="eqp">Eqp</label>
+            <multi-select-combo [datas]="eqps" displayName='eqpName' (changeData)="onChangeEqp($event)" [selectedItems]="selectedEqpDatas"></multi-select-combo>
+        </div>
+        <div>
+            <label for="parameter">Parameter</label>
+            <multi-select-combo [datas]="parameters" displayName='paramName' (changeData)="onChangeParameter($event)" [selectedItems]="selectedParameterDatas"></multi-select-combo>
+        </div>
+    </div> -->

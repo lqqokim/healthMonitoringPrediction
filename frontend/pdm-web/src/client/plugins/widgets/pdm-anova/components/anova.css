@@ -1,0 +1,11 @@
+filter-condition .a3-from-to{
+    /* position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 280px;
+    background: #f3f3f3;
+    border-right: 1px solid #ddd;
+    overflow-y: auto; */
+    display: table;
+}
