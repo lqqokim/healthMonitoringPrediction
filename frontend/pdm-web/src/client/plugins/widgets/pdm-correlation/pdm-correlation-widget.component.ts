@@ -3,12 +3,12 @@ import { WidgetApi, WidgetRefreshType, OnSetup } from '../../../common';
 
 @Component({
     moduleId: module.id,
-    selector: 'pdm-anova-widget',
-    templateUrl: './pdm-anova-widget.html',
-    styleUrls: ['./pdm-anova-widget.css'],
+    selector: 'pdm-correlation-widget',
+    templateUrl: './pdm-correlation-widget.html',
+    styleUrls: ['./pdm-correlation-widget.css'],
     encapsulation: ViewEncapsulation.None
 })
-export class PdmAnovaWidgetComponent extends WidgetApi implements OnInit, OnSetup, OnDestroy {
+export class PdmCorrelationWidgetComponent extends WidgetApi implements OnInit, OnSetup, OnDestroy {
    
     constructor() {
         super();

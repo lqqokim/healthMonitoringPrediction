@@ -4,12 +4,12 @@ import { FilterConditionComponent } from '../../../../plugins/common/filter-cond
 
 @Component({
     moduleId: module.id,
-    selector: 'anova',
-    templateUrl: './anova.html',
-    styleUrls: ['./anova.css'],
+    selector: 'correlation',
+    templateUrl: './correlation.html',
+    styleUrls: ['./correlation.css'],
     encapsulation: ViewEncapsulation.None
 })
-export class AnovaComponent implements OnInit, OnChanges, OnDestroy{
+export class CorrelationComponent implements OnInit, OnChanges, OnDestroy{
 
     constructor() {
 
