@@ -1,0 +1,9 @@
+.regression-container {
+    height: 100%;
+    width: 100%;
+}
+
+.regression-container > regression {
+    height: 100%;
+    width: 100%;
+}

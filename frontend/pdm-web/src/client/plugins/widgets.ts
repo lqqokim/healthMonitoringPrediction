@@ -24,6 +24,7 @@ import { PdmEqpHealthIndexModule } from './widgets/pdm-eqp-health-index/pdm-eqp-
 import { PdmSpectrumDataAnalysisWidgetModule } from './widgets/pdm-spectrum-data-analysis/pdm-spectrum-data-analysis-widget.module';
 import { PdmAnovaWidgetModule } from './widgets/pdm-anova/pdm-anova-widget.module';
 import { PdmCorrelationWidgetModule } from './widgets/pdm-correlation/pdm-correlation-widget.module';
+import { PdmRegressionWidgetModule } from './widgets/pdm-regression/pdm-regression-widget.module';
 
 export const getWidgetClassInfo = (widgetName: string): any => {
     console.log('getWidgetClassInfo => ', widgetName);
@@ -80,6 +81,8 @@ export const getWidgetClassInfo = (widgetName: string): any => {
             return PdmAnovaWidgetModule;
         case 'pdmCorrelation':
             return PdmCorrelationWidgetModule;
+        case 'pdmRegression':
+            return PdmRegressionWidgetModule;
         default:
             // TODO: change Module Empty chart
             return PdmAreaStatusOverviewModule;
