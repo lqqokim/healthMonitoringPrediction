@@ -62,4 +62,6 @@ public interface STDParamMapper {
 
 
     List<String> selectParamNamesByEqps(@Param("eqpIds") List<Long> eqpIds);
+
+    List<Long> selectParamIds();
 }

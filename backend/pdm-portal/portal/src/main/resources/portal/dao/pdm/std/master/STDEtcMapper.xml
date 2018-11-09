@@ -131,6 +131,12 @@
         from PARAM_HEALTH_OPTION_MST_PDM
     </delete>
 
+    <select id="selectParamHealthMSTParamIds" resultType="Long">
+        select param_mst_rawid
+        from param_health_mst_pdm
+        group by param_mst_rawid
+    </select>
+
 
 
     <insert id="insertParamHealth" databaseId="oracle">

@@ -4,6 +4,7 @@ import com.bistel.a3.common.util.DateUtil;
 import com.bistel.a3.portal.dao.pdm.std.summary.STDSummaryMapper;
 import com.bistel.a3.portal.enums.JOB_TYPE;
 import com.bistel.a3.portal.module.pdm.FabsComponent;
+import com.bistel.a3.portal.service.pdm.impl.std.BLOBTest;
 import com.bistel.a3.portal.util.ApacheHttpClientGet;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
@@ -246,6 +247,7 @@ public class SchedulerService {
         batchTaskService.dataPumpBase(fabsComponent.scheduleFabs(), date, JOB_TYPE.SCHEDULER, "SCHEDULER");
         logger.info("END   scheduled datepump base {}", ff.format(date));
     }
+
 
 
 

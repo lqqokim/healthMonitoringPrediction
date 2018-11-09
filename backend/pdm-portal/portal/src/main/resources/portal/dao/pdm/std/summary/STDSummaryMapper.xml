@@ -3071,28 +3071,25 @@
 
 	<select id="selectRULSummary" resultType="com.bistel.a3.portal.domain.pdm.ParamRULSummary">
 
-		select
-		a.param_mst_rawid, a.end_dtts, a.mean, b.param_health_mst_rawid, a.alarm_spec
-
-
+		select a.param_mst_rawid, a.end_dtts, a.mean, b.param_health_mst_rawid, a.alarm_spec
 		from
 		(
-		select ht.param_mst_rawid as param_mst_rawid, ht.create_dtts as end_dtts,
-		ht.score as mean, 1 as alarm_spec, p.eqp_mst_rawid
-		from param_mst_pdm p, param_health_mst_pdm h, param_health_trx_pdm ht
-		where 1=1
-		and p.rawid=h.param_mst_rawid
-		and ht.create_dtts <![CDATA[>=]]> #{fromdate}
-		AND ht.create_dtts <![CDATA[<]]> #{todate}
-		and h.health_logic_mst_rawid=2
-		and h.param_mst_rawid=ht.param_mst_rawid
+			select ht.param_mst_rawid as param_mst_rawid, ht.create_dtts as end_dtts,
+			ht.score as mean, 1 as alarm_spec, p.eqp_mst_rawid
+			from param_mst_pdm p, param_health_mst_pdm h, param_health_trx_pdm ht
+			where 1=1
+			and p.rawid=h.param_mst_rawid
+			and ht.create_dtts <![CDATA[>=]]> #{fromdate}
+			AND ht.create_dtts <![CDATA[<]]> #{todate}
+			and h.health_logic_mst_rawid=2
+			and h.param_mst_rawid=ht.param_mst_rawid
 		) a,
 		(
-		SELECT p.eqp_mst_rawid, p.rawid, h.rawid param_health_mst_rawid
-		FROM param_mst_pdm p,
-		param_health_mst_pdm h
-		WHERE p.rawid=h.param_mst_rawid
-		and h.health_logic_mst_rawid=4
+			SELECT p.eqp_mst_rawid, p.rawid, h.rawid param_health_mst_rawid
+			FROM param_mst_pdm p,
+			param_health_mst_pdm h
+			WHERE p.rawid=h.param_mst_rawid
+			and h.health_logic_mst_rawid=4
 		) b
 		where a.eqp_mst_rawid=b.eqp_mst_rawid and b.rawid=a.param_mst_rawid
 		order by a.end_dtts
@@ -3100,48 +3097,6 @@
 
 	</select>
 
-	<!--<select id="selectRULSummary" resultType="com.bistel.a3.portal.domain.pdm.ParamRULSummary">-->
-	<!--select-->
-	<!--seq_param_health_trx_pdm.nextval as param_health_trx_rawid,param_mst_rawid, param_health_mst_rawid, case when rul <![CDATA[>=]]> 1 then 'A' when rul <![CDATA[<]]> 1 and rul <![CDATA[>]]> 0.5 then 'W' else 'N' end status_cd , data_count, rul score, end_dtts as create_dtts,-->
-	<!--slope, intercept, xval as xvalue-->
-	<!--from-->
-	<!--(-->
-	<!--select-->
-	<!--a.param_mst_rawid, a.param_health_mst_rawid, (-0.0167 * a.remain + 1.5) as rul, a.data_count, a.end_dtts, a.slope, a.intercept, a.xval-->
-	<!--from-->
-	<!--(-->
-	<!--select-->
-	<!--param_mst_rawid, param_health_mst_rawid, slope, intercept, (((alarm_spec - intercept) / slope) - -->
-	<!--trunc( extract(day from systimestamp) * 24 * 60 * 60-->
-	<!--+ extract(hour from systimestamp) * 60 * 60-->
-	<!--+ extract(minute from systimestamp) * 60-->
-	<!--+ extract(second from systimestamp))) remain, data_count, end_dtts, (alarm_spec - intercept) / slope as xval-->
-	<!--from-->
-	<!--(-->
-	<!--select-->
-	<!--param_mst_rawid, param_health_mst_rawid, alarm_spec, REGR_SLOPE(ms, mean) slope, REGR_INTERCEPT(ms, mean) intercept, count(*) data_count, max(end_dtts) end_dtts-->
-	<!--from-->
-	<!--(-->
-	<!--select f.param_mst_rawid, f.end_dtts, f.mean-->
-	<!--,trunc( extract(day from end_dtts) * 24 * 60 * 60-->
-	<!--+ extract(hour from end_dtts) * 60 * 60-->
-	<!--+ extract(minute from end_dtts) * 60-->
-	<!--+ extract(second from end_dtts)-->
-	<!--) ms-->
-	<!--, h.rawid param_health_mst_rawid, s.alarm_spec-->
-	<!--from param_feature_trx_pdm f, param_health_mst_pdm h, trace_spec_mst_pdm s-->
-	<!--where end_dtts <![CDATA[>=]]> #{fromdate}-->
-	<!--and end_dtts <![CDATA[<]]> #{todate}-->
-	<!--and h.health_logic_mst_rawid=4-->
-	<!--and f.param_mst_rawid=h.param_mst_rawid-->
-	<!--and f.param_mst_rawid=s.param_mst_rawid-->
-	<!--order by f.end_dtts-->
-	<!--)-->
-	<!--group by param_mst_rawid, param_health_mst_rawid, alarm_spec-->
-	<!--)-->
-	<!--) a-->
-	<!--)-->
-	<!--</select>-->
 
 	<insert id="insertParamHealthRULTRX">
 		insert into param_health_rul_trx_pdm(rawid, param_health_mst_rawid, intercept, slope, xvalue, create_dtts)

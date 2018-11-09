@@ -336,4 +336,9 @@
         order by eqp_mst_rawid
     </select>
 
+    <select id="selectParamIds" resultType="Long">
+        select rawid
+        from param_mst_pdm
+    </select>
+
 </mapper>

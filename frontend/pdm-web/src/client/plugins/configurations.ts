@@ -35,6 +35,8 @@ import { ModelSimulatorModule }  from './configurations/global/pdm/model-simulat
 import { EquipmentParameterTrendModule  } from './configurations/global/pdm/equipment-parameter-trend/equipment-parameter-trend.module';
 import { SummaryTrendModule }  from './configurations/global/pdm/summary-trend/summary-trend.module';
 
+import { SocketTestModule } from './configurations/global/pdm/socketTest/socketTest.module';
+
 export const getConfigurationClassInfo = (menuId: string): any => {
 
     switch (menuId) {
@@ -107,6 +109,8 @@ export const getConfigurationClassInfo = (menuId: string): any => {
         case 'pdmFilterAnalysis':
             return AnalysisToolModule;
 
+        case 'socketTest':
+            return SocketTestModule;
             
         case 'pdmEqupmentParameterTrend':
             return EquipmentParameterTrendModule;

@@ -14,6 +14,8 @@ import com.bistel.a3.portal.module.pdm.IDataPumperComponent;
 import com.bistel.a3.portal.util.ApacheHttpClientGet;
 import com.bistel.a3.portal.util.SqlSessionUtil;
 import com.bistel.a3.portal.util.TransactionUtil;
+import jersey.repackaged.com.google.common.collect.Lists;
+import jersey.repackaged.com.google.common.collect.Sets;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
@@ -137,7 +139,6 @@ public class SKFDataPumperComponent implements IDataPumperComponent {
         //ManualRpm
         pump(ManualRpm.class, getMapper, putMapper, manager);
         //OverallSpec
-//        pump(OverallSpec.class, getMapper, putMapper, manager);
         pumpSpec(fabId, regacyName);
         //Health
         pumpParamHealth(fabId);
@@ -204,18 +205,34 @@ public class SKFDataPumperComponent implements IDataPumperComponent {
         List<Param> params = stdParamMapper.selectParamEqpList();
         List<Param> eqps = stdParamMapper.selectEqpList();
 
-        stdEtcMapper.deleteParamHealthOptMstAll();
-        stdEtcMapper.deleteParamHealthMstAll();
+        //stdEtcMapper.deleteParamHealthMstAll(); --> not correct
+
+     //update param_health_mst_pdm
+
+        List<Long> newParams= stdParamMapper.selectParamIds();              //newParam      16,19,107,108,109
+        List<Long> oldParams=stdEtcMapper.selectParamHealthMSTParamIds();   //oldParam      12,16,17,19,101
+                                                                            //intersection  16,19
+        //USE Guabva library --> get Intersection
+        List<Long> newParamLists = Lists.newArrayList(newParams);
+        List<Long> oldParamLists = Lists.newArrayList(oldParams);
+        Set<Long> intersection = Sets.intersection(Sets.newHashSet(newParamLists), Sets.newHashSet(oldParamLists));
+        newParamLists.removeAll(intersection); // 107,108,109 --> only new params
+        oldParamLists.removeAll(intersection); // 12,17,101 --> only old params
+        //
+
 
         Long paramId = null;
-        for (int i = 0; i < params.size(); i++) {
-            paramId = params.get(i).getParam_id();
+        for (int i = 0; i < newParamLists.size(); i++) {
+            paramId = newParamLists.get(i);
             stdEtcMapper.insertParamHealth(paramId, 1L, "Y", "SYSTEM"); // param_health_mst_pdm
             stdEtcMapper.insertParamHealth(paramId, 2L, "Y", "SYSTEM"); // param_health_mst_pdm
             stdEtcMapper.insertParamHealth(paramId, 3L, "N", "SYSTEM"); // param_health_mst_pdm
             stdEtcMapper.insertParamHealth(paramId, 4L, "N", "SYSTEM"); // param_health_mst_pdm
             stdEtcMapper.insertParamHealth(paramId, 5L, "N", "SYSTEM"); // param_health_mst_pdm
         }
+
+    //update param_health_option_mst_pdm
+        stdEtcMapper.deleteParamHealthOptMstAll();
 
         paramId = null;
         Long eqpId = null;

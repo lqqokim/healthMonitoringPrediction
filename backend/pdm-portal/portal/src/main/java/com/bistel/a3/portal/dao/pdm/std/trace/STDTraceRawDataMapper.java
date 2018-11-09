@@ -4,6 +4,7 @@ import com.bistel.a3.portal.domain.pdm.RpmWithPart;
 import com.bistel.a3.portal.domain.pdm.db.MeasureTrx;
 import com.bistel.a3.portal.domain.pdm.db.MeasureTrxBin;
 import com.bistel.a3.portal.domain.pdm.db.STDTraceRawTrx;
+import com.bistel.a3.portal.domain.pdm.db.TestTraceRawTrx;
 import com.bistel.a3.portal.domain.pdm.work.MeasureTrxWithBin;
 import org.apache.ibatis.annotations.Param;
 
@@ -55,6 +56,8 @@ public interface STDTraceRawDataMapper {
     List<MeasureTrx> selectSampleTraceByRawId(long sampleRawId);
 
     MeasureTrxWithBin selectSampleTraceWithBinById(@Param("data_type") Integer data_type, @Param("measure_trx_id") Long measure_trx_id);
+
+    TestTraceRawTrx selectBlobTest();
 
     void deleteTraceRawTrxByParamId(@Param("param_id") Long param_id, @Param("start") Date start, @Param("end") Date end);
 

@@ -588,7 +588,6 @@ public class BatchTaskService implements IBatchTaskService {
     public void deleteHealthDailySum(Set<String> fabs, Date from, Date end)  {
 
 
-
         for(String fab : fabs) {
 
 
@@ -694,15 +693,6 @@ public class BatchTaskService implements IBatchTaskService {
 
             for(Long rawid : paramRawIdList){
                 ParamRULSummary paramRULSummary =null;
-//                for (int i = 0; i < paramRULSummaryList.size(); i++) {
-//                    Long param_mst_rawid=paramRULSummaryList.get(i).getParam_mst_rawid();
-//                    if(param_mst_rawid.equals(rawid) ) {
-//                        paramRULSummary = paramRULSummaryList.get(i);
-//                        Long lEnd_dtts = paramRULSummary.getEnd_dtts().getTime();
-//                        Double mean = paramRULSummary.getMean();
-//                        simpleRegression.addData(lEnd_dtts, mean);
-//                    }
-//                }
                 simpleRegression = new SimpleRegression();
                 List<ParamRULSummary> paramRULSummaries = paramRULSummaryHashMap.get(rawid);
                 for (int i = 0; i < paramRULSummaries.size(); i++) {

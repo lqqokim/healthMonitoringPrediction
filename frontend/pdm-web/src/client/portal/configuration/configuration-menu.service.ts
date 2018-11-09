@@ -58,6 +58,12 @@ export class ConfigurationMenuService {
                     //     menus: <any>[]
                     // },
                     {
+                        menuId: 'socketTest',
+                        name: 'socketTest',
+                        description: 'socketTest',
+                        menus: <any>[]
+                    },
+                    {
                         menuId: 'pdmMasterInfo',
                         name: 'Master Info',
                         description: 'Pdm Master Info',

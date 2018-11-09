@@ -536,6 +536,14 @@
         and b.measure_trx_id = #{measure_trx_id}
     </select>
 
+    <select id="selectBlobTest" resultType="com.bistel.a3.portal.domain.pdm.db.TestTraceRawTrx">
+        select *
+        from trace_raw_trx_pdm
+        where rawid=43
+    </select>
+
+
+
 	<!-- TODO: Chris 실행 안됨 -->
     <select id="selectSampleTraceRawClosedTimeWithCurrentASC" resultType="com.bistel.a3.portal.domain.pdm.db.MeasureTrx" databaseId="oracle">
         select rawid, problem_data_rawid, measure_trx_id, to_timestamp(concat('1970-01-01',measure_dtts)), value, end_freq, spectra_line, rpm
