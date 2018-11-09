@@ -1,0 +1,74 @@
+.filter-condition {
+    padding: 15px;
+}
+
+.filter-condition {
+    height: 100%;
+}
+
+/* .filter-condition > .time > .a3-from-to > div:last-child {
+    padding-top: 20px;
+    color: red;
+} */
+
+.filter-condition .time .a3-from-to div:last-child {
+    padding-top: 20px
+}
+
+.filter-condition .time div {
+    padding-top: 20px;
+}
+
+.filter-condition .element div:not(:first-child) {
+    padding-top: 23px;
+}
+
+.filter-condition .search {
+    width: 100%;
+    padding-top: 225px;
+}
+
+/* 분석 버튼  */
+.filter-condition .search .button {
+    width: 100%;
+}
+
+.filter-condition > .search > .button {
+    position: relative;
+    background-color: rgb(59, 109, 204);
+    border: none;
+    font-size: 15px;
+    color: #FFFFFF;
+    padding: 8px;
+    text-align: center;
+    transition-duration: 0.4s;
+    text-decoration: none;
+    overflow: hidden;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.filter-condition > .search > .button:after {
+    content: "";
+    background: #f1f1f1;
+    display: block;
+    position: absolute;
+    padding-top: 300%;
+    padding-left: 350%;
+    margin-left: -20px !important;
+    margin-top: -120%;
+    opacity: 0;
+    transition: all 0.8s
+}
+
+.filter-condition > .search > .button:active:after {
+    padding: 0;
+    margin: 0;
+    opacity: 1;
+    transition: 0s
+}
+
+.filter-condition hr {
+    margin-top: 30px;
+    margin-bottom: 30px;
+}

@@ -23,8 +23,9 @@ import { LineChartComponent }  from './line-chart/line-chart.component';
 
 import { Ng2C3Component } from './ng2-c3/ng2-c3.component';
 import { GaugeChartComponent } from './gauge-chart/gaugeChart.component';
-import { FilterConditionComponent } from './filter-condition/filter-condition';
-
+import { FilterConditionComponent } from './filter-condition/filter-condition.component';
+import { MultiSelectComboComponent } from './multi-select-combo/multi-select-combo.component';
+import { SearchComboPipe } from './multi-select-combo/search.pipe';
 // import { PlotlyModule } from 'angular-plotly.js';
 
 @NgModule({
@@ -49,7 +50,9 @@ import { FilterConditionComponent } from './filter-condition/filter-condition';
         StatusChangeComponent,
         LineChartComponent,
         Ng2C3Component,
-        FilterConditionComponent
+        FilterConditionComponent,
+        MultiSelectComboComponent,
+        SearchComboPipe
     ],
     exports: [
         ModelingTreeComponent,
@@ -64,7 +67,9 @@ import { FilterConditionComponent } from './filter-condition/filter-condition';
         StatusChangeComponent,
         LineChartComponent,
         Ng2C3Component,
-        FilterConditionComponent
+        FilterConditionComponent,
+        MultiSelectComboComponent,
+        SearchComboPipe
     ]
     // ,
     // entryComponents: [
