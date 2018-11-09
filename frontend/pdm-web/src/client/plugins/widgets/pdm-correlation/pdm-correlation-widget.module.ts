@@ -16,12 +16,17 @@ import { PluginCommonModule } from '../../common/plugins.common.module';
 import { PdmCorrelationWidgetComponent } from './pdm-correlation-widget.component';
 import { CorrelationComponent } from './components/correlation.component';
 
+//Chart Libraries
+import { PlotlyModule } from 'angular-plotly.js';
+import { AngularSplitModule } from 'angular-split';
 
 @NgModule({
     imports: [
         A3_CommonModule,
         BISTEL_SDKModule,
-        PluginCommonModule
+        PluginCommonModule,
+        PlotlyModule,
+        AngularSplitModule
     ],
     declarations: [
         PdmCorrelationWidgetComponent,

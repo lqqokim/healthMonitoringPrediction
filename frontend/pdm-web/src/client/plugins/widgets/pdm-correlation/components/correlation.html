@@ -1,7 +1,41 @@
-<div class="filter-condition">
+<div class="correlation clearfix">
+    <!-- <split direction="horizontal" [gutterSize]="3">
+        <split-area size="20" class='condition'>  -->
+            <div class="filter-area">
+                <div class="row-chart-header">
+                    <h3 class="panel-title">Filter Condition</h3>
+                </div>
 
-</div>
+                <filter-conditon (searchEmit)="search($event)"></filter-conditon>
+            </div>
+        <!-- </split-area>
+        <split-area size="80" class='chart'> -->
+            <div class="correlation-area">
+                <div class="top-area">
+                    <div class="correlation-heatmap">
+                        <div class="row-chart-header">
+                            <h3 class="panel-title">Correlation Heatmap</h3>
+                        </div>
+                        <div id="heatmap" style="height: 450px;"></div>
+                    </div>
 
-<div class="correlation-area">
-    correlation area
+                    <div class="correlation-scatter">
+                        <div class="row-chart-header">
+                            <h3 class="panel-title">Scatter Plot</h3>
+                        </div>
+                        <div id="scatter" style="height: 450px;"></div>
+                    </div>
+                </div>
+
+                <div class="bottom-area">
+                    <div class="correlation-trend">
+                        <div class="row-chart-header">
+                            <h3 class="panel-title">Trend Chart</h3>
+                        </div>
+                        <div id="trend" style="height: 370px;"></div>
+                    </div>
+                </div>
+            </div>
+        <!-- </split-area>
+    </split> -->
 </div>

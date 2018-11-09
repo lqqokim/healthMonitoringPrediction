@@ -1,7 +1,5 @@
 import { Component, Input, OnInit, OnChanges, OnDestroy, ViewEncapsulation } from '@angular/core';
 
-import { FilterConditionComponent } from '../../../common/filter-condition/filter-condition';
-
 @Component({
     moduleId: module.id,
     selector: 'regression',
