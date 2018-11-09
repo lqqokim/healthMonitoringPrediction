@@ -1,21 +1,11 @@
 package com.bistel.pdm.file.connector;
 
-import com.bistel.pdm.lambda.kafka.master.MasterCache;
-import com.bistel.pdm.lambda.kafka.partitioner.CustomStreamPartitioner;
 import org.apache.commons.cli.*;
-import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.Producer;
-import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.common.PartitionInfo;
 import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.List;
+import java.io.FileInputStream;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -27,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 public class Main {
     private final static Logger log = LoggerFactory.getLogger(Main.class);
 
-//    private static final String TOPIC_PREFIX = "topicPrefix";
+    //    private static final String TOPIC_PREFIX = "topicPrefix";
     private static final String WATCH_DIR = "watchDir";
     private static final String CLIENT_ID = "clientId";
     private static final String START_INDEX = "startIndex";

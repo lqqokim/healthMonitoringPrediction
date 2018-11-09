@@ -1,13 +1,14 @@
 import { Component, ViewEncapsulation, ViewChild, OnDestroy, ElementRef, ChangeDetectorRef, AfterViewInit, Renderer2 } from '@angular/core';
 
 import { WidgetRefreshType, WidgetApi, OnSetup, RequestType } from '../../../common';
-import { Translater, SessionStore } from '../../../sdk';
+import { Translater } from '../../../sdk';
 import { PdmEqpParamAnalysisService } from './pdm-eqp-param-analysis.service';
 import { PdmCommonService } from '../../../common/service/pdm-common.service';
 
 import * as wjcInput from 'wijmo/wijmo.input';
 
 import { ModelingTreeComponent } from '../../common/modeling-tree/modeling-tree.component';
+import * as IAnalysis from './model/analysis-interface';
 
 @Component({
     moduleId: module.id,
@@ -19,36 +20,66 @@ import { ModelingTreeComponent } from '../../common/modeling-tree/modeling-tree.
 })
 export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, OnDestroy, AfterViewInit {
     @ViewChild('tree') tree: ModelingTreeComponent;
+    @ViewChild('chartProblem') chartProblem: ElementRef;
+    @ViewChild('chartHealth') chartHealth: ElementRef;
+    @ViewChild('chartHealthContribute') chartHealthContribute: ElementRef;
+    @ViewChild('chartTrend') chartTrend: ElementRef;
+    @ViewChild('chartSpectra') chartSpectra: ElementRef;
+    @ViewChild('chartTimeWave') chartTimeWave: ElementRef;
+    @ViewChild('chartPopup') chartPopup: wjcInput.Popup;
+    @ViewChild('popupBody') popupBody: ElementRef;
+    @ViewChild('trendChartPlot') trendChartPlot: ElementRef;
+    @ViewChild('chartArea') chartArea: ElementRef;
+    @ViewChild('trendChartEl') trendChartEl: any;
+    @ViewChild('healthContributeChart') healthContributeChart: any;
+    @ViewChild('healthContributeBarChart') healthContributeBarChart: any;
+    @ViewChild('contributionModal') contributionModal: any;
 
     datas: any;
     isDataLoaded: boolean = false;
-
+    //Health Index
     healthIndexData: any;
-    healthIndexConfig = {};
-    healthIndexEventConfig = {};
-    // healthIndexEventConfig = {};
-    TrendMetrixChartConfig = {};
+    healthIndexConfig: IAnalysis.ChartConfig;
+    healthIndexEventConfig: IAnalysis.ChartEventConfig;
+    TrendMetrixChartConfig: IAnalysis.ChartConfig;
+    trendEventLines: any[] = [];
+    healthEventLines: any[] = [];
 
-    healthIndexChart;
+    //Health Contribute
     healthIndexContributeData: any;
-    healthIndexContributeConfig = {};
-    healthIndexContributeEventConfig = {};
+    healthIndexContributeConfig: IAnalysis.ChartConfig;
+    healthIndexContributeEventConfig: IAnalysis.ChartEventConfig;
     contributeBarChartData: any;
-    contributeBarChartConfig: any = {};
+    contributeBarChartConfig: IAnalysis.ChartConfig;
     healthContributeDatas: any;
+    healthContributionEventLines: any[] = [];
     isContributionShow: boolean = false;
+    isHealthContributionLegend: boolean = false;
 
+    //Trend
     trendData: any;
     trendConfig: any = {};
-    trendEventConfig = {};
+    trendEventConfig: IAnalysis.ChartEventConfig;
+    isShowTrendLegend: boolean;
 
+    //Time Wave
     timeWaveData: any;
     timeWaveConfig: any = {};
+    timewavedate: any;
+    isShowTimeWaveLegend: boolean;
 
+    //Spectrum
     spectrumData: any;
     spectrumConfig: any = {};
-    chartEvents: any;
+    spectrumEventLines: any[] = [];
+    chartEvents: { jqplotClick: Function };
+    rootcause: string;
+    isShowSpectrumLegend: boolean
+    readonly spectrumRange: number[] = [1, 50];
+    readonly spectrumMin: number = 1;
+    readonly spectrumMax: number = 50;
 
+    //Problem Index
     problemIndexData: any;
     problemIndexConfig = {};
     problemIndexEventConfig = {};
@@ -56,31 +87,68 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
     problemDatas = [];
     problemEventData = [];
 
+    //Electronicx
     electricCurrentData: any;
     electricCurrentConfig = {};
 
+    //Measurement
     measureDatas = [];
-    rpms;
-    rpmscombo: any[] = [];
     mesaurementValue = 0;
 
-    eventLines: any[] = [];
-    healthEventLines: any[] = [];
-    healthContributionEventLines: any[] = [];
-    trendEventLines: any[] = [];
+    //Rpm
+    rpms;
+    rpmscombo: any[] = [];
 
-    spectrumRange: any = [1, 50];
-    spectrumMin: any = 1;
-    spectrumMax: any = 50;
+    //Conditions
+    _toDate: Date = new Date();
+    _fromDate: Date = new Date();
+    _prevHealthIndexKey: string = '';
+    _trendChartSelectedIndex: number;
+    _plantId: string;
+    _areaId = '';
+    _eqpId = '';
+    _paramId = '';
+    _nodeType: number;
+    _eqpName = '';
+    _shopName = '';
 
-    timewavedate: any;
+    timePeriodFrom: Date;
+    timePeriodTo: Date;
+    searchTimePeriod: IAnalysis.TimePeriod;
 
-    rootcause: any;
+    SYNC_TYPE = {
+        RADAR: 'radar',
+        REALTIME: 'realtime',
+        OVERVIEW: 'overview'
+    }
 
-    timePeriodFrom: any;
-    timePeriodTo: any;
+    //Tree
+    nodeClickType: number;
+    selectNode: string = '';
 
-    selectNode: any = '';
+    NODE_TYPE_CODE = {
+        FAB: 0,
+        AREA: 1,
+        EQP: 2,
+        PARAMETER: 100
+    };
+
+    //View
+    alarmText: string;
+    warningText: string;
+    analysisText: string;
+    isShowExpandBtn: boolean = true;
+    isVibration: boolean = true;
+    isSetupState: boolean = true;
+
+    seriesColors: string[];
+    analysisSpec: number;
+    analysisSpecVisible: boolean;
+
+    cols = [];
+    rows = [];
+    col_row = {};
+    causeDatas = { "anaylysis": null };
 
     someRange2config: any = {
         behaviour: 'drag',
@@ -97,80 +165,16 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
         }
     };
 
-    nodeClickType: number;
-    seriesColors: any[string] = ['#2196f3', '#ff9800', '#4caf50', '#9c27b0', '#ffdf07', '#3f51b5', '#795548', '#673ab7', '#ff538d', '#00d2d4', '#ffc107', '#98d734', '#607d8b', '#9e9e9e', '#708090', '#fffacd', '#ee82ee', '#ffc0cb', '#48d1cc', '#adff2f', '#f08080', '#808080', '#ff69b4', '#cd5c5c', '#ffa07a', '#0000ff'];
-
-    analysisSpec;
-    analysisSpecVisible;
-    searchTimePeriod: any;
-
-    isHealthContributionLegend: boolean = false;
-    isShowTrendLegend: boolean;
-    isShowSpectrumLegend: boolean
-    isShowTimeWaveLegend: boolean;
-    isShowExpandBtn: boolean = true;
-
-    alarmText: string;
-    warningText: string;
-    analysisText: string;
-
-    _toDate = new Date();
-    _fromDate = new Date();
-    _prevHealthIndexKey: any = '';
-    _trendChartSelectedIndex: number;
-    _plantId: string;
-    _areaId = '';
-    _eqpId = '';
-    _paramId = '';
-    _nodeType: any;
-    _eqpName = '';
-    _shopName = '';
-
-    // private readonly EQPTYPE = 2;
-    // private readonly PARAMTYPE = 3;
-
-    treeCnt: number;
-    private readonly TYPES: any = {
-        FAB: 0,
-        AREA: 1,
-        EQP: 2,
-        PARAMETER: 100
-    };
-
-    cols = [];
-    rows = [];
-    col_row = {};
-    causeDatas = { "anaylysis": null };
-
-    isVibration: boolean = true;
-    isSetupState: boolean = true;
-
-
-    @ViewChild('chartProblem') chartProblem: ElementRef;
-    @ViewChild('chartHealth') chartHealth: ElementRef;
-    @ViewChild('chartHealthContribute') chartHealthContribute: ElementRef;
-    @ViewChild('chartTrend') chartTrend: ElementRef;
-    @ViewChild('chartSpectra') chartSpectra: ElementRef;
-    @ViewChild('chartTimeWave') chartTimeWave: ElementRef;
-    @ViewChild('chartPopup') chartPopup: wjcInput.Popup;
-    @ViewChild('popupBody') popupBody: ElementRef;
-    @ViewChild('trendChartPlot') trendChartPlot: ElementRef;
-    @ViewChild('chartArea') chartArea: ElementRef;
-    @ViewChild('trendChartEl') trendChartEl: any;
-    @ViewChild('healthContributeChart') healthContributeChart: any;
-    @ViewChild('healthContributeBarChart') healthContributeBarChart: any;
-    @ViewChild('contributionModal') contributionModal: any;
-
     private _specAlarm: number = 90;
     private _paramEuType: string = '';
     private _popupPanelElem: any;
     private _prevPanel: any;
     private _nextPanel: any;
-    private _plant: string;
+    private _plant: IAnalysis.Fab;
     private _cutoffType: string;
     private _dayPeriod: number;
-    private _timePeriod: any;
-    private _props: any;
+    private _timePeriod: IAnalysis.TimePeriod;
+    private _props: IAnalysis.Props;
 
 
     constructor(private _service: PdmEqpParamAnalysisService,
@@ -178,20 +182,21 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
         private elementref: ElementRef,
         private _pdmSvc: PdmCommonService,
         private _chRef: ChangeDetectorRef,
-        private sessionStore: SessionStore,
         private renderer: Renderer2) {
         super();
+        this.setGlobalLabel();
     }
 
     //Init
     ngOnSetup() {
         this.showSpinner();
-        this.setGlobalLabel();
-        this._props = this.getProperties();
-        this._plant = this._props[CD.PLANT]
-        console.log('Analysis props', this._props);
+        console.log('Analysis Props', this.getProperties());
+
+        this._props = this.getProperties() as IAnalysis.Props;
+        this._plant = this._props[CD.PLANT];
         this._setProperties(this._props);
-        const fromDt = this.addDays(this._toDate.getTime(), -this._dayPeriod);
+        const fromDt: Date = this.addDays(this._toDate.getTime(), -this._dayPeriod);
+
         this.searchTimePeriod = {
             from: fromDt.getTime(),
             to: this._toDate.getTime()
@@ -207,7 +212,7 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
         // };
         this.chartPopup.modal = true;
         this.chartPopup.hideTrigger = wjcInput.PopupTrigger.None;
-        this.contributeBarChartData = null;
+        // this.contributeBarChartData = null;
         this._init();
     }
 
@@ -218,23 +223,25 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
         if (type === A3_WIDGET.APPLY_CONFIG_REFRESH) {
             this._props = data;
             this._plant = data[CD.PLANT];
-            if (this._plantId !== data[CD.PLANT][CD.PLANT_ID]) {
-                // this._plantId = data[CD.PLANT][CD.PLANT_ID];
-                this._init(true);
+
+            if (this._plantId !== this._plant[CD.PLANT_ID]) {
+                this._init();
             }
+
             this._setProperties(this._props);
             // today 기준 dayperiod 설정.
             this.analysisSpec = data.analysisSpec;
             this.analysisSpecVisible = data.analysisSpecVisible;
 
-            const todate = new Date(moment().format('YYYY-MM-DD') + " 00:00:00");
-            const fromDt = this.addDays(todate.getTime(), -this._dayPeriod);
+            const todate: Date = new Date(moment().format('YYYY-MM-DD') + " 00:00:00");
+            const fromDt: Date = this.addDays(todate.getTime(), -this._dayPeriod);
             this._timePeriod[CD.FROM] = fromDt.getTime();
             this._timePeriod[CD.TO] = todate.getTime();
             this.searchTimePeriod = {
-                from: fromDt.getTime(),
-                to: todate.getTime()
+                from: this._timePeriod[CD.FROM],
+                to: this._timePeriod[CD.TO]
             };
+
             this._chRef.detectChanges();
             // tree 정보를 다시 가져오므로 데이터를 초기화 한다.
             this.healthIndexData = [];
@@ -242,17 +249,19 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
             this.trendData = [];
             this.spectrumData = [];
             this.timeWaveData = [];
-            this.nodeClickType = this.TYPES.EQP;
+            this.nodeClickType = this.NODE_TYPE_CODE.EQP;
+
             if (this._plantId === data[CD.PLANT][CD.PLANT_ID]) {
                 this.chartInit();
                 this.nodeData(this._nodeType, this._areaId, this._eqpId, this._paramId);
+            } else {
+                this.chartInit();
             }
 
             if (this.isSetupState) {
                 this.hideSpinner();
             }
         } else if (type === A3_WIDGET.SYNC_INCONDITION_REFRESH) {
-            //Object.assign(this._props, data);
             this._plant = data[CD.PLANT];
             this._plantId = this._plant[CD.PLANT_ID];
             // TODO : tree를 다시 가져와야 하므로.
@@ -262,7 +271,7 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
             this._timePeriod = data[CD.TIME_PERIOD];
             this.isContributionShow = false;
 
-            if (data[CD.CATEGORY] === 'radar') { //for radar sync
+            if (data[CD.CATEGORY] === this.SYNC_TYPE.RADAR) { //for radar sync
                 this.searchTimePeriod = {
                     from: data[CD.TIME_PERIOD][CD.FROM],
                     to: data[CD.TIME_PERIOD][CD.TO]
@@ -281,8 +290,7 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
                 console.log('Sync In ==> ', data);
                 // tree 자동 오픈 (_eqpId, _areaId) 활용
                 this.autoTreeOpen();
-
-            } else if (data[CD.CATEGORY] === 'realtime') { //for realtime sync
+            } else if (data[CD.CATEGORY] === this.SYNC_TYPE.REALTIME) { //for realtime sync
                 this.searchTimePeriod = {
                     from: data[CD.TIME_PERIOD][CD.FROM],
                     to: data[CD.TIME_PERIOD][CD.TO]
@@ -302,7 +310,7 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
 
                 if (this._timePeriod !== null) {
                     // to 만 사용하고 from은 properties의 내용을 가지고 timeperiod를 생성한다.
-                    let fromDt = this.addDays(moment(data[CD.TIME_PERIOD][CD.TO]), -this._dayPeriod);
+                    let fromDt: Date = this.addDays(moment(data[CD.TIME_PERIOD][CD.TO]), -this._dayPeriod);
                     fromDt = new Date(moment(fromDt.getTime()).format('YYYY-MM-DD') + " 00:00:00");
                     this._timePeriod[CD.FROM] = fromDt;
                     this._timePeriod[CD.TO] = data[CD.TIME_PERIOD][CD.TO];
@@ -324,8 +332,6 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
             }, 300);
         } else if (type === A3_WIDGET.JUST_REFRESH) {
             if (this.isSetupState) {
-                // this._props = this.getProperties();
-                // this._setProperties(this._props);
                 this.hideSpinner();
             } else {
                 this._chRef.detectChanges();
@@ -339,7 +345,7 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
         // this._init();
     }
 
-    search() {
+    search(): void {
         this._prevHealthIndexKey = '';
         this.chartInit();
         this.nodeData(this._nodeType, this._areaId, this._eqpId, this._paramId);
@@ -350,11 +356,7 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
         //this.hideSpinner();
     }
 
-    ngOnDestroy() {
-        this.destroy();
-    }
-
-    chartInit() {
+    chartInit(): void {
         this.healthIndexData = [];
         this.healthIndexData.push([[]]);
 
@@ -501,7 +503,7 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
                 }
             },
             series: [],
-            seriesColors: this.seriesColors,
+            seriesColors: this.getSeriesColors(),
             highlighter: {
                 isMultiTooltip: false,
                 clearTooltipOnClickOutside: false,
@@ -818,7 +820,7 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
                     autoscale: true,
                 },
                 yaxis: {
-                    min : -0.1,
+                    min: -0.1,
                     labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
                     tickOptions: {
                         formatString: '%.2f'
@@ -883,7 +885,7 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
         };
     }
 
-    _firstCharUpper(value) {
+    _firstCharUpper(value): string {
         if (value === undefined || value === '') return value;
         return value.substr(0, 1).toUpperCase() + value.substr(1);
     }
@@ -915,7 +917,7 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
             legend: {
                 show: false
             },
-            seriesColors: this.seriesColors,
+            seriesColors: this.getSeriesColors(),
             seriesDefaults: {
                 renderer: $.jqplot.BarRenderer,
                 // showMarker: false,
@@ -974,7 +976,7 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
         this.showContiributeBarChart(ev);
     }
 
-    showContiributeBarChart(item: any) {
+    showContiributeBarChart(item: any): void {
         let top = item.originalEvent.clientY;
         let left = item.originalEvent.clientX;
         let element = document.getElementById('contributionModal');
@@ -996,7 +998,7 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
         // element.style.display = 'block';
     }
 
-    removeContributioModal() {
+    removeContributioModal(): void {
         $('#contributionModal').modal('hide');
         // console.log('modal', this.contributionModal);
         // if (this.contributionModal) {
@@ -1011,8 +1013,9 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
         // console.log('completeChart', ev);
     }
 
-    clearUnderParameterChart() {
+    clearUnderParameterChart(): void {
         let prevKey: string = this._plantId + ':' + this._areaId + ':' + this._eqpId;
+
         if (this._prevHealthIndexKey !== prevKey) {
             this.healthIndexData = [[[]]];
             // this.healthEventLines = [];
@@ -1020,6 +1023,7 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
             // this.healthIndexContributeData = [[[]]];
             this.healthIndexContributeData = [];
         }
+
         this.clearUnderMeasurement();
     }
 
@@ -1027,10 +1031,11 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
         // this.trendEventLines = [];
         this.timeWaveData = [[]];
         this.spectrumData = [[]];
-        this.eventLines = [];
+        this.spectrumEventLines = [];
         this.rootcause = '';
     }
-    clearUnderEqp() {
+
+    clearUnderEqp(): void {
         this.measureDatas = [[]];
         this.clearUnderParameterChart();
     }
@@ -1052,8 +1057,8 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
 
         console.log('nodeData => ', ` [nodeType]: ${this._nodeType}`, `[areaId]: ${this._areaId}`, `[eqpId]: ${this._eqpId}`, `[paramId]: ${this._paramId}`);
         try {
-            if (nodeType === this.TYPES.EQP) {
-                this.nodeClickType = this.TYPES.EQP;
+            if (nodeType === this.NODE_TYPE_CODE.EQP) {
+                this.nodeClickType = this.NODE_TYPE_CODE.EQP;
                 // this._toDate = new Date();
                 // this.initDate(null);
                 this.clearUnderEqp();
@@ -1063,8 +1068,8 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
                     $('.pdm-chart-row-body').animate({ scrollTop: 0 }, 500);
                 }, 500);
 
-            } else if (nodeType > this.TYPES.EQP) {
-                this.nodeClickType = this.TYPES.PARAMETER;
+            } else if (nodeType > this.NODE_TYPE_CODE.EQP) {
+                this.nodeClickType = this.NODE_TYPE_CODE.PARAMETER;
                 this._pdmSvc.getParamDetail(this._plantId, this._paramId).then(paramDetail => {
                     console.log('getParamDetail : ', paramDetail);
                     if (paramDetail.param_type_cd == 'Velocity' || paramDetail.param_type_cd == 'Acceleration' || paramDetail.param_type_cd == 'Enveloping') {
@@ -1159,7 +1164,7 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
             for (let i = 0; i < result.length; i++) {
                 // if (!(result[i].paramType == 10201 || result[i].paramType == 10202)) continue;
                 let index = result[i].paramName.lastIndexOf(' ');
-                if(index<0){
+                if (index < 0) {
                     index = result[i].paramName.lastIndexOf('_');
                 }
                 let name = result[i].paramName.substr(0, index);
@@ -1290,12 +1295,12 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
                             }).catch((err) => {
                                 console.log(err);
                                 col_row_Data['analysisSummary'] = ""
-                                col_row_Data['analysis'] =undefined;
+                                col_row_Data['analysis'] = undefined;
                                 this.hideSpinner();
                             });
                     }).catch((err) => {
                         console.log(err);
-                        col_row_Data['analysis']=undefined;
+                        col_row_Data['analysis'] = undefined;
                         col_row_Data['analysisSummary'] = "";
                         col_row_Data['data'] = [];
                         this.hideSpinner();
@@ -1449,8 +1454,9 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
                 }
 
             }
-        })
+        });
     }
+
     getHealthIndexType(nodeType) {
         this.getMaintenanceData(this.searchTimePeriod[CD.FROM], this.searchTimePeriod[CD.TO]).then(() => {
             this.getHealthIndexData(nodeType).then(() => {
@@ -1491,6 +1497,7 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
             });
         });
     }
+
     getTrendSpec(from, to) {
         for (let i = 0; i < this.trendConfig['series'].length; i++) {
             if (this.trendConfig['series'][i].label == "Alarm") {
@@ -1593,25 +1600,29 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
                     }
                 });
             }
+
             for (let i: number = 0; i < this.problemEventData.length; i++) {
                 this.trendEventLines.push(Object.assign({}, this.problemEventData[i]));
             }
+
             setTimeout(() => {
                 if (this.measureDatas.length > 0) {
                     this._trendChartSelectedIndex = this.measureDatas.length - 1;
                     this.selectTrendDataPoint(2, 1, this._trendChartSelectedIndex);
                 }
             }, 500);
-            this.setMinMax(this.trendConfig, this.trendData, spec_alarm, spec_warning);
 
+            this.setMinMax(this.trendConfig, this.trendData, spec_alarm, spec_warning);
         });
     }
-    analysisSummaryClick(causes) {
+
+    analysisSummaryClick(causes): void {
         console.log('analysisSummaryClick', causes);
         this.causeDatas = causes;
         $('#causeDetailModal').modal({ show: true, backdrop: false });
     }
-    getHealthIndexContributeData() {
+
+    getHealthIndexContributeData(): Promise<any> {
         // console.log('from, to', this.searchTimePeriod[CD.FROM], this.searchTimePeriod[CD.TO]);
         return this._service.getContribute(this._plantId,
             this._areaId,
@@ -1664,7 +1675,7 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
             });
     }
 
-    getHealthIndexData(nodeType) {
+    getHealthIndexData(nodeType: number): Promise<any> {
         //Will be change to HealthIndex
         let from = new Date(this._toDate.getTime());
         from = this.addDays(from, -365 * 2);
@@ -1675,7 +1686,7 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
         }
         let prevKey = this._plantId + ':' + this._areaId + ':' + this._eqpId;
         // console.log('getHealthIndexData key check : ', this._prevHealthIndexKey, prevKey);
-        if (nodeType >= this.TYPES.EQP && prevKey === this._prevHealthIndexKey) {
+        if (nodeType >= this.NODE_TYPE_CODE.EQP && prevKey === this._prevHealthIndexKey) {
             return Promise.reject('already draw');
         }
         this._prevHealthIndexKey = prevKey;
@@ -1694,7 +1705,7 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
                 const dataSize = data.data.length;
                 for (let i = 0; i < dataSize; i++) {
                     trendData.push([data.data[i][0], data.data[i][1]]);
-                }            
+                }
                 this.healthIndexData = [];
                 if (trendData.length) {
                     this.healthIndexData.push(trendData);
@@ -1794,7 +1805,7 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
             });
     }
 
-    getTrendMultiple() {
+    getTrendMultiple(): Promise<any> {
         return this._service.getTrendMultiple(this._plantId,
             this._areaId,
             this._eqpId,
@@ -1842,7 +1853,7 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
                                 warning.push([data[i][0], data[i][3]]);
                             }
                         }
-                    }                   
+                    }
                     // if (alarm.length > 0 && alarm[alarm.length - 1][0] != data[data.length - 1][0]) {
                     //     if (data[data.length - 1][2] != null)
                     //         alarm.push([data[data.length - 1][0], data[data.length - 1][2]]);
@@ -1954,7 +1965,8 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
                 }
             });
     }
-    setMinMax(config, data, alarm_spec, warning_spec) {
+
+    setMinMax(config, data, alarm_spec, warning_spec): void {
         try {
             let lowest = Number.POSITIVE_INFINITY;
             let highest = Number.NEGATIVE_INFINITY;
@@ -1987,7 +1999,8 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
             console.log(err);
         }
     }
-    getMeasurement() {
+
+    getMeasurement(): Promise<any> {
         this.clearUnderMeasurement();
         return this._service.getMeasurements(this._plantId,
             this._areaId,
@@ -2031,7 +2044,7 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
             });
     }
 
-    selectTrendDataPoint(chartIdx, seriesIdx, counter) {
+    selectTrendDataPoint(chartIdx: number, seriesIdx: number, counter: number): void {
         const seriesIndex = seriesIdx; //0 as we have just one series
         const data = this.trendData[seriesIndex];
         const pointIndex = counter;
@@ -2050,9 +2063,9 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
         context.stroke();
     }
 
-    getMaintenanceData(from?: any, to?: any) {
+    getMaintenanceData(from?: any, to?: any): Promise<any> {
         let prevKey = this._plantId + ':' + this._areaId + ':' + this._eqpId;
-        if (this._nodeType > this.TYPES.EQP && prevKey === this._prevHealthIndexKey) {
+        if (this._nodeType > this.NODE_TYPE_CODE.EQP && prevKey === this._prevHealthIndexKey) {
             return Promise.reject('getMaintenanceData already draw');
         }
         let before1year = new Date();
@@ -2125,7 +2138,7 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
         });
     }
 
-    getTimeWaveNSpectrum(pointIndex) {
+    getTimeWaveNSpectrum(pointIndex: number): void {
         this.showSpinner();
         let calls = [];
 
@@ -2219,7 +2232,7 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
         });
     }
 
-    set1X(cause: any) {
+    set1X(cause: any): void {
         try {
             // let firstX = cause.split("'")[2].split(':')[0].trim();
             let firstX = cause.split(/'/)[2].split(':')[0].trim();
@@ -2235,7 +2248,7 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
         }
     }
 
-    electricCurrentDrawChart() {
+    electricCurrentDrawChart(): void {
         this.showSpinner();
         this.getElectricCurrent().then(() => {
             this.hideSpinner();
@@ -2244,7 +2257,7 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
         });
     }
 
-    getElectricCurrent() {
+    getElectricCurrent(): Promise<any> {
         // this.timePeriodFrom.getTime(), this.timePeriodTo.getTime()
         return this._service.getElectricCurrent(this._plantId,
             this._areaId,
@@ -2266,7 +2279,7 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
             });
     }
 
-    getTrendDataConfig(config) {
+    getTrendDataConfig(config): void {
         let curConfig = {
             legend: {
                 show: this.isShowTrendLegend,
@@ -2300,8 +2313,8 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
                         dataType: 'date'
                     }
                 },
-                yaxis: {              
-                     min : -0.1,
+                yaxis: {
+                    min: -0.1,
                     // max : -1,
                     drawMajorGridlines: true,
                     labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
@@ -2335,22 +2348,22 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
                 // tooltipContentEditor: (str: string, seriesIndex: number, pointIndex: number, plot: any, tooltipContentProc: any, ev: Event) => {
                 //     tooltipContentProc(moment(parseInt(str.split(',')[0])).format('YYYY/MM/DD HH:mm:ss') + ' [' + (+str.split(',')[1]).toFixed(2) + ']');
                 // },
-                tooltipContentEditor: function (str: string, seriesIndex: number, pointIndex: number, plot: any, tooltipContentProc: any) {  
-                    let date: string = plot.data[seriesIndex][pointIndex][0]; 
-                    let score: any = plot.data[seriesIndex][pointIndex][1]; 
+                tooltipContentEditor: function (str: string, seriesIndex: number, pointIndex: number, plot: any, tooltipContentProc: any) {
+                    let date: string = plot.data[seriesIndex][pointIndex][0];
+                    let score: any = plot.data[seriesIndex][pointIndex][1];
                     date = moment(date).format('YYYY/MM/DD HH:mm:ss')
-                    score = score.toFixed(2)   
+                    score = score.toFixed(2)
                     tooltipContentProc(
-                    `<div class='bisTooltip'>`+               
-                        `<dl>`+
-                            `<dt>date</dt>`+
-                            `<dd>${date}</dd>`+
-                        `</dl>`+
-                        `<dl>`+
-                            `<dt>score</dt>`+
-                            `<dd>${score}</dd>`+
-                        `</dl>`+
-                    `</div>`
+                        `<div class='bisTooltip'>` +
+                        `<dl>` +
+                        `<dt>date</dt>` +
+                        `<dd>${date}</dd>` +
+                        `</dl>` +
+                        `<dl>` +
+                        `<dt>score</dt>` +
+                        `<dd>${score}</dd>` +
+                        `</dl>` +
+                        `</div>`
                     )
                 },
             }
@@ -2359,7 +2372,7 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
     }
 
     //Event
-    nodeClick(node: any) {
+    nodeClick(node: any): void {
         if (node.treeview) {
             //FAB: 0,
             // AREA: 1,
@@ -2374,7 +2387,7 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
             } else {
                 this._nodeType = node.treeview.nodeType;
             }
-            if (this._nodeType === this.TYPES.EQP) {
+            if (this._nodeType === this.NODE_TYPE_CODE.EQP) {
                 this._eqpId = node.treeview.nodeId;
                 this._areaId = node.treeview.parentnode.nodeId;
                 this._eqpName = node.treeview.nodeName;
@@ -2386,7 +2399,7 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
                 // node.iconClass = this._getImagePath(node.nodeType);
                 // node.children = [];
 
-            } else if (this._nodeType > this.TYPES.EQP) {
+            } else if (this._nodeType > this.NODE_TYPE_CODE.EQP) {
                 this._eqpId = node.treeview.parentnode.nodeId;
                 this._areaId = node.treeview.parentnode.parentnode.nodeId;
                 this._paramId = node.treeview.nodeId;
@@ -2413,9 +2426,9 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
 
     // 자동으로 트리 오픈
     autoTreeOpen(): void {
-        
+
         // 테이터를 불러온적이 없다면 트리 오픈 x
-        if( !this.isDataLoaded ){ return; }
+        if (!this.isDataLoaded) { return; }
 
         // 첫번째 트리 오픈
         this.tree.initialTreeDatas[0].isChecked = false;
@@ -2429,9 +2442,9 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
         let areaRow: any;
 
         // 2번째 area 오픈
-        for( i=0; i<len; i++ ){
+        for (i = 0; i < len; i++) {
             row = treeChilds[i];
-            if( row.areaId === this._areaId ){
+            if (row.areaId === this._areaId) {
                 row.isChecked = false;
                 row.isChildLoaded = false;
                 row.isOpen = true;
@@ -2442,8 +2455,8 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
 
         const areaLen: number = areaRow.length;
         // 3번째 eqp 오픈
-        for( i=0; i<areaLen; i++ ){
-            if( areaRow[i].eqpId === this._eqpId ){
+        for (i = 0; i < areaLen; i++) {
+            if (areaRow[i].eqpId === this._eqpId) {
                 areaRow[i].isChecked = false;
                 areaRow[i].isChildLoaded = false;
                 areaRow[i].isOpen = true;
@@ -2451,22 +2464,22 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
         }
     }
 
-    matrixDblClick(item) {
+    matrixDblClick(item): void {
         if (item == null) { return; }
         this.tree.setSelectNode(item.areaId, item.eqpId, item.paramId);
     }
-    removeContributionBarChart() {
+    removeContributionBarChart(): void {
         this.renderer.setStyle(this.healthContributeChart.chartEl.parentElement.parentElement, 'width', "100%");
         this.contributeBarChartData = null;
     }
 
-    multiComboCheckedItemsChanged(event) {
-        let isStandard = true;
+    multiComboCheckedItemsChanged(event: any) {
+        let isStandard: boolean = true;
         if (this.rpms.partsNameRPMs == undefined || this.rpms.partsNameRPMs.length == 0 || Object.keys(this.rpms.partsNameRPMs).length == 0) {
             isStandard = false;
         }
 
-        this.eventLines = [];
+        this.spectrumEventLines = [];
         for (let i = 0; i < this.rpmscombo.length; i++) {
             let pmId = '';
             //let value:number = null;
@@ -2475,7 +2488,7 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
                 if (isStandard == true) {
                     let key = this.rpmscombo[i].display;
                     let value = this.rpmscombo[i].data;
-                    this.eventLines.push({
+                    this.spectrumEventLines.push({
                         show: true,
                         name: key,
                         type: 'line',
@@ -2528,7 +2541,7 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
                         let key = subKeys[iSub];
                         let value = subData[key];
 
-                        this.eventLines.push({
+                        this.spectrumEventLines.push({
                             show: true,
                             name: pmId,
                             type: 'line',
@@ -2591,7 +2604,7 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
         const maxValue = +this.spectrumData[0][this.spectrumData[0].length - 1][0];
         const cnt = Math.floor(maxValue / compareValue);
         for (let i = 1; i < cnt + 1; i++) {
-            this.eventLines.push({
+            this.spectrumEventLines.push({
                 show: true,
                 name: i + 'x',
                 type: 'line',
@@ -2635,11 +2648,11 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
         }
     }
 
-    healthIndexCompleteChart(event) {
+    healthIndexCompleteChart(event): void {
         // this.healthIndexChart = event.component;
     }
 
-    setHealthLegendStatus() {
+    setHealthLegendStatus(): void {
         this.isHealthContributionLegend = !this.isHealthContributionLegend;
         const tempConfig: any = Object.assign({}, this.healthIndexContributeConfig);
         tempConfig.legend.show = this.isHealthContributionLegend;
@@ -2671,7 +2684,7 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
         }
     }
 
-    expandChart(ev, panel, index) {
+    expandChart(ev: any, panel, index: number): void {
         this.isShowExpandBtn = false;
         this.chartPopup.show();
         const popupElem = $(this.popupBody.nativeElement);
@@ -2700,33 +2713,19 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
         setTimeout(() => {
             this._popupPanelElem.appendTo(popupElem);
         }, 500);
-
     }
 
-    closePopup() {
+    closePopup(): void {
         this.isShowExpandBtn = true;
         this._restoreChartPanel();
         this.chartPopup.hide();
-    }
-
-    // tslint:disable-next-line:no-empty
-    onSliderChange(event) {
-
     }
 
     fromToChange(data: any) {
         this.searchTimePeriod = data;
     }
 
-    changedDateFrom(event) {
-        this.timePeriodFrom = new Date(event.datetime);
-    }
-
-    changedDateTo(event) {
-        this.timePeriodTo = new Date(event.datetime);
-    }
-
-    showModeling() {
+    showModeling(): void {
         if (this._shopName.length > 0 && this._eqpName.length > 0) {
             let outCd = this.getOutCondition('config');
             outCd[CD.PLANT] = this._plant;
@@ -2736,45 +2735,51 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
         }
     }
 
-    showContributionChart() {
+    showContributionChart(): void {
         this.showSpinner();
+
         if (this.healthIndexContributeData && !this.healthIndexContributeData.length) {
             this.getHealthIndexContributeData();
         } else {
             this.hideSpinner();
         }
+
         this.isContributionShow = !this.isContributionShow;
         console.log('healthIndexContributeData', this.healthIndexContributeData);
     }
 
-    hideContributionChart() {
+    hideContributionChart(): void {
         this.isContributionShow = !this.isContributionShow;
     }
 
     // Util
-    addDays(date, days) {
-        var result = new Date(date);
+    addDays(date, days): Date {
+        let result: Date = new Date(date);
         result.setDate(result.getDate() + days);
         return result;
     }
 
-    addHours(date, hours) {
-        var result = new Date(date);
+    addHours(date, hours): Date {
+        let result: Date = new Date(date);
         result.setHours(result.getHours() + hours);
         return result;
     }
 
-    formatDate(date) {
+    formatDate(date: Date): void {
         return moment(date).format('YYYY/MM/DD HH');
     }
 
-    reduceTreeData(datas) {
+    reduceTreeData(datas): void {
         for (let i = 0; i < datas.length; i++) {
             if (datas[i].children !== undefined && datas[i].children.length > 0) {
                 datas[i]['isFolder'] = true;
                 this.reduceTreeData(datas[i].children);
             }
         }
+    }
+
+    getSeriesColors(): string[] {
+        return ['#2196f3', '#ff9800', '#4caf50', '#9c27b0', '#ffdf07', '#3f51b5', '#795548', '#673ab7', '#ff538d', '#00d2d4', '#ffc107', '#98d734', '#607d8b', '#9e9e9e', '#708090', '#fffacd', '#ee82ee', '#ffc0cb', '#48d1cc', '#adff2f', '#f08080', '#808080', '#ff69b4', '#cd5c5c', '#ffa07a', '#0000ff'];
     }
 
     private _restoreChartPanel() {
@@ -2791,7 +2796,7 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
         }
     }
 
-    private _setProperties(props) {
+    private _setProperties(props: IAnalysis.Props): void {
         this._plant = props[CD.PLANT];
         this._cutoffType = props[CD.CUTOFF_TYPE];
         this._dayPeriod = props[CD.DAY_PERIOD];
@@ -2799,10 +2804,10 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
         // this.initDate(null);
     }
 
-    private initDate(toDate: any) {
+    private initDate(toDate: Date): void {
         if (this._cutoffType === 'DAY') {
             if (toDate === null) {
-                let today = Date.now() - (Date.now() % 86400000) + (new Date().getTimezoneOffset() * 60000);
+                let today: number = Date.now() - (Date.now() % 86400000) + (new Date().getTimezoneOffset() * 60000);
                 this._toDate = new Date(today);
             } else {
                 this._toDate = toDate;
@@ -2827,17 +2832,17 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
     }
 
     setTreeData(node): void {
-        if (node.nodeType === this.TYPES.FAB) {
+        if (node.nodeType === this.NODE_TYPE_CODE.FAB) {
             node.icon = this._getImagePath('fab');
         }
 
         if (node.children.length > 0) {
             node.children.forEach((child) => {
-                if (child.nodeType === this.TYPES.AREA) {//1
+                if (child.nodeType === this.NODE_TYPE_CODE.AREA) {//1
                     child.icon = this._getImagePath('area');
-                } else if (child.nodeType === this.TYPES.EQP) {//2
+                } else if (child.nodeType === this.NODE_TYPE_CODE.EQP) {//2
                     child.icon = this._getImagePath('eqp');
-                } else if (child.nodeType === this.TYPES.PARAMETER) {//100
+                } else if (child.nodeType === this.NODE_TYPE_CODE.PARAMETER) {//100
                     child.icon = this._getImagePath('parameter');
                 }
 
@@ -2857,39 +2862,17 @@ export class PdmEqpParamAnalysisComponent extends WidgetApi implements OnSetup, 
         return `assets/images/pdm-master-${type}.png`;
     }
 
-    private _init(isRefresh: boolean = false) {
+    private _init(): void {
         if (this._plant) {
             this._plantId = this._plant[CD.PLANT_ID];
-            console.log('_init plantId', this._plantId);
             this.chartInit();
-            // this._service.getNodeTree(this._plantId).then(data => {
-            //     const tempTree = JSON.parse(JSON.stringify(data));
-            //     this.setTreeData(tempTree[0]);
-
-            //     let strData = JSON.stringify(tempTree);
-            //     strData = strData.replace(/nodeName/g, 'title');
-
-            //     const lDatas = JSON.parse(strData);
-            //     this._service.reduceTreeData(lDatas);
-            //     this.datas = lDatas;
-
-            //     if (isRefresh) {
-            //         this._nodeType = this.TYPES.EQP;
-            //         const parentTree = this._service.searchTree('nodeId', this.datas[0], this._props[CD.EQP_ID]);
-            //         const treeItem = this._service.searchTree('title', parentTree, data[2]);
-            //         this.selectNode = treeItem.nodeId;
-            //         this._eqpId = this._props[CD.EQP_ID];
-            //         this._areaId = this._props[CD.AREA_ID];
-            //     }
-            //     this.hideSpinner();
-            // }).catch(e => {
-            //     console.log(e);
-            //     this.hideSpinner();
-            // });
-
             this.hideSpinner();
         } else {
             this.showNoData();
         }
+    }
+
+    ngOnDestroy() {
+        this.destroy();
     }
 }

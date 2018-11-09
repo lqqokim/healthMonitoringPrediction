@@ -6,19 +6,17 @@ import com.bistel.pdm.lambda.kafka.master.MasterCache;
 import org.apache.kafka.streams.processor.AbstractProcessor;
 import org.apache.kafka.streams.processor.ProcessorContext;
 import org.apache.kafka.streams.processor.PunctuationType;
+import org.apache.kafka.streams.processor.To;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- *  Timeout
+ * Timeout
  */
 public class TimeoutProcessor extends AbstractProcessor<String, byte[]> {
     private static final Logger log = LoggerFactory.getLogger(TimeoutProcessor.class);
@@ -36,9 +34,7 @@ public class TimeoutProcessor extends AbstractProcessor<String, byte[]> {
         context().schedule(3600000, PunctuationType.STREAM_TIME, (timestamp) -> {
             try {
 
-                Iterator<String> entry = TimeOutOffset.keySet().iterator();
-                while(entry.hasNext()){
-                    String key = entry.next();
+                for (String key : TimeOutOffset.keySet()) {
 
                     Long lastReceivedTimeMs = TimeOutOffset.get(key);
                     Long currentTimeMs = System.currentTimeMillis();
@@ -57,8 +53,8 @@ public class TimeoutProcessor extends AbstractProcessor<String, byte[]> {
 
                             // time out
                             if (diffInMillies > timeoutMs) {
-                                if(TimeOutFlag.get(key) == null ||
-                                        !TimeOutFlag.get(key).equalsIgnoreCase("Y")){
+                                if (TimeOutFlag.get(key) == null ||
+                                        !TimeOutFlag.get(key).equalsIgnoreCase("Y")) {
 
                                     // event ended. ------------------------------------------
                                     String eventMsg =
@@ -67,7 +63,7 @@ public class TimeoutProcessor extends AbstractProcessor<String, byte[]> {
                                                     + eventInfo.getSecond().getEventTypeCD();
 
                                     log.info("[{}-{}] - Message Timeout. ", key, context().partition());
-                                    context().forward(key, eventMsg.getBytes(), "output-event");
+                                    context().forward(key, eventMsg.getBytes(), To.child("output-event"));
                                     context().commit();
                                     // event ended. ------------------------------------------
 

@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+       Copyright 2015-2016 the original author or authors.
+       Licensed under the Apache License, Version 2.0 (the "License");
+       you may not use this file except in compliance with the License.
+       You may obtain a copy of the License at
+          http://www.apache.org/licenses/LICENSE-2.0
+       Unless required by applicable law or agreed to in writing, software
+       distributed under the License is distributed on an "AS IS" BASIS,
+       WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+       See the License for the specific language governing permissions and
+       limitations under the License.
+-->
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bistel.pdm.scheduler.job.mapper.HealthSummaryMapper">
+
+    <delete id="deleteSummarizedHealth" databaseId="oracle">
+        <![CDATA[
+            DELETE FROM EQP_HEALTH_DAILY_SUM_PDM
+                WHERE SUM_DTTS >= #{FROMDATE}
+                  AND SUM_DTTS <  #{TODATE}
+        ]]>
+    </delete>
+
+    <insert id="insertSummarizedHealth" databaseId="oracle">
+        <![CDATA[
+        INSERT INTO EQP_HEALTH_DAILY_SUM_PDM
+        (RAWID, EQP_MST_RAWID, PARAM_HEALTH_MST_RAWID, SCORE, ALARM_COUNT, SUM_DTTS, CREATE_BY, CREATE_DTTS)
+        SELECT SEQ_EQP_HEALTH_DAILY_SUM_PDM.NEXTVAL, PARAM.EQP_MST_RAWID,LOGIC1LOGIC2.PARAM_HEALTH_MST_RAWID,
+            LOGIC1LOGIC2.SCORE, LOGIC1LOGIC2.ALARM_COUNT, #{FROMDATE} AS SUM_DTTS, 'SCHEDULER' AS CREATE_BY,
+            SYSTIMESTAMP AS CREATE_DTTS
+        FROM PARAM_MST_PDM PARAM,
+        (
+            SELECT A.PARAM_MST_RAWID, A.PARAM_HEALTH_MST_RAWID, MAX(A.SCORE) AS SCORE, COUNT(1) AS ALARM_COUNT
+            FROM PARAM_HEALTH_TRX_PDM A, PARAM_HEALTH_MST_PDM B
+            WHERE STATUS_CD='A'
+            AND A.PARAM_HEALTH_MST_RAWID=B.RAWID
+            AND B.HEALTH_LOGIC_MST_RAWID IN (1,2)
+            AND A.CREATE_DTTS >= #{FROMDATE}
+            AND A.CREATE_DTTS <  #{TODATE}
+            GROUP BY A.PARAM_MST_RAWID,PARAM_HEALTH_MST_RAWID
+            UNION
+            SELECT PARAM_MST_RAWID, PARAM_HEALTH_MST_RAWID, SCORE, 0 AS ALARM_COUNT
+            FROM
+            (
+                SELECT PARAM_MST_RAWID, PARAM_HEALTH_MST_RAWID, SUM(AVG1)/SUM(DATA_COUNT) AS SCORE,
+                    0 AS ALARMCOUNT, MAX(STATUS) AS STATUS
+                FROM
+                (
+                    SELECT A.PARAM_MST_RAWID, A.PARAM_HEALTH_MST_RAWID, A.SCORE*A.DATA_COUNT AS AVG1,
+                        A.DATA_COUNT,CASE WHEN A.STATUS_CD ='A' THEN 256 WHEN A.STATUS_CD='W' THEN 128 ELSE 0 END AS STATUS
+                    FROM PARAM_HEALTH_TRX_PDM A, PARAM_HEALTH_MST_PDM B
+                    WHERE 1=1
+                    AND A.PARAM_HEALTH_MST_RAWID=B.RAWID
+                    AND B.HEALTH_LOGIC_MST_RAWID IN (1,2)
+                    AND A.CREATE_DTTS >= #{FROMDATE}
+                    AND A.CREATE_DTTS <  #{TODATE}
+                    AND A.DATA_COUNT != 0
+                )
+                GROUP BY PARAM_MST_RAWID, PARAM_HEALTH_MST_RAWID
+            )
+            WHERE STATUS IN (0,128)
+        ) LOGIC1LOGIC2
+        WHERE 1=1
+        AND LOGIC1LOGIC2.PARAM_MST_RAWID=PARAM.RAWID
+        ]]>
+    </insert>
+
+    <insert id="insertSummarizedHealthDiff" databaseId="oracle">
+        <![CDATA[
+        INSERT INTO EQP_HEALTH_DAILY_SUM_PDM
+        (RAWID, EQP_MST_RAWID, PARAM_HEALTH_MST_RAWID, SCORE, ALARM_COUNT, SUM_DTTS, CREATE_BY, CREATE_DTTS,
+        PREVIOUS_AVG, TODAY_AVG, SIGMA, PREVIOUS_DATE)
+
+        SELECT SEQ_EQP_HEALTH_DAILY_SUM_PDM.NEXTVAL, L.EQP_MST_RAWID, L.PARAM_HEALTH_MST_RAWID,
+            ((K.TODAY_AVG-K.PREVIOUS_AVG)/K.SIGMA) AS SCORE, 0 AS ALARM_COUNT,
+            TO_TIMESTAMP(#{FROMDATE},'YYYY-MM-DD HH24:MI:SS.FF') AS SUM_DTTS, 'SCHEDULER' CREATE_BY,
+            CURRENT_TIMESTAMP AS CREATE_DTTS, K.PREVIOUS_AVG, K.TODAY_AVG, K.SIGMA,
+            CURRENT_TIMESTAMP - 90 PREVIOUS_DATE
+        FROM
+        (
+            SELECT
+                A.EQP_MST_RAWID, B.NAME, ((B.TODAY_AVG-A.PREVIOUS_AVG)/A.SIGMA) AS SCORE,
+                0 AS ALARM_COUNT, TO_TIMESTAMP(#{FROMDATE},'YYYY-MM-DD HH24:MI:SS.FF') AS SUM_DTTS,
+                'SCHEDULER' CREATE_BY, CURRENT_TIMESTAMP AS CREATE_DTTS,
+                A.PREVIOUS_AVG, TODAY_AVG, SIGMA, CURRENT_TIMESTAMP - 90 PREVIOUS_DATE
+            FROM
+            (
+                SELECT P.EQP_MST_RAWID, P.RAWID, P.NAME, AVG(T.SCORE) PREVIOUS_AVG, STDDEV(T.SCORE) SIGMA
+                FROM PARAM_MST_PDM P, PARAM_HEALTH_TRX_PDM T, PARAM_HEALTH_MST_PDM H
+                WHERE P.RAWID=H.PARAM_MST_RAWID
+                AND H.RAWID=T.PARAM_HEALTH_MST_RAWID
+                AND H.HEALTH_LOGIC_MST_RAWID=2
+                AND T.CREATE_DTTS BETWEEN TO_TIMESTAMP(#{FROMDATE}, 'YYYY-MM-DD HH24:MI:SS.FF') - 90
+                                      AND TO_TIMESTAMP(#{FROMDATE}, 'YYYY-MM-DD HH24:MI:SS.FF')
+                GROUP BY P.EQP_MST_RAWID, P.RAWID, P.NAME
+            ) A,
+            (
+                SELECT P.EQP_MST_RAWID, P.RAWID, H.RAWID PARAM_HEALTH_MST_RAWID, P.NAME, AVG(T.SCORE) TODAY_AVG
+                FROM PARAM_MST_PDM P, PARAM_HEALTH_TRX_PDM T, PARAM_HEALTH_MST_PDM H
+                WHERE P.RAWID=H.PARAM_MST_RAWID
+                AND H.RAWID=T.PARAM_HEALTH_MST_RAWID
+                AND H.HEALTH_LOGIC_MST_RAWID=2
+                AND T.CREATE_DTTS BETWEEN TO_TIMESTAMP(#{FROMDATE}, 'YYYY-MM-DD HH24:MI:SS.FF')
+                                      AND TO_TIMESTAMP(#{TODATE}, 'YYYY-MM-DD HH24:MI:SS.FF')
+                GROUP BY P.EQP_MST_RAWID, P.RAWID, H.RAWID, P.NAME
+            ) B
+            WHERE A.EQP_MST_RAWID=B.EQP_MST_RAWID AND A.RAWID=B.RAWID AND A.SIGMA <> 0
+        ) K,
+        (
+            SELECT P.EQP_MST_RAWID, P.RAWID, H.RAWID PARAM_HEALTH_MST_RAWID, P.NAME
+            FROM PARAM_MST_PDM P, PARAM_HEALTH_MST_PDM H
+            WHERE P.RAWID=H.PARAM_MST_RAWID
+            AND H.HEALTH_LOGIC_MST_RAWID=3
+        ) L
+        WHERE 1=1
+        AND K.EQP_MST_RAWID=L.EQP_MST_RAWID
+        AND K.NAME=L.NAME
+        ]]>
+    </insert>
+
+    <delete id="deleteParamHealthRUL" databaseId="oracle">
+        <![CDATA[
+        DELETE FROM PARAM_HEALTH_RUL_TRX_PDM
+        WHERE CREATE_DTTS >= #{FROMDATE}
+          AND CREATE_DTTS < #{TODATE}
+        ]]>
+    </delete>
+
+    <select id="selectRULSummary" databaseId="oracle" resultType="com.bistel.pdm.scheduler.domain.ParamRULSummary">
+        SELECT
+        A.PARAM_MST_RAWID, A.END_DTTS, A.MEAN, B.PARAM_HEALTH_MST_RAWID, A.ALARM_SPEC
+        FROM
+        (
+            SELECT HT.PARAM_MST_RAWID AS PARAM_MST_RAWID, HT.CREATE_DTTS AS END_DTTS,
+            HT.SCORE AS MEAN, 1 AS ALARM_SPEC, P.EQP_MST_RAWID
+            FROM PARAM_MST_PDM P, PARAM_HEALTH_MST_PDM H, PARAM_HEALTH_TRX_PDM HT
+            WHERE 1=1
+            AND P.RAWID=H.PARAM_MST_RAWID
+            AND HT.CREATE_DTTS <![CDATA[>=]]> #{FROMDATE}
+            AND HT.CREATE_DTTS <![CDATA[<]]> #{TODATE}
+            AND H.HEALTH_LOGIC_MST_RAWID=2
+            AND H.PARAM_MST_RAWID=HT.PARAM_MST_RAWID
+        ) A,
+        (
+            SELECT P.EQP_MST_RAWID, P.RAWID, H.RAWID PARAM_HEALTH_MST_RAWID
+            FROM PARAM_MST_PDM P, PARAM_HEALTH_MST_PDM H
+            WHERE P.RAWID=H.PARAM_MST_RAWID
+            AND H.HEALTH_LOGIC_MST_RAWID=4
+        ) B
+        WHERE 1=1
+        AND A.EQP_MST_RAWID=B.EQP_MST_RAWID
+        AND B.RAWID=A.PARAM_MST_RAWID
+        ORDER BY A.END_DTTS
+    </select>
+
+    <select id="selectHealthInfo" databaseId="oracle" resultType="com.bistel.pdm.scheduler.domain.ParamHealthInfo">
+        SELECT PARAM.EQP_MST_RAWID, HEALTH.RAWID AS PARAM_HEALTH_MST_RAWID
+        FROM PARAM_HEALTH_MST_PDM HEALTH, PARAM_MST_PDM PARAM
+        WHERE 1=1
+        AND HEALTH.PARAM_MST_RAWID=PARAM.RAWID
+        AND HEALTH.HEALTH_LOGIC_MST_RAWID=4
+        AND PARAM.RAWID=#{PARAM_ID}
+    </select>
+
+    <insert id="insertParamHealthRULTRX" databaseId="oracle">
+        INSERT INTO PARAM_HEALTH_RUL_TRX_PDM
+        (RAWID, PARAM_HEALTH_MST_RAWID, INTERCEPT, SLOPE, XVALUE, CREATE_DTTS)
+        VALUES
+        (SEQ_PARAM_HEALTH_RUL_TRX_PDM.NEXTVAL, #{PARAM_HEALTH_MST_RAWID}, #{INTERCEPT,JDBCTYPE=FLOAT},
+        #{SLOPE,JDBCTYPE=FLOAT}, #{XVALUE,JDBCTYPE=FLOAT}, #{CREATE_DTTS})
+    </insert>
+
+    <insert id="insertSummaryHealthRUL" databaseId="oracle">
+        INSERT INTO EQP_HEALTH_DAILY_SUM_PDM
+        (RAWID, EQP_MST_RAWID, PARAM_HEALTH_MST_RAWID, SCORE, ALARM_COUNT, SUM_DTTS, CREATE_BY, CREATE_DTTS)
+        VALUES
+        (SEQ_EQP_HEALTH_DAILY_SUM_PDM.NEXTVAL, #{EQP_MST_RAWID}, #{PARAM_HEALTH_MST_RAWID}, #{SCORE},
+        0, #{FROMDATE}, 'SCHEDULER', SYSTIMESTAMP)
+    </insert>
+
+</mapper>

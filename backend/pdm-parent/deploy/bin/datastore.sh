@@ -3,7 +3,7 @@ APPNAME="DataStore Layer"
 APPPID=datastore.pid
 APPJAR=pdm-datastore-bundle-1.0-SNAPSHOT.jar
 APPOPTS="-groupId pdm-store
--servingAddr http://192.168.7.227:28000
+-servingAddr http://192.168.7.227:8089
 -kafkaConf ./config/consumer.properties
 -log4jConf ./config/log4j.properties"
 

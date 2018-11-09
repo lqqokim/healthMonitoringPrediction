@@ -1,0 +1,9 @@
+.correlation-container {
+    height: 100%;
+    width: 100%;
+}
+
+.correlation-container > correlation {
+    height: 100%;
+    width: 100%;
+}

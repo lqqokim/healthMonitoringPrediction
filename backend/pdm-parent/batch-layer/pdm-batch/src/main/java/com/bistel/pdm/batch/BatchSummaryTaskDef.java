@@ -1,13 +1,13 @@
 package com.bistel.pdm.batch;
 
-import com.bistel.pdm.batch.processor.BatchProcessor;
+import com.bistel.pdm.batch.processor.*;
 import com.bistel.pdm.lambda.kafka.AbstractPipeline;
-import com.bistel.pdm.lambda.kafka.partitioner.CustomStreamPartitioner;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.Topology;
+import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.state.StoreBuilder;
 import org.apache.kafka.streams.state.Stores;
 import org.apache.kafka.streams.state.WindowStore;
@@ -27,10 +27,9 @@ public class BatchSummaryTaskDef extends AbstractPipeline {
     private final String applicationId;
     private final int streamThreadCount;
 
-    public BatchSummaryTaskDef(String applicationId, String brokers,
-                             String schemaUrl, String servingAddr, String streamThreadCount) {
+    public BatchSummaryTaskDef(String applicationId, String brokers, String servingAddr, String streamThreadCount) {
 
-        super(brokers, schemaUrl, servingAddr);
+        super(brokers, servingAddr);
         this.applicationId = applicationId;
         this.streamThreadCount = Integer.parseInt(streamThreadCount);
     }
@@ -56,10 +55,22 @@ public class BatchSummaryTaskDef extends AbstractPipeline {
     private KafkaStreams processStreams() {
         final Topology topology = new Topology();
 
+        StoreBuilder<KeyValueStore<String, String>> statusContextStoreSupplier =
+                Stores.keyValueStoreBuilder(
+                        Stores.persistentKeyValueStore("speed-status-context-store"),
+                        Serdes.String(),
+                        Serdes.String());
+
+        StoreBuilder<KeyValueStore<String, String>> recordGroupStoreSupplier =
+                Stores.keyValueStoreBuilder(
+                        Stores.persistentKeyValueStore("speed-record-group-store"),
+                        Serdes.String(),
+                        Serdes.String());
+
         StoreBuilder<WindowStore<String, Double>> contValueWindowStoreSupplier =
                 Stores.windowStoreBuilder(
-                        Stores.persistentWindowStore("batch-continuous-summary",
-                                TimeUnit.DAYS.toMillis(1),
+                        Stores.persistentWindowStore("batch-cont-summary-store",
+                                TimeUnit.DAYS.toMillis(5),
                                 2,
                                 TimeUnit.DAYS.toMillis(1),
                                 true),
@@ -68,8 +79,8 @@ public class BatchSummaryTaskDef extends AbstractPipeline {
 
         StoreBuilder<WindowStore<String, String>> catValueWindowStoreSupplier =
                 Stores.windowStoreBuilder(
-                        Stores.persistentWindowStore("batch-categorical-summary",
-                                TimeUnit.DAYS.toMillis(1),
+                        Stores.persistentWindowStore("batch-cat-summary-store",
+                                TimeUnit.DAYS.toMillis(5),
                                 2,
                                 TimeUnit.DAYS.toMillis(1),
                                 true),
@@ -79,11 +90,26 @@ public class BatchSummaryTaskDef extends AbstractPipeline {
 //        CustomStreamPartitioner partitioner = new CustomStreamPartitioner();
 
         topology.addSource("input-trace", this.getInputTraceTopic())
-                .addProcessor("batch", BatchProcessor::new, "input-trace")
-                .addStateStore(contValueWindowStoreSupplier, "batch")
-                .addStateStore(catValueWindowStoreSupplier, "batch")
-                .addSink("output-feature", this.getOutputFeatureTopic(), "batch")
-                .addSink("output-dimension", this.getOutputDimensionTopic(), "batch");
+                .addProcessor("EntryPointProcessor", EntryPointProcessor::new, "input-trace")
+                .addProcessor("RecordParserProcessor", RecordParserProcessor::new, "EntryPointProcessor")
+                .addProcessor("StatusDecisionProcessor", StatusDecisionProcessor::new, "RecordParserProcessor")
+
+                .addProcessor("EventProcessor", EventProcessor::new, "StatusDecisionProcessor")
+                .addStateStore(statusContextStoreSupplier, "EventProcessor")
+                .addStateStore(recordGroupStoreSupplier, "EventProcessor")
+
+                .addProcessor("SummaryProcessor", SummaryProcessor::new, "EventProcessor")
+                .addStateStore(contValueWindowStoreSupplier, "SummaryProcessor")
+                .addStateStore(catValueWindowStoreSupplier, "SummaryProcessor")
+                .addSink("output-feature", this.getOutputFeatureTopic(), "SummaryProcessor")
+                .addSink("output-dimension", this.getOutputDimensionTopic(), "SummaryProcessor");
+
+//        topology.addSource("input-trace", this.getInputTraceTopic())
+//                .addProcessor("batch", BatchProcessor::new, "input-trace")
+//                .addStateStore(contValueWindowStoreSupplier, "batch")
+//                .addStateStore(catValueWindowStoreSupplier, "batch")
+//                .addSink("output-feature", this.getOutputFeatureTopic(), "batch")
+//                .addSink("output-dimension", this.getOutputDimensionTopic(), "batch");
 
         return new KafkaStreams(topology, getStreamProperties());
     }

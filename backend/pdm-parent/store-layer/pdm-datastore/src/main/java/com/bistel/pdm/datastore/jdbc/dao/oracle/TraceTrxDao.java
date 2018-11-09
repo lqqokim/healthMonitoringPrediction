@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -96,7 +97,12 @@ public class TraceTrxDao implements SensorTraceDataDao {
                     String[] values = valueString.split(",", -1);
 
                     String ruleName = values[values.length - 1];
-                    String msgGroup = values[values.length - 2];
+
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+                    Date parsedDate = dateFormat.parse(values[values.length - 2]);
+                    Timestamp timestamp = new Timestamp(parsedDate.getTime());
+                    String msgGroup = Long.toString(timestamp.getTime());
+
                     String status = values[values.length - 3];
 
                     List<ParameterMaster> paramData = MasterCache.Parameter.get(record.key());

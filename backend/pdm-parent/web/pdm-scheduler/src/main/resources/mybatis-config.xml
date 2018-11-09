@@ -31,15 +31,14 @@
         <setting name="mapUnderscoreToCamelCase" value="false"/>
         <setting name="localCacheScope" value="SESSION"/>
         <setting name="jdbcTypeForNull" value="OTHER"/>
-        <setting name="lazyLoadTriggerMethods"
-                 value="equals,clone,hashCode,toString"/>
+        <setting name="lazyLoadTriggerMethods" value="equals,clone,hashCode,toString"/>
     </settings>
 
     <typeAliases>
         <package name="com.bistel.pdm.scheduler.domain"/>
     </typeAliases>
     <mappers>
-        <mapper resource="mapper/CityMapper.xml"/>
-        <mapper resource="mapper/HotelMapper.xml"/>
+        <mapper resource="mapper/AlarmSummaryMapper.xml"/>
+        <mapper resource="mapper/HealthSummaryMapper.xml"/>
     </mappers>
 </configuration>

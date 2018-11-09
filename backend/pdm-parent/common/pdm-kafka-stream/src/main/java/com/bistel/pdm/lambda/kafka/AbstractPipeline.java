@@ -15,8 +15,6 @@ public abstract class AbstractPipeline implements Closeable {
 
     protected static final String stateDir = "/tmp/kafka-streams";
 
-    private final String schemaRegistryUrl;
-
     private final String broker;
 
     private final String inputTraceTopic = "pdm-input-trace";
@@ -43,12 +41,11 @@ public abstract class AbstractPipeline implements Closeable {
      */
     protected final String AUTO_OFFSET_RESET_CONFIG = "latest";
 
-    protected AbstractPipeline(String brokers, String schemaUrl, String servingAddr) {
+    protected AbstractPipeline(String brokers, String servingAddr) {
 //        Objects.requireNonNull(config);
 //        log.info("Configuration:\n{}", ConfigUtils.prettyPrint(config));
 
         this.broker = brokers;
-        this.schemaRegistryUrl = schemaUrl;
 
         log.info("setting the serving address...");
         MasterCache.ServingAddress = servingAddr;
@@ -98,10 +95,6 @@ public abstract class AbstractPipeline implements Closeable {
 
     public String getOutputReloadTopic() {
         return outputReloadTopic;
-    }
-
-    public String getSchemaRegistryUrl() {
-        return schemaRegistryUrl;
     }
 
     public String getOutputDimensionTopic() {

@@ -1,15 +1,16 @@
 //Angular
-import { Component, OnInit, OnDestroy, OnChanges, ViewChild, Input, SimpleChange, SimpleChanges } from '@angular/core';
+import { Component, OnInit, OnDestroy, OnChanges, ViewChild, Input, SimpleChange, SimpleChanges, Output, EventEmitter } from '@angular/core';
 
 //MIP
 import { ModalAction, ModalRequester, RequestType } from '../../../../../../../common';
-import { NotifyService, Translater } from '../../../../../../../sdk';
+import { NotifyService, Translater, SpinnerComponent } from '../../../../../../../sdk';
 
 //Service
 import { PdmModelService } from './../../../../../../../common/model/app/pdm/pdm-model.service';
 import { PdmConfigService } from './../../../model/pdm-config.service';
 
 //Interface
+import * as IMaster from './../../model/master-interface';
 import * as IRule from './model/spec-rule-interface';
 
 //Wijmo
@@ -28,7 +29,9 @@ import { NgForm } from '@angular/forms';
 export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
     @ViewChild('RuleGrid') RuleGrid: wjcGrid.FlexGrid;
     @ViewChild('ParamGrid') ParamGrid: wjcGrid.FlexGrid;
-    @Input() specCondition: any;
+    @Output() controleSpinner: EventEmitter<string> = new EventEmitter();
+    @Input() specCondition: IRule.SpecCondition;
+
 
     fabId: IRule.SpecCondition['fabId'];
     eqp: IRule.SpecCondition['eqp'];
@@ -56,6 +59,7 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
     isDownDisabled: boolean = false;
 
     readonly DEFAULT_NAME: string = 'DEFAULT';
+    readonly SPINNER_TYPE: IMaster.SpinnerType = { SHOW: 'show', HIDE: 'hide' };
     readonly TYPE: IRule.Type = { MODEL: 'MODEL', EQP: 'EQP' };
     readonly STATUS: IRule.Status = { CREATE: 'create', MODIFY: 'modify', DELETE: 'delete' };
 
@@ -130,9 +134,9 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
     selectFirstRule(): void {
         setTimeout(() => {
             // if (this.RuleGrid.itemsSource && this.RuleGrid.itemsSource.length > 0) {
-                this.selectedRule = this.RuleGrid.itemsSource[0];
-                // console.log('selectFirstRule', this.RuleGrid)
-                this.getParamsByEqpRule();
+            this.selectedRule = this.RuleGrid.itemsSource[0];
+            // console.log('selectFirstRule', this.RuleGrid)
+            this.getParamsByEqpRule();
             // }
         });
     }
@@ -277,6 +281,7 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
 
     //Rule Grid에서 수정된 Rule 정보 저장
     saveEditRule(): void {
+        this.showSpinner();
         let rules: IRule.Rule[] = this.rules;
         let ruleRequest: IRule.RuleRequest[] = [];
         // console.log('saveEditRule rules', rules);
@@ -302,10 +307,12 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
             .then((res) => {
                 console.log('updateEqpRule res', res);
                 this.getRules();
+                this.hideSpinner();
                 this.notify.success("MESSAGE.USER_CONFIG.UPDATE_SUCCESS");
             }).catch((err) => {
                 console.log('updateEqpRule err', err);
                 this.getRules();
+                this.hideSpinner();
                 this.notify.error("MESSAGE.GENERAL.ERROR");
             });
     }
@@ -329,6 +336,7 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
 
     //Modal에서 수정된 Rule의 Parameter 정보를 저장
     saveRule(grid: wjcGrid.FlexGrid): void {
+        this.showSpinner();
         let tempParams = this.tempParameters;
         let parameters: IRule.ParameterByRule[] = this.editParameters;
         console.log('saveRule parameters', parameters);
@@ -360,8 +368,12 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
         console.log('Parameter Request', paramRequest);
         this.updateRevertToModelSpec();
         this.updateEqpRuleParams(paramRequest);
-        this.selectFirstRule();
         this._showModal(false);
+
+        // update api call 했을 때, 응답이 오는 속도가 느리기 때문에 강제로 updateEqpRuleParams 태워서 가져온다
+        // this.hideSpinner();
+        // this.notify.success("MESSAGE.USER_CONFIG.UPDATE_SUCCESS");
+        // this.getRules();
     }
 
     gotFocus(event) {
@@ -373,11 +385,14 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
         this._pdmConfigService.updateEqpRuleParams(this.fabId, request)
             .then((res) => {
                 console.log('updateEqpRuleParams res', res);
-                // this.getRules();
-                // this.notify.success("MESSAGE.USER_CONFIG.UPDATE_SUCCESS");
-            }).catch((err) => {
-                console.log(err);           
+                // this.getParamsByEqpRule();
                 this.getRules();
+                this.hideSpinner();
+                this.notify.success("MESSAGE.USER_CONFIG.UPDATE_SUCCESS");
+            }).catch((err) => {
+                console.log(err);
+                this.getRules();
+                this.hideSpinner();
                 this.notify.error("MESSAGE.GENERAL.ERROR");
             });
     }
@@ -394,10 +409,9 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
                         // console.log('updateRevertToModelSpec success!', res);
                     }).catch((err) => {
                         console.log(err);
-                    })
+                    });
             }
         });
-
     }
 
     //Rule Grid에서 Up 버튼 클릭
@@ -460,6 +474,14 @@ export class MasterSpecRuleComponent implements OnInit, OnDestroy, OnChanges {
             }
 
         });
+    }
+
+    showSpinner(): void {
+        this.controleSpinner.emit(this.SPINNER_TYPE.SHOW);
+    }
+
+    hideSpinner(): void {
+        this.controleSpinner.emit(this.SPINNER_TYPE.HIDE);
     }
 
     beginningEdit(event) {
