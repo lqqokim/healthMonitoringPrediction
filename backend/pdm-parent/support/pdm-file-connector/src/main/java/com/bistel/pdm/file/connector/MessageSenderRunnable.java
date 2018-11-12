@@ -134,7 +134,6 @@ public class MessageSenderRunnable implements Runnable {
                         String timeStamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(ts);
                         sbMsg.append(timeStamp).append(",");
 
-
                         sbMsg.append(column[7]).append(",")
                                 .append(column[8]).append(",")
                                 .append(column[9]).append(",")
@@ -168,14 +167,16 @@ public class MessageSenderRunnable implements Runnable {
                         RecordMetadata meta = producer.send(new ProducerRecord<>(topicName,
                                 clientId, sbMsg.toString().getBytes())).get();
 
-                        if(clientId.equalsIgnoreCase("TEST99")){
-                            log.debug("[{}] - {}, partition:{}, offset:{}", clientId, timeStamp, meta.partition(), meta.offset());
-                        } else if(clientId.equalsIgnoreCase("TEST149")){
-                            log.debug("[{}] - {}, partition:{}, offset:{}", clientId, timeStamp, meta.partition(), meta.offset());
-                        }
+                        log.debug("[{}] - {}, partition:{}, offset:{}", clientId, timeStamp, meta.partition(), meta.offset());
+
+//                        if(clientId.equalsIgnoreCase("TEST99")){
+//                            log.debug("[{}] - {}, partition:{}, offset:{}", clientId, timeStamp, meta.partition(), meta.offset());
+//                        } else if(clientId.equalsIgnoreCase("TEST149")){
+//                            log.debug("[{}] - {}, partition:{}, offset:{}", clientId, timeStamp, meta.partition(), meta.offset());
+//                        }
 
                         try {
-                            Thread.sleep(100);
+                            Thread.sleep(500);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
