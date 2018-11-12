@@ -9,12 +9,8 @@ import com.bistel.pdm.speed.Function.IndividualDetection;
 import com.bistel.pdm.speed.Function.RuleBasedDetection;
 import com.bistel.pdm.speed.Function.StatusDefineFunction;
 import com.bistel.pdm.speed.model.StatusWindow;
-import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.processor.AbstractProcessor;
 import org.apache.kafka.streams.processor.ProcessorContext;
-import org.apache.kafka.streams.state.KeyValueStore;
-import org.apache.kafka.streams.state.WindowStore;
-import org.apache.kafka.streams.state.WindowStoreIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -34,8 +29,8 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
     private static final Logger log = LoggerFactory.getLogger(SpeedProcessor.class);
     private final static String SEPARATOR = ",";
 
-    private WindowStore<String, Double> kvNormalizedParamValueStore;
-//    private final HashMap<String, ArrayList<Double>> kvParamStore = new HashMap<>();
+    //    private WindowStore<String, Double> kvNormalizedParamValueStore;
+    private final HashMap<String, ArrayList<Double>> kvParamStore = new HashMap<>();
 
     private final StatusDefineFunction statusDefineFunction = new StatusDefineFunction();
     private final IndividualDetection individualDetection = new IndividualDetection();
@@ -51,8 +46,7 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
     @SuppressWarnings("unchecked")
     public void init(ProcessorContext processorContext) {
         super.init(processorContext);
-
-        kvNormalizedParamValueStore = (WindowStore) context().getStateStore("speed-normalized-value");
+//        kvNormalizedParamValueStore = (WindowStore) context().getStateStore("speed-normalized-value");
     }
 
     @Override
@@ -161,16 +155,16 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
                                     Double normalizedValue = paramDblValue / paramInfo.getUpperAlarmSpec();
 
                                     log.debug("[{}] - put value : {}", partitionKey, normalizedValue);
-                                    kvNormalizedParamValueStore.put(paramKey, normalizedValue, nowMessageTime);
+//                                    kvNormalizedParamValueStore.put(paramKey, normalizedValue, nowMessageTime);
 
-//                                    if(!kvParamStore.containsKey(paramKey)){
-//                                        ArrayList<Double> value = new ArrayList<>();
-//                                        value.add(normalizedValue);
-//                                        kvParamStore.put(paramKey, value);
-//                                    } else {
-//                                        ArrayList<Double> value = kvParamStore.get(paramKey);
-//                                        value.add(normalizedValue);
-//                                    }
+                                    if (!kvParamStore.containsKey(paramKey)) {
+                                        ArrayList<Double> value = new ArrayList<>();
+                                        value.add(normalizedValue);
+                                        kvParamStore.put(paramKey, value);
+                                    } else {
+                                        ArrayList<Double> value = kvParamStore.get(paramKey);
+                                        value.add(normalizedValue);
+                                    }
 
                                     log.debug("[{}] - {} fault detecting...", partitionKey, paramInfo.getParameterName());
                                     // fault detection
@@ -199,8 +193,8 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
                                 // event ended. ------------------------------------------
                                 Long endTime = statusWindow.getPreviousLongTime();
                                 String eventMsg = endTime + ","
-                                                + eventInfo.getSecond().getEventRawId() + ","
-                                                + eventInfo.getSecond().getEventTypeCD();
+                                        + eventInfo.getSecond().getEventRawId() + ","
+                                        + eventInfo.getSecond().getEventTypeCD();
 
                                 log.info("[{}] - process ended.", partitionKey);
                                 context().forward(partitionKey, eventMsg.getBytes(), "output-event");
@@ -231,16 +225,16 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
                                         String paramKey = partitionKey + ":" + paramInfo.getParameterRawId();
 
                                         List<Double> normalizedValueList = new ArrayList<>();
-                                        WindowStoreIterator<Double> storeIterator = kvNormalizedParamValueStore.fetch(paramKey, startTime, endTime);
-                                        while (storeIterator.hasNext()) {
-                                            KeyValue<Long, Double> kv = storeIterator.next();
-                                            if (!kv.value.isNaN()) {
-                                                normalizedValueList.add(kv.value);
-                                            }
-                                        }
-                                        storeIterator.close();
+//                                        WindowStoreIterator<Double> storeIterator = kvNormalizedParamValueStore.fetch(paramKey, startTime, endTime);
+//                                        while (storeIterator.hasNext()) {
+//                                            KeyValue<Long, Double> kv = storeIterator.next();
+//                                            if (!kv.value.isNaN()) {
+//                                                normalizedValueList.add(kv.value);
+//                                            }
+//                                        }
+//                                        storeIterator.close();
 
-//                                        normalizedValueList = kvParamStore.get(paramKey);
+                                        normalizedValueList = kvParamStore.get(paramKey);
 
                                         boolean existAlarm = individualDetection.existAlarm(paramKey);
                                         boolean existWarning = individualDetection.existWarning(paramKey);
@@ -326,16 +320,16 @@ public class SpeedProcessor extends AbstractProcessor<String, byte[]> {
                                 String paramKey = partitionKey + ":" + paramInfo.getParameterRawId();
 
                                 List<Double> normalizedValueList = new ArrayList<>();
-                                WindowStoreIterator<Double> storeIterator = kvNormalizedParamValueStore.fetch(paramKey, startTime, endTime);
-                                while (storeIterator.hasNext()) {
-                                    KeyValue<Long, Double> kv = storeIterator.next();
-                                    if (!kv.value.isNaN()) {
-                                        normalizedValueList.add(kv.value);
-                                    }
-                                }
-                                storeIterator.close();
+//                                WindowStoreIterator<Double> storeIterator = kvNormalizedParamValueStore.fetch(paramKey, startTime, endTime);
+//                                while (storeIterator.hasNext()) {
+//                                    KeyValue<Long, Double> kv = storeIterator.next();
+//                                    if (!kv.value.isNaN()) {
+//                                        normalizedValueList.add(kv.value);
+//                                    }
+//                                }
+//                                storeIterator.close();
 
-//                                normalizedValueList = kvParamStore.get(paramKey);
+                                normalizedValueList = kvParamStore.get(paramKey);
 
                                 boolean existAlarm = individualDetection.existAlarm(paramKey);
                                 boolean existWarning = individualDetection.existWarning(paramKey);

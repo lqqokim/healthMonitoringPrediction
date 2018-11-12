@@ -56,21 +56,21 @@ public class SpeedRealTimeTaskDef extends AbstractPipeline {
     private KafkaStreams processStreams() {
         final Topology topology = new Topology();
 
-        StoreBuilder<WindowStore<String, Double>> normalizedParamValueStoreSupplier =
-                Stores.windowStoreBuilder(
-                        Stores.persistentWindowStore("speed-normalized-value",
-                                TimeUnit.DAYS.toMillis(1),
-                                2,
-                                TimeUnit.HOURS.toMillis(1),
-                                false),
-                        Serdes.String(),
-                        Serdes.Double());
+//        StoreBuilder<WindowStore<String, Double>> normalizedParamValueStoreSupplier =
+//                Stores.windowStoreBuilder(
+//                        Stores.persistentWindowStore("speed-normalized-value",
+//                                TimeUnit.DAYS.toMillis(1),
+//                                2,
+//                                TimeUnit.HOURS.toMillis(1),
+//                                false),
+//                        Serdes.String(),
+//                        Serdes.Double());
 
 //        CustomStreamPartitioner partitioner = new CustomStreamPartitioner();
 
         topology.addSource("input-trace", this.getInputTraceTopic())
                 .addProcessor("speed", SpeedProcessor::new, "input-trace")
-                .addStateStore(normalizedParamValueStoreSupplier, "speed")
+//                .addStateStore(normalizedParamValueStoreSupplier, "speed")
 
                 .addSink("output-trace", this.getOutputTraceTopic(), "speed")
                 .addSink("output-event", this.getOutputEventTopic(), "speed")

@@ -28,7 +28,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class BatchProcessor extends AbstractProcessor<String, byte[]> {
     private static final Logger log = LoggerFactory.getLogger(BatchProcessor.class);
 
-//    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
     private final static String SEPARATOR = ",";
 
     private WindowStore<String, Double> kvContValueWindowStore;
