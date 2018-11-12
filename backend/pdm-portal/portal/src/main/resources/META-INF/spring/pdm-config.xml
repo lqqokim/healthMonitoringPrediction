@@ -45,28 +45,28 @@
     </bean>
 
     <!--FAB2-->
-    <bean class="org.apache.commons.dbcp.BasicDataSource" id="fab2DataSource">
-        <property name="driverClassName" value="${db.fab2.driverClassName}"/>
-        <property name="url" value="${db.fab2.url}"/>
-        <property name="username" value="${db.fab2.username}"/>
-        <property name="password" value="${db.fab2.password}"/>
-        <property name="maxActive" value="50"/>
-        <property name="maxIdle" value="20" />
-    </bean>
-    <bean id="fab2SqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
-        <property name="dataSource" ref="fab2DataSource"/>
-        <property name="configLocation" value="classpath:/META-INF/spring/mybatis-config.xml"/>
-        <property name="mapperLocations" value="classpath:/portal/dao/pdm/**/*.xml"/>
-        <property name="databaseIdProvider" ref="databaseIdProvider"/>
-    </bean>
-    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer" p:basePackage="com.bistel.a3.portal.dao.pdm"
-          p:sqlSessionFactoryBeanName="fab2SqlSessionFactory"/>
-    <bean id="fab2TR" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-        <property name="dataSource" ref="fab2DataSource"/>
-    </bean>
-    <bean id="fab2" class="org.mybatis.spring.SqlSessionTemplate">
-        <constructor-arg index="0" ref="fab2SqlSessionFactory"/>
-    </bean>
+    <!--<bean class="org.apache.commons.dbcp.BasicDataSource" id="fab2DataSource">-->
+        <!--<property name="driverClassName" value="${db.fab2.driverClassName}"/>-->
+        <!--<property name="url" value="${db.fab2.url}"/>-->
+        <!--<property name="username" value="${db.fab2.username}"/>-->
+        <!--<property name="password" value="${db.fab2.password}"/>-->
+        <!--<property name="maxActive" value="50"/>-->
+        <!--<property name="maxIdle" value="20" />-->
+    <!--</bean>-->
+    <!--<bean id="fab2SqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">-->
+        <!--<property name="dataSource" ref="fab2DataSource"/>-->
+        <!--<property name="configLocation" value="classpath:/META-INF/spring/mybatis-config.xml"/>-->
+        <!--<property name="mapperLocations" value="classpath:/portal/dao/pdm/**/*.xml"/>-->
+        <!--<property name="databaseIdProvider" ref="databaseIdProvider"/>-->
+    <!--</bean>-->
+    <!--<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer" p:basePackage="com.bistel.a3.portal.dao.pdm"-->
+          <!--p:sqlSessionFactoryBeanName="fab2SqlSessionFactory"/>-->
+    <!--<bean id="fab2TR" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">-->
+        <!--<property name="dataSource" ref="fab2DataSource"/>-->
+    <!--</bean>-->
+    <!--<bean id="fab2" class="org.mybatis.spring.SqlSessionTemplate">-->
+        <!--<constructor-arg index="0" ref="fab2SqlSessionFactory"/>-->
+    <!--</bean>-->
 
     <bean class="com.bistel.a3.portal.util.ApacheHttpClientGet" id="requestURL">
         <property name="url" value="${requestURL}"/>
@@ -77,6 +77,10 @@
         <property name="normalized_lower_alarm_spec" value="${GlobalAWSpec.lowerWarningSpec}"/>
         <property name="normalized_lower_warning_spec" value="${GlobalAWSpec.lowerWarningSpec}"/>
     </bean>
+
+
+
+
 
     <!--Ulsan-->
      <!--&lt;!&ndash;fab 1&ndash;&gt;-->
