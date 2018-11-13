@@ -41,6 +41,8 @@
         <module>support/pdm-datagen</module>
         <module>support/pdm-file-connector</module>
         <module>support/pdm-simulator</module>
+        <module>connector/logfile-connector</module>
+        <module>deploy/pdm-logfile-connector-bundle</module>
 
     </modules>
 
@@ -575,6 +577,11 @@
             <dependency>
                 <groupId>com.bistel</groupId>
                 <artifactId>pdm-data</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.bistel</groupId>
+                <artifactId>logfile-connector</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
