@@ -50,7 +50,7 @@ export class PdmAlarmHistoryComponent extends WidgetApi implements OnSetup, OnDe
         { title: 'Fault Class', name: 'FaultClass' },
         { title: 'Value', name: 'value' },
         { title: 'Rule', name: 'Rule' },
-        { title: 'Condition', name: 'Condition' }        
+        { title: 'Condition', name: 'Condition' }
     ];
 
     // public data:Array<any> = [
@@ -194,7 +194,13 @@ export class PdmAlarmHistoryComponent extends WidgetApi implements OnSetup, OnDe
 
     //* String 형태로 넘어오는 Condition을 JSON으로 변환 후, Expression 조합
     convertCondition(conditionsString: string): string {
-        const replaceConditions: string = conditionsString.replace(new RegExp(/\\/g), '');
+        let replaceConditions: string;
+        if (conditionsString) {
+            replaceConditions = conditionsString.replace(new RegExp(/\\/g), '');
+        } else {
+            return 'DEFAULT';
+        }
+
         const conditions: IRuleCondition[] = JSON.parse(replaceConditions);
         let expression: string = '';
         conditions.map((condition: IRuleCondition, index: number) => {

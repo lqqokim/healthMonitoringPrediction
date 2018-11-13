@@ -20,6 +20,11 @@ import { CorrelationComponent } from './components/correlation.component';
 import { PlotlyModule } from 'angular-plotly.js';
 import { AngularSplitModule } from 'angular-split';
 
+//Custom Chart Components
+import { HeatmapComponent } from './components/heatmap/heatmap.component';
+import { ScatterComponent } from './components/scatter/scatter.component';
+import { TrendComponent } from './components/trend/trend.component';
+
 @NgModule({
     imports: [
         A3_CommonModule,
@@ -31,6 +36,10 @@ import { AngularSplitModule } from 'angular-split';
     declarations: [
         PdmCorrelationWidgetComponent,
         CorrelationComponent,
+
+        HeatmapComponent,
+        ScatterComponent,
+        TrendComponent
     ],
     exports: [
         PdmCorrelationWidgetComponent

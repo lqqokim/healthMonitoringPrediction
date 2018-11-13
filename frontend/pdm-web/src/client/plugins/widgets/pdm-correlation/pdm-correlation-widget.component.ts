@@ -33,6 +33,10 @@ export class PdmCorrelationWidgetComponent extends WidgetApi implements OnInit, 
         }
     }
 
+    spinnerControl(ev) {
+
+    }
+
     ngOnDestroy() {
 
     }
