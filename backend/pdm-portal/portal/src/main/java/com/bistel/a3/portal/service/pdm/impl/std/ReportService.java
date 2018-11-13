@@ -700,6 +700,7 @@ public class ReportService implements IReportService {
         List<BasicData> datas = mapper.selectHealthIndexTrend(paramId,from ,to);
         return changeList(datas);
     }
+
     private List<List<Object>> changeList(List<BasicData> data) {
         List<List<Object>> result = new ArrayList<>();
         for(BasicData d : data) {
@@ -707,6 +708,19 @@ public class ReportService implements IReportService {
         }
         return result;
     }
+
+    public List<List<Object>> getFeatureTrxTrend(String fabId, Long paramId, Long fromdate, Long todate){
+
+        STDReportMapper mapper = SqlSessionUtil.getMapper(sessions, fabId, STDReportMapper.class);
+
+        List<BasicData> paramFeatureTrxList=mapper.selectFeatureTrend(paramId,new Date(fromdate),new Date(todate));
+
+        return changeList(paramFeatureTrxList);
+    }
+
+
+
+
 
     private Long calculateRegression(String fabId, Long paramId, Long todate, Double alarm, Integer regressionDays) {
         Date to = new Date(todate);

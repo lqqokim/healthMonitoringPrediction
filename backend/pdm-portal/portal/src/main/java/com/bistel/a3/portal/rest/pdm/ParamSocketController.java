@@ -68,7 +68,9 @@ public class ParamSocketController {
 //            replyMessage.put("replyConditon","finish");
 //        }
 //        else{
-            List<List<Object>> regressionTrend=reportService.getHealthIndexTrend(fabId,paramId,fromdate,todate);
+            //List<List<Object>> regressionTrend=reportService.getHealthIndexTrend(fabId,paramId,fromdate,todate);
+        List<List<Object>> regressionTrend=reportService.getFeatureTrxTrend(fabId,paramId,fromdate,todate);
+
             replyMessage.put("chartFlag", "trand");
             replyMessage.put("datas", regressionTrend);
             replyMessage.put("replyConditon","finish");

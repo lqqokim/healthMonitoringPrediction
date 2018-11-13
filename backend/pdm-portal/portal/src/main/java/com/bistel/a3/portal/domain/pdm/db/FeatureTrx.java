@@ -15,6 +15,12 @@ public class FeatureTrx {
     private float stddev;
     private float q1;
     private float q3;
+    private Float upperAlarmSpec;
+    private Float lowerAlarmSpec;
+    private Float upperWarningSpec;
+    private Float lowerWarningSpec;
+    private Float target;
+    private String message_group;
 
 
     public Long getRawid() {
@@ -111,5 +117,53 @@ public class FeatureTrx {
 
     public void setQ3(float q3) {
         this.q3 = q3;
+    }
+
+    public Float getUpperAlarmSpec() {
+        return upperAlarmSpec;
+    }
+
+    public void setUpperAlarmSpec(Float upperAlarmSpec) {
+        this.upperAlarmSpec = upperAlarmSpec;
+    }
+
+    public Float getLowerAlarmSpec() {
+        return lowerAlarmSpec;
+    }
+
+    public void setLowerAlarmSpec(Float lowerAlarmSpec) {
+        this.lowerAlarmSpec = lowerAlarmSpec;
+    }
+
+    public Float getUpperWarningSpec() {
+        return upperWarningSpec;
+    }
+
+    public void setUpperWarningSpec(Float upperWarningSpec) {
+        this.upperWarningSpec = upperWarningSpec;
+    }
+
+    public Float getLowerWarningSpec() {
+        return lowerWarningSpec;
+    }
+
+    public void setLowerWarningSpec(Float lowerWarningSpec) {
+        this.lowerWarningSpec = lowerWarningSpec;
+    }
+
+    public Float getTarget() {
+        return target;
+    }
+
+    public void setTarget(Float target) {
+        this.target = target;
+    }
+
+    public String getMessage_group() {
+        return message_group;
+    }
+
+    public void setMessage_group(String message_group) {
+        this.message_group = message_group;
     }
 }

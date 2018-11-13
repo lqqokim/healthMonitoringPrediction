@@ -116,30 +116,30 @@ public class SKFDataPumperComponent implements IDataPumperComponent {
 
     @Override
     public void dataPumpBase(String fabId, String regacyName, String url) throws NoSuchMethodException {
-        SKFPumpMapper getMapper = SqlSessionUtil.getMapper(sessions, regacyName, SKFPumpMapper.class);
-        SKFPumpMapper putMapper = SqlSessionUtil.getMapper(sessions, fabId, SKFPumpMapper.class);
-        PlatformTransactionManager manager = TransactionUtil.getTransactionManger(trMgrs, fabId);
-
-
-        /* information */
-        //Bearing
-        pump(Bearing.class, getMapper, putMapper, manager);
-        //Area
-        pump(Area.class, getMapper, putMapper, manager);
-        //Eqp
-        pump(Eqp.class, getMapper, putMapper, manager);
-        //EqpEtc
-        //pump(EqpEtc.class, getMapper, putMapper, manager);
-        //Part
-        pump(Part.class, getMapper, putMapper, manager);
-        //Param
-        pump(Param.class, getMapper, putMapper, manager);
-        //ParamWithCommon
-        //pump(ParamWithCommon.class, getMapper, putMapper, manager);
-        //ManualRpm
-        pump(ManualRpm.class, getMapper, putMapper, manager);
-        //OverallSpec
-        pumpSpec(fabId, regacyName);
+//        SKFPumpMapper getMapper = SqlSessionUtil.getMapper(sessions, regacyName, SKFPumpMapper.class);
+//        SKFPumpMapper putMapper = SqlSessionUtil.getMapper(sessions, fabId, SKFPumpMapper.class);
+//        PlatformTransactionManager manager = TransactionUtil.getTransactionManger(trMgrs, fabId);
+//
+//
+//        /* information */
+//        //Bearing
+//        pump(Bearing.class, getMapper, putMapper, manager);
+//        //Area
+//        pump(Area.class, getMapper, putMapper, manager);
+//        //Eqp
+//        pump(Eqp.class, getMapper, putMapper, manager);
+//        //EqpEtc
+//        //pump(EqpEtc.class, getMapper, putMapper, manager);
+//        //Part
+//        pump(Part.class, getMapper, putMapper, manager);
+//        //Param
+//        pump(Param.class, getMapper, putMapper, manager);
+//        //ParamWithCommon
+//        //pump(ParamWithCommon.class, getMapper, putMapper, manager);
+//        //ManualRpm
+//        pump(ManualRpm.class, getMapper, putMapper, manager);
+//        //OverallSpec
+//        pumpSpec(fabId, regacyName);
         //Health
         pumpParamHealth(fabId);
 

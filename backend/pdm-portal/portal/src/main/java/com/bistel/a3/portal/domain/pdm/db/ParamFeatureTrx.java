@@ -20,7 +20,7 @@ public class ParamFeatureTrx {
     private Float upperWarningSpec;
     private Float lowerWarningSpec;
     private Float target;
-
+    private String message_group;
 
     public Long getRawId() {
         return rawId;
@@ -156,5 +156,13 @@ public class ParamFeatureTrx {
 
     public void setTarget(Float target) {
         this.target = target;
+    }
+
+    public String getMessage_group() {
+        return message_group;
+    }
+
+    public void setMessage_group(String message_group) {
+        this.message_group = message_group;
     }
 }
