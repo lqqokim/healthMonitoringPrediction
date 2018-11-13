@@ -81,18 +81,22 @@ export class ScatterComponent implements OnInit, OnChanges {
     getScatterDefaultLayout(): any {
         const layout = {
             margin: {
-                l: 50,
-                r: 50,
-                b: 50,
-                t: 50,
+                l: 10,
+                r: 10,
+                b: 10,
+                t: 10,
                 pad: 4
             },
             xaxis: {
+                automargin: true,
+                // autosize: true,
                 title: '',
                 showgrid: false,
-                zeroline: false
+                zeroline: false,
             },
             yaxis: {
+                automargin: true,
+                // autosize: true,
                 title: '',
                 showline: false
             }

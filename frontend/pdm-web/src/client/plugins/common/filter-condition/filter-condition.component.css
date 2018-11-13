@@ -1,9 +1,7 @@
 .filter-condition {
+    height: calc(100% - 50px);
     padding: 15px;
-}
-
-.filter-condition {
-    height: 100%;
+    position: relative;
 }
 
 /* .filter-condition > .time > .a3-from-to > div:last-child {
@@ -25,12 +23,15 @@
 
 .filter-condition .search {
     width: 100%;
-    padding-top: 225px;
+    position: absolute;
+    bottom: 0;
+    left: -5px;
 }
 
 /* 분석 버튼  */
 .filter-condition .search .button {
     width: 100%;
+    height: 45px;
 }
 
 .filter-condition > .search > .button {

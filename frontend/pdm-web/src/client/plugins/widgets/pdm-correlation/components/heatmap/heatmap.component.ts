@@ -18,7 +18,7 @@ export class HeatmapComponent implements OnInit, OnChanges, OnDestroy {
     @Output() onClickHeatmap: EventEmitter<any> = new EventEmitter();
     @Output() spinnerControl: EventEmitter<any> = new EventEmitter();
     @Input() data;
-    @Input('heatmapData') 
+    @Input('heatmapData')
     set heatmapData(data) {
         this._heatmapData = data;
     }
@@ -111,25 +111,26 @@ export class HeatmapComponent implements OnInit, OnChanges, OnDestroy {
         return {
             // title: 'Correlation Heatmap',
             margin: {
-                l: 50,
-                r: 50,
-                b: 50,
-                t: 50,
+                l: 10,
+                r: 10,
+                b: 10,
+                t: 10,
                 pad: 4
             },
             annotations: [],
             xaxis: {
                 automargin: true,
+                // autosize: true,
                 ticks: '',
-                side: 'bottom'
+                side: 'bottom',
             },
             yaxis: {
                 automargin: true,
+                // autosize: true,
                 ticks: '',
                 ticksuffix: ' ',
                 // width: 700,
                 height: 400,
-                autosize: true
             }
         };
     }
@@ -141,6 +142,21 @@ export class HeatmapComponent implements OnInit, OnChanges, OnDestroy {
         };
 
         return config;
+    }
+
+
+    public relayoutHeatmap(): void {
+        // const parentWidth = $("#heatmap").parent().width();
+        // const parentHeight = $("#heatmap").parent().height();
+       
+        // console.log('parentWidth, parentHeight => ', parentWidth, parentHeight);
+
+        // const update = {
+        //     width: parentWidth,  // or any new width
+        //     height: parentHeight  // " "
+        // };
+
+        // Plotly.relayout('heatmap', update);
     }
 
     private _addHeatmapEventHandler(): void {
@@ -158,6 +174,11 @@ export class HeatmapComponent implements OnInit, OnChanges, OnDestroy {
 
             this.onClickHeatmap.emit(cell);
         });
+
+        (heatmapEl as any).on('plotly_relayout', (data: any) => {
+            console.log('plotly_relayout => ', data);
+        });
+
         // (myPlot as any).on('plotly_selected', (data: any) => {
         //     console.log('plotly_selected => ', data);
         // });

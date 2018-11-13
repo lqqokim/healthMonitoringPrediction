@@ -17,6 +17,7 @@ export class TrendComponent implements OnInit, OnChanges {
     @Input() data;
 
     private _chartId: string = 'trend';
+    private _chartEl: HTMLElement;
     trendData;
 
     constructor() {
@@ -36,14 +37,58 @@ export class TrendComponent implements OnInit, OnChanges {
 
     drawTrend(data): void {
         this.getTrendData(data);
+        const config = this.getTrendConfig();
+        const layout = this.getTrendLayout();
 
         setTimeout(() => {
             const trendData = this.trendData;
-            const config = this.getTrendConfig();
-            const layout = this.getTrendLayout();
+            Plotly.newPlot(this._chartId, {
+                data: trendData,
+                layout: layout,
+                config: config
+            });
 
-            Plotly.newPlot(this._chartId, trendData, layout, config);
-        }, 300);
+            this._addTrendEventHandler();
+        }, 800);
+    }
+
+    private _addTrendEventHandler() {
+        d3.select('#trend')
+            .call(d3.behavior.drag()
+                .on('dragstart', () => {
+                    console.log(d3.event)
+                })
+                .on('dragend', () => {
+                    console.log(d3.event)
+                })
+            )
+
+        this._chartEl = document.getElementById(this._chartId);
+        const trendEl = this._chartEl;
+
+        // (trendEl as any).on('plotly_zoomin', (data: any) => {
+        //     console.log('plotly_zoomin => ', data);
+        // });
+        // (trendEl as any).on('plotly_zoomout', (data: any) => {
+        //     console.log('plotly_zoomout => ', data);
+        // });
+        // (trendEl as any).on('plotly_pan', (data: any) => {
+        //     console.log('plotly_zoomout => ', data);
+        // });
+
+        // (trendEl as any).on('plotly_scale_x', (data: any) => {
+        //     console.log('plotly_zoomout => ', data);
+        // });
+        // (trendEl as any).on('plotly_scale_y', (data: any) => {
+        //     console.log('plotly_zoomout => ', data);
+        // });
+
+        (trendEl as any).on('plotly_click', (data: any, ev) => {
+            console.log('plotly_click => ', data, ev);
+        });
+        (trendEl as any).on('plotly_relayout', function (data: any, ev) {
+            console.log('plotly_relayout => ', data, ev);
+        });
     }
 
     getTrendData(data): any {
@@ -88,13 +133,30 @@ export class TrendComponent implements OnInit, OnChanges {
     }
 
     private _setTrendLayout() {
+        let layout = this.getTrendDefaultLayout();
+
+        return layout;
+    }
+
+    getTrendDefaultLayout(): any {
         const layout = {
             margin: {
-                l: 50,
-                r: 50,
-                b: 50,
-                t: 50,
+                l: 10,
+                r: 10,
+                b: 10,
+                t: 10,
                 pad: 4
+            },
+            xaxis: {
+                // fixedrange: true,
+                automargin: true,
+                // autosize: true   
+            },
+            yaxis: {
+                fixedrange: true,
+                automargin: true,
+                // autosize: true,
+                autorange: 'visible'
             }
         };
 
@@ -104,7 +166,8 @@ export class TrendComponent implements OnInit, OnChanges {
     private _setTrendConfig() {
         const config = {
             responsive: true,
-            displayModeBar: false
+            displayModeBar: false,
+            // scrollZoom: true
         }
 
         return config;
