@@ -1,0 +1,27 @@
+<div class="regression-table-container">
+    <table class="table">
+        <thead>
+            <!-- <th class="parameter" (click)="sortClick('parameter')">Parameter
+                <i class="fa fa-sort-asc" *ngIf="sort.parameter === 'asc'"></i>
+                <i class="fa fa-sort-desc" *ngIf="sort.parameter === 'desc'"></i>
+                <i class="fa fa-sort" *ngIf="sort.parameter === 'none'"></i>
+            </th> -->
+            <th>Parameter Trend Chart</th>
+            <th>Regression Formula</th>
+            <th>R<sup>2</sup></th>
+        </thead>
+        <tr class="param-trend-info" *ngFor="let paramTrend of paramTrendDatas; let idx = index">
+            <td>
+                <div class="param-trend-container">
+                    <!-- 이미지차트 컴포넌트 위치 -->
+                    <a3c-bistel-chart
+                        [data]="paramTrend"
+                        [config]="paramTrendConfig">
+                    </a3c-bistel-chart>
+                </div>
+            </td>
+            <td>138.5 + 0.021*TIME</td>
+            <td>0.435</td>
+        </tr>
+    </table>
+</div>

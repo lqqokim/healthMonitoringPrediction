@@ -107,9 +107,17 @@ export class TrendComponent implements OnInit, OnChanges {
         //parse data
         Plotly.d3.csv("https://raw.githubusercontent.com/plotly/datasets/master/finance-charts-apple.csv", (err, rows) => {
             function unpack(rows, key) {
+                console.log('rows => ', rows);
                 return rows.map(function (row) { return row[key]; });
             }
-
+// [
+//     [
+//         [], [], ...
+//     ],
+//     [
+//         [], [], ...
+//     ], ...
+// ]
             const trace1 = {
                 type: "scatter",
                 mode: "lines",

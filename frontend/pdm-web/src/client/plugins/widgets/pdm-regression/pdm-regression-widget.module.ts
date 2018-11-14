@@ -15,6 +15,7 @@ import { PluginCommonModule } from '../../common/plugins.common.module';
 
 import { PdmRegressionWidgetComponent } from './pdm-regression-widget.component';
 import { RegressionComponent } from './components/regression.component';
+import { ParamTrendComponent } from './components/param-trend/param-trend.component';
 
 
 @NgModule({
@@ -26,6 +27,7 @@ import { RegressionComponent } from './components/regression.component';
     declarations: [
         PdmRegressionWidgetComponent,
         RegressionComponent,
+        ParamTrendComponent
     ],
     exports: [
         PdmRegressionWidgetComponent

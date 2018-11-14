@@ -14,7 +14,7 @@ export interface Heatmap {
     styleUrls: ['./heatmap.css'],
     encapsulation: ViewEncapsulation.None
 })
-export class HeatmapComponent implements OnInit, OnChanges, OnDestroy {
+export class HeatmapComponent implements OnChanges, OnDestroy {
     @Output() onClickHeatmap: EventEmitter<any> = new EventEmitter();
     @Output() spinnerControl: EventEmitter<any> = new EventEmitter();
     @Input() data;
@@ -33,10 +33,6 @@ export class HeatmapComponent implements OnInit, OnChanges, OnDestroy {
     private _chartId: string = 'heatmap';
 
     constructor() {
-    }
-
-    ngOnInit() {
-
     }
 
     ngOnChanges(changes: SimpleChanges) {

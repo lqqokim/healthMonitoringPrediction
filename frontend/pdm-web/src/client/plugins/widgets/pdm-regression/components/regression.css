@@ -1,0 +1,36 @@
+.regression {
+    height: 100%;
+    width: 100%;
+    
+    /* border: 5px solid rosybrown; */
+}
+
+/* 차트 해더 */
+.regression .row-chart-header{
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.regression .row-chart-header .panel-title{
+    font-weight: bold;
+    padding: 10px;
+}
+
+/* 좌측 영역 */
+.regression .filter-area {
+    display: block;
+    width: 300px;
+    height: 100%;
+    /* border: 5px solid burlywood; */
+    float: left;
+    border-right: 2px solid rgb(213, 213, 213);
+}
+
+/* 우측 영역 */
+.regression .regression-area {
+    display: block;
+    width: calc(100% - 300px);
+    height: 100%;
+    /* border: 5px solid salmon; */
+    float: left;
+}
+

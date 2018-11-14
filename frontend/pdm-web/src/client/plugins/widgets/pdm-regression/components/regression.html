@@ -1,7 +1,16 @@
-<div class="filter-condition">
+<div class="regression clearfix">
+    <div class="filter-area">
+        <div class="row-chart-header">
+            <h3 class="panel-title">Filter Condition</h3>
+        </div>
 
-</div>
-
-<div class="regression-area">
-        regression area
+        <filter-conditon 
+            (searchEmit)="onAnalysis($event)">
+        </filter-conditon>
+    </div>
+    <div class="regression-area">
+        <param-trend
+            [data]="paramTrendData">
+        </param-trend>
+    </div>
 </div>
