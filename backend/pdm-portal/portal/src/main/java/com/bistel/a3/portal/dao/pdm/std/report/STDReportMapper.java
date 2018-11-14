@@ -75,5 +75,7 @@ public interface STDReportMapper {
 
     List<BasicData> selectFeatureTrend(@Param("paramId") Long paramId,@Param("fromDate") Date fromDate,@Param("toDate") Date toDate);
 
+    List<BasicDatasForCorrelationANOVA> selectFeatureTrendWithIndex(@Param("paramId") Long paramId,@Param("fromDate") Date fromDate,@Param("toDate") Date toDate);
+
     List<BasicData> selectHealthIndexTrend(@Param("paramId") Long paramId,@Param("fromDate") Date fromDate,@Param("toDate") Date toDate);
 }

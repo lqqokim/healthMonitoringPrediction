@@ -69,7 +69,8 @@ public class ParamSocketController {
 //        }
 //        else{
             //List<List<Object>> regressionTrend=reportService.getHealthIndexTrend(fabId,paramId,fromdate,todate);
-        List<List<Object>> regressionTrend=reportService.getFeatureTrxTrend(fabId,paramId,fromdate,todate);
+        boolean xIsDate=true;
+        List<List<Object>> regressionTrend=reportService.getFeatureTrxTrend(fabId,paramId,fromdate,todate,xIsDate);
 
             replyMessage.put("chartFlag", "trand");
             replyMessage.put("datas", regressionTrend);

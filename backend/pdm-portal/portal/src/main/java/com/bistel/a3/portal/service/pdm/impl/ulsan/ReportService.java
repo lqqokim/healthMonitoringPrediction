@@ -755,7 +755,7 @@ public class ReportService implements com.bistel.a3.portal.service.pdm.IReportSe
     }
 
     @Override
-    public Object getFeatureTrxTrend(String fabId, Long paramId, Long fromdate, Long todate) {
+    public Object getFeatureTrxTrend(String fabId, Long paramId, Long fromdate, Long todate, boolean xIsDate) {
         return null;
     }
 

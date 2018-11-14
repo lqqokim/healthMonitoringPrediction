@@ -84,5 +84,5 @@ public interface IReportService {
 
     Object getHealthIndexTrend(String fabId, Long paramId, Long fromdate, Long todate);
 
-    Object getFeatureTrxTrend(String fabId, Long paramId, Long fromdate, Long todate);
+    Object getFeatureTrxTrend(String fabId, Long paramId, Long fromdate, Long todate, boolean xIsDate);
 }

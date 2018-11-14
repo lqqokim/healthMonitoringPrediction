@@ -709,13 +709,40 @@ public class ReportService implements IReportService {
         return result;
     }
 
-    public List<List<Object>> getFeatureTrxTrend(String fabId, Long paramId, Long fromdate, Long todate){
+    private List<List<Object>> changeRegressionData(List<BasicData> data){
+        List<List<Object>> result = new ArrayList<>();
+        for(BasicData d : data) {
+            result.add(Arrays.asList(d.getX().getTime(), d.getY() ));
+        }
+        return result;
+    }
+
+    private List<List<Object>> changeCorrelationANOVAData(List<BasicDatasForCorrelationANOVA> data){
+        List<List<Object>> result = new ArrayList<>();
+        for(BasicDatasForCorrelationANOVA d : data) {
+            result.add(Arrays.asList(d.getX(), d.getY() ));
+        }
+        return result;
+    }
+
+
+    public List<List<Object>> getFeatureTrxTrend(String fabId, Long paramId, Long fromdate, Long todate, boolean xIsDate){
 
         STDReportMapper mapper = SqlSessionUtil.getMapper(sessions, fabId, STDReportMapper.class);
 
-        List<BasicData> paramFeatureTrxList=mapper.selectFeatureTrend(paramId,new Date(fromdate),new Date(todate));
+        Date from=new Date(fromdate);
+        Date to=new Date(todate);
 
-        return changeList(paramFeatureTrxList);
+        if (xIsDate){ //regression Chart 일때는 x축이 Date
+            List<BasicData> paramFeatureTrxList=mapper.selectFeatureTrend(paramId,from,to);
+            return changeRegressionData(paramFeatureTrxList);
+        }
+        else{
+            List<BasicDatasForCorrelationANOVA> paramFeatureTrxList=mapper.selectFeatureTrendWithIndex(paramId,from,to);
+            return changeCorrelationANOVAData(paramFeatureTrxList);
+        }
+
+
     }
 
 
