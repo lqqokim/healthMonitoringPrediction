@@ -16,33 +16,26 @@ import javax.sql.DataSource;
 @Configuration
 public class MybatisConfig {
 
-    private DataSource dataSource;
+    private DataSource mybatisDataSource;
 
-    private PlatformTransactionManager transactionManager;
+    private PlatformTransactionManager mybatisTransactionManager;
 
     @Autowired
-    public MybatisConfig(@Qualifier("mybatisDataSource") DataSource dataSource,
-                         @Qualifier("mybatisTransactionManager") PlatformTransactionManager transactionManager) {
-        this.dataSource = dataSource;
-        this.transactionManager = transactionManager;
-    }
-
-    @Bean(name="myBatisTransactionManager")
-    public PlatformTransactionManager getTransactionManager() {
-        return transactionManager;
+    public MybatisConfig(@Qualifier("mybatisDataSource") DataSource mybatisDataSource,
+                         @Qualifier("mybatisTransactionManager") PlatformTransactionManager mybatisTransactionManager) {
+        this.mybatisDataSource = mybatisDataSource;
+        this.mybatisTransactionManager = mybatisTransactionManager;
     }
 
     @Bean
-    @Primary
     public SqlSessionFactory sqlSessionFactoryBean() throws Exception {
         SqlSessionFactoryBean sqlSessionFactoryBean = new SqlSessionFactoryBean();
         sqlSessionFactoryBean.setConfigLocation(new ClassPathResource("mybatis-config.xml"));
-        sqlSessionFactoryBean.setDataSource(dataSource);
+        sqlSessionFactoryBean.setDataSource(mybatisDataSource);
         return sqlSessionFactoryBean.getObject();
     }
 
     @Bean
-    @Primary
     public SqlSessionTemplate sqlSession(SqlSessionFactory sqlSessionFactory){
         return new SqlSessionTemplate(sqlSessionFactory);
     }

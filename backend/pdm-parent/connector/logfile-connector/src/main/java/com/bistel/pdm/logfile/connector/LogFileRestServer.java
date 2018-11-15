@@ -1,4 +1,4 @@
-package com.bistel.pdm.serving;
+package com.bistel.pdm.logfile.connector;
 
 import com.bistel.pdm.rest.core.EmbeddedServer;
 import org.slf4j.Logger;
@@ -8,22 +8,20 @@ import javax.servlet.ServletException;
 import java.io.Closeable;
 
 /**
- * Top-level implementation of the Serving Layer process.
+ * Top-level implementation of the Connector process.
  */
-public class ServingLayer implements Closeable {
-    private static final Logger log = LoggerFactory.getLogger(ServingLayer.class);
-
-    public ServingLayer() {}
+public class LogFileRestServer implements Closeable {
+    private static final Logger log = LoggerFactory.getLogger(LogFileRestServer.class);
 
     public void start(final String ip, final int port) throws ServletException {
-        log.info("Starting PdM Serving Layer...");
+        log.info("Starting log file connector...");
 
         //http://localhost:8080/pdm/api/...
         final EmbeddedServer server = new EmbeddedServer(ip, port);
-        server.contextPath("/pdm")
-                .deploymentName("serving layer")
+        server.contextPath("/connector")
+                .deploymentName("connector")
                 .appPath("/api")
-                .resourcesClass(ServingLayerApplication.class)
+                .resourcesClass(ConnectorRestApplication.class)
                 .start();
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -33,7 +31,7 @@ public class ServingLayer implements Closeable {
             }
         });
 
-        log.info("PdM JAX-RS based micro-service running...");
+        log.info("Connector(JAX-RS) based micro-service running...");
     }
 
     @Override
