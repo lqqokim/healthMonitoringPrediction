@@ -40,5 +40,6 @@
     <mappers>
         <mapper resource="mapper/AlarmSummaryMapper.xml"/>
         <mapper resource="mapper/HealthSummaryMapper.xml"/>
+        <mapper resource="mapper/MasterInfoMapper.xml"/>
     </mappers>
 </configuration>
