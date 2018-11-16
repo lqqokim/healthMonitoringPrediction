@@ -1,3 +1,4 @@
+<div a3-spinner #Spinner [type]="'component'"></div>
 <div class="regression-table-container">
     <table class="table">
         <thead>
@@ -10,13 +11,14 @@
             <th>Regression Formula</th>
             <th>R<sup>2</sup></th>
         </thead>
-        <tr class="param-trend-info" *ngFor="let paramTrend of paramTrendDatas; let idx = index">
+        <!-- <tr class="param-trend-info" *ngFor="let paramTrend of paramTrendDatas; let idx = index"> -->
+        <tr class="param-trend-info">
             <td>
                 <div class="param-trend-container">
-                    <!-- 이미지차트 컴포넌트 위치 -->
+                    <image-chart [chartInfo]="chartInfo" (zoomEvent)="zoomEvent($event)" (seriesEvent)="seriesEvent($event)" *ngIf="chartFlag == 'image'"></image-chart>
                     <a3c-bistel-chart
-                        [data]="paramTrend"
-                        [config]="paramTrendConfig">
+                        [data]="paramTrendDatas"
+                        [config]="paramTrendConfig" *ngIf="chartFlag == 'trend'">
                     </a3c-bistel-chart>
                 </div>
             </td>

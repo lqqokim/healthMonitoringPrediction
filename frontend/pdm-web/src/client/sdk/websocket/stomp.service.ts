@@ -133,8 +133,8 @@ export class StompService {
         //     }
         //     callback(payload);
         // });
-        // return stomReply;
-        return id;
+        return stomReply;
+        // return id;
     }
 
     public finishSend(stompReply:Subscription){

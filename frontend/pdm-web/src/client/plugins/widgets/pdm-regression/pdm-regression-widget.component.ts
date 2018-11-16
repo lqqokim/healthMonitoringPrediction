@@ -36,4 +36,8 @@ export class PdmRegressionWidgetComponent extends WidgetApi implements OnInit, O
     ngOnDestroy() {
 
     }
+
+    onAnalysis(){
+        
+    }
 }

@@ -1,5 +1,5 @@
-import { Component, OnInit, OnChanges, OnDestroy, ViewEncapsulation, Input, SimpleChanges } from '@angular/core';
-import { paramTrendData } from '../../model/mock-data';
+import { Component, OnInit, OnChanges, OnDestroy, ViewEncapsulation, ViewChild, Input, SimpleChanges } from '@angular/core';
+import { SpinnerComponent, StompService } from '../../../../../sdk';
 
 @Component({
     moduleId: module.id,
@@ -8,35 +8,48 @@ import { paramTrendData } from '../../model/mock-data';
     styleUrls: ['./param-trend.css'],
     encapsulation: ViewEncapsulation.None
 })
-export class ParamTrendComponent implements OnChanges, OnDestroy {
+export class ParamTrendComponent implements OnChanges, OnInit, OnDestroy {
     @Input() data;
+    @ViewChild('Spinner') spinner:SpinnerComponent;
+
+    chartFlag: string = "trand";   
+    chartInfo:any = {};
 
     paramTrendDatas: any[];
     paramTrendConfig: any;
 
-    constructor() {
 
+
+    constructor(private _stompService: StompService) {
+
+    }
+
+    ngOnInit() {
+        this.chartInfo['image']='aaa';
     }
 
     ngOnChanges(changes: SimpleChanges) {
         if (changes && changes['data']['currentValue']) {
             const data = changes['data']['currentValue'];
-            this.drawParamTrend(data);
+            // this.drawParamTrend(data);
+            this.send();
         }
     }
 
     drawParamTrend(data): void {
-        console.log('paramTrend data => ', data);
-        const paramTrendDatas = this.getParamTrendData(data);
+        const paramTrendDatas = data;
+        //  [[1535774914790,-52],[1535774914791, -52],[1535774914899, -62],[1535774915008, -62]]
         const paramTrendConfig = this.getDefaultConfig();
+        console.log('paramTrendDatas => ', paramTrendDatas);
 
         this.paramTrendConfig = paramTrendConfig;
-        this.paramTrendDatas = paramTrendData;
+        this.paramTrendDatas = data;
+
+        
+
     }
 
-    getParamTrendData(data): any {
-        return this._setParamTrendData(data);
-    }
+    
 
     getDefaultConfig(): any {
         return {
@@ -127,18 +140,90 @@ export class ParamTrendComponent implements OnChanges, OnDestroy {
             }
         };
     }
+ 
+    zoomEvent(e:any){  
+        let chartInfoDatas:any =
+            {
+                "type" : '',
+                "height": 428,
+                "width": 1615,
+                "sessionId" :'' ,
+                "series" :'' ,
+                "fromdate":'',
+                "todate":''
+            };
+            chartInfoDatas.type = e.type;       
+            chartInfoDatas.sessionId = e.sessionId;
+            chartInfoDatas.series = e.series
+            chartInfoDatas.fromdate = e.datas[0];
+            chartInfoDatas.todate = e.datas[1];
+            this.changedSend(chartInfoDatas);
+    }
 
-    private _setParamTrendData(data): any { //set mock data
-        // let datas = [];
+    send(){    
+        let mokConditon:any = {            
+            'eqpIds': []
+            ,'fabId': 'fab1'
+            ,'paramId':1274
+            ,'parameters': []
+            // ,'timePeriod': {'from': 1542269327188, 'to': 1542269627188}   //26만건
+            ,'timePeriod': {'from': 1542346341808, 'to': 1542346641808}   //26만건         
+        }
+        this.spinner.showSpinner();
+        let message={};
+        message['parameters']={};
+        message['parameters']['type'] = 'default';   
+        message['parameters']['fabId'] = this.data.fabId;
+        message['parameters']['paramId'] = this.data.paramId;
+        message['parameters']['fromdate'] = this.data.timePeriod.from;
+        message['parameters']['todate'] = this.data.timePeriod.to;        
 
-        // for (let i = 0; i < 3; i++) {
-        //     datas.push(data);
-        // }
+    let reply = this._stompService.send(null,'getRegressionTrend',message,payload => {    
+                if(payload.chartFlag == 'image'){
+                    this.chartFlag = 'image';
+                    this.chartInfo = payload.imageChartData;    
+                    this._stompService.finishSend(reply);
+                    this.spinner.hideSpinner();
+                }else{
+                    console.warn('trend');
+                    this.chartFlag = 'trend';
+                    this.drawParamTrend(payload.trendData);
+                    this._stompService.finishSend(reply);
+                    this.spinner.hideSpinner();
+                }
+            });
+    }  
+    
+    changedSend(e:any){
+        this.spinner.showSpinner();
+        let message={};
+        message['parameters']={};
+        message['parameters']['type'] = e.type;   
+        message['parameters']['fabId'] = this.data.fabId;
+        message['parameters']['paramId'] = this.data.paramId;
+        message['parameters']['sessionId'] = e.sessionId;
+        message['parameters']['series'] = e.series;
+        message['parameters']['fromdate'] = e.fromdate;
+        message['parameters']['todate'] = e.todate;        
 
-        return [data];
+    let reply = this._stompService.send(null,'getRegressionTrend',message,payload => {       
+                if(payload.chartFlag == 'image'){
+                    this.chartFlag = 'image';
+                    this.chartInfo = payload.imageChartData;
+                    this._stompService.finishSend(reply);
+                    this.spinner.hideSpinner();
+                }else{
+                    console.warn('trend');
+                    this.chartFlag = 'trend';         
+                    this.drawParamTrend(payload.trendData);                          
+                    this._stompService.finishSend(reply);
+                    this.spinner.hideSpinner();
+                }
+            });
+
     }
 
     ngOnDestroy() {
 
     }
-} 
+}

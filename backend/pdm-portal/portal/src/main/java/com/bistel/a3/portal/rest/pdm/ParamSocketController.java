@@ -46,48 +46,48 @@ public class ParamSocketController {
     @Autowired
     private ReportService reportService;
 
-    @MessageMapping("/getRegressionTrend")
-    public void realtimeParam(SocketMessage message, SimpMessageHeaderAccessor headerAccessor) throws Exception {
-        String simpSessionId = headerAccessor.getHeader("simpSessionId").toString();
-
-        //값추출
-        String fabId = (String)message.getParameters().get("fabId");
-        Long paramId= ((Integer) message.getParameters().get("paramId")).longValue();
-        Long fromdate = (Long)message.getParameters().get("fromdate");
-        Long todate = (Long)message.getParameters().get("todate");
-
-        String replySubject = message.getReplySubject();
-
-        Map<String,Object> replyMessage = new HashMap<String,Object>();
-
-        int days=diffdays(fromdate,todate);
-
-//        if(days>5)
-//        {
-//            replyMessage.put("chartFlag", "image");
+//    @MessageMapping("/getRegressionTrend")
+//    public void realtimeParam(SocketMessage message, SimpMessageHeaderAccessor headerAccessor) throws Exception {
+//        String simpSessionId = headerAccessor.getHeader("simpSessionId").toString();
+//
+//        //값추출
+//        String fabId = (String)message.getParameters().get("fabId");
+//        Long paramId= ((Integer) message.getParameters().get("paramId")).longValue();
+//        Long fromdate = (Long)message.getParameters().get("fromdate");
+//        Long todate = (Long)message.getParameters().get("todate");
+//
+//        String replySubject = message.getReplySubject();
+//
+//        Map<String,Object> replyMessage = new HashMap<String,Object>();
+//
+//        int days=diffdays(fromdate,todate);
+//
+////        if(days>5)
+////        {
+////            replyMessage.put("chartFlag", "image");
+////            replyMessage.put("replyConditon","finish");
+////        }
+////        else{
+//            //List<List<Object>> regressionTrend=reportService.getHealthIndexTrend(fabId,paramId,fromdate,todate);
+//        boolean xIsDate=true;
+//        List<List<Object>> regressionTrend=reportService.getFeatureTrxTrend(fabId,paramId,fromdate,todate,xIsDate);
+//
+//            replyMessage.put("chartFlag", "trand");
+//            replyMessage.put("datas", regressionTrend);
 //            replyMessage.put("replyConditon","finish");
-//        }
-//        else{
-            //List<List<Object>> regressionTrend=reportService.getHealthIndexTrend(fabId,paramId,fromdate,todate);
-        boolean xIsDate=true;
-        List<List<Object>> regressionTrend=reportService.getFeatureTrxTrend(fabId,paramId,fromdate,todate,xIsDate);
-
-            replyMessage.put("chartFlag", "trand");
-            replyMessage.put("datas", regressionTrend);
-            replyMessage.put("replyConditon","finish");
-//        }
-
-        messagingTemplate.convertAndSend(replySubject, replyMessage);
-    }
-
-    private int diffdays(Long from, Long to)
-    {
-
-        long diff = to-from;
-        int diffDays = (int) (diff / (24 * 60 * 60 * 1000));
-
-        return diffDays;
-    }
+////        }
+//
+//        messagingTemplate.convertAndSend(replySubject, replyMessage);
+//    }
+//
+//    private int diffdays(Long from, Long to)
+//    {
+//
+//        long diff = to-from;
+//        int diffDays = (int) (diff / (24 * 60 * 60 * 1000));
+//
+//        return diffDays;
+//    }
 
 
 

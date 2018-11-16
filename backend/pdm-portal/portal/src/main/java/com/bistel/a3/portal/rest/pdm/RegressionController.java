@@ -1,44 +1,100 @@
 package com.bistel.a3.portal.rest.pdm;
 
+
 import com.bistel.a3.portal.domain.common.SocketMessage;
-import com.bistel.a3.portal.domain.pdm.EqpHealthIndexTrend;
-import com.bistel.a3.portal.domain.pdm.EqpStatusData;
-import com.bistel.a3.portal.domain.pdm.db.HealthInfo;
-import com.bistel.a3.portal.domain.pdm.std.master.STDConditionalSpec;
-import com.bistel.a3.portal.service.pdm.IReportService;
-import com.bistel.a3.portal.service.pdm.ISummaryDataService;
-import com.bistel.a3.portal.service.pdm.ITraceDataService;
-import org.apache.commons.lang3.time.DateUtils;
+import com.bistel.a3.portal.domain.pdm.ImageChartData;
+import com.bistel.a3.portal.service.pdm.IImageService;
+import com.bistel.a3.portal.service.pdm.impl.std.ReportService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.stereotype.Controller;
 
-import java.security.Principal;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.List;
+import java.util.ArrayList;
 
-@RestController
-@RequestMapping("pdm/fabs/{fabId}")
+@Controller
 public class RegressionController {
 
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
+
     @Autowired
-    private IReportService reportService;
+    private SimpMessagingTemplate messagingTemplate;
 
-    @RequestMapping(value="params/{paramId}/getRegressionTrend", method = RequestMethod.GET)
-    public Object getRegressionTrend(@PathVariable("fabId") String fabId,
-                                   @PathVariable("paramId") Long paramId,
-                                   @RequestParam("fromdate") Long fromdate,
-                                   @RequestParam("todate") Long todate) throws ParseException {
+    @Autowired
+    private ReportService reportService;
 
-        boolean xIsDate=true;
+    @Autowired
+    private IImageService imageService;
 
-        return reportService.getFeatureTrxTrend(fabId,paramId,fromdate,todate,true);
+    @MessageMapping("/getRegressionTrend")
+    public void realtimeParam(SocketMessage message, SimpMessageHeaderAccessor headerAccessor) throws Exception {
 
+        String conditon = (String)message.getParameters().get("type");
+        String replySubject = message.getReplySubject();
+
+
+        Map<String, Object> replyMessage = new HashMap<>();
+
+        if(conditon.equals("Origin")){
+            String sessionId = (String)message.getParameters().get("sessionId");
+            List<List<Object>> originData = imageService.getOriginData(sessionId);
+            ImageChartData imageChartData = imageService.drawImageChart(981,306,0,2, originData, sessionId);
+            replyMessage = imageService.createSendMessages(imageChartData,conditon);
+
+        }else{
+            Long fromdate = (Long)message.getParameters().get("fromdate");
+            Long todate = (Long)message.getParameters().get("todate");
+            int days = imageService.diffdays(fromdate,todate);
+            int trendDataSize = 100000;
+            if(conditon.equals("Zoom")){
+                String sessionId = (String)message.getParameters().get("sessionId");
+                List<List<Object>> fileFilterData = imageService.getData(sessionId, fromdate, todate);
+
+                if(fileFilterData.size() >= trendDataSize){
+                    ImageChartData imageChartData = imageService.drawImageChart(981,306,0,2, fileFilterData, sessionId);
+                    replyMessage = imageService.createSendMessages(imageChartData,conditon);
+                }else {
+                    conditon = "trend";
+                    replyMessage = imageService.createSendMessages(fileFilterData,conditon);
+                }
+
+            }else{ // default
+                String simpSessionId = headerAccessor.getHeader("simpSessionId").toString();
+                //값추출
+                String fabId = (String)message.getParameters().get("fabId");
+                Long paramId= ((Integer) message.getParameters().get("paramId")).longValue();
+
+                boolean xIsDate=true;
+                List<List<Object>> regressionTrend = reportService.getFeatureTrxTrend(fabId,paramId,fromdate,todate,true);
+
+                String sessionId = simpSessionId;
+
+                List<String[]> data = new ArrayList<String[]>();
+                for(int i=0;i<regressionTrend.size();i++){
+                    List<Object> rowData = regressionTrend.get(i);
+                    String csvVal1 = rowData.get(0).toString(); //TimeStamp
+                    String csvVal2 = rowData.get(1).toString(); //Data
+                    data.add(new String[] {csvVal1,csvVal2});
+                }
+                imageService.writeCsv(data, sessionId);
+
+                if(regressionTrend.size() >= trendDataSize){
+                    ImageChartData imageChartData = imageService.drawImageChart(981,306,0,2, regressionTrend, sessionId);
+                    replyMessage = imageService.createSendMessages(imageChartData,conditon);
+                }else {
+                    conditon = "trend";
+                    replyMessage = imageService.createSendMessages(regressionTrend,conditon);
+                }
+
+            }
+        }
+        messagingTemplate.convertAndSend(replySubject, replyMessage);
     }
-
 
 
 }

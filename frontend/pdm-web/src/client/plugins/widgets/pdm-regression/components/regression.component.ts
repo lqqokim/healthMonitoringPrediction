@@ -29,9 +29,18 @@ export class RegressionComponent implements OnInit, OnChanges, OnDestroy{
         //Add 'implements OnInit' to the class.
     }
 
-    onAnalysis(condition) {
-        console.log('onAnalysis filter condition data => ', condition);
-        this.paramTrendData = JSON.parse(JSON.stringify(paramTrendData))
+    onAnalysis(condition) {       
+        // console.warn('goddddddddddddddddddd'); 
+        let mokConditon:any = {            
+            'eqpIds': []
+            ,'fabId': 'fab1'
+            ,'paramId':1274
+            ,'parameters': []
+            ,'timePeriod': {'from': condition.timePeriod.from, 'to': condition.timePeriod.to}            
+        }
+
+        console.log('condition => ', condition);
+        this.paramTrendData = JSON.parse(JSON.stringify(mokConditon))
     }
 
     ngOnDestroy() {
