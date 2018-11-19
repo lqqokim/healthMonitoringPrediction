@@ -1,4 +1,4 @@
-import { Component, OnInit, OnChanges, OnDestroy, ViewEncapsulation, ViewChild, Input, SimpleChanges } from '@angular/core';
+import { Component, OnInit, OnChanges, OnDestroy, ViewEncapsulation, ViewChild, Input, SimpleChanges, AfterViewInit } from '@angular/core';
 import { SpinnerComponent, StompService } from '../../../../../sdk';
 
 @Component({
@@ -8,15 +8,17 @@ import { SpinnerComponent, StompService } from '../../../../../sdk';
     styleUrls: ['./param-trend.css'],
     encapsulation: ViewEncapsulation.None
 })
-export class ParamTrendComponent implements OnChanges, OnInit, OnDestroy {
+export class ParamTrendComponent implements OnChanges, OnInit, AfterViewInit, OnDestroy {
     @Input() data;
     @ViewChild('Spinner') spinner:SpinnerComponent;
 
-    chartFlag: string = "trand";   
-    chartInfo:any = {};
+    chartFlag: string = "image";   
+    // chartInfo:any = {};
 
     paramTrendDatas: any[];
     paramTrendConfig: any;
+
+    chartInfo:any ={}
 
 
 
@@ -25,7 +27,67 @@ export class ParamTrendComponent implements OnChanges, OnInit, OnDestroy {
     }
 
     ngOnInit() {
-        this.chartInfo['image']='aaa';
+    }
+    
+    ngAfterViewInit(){
+       this.chartInfo =
+       {
+        // "height": ,
+        // "width": 1615,
+        // "id": "chart-2250c0965ef4433588fe74b682e61e59",
+        "image": "aaaa",
+      //   "noFileCount": null,
+        // "seriesInfos": [ //우측 series Setting
+        //     {
+        //         "checked": true,
+        //         "color": "#1f77b4",
+        //         "name": "LOT180731-082159.542::Pump"
+        //     },
+        //     {
+        //         "checked": false,
+        //         "color": "#ff7f0e",
+        //         "name": "LOT180731-082159.542::Run"
+        //     },
+        //     {
+        //         "checked": true,
+        //         "color": "#2ca02c",
+        //         "name": "LOT180731-082159.542::Loaded"
+        //     },
+        //     {
+        //         "checked": true,
+        //         "color": "#d62728",
+        //         "name": "LOT180731-082159.542::Vent"
+        //     }
+        // ],
+        // "sessionId": "session-0dab9222bacf4fc8a6734fa6ac3b1924", // SessionId 각각 만들어 부여(서버)
+        "showProgress": false,    //프로그레스 true/false
+        "status": "Process",      // "Process" / Done:끝 
+        "totalCount": 23616,      
+        "xLabels": [          //
+            {
+                "count": 103,
+                "label": "Pump"
+            },
+            {
+                "count": 689,
+                "label": "Run"
+            },
+            {
+                "count": 115,
+                "label": "Vent"
+            },
+            {
+                "count": 22709,
+                "label": "Loaded"
+            }
+        ],
+        "xMax": 23615,
+        "xMin": 0,
+        "x_axis_type": "DateTime",  //LabelCount / DateTime
+        "yLabel": "Title",// Title
+        "yMax": 104.57874015748031,
+        "yMin": 49.63385826771655
+    }
     }
 
     ngOnChanges(changes: SimpleChanges) {
@@ -177,6 +239,8 @@ export class ParamTrendComponent implements OnChanges, OnInit, OnDestroy {
         message['parameters']['paramId'] = this.data.paramId;
         message['parameters']['fromdate'] = this.data.timePeriod.from;
         message['parameters']['todate'] = this.data.timePeriod.to;        
+        message['parameters']['imageWidth'] = document.querySelector('.chart-body').clientWidth - 50;
+        message['parameters']['imageHeight'] = document.querySelector('.chart-body').clientHeight - 10;
 
     let reply = this._stompService.send(null,'getRegressionTrend',message,payload => {    
                 if(payload.chartFlag == 'image'){
@@ -204,7 +268,10 @@ export class ParamTrendComponent implements OnChanges, OnInit, OnDestroy {
         message['parameters']['sessionId'] = e.sessionId;
         message['parameters']['series'] = e.series;
         message['parameters']['fromdate'] = e.fromdate;
-        message['parameters']['todate'] = e.todate;        
+        message['parameters']['todate'] = e.todate;     
+        message['parameters']['imageWidth'] = document.querySelector('.chart-body').clientWidth - 50;
+        message['parameters']['imageHeight'] = document.querySelector('.chart-body').clientHeight - 10;
+   
 
     let reply = this._stompService.send(null,'getRegressionTrend',message,payload => {       
                 if(payload.chartFlag == 'image'){

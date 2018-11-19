@@ -36,6 +36,8 @@ public class RegressionController {
 
         String conditon = (String)message.getParameters().get("type");
         String replySubject = message.getReplySubject();
+        int height =  (int)message.getParameters().get("imageHeight");
+        int width =  (int)message.getParameters().get("imageWidth");
 
 
         Map<String, Object> replyMessage = new HashMap<>();
@@ -43,20 +45,20 @@ public class RegressionController {
         if(conditon.equals("Origin")){
             String sessionId = (String)message.getParameters().get("sessionId");
             List<List<Object>> originData = imageService.getOriginData(sessionId);
-            ImageChartData imageChartData = imageService.drawImageChart(981,306,0,2, originData, sessionId);
+            ImageChartData imageChartData = imageService.drawImageChart(width,height,0,2, originData, sessionId);
             replyMessage = imageService.createSendMessages(imageChartData,conditon);
 
         }else{
             Long fromdate = (Long)message.getParameters().get("fromdate");
             Long todate = (Long)message.getParameters().get("todate");
             int days = imageService.diffdays(fromdate,todate);
-            int trendDataSize = 100000;
+            int trendDataSize = 25000;
             if(conditon.equals("Zoom")){
                 String sessionId = (String)message.getParameters().get("sessionId");
                 List<List<Object>> fileFilterData = imageService.getData(sessionId, fromdate, todate);
 
                 if(fileFilterData.size() >= trendDataSize){
-                    ImageChartData imageChartData = imageService.drawImageChart(981,306,0,2, fileFilterData, sessionId);
+                    ImageChartData imageChartData = imageService.drawImageChart(width,height,0,2, fileFilterData, sessionId);
                     replyMessage = imageService.createSendMessages(imageChartData,conditon);
                 }else {
                     conditon = "trend";
@@ -84,7 +86,7 @@ public class RegressionController {
                 imageService.writeCsv(data, sessionId);
 
                 if(regressionTrend.size() >= trendDataSize){
-                    ImageChartData imageChartData = imageService.drawImageChart(981,306,0,2, regressionTrend, sessionId);
+                    ImageChartData imageChartData = imageService.drawImageChart(width,height,0,2, regressionTrend, sessionId);
                     replyMessage = imageService.createSendMessages(imageChartData,conditon);
                 }else {
                     conditon = "trend";

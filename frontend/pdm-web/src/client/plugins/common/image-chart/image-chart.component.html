@@ -1,0 +1,18 @@
+<div class='image-chart'>
+    <!-- <div class='title' *ngIf="chartInfo">{{chartInfo.yLabel}}<label *ngIf="chartInfo.totalCount">[{{chartInfo.totalCount}}]</label></div> -->
+    <div class='chart-body' id="{{id}}" (dblclick)="dblclick($event)"></div>
+    <div class='legend_container' *ngIf="chartInfo && chartInfo.image!=''&&legendSeries">
+        <div id='{{id}}_legend' class="legend_series" *ngIf="legendSeries">
+            <div class='series_container' *ngFor="let item of chartInfo.seriesInfoList">
+                <input type='checkbox' id={{chartInfo.yLabel}}.{{item.name}} [(ngModel)]="item.checked" (click)="changeCheck(item);">
+                <label for={{item.name}} [ngStyle]="{background:item.color}"></label>
+                <span (click)="changeCheck(item);" title="{{item.name}}">{{item.name}}</span>
+            </div>
+        </div>
+    </div>
+    <div class="progress" *ngIf="chartInfo && chartInfo.showProgress">
+        <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="percentage"
+            [ngStyle]="{'width':percentage+'%'}" aria-valuemin="5" aria-valuemax="100"></div>
+    </div>
+    <div class="progress-wrapper"  *ngIf="chartInfo && chartInfo.showProgress"></div>
+</div>

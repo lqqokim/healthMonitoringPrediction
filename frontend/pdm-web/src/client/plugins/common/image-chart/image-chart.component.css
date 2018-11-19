@@ -1,0 +1,123 @@
+.image-chart {
+    height: 100%;
+    position: relative;
+}
+
+.image-chart .title {
+    min-height: 25px;
+    max-height: 40px;
+    margin-bottom: 7px;
+    font-size: 13px;
+}
+
+.image-chart .chart-body {
+    width: calc(100%);
+    height: calc(100% - 50px);
+    float: left;
+}
+
+
+.image-chart .chart-body-legend {
+    width: calc(100% - 155px);
+    height: calc(100% - 50px);
+    float: left;
+}
+
+.image-chart .chart-body .svg-plot {
+    position: absolute;
+
+}
+
+.image-chart .canvas-plot {
+    position: absolute;
+}
+
+.image-chart .brush .extent {
+    stroke: #fff;
+    fill-opacity: 0.125;
+    shape-rendering: crispEdges;
+}
+
+.image-chart .vertical-line {
+    stroke: rgb(255, 0, 0);
+    stroke-width: 2;
+}
+
+.image-chart .legend_container {
+    width: 155px;
+    height: calc(100% - 80px);
+    float: left;
+    margin-top: 10px;
+    font-size: 12px;
+    color: #666;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.image-chart .legend_container .box {
+    float: left;
+    width: 10px;
+    height: 10px;
+    margin: 5px;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.image-chart .legend_container .legend_series {
+    display: grid;
+}
+
+.image-chart .legend_container .legend_series .series_container {
+    display: flex;
+    margin-bottom: 5px;
+
+}
+
+.image-chart .legend_container .textselected {
+    text-anchor: start;
+    font-size: 14px;
+}
+
+.image-chart .legend_container input[type="checkbox"] + label {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    cursor: pointer;
+    margin-right: 5px;
+    border-radius: 3px;
+}
+
+.image-chart .legend_container input[type="checkbox"]:checked + label:after {
+    font-family: FontAwesome;
+    content: "\F00C";
+    color: #fff;
+}
+
+.image-chart .legend_container input[type="checkbox"] {
+    display: none;
+}
+
+.image-chart .legend_container span {
+    cursor: pointer;
+
+}
+
+.image-chart .progress {
+    display: flex;
+    height: 1rem;
+    overflow: hidden;
+    font-size: 0.75rem;
+    background-color: #e9ecef;
+    border-radius: 0.25rem;
+    position: relative;
+    width: 100%;
+}
+
+.image-chart .progress-wrapper {
+    width: 100%;
+    height: calc(100% - 15px);
+    background: lightgray;
+    opacity: 0.1;
+    position: relative;
+    margin-top: -430px;
+}
+
