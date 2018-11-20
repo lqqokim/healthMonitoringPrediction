@@ -335,11 +335,14 @@ CREATE TABLE PARAM_FAULT_TRX_PDM (
   PARAM_HEALTH_MST_RAWID    NUMBER(38)          NOT NULL,
   FAULT_TYPE_CD             VARCHAR2(32)        NOT NULL,
   VALUE                     FLOAT               NOT NULL,
-  FAULT_CLASS               VARCHAR2(1024 BYTE) DEFAULT 'N/A',
-  ALARM_SPEC                FLOAT               NULL,
-  WARNING_SPEC              FLOAT               NULL,
   RULE_NAME                 VARCHAR2(32),
   CONDITION                 VARCHAR2(4000),
+  FAULT_CLASS               VARCHAR2(1024 BYTE) DEFAULT 'N/A',
+  UPPER_ALARM_SPEC          FLOAT               NULL,
+  UPPER_WARNING_SPEC        FLOAT               NULL,
+  TARGET                    FLOAT               NULL,
+  LOWER_ALARM_SPEC          FLOAT               NULL,
+  LOWER_WARNING_SPEC        FLOAT               NULL,
   FAULT_DTTS                TIMESTAMP           DEFAULT CURRENT_TIMESTAMP
 )
 TABLESPACE NPDM_DAT
