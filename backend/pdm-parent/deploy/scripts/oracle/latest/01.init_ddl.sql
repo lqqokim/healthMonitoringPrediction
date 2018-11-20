@@ -1,6 +1,6 @@
 /*
 
-HMP init scritpts
+    HMP init scritpts
 
 */
 
@@ -41,6 +41,12 @@ ALTER TABLESPACE OWNER_DAT
       MAXSIZE 250M;
 */
 
+
+/*
+
+    User Creation scripts
+
+*/
 
 CREATE USER MI IDENTIFIED BY bistel01 DEFAULT TABLESPACE MI_DAT;
 CREATE USER OWNER IDENTIFIED BY bistel01 DEFAULT TABLESPACE OWNER_DAT;
