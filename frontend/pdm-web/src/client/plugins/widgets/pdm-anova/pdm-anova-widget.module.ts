@@ -16,6 +16,7 @@ import { PluginCommonModule } from '../../common/plugins.common.module';
 import { PdmAnovaWidgetComponent } from './pdm-anova-widget.component';
 import { AnovaComponent } from './components/anova.component';
 
+import { BoxplotGridComponent } from './components/boxplot-grid/boxplot-grid.component';
 
 @NgModule({
     imports: [
@@ -26,9 +27,10 @@ import { AnovaComponent } from './components/anova.component';
     declarations: [
         PdmAnovaWidgetComponent,
         AnovaComponent,
+        BoxplotGridComponent,
     ],
     exports: [
-        PdmAnovaWidgetComponent
+        PdmAnovaWidgetComponent,
     ],
     // schemas: [ CUSTOM_ELEMENTS_SCHEMA ]
 })

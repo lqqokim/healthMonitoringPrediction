@@ -1,7 +1,62 @@
-<div class="filter-condition">
+<div a3-spinner #Spinner [type]="'component'"></div>
+<div class="anova clearfix">
+    <div class="filter-area">
+        <div class="row-chart-header">
+            <h3 class="panel-title">Filter Condition</h3>
+        </div>
 
-</div>
+        <filter-conditon #filterComp
+            (searchEmit)="onAnalysis($event)">
+        </filter-conditon>
+    </div>
+    
+    <div class="anova-area">
+        <div class="top-area">
+            <div class="anova-result">
+                <div class="row-chart-header">
+                    <h3 class="panel-title">ANOVA Result</h3>
+                </div>
+                <div class="wj-table no-padding">
+                    <wj-flex-grid #WijmoGridInstance *ngIf="results"
+                        [itemsSource]="results" 
+                        [allowDragging]="'None'" 
+                        [isReadOnly]="true" 
+                        [selectionMode]="'Row'"
+                        [headersVisibility]="'Column'" 
+                        (selectionChanged)="selectedRow(WijmoGridInstance, $event)">
+                        <!-- <wj-flex-grid-filter #filter></wj-flex-grid-filter> -->
+                        <!-- <wj-flex-grid-column [width]="'*'" [header]="'Code Id'" [binding]="'codeId'" [align]="'center'"></wj-flex-grid-column> -->
+                        <wj-flex-grid-column [width]="'*'" [header]="'CAT Var'" [binding]="'catVar'"></wj-flex-grid-column>
+                        <wj-flex-grid-column [width]="200" [header]="'CONT Var'" [binding]="'contVar'"></wj-flex-grid-column>
+                        <wj-flex-grid-column [width]="'*'" [header]="'P - Value'" [binding]="'pValue'" [align]="'center'"></wj-flex-grid-column>
+                    </wj-flex-grid>
+                </div>
+                
+            </div>
+            <div class="anova-boxplot">
+                <div class="row-chart-header">
+                    <h3 class="panel-title">Box Plot</h3>
+                </div>
 
-<div class="anova-area">
-    anova area
+                <div class="boxplot-grid">
+                    <boxplot-grid
+                        [data]="selectedResult">
+                    </boxplot-grid>
+                </div>
+            </div>
+        </div>
+        <div class="bottom-area">
+            <div class="anova-trend">
+                <div class="row-chart-header">
+                    <h3 class="panel-title">Trend Chart</h3>
+                </div>
+
+                <div class="trend">
+                    <trend
+                        [data]="trendData">
+                    </trend>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
