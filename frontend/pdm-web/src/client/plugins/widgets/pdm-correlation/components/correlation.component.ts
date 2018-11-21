@@ -2,17 +2,7 @@ import { Component, Input, OnInit, OnChanges, OnDestroy, ViewEncapsulation, Outp
 import { heatmapData } from './../model/mock-data';
 import { SpinnerComponent } from '../../../../sdk';
 
-export interface Heatmap {
-
-}
-
-export interface Scatter {
-
-}
-
-export interface Trend {
-
-}
+import { Trend } from './../components/trend/trend.component';
 
 @Component({
     moduleId: module.id,
@@ -25,8 +15,8 @@ export class CorrelationComponent implements OnInit, OnChanges, OnDestroy {
     @ViewChild('Spinner') spinner: SpinnerComponent;
     @Output() SpinnerControl: EventEmitter<any> = new EventEmitter();
 
-    heatmapData: Heatmap;
-    scatterData: Scatter;
+    heatmapData;
+    scatterData;
     trendData: Trend;
 
     constructor() {
@@ -43,15 +33,32 @@ export class CorrelationComponent implements OnInit, OnChanges, OnDestroy {
 
     onClickHeatmap(heatmapCell): void {
         console.log('heatmap cell => ', heatmapCell);
-        this.scatterData = JSON.parse(JSON.stringify(heatmapCell));
-        this.trendData = JSON.parse(JSON.stringify(heatmapCell));
+        this.drawScatter(heatmapCell);
+        this.drawTrend(heatmapCell);
     }
 
     onAnalysis(condition) {
         console.log('onAnalysis filter condition data => ', condition);
         this.spinner.showSpinner();
         //api call
-        this.heatmapData = JSON.parse(JSON.stringify(heatmapData));
+
+        this.drawHeatmap(heatmapData);        
+    }
+
+    drawHeatmap(data): void {
+        this.heatmapData = JSON.parse(JSON.stringify(data));
+    }
+
+    drawScatter(data) {
+        this.scatterData = JSON.parse(JSON.stringify(data));
+
+    }
+
+    drawTrend(data) {
+        this.trendData = {
+            datas: JSON.parse(JSON.stringify(data)),
+            type: 'lines'
+        };
     }
 
     spinnerControl(ev) {

@@ -30,7 +30,7 @@ export class HeatmapComponent implements OnChanges, OnDestroy {
     _heatmapData;
 
     private _chartEl: HTMLElement;
-    private _chartId: string = 'heatmap';
+    chartId: string = this._guid();
 
     constructor() {
     }
@@ -51,7 +51,7 @@ export class HeatmapComponent implements OnChanges, OnDestroy {
         const config: any = this.getHeatmapConfig();
         const layout: any = this.getHeatmapLayout(inputData);
 
-        Plotly.newPlot('heatmap', data, layout, config);
+        Plotly.newPlot(this.chartId, data, layout, config);
         this.spinnerControl.emit(false);
         this._addHeatmapEventHandler();
     }
@@ -116,17 +116,17 @@ export class HeatmapComponent implements OnChanges, OnDestroy {
             annotations: [],
             xaxis: {
                 automargin: true,
-                // autosize: true,
+                autosize: true,
                 ticks: '',
                 side: 'bottom',
             },
             yaxis: {
                 automargin: true,
-                // autosize: true,
+                autosize: true,
                 ticks: '',
                 ticksuffix: ' ',
                 // width: 700,
-                height: 400,
+                // height: 400,
             }
         };
     }
@@ -156,7 +156,7 @@ export class HeatmapComponent implements OnChanges, OnDestroy {
     }
 
     private _addHeatmapEventHandler(): void {
-        this._chartEl = document.getElementById(this._chartId);
+        this._chartEl = document.getElementById(this.chartId);
         const heatmapEl = this._chartEl;
 
         (heatmapEl as any).on('plotly_click', (data: any) => {
@@ -166,7 +166,7 @@ export class HeatmapComponent implements OnChanges, OnDestroy {
                 x: data.points[0].x,
                 y: data.points[0].y,
                 z: data.points[0].z
-            }
+            };
 
             this.onClickHeatmap.emit(cell);
         });
@@ -241,6 +241,13 @@ export class HeatmapComponent implements OnChanges, OnDestroy {
         // (myPlot as any).on('plotly_relayout', (data: any) => {
         //     console.log('plotly_relayout => ', data);
         // });
+    }
+
+    private _guid() {
+        return 'xxx'.replace(/[xy]/g, (c) => {
+            var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+            return "C" + v.toString(16);
+        });
     }
 
     ngOnDestroy() {

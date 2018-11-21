@@ -17,7 +17,7 @@ export interface Scatter {
 export class ScatterComponent implements OnInit, OnChanges {
     @Input() data;
 
-    private _chartId: string = 'scatter';
+    chartId: string = this._guid();;
 
     constructor() {
 
@@ -40,7 +40,7 @@ export class ScatterComponent implements OnInit, OnChanges {
         const layout: any = this.getScatterLayout(data);
         const config: any = this.getScatterConfig();
 
-        Plotly.newPlot(this._chartId, scatterData, layout, config);
+        Plotly.newPlot(this.chartId, scatterData, layout, config);
     }
 
     getScatterData(data): any {
@@ -103,5 +103,12 @@ export class ScatterComponent implements OnInit, OnChanges {
         };
 
         return layout;
+    }
+
+    private _guid() {
+        return 'xxx'.replace(/[xy]/g, (c) => {
+            var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+            return "C" + v.toString(16);
+        });
     }
 }

@@ -23,7 +23,7 @@ import { AngularSplitModule } from 'angular-split';
 //Custom Chart Components
 import { HeatmapComponent } from './components/heatmap/heatmap.component';
 import { ScatterComponent } from './components/scatter/scatter.component';
-import { TrendComponent } from './components/trend/trend.component';
+// import { TrendComponent } from './components/trend/trend.component';
 
 @NgModule({
     imports: [
@@ -39,7 +39,7 @@ import { TrendComponent } from './components/trend/trend.component';
 
         HeatmapComponent,
         ScatterComponent,
-        TrendComponent
+        // TrendComponent
     ],
     exports: [
         PdmCorrelationWidgetComponent

@@ -2,8 +2,15 @@ import { Component, Input, Output, OnInit, OnChanges, ViewEncapsulation, SimpleC
 
 declare let Plotly: any;
 
-export interface Heatmap {
+// export enum Type {
+//     line = 'lines',
+//     maker = 'markers'
+// }
 
+export interface Trend {
+    datas: any;
+    // type: Type
+    type: string;
 }
 
 @Component({
@@ -16,8 +23,8 @@ export interface Heatmap {
 export class TrendComponent implements OnInit, OnChanges {
     @Input() data;
 
-    private _chartId: string = 'trend';
     private _chartEl: HTMLElement;
+    chartId: string = this.guid();
     trendData;
 
     constructor() {
@@ -29,20 +36,24 @@ export class TrendComponent implements OnInit, OnChanges {
     }
 
     ngOnChanges(changes: SimpleChanges) {
+        console.log('trend changfes = > ', changes);
         if (changes && changes['data']['currentValue']) {
-            const data = changes['data']['currentValue'];
+            const data: Trend = changes['data']['currentValue'];
+
+            console.log('[trend] changes => ', changes);
             this.drawTrend(data);
         }
     }
 
-    drawTrend(data): void {
+    drawTrend(data: Trend): void {
         this.getTrendData(data);
         const config = this.getTrendConfig();
         const layout = this.getTrendLayout();
 
         setTimeout(() => {
             const trendData = this.trendData;
-            Plotly.newPlot(this._chartId, {
+
+            Plotly.newPlot(this.chartId, {
                 data: trendData,
                 layout: layout,
                 config: config
@@ -52,7 +63,7 @@ export class TrendComponent implements OnInit, OnChanges {
         }, 800);
     }
 
-    private _addTrendEventHandler() {
+    private _addTrendEventHandler(): void {
         d3.select('#trend')
             .call(d3.behavior.drag()
                 .on('dragstart', () => {
@@ -63,7 +74,7 @@ export class TrendComponent implements OnInit, OnChanges {
                 })
             )
 
-        this._chartEl = document.getElementById(this._chartId);
+        this._chartEl = document.getElementById(this.chartId);
         const trendEl = this._chartEl;
 
         // (trendEl as any).on('plotly_zoomin', (data: any) => {
@@ -91,7 +102,7 @@ export class TrendComponent implements OnInit, OnChanges {
         });
     }
 
-    getTrendData(data): any {
+    getTrendData(data: Trend): any {
         return this._setTrendData(data);
     }
 
@@ -103,34 +114,46 @@ export class TrendComponent implements OnInit, OnChanges {
         return this._setTrendConfig();
     }
 
-    private _setTrendData(data) {
+    private _setTrendData(data: Trend): void {
+        const chartData = data.datas;
+        const type = data.type;
+
+        // function shuffle(input) {
+        //     for (let i = input.length - 1; i >= 0; i--) {
+
+        //         let randomIndex = Math.floor(Math.random() * (i + 1));
+        //         let itemAtIndex = input[randomIndex];
+
+        //         input[randomIndex] = input[i];
+        //         input[i] = itemAtIndex;
+        //     }
+        //     return input;
+        // }
+
         //parse data
         Plotly.d3.csv("https://raw.githubusercontent.com/plotly/datasets/master/finance-charts-apple.csv", (err, rows) => {
+            // rows = shuffle(rows);
+
             function unpack(rows, key) {
-                console.log('rows => ', rows);
+                // console.log('rows => ', rows);
                 return rows.map(function (row) { return row[key]; });
             }
-// [
-//     [
-//         [], [], ...
-//     ],
-//     [
-//         [], [], ...
-//     ], ...
-// ]
+
             const trace1 = {
-                type: "scatter",
-                mode: "lines",
-                name: data.x,
+                // type: "scatter",
+                // mode: "lines",
+                mode: type,
+                name: chartData.x,
                 x: unpack(rows, 'Date'),
                 y: unpack(rows, 'AAPL.High'),
                 line: { color: '#17BECF' }
             }
 
             const trace2 = {
-                type: "scatter",
-                mode: "lines",
-                name: data.y,
+                // type: "scatter",
+                // mode: "lines",
+                mode: type,
+                name: chartData.y,
                 x: unpack(rows, 'Date'),
                 y: unpack(rows, 'AAPL.Low'),
                 line: { color: '#7F7F7F' }
@@ -175,9 +198,17 @@ export class TrendComponent implements OnInit, OnChanges {
         const config = {
             responsive: true,
             displayModeBar: false,
-            // scrollZoom: true
+            // scrollZoom: true,
+            // staticPlot: true
         }
 
         return config;
+    }
+
+    private guid() {
+        return 'xxx'.replace(/[xy]/g, (c) => {
+            var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+            return "C" + v.toString(16);
+        });
     }
 }
