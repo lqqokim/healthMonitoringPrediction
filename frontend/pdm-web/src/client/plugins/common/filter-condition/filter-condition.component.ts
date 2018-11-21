@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, ViewChild, Output, EventEmitter, Input } from '@angular/core';
 import { PdmModelService } from '../../../common/model/app/pdm/pdm-model.service';
 
 @Component({
@@ -38,6 +38,11 @@ export class FilterConditionComponent implements OnInit {
     parameters: Array<any> = [];
     selectedParameters: any;
     selectedParameterDatas: any = [];
+
+    isEquipment: boolean = false;
+    isBarcode: boolean = false;
+
+    isShowCheckGroup: boolean = false;
 
     constructor(private pdmModelService: PdmModelService) { }
 
@@ -150,6 +155,14 @@ export class FilterConditionComponent implements OnInit {
         for (let i = 0; i < e.length; i++) {
             this.selectedParameters.push(e[i].paramName);
         }
+    }
+
+    onCheckEquipment() {
+        console.log('isEquipment => ', this.isEquipment);
+    }
+
+    onCheckBarcode() {
+        console.log('isBarcode => ', this.isBarcode);
     }
 
     search() {

@@ -40,6 +40,17 @@
             <label for="parameter">Parameter</label>
             <multi-select-combo [datas]="parameters" [displayName]="'paramName'" (changeData)="onChangeParameter($event)" [selectedItems]="selectedParameterDatas"></multi-select-combo>
         </div>
+        <div class="check-group" *ngIf="isShowCheckGroup">
+            <label class="equipment" (click)="onCheckEquipment()">
+                <input type="checkbox" id="equipment" [(ngModel)]="isEquipment">
+                <label for="equipment">Equipment</label>
+            </label>
+
+            <label class="barcode" (click)="onCheckBarcode()">
+                <input type="checkbox" id="barcode" [(ngModel)]="isBarcode">
+                <label for="barcode">Barcode</label>
+            </label>
+        </div>
     </div>
 
     <hr>

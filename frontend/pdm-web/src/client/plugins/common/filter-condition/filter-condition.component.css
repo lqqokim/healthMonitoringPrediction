@@ -9,12 +9,38 @@
     color: red;
 } */
 
+.filter-condition label {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.filter-condition .time .a3-from-to {
+    font-weight: bold;
+}
+
 .filter-condition .time .a3-from-to div:last-child {
     padding-top: 20px
 }
 
 .filter-condition .time div {
     padding-top: 20px;
+}
+
+.filter-condition .element .check-group {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.filter-condition .element .check-group input[type=checkbox]{
+    font-size: x-large;
+}
+
+.filter-condition .element .check-group .equipment{
+    margin-left: -20px;
+}
+
+.filter-condition .element .check-group .barcode{
+    margin-left: 35px;
 }
 
 .filter-condition .element div:not(:first-child) {
