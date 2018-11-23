@@ -34,16 +34,15 @@ public class ConnectorAppBootstrap {
 
     public static void main(String[] args) throws Exception {
         if (args.length <= 0) {
-            args = new String[]{"-server localhost" +
-                    "-port 8989" +
-                    "-brokers 192.168.7.228",
-                    "-topicPrefix pdm-input",
-                    "-watchDir /Users/hansonjang/pdm/test/",
-                    "-clientId client-0",
-                    "-kafkaConf /Users/hansonjang/Documents/opensource/pdm-parent/support/pdm-log-connector/target/classes/producer.properties",
-                    "-log4jConf /Users/hansonjang/Documents/opensource/pdm-parent/support/pdm-log-connector/target/classes/log4j.properties"};
+            args = new String[]{"-server",  "localhost",
+                    "-port", "8989",
+                    "-brokers", "192.168.7.228",
+                    "-topicPrefix", "pdm-input",
+                    "-watchDir", "/Users/hansonjang/pdm/test/",
+                    "-clientId", "client-0",
+                    "-kafkaConf", "/producer.properties",
+                    "-log4jConf", "/log4j.properties"};
         }
-
 
         CommandLine commandLine = parseCommandLine(args);
 

@@ -32,7 +32,7 @@ public class IndividualHealthProcessor extends AbstractProcessor<String, String>
 
     @Override
     public void process(String key, String record) {
-        //in : time, param_rawid, value, alarm_spec, warning_spec, fault_class, rulename, condition, groupid
+        //in : time, param_rawid, value, alarm_spec, warning_spec, fault_class, rulename, condition, process context
         String[] columns = record.split(SEPARATOR, -1);
 
         try {
@@ -56,7 +56,8 @@ public class IndividualHealthProcessor extends AbstractProcessor<String, String>
                 String nextMsg = getHealthString(key, epochTime, paramRawId,
                         alarmSpec, warningSpec, doubleValues, fd01Health);
 
-                nextMsg = nextMsg + "," + columns[8]; // with group
+                // out : time, param_rawid, param_health_rawid, status_cd, data_count, index, specs, process context
+                nextMsg = nextMsg + "," + columns[8]; // with process context
                 context().forward(key, nextMsg.getBytes(), To.child(NEXT_OUT_STREAM_NODE));
                 log.debug("[{}] - forwarding logic 1 health, offset:{}", key, context().offset());
 
@@ -66,7 +67,6 @@ public class IndividualHealthProcessor extends AbstractProcessor<String, String>
 
 
             // Health for SPC Rule
-
             int windowSize = 6;
             int outCount = 3;
 
@@ -211,8 +211,9 @@ public class IndividualHealthProcessor extends AbstractProcessor<String, String>
 
 
                 if (healthMsg.length() > 0) {
+                    // out : time, param_rawid, param_health_rawid, status_cd, data_count, index, specs, process context
                     healthMsg = healthMsg + "," + columns[8]; // with group
-                    context().forward(key, healthMsg.getBytes(), To.child("output-health"));
+                    context().forward(key, healthMsg.getBytes(), To.child(NEXT_OUT_STREAM_NODE));
                     log.debug("[{}] - forwarding logic 2 health, offset:{}", key, context().offset());
                 }
 
@@ -284,7 +285,7 @@ public class IndividualHealthProcessor extends AbstractProcessor<String, String>
         log.debug("[{}] - id:{}, data count:{}, score:{}, alarm:{}, warning:{}",
                 key, dataCount, index, alarmSpec, warningSpec);
 
-        // time, eqpRawid, param_rawid, param_health_rawid, status_cd, data_count, index, specs
+        // time, param_rawid, param_health_rawid, status_cd, data_count, index, specs
         // 1535498957495,1,1055,96,N,2,0.1489,30000.0,1.0,,,,1535498957385
         return epochTime + ","
                 + paramRawId + ","

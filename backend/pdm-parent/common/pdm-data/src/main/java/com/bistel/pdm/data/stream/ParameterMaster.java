@@ -7,56 +7,56 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public class ParameterMaster {
 
-    @JsonProperty("equipmentName")
-    private String equipmentName;
+    @JsonProperty("id")
+    private Long id;
 
-    @JsonProperty("equipmentRawId")
-    private Long equipmentRawId;
-
-    @JsonProperty("parameterName")
-    private String parameterName;
+    @JsonProperty("eqpRawId")
+    private Long eqpRawId;
 
     @JsonProperty("modelName")
     private String modelName;
 
-    @JsonProperty("paramParseIndex")
-    private Integer paramParseIndex;
+    @JsonProperty("equipmentName")
+    private String equipmentName;
 
-    @JsonProperty("parameterRawId")
-    private Long parameterRawId;
+    @JsonProperty("svid")
+    private String svid;
 
-    @JsonProperty("parameterType")
-    private String parameterType;
+    @JsonProperty("parameterName")
+    private String parameterName;
 
-    @JsonProperty("dataType")
-    private String dataType;
+    @JsonProperty("paramTypeCode")
+    private String paramTypeCode;
 
-    public String toKey() {
-        return this.equipmentName;
+    @JsonProperty("timewaveTypeCode")
+    private String timewaveTypeCode;
+
+    @JsonProperty("dataTypeCode")
+    private String dataTypeCode;
+
+    @JsonProperty("collectYN")
+    private String collectYN;
+
+    @JsonProperty("summaryYN")
+    private String summaryYN;
+
+    @JsonProperty("useYN")
+    private String useYN;
+
+    public Long getId() {
+        return id;
     }
 
-    public String getEquipmentName() {
-        return equipmentName;
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    public void setEquipmentName(String equipmentName) {
-        this.equipmentName = equipmentName;
+    public Long getEqpRawId() {
+        return eqpRawId;
     }
 
-    public Long getEquipmentRawId() {
-        return equipmentRawId;
-    }
-
-    public void setEquipmentRawId(Long equipmentRawId) {
-        this.equipmentRawId = equipmentRawId;
-    }
-
-    public String getParameterName() {
-        return parameterName;
-    }
-
-    public void setParameterName(String parameterName) {
-        this.parameterName = parameterName;
+    public void setEqpRawId(Long eqpRawId) {
+        this.eqpRawId = eqpRawId;
     }
 
     public String getModelName() {
@@ -67,35 +67,75 @@ public class ParameterMaster {
         this.modelName = modelName;
     }
 
-    public Integer getParamParseIndex() {
-        return paramParseIndex;
+    public String getEquipmentName() {
+        return equipmentName;
     }
 
-    public void setParamParseIndex(Integer paramParseIndex) {
-        this.paramParseIndex = paramParseIndex;
+    public void setEquipmentName(String equipmentName) {
+        this.equipmentName = equipmentName;
     }
 
-    public Long getParameterRawId() {
-        return parameterRawId;
+    public String getSvid() {
+        return svid;
     }
 
-    public void setParameterRawId(Long parameterRawId) {
-        this.parameterRawId = parameterRawId;
+    public void setSvid(String svid) {
+        this.svid = svid;
     }
 
-    public String getParameterType() {
-        return parameterType;
+    public String getParameterName() {
+        return parameterName;
     }
 
-    public void setParameterType(String parameterType) {
-        this.parameterType = parameterType;
+    public void setParameterName(String parameterName) {
+        this.parameterName = parameterName;
     }
 
-    public String getDataType() {
-        return dataType;
+    public String getParamTypeCode() {
+        return paramTypeCode;
     }
 
-    public void setDataType(String dataType) {
-        this.dataType = dataType;
+    public void setParamTypeCode(String paramTypeCode) {
+        this.paramTypeCode = paramTypeCode;
+    }
+
+    public String getTimewaveTypeCode() {
+        return timewaveTypeCode;
+    }
+
+    public void setTimewaveTypeCode(String timewaveTypeCode) {
+        this.timewaveTypeCode = timewaveTypeCode;
+    }
+
+    public String getDataTypeCode() {
+        return dataTypeCode;
+    }
+
+    public void setDataTypeCode(String dataTypeCode) {
+        this.dataTypeCode = dataTypeCode;
+    }
+
+    public String getCollectYN() {
+        return collectYN;
+    }
+
+    public void setCollectYN(String collectYN) {
+        this.collectYN = collectYN;
+    }
+
+    public String getSummaryYN() {
+        return summaryYN;
+    }
+
+    public void setSummaryYN(String summaryYN) {
+        this.summaryYN = summaryYN;
+    }
+
+    public String getUseYN() {
+        return useYN;
+    }
+
+    public void setUseYN(String useYN) {
+        this.useYN = useYN;
     }
 }

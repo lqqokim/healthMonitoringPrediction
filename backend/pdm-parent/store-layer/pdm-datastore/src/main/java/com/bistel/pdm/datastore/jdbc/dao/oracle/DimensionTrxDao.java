@@ -19,13 +19,14 @@ public class DimensionTrxDao implements FeatureDataDao {
     private static final Logger log = LoggerFactory.getLogger(DimensionTrxDao.class);
 
     private static final String INSERT_SQL =
-            "insert into param_dimension_trx_pdm " +
-                    "(RAWID, " +
+            "insert into PARAM_DIMENSION_TRX_PDM " +
+                    "(" +
+                    "RAWID, " +
                     "PARAM_MST_RAWID, " +
                     "BEGIN_DTTS, " +
                     "END_DTTS, " +
                     "VALUE, " +
-                    "MESSAGE_GROUP) " +
+                    "PROCESS_CONTEXT) " +
                     "values (seq_param_dimension_trx_pdm.nextval,?,?,?,?,?)";
 
     @Override
@@ -43,7 +44,7 @@ public class DimensionTrxDao implements FeatureDataDao {
 
                     String[] values = valueString.split(",", -1);
 
-                    // startDtts, endDtts, param rawid, value, group
+                    // startDtts, endDtts, param rawid, value, process context
                     Long param_rawid = Long.parseLong(values[2]);
                     Timestamp beginDtts = new Timestamp(Long.parseLong(values[0]));
                     Timestamp endDtts = new Timestamp(Long.parseLong(values[1]));
@@ -53,7 +54,7 @@ public class DimensionTrxDao implements FeatureDataDao {
                     pstmt.setTimestamp(3, endDtts);
 
                     pstmt.setString(4, values[3]); // value
-                    pstmt.setString(5, values[4]); // message group
+                    pstmt.setString(5, values[4]); // process context
 
                     pstmt.addBatch();
                     ++totalCount;

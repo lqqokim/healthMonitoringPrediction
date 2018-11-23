@@ -33,7 +33,7 @@ import java.util.Properties;
 public class StreamUpdateService {
     private static final Logger log = LoggerFactory.getLogger(StreamUpdateService.class);
 
-    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+    private static final String TIME_FORMAT = "yyyy-MM-dd HH:mm:ss.SSS";
 
     private final String inputReload1Topic = "pdm-input-trace";
     private final String inputReload2Topic = "pdm-input-raw";
@@ -58,6 +58,7 @@ public class StreamUpdateService {
     @Path("/latest/reload/{eqpid}")
     public Response getReload(@PathParam("eqpid") String eqpId) {
         try {
+            SimpleDateFormat dateFormat = new SimpleDateFormat(TIME_FORMAT);
             Timestamp timestamp = new Timestamp(System.currentTimeMillis());
             String msg = dateFormat.format(timestamp) + ",CMD-REFRESH-CACHE";
 
@@ -65,12 +66,12 @@ public class StreamUpdateService {
             EquipmentMaster masterDataSet = repository.getEqpMasterDataSet(eqpId);
 
             List<PartitionInfo> partitions = producer.partitionsFor(inputReload1Topic);
-            int partitionNum = masterDataSet.getEqpRawId().intValue() % partitions.size();
+            int partitionNum = masterDataSet.getId().intValue() % partitions.size();
 
             producer.send(new ProducerRecord<>(inputReload1Topic, partitionNum, eqpId, msg.getBytes()));
 
             partitions = producer.partitionsFor(inputReload2Topic);
-            partitionNum = masterDataSet.getEqpRawId().intValue() % partitions.size();
+            partitionNum = masterDataSet.getId().intValue() % partitions.size();
 
             producer.send(new ProducerRecord<>(inputReload2Topic, partitionNum, eqpId, msg.getBytes()));
 

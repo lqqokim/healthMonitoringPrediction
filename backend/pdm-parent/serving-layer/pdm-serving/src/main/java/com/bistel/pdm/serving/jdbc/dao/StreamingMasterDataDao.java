@@ -20,7 +20,8 @@ public class StreamingMasterDataDao {
 
     private final static String PARAM_MASTER_DS_SQL =
             "select e.rawid eqp_rawid, e.name eqp_name, e.model_name, " +
-                    "p.rawid param_rawid, p.name param_name, p.param_type_cd, p.parse_index, p.data_type " +
+                    "p.rawid param_rawid, p.name param_name, p.param_type_cd, p.svid, p.data_type_cd, p.timewave_type_cd, " +
+                    "p.collect_yn, p.summary_yn " +
                     "from eqp_mst_pdm e " +
                     "inner join param_mst_pdm p " +
                     "on e.rawid=p.eqp_mst_rawid " +
@@ -38,14 +39,17 @@ public class StreamingMasterDataDao {
                 try (ResultSet rs = pst.executeQuery();) {
                     while (rs.next()) {
                         ParameterMaster ds = new ParameterMaster();
-                        ds.setEquipmentRawId(rs.getLong(1));
+                        ds.setEqpRawId(rs.getLong(1));
                         ds.setEquipmentName(rs.getString(2));
                         ds.setModelName(rs.getString(3));
-                        ds.setParameterRawId(rs.getLong(4));
+                        ds.setId(rs.getLong(4));
                         ds.setParameterName(rs.getString(5));
-                        ds.setParameterType(rs.getString(6));
-                        ds.setParamParseIndex(rs.getInt(7));
-                        ds.setDataType(rs.getString(8));
+                        ds.setParamTypeCode(rs.getString(6));
+                        ds.setSvid(rs.getString(7));
+                        ds.setDataTypeCode(rs.getString(8));
+                        ds.setTimewaveTypeCode(rs.getString(9));
+                        ds.setCollectYN(rs.getString(10));
+                        ds.setSummaryYN(rs.getString(11));
 
                         resultRows.add(ds);
                     }
@@ -61,7 +65,7 @@ public class StreamingMasterDataDao {
     private final static String PARAM_MASTER_DS_1_SQL =
             "select " +
                     "    b.area_name, b.eqp_name, b.eqp_rawid, " +
-                    "    b.param_name, b.parse_index, b.param_id, b.param_type_cd, " +
+                    "    b.param_name, b.svid, b.param_id, b.param_type_cd, " +
                     "    a.rule_name, a.expression, a.expression_value, " +
                     "    a.alarm_spec, a.warning_spec, a.condition, b.data_type " +
                     "from " +
@@ -84,7 +88,7 @@ public class StreamingMasterDataDao {
                     "right outer join " +
                     "( " +
                     "    select a.name area_name, e.name eqp_name, e.rawid eqp_rawid, " +
-                    "        p.name param_name, p.parse_index, p.rawid param_id, p.param_type_cd, p.data_type " +
+                    "        p.name param_name, p.svid, p.rawid param_id, p.param_type_cd, p.data_type " +
                     "    from area_mst_pdm a inner join eqp_mst_pdm e " +
                     "    on a.rawid=e.area_mst_rawid and e.name=? " +
                     "    inner join param_mst_pdm p " +
@@ -109,7 +113,7 @@ public class StreamingMasterDataDao {
                         ds.setEquipmentName(rs.getString(2));
                         ds.setEquipmentRawId(rs.getLong(3));
                         ds.setParameterName(rs.getString(4));
-                        ds.setParamParseIndex(rs.getInt(5));
+                        ds.setSvid(rs.getString(5));
                         ds.setParameterRawId(rs.getLong(6));
                         ds.setParameterType(rs.getString(7));
                         ds.setRuleName(rs.getString(8));
@@ -181,7 +185,7 @@ public class StreamingMasterDataDao {
                 EquipmentMaster ds = new EquipmentMaster();
                 ds.setAreaName(rs.getString(1));
                 ds.setEquipmentName(rs.getString(2));
-                ds.setEqpRawId(rs.getLong(3));
+                ds.setId(rs.getLong(3));
 
                 resultRows.add(ds);
             }
@@ -213,7 +217,7 @@ public class StreamingMasterDataDao {
                     while (rs.next()) {
                         eqpMaster.setAreaName(rs.getString(1));
                         eqpMaster.setEquipmentName(rs.getString(2));
-                        eqpMaster.setEqpRawId(rs.getLong(3));
+                        eqpMaster.setId(rs.getLong(3));
                     }
                 }
             } catch (SQLException e) {
@@ -347,7 +351,7 @@ public class StreamingMasterDataDao {
     }
 
     private final static String EQP_EXPR_PARAM_MASTER_DS_SQL =
-            "select distinct e.rawid eqp_rawid, e.name eqp_name, cs.rule_name, p.name param_name, p.parse_index " +
+            "select distinct e.rawid eqp_rawid, e.name eqp_name, cs.rule_name, p.name param_name, p.svid " +
                     "from eqp_mst_pdm e " +
                     "inner join param_mst_pdm p " +
                     "on e.rawid=p.eqp_mst_rawid " +
@@ -363,8 +367,8 @@ public class StreamingMasterDataDao {
                     "on cs.param_name=p.name " +
                     "where e.name=? ";
 
-    public List<ExpressionParamMaster> getExprParamMasterDataSet(String eqpId) throws SQLException {
-        List<ExpressionParamMaster> resultRows = new ArrayList<>();
+    public List<SpecRuleExpressionMaster> getExprParamMasterDataSet(String eqpId) throws SQLException {
+        List<SpecRuleExpressionMaster> resultRows = new ArrayList<>();
 
         try (Connection conn = DataSource.getConnection()) {
             try (PreparedStatement pst = conn.prepareStatement(EQP_EXPR_PARAM_MASTER_DS_SQL)) {
@@ -374,12 +378,12 @@ public class StreamingMasterDataDao {
                     log.debug("sql:{}", EQP_EXPR_PARAM_MASTER_DS_SQL);
 
                     while (rs.next()) {
-                        ExpressionParamMaster ds = new ExpressionParamMaster();
+                        SpecRuleExpressionMaster ds = new SpecRuleExpressionMaster();
                         ds.setEquipmentRawId(rs.getLong(1));
-                        ds.setEqpName(rs.getString(2));
+                        ds.setEquipmentName(rs.getString(2));
                         ds.setRuleName(rs.getString(3));
                         ds.setParameterName(rs.getString(4));
-                        ds.setParamParseIndex(rs.getInt(5));
+                        ds.setSvid(rs.getString(5));
 
                         resultRows.add(ds);
                     }
@@ -403,8 +407,8 @@ public class StreamingMasterDataDao {
                     "where e.name=? " +
                     "order by l.ordering ";
 
-    public List<ConditionalSpecMaster> getConditionalSpecMasterDataSet(String eqpId) throws SQLException {
-        List<ConditionalSpecMaster> resultRows = new ArrayList<>();
+    public List<ConditionalSpecRuleMaster> getConditionalSpecMasterDataSet(String eqpId) throws SQLException {
+        List<ConditionalSpecRuleMaster> resultRows = new ArrayList<>();
 
         try (Connection conn = DataSource.getConnection()) {
             try (PreparedStatement pst = conn.prepareStatement(EQP_CONDITIONAL_SPEC_MASTER_DS_SQL)) {
@@ -414,9 +418,9 @@ public class StreamingMasterDataDao {
                     log.debug("sql:{}", EQP_CONDITIONAL_SPEC_MASTER_DS_SQL);
 
                     while (rs.next()) {
-                        ConditionalSpecMaster ds = new ConditionalSpecMaster();
+                        ConditionalSpecRuleMaster ds = new ConditionalSpecRuleMaster();
                         ds.setEqpRawId(rs.getLong(1));
-                        ds.setEqpName(rs.getString(2));
+                        ds.setEquipmentName(rs.getString(2));
                         ds.setRuleName(rs.getString(3));
                         ds.setExpression(rs.getString(4));
                         ds.setExpressionValue(rs.getString(5));
@@ -431,5 +435,39 @@ public class StreamingMasterDataDao {
         }
 
         return resultRows;
+    }
+
+    private final static String EQP_PROCESS_GROUP_DS_SQL =
+            "select " +
+                    "pg.rawid, pg.process_group_id, pg.group_type_cd, pg.use_yn " +
+                    "from process_group_mst_pdm pg, eqp_mst_pdm eqp " +
+                    "where pg.eqp_mst_rawid=eqp.rawid " +
+                    "and eqp.name=? ";
+
+    public ProcessGroupMaster getEqpProcessGroup(String eqpId) throws SQLException {
+        ProcessGroupMaster processGroup = new ProcessGroupMaster();
+
+        try (Connection conn = DataSource.getConnection()) {
+            try (PreparedStatement pst = conn.prepareStatement(EQP_PROCESS_GROUP_DS_SQL)) {
+                pst.setString(1, eqpId);
+
+                try (ResultSet rs = pst.executeQuery()) {
+                    log.debug("sql:{}", EQP_PROCESS_GROUP_DS_SQL);
+
+                    while (rs.next()) {
+                        processGroup.setId(rs.getLong(1));
+                        processGroup.setGroupId(rs.getString(2));
+                        processGroup.setGroupType(rs.getString(3));
+                        processGroup.setUseYN(rs.getString(4));
+                    }
+                }
+            } catch (SQLException e) {
+                log.error(e.getMessage(), e);
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+
+        return processGroup;
     }
 }

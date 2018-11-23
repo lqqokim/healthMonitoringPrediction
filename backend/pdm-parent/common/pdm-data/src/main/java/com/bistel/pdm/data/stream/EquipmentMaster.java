@@ -7,14 +7,20 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public class EquipmentMaster {
 
+    @JsonProperty("id")
+    private Long id;
+
     @JsonProperty("areaName")
     private String areaName;
+
+    @JsonProperty("modelName")
+    private String modelName;
 
     @JsonProperty("equipmentName")
     private String equipmentName;
 
-    @JsonProperty("eqpRawId")
-    private Long eqpRawId;
+    @JsonProperty("offline")
+    private Boolean offline;
 
 //    public String toKey(){
 //        return this.areaName  + "," + this.equipmentName;
@@ -22,6 +28,14 @@ public class EquipmentMaster {
 
     public String toKey(){
         return this.equipmentName;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getAreaName() {
@@ -32,19 +46,27 @@ public class EquipmentMaster {
         this.areaName = areaName;
     }
 
+    public String getModelName() {
+        return modelName;
+    }
+
+    public void setModelName(String modelName) {
+        this.modelName = modelName;
+    }
+
     public String getEquipmentName() {
         return equipmentName;
     }
 
-    public void setEquipmentName(String eqpName) {
-        this.equipmentName = eqpName;
+    public void setEquipmentName(String equipmentName) {
+        this.equipmentName = equipmentName;
     }
 
-    public Long getEqpRawId() {
-        return eqpRawId;
+    public Boolean getOffline() {
+        return offline;
     }
 
-    public void setEqpRawId(Long eqpRawId) {
-        this.eqpRawId = eqpRawId;
+    public void setOffline(Boolean offline) {
+        this.offline = offline;
     }
 }

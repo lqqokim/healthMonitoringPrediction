@@ -1,7 +1,6 @@
 package com.bistel.pdm.speed.bundle;
 
-import com.bistel.pdm.speed.SpeedRealTimeTaskDef;
-import com.bistel.pdm.speed.SpeedTimeOutTaskDef;
+import com.bistel.pdm.speed.SpeedRealTimeTask;
 import org.apache.commons.cli.*;
 import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
@@ -23,7 +22,7 @@ public class SpeedStreamAppBootstrap {
     private static final String LOG_PATH = "log4jConf";
     private static final String PIPELINE = "pipeline";
     private static final String STREAM_THREADS = "streamThreads";
-//    private static final String RECORD_TYPE = "recordType";
+    private static final String STATE_DIR = "stateDir";
 
     private static final Options options = new Options();
 
@@ -37,22 +36,22 @@ public class SpeedStreamAppBootstrap {
         String logPath = commandLine.getOptionValue(LOG_PATH);
         String pipeline = commandLine.getOptionValue(PIPELINE);
         String streamThreads = commandLine.getOptionValue(STREAM_THREADS, "1");
-//        String recordType = commandLine.getOptionValue(RECORD_TYPE, "MP");
+        String stateDir = commandLine.getOptionValue(STATE_DIR, "/tmp/kafka-streams");
 
         Properties logProperties = new Properties();
         logProperties.load(new FileInputStream(logPath));
         PropertyConfigurator.configure(logProperties);
 
         if (pipeline.equalsIgnoreCase("REALTIME")) {
-            try (SpeedRealTimeTaskDef processor =
-                         new SpeedRealTimeTaskDef(appId, brokers, servingAddr, streamThreads)) {
+            try (SpeedRealTimeTask processor =
+                         new SpeedRealTimeTask(appId, brokers, servingAddr, streamThreads, stateDir)) {
                 processor.start();
             }
         } else if (pipeline.equalsIgnoreCase("TIMEOUT")) {
-            try (SpeedTimeOutTaskDef processor =
-                         new SpeedTimeOutTaskDef(appId, brokers, servingAddr, streamThreads)) {
-                processor.start();
-            }
+//            try (SpeedTimeOutTaskDef processor =
+//                         new SpeedTimeOutTaskDef(appId, brokers, servingAddr, streamThreads)) {
+//                processor.start();
+//            }
         } else {
             log.info("Not supported.");
         }
@@ -65,16 +64,17 @@ public class SpeedStreamAppBootstrap {
         Option pipeline = new Option(PIPELINE, true, "streaming pipeline");
         Option logPath = new Option(LOG_PATH, true, "config path");
         Option streamThreads = new Option(STREAM_THREADS, true, "stream thread count");
-//        Option recordType = new Option(RECORD_TYPE, true, "record type");
+        Option stateDir = new Option(STATE_DIR, true, "state dir");
 
         options.addOption(appId)
                 .addOption(broker)
                 .addOption(servingAddr)
                 .addOption(pipeline)
                 .addOption(logPath)
-                .addOption(streamThreads);
+                .addOption(streamThreads)
+                .addOption(stateDir);
 
-        if (args.length < 6) {
+        if (args.length < 7) {
             printUsageAndExit();
         }
         CommandLineParser parser = new DefaultParser();

@@ -25,16 +25,18 @@ public final class ServingAppBootstrap {
 
     public static void main(String[] args) throws Exception {
         if (args.length <= 0) {
-            args = new String[]{"-server localhost", "-port 28000", "-log4jConf log4j.properties"};
+            args = new String[]{"-server", "localhost", "-port", "8089", "-log4jConf", "log4j.properties"};
         }
 
         log.info("args size={}, args={}", args.length, args);
-        log.info("e.g.> curl -X GET http://localhost:28000/pdm/api/master/latest/equipment ");
-        log.info("e.g.> curl -X GET http://localhost:28000/pdm/api/master/latest/param ");
-        log.info("e.g.> curl -X GET http://localhost:28000/pdm/api/master/latest/spec ");
-        log.info("e.g.> curl -X GET http://localhost:28000/pdm/api/master/latest/features ");
-        log.info("e.g.> curl -X GET http://localhost:28000/pdm/api/master/latest/health ");
-        log.info("e.g.> curl -X GET http://localhost:28000/pdm/api/master/latest/event ");
+        log.info("e.g.> curl -X GET http://localhost:28000/pdm/api/master/latest/equipment/{eqpid} ");
+        log.info("e.g.> curl -X GET http://localhost:28000/pdm/api/master/latest/param/{eqpid} ");
+        log.info("e.g.> curl -X GET http://localhost:28000/pdm/api/master/latest/paramspec/{eqpid} ");
+        log.info("e.g.> curl -X GET http://localhost:28000/pdm/api/master/latest/specrule/{eqpid} ");
+        log.info("e.g.> curl -X GET http://localhost:28000/pdm/api/master/latest/expr/{eqpid} ");
+        log.info("e.g.> curl -X GET http://localhost:28000/pdm/api/master/latest/health/{eqpid} ");
+        log.info("e.g.> curl -X GET http://localhost:28000/pdm/api/master/latest/event/{eqpid} ");
+        log.info("e.g.> curl -X GET http://localhost:28000/pdm/api/master/latest/processgroup/{eqpid} ");
         //new ApplicationPid().writePidFile();
 
         CommandLine commandLine = parseCommandLine(args);

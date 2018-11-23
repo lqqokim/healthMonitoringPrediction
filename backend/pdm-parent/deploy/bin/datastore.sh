@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-APPNAME="DataStore Layer"
+APPNAME="DataStore Consumer"
 APPPID=datastore.pid
-APPJAR=pdm-datastore-bundle-1.0-SNAPSHOT.jar
+APPJAR=pdm-datastore-bundle-1.2-SNAPSHOT.jar
 APPOPTS="-groupId pdm-store
--servingAddr http://192.168.7.227:8089
+-servingAddr http://localhost:8089
 -kafkaConf ./config/consumer.properties
 -log4jConf ./config/log4j.properties"
 

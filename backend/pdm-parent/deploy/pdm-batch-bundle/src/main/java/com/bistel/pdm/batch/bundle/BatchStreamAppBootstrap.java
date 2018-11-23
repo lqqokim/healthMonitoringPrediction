@@ -1,7 +1,7 @@
 package com.bistel.pdm.batch.bundle;
 
-import com.bistel.pdm.batch.BatchSummaryTaskDef;
-import com.bistel.pdm.batch.BatchTimewaveTaskDef;
+import com.bistel.pdm.batch.BatchSummaryTask;
+import com.bistel.pdm.batch.BatchVibrationTask;
 import org.apache.commons.cli.*;
 import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
@@ -23,6 +23,7 @@ public final class BatchStreamAppBootstrap {
     private static final String PIPELINE = "pipeline";
     private static final String LOG_PATH = "log4jConf";
     private static final String STREAM_THREADS = "streamThreads";
+    private static final String STATE_DIR = "stateDir";
 
     private static final Options options = new Options();
 
@@ -36,19 +37,20 @@ public final class BatchStreamAppBootstrap {
         String pipeline = commandLine.getOptionValue(PIPELINE);
         String logPath = commandLine.getOptionValue(LOG_PATH);
         String streamThreads = commandLine.getOptionValue(STREAM_THREADS, "1");
+        String stateDir = commandLine.getOptionValue(STATE_DIR, "/tmp/kafka-streams");
 
         Properties logProperties = new Properties();
         logProperties.load(new FileInputStream(logPath));
         PropertyConfigurator.configure(logProperties);
 
         if (pipeline.equalsIgnoreCase("SUMMARY")) {
-            try (BatchSummaryTaskDef processor =
-                         new BatchSummaryTaskDef(appId, brokers, servingAddr, streamThreads)) {
+            try (BatchSummaryTask processor =
+                         new BatchSummaryTask(appId, brokers, servingAddr, streamThreads, stateDir)) {
                 processor.start();
             }
         } else if (pipeline.equalsIgnoreCase("VIBRATION")) {
-            try (BatchTimewaveTaskDef processor =
-                         new BatchTimewaveTaskDef(appId, brokers, servingAddr, streamThreads)) {
+            try (BatchVibrationTask processor =
+                         new BatchVibrationTask(appId, brokers, servingAddr, streamThreads, stateDir)) {
                 processor.start();
             }
         } else {
@@ -63,15 +65,17 @@ public final class BatchStreamAppBootstrap {
         Option pipeline = new Option(PIPELINE, true, "streaming pipeline");
         Option logPath = new Option(LOG_PATH, true, "config path");
         Option streamThreads = new Option(STREAM_THREADS, true, "stream thread count");
+        Option stateDir = new Option(STATE_DIR, true, "state dir");
 
         options.addOption(appId)
                 .addOption(broker)
                 .addOption(servingAddr)
                 .addOption(pipeline)
                 .addOption(logPath)
-                .addOption(streamThreads);
+                .addOption(streamThreads)
+                .addOption(stateDir);
 
-        if (args.length < 6) {
+        if (args.length < 7) {
             printUsageAndExit();
         }
         CommandLineParser parser = new DefaultParser();

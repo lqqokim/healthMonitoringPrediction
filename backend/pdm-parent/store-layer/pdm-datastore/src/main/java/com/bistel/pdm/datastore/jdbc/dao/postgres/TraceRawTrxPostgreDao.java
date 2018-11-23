@@ -18,11 +18,19 @@ public class TraceRawTrxPostgreDao implements SensorRawDataDao {
     private static final Logger log = LoggerFactory.getLogger(TraceRawTrxPostgreDao.class);
 
     private static final String INSERT_SQL =
-            "insert into trace_raw_trx_pdm (" +
-                    "PARAM_MST_RAWID, TRACE_TRX_RAWID, DATA_TYPE_CD, MAX_FREQ, FREQ_COUNT, " +
-                    "RPM, SAMPLING_TIME, BINARY_DATA, EVENT_DTTS, " +
+            "insert into TRACE_RAW_TRX_PDM (" +
+                    "PARAM_MST_RAWID, " +
+                    "TRACE_TRX_RAWID, " +
+                    "DATA_TYPE_CD, " +
+                    "MAX_FREQ, " +
+                    "FREQ_COUNT, " +
+                    "RPM, " +
+                    "SAMPLING_TIME, " +
+                    "BINARY_DATA, " +
+                    "EVENT_DTTS, " +
                     "RESERVED_COL1, RESERVED_COL2, RESERVED_COL3, RESERVED_COL4, RESERVED_COL5) " +
-                    "values (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+                    "values " +
+                    "(?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
     @Override
     public void storeRecord(Map<String, Pair<Long, SensorRawData>> records) {

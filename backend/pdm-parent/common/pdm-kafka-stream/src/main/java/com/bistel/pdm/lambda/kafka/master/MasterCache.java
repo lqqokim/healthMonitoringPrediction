@@ -64,15 +64,15 @@ public class MasterCache {
                 }
             });
 
-    public static LoadingCache<String, List<ConditionalSpecMaster>> EquipmentCondition = CacheBuilder.newBuilder()
+    public static LoadingCache<String, List<ConditionalSpecRuleMaster>> EquipmentSpecRule = CacheBuilder.newBuilder()
             .maximumSize(50000)
             .expireAfterAccess(24, TimeUnit.HOURS)
-            .build(new CacheLoader<String, List<ConditionalSpecMaster>>() {
+            .build(new CacheLoader<String, List<ConditionalSpecRuleMaster>>() {
                 @Override
-                public List<ConditionalSpecMaster> load(String key) throws IOException {
-                    String targetUrl = ServingAddress + "/pdm/api/master/latest/equipment/condspec/" + key + "";
+                public List<ConditionalSpecRuleMaster> load(String key) {
+                    String targetUrl = ServingAddress + "/pdm/api/master/latest/equipment/specrule/" + key + "";
 
-                    List<ConditionalSpecMaster> masterDataList = null;
+                    List<ConditionalSpecRuleMaster> masterDataList = null;
 
                     ResteasyClient client = new ResteasyClientBuilder().build();
                     Response response = client.target(targetUrl).request().get();
@@ -84,7 +84,7 @@ public class MasterCache {
                         if (body.length() <= 0) {
                             log.info("equipment master data does not exists. message: " + body);
                         } else {
-                            masterDataList = mapper.readValue(body, new TypeReference<List<ConditionalSpecMaster>>() {
+                            masterDataList = mapper.readValue(body, new TypeReference<List<ConditionalSpecRuleMaster>>() {
                             });
 
                             log.info("{} - equipments are reloaded.", key);
@@ -327,16 +327,16 @@ public class MasterCache {
                 }
             });
 
-    public static LoadingCache<String, Map<String, Map<String, Integer>>> ExprParameter = CacheBuilder.newBuilder()
+    public static LoadingCache<String, Map<String, Map<String, String>>> SpecRuleExpression = CacheBuilder.newBuilder()
             .maximumSize(100000)
             .expireAfterAccess(24, TimeUnit.HOURS)
-            .build(new CacheLoader<String, Map<String, Map<String, Integer>>>() {
+            .build(new CacheLoader<String, Map<String, Map<String, String>>>() {
                 @Override
-                public Map<String, Map<String, Integer>> load(String key) throws IOException {
+                public Map<String, Map<String, String>> load(String key) throws IOException {
                     String targetUrl = ServingAddress + "/pdm/api/master/latest/param/expr/" + key + "";
 
-                    List<ExpressionParamMaster> masterDataList;
-                    Map<String, Map<String, Integer>> exprMap = new HashMap<>();
+                    List<SpecRuleExpressionMaster> masterDataList;
+                    Map<String, Map<String, String>> exprMap = new HashMap<>();
 
                     ResteasyClient client = new ResteasyClientBuilder().build();
                     Response response = client.target(targetUrl).request().get();
@@ -348,17 +348,17 @@ public class MasterCache {
                         if (body.length() <= 0) {
                             log.info("expr. parameter master does not exists. message: " + body);
                         } else {
-                            masterDataList = mapper.readValue(body, new TypeReference<List<ExpressionParamMaster>>() {
+                            masterDataList = mapper.readValue(body, new TypeReference<List<SpecRuleExpressionMaster>>() {
                             });
 
-                            for (ExpressionParamMaster expr : masterDataList) {
+                            for (SpecRuleExpressionMaster expr : masterDataList) {
                                 if (!exprMap.containsKey(expr.getRuleName())) {
-                                    Map<String, Integer> map = new HashMap<>();
-                                    map.put(expr.getParameterName(), expr.getParamParseIndex());
+                                    Map<String, String> map = new HashMap<>();
+                                    map.put(expr.getParameterName(), expr.getSvid());
                                     exprMap.put(expr.getRuleName(), map);
                                 } else {
-                                    Map<String, Integer> map = exprMap.get(expr.getRuleName());
-                                    map.put(expr.getParameterName(), expr.getParamParseIndex());
+                                    Map<String, String> map = exprMap.get(expr.getRuleName());
+                                    map.put(expr.getParameterName(), expr.getSvid());
                                 }
                             }
 
@@ -372,6 +372,42 @@ public class MasterCache {
                     }
 
                     return exprMap;
+                }
+            });
+
+    public static LoadingCache<String, ProcessGroupMaster> ProcessGroup = CacheBuilder.newBuilder()
+            .maximumSize(100000)
+            .expireAfterAccess(24, TimeUnit.HOURS)
+            .build(new CacheLoader<String, ProcessGroupMaster>() {
+                @Override
+                public ProcessGroupMaster load(String key) {
+                    String targetUrl = ServingAddress + "/pdm/api/master/latest/processgroup/" + key + "";
+
+                    ProcessGroupMaster masterDataList = null;
+
+                    ResteasyClient client = new ResteasyClientBuilder().build();
+                    Response response = client.target(targetUrl).request().get();
+                    String body = response.readEntity(String.class);
+
+                    try {
+                        ObjectMapper mapper = new ObjectMapper();
+
+                        if (body.length() <= 0) {
+                            log.info("process group info. does not exists. message: " + body);
+                        } else {
+                            masterDataList = mapper.readValue(body, new TypeReference<ProcessGroupMaster>() {
+                            });
+
+                            log.info("{} reloaded.", key);
+                        }
+                    } catch (IOException e) {
+                        log.error(e.getMessage(), e);
+                    } finally {
+                        response.close();
+                        client.close();
+                    }
+
+                    return masterDataList;
                 }
             });
 }

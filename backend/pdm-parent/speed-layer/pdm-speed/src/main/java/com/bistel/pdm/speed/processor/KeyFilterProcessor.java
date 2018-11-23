@@ -7,10 +7,10 @@ import org.apache.kafka.streams.processor.To;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class EntryPointProcessor extends AbstractProcessor<String, byte[]> {
-    private static final Logger log = LoggerFactory.getLogger(EntryPointProcessor.class);
+public class KeyFilterProcessor extends AbstractProcessor<String, byte[]> {
+    private static final Logger log = LoggerFactory.getLogger(KeyFilterProcessor.class);
 
-    private final static String NEXT_STREAM_NODE = "RecordParserProcessor";
+    private final static String NEXT_STREAM_NODE = "ValueTypeConverterProcessor";
 
     @Override
     @SuppressWarnings("unchecked")
