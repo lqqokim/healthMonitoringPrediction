@@ -46,27 +46,28 @@ public class RegressionController {
             String sessionId = (String)message.getParameters().get("sessionId");
             List<List<Object>> originData = imageService.getOriginData(sessionId);
             ImageChartData imageChartData = imageService.drawImageChart(width,height,0,2, originData, sessionId);
-            replyMessage = imageService.createSendMessages(imageChartData,conditon);
+            replyMessage = imageService.createSendMessages(imageChartData,conditon, sessionId);
 
         }else{
             Long fromdate = (Long)message.getParameters().get("fromdate");
             Long todate = (Long)message.getParameters().get("todate");
             int days = imageService.diffdays(fromdate,todate);
-            int trendDataSize = 25000;
+            int trendDataSize = 100000;
             if(conditon.equals("Zoom")){
                 String sessionId = (String)message.getParameters().get("sessionId");
                 List<List<Object>> fileFilterData = imageService.getData(sessionId, fromdate, todate);
 
                 if(fileFilterData.size() >= trendDataSize){
                     ImageChartData imageChartData = imageService.drawImageChart(width,height,0,2, fileFilterData, sessionId);
-                    replyMessage = imageService.createSendMessages(imageChartData,conditon);
+                    replyMessage = imageService.createSendMessages(imageChartData,conditon,sessionId);
                 }else {
                     conditon = "trend";
-                    replyMessage = imageService.createSendMessages(fileFilterData,conditon);
+                    replyMessage = imageService.createSendMessages(fileFilterData,conditon,sessionId);
                 }
 
             }else{ // default
-                String simpSessionId = headerAccessor.getHeader("simpSessionId").toString();
+                String sessionId = (String)message.getParameters().get("sessionId");
+//                String simpSessionId = headerAccessor.getHeader("simpSessionId").toString();
                 //값추출
                 String fabId = (String)message.getParameters().get("fabId");
                 Long paramId= ((Integer) message.getParameters().get("paramId")).longValue();
@@ -74,7 +75,7 @@ public class RegressionController {
                 boolean xIsDate=true;
                 List<List<Object>> regressionTrend = reportService.getFeatureTrxTrend(fabId,paramId,fromdate,todate,true);
 
-                String sessionId = simpSessionId;
+//                String sessionId = simpSessionId;
 
                 List<String[]> data = new ArrayList<String[]>();
                 for(int i=0;i<regressionTrend.size();i++){
@@ -87,10 +88,10 @@ public class RegressionController {
 
                 if(regressionTrend.size() >= trendDataSize){
                     ImageChartData imageChartData = imageService.drawImageChart(width,height,0,2, regressionTrend, sessionId);
-                    replyMessage = imageService.createSendMessages(imageChartData,conditon);
+                    replyMessage = imageService.createSendMessages(imageChartData,conditon,sessionId);
                 }else {
                     conditon = "trend";
-                    replyMessage = imageService.createSendMessages(regressionTrend,conditon);
+                    replyMessage = imageService.createSendMessages(regressionTrend,conditon,sessionId);
                 }
 
             }

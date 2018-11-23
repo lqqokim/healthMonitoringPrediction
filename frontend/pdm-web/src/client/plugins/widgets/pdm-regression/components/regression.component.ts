@@ -1,5 +1,5 @@
 import { Component, Input, OnInit, OnChanges, OnDestroy, ViewEncapsulation } from '@angular/core';
-import { paramTrendData } from './../model/mock-data';
+import { paramTrendData } from '../model/mock-data';
 
 export interface ParamTrend {
 

@@ -17,6 +17,10 @@ import { PdmRegressionWidgetComponent } from './pdm-regression-widget.component'
 import { RegressionComponent } from './components/regression.component';
 import { ParamTrendComponent } from './components/param-trend/param-trend.component';
 import { ImageChartComponent } from '../../../plugins/common/image-chart/image-chart.component';
+import { RegressionTrendChartComponent } from './components/regression-trend-chart/regression-trend-chart.component';
+
+
+
 
 
 @NgModule({
@@ -29,7 +33,8 @@ import { ImageChartComponent } from '../../../plugins/common/image-chart/image-c
         PdmRegressionWidgetComponent,
         RegressionComponent,
         ParamTrendComponent,
-        ImageChartComponent
+        ImageChartComponent,
+        RegressionTrendChartComponent
     ],
     exports: [
         PdmRegressionWidgetComponent

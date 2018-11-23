@@ -15,7 +15,7 @@ public interface IImageService {
 
     ImageChartData drawImageChart(int width, int height, int colorIndex, int boxSize, List<List<Object>> regressionTrend, String sessionId);
 
-    Map<String, Object> createSendMessages(Object data, String conditon);
+    Map<String, Object> createSendMessages(Object data, String conditon, String sessionId);
 
     int diffdays(Long from, Long to);
 

@@ -12,15 +12,16 @@ export class ParamTrendComponent implements OnChanges, OnInit, AfterViewInit, On
     @Input() data;
     @ViewChild('Spinner') spinner:SpinnerComponent;
 
-    chartFlag: string = "image";   
-    // chartInfo:any = {};
-
-    paramTrendDatas: any[];
+    chartFlag: string = 'image';   
+    paramTrendDatas: any={};
     paramTrendConfig: any;
 
+    chartDatas:any =[];
+
     chartInfo:any ={}
-
-
+    dragMode:any='zoom';
+    chartIds:any = []
+    
 
     constructor(private _stompService: StompService) {
 
@@ -29,180 +30,51 @@ export class ParamTrendComponent implements OnChanges, OnInit, AfterViewInit, On
     ngOnInit() {
     }
     
-    ngAfterViewInit(){
-       this.chartInfo =
-       {
-        // "height": ,
-        // "width": 1615,
-        // "id": "chart-2250c0965ef4433588fe74b682e61e59",
-        "image": "aaaa",
-      //   "noFileCount": null,
-        // "seriesInfos": [ //우측 series Setting
-        //     {
-        //         "checked": true,
-        //         "color": "#1f77b4",
-        //         "name": "LOT180731-082159.542::Pump"
-        //     },
-        //     {
-        //         "checked": false,
-        //         "color": "#ff7f0e",
-        //         "name": "LOT180731-082159.542::Run"
-        //     },
-        //     {
-        //         "checked": true,
-        //         "color": "#2ca02c",
-        //         "name": "LOT180731-082159.542::Loaded"
-        //     },
-        //     {
-        //         "checked": true,
-        //         "color": "#d62728",
-        //         "name": "LOT180731-082159.542::Vent"
-        //     }
-        // ],
-        // "sessionId": "session-0dab9222bacf4fc8a6734fa6ac3b1924", // SessionId 각각 만들어 부여(서버)
-        "showProgress": false,    //프로그레스 true/false
-        "status": "Process",      // "Process" / Done:끝 
-        "totalCount": 23616,      
-        "xLabels": [          //
-            {
-                "count": 103,
-                "label": "Pump"
-            },
-            {
-                "count": 689,
-                "label": "Run"
-            },
-            {
-                "count": 115,
-                "label": "Vent"
-            },
-            {
-                "count": 22709,
-                "label": "Loaded"
-            }
-        ],
-        "xMax": 23615,
-        "xMin": 0,
-        "x_axis_type": "DateTime",  //LabelCount / DateTime
-        "yLabel": "Title",// Title
-        "yMax": 104.57874015748031,
-        "yMin": 49.63385826771655
-    }
+    ngAfterViewInit(){       
+        this.chartInfo =
+        { 
+            "image": "aaaa",
+            "showProgress": false,    //프로그레스 true/false
+            "status": "Process",      // "Process" / Done:끝 
+            "xMax": 23615,
+            "xMin": 0,
+            "x_axis_type": "DateTime",  //LabelCount / DateTime
+            "yLabel": "Title",// Title
+            "yMax": 104.57874015748031,
+            "yMin": 49.63385826771655
+        }
     }
 
     ngOnChanges(changes: SimpleChanges) {
         if (changes && changes['data']['currentValue']) {
             const data = changes['data']['currentValue'];
             // this.drawParamTrend(data);
-            this.send();
+            // this.send();      
+            this.start(0);
+        
+           
         }
     }
 
-    drawParamTrend(data): void {
-        const paramTrendDatas = data;
-        //  [[1535774914790,-52],[1535774914791, -52],[1535774914899, -62],[1535774915008, -62]]
-        const paramTrendConfig = this.getDefaultConfig();
-        console.log('paramTrendDatas => ', paramTrendDatas);
+    start(counter){
 
-        this.paramTrendConfig = paramTrendConfig;
-        this.paramTrendDatas = data;
-
+        if(counter < 2){
         
-
+            setTimeout(()=>{
+            
+                counter++;
+                
+                this.send();
+                
+                this.start(counter);
+            
+            }, 1000);
+        
+        }
+        
     }
-
-    
-
-    getDefaultConfig(): any {
-        return {
-            legend: {
-                show: false,
-            },
-            // eventLine: {
-            //     show: true,
-            //     tooltip: {  // default line tooltip options
-            //         show: false,         // default : true
-            //         adjust: 5,          // right, top move - default : 5
-            //         formatter: null,    // content formatting callback (must return content) - default : true
-            //         style: '',          // tooltip container style (string or object) - default : empty string
-            //         classes: ''         // tooltip container classes - default : empty string
-            //     },
-            //     events: [
-
-            //     ]
-            // },
-            seriesDefaults: {
-                showMarker: false
-            },
-            seriesColors: ['#2196f3', '#fb6520', '#ed9622'], // 기본, 알람, 워닝 순 컬러 지정
-            series: [
-                { lineWidth: 1 },
-                { pointLabels: { show: true }, lineWidth: 1, lineCap: 'butt' },
-                { pointLabels: { show: true }, lineWidth: 1, lineCap: 'butt' },
-            ],
-            axes: {
-                xaxis: {
-                    // min: this.searchTimePeriod[CD.FROM],
-                    // max: this.searchTimePeriod[CD.TO],
-                    autoscale: true,
-                    tickOptions: {
-                        showGridline: false,
-                        formatter: (pattern: any, val: number, plot: any) => {
-                            return val ? moment(val).format('YY-MM-DD HH:mm:ss') : '';
-                        }
-                    },
-                    rendererOptions: {
-                        dataType: 'date'
-                    }
-                },
-                yaxis: {
-                    drawMajorGridlines: true,
-                    labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
-                    tickOptions: {
-                        showGridline: false,
-                        formatString: '%.2f'
-                    }
-                }
-            },
-            highlighter: {
-                isMultiTooltip: false,
-                clearTooltipOnClickOutside: false,
-                overTooltip: true,
-                overTooltipOptions: {
-                    showMarker: true,
-                    showTooltip: true,
-                    lineOver: false
-                },
-                // size: 2,
-                sizeAdjust: 8.3,
-                stroke: true,
-                strokeStyle: '#acafaa',
-                // tslint:disable-next-line:max-line-length
-                // tooltipContentEditor: (str: string, seriesIndex: number, pointIndex: number, plot: any, tooltipContentProc: any, ev: Event) => {
-                //     tooltipContentProc(moment(parseInt(str.split(',')[0])).format('YYYY/MM/DD HH:mm:ss') + ' [' + (+str.split(',')[1]).toFixed(2) + ']');
-                // },
-                tooltipContentEditor: function (str: string, seriesIndex: number, pointIndex: number, plot: any, tooltipContentProc: any) {
-                    let date: string = plot.data[seriesIndex][pointIndex][0];
-                    let score: any = plot.data[seriesIndex][pointIndex][1];
-                    date = moment(date).format('YYYY/MM/DD HH:mm:ss')
-                    score = score.toFixed(2)
-                    tooltipContentProc(
-                        `<div class='bisTooltip'>` +
-                        `<dl>` +
-                        `<dt>date</dt>` +
-                        `<dd>${date}</dd>` +
-                        `</dl>` +
-                        `<dl>` +
-                        `<dt>score</dt>` +
-                        `<dd>${score}</dd>` +
-                        `</dl>` +
-                        `</div>`
-                    )
-                },
-            }
-        };
-    }
- 
+        
+        
     zoomEvent(e:any){  
         let chartInfoDatas:any =
             {
@@ -221,37 +93,49 @@ export class ParamTrendComponent implements OnChanges, OnInit, AfterViewInit, On
             chartInfoDatas.todate = e.datas[1];
             this.changedSend(chartInfoDatas);
     }
+    
 
-    send(){    
-        let mokConditon:any = {            
-            'eqpIds': []
-            ,'fabId': 'fab1'
-            ,'paramId':1274
-            ,'parameters': []
-            // ,'timePeriod': {'from': 1542269327188, 'to': 1542269627188}   //26만건
-            ,'timePeriod': {'from': 1542346341808, 'to': 1542346641808}   //26만건         
-        }
-        this.spinner.showSpinner();
+    send(){            
+        let imageWidth:any = '';
+        let imageHeight:any = '';
         let message={};
+        
+        this.spinner.showSpinner();
+        if(this.chartFlag == 'trend'){
+            imageWidth = parseInt(localStorage.getItem('imageWidth'));
+            imageHeight = parseInt(localStorage.getItem('imageHeight'));
+        }else{
+            imageWidth = document.querySelector('.chart-body').clientWidth - 50;
+            imageHeight = document.querySelector('.chart-body').clientHeight - 10;
+        }
         message['parameters']={};
         message['parameters']['type'] = 'default';   
         message['parameters']['fabId'] = this.data.fabId;
         message['parameters']['paramId'] = this.data.paramId;
-        message['parameters']['fromdate'] = this.data.timePeriod.from;
-        message['parameters']['todate'] = this.data.timePeriod.to;        
-        message['parameters']['imageWidth'] = document.querySelector('.chart-body').clientWidth - 50;
-        message['parameters']['imageHeight'] = document.querySelector('.chart-body').clientHeight - 10;
+        message['parameters']['sessionId'] = this.uuidv4();
+        // message['parameters']['fromdate'] = this.data.timePeriod.from;
+        // message['parameters']['todate'] = this.data.timePeriod.to;        
+        message['parameters']['fromdate'] = 1536813537000;
+        message['parameters']['todate'] = 1536817437000;   
+        message['parameters']['imageWidth'] = imageWidth;
+        message['parameters']['imageHeight'] = imageHeight;
 
     let reply = this._stompService.send(null,'getRegressionTrend',message,payload => {    
                 if(payload.chartFlag == 'image'){
                     this.chartFlag = 'image';
+                    this.addChartIds(payload.sessionId);
+                    localStorage.setItem('imageWidth', imageWidth.toString());
+                    localStorage.setItem('imageHeight', imageHeight.toString());
                     this.chartInfo = payload.imageChartData;    
                     this._stompService.finishSend(reply);
                     this.spinner.hideSpinner();
                 }else{
-                    console.warn('trend');
+                    console.warn('trend');                   
+                    this.trandchartInit(payload.trendData,payload.sessionId);   
                     this.chartFlag = 'trend';
-                    this.drawParamTrend(payload.trendData);
+                    this.addChartIds(payload.sessionId);
+                
+                    this.optionChange(1);
                     this._stompService.finishSend(reply);
                     this.spinner.hideSpinner();
                 }
@@ -260,7 +144,17 @@ export class ParamTrendComponent implements OnChanges, OnInit, AfterViewInit, On
     
     changedSend(e:any){
         this.spinner.showSpinner();
+        let imageWidth:any = '';
+        let imageHeight:any = '';
         let message={};
+        
+        if(this.chartFlag == 'trend'){
+            imageWidth = parseInt(localStorage.getItem('imageWidth'));
+            imageHeight = parseInt(localStorage.getItem('imageHeight'));
+        }else{
+            imageWidth = document.querySelector('.chart-body').clientWidth - 50;
+            imageHeight = document.querySelector('.chart-body').clientHeight - 10;
+        }
         message['parameters']={};
         message['parameters']['type'] = e.type;   
         message['parameters']['fabId'] = this.data.fabId;
@@ -269,25 +163,64 @@ export class ParamTrendComponent implements OnChanges, OnInit, AfterViewInit, On
         message['parameters']['series'] = e.series;
         message['parameters']['fromdate'] = e.fromdate;
         message['parameters']['todate'] = e.todate;     
-        message['parameters']['imageWidth'] = document.querySelector('.chart-body').clientWidth - 50;
-        message['parameters']['imageHeight'] = document.querySelector('.chart-body').clientHeight - 10;
+        message['parameters']['imageWidth'] = imageWidth;
+        message['parameters']['imageHeight'] = imageHeight;
    
 
     let reply = this._stompService.send(null,'getRegressionTrend',message,payload => {       
                 if(payload.chartFlag == 'image'){
                     this.chartFlag = 'image';
+                    this.addChartIds(payload.sessionId);
                     this.chartInfo = payload.imageChartData;
                     this._stompService.finishSend(reply);
                     this.spinner.hideSpinner();
                 }else{
                     console.warn('trend');
-                    this.chartFlag = 'trend';         
-                    this.drawParamTrend(payload.trendData);                          
+                    localStorage.setItem('imageWidth', imageWidth.toString());
+                    localStorage.setItem('imageHeight', imageHeight.toString());                     
+                    this.trandchartInit(payload.trendData,payload.sessionId);       
+                    this.chartFlag = 'trend';                           
+                    this.addChartIds(payload.sessionId);
+                    this.optionChange(1);
                     this._stompService.finishSend(reply);
                     this.spinner.hideSpinner();
                 }
             });
 
+    }
+    
+
+    trandchartInit(data,sessionId): void {
+        this.paramTrendDatas = {
+            chartDatas:data,
+            divId:sessionId
+        };     
+        this.chartDatas.push(this.paramTrendDatas);
+        console.warn(this.chartDatas);
+    }
+
+    addChartIds(sessionId){
+        this.chartIds.push(sessionId);
+    }
+
+    uuidv4() {
+        return (
+            'a' +
+            'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+                const r = (Math.random() * 16) | 0,
+                    v = c === 'x' ? r : (r & 0x3) | 0x8;
+                return v.toString(16);
+            })
+        );
+    }
+
+    optionChange(e:any){  
+        console.warn(e); 
+        if(e==1){//zoom        
+            this.dragMode = 'zoom';  
+        }else{//regression            
+            this.dragMode = 'select';            
+        }
     }
 
     ngOnDestroy() {

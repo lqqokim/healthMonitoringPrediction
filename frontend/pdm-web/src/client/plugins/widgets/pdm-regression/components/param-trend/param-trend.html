@@ -1,4 +1,19 @@
 <div a3-spinner #Spinner [type]="'component'"></div>
+<div>
+    <div class="col-sm-7">
+        <label>Parameter Trend Chart</label>
+        <form>
+            <label class="radio-inline">
+              <input type="radio" name="optionsRadios" value="zoom" checked (change)="optionChange(1)">Zoom
+            </label>
+            <label class="radio-inline">
+              <input type="radio" name="optionsRadios" value="regression" (change)="optionChange(2)">Regression
+            </label>     
+        </form>
+    </div>
+    <div class="col-sm-5"></div>
+    <div class="col-sm-2"></div>
+</div>
 <div class="regression-table-container">
     <table class="table">
         <thead>
@@ -7,23 +22,39 @@
                 <i class="fa fa-sort-desc" *ngIf="sort.parameter === 'desc'"></i>
                 <i class="fa fa-sort" *ngIf="sort.parameter === 'none'"></i>
             </th> -->
-            <th>Parameter Trend Chart</th>
-            <th>Regression Formula</th>
-            <th>R<sup>2</sup></th>
+            <th class="col-md-7">Parameter Trend Chart 
+                <form>
+                    <label class="radio-inline">
+                      <input type="radio" name="optionsRadios" value="zoom" checked (change)="optionChange(1)">Zoom
+                    </label>
+                    <label class="radio-inline">
+                      <input type="radio" name="optionsRadios" value="regression" (change)="optionChange(2)">Regression
+                    </label>     
+                </form>
+            </th>
+            <th class="col-md-5">Regression Formula</th>
+            <th class="col-md-2">R<sup>2</sup></th>
         </thead>
         <!-- <tr class="param-trend-info" *ngFor="let paramTrend of paramTrendDatas; let idx = index"> -->
-        <tr class="param-trend-info">
-            <td>
-                <div class="param-trend-container">
-                    <image-chart [chartInfo]="chartInfo" (zoomEvent)="zoomEvent($event)" (seriesEvent)="seriesEvent($event)" *ngIf="chartFlag == 'image'"></image-chart>
-                    <a3c-bistel-chart
-                        [data]="paramTrendDatas"
-                        [config]="paramTrendConfig" *ngIf="chartFlag == 'trend'">
-                    </a3c-bistel-chart>
+        <tr class="param-trend-info" *ngFor="let charData of chartDatas">
+            <td class="col-md-7">
+                <div class="param-trend-container">                            
+                    <regression-trend-chart [dragMode]="dragMode" [chartIds]="chartIds" [chartId]="charData.divId" [data]="charData.chartDatas" *ngIf="chartFlag == 'trend'"></regression-trend-chart>                             
                 </div>
             </td>
-            <td>138.5 + 0.021*TIME</td>
-            <td>0.435</td>
+            <td class="col-md-3">138.5 + 0.021*TIME</td>
+            <td class="col-md-2">0.435</td>
+        </tr>
+        <tr class="param-trend-info" *ngIf="chartFlag == 'image'">
+            <td class="col-md-7">
+                <div class="param-trend-container">
+                    <image-chart [chartInfo]="chartInfo" (zoomEvent)="zoomEvent($event)" (seriesEvent)="seriesEvent($event)" ></image-chart>
+                    <!-- <regression-trend-chart></regression-trend-chart> -->                   
+                </div>
+            </td>
+            <td class="col-md-3">138.5 + 0.021*TIME</td>
+            <td class="col-md-2">0.435</td>
         </tr>
     </table>
+    
 </div>

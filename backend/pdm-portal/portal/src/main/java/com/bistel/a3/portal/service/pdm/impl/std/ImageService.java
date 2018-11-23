@@ -178,16 +178,18 @@ public class ImageService implements IImageService{
         return content;
     }
 
-    public Map<String, Object> createSendMessages(Object data, String conditon) {
+    public Map<String, Object> createSendMessages(Object data, String conditon, String sessionId) {
         Map<String,Object> replyMessage = new HashMap<String,Object>();
         if(conditon.equals("trend")){
             replyMessage.put("chartFlag", "trend"); //image or trend
+            replyMessage.put("sessionId", sessionId);
             replyMessage.put("trendData", data);
             replyMessage.put("replyConditon","finish");
         }else{
             replyMessage.put("chartFlag", "image");
-            replyMessage.put("replyConditon","finish");
+            replyMessage.put("sessionId", sessionId);
             replyMessage.put("imageChartData",data);
+            replyMessage.put("replyConditon","finish");
         }
         return  replyMessage;
     }
