@@ -8,12 +8,10 @@ import java.io.Closeable;
 
 /**
  *
- *
  */
 public abstract class AbstractPipeline implements Closeable {
     private static final Logger log = LoggerFactory.getLogger(AbstractPipeline.class);
-
-    protected static final String stateDir = "/tmp/kafka-streams";
+//    protected static final String stateDir = "/tmp/kafka-streams";
 
     private final String broker;
 
@@ -33,7 +31,9 @@ public abstract class AbstractPipeline implements Closeable {
     private final String routeFeatureTopic = "pdm-route-feature";
 
     /**
-     * What to do when there is no initial offset in Kafka or if the current offset does not exist any more on the server (e.g. because that data has been deleted):
+     * What to do when there is no initial offset in Kafka or if the current offset does not exist
+     * any more on the server (e.g. because that data has been deleted):
+     *
      * earliest: automatically reset the offset to the earliest offset
      * latest: automatically reset the offset to the latest offset
      * none: throw exception to the consumer if no previous offset is found for the consumer's group

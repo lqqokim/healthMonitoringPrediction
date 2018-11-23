@@ -33,5 +33,11 @@ public class DefaultLogTailerListener extends TailerListenerAdapter {
         String[] columns = line.split(",");
 
 
+
+
+
+
+
+
     }
 }

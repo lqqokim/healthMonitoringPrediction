@@ -5,13 +5,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 /**
  *
  */
-public class ConditionalSpecMaster {
+public class ConditionalSpecRuleMaster {
 
     @JsonProperty("eqpRawId")
     private Long eqpRawId;
 
-    @JsonProperty("eqpName")
-    private String eqpName;
+    @JsonProperty("equipmentName")
+    private String equipmentName;
 
     @JsonProperty("ruleName")
     private String ruleName;
@@ -36,12 +36,12 @@ public class ConditionalSpecMaster {
         this.eqpRawId = eqpRawId;
     }
 
-    public String getEqpName() {
-        return eqpName;
+    public String getEquipmentName() {
+        return equipmentName;
     }
 
-    public void setEqpName(String eqpName) {
-        this.eqpName = eqpName;
+    public void setEquipmentName(String equipmentName) {
+        this.equipmentName = equipmentName;
     }
 
     public String getRuleName() {

@@ -31,6 +31,11 @@
             <artifactId>pdm-common</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.bistel</groupId>
+            <artifactId>pdm-data</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-clients</artifactId>
         </dependency>
@@ -42,10 +47,7 @@
             <groupId>org.jboss.resteasy</groupId>
             <artifactId>resteasy-client</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.bistel</groupId>
-            <artifactId>pdm-data</artifactId>
-        </dependency>
+
     </dependencies>
 
     <build>

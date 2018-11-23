@@ -64,10 +64,10 @@ public class StreamingMasterService {
     }
 
     @GET
-    @Path("/latest/equipment/condspec/{eqpid}")
+    @Path("/latest/equipment/specrule/{eqpid}")
     public Response reloadConditionalSpec(@PathParam("eqpid") String eqpId) {
         StreamingMasterDataDao repository = new StreamingMasterDataDao();
-        List<ConditionalSpecMaster> masterDataSet = null;
+        List<ConditionalSpecRuleMaster> masterDataSet = null;
 
         try {
             masterDataSet = repository.getConditionalSpecMasterDataSet(eqpId);
@@ -118,7 +118,7 @@ public class StreamingMasterService {
     @Path("/latest/param/expr/{eqpid}")
     public Response reloadExprParam(@PathParam("eqpid") String eqpId) {
         StreamingMasterDataDao repository = new StreamingMasterDataDao();
-        List<ExpressionParamMaster> masterDataSet = null;
+        List<SpecRuleExpressionMaster> masterDataSet = null;
 
         try {
             masterDataSet = repository.getExprParamMasterDataSet(eqpId);
@@ -211,6 +211,24 @@ public class StreamingMasterService {
         try {
             ds = repository.getMailConfigDataSet();
             log.info("Provides the latest feature info.");
+            return Response.status(Response.Status.OK).entity(ds).build();
+
+        } catch (SQLException e) {
+            log.error(e.getMessage(), e);
+            return Response.status(Response.Status.NOT_FOUND).entity(new Message(e.getMessage())).build();
+        }
+    }
+
+    @GET
+    @Path("/latest/processgroup/{eqpid}")
+    public Response reloadProcessGroup(@PathParam("eqpid") String eqpId) {
+
+        StreamingMasterDataDao repository = new StreamingMasterDataDao();
+        ProcessGroupMaster ds = null;
+
+        try {
+            ds = repository.getEqpProcessGroup(eqpId);
+            log.info("Provides the latest process group info.");
             return Response.status(Response.Status.OK).entity(ds).build();
 
         } catch (SQLException e) {

@@ -10,8 +10,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -21,8 +19,16 @@ public class EventTrxDao implements EventDataDao {
     private static final Logger log = LoggerFactory.getLogger(EventTrxDao.class);
 
     private static final String INSERT_SQL =
-            "insert into eqp_event_trx_pdm (RAWID, EQP_EVENT_MST_RAWID, EVENT_TYPE_CD, EVENT_DTTS) " +
-                    "values (SEQ_EQP_EVENT_TRX_PDM.nextval,?,?,?) ";
+            "insert into PROCESS_GROUP_TRX_PDM " +
+                    "(RAWID, " +
+                    "PROCESS_GROUP_MST_RAWID, " +
+                    "PROCESS_CONTEXT, " +
+                    "START_EVENT_NAME, " +
+                    "END_EVENT_NAME, " +
+                    "START_DTTS, " +
+                    "END_DTTS) " +
+                    "values " +
+                    "(SEQ_PROCESS_GROUP_TRX_PDM.nextval,?,?,?,?,?,?) ";
 
     @Override
     public void storeRecords(List<ConsumerRecord<String, byte[]>> records) {
@@ -33,20 +39,21 @@ public class EventTrxDao implements EventDataDao {
 
                 int totalCount = 0;
                 for (ConsumerRecord<String, byte[]> record : records) {
-                    //log.debug("offset={}, key={}, value={}", record.offset(), record.key(), record.value());
-
                     byte[] eventData = record.value();
                     String valueString = new String(eventData);
+
+                    //in : process_group_rawid, event_id, start_event_name, end_event_name, start epoch, end epoch
                     String[] values = valueString.split(",");
-                    // time, event mst rawid, event type cd
 
-                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-                    Date parsedDate = dateFormat.parse(values[0]);
-                    Timestamp timestamp = new Timestamp(parsedDate.getTime());
+                    Timestamp start_ts = new Timestamp(Long.parseLong(values[4]));
+                    Timestamp end_ts = new Timestamp(Long.parseLong(values[5]));
 
-                    pstmt.setLong(1, Long.parseLong(values[1])); //eqp_event_mst_rawid
-                    pstmt.setString(2, values[2]); //event type cd (S,E)
-                    pstmt.setTimestamp(3, timestamp);
+                    pstmt.setLong(1, Long.parseLong(values[0])); //process_group_mst_rawid
+                    pstmt.setString(2, values[4]); //process context
+                    pstmt.setString(3, values[2]);
+                    pstmt.setString(4, values[3]);
+                    pstmt.setTimestamp(5, start_ts);
+                    pstmt.setTimestamp(6, end_ts);
 
                     pstmt.addBatch();
                     ++totalCount;
@@ -54,7 +61,7 @@ public class EventTrxDao implements EventDataDao {
 
                 pstmt.executeBatch();
                 conn.commit();
-                log.debug("{} records are inserted into EQP_EVENT_TRX_PDM.", totalCount);
+                log.debug("{} records are inserted into PROCESS_GROUP_TRX_PDM.", totalCount);
 
             } catch (Exception e) {
                 conn.rollback();

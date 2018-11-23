@@ -46,12 +46,9 @@ public class FaultDetectionProcessor extends AbstractProcessor<String, String> {
 
                 if (evaluateAlarm(alarmSpec, paramValue)) {
                     // Alarm
-                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-                    Date parsedDate = dateFormat.parse(columns[0]);
-                    Timestamp timestamp = new Timestamp(parsedDate.getTime());
-
-                    // out : time, param_rawid, health_rawid, value, alarm type, alarm_spec, warning_spec, fault_class, rule, condition
-                    String faultMsg = timestamp.getTime() + "," +
+                    // out : time, param_rawid, health_rawid, value, alarm type,
+                    //       alarm_spec, warning_spec, fault_class, rule, condition
+                    String faultMsg = columns[0] + "," +
                             columns[1] + "," +
                             fd01Health.getParamHealthRawId() + ',' +
                             paramValue + "," +
@@ -67,12 +64,9 @@ public class FaultDetectionProcessor extends AbstractProcessor<String, String> {
 
                 } else if (evaluateWarning(warningSpec, paramValue)) {
                     //warning
-                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-                    Date parsedDate = dateFormat.parse(columns[0]);
-                    Timestamp timestamp = new Timestamp(parsedDate.getTime());
-
-                    // time, param_rawid, health_rawid, value, alarm type, alarm_spec, warning_spec, fault_class
-                    String faultMsg = timestamp.getTime() + "," +
+                    // out : time, param_rawid, health_rawid, value, alarm type,
+                    //       alarm_spec, warning_spec, fault_class, rule, condition
+                    String faultMsg = columns[0] + "," +
                             columns[1] + "," +
                             fd01Health.getParamHealthRawId() + ',' +
                             paramValue + "," +

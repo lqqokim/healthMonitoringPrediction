@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-APPNAME="Serving Layer"
+APPNAME="Serving REST"
 APPPID=serving.pid
-APPJAR=pdm-serving-bundle-1.0-SNAPSHOT.jar
-APPOPTS="-server 192.168.7.230 -port 8089 -log4jConf ./config/log4j.properties"
+APPJAR=pdm-serving-bundle-1.2-SNAPSHOT.jar
+APPOPTS="-server localhost -port 8089 -log4jConf ./config/log4j.properties"
 
 case $1 in
     start)

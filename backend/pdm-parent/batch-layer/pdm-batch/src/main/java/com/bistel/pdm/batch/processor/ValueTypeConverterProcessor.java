@@ -1,4 +1,4 @@
-package com.bistel.pdm.speed.processor;
+package com.bistel.pdm.batch.processor;
 
 import org.apache.kafka.streams.processor.AbstractProcessor;
 import org.apache.kafka.streams.processor.ProcessorContext;
@@ -6,10 +6,10 @@ import org.apache.kafka.streams.processor.To;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RecordParserProcessor extends AbstractProcessor<String, byte[]> {
-    private static final Logger log = LoggerFactory.getLogger(RecordParserProcessor.class);
+public class ValueTypeConverterProcessor extends AbstractProcessor<String, byte[]> {
+    private static final Logger log = LoggerFactory.getLogger(ValueTypeConverterProcessor.class);
 
-    private final static String NEXT_STREAM_NODE = "StatusDecisionProcessor";
+    private final static String NEXT_STREAM_NODE = "EventSummaryProcessor";
 
     @Override
     @SuppressWarnings("unchecked")

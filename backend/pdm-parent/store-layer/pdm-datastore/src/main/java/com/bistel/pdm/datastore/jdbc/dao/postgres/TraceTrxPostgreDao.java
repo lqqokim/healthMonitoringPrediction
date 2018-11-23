@@ -1,7 +1,6 @@
 package com.bistel.pdm.datastore.jdbc.dao.postgres;
 
 import com.bistel.pdm.common.collection.Pair;
-import com.bistel.pdm.data.stream.ParameterMaster;
 import com.bistel.pdm.data.stream.ParameterWithSpecMaster;
 import com.bistel.pdm.datastore.jdbc.DataSource;
 import com.bistel.pdm.datastore.jdbc.dao.SensorTraceDataDao;
@@ -13,7 +12,6 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -68,106 +66,105 @@ public class TraceTrxPostgreDao implements SensorTraceDataDao {
 
     @Override
     public void storeRecords(List<ConsumerRecord<String, byte[]>> records) {
-        try (Connection conn = DataSource.getConnection()) {
-
-            conn.setAutoCommit(false);
-
-            try (PreparedStatement pstmt = conn.prepareStatement(INSERT_SQL)) {
-
-                int totalCount = 0;
-                Timestamp ts = null;
-
-                for (ConsumerRecord<String, byte[]> record : records) {
-                    byte[] sensorData = record.value();
-                    String valueString = new String(sensorData);
-
-                    // time, P1, P2, P3, P4, ... Pn,status,groupid,rulename
-                    String[] values = valueString.split(",", -1);
-
-                    String ruleName = values[values.length - 1];
-
-                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-                    Date parsedDate = dateFormat.parse(values[values.length - 2]);
-                    Timestamp timestamp = new Timestamp(parsedDate.getTime());
-                    String msgGroup = Long.toString(timestamp.getTime());
-
-                    String status = values[values.length - 3];
-
-                    List<ParameterMaster> paramData = MasterCache.Parameter.get(record.key());
-
-                    for (ParameterMaster paramInfo : paramData) {
-                        if (paramInfo.getParamParseIndex() == -1) continue;
-
-                        pstmt.setLong(1, paramInfo.getParameterRawId()); //param rawid
-
-                        String strValue = values[paramInfo.getParamParseIndex()];
-                        if (strValue.length() <= 0) {
-                            log.trace("key:{}, param:{}, index:{} - value is empty.",
-                                    record.key(), paramInfo.getParameterName(), paramInfo.getParamParseIndex());
-                            pstmt.setFloat(2, Types.FLOAT); //value
-                        } else {
-                            pstmt.setFloat(2, Float.parseFloat(strValue)); //value
-                        }
-
-                        ParameterWithSpecMaster paramSpec = getParamSpec(record.key(), paramInfo.getParameterName(), ruleName);
-
-                        if (paramSpec != null) {
-                            if (paramSpec.getUpperAlarmSpec() != null) {
-                                pstmt.setFloat(3, paramSpec.getUpperAlarmSpec()); //upper alarm spec
-                            } else {
-                                pstmt.setNull(3, Types.FLOAT);
-                            }
-
-                            if (paramSpec.getUpperWarningSpec() != null) {
-                                pstmt.setFloat(4, paramSpec.getUpperWarningSpec()); //upper warning spec
-                            } else {
-                                pstmt.setNull(4, Types.FLOAT);
-                            }
-
-                            pstmt.setString(8, paramSpec.getRuleName());
-                            pstmt.setString(9, paramSpec.getCondition().replaceAll(",", ";"));
-
-                        } else {
-                            pstmt.setNull(3, Types.FLOAT);
-                            pstmt.setNull(4, Types.FLOAT);
-
-                            pstmt.setNull(8, Types.VARCHAR);
-                            pstmt.setNull(9, Types.VARCHAR);
-                        }
-
-                        pstmt.setString(5, status); // status code : R / I
-                        ts = getTimeStampFromString(values[0]);
-                        pstmt.setTimestamp(6, ts); // event_dtts
-
-                        pstmt.setString(7, msgGroup);
-
-                        pstmt.setNull(10, Types.VARCHAR);
-                        pstmt.setNull(11, Types.VARCHAR);
-                        pstmt.setNull(12, Types.VARCHAR);
-                        pstmt.setNull(13, Types.VARCHAR);
-                        pstmt.setNull(14, Types.VARCHAR);
-
-                        pstmt.addBatch();
-                        ++totalCount;
-                    }
-                }
-
-                pstmt.executeBatch();
-                conn.commit();
-
-                String timeStamp = new SimpleDateFormat("MMdd HH:mm:ss.SSS").format(ts);
-                log.debug("[{}] - {} records are inserted into TRACE_TRX_PDM.", timeStamp, totalCount);
-
-            } catch (Exception e) {
-                conn.rollback();
-                log.error(e.getMessage(), e);
-
-            } finally {
-                conn.setAutoCommit(true);
-            }
-        } catch (SQLException e) {
-            log.error(e.getMessage(), e);
-        }
+//        try (Connection conn = DataSource.getConnection()) {
+//
+//            conn.setAutoCommit(false);
+//
+//            try (PreparedStatement pstmt = conn.prepareStatement(INSERT_SQL)) {
+//
+//                int totalCount = 0;
+//                Timestamp ts = null;
+//
+//                for (ConsumerRecord<String, byte[]> record : records) {
+//                    byte[] sensorData = record.value();
+//                    String valueString = new String(sensorData);
+//
+//                    // time, P1, P2, P3, P4, ... Pn,status,groupid,rulename
+//                    String[] values = valueString.split(",", -1);
+//
+//                    String ruleName = values[values.length - 1];
+//
+//                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+//                    Date parsedDate = dateFormat.parse(values[values.length - 2]);
+//                    Timestamp timestamp = new Timestamp(parsedDate.getTime());
+//                    String msgGroup = Long.toString(timestamp.getTime());
+//
+//                    String status = values[values.length - 3];
+//
+//                    List<ParameterMaster> paramData = MasterCache.Parameter.get(record.key());
+//
+//                    for (ParameterMaster paramInfo : paramData) {
+//
+//                        pstmt.setLong(1, paramInfo.getId()); //param rawid
+//
+//                        String strValue = values[paramInfo.getParamParseIndex()];
+//                        if (strValue.length() <= 0) {
+//                            log.trace("key:{}, param:{}, index:{} - value is empty.",
+//                                    record.key(), paramInfo.getParameterName(), paramInfo.getParamParseIndex());
+//                            pstmt.setFloat(2, Types.FLOAT); //value
+//                        } else {
+//                            pstmt.setFloat(2, Float.parseFloat(strValue)); //value
+//                        }
+//
+//                        ParameterWithSpecMaster paramSpec = getParamSpec(record.key(), paramInfo.getParameterName(), ruleName);
+//
+//                        if (paramSpec != null) {
+//                            if (paramSpec.getUpperAlarmSpec() != null) {
+//                                pstmt.setFloat(3, paramSpec.getUpperAlarmSpec()); //upper alarm spec
+//                            } else {
+//                                pstmt.setNull(3, Types.FLOAT);
+//                            }
+//
+//                            if (paramSpec.getUpperWarningSpec() != null) {
+//                                pstmt.setFloat(4, paramSpec.getUpperWarningSpec()); //upper warning spec
+//                            } else {
+//                                pstmt.setNull(4, Types.FLOAT);
+//                            }
+//
+//                            pstmt.setString(8, paramSpec.getRuleName());
+//                            pstmt.setString(9, paramSpec.getCondition().replaceAll(",", ";"));
+//
+//                        } else {
+//                            pstmt.setNull(3, Types.FLOAT);
+//                            pstmt.setNull(4, Types.FLOAT);
+//
+//                            pstmt.setNull(8, Types.VARCHAR);
+//                            pstmt.setNull(9, Types.VARCHAR);
+//                        }
+//
+//                        pstmt.setString(5, status); // status code : R / I
+//                        ts = getTimeStampFromString(values[0]);
+//                        pstmt.setTimestamp(6, ts); // event_dtts
+//
+//                        pstmt.setString(7, msgGroup);
+//
+//                        pstmt.setNull(10, Types.VARCHAR);
+//                        pstmt.setNull(11, Types.VARCHAR);
+//                        pstmt.setNull(12, Types.VARCHAR);
+//                        pstmt.setNull(13, Types.VARCHAR);
+//                        pstmt.setNull(14, Types.VARCHAR);
+//
+//                        pstmt.addBatch();
+//                        ++totalCount;
+//                    }
+//                }
+//
+//                pstmt.executeBatch();
+//                conn.commit();
+//
+//                String timeStamp = new SimpleDateFormat("MMdd HH:mm:ss.SSS").format(ts);
+//                log.debug("[{}] - {} records are inserted into TRACE_TRX_PDM.", timeStamp, totalCount);
+//
+//            } catch (Exception e) {
+//                conn.rollback();
+//                log.error(e.getMessage(), e);
+//
+//            } finally {
+//                conn.setAutoCommit(true);
+//            }
+//        } catch (SQLException e) {
+//            log.error(e.getMessage(), e);
+//        }
     }
 
     private ParameterWithSpecMaster getParamSpec(String key, String paramName, String ruleName) throws ExecutionException {

@@ -2,13 +2,15 @@ package com.bistel.pdm.datastore.jdbc.dao.oracle;
 
 import com.bistel.pdm.datastore.jdbc.DataSource;
 import com.bistel.pdm.datastore.jdbc.dao.HealthDataDao;
-import com.bistel.pdm.datastore.model.ParamHealthData;
-import com.bistel.pdm.datastore.model.ParamHealthRULData;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.Timestamp;
+import java.sql.Types;
 import java.util.List;
 
 /**
@@ -17,110 +19,83 @@ import java.util.List;
 public class ParamHealthTrxDao implements HealthDataDao {
     private static final Logger log = LoggerFactory.getLogger(ParamHealthTrxDao.class);
 
-    private static final String TRX_SEQ_SQL = "select seq_param_health_trx_pdm.nextval from DUAL";
-
     private static final String INSERT_SQL =
-            "insert into param_health_trx_pdm " +
-                    "(RAWID, PARAM_MST_RAWID, PARAM_HEALTH_MST_RAWID, STATUS_CD, " +
-                    "DATA_COUNT, SCORE, MESSAGE_GROUP, " +
-                    "UPPER_ALARM_SPEC, UPPER_WARNING_SPEC, CREATE_DTTS) " +
-                    "values (?,?,?,?,?,?,?,?,?,?) ";
-
-    private static final String INSERT_RUL_SQL =
-            "insert into param_health_rul_trx_pdm " +
-                    "(RAWID, PARAM_HEALTH_TRX_RAWID, INTERCEPT, SLOPE, XVALUE, CREATE_DTTS) " +
-                    "values (seq_param_health_rul_trx_pdm.nextval,?,?,?,?,?) ";
-
-    @Override
-    public Long getTraceRawId() {
-        Long trxRawId = Long.MIN_VALUE;
-        try (Connection conn = DataSource.getConnection()) {
-            try (PreparedStatement psrawid = conn.prepareStatement(TRX_SEQ_SQL)) {
-                ResultSet rs = psrawid.executeQuery();
-                if (rs.next()) {
-                    trxRawId = rs.getLong(1);
-                }
-            } catch (SQLException e) {
-                log.error(e.getMessage(), e);
-            }
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-        }
-
-        return trxRawId;
-    }
+            "insert into PARAM_HEALTH_TRX_PDM " +
+                    "(" +
+                    "RAWID, " +
+                    "PARAM_MST_RAWID, " +
+                    "PARAM_HEALTH_MST_RAWID, " +
+                    "STATUS_CD, " +
+                    "DATA_COUNT, " +
+                    "SCORE, " +
+                    "UPPER_ALARM_SPEC, " +
+                    "UPPER_WARNING_SPEC, " +
+                    "TARGET, " +
+                    "LOWER_ALARM_SPEC, " +
+                    "LOWER_WARNING_SPEC, " +
+                    "PROCESS_CONTEXT, " +
+                    "CREATE_DTTS) " +
+                    "values " +
+                    "(seq_param_health_trx_pdm.nextval,?,?,?,?,?,?,?,?,?,?) ";
 
     @Override
-    public void storeHealth(List<ParamHealthData> records) {
+    public void storeRecords(List<ConsumerRecord<String, byte[]>> records) {
         try (Connection conn = DataSource.getConnection()) {
+
             conn.setAutoCommit(false);
-
             try (PreparedStatement pstmt = conn.prepareStatement(INSERT_SQL)) {
 
                 int totalCount = 0;
-                int batchCount = 0;
+                for (ConsumerRecord<String, byte[]> record : records) {
+                    byte[] features = record.value();
+                    String valueString = new String(features);
 
-                for(ParamHealthData health : records){
+                    // in : time, param_rawid, param_health_rawid, status_cd,
+                    //      data_count, index, specs, process context
+                    String[] values = valueString.split(",", -1);
 
-                    pstmt.setLong(1, health.getRawId());
-                    pstmt.setLong(2, health.getParamRawId()); //param_mst_rawid
-                    pstmt.setLong(3, health.getParamHealthRawId()); //param_health_rawid
-                    pstmt.setString(4, health.getStatus());
-                    pstmt.setInt(5, health.getDataCount()); //data count
-                    pstmt.setDouble(6, health.getIndex()); //index score
-                    pstmt.setString(7, health.getMessageGroup()); // message group
+                    Timestamp timestamp = new Timestamp(Long.parseLong(values[0]));
 
-                    if (health.getUpperAlarmSpec() != null) {
-                        pstmt.setFloat(8, health.getUpperAlarmSpec()); //upper alarm spec
+                    pstmt.setLong(1, Long.parseLong(values[1])); //param mst rawid
+                    pstmt.setLong(2, Long.parseLong(values[2]));
+                    pstmt.setString(3, values[3]); //status_cd
+                    pstmt.setInt(4, Integer.parseInt(values[4])); //data count
+                    pstmt.setFloat(5, Float.parseFloat(values[5])); //score
+
+                    pstmt.setFloat(6, Float.parseFloat(values[6])); //usl
+                    pstmt.setFloat(7, Float.parseFloat(values[7])); //ucl
+
+                    if (values[8].length() > 0) {
+                        pstmt.setFloat(8, Float.parseFloat(values[8])); //target
                     } else {
                         pstmt.setNull(8, Types.FLOAT);
                     }
 
-                    if (health.getUpperWarningSpec() != null) {
-                        pstmt.setFloat(9, health.getUpperWarningSpec()); //upper warning spec
+                    if (values[9].length() > 0) {
+                        pstmt.setFloat(9, Float.parseFloat(values[9])); //lsl
                     } else {
                         pstmt.setNull(9, Types.FLOAT);
                     }
 
-//                    if (health.getTarget() != null) {
-//                        pstmt.setFloat(10, health.getTarget()); // target spec
-//                    } else {
-//                        pstmt.setNull(10, Types.FLOAT);
-//                    }
-//
-//                    if (health.getLowerAlarmSpec() != null) {
-//                        pstmt.setFloat(11, health.getLowerAlarmSpec()); //lower alarm spec
-//                    } else {
-//                        pstmt.setNull(11, Types.FLOAT);
-//                    }
-//
-//                    if (health.getLowerWarningSpec() != null) {
-//                        pstmt.setFloat(12, health.getLowerWarningSpec()); //lower warning spec
-//                    } else {
-//                        pstmt.setNull(12, Types.FLOAT);
-//                    }
+                    if (values[10].length() > 0) {
+                        pstmt.setFloat(10, Float.parseFloat(values[10])); //lcl
+                    } else {
+                        pstmt.setNull(10, Types.FLOAT);
+                    }
 
-                    pstmt.setTimestamp(10, new Timestamp(health.getTime()));
+                    pstmt.setString(11, values[11]); //process context
+                    pstmt.setTimestamp(12, timestamp);
 
                     pstmt.addBatch();
-
-                    if (++batchCount >= 100) {
-                        totalCount += batchCount;
-                        pstmt.executeBatch();
-                        pstmt.clearBatch();
-                        batchCount = 0;
-                    }
+                    ++totalCount;
                 }
 
-                if (batchCount > 0) {
-                    totalCount += batchCount;
-                    pstmt.executeBatch();
-                    pstmt.clearBatch();
-                }
+                pstmt.executeBatch();
                 conn.commit();
                 log.debug("{} records are inserted into PARAM_HEALTH_TRX_PDM.", totalCount);
 
             } catch (Exception e) {
+                conn.rollback();
                 log.error(e.getMessage(), e);
             } finally {
                 conn.setAutoCommit(true);
@@ -130,52 +105,23 @@ public class ParamHealthTrxDao implements HealthDataDao {
         }
     }
 
-    @Override
-    public void storeHealthRUL(List<ParamHealthRULData> records) {
-        try (Connection conn = DataSource.getConnection()) {
-            conn.setAutoCommit(false);
-
-            try (PreparedStatement pstmt = conn.prepareStatement(INSERT_RUL_SQL)) {
-                int totalCount = 0;
-                int batchCount = 0;
-
-                for(ParamHealthRULData rul : records){
-                    pstmt.setLong(1, rul.getParamHealthTrxRawId());
-                    pstmt.setDouble(2, rul.getIntercept());
-                    pstmt.setDouble(3, rul.getSlope());
-                    pstmt.setDouble(4, rul.getX());
-                    pstmt.setTimestamp(5, new Timestamp(rul.getTime()));
-
-                    pstmt.addBatch();
-
-                    if (++batchCount == 100) {
-                        totalCount += batchCount;
-                        pstmt.executeBatch();
-                        pstmt.clearBatch();
-                        batchCount = 0;
-                    }
-                }
-
-                if (batchCount > 0) {
-                    totalCount += batchCount;
-                    pstmt.executeBatch();
-                    pstmt.clearBatch();
-                }
-                conn.commit();
-                log.debug("{} records are inserted into PARAM_HEALTH_RUL_TRX_PDM.", totalCount);
-
-            } catch (Exception e) {
-                log.error(e.getMessage(), e);
-            } finally {
-                conn.setAutoCommit(true);
-            }
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-        }
-    }
-
-    @Override
-    public void storeRecord(ConsumerRecords<String, byte[]> records) {
-
-    }
+//        private static final String TRX_SEQ_SQL = "select seq_param_health_trx_pdm.nextval from DUAL";
+//    @Override
+//    public Long getTraceRawId() {
+//        Long trxRawId = Long.MIN_VALUE;
+//        try (Connection conn = DataSource.getConnection()) {
+//            try (PreparedStatement psrawid = conn.prepareStatement(TRX_SEQ_SQL)) {
+//                ResultSet rs = psrawid.executeQuery();
+//                if (rs.next()) {
+//                    trxRawId = rs.getLong(1);
+//                }
+//            } catch (SQLException e) {
+//                log.error(e.getMessage(), e);
+//            }
+//        } catch (Exception e) {
+//            log.error(e.getMessage(), e);
+//        }
+//
+//        return trxRawId;
+//    }
 }

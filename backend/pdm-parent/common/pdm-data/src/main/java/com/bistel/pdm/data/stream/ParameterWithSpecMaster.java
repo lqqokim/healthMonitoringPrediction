@@ -19,8 +19,8 @@ public class ParameterWithSpecMaster {
     @JsonProperty("parameterName")
     private String parameterName;
 
-    @JsonProperty("paramParseIndex")
-    private Integer paramParseIndex;
+    @JsonProperty("svid")
+    private String svid;
 
     @JsonProperty("parameterRawId")
     private Long parameterRawId;
@@ -90,20 +90,20 @@ public class ParameterWithSpecMaster {
         this.equipmentName = eqpName;
     }
 
+    public String getSvid() {
+        return svid;
+    }
+
+    public void setSvid(String svid) {
+        this.svid = svid;
+    }
+
     public String getParameterName() {
         return parameterName;
     }
 
     public void setParameterName(String paramName) {
         this.parameterName = paramName;
-    }
-
-    public Integer getParamParseIndex() {
-        return paramParseIndex;
-    }
-
-    public void setParamParseIndex(Integer paramParseIndex) {
-        this.paramParseIndex = paramParseIndex;
     }
 
     public Long getParameterRawId() {

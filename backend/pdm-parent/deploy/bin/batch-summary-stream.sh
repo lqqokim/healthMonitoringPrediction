@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
-APPNAME="Batch Layer - Feature Summary"
+APPNAME="Batch Stream for Summary"
 APPPID=batch-summary.pid
-APPJAR=pdm-batch-bundle-1.0-SNAPSHOT.jar
-APPOPTS="-appId pdm-batch-summary-v1.1.0
+APPJAR=pdm-batch-bundle-1.2-SNAPSHOT.jar
+APPOPTS="-appId pdm-batch-summary-v1.2.0
 -brokers 192.168.7.228:29092,192.168.7.228:39092,192.168.7.228:49092
--servingAddr http://192.168.7.227:8089
+-servingAddr http://localhost:8089
 -pipeline SUMMARY
 -streamThreads 2
+-stateDir /tmp/kafka-streams
 -log4jConf ./config/log4j-summary.properties"
 
 case $1 in

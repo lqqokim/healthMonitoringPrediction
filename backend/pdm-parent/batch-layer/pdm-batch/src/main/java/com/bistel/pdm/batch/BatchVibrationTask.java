@@ -1,6 +1,6 @@
 package com.bistel.pdm.batch;
 
-import com.bistel.pdm.batch.processor.TransformTimewaveProcessor;
+import com.bistel.pdm.batch.processor.VibrationProcessor;
 import com.bistel.pdm.lambda.kafka.AbstractPipeline;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.Serdes;
@@ -16,17 +16,20 @@ import java.util.Properties;
 /**
  *
  */
-public class BatchTimewaveTaskDef extends AbstractPipeline {
-    private static final Logger log = LoggerFactory.getLogger(BatchTimewaveTaskDef.class);
+public class BatchVibrationTask extends AbstractPipeline {
+    private static final Logger log = LoggerFactory.getLogger(BatchVibrationTask.class);
 
     private final String applicationId;
     private final int streamThreadCount;
+    private final String stateDir;
 
-    public BatchTimewaveTaskDef(String applicationId, String brokers, String servingAddr, String streamThreadCount) {
+    public BatchVibrationTask(String applicationId, String brokers, String servingAddr,
+                              String streamThreadCount, String stateDir) {
 
         super(brokers, servingAddr);
         this.applicationId = applicationId;
         this.streamThreadCount = Integer.parseInt(streamThreadCount);
+        this.stateDir = stateDir;
     }
 
     public void start() {
@@ -52,8 +55,8 @@ public class BatchTimewaveTaskDef extends AbstractPipeline {
         final Topology topology = new Topology();
 
         topology.addSource("input-raw", this.getInputTimewaveTopic())
-                .addProcessor("transform", TransformTimewaveProcessor::new, "input-raw")
-                .addSink("output-raw", this.getOutputTimewaveTopic(), "transform");
+                .addProcessor("vibration", VibrationProcessor::new, "input-raw")
+                .addSink("output-raw", this.getOutputTimewaveTopic(), "vibration");
 
         return new KafkaStreams(topology, getStreamProperties());
     }

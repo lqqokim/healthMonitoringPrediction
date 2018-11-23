@@ -21,17 +21,20 @@ import java.util.concurrent.TimeUnit;
 /**
  *
  */
-public class BatchSummaryTaskDef extends AbstractPipeline {
-    private static final Logger log = LoggerFactory.getLogger(BatchSummaryTaskDef.class);
+public class BatchSummaryTask extends AbstractPipeline {
+    private static final Logger log = LoggerFactory.getLogger(BatchSummaryTask.class);
 
     private final String applicationId;
     private final int streamThreadCount;
+    private final String stateDir;
 
-    public BatchSummaryTaskDef(String applicationId, String brokers, String servingAddr, String streamThreadCount) {
+    public BatchSummaryTask(String applicationId, String brokers, String servingAddr,
+                            String streamThreadCount, String stateDir) {
 
         super(brokers, servingAddr);
         this.applicationId = applicationId;
         this.streamThreadCount = Integer.parseInt(streamThreadCount);
+        this.stateDir = stateDir;
     }
 
     public void start() {
@@ -57,13 +60,7 @@ public class BatchSummaryTaskDef extends AbstractPipeline {
 
         StoreBuilder<KeyValueStore<String, String>> statusContextStoreSupplier =
                 Stores.keyValueStoreBuilder(
-                        Stores.persistentKeyValueStore("speed-status-context-store"),
-                        Serdes.String(),
-                        Serdes.String());
-
-        StoreBuilder<KeyValueStore<String, String>> recordGroupStoreSupplier =
-                Stores.keyValueStoreBuilder(
-                        Stores.persistentKeyValueStore("speed-record-group-store"),
+                        Stores.persistentKeyValueStore("batch-process-context-store"),
                         Serdes.String(),
                         Serdes.String());
 
@@ -90,26 +87,13 @@ public class BatchSummaryTaskDef extends AbstractPipeline {
 //        CustomStreamPartitioner partitioner = new CustomStreamPartitioner();
 
         topology.addSource("input-trace", this.getInputTraceTopic())
-                .addProcessor("EntryPointProcessor", EntryPointProcessor::new, "input-trace")
-                .addProcessor("RecordParserProcessor", RecordParserProcessor::new, "EntryPointProcessor")
-                .addProcessor("StatusDecisionProcessor", StatusDecisionProcessor::new, "RecordParserProcessor")
-
-                .addProcessor("EventProcessor", EventProcessor::new, "StatusDecisionProcessor")
-                .addStateStore(statusContextStoreSupplier, "EventProcessor")
-                .addStateStore(recordGroupStoreSupplier, "EventProcessor")
-
-                .addProcessor("SummaryProcessor", SummaryProcessor::new, "EventProcessor")
-                .addStateStore(contValueWindowStoreSupplier, "SummaryProcessor")
-                .addStateStore(catValueWindowStoreSupplier, "SummaryProcessor")
-                .addSink("output-feature", this.getOutputFeatureTopic(), "SummaryProcessor")
-                .addSink("output-dimension", this.getOutputDimensionTopic(), "SummaryProcessor");
-
-//        topology.addSource("input-trace", this.getInputTraceTopic())
-//                .addProcessor("batch", BatchProcessor::new, "input-trace")
-//                .addStateStore(contValueWindowStoreSupplier, "batch")
-//                .addStateStore(catValueWindowStoreSupplier, "batch")
-//                .addSink("output-feature", this.getOutputFeatureTopic(), "batch")
-//                .addSink("output-dimension", this.getOutputDimensionTopic(), "batch");
+                .addProcessor("ValueTypeConverter", ValueTypeConverterProcessor::new, "input-trace")
+                .addProcessor("EventSummary", EventSummaryProcessor::new, "ValueTypeConverter")
+                .addStateStore(statusContextStoreSupplier, "EventSummary")
+                .addStateStore(contValueWindowStoreSupplier, "EventSummary")
+                .addStateStore(catValueWindowStoreSupplier, "EventSummary")
+                .addSink("output-feature", this.getOutputFeatureTopic(), "EventSummary")
+                .addSink("output-dimension", this.getOutputDimensionTopic(), "EventSummary");
 
         return new KafkaStreams(topology, getStreamProperties());
     }

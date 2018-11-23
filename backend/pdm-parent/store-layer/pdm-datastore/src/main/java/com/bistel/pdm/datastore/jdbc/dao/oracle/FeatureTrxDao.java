@@ -20,11 +20,16 @@ public class FeatureTrxDao implements FeatureDataDao {
     private static final Logger log = LoggerFactory.getLogger(FeatureTrxDao.class);
 
     private static final String INSERT_SQL =
-            "insert into param_feature_trx_pdm " +
-                    "(RAWID, PARAM_MST_RAWID, BEGIN_DTTS, END_DTTS, " +
+            "insert into PARAM_FEATURE_TRX_PDM " +
+                    "(RAWID, " +
+                    "PARAM_MST_RAWID, " +
+                    "BEGIN_DTTS, " +
+                    "END_DTTS, " +
                     "COUNT, MIN, MAX, MEDIAN, MEAN, STDDEV, Q1, Q3, " +
-                    "MESSAGE_GROUP) " +
-                    "values (seq_param_feature_trx_pdm.nextval,?,?,?,?,?,?,?,?,?,?,?,?)";
+                    "PROCESS_CONTEXT" +
+                    ") " +
+                    "values " +
+                    "(seq_param_feature_trx_pdm.nextval,?,?,?,?,?,?,?,?,?,?,?,?)";
 
     @Override
     public void storeRecords(List<ConsumerRecord<String, byte[]>> records) {
@@ -59,7 +64,7 @@ public class FeatureTrxDao implements FeatureDataDao {
                     pstmt.setFloat(9, Float.parseFloat(values[8])); // stddev
                     pstmt.setFloat(10, Float.parseFloat(values[9])); // q1
                     pstmt.setFloat(11, Float.parseFloat(values[10])); // q3
-                    pstmt.setString(12, values[11]); // message group
+                    pstmt.setString(12, values[11]); // process context
 
                     ts = endDtts;
 

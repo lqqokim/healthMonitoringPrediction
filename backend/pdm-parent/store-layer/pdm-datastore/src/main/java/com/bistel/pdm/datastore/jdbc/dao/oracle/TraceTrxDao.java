@@ -26,8 +26,12 @@ public class TraceTrxDao implements SensorTraceDataDao {
     private static final String TRX_SEQ_SQL = "select SEQ_TRACE_TRX_PDM.nextval from DUAL";
 
     private static final String INSERT_SQL =
-            "insert into trace_trx_pdm (RAWID, PARAM_MST_RAWID, VALUE, " +
-                    "ALARM_SPEC, WARNING_SPEC, " +
+            "insert into TRACE_TRX_PDM " +
+                    "(RAWID, " +
+                    "PARAM_MST_RAWID, " +
+                    "VALUE, " +
+                    "ALARM_SPEC, " +
+                    "WARNING_SPEC, " +
                     //"UPPER_ALARM_SPEC, UPPER_WARNING_SPEC, " +
                     //"TARGET, " +
                     //"LOWER_ALARM_SPEC, LOWER_WARNING_SPEC, " +
@@ -37,7 +41,8 @@ public class TraceTrxDao implements SensorTraceDataDao {
                     "RULE_NAME, " +
                     "CONDITION, " +
                     "RESERVED_COL1, RESERVED_COL2, RESERVED_COL3, RESERVED_COL4, RESERVED_COL5) " +
-                    "values (SEQ_TRACE_TRX_PDM.nextval,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+                    "values " +
+                    "(SEQ_TRACE_TRX_PDM.nextval,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
     @Override
     public Long getTraceRawId() throws SQLException {
@@ -107,61 +112,60 @@ public class TraceTrxDao implements SensorTraceDataDao {
 
                     List<ParameterMaster> paramData = MasterCache.Parameter.get(record.key());
 
-                    for (ParameterMaster paramInfo : paramData) {
-                        if (paramInfo.getParamParseIndex() == -1) continue;
-
-                        pstmt.setLong(1, paramInfo.getParameterRawId()); //param rawid
-
-                        String strValue = values[paramInfo.getParamParseIndex()];
-                        if (strValue.length() <= 0) {
-                            log.trace("key:{}, param:{}, index:{} - value is empty.",
-                                    record.key(), paramInfo.getParameterName(), paramInfo.getParamParseIndex());
-                            pstmt.setFloat(2, Types.FLOAT); //value
-                        } else {
-                            pstmt.setFloat(2, Float.parseFloat(strValue)); //value
-                        }
-
-                        ParameterWithSpecMaster paramSpec = getParamSpec(record.key(), paramInfo.getParameterName(), ruleName);
-
-                        if(paramSpec != null) {
-                            if (paramSpec.getUpperAlarmSpec() != null) {
-                                pstmt.setFloat(3, paramSpec.getUpperAlarmSpec()); //upper alarm spec
-                            } else {
-                                pstmt.setNull(3, Types.FLOAT);
-                            }
-
-                            if (paramSpec.getUpperWarningSpec() != null) {
-                                pstmt.setFloat(4, paramSpec.getUpperWarningSpec()); //upper warning spec
-                            } else {
-                                pstmt.setNull(4, Types.FLOAT);
-                            }
-
-                            pstmt.setString(8, paramSpec.getRuleName());
-                            pstmt.setString(9, paramSpec.getCondition().replaceAll(",", ";"));
-
-                        } else {
-                            pstmt.setNull(3, Types.FLOAT);
-                            pstmt.setNull(4, Types.FLOAT);
-
-                            pstmt.setNull(8, Types.VARCHAR);
-                            pstmt.setNull(9, Types.VARCHAR);
-                        }
-
-                        pstmt.setString(5, status); // status code : R / I
-                        ts = getTimeStampFromString(values[0]);
-                        pstmt.setTimestamp(6, ts); // event_dtts
-
-                        pstmt.setString(7, msgGroup);
-
-                        pstmt.setNull(10, Types.VARCHAR);
-                        pstmt.setNull(11, Types.VARCHAR);
-                        pstmt.setNull(12, Types.VARCHAR);
-                        pstmt.setNull(13, Types.VARCHAR);
-                        pstmt.setNull(14, Types.VARCHAR);
-
-                        pstmt.addBatch();
-                        ++totalCount;
-                    }
+//                    for (ParameterMaster paramInfo : paramData) {
+//
+//                        pstmt.setLong(1, paramInfo.getId()); //param rawid
+//
+//                        String strValue = values[paramInfo.getParamParseIndex()];
+//                        if (strValue.length() <= 0) {
+//                            log.trace("key:{}, param:{}, index:{} - value is empty.",
+//                                    record.key(), paramInfo.getParameterName(), paramInfo.getParamParseIndex());
+//                            pstmt.setFloat(2, Types.FLOAT); //value
+//                        } else {
+//                            pstmt.setFloat(2, Float.parseFloat(strValue)); //value
+//                        }
+//
+//                        ParameterWithSpecMaster paramSpec = getParamSpec(record.key(), paramInfo.getParameterName(), ruleName);
+//
+//                        if(paramSpec != null) {
+//                            if (paramSpec.getUpperAlarmSpec() != null) {
+//                                pstmt.setFloat(3, paramSpec.getUpperAlarmSpec()); //upper alarm spec
+//                            } else {
+//                                pstmt.setNull(3, Types.FLOAT);
+//                            }
+//
+//                            if (paramSpec.getUpperWarningSpec() != null) {
+//                                pstmt.setFloat(4, paramSpec.getUpperWarningSpec()); //upper warning spec
+//                            } else {
+//                                pstmt.setNull(4, Types.FLOAT);
+//                            }
+//
+//                            pstmt.setString(8, paramSpec.getRuleName());
+//                            pstmt.setString(9, paramSpec.getCondition().replaceAll(",", ";"));
+//
+//                        } else {
+//                            pstmt.setNull(3, Types.FLOAT);
+//                            pstmt.setNull(4, Types.FLOAT);
+//
+//                            pstmt.setNull(8, Types.VARCHAR);
+//                            pstmt.setNull(9, Types.VARCHAR);
+//                        }
+//
+//                        pstmt.setString(5, status); // status code : R / I
+//                        ts = getTimeStampFromString(values[0]);
+//                        pstmt.setTimestamp(6, ts); // event_dtts
+//
+//                        pstmt.setString(7, msgGroup);
+//
+//                        pstmt.setNull(10, Types.VARCHAR);
+//                        pstmt.setNull(11, Types.VARCHAR);
+//                        pstmt.setNull(12, Types.VARCHAR);
+//                        pstmt.setNull(13, Types.VARCHAR);
+//                        pstmt.setNull(14, Types.VARCHAR);
+//
+//                        pstmt.addBatch();
+//                        ++totalCount;
+//                    }
                 }
 
                 pstmt.executeBatch();
