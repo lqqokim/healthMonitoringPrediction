@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("pdm/fabs/{fabId}")
+@RequestMapping("pdm")
 public class AlgorithmRestController {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -35,7 +35,7 @@ public class AlgorithmRestController {
     @Autowired
     private IImageService imageService;
 
-    @RequestMapping(value="params/{paramId}/getRegression", method = RequestMethod.GET)
+    @RequestMapping(value="/getRegression", method = RequestMethod.GET)
     public Regression getRegression(@RequestParam("sessionId") String sessionId,
                                     @RequestParam("fromdate") Long fromdate,
                                     @RequestParam("todate") Long todate) throws ParseException {

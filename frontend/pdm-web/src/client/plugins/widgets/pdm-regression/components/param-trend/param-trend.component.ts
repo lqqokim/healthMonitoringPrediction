@@ -21,6 +21,8 @@ export class ParamTrendComponent implements OnChanges, OnInit, AfterViewInit, On
     chartInfo:any ={}
     dragMode:any='zoom';
     chartIds:any = []
+
+    paramCount:number = 0;
     
 
     constructor(private _stompService: StompService) {
@@ -49,22 +51,21 @@ export class ParamTrendComponent implements OnChanges, OnInit, AfterViewInit, On
         if (changes && changes['data']['currentValue']) {
             const data = changes['data']['currentValue'];
             // this.drawParamTrend(data);
-            // this.send();      
+            // this.send();                  
+            this.datasReset();
             this.start(0);
-        
-           
         }
     }
 
     start(counter){
-
-        if(counter < 2){
+        let pramLength:number = 5;
+        if(counter < pramLength){
         
             setTimeout(()=>{
             
                 counter++;
                 
-                this.send();
+                this.send(pramLength);
                 
                 this.start(counter);
             
@@ -95,7 +96,7 @@ export class ParamTrendComponent implements OnChanges, OnInit, AfterViewInit, On
     }
     
 
-    send(){            
+    send(pramLength){            
         let imageWidth:any = '';
         let imageHeight:any = '';
         let message={};
@@ -107,6 +108,8 @@ export class ParamTrendComponent implements OnChanges, OnInit, AfterViewInit, On
         }else{
             imageWidth = document.querySelector('.chart-body').clientWidth - 50;
             imageHeight = document.querySelector('.chart-body').clientHeight - 10;
+            localStorage.setItem('imageWidth', imageWidth.toString());
+            localStorage.setItem('imageHeight', imageHeight.toString());
         }
         message['parameters']={};
         message['parameters']['type'] = 'default';   
@@ -122,22 +125,28 @@ export class ParamTrendComponent implements OnChanges, OnInit, AfterViewInit, On
 
     let reply = this._stompService.send(null,'getRegressionTrend',message,payload => {    
                 if(payload.chartFlag == 'image'){
+                    this.paramCount ++;
                     this.chartFlag = 'image';
                     this.addChartIds(payload.sessionId);
                     localStorage.setItem('imageWidth', imageWidth.toString());
                     localStorage.setItem('imageHeight', imageHeight.toString());
                     this.chartInfo = payload.imageChartData;    
-                    this._stompService.finishSend(reply);
-                    this.spinner.hideSpinner();
+                    if(this.paramCount == pramLength){
+                        this._stompService.finishSend(reply);
+                        this.spinner.hideSpinner();
+                    }
                 }else{
                     console.warn('trend');                   
+                    this.paramCount ++;
                     this.trandchartInit(payload.trendData,payload.sessionId);   
                     this.chartFlag = 'trend';
                     this.addChartIds(payload.sessionId);
                 
                     this.optionChange(1);
-                    this._stompService.finishSend(reply);
-                    this.spinner.hideSpinner();
+                    if(this.paramCount == pramLength){
+                        this._stompService.finishSend(reply);
+                        this.spinner.hideSpinner();
+                    }                    
                 }
             });
     }  
@@ -221,6 +230,15 @@ export class ParamTrendComponent implements OnChanges, OnInit, AfterViewInit, On
         }else{//regression            
             this.dragMode = 'select';            
         }
+    }
+
+    datasReset(){
+        this.chartFlag = 'image';
+        this.chartFlag = 'trend';
+        this.paramCount = 0;
+        this.dragMode = 'zoom';
+        this.chartIds = [];
+        this.chartDatas = [];
     }
 
     ngOnDestroy() {

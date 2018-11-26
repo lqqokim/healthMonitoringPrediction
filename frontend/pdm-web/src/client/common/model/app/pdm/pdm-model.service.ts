@@ -661,6 +661,18 @@ export class PdmModelService extends ModelCommonService {
 		});
 	}
 
+	getRegression(good,fromdate,todate): Observable<any> {
+		return this.rxGET({
+			uriPath: `pdm/getRegression/?sessionId=${good}&fromdate=${fromdate}&todate=${todate}`,
+			params: {
+			}
+		}).map((datas) => {
+			 return datas;
+		});
+	}
+
+	
+
 	getRadarParam1s(param: IRadar.RadarParamReqParams): Promise<any> {
 		return this.GET({
 			uriPath: `pdm/fabs/${param.fabId}/eqps/${param.eqpId}/radar`,
