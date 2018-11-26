@@ -241,7 +241,7 @@
         left join trace_spec_mst_pdm spec on spec.param_mst_rawid = a.rawid
         left join parts_mst_pdm parts on parts.rawid = a.parts_mst_rawid
         where a.eqp_mst_rawid = #{eqp_id}
-
+        order by a.rawid
         <!--select *-->
         <!--from param_mst_pdm-->
         <!--where eqp_mst_rawid = #{eqp_id}-->
