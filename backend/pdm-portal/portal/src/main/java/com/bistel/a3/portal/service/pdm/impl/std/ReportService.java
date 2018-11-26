@@ -13,6 +13,7 @@ import com.bistel.a3.portal.domain.common.Code;
 import com.bistel.a3.portal.domain.pdm.*;
 import com.bistel.a3.portal.domain.pdm.db.*;
 import com.bistel.a3.portal.domain.pdm.master.ParamWithCommon;
+import com.bistel.a3.portal.domain.pdm.master.ParamWithCommonWithRpm;
 import com.bistel.a3.portal.service.pdm.IReportService;
 import com.bistel.a3.portal.util.SqlSessionUtil;
 import com.bistel.a3.portal.util.TransactionUtil;
@@ -43,6 +44,8 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -743,6 +746,185 @@ public class ReportService implements IReportService {
         }
 
 
+    }
+
+    public double[] getRegressionInput(String fabId, Long paramId, Long fromdate, Long todate, boolean isX){
+
+        STDReportMapper mapper = SqlSessionUtil.getMapper(sessions, fabId, STDReportMapper.class);
+
+        Date from=new Date(fromdate);
+        Date to=new Date(todate);
+
+        List<BasicData> regressionInput=mapper.selectFeatureTrend(paramId,from,to);
+
+        double[] xValue =new double[regressionInput.size()];
+        double[] yValue = new double[regressionInput.size()];
+
+        if (isX==true){
+            for (int i = 0; i < regressionInput.size(); i++) {
+                xValue[i]=regressionInput.get(i).getX().getTime();
+            }
+            return xValue;
+        }
+        else{
+            for (int i = 0; i < regressionInput.size(); i++) {
+                yValue[i]=regressionInput.get(i).getY();
+            }
+            return yValue;
+        }
+    }
+
+    public double[][] getCorrelationInput(String fabId, Long eqpId, Long fromdate, Long todate){
+
+        STDReportMapper reportMapper = SqlSessionUtil.getMapper(sessions, fabId, STDReportMapper.class);
+        STDParamMapper paramMapper = SqlSessionUtil.getMapper(sessions, fabId, STDParamMapper.class);
+
+        Date from=new Date(fromdate);
+        Date to=new Date(todate);
+
+
+
+        //eqpId에 포함된 전체 Param Select
+        List<Param> paramList=paramMapper.selectParamByEqp(eqpId);
+
+//        double[][] correlationDataSet=new double[paramList.size()][];
+        HashMap<Long,List<Double>> correlationDataset=new HashMap<>(); //k: paramId, v: paramvalues{123,456,789,321,456,456}
+
+        Long paramId=null;
+
+        Double value=null;
+        List<BasicDatasForCorrelationANOVA> correlationInput=new ArrayList<>();
+        for (int i = 0; i <paramList.size(); i++) {
+            paramId=paramList.get(i).getParam_id();
+
+            correlationInput=reportMapper.selectFeatureTrendWithIndex(paramId,from,to);
+            List<Double> paramValues=new ArrayList<>();
+
+            for (int j = 0; j < correlationInput.size(); j++) {
+
+                value=correlationInput.get(j).getY();
+                paramValues.add(value);
+            }
+            correlationDataset.put(paramId,paramValues);
+        }
+
+        //
+
+        // 0보다 큰 데이터의 최소갯수 찾기
+        ArrayList<Integer> valueCount=new ArrayList<>();
+        for (int i = 0; i < paramList.size(); i++) {
+            paramId=paramList.get(i).getParam_id();
+            valueCount.add(correlationDataset.get(paramId).size());
+        }
+
+        Collections.sort(valueCount);
+        int ySize=0;
+        for (int i = 0; i < valueCount.size(); i++) {
+            if (ySize==0)
+            {
+                ySize=valueCount.get(i);
+            }
+            else
+                break;
+        }
+
+
+        //
+
+
+        //Correlation input data
+        double[][] correlationInputData=new double[paramList.size()][ySize];
+
+        for (int i = 0; i < correlationDataset.size(); i++) {
+            paramId=paramList.get(i).getParam_id();
+            for (int j = 0; j < correlationDataset.get(paramId).size(); j++) {
+                correlationInputData[i][j]=correlationDataset.get(paramId).get(j);
+            }
+        }
+
+        return correlationInputData;
+    }
+
+    @Override
+    public Correlation getCorrelationWithPivot(String fabId, List<Long> paramList, Long fromdate, Long todate) {
+
+        Correlation correlation=new Correlation();
+
+        STDReportMapper reportMapper = SqlSessionUtil.getMapper(sessions, fabId, STDReportMapper.class);
+
+        String sParamId=null;
+        Long lParamId=null;
+        List<String> sParamList=new ArrayList<String>();
+
+        for (int i = 0; i < paramList.size(); i++) {
+            lParamId=paramList.get(i);
+            sParamId=lParamId.toString();
+            sParamList.add(sParamId);
+        }
+
+        Date from=new Date(fromdate);
+        Date to=new Date(todate);
+        SimpleDateFormat dt= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String sFrom=dt.format(from);
+        String sTo=dt.format(to);
+
+        Map<String, Object> param=new HashMap<String, Object>();
+        param.put("fromDate",sFrom);
+        param.put("toDate", sTo);
+        param.put("code_list",sParamList);
+
+        List<HashMap<String,Object>> correlationInputDataSet=reportMapper.selectCorrelationInputData(param);
+
+        Double value=null;
+        //correlationInputDataSet.size == row갯수 correlationInputDataSet.get(0).keySet().size() == param갯수(8개)
+
+        double[][] correlationInputData=new double[correlationInputDataSet.size()][correlationInputDataSet.get(0).keySet().size()];
+        //double[][] correlationInputData=new double[correlationInputDataSet.size()][correlationInputDataSet.size()];
+
+        List<String> paramSeq=new ArrayList<>();
+        for (int i = 0; i < correlationInputDataSet.size(); i++) {
+
+            int j=0;
+            for (String key : correlationInputDataSet.get(i).keySet()) {
+                if (i==0){
+                    paramSeq.add(key);
+                }
+                if (!key.equals("END_DTTS")){
+                    value=((BigDecimal)correlationInputDataSet.get(i).get(key)).doubleValue();
+                    correlationInputData[i][j]=value;
+                    j++;
+                }
+            }
+        }
+
+        String sParam=null;
+        String sParamNumber=null;
+        List<Long> lParamList= new ArrayList<>();
+        for (int i = 0; i < paramSeq.size(); i++) {
+            if (!paramSeq.get(i).contentEquals("END_DTTS"))
+            {
+                sParam=paramSeq.get(i);
+                sParamNumber=sParam.replaceAll("[^0-9]","");
+                lParamList.add(Long.valueOf(sParamNumber));
+            }
+        }
+
+
+        correlation.setCorrelationInput(correlationInputData);
+        correlation.setParamSeq(lParamList);
+
+        STDParamMapper stdParamMapper = SqlSessionUtil.getMapper(sessions, fabId, STDParamMapper.class);
+        ParamWithCommonWithRpm paramWithCommonWithRpm=new ParamWithCommonWithRpm();
+        String paramName=null;
+        List<String> paramNames=new ArrayList<>();
+        for (int i = 0; i < lParamList.size(); i++) {
+            paramWithCommonWithRpm=stdParamMapper.selectOne(lParamList.get(i));
+            paramName=paramWithCommonWithRpm.getName();
+            paramNames.add(paramName);
+        }
+
+        correlation.setParamNames(paramNames);
+        return correlation;
     }
 
 

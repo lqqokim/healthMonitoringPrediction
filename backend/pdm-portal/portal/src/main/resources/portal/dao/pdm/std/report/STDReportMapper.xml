@@ -362,6 +362,40 @@
         order by end_dtts
     </select>
 
+    <select id="selectCorrelationInputData" resultType="java.util.HashMap" parameterType="java.util.Map">
+        select *
+        from
+        (
+            select *
+            from
+            (
+                select *
+                from
+                (
+                    select param_mst_rawid, end_dtts, nvl(median, 0) as mean
+                    from param_feature_trx_pdm
+                    where 1=1
+                    and end_dtts <![CDATA[>=]]> to_timestamp(#{param.fromDate})
+                    and end_dtts <![CDATA[<]]> to_timestamp(#{param.toDate})
+                    and param_mst_rawid in
+                    <foreach collection="param.code_list" item="item" index="index" open="(" separator="," close=")">
+                        #{item}
+                    </foreach>
+                    )
+                pivot
+                (
+                    avg(nvl(mean, 0)) as mean
+                    for param_mst_rawid in
+                    <!--('1104','1109','1110','1112','1114','1123','1124','1138','1281','1282','1283','1284','1285','1286')-->
+                    <foreach collection="param.code_list" item="item" index="index" open="(" separator="," close=")">
+                        ${item}
+                    </foreach>
+                )
+            )
+        )
+        order by end_dtts
+    </select>
+
 
     <!-- TODO: Chris param_feature_trx_pdm 테이블 없음 -->
     <select id="selectFeatureData" resultType="com.bistel.a3.portal.domain.pdm.db.ParamFeatureTrx">

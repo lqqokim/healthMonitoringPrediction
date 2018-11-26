@@ -193,4 +193,28 @@ public class ImageService implements IImageService{
         }
         return  replyMessage;
     }
+
+    public List<List<Double>> getRegressionInput(String sessionId, Long fromdate, Long todate) {
+        List<List<Double>> returnValue = new ArrayList<>();//[[]]
+        List<String[]> fileData = new ArrayList<String[]>();//
+        List<Double> returnTimeStamp = new ArrayList<>();//
+        List<Double> returnValues = new ArrayList<>();
+        String currentPath =new File("").getAbsolutePath();
+        String filePath = currentPath +File.separator+"hmp_data"+File.separator+sessionId+".csv";
+
+        fileData = readCsv(filePath);
+        Iterator<String[]> it = fileData.iterator();
+        while (it.hasNext()) {
+            String[] colData = (String[]) it.next();
+            Double timestamp = Double.valueOf(colData[0]);
+            Double value = Double.valueOf(colData[1]);
+            if(timestamp >= fromdate && timestamp <= todate){
+                returnTimeStamp.add(timestamp);
+                returnValues.add(value);
+            }
+        }
+        returnValue.add(returnTimeStamp);
+        returnValue.add(returnValues);
+        return returnValue;
+    }
 }

@@ -1,8 +1,10 @@
 package com.bistel.a3.portal.rest.pdm;
 
 
+import BISTel.PeakPerformance.Statistics.Algorithm.Stat.Regression.SimpleLinearRegression;
 import com.bistel.a3.portal.domain.common.SocketMessage;
 import com.bistel.a3.portal.domain.pdm.ImageChartData;
+import com.bistel.a3.portal.domain.pdm.Regression;
 import com.bistel.a3.portal.service.pdm.IImageService;
 import com.bistel.a3.portal.service.pdm.impl.std.ReportService;
 import org.slf4j.Logger;
@@ -12,12 +14,15 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
 
+import java.text.ParseException;
 import java.util.*;
 import java.util.List;
 import java.util.ArrayList;
 
 @Controller
+
 public class RegressionController {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -98,6 +103,13 @@ public class RegressionController {
         }
         messagingTemplate.convertAndSend(replySubject, replyMessage);
     }
+
+
+
+
+
+
+
 
 
 }

@@ -198,6 +198,13 @@
 			<artifactId>opencsv</artifactId>
 			<version>2.0</version>
 		</dependency>
+		<dependency>
+			<groupId>BISTel.PeakPerformance.Statistics</groupId>
+			<artifactId>BISTel.PeakPerformance.Statistics</artifactId>
+			<version>2.1.11</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/src/main/webapp/WEB-INF/lib/BISTel.PeakPerformance.Statistics-2.1.11.jar</systemPath>
+		</dependency>
 
     </dependencies>
 

@@ -759,6 +759,21 @@ public class ReportService implements com.bistel.a3.portal.service.pdm.IReportSe
         return null;
     }
 
+    @Override
+    public double[] getRegressionInput(String fabId, Long paramId, Long fromdate, Long todate, boolean isX) {
+        return new double[0];
+    }
+
+    @Override
+    public double[][] getCorrelationInput(String fabId, Long eqpId, Long fromdate, Long todate) {
+        return new double[0][];
+    }
+
+    @Override
+    public Correlation getCorrelationWithPivot(String fabId, List<Long> paramList, Long fromdate, Long todate) {
+        return null;
+    }
+
 
     private void saveEqpAlarmTrx(String fabId, Long eqpId, Date from, Date to) {
         AlarmTrxMapper mapper = SqlSessionUtil.getMapper(sessions, fabId, AlarmTrxMapper.class);

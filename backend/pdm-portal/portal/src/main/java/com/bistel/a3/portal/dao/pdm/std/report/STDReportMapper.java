@@ -78,4 +78,6 @@ public interface STDReportMapper {
     List<BasicDatasForCorrelationANOVA> selectFeatureTrendWithIndex(@Param("paramId") Long paramId,@Param("fromDate") Date fromDate,@Param("toDate") Date toDate);
 
     List<BasicData> selectHealthIndexTrend(@Param("paramId") Long paramId,@Param("fromDate") Date fromDate,@Param("toDate") Date toDate);
+
+    List<HashMap<String,Object>> selectCorrelationInputData(@Param("param") Map<String, Object> param);
 }

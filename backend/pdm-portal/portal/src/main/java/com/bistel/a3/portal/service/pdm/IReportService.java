@@ -85,4 +85,10 @@ public interface IReportService {
     Object getHealthIndexTrend(String fabId, Long paramId, Long fromdate, Long todate);
 
     Object getFeatureTrxTrend(String fabId, Long paramId, Long fromdate, Long todate, boolean xIsDate);
+
+    double[] getRegressionInput(String fabId, Long paramId, Long fromdate, Long todate, boolean isX);
+
+    double[][] getCorrelationInput(String fabId, Long eqpId, Long fromdate, Long todate);
+
+    Correlation getCorrelationWithPivot(String fabId, List<Long> paramList, Long fromdate, Long todate);
 }

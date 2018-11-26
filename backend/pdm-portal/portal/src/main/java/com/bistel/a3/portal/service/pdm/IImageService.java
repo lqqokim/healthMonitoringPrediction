@@ -9,6 +9,8 @@ public interface IImageService {
 
     List<List<Object>> getData(String sessionId, Long fromdate, Long todate);
 
+    List<List<Double>> getRegressionInput(String sessionId, Long fromdate, Long todate);
+
     List<List<Object>> getOriginData(String sessionId);
 
     void writeCsv(List<String[]> data, String sessionId);
