@@ -60,7 +60,7 @@ export class TrendComponent implements OnInit, OnChanges {
             });
 
             this._addTrendEventHandler();
-        }, 800);
+        }, 1000);
     }
 
     private _addTrendEventHandler(): void {

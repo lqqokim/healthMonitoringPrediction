@@ -39,10 +39,16 @@ export class FilterConditionComponent implements OnInit {
     selectedParameters: any;
     selectedParameterDatas: any = [];
 
+    categoricalVals: Array<any> = [];
+    selectedCategoricalDatas: any[] = [];
+
+    continuousVals: Array<any> = [];
+    selectedContinuousDatas: any[] = [];
+
     isEquipment: boolean = false;
     isBarcode: boolean = false;
 
-    isShowCheckGroup: boolean = false;
+    widgetType: string;
 
     constructor(private pdmModelService: PdmModelService) { }
 
@@ -63,8 +69,6 @@ export class FilterConditionComponent implements OnInit {
             .then((plants: any) => {
                 this.fabs = plants;
                 this.selectedFab = this.fabs[0];
-                console.log('>>>>>>>>>>>>>>>>>>>>');
-                console.warn(this.fabs);
                 this.getAreas();
             }).catch((error: any) => {
 
@@ -75,8 +79,6 @@ export class FilterConditionComponent implements OnInit {
         this.pdmModelService.getAllArea(this.selectedFab.fabId)
             .then((areas) => {
                 this.areas = areas;
-                console.log('>>>>>>>>>>>>>>>>>>>>');
-                console.warn(this.areas);
                 // for(let i=0; i<this.areas.length; i++){
                 //     this.selectedAreaDatas[i]['checked'] = false;
                 // }                              
@@ -89,8 +91,6 @@ export class FilterConditionComponent implements OnInit {
         this.pdmModelService.getEqpsByAreaIds(this.selectedFab.fabId, this.selectedAreaIds)
             .then((eqps) => {
                 this.eqps = eqps;
-                console.log('>>>>>>>>>>>>>>>>>>>>');
-                console.warn(this.eqps);
             }).catch((error: any) => {
 
             });
@@ -100,17 +100,21 @@ export class FilterConditionComponent implements OnInit {
         let paramDatas: any = [];
         this.pdmModelService.getParamNameByEqpIds(this.selectedFab.fabId, this.selectedEqpIds)
             .then((parameters) => {
-                console.warn(parameters);
                 paramDatas = parameters;
-                console.log(paramDatas.length);
-                console.log(paramDatas);
                 for (let i = 0; i < paramDatas.length; i++) {
                     this.parameters.push({ 'paramName': paramDatas[i] });
                 }
-                console.warn(this.parameters);
             }).catch((error: any) => {
 
             });
+    }
+
+    getCategoricalVals() {
+
+    }
+
+    getContinuousVals() {
+
     }
 
     fromToChange(data: any) {
@@ -151,10 +155,17 @@ export class FilterConditionComponent implements OnInit {
 
     onChangeParameter(e: any) {
         this.selectedParameters = [];
-        console.log(event);
         for (let i = 0; i < e.length; i++) {
             this.selectedParameters.push(e[i].paramName);
         }
+    }
+
+    onChangeCategoricalVal(e: any) {
+        console.log('onChangeCategoricalVal', e);
+    }
+
+    onChangeContinuousVal(e: any) {
+        console.log('onChangeContinuousVal', e);
     }
 
     onCheckEquipment() {
@@ -166,12 +177,6 @@ export class FilterConditionComponent implements OnInit {
     }
 
     search() {
-        // console.log(this.selectedFab.fabId);
-        // console.log(this.selectedEqpIds);
-        // console.log(this.selectedParameters);
-        // console.log(this.searchTimePeriod.from);
-        // console.log(this.searchTimePeriod.to);
-
         const data = {
             fabId: this.selectedFab.fabId,
             eqpIds: this.selectedEqpIds,
