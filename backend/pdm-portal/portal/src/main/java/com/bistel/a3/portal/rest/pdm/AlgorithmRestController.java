@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("pdm/fabs/{fabId}")
+@RequestMapping("pdm")
 public class AlgorithmRestController {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());

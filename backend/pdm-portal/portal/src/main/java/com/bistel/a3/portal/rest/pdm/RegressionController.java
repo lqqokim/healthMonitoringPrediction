@@ -1,6 +1,5 @@
 package com.bistel.a3.portal.rest.pdm;
 
-
 import BISTel.PeakPerformance.Statistics.Algorithm.Stat.Regression.SimpleLinearRegression;
 import com.bistel.a3.portal.domain.common.SocketMessage;
 import com.bistel.a3.portal.domain.pdm.ImageChartData;
@@ -102,14 +101,5 @@ public class RegressionController {
         }
         messagingTemplate.convertAndSend(replySubject, replyMessage);
     }
-
-
-
-
-
-
-
-
-
 }
 
