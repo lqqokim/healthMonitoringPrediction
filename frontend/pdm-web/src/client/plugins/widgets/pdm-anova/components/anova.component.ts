@@ -5,6 +5,8 @@ import results from './../model/anova-interface';
 import { Trend } from './../../pdm-correlation/components/trend/trend.component';
 import { FilterConditionComponent } from './../../../common/filter-condition/filter-condition.component';
 
+import * as wjcGrid from 'wijmo/wijmo.grid';
+
 @Component({
     moduleId: module.id,
     selector: 'anova',
@@ -15,6 +17,7 @@ import { FilterConditionComponent } from './../../../common/filter-condition/fil
 export class AnovaComponent implements OnInit, OnChanges, OnDestroy {
     @ViewChild('Spinner') spinner: SpinnerComponent;
     @ViewChild('filterComp') filterComp: FilterConditionComponent;
+    @ViewChild('WijmoGridInstance') gridInstance: wjcGrid.FlexGrid;
     @Output() SpinnerControl: EventEmitter<any> = new EventEmitter();
 
     results;
@@ -31,7 +34,7 @@ export class AnovaComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     ngOnInit(): void {
-       this.filterComp.isShowCheckGroup = true;
+        this.filterComp.widgetType = 'anova';
     }
 
     selectedRow(grid, event) {
@@ -43,11 +46,23 @@ export class AnovaComponent implements OnInit, OnChanges, OnDestroy {
         this.drawTrend(row);
     }
 
+    _firstSelectedData(): void {
+        setTimeout(() => {
+            if (this.gridInstance.itemsSource && this.gridInstance.itemsSource.length > 0) {
+                // this.selectedResult = this.gridInstance.itemsSource[0];
+                const firstRow = this.gridInstance.itemsSource[0];
+
+                this.drawBoxplot(firstRow);
+                this.drawTrend(firstRow);
+            }
+        });
+    }
+
     drawBoxplot(row): void {
         this.selectedResult = JSON.parse(JSON.stringify(row));
     }
 
-    drawTrend(data): void {
+    drawTrend(row): void {
         this.trendData = {
             datas: {
                 x: "SLIDE_AXIS_TORQUE",
@@ -68,6 +83,7 @@ export class AnovaComponent implements OnInit, OnChanges, OnDestroy {
 
     drawResultGrid(condition): void {
         this.results = JSON.parse(JSON.stringify(results));
+        this._firstSelectedData();
         this.spinner.hideSpinner();
     }
 

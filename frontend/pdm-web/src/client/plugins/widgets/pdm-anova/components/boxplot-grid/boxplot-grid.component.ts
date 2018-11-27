@@ -97,7 +97,7 @@ export class BoxplotGridComponent implements OnChanges, OnDestroy {
                 autosize: true,
                 ticks: '',
                 // side: 'bottom',
-                fixedrange: true // tick 드래그로 이동
+                // fixedrange: true // tick 드래그로 이동
             },
             yaxis: {
                 autorange: true,

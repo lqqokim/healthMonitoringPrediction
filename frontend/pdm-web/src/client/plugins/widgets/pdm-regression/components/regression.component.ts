@@ -1,9 +1,28 @@
 import { Component, Input, OnInit, OnChanges, OnDestroy, ViewEncapsulation } from '@angular/core';
 import { paramTrendData } from '../model/mock-data';
 
-export interface ParamTrend {
+// import * as ITrend from './param-trend/param-trend.component';
 
-}
+export interface TrendCondition {
+    eqpIds: number[];
+    fabId: string;
+    parameters: string[];
+    timePeriod: {
+        from: number;
+        to: number;
+    };
+};
+
+export interface TrendData {
+    eqpIds: number[];
+    fabId: string;
+    paramId: number;
+    parameters: string[];
+    timePeriod: {
+        from: number;
+        to: number;
+    };
+};
 
 @Component({
     moduleId: module.id,
@@ -12,9 +31,9 @@ export interface ParamTrend {
     styleUrls: ['./regression.css'],
     encapsulation: ViewEncapsulation.None
 })
-export class RegressionComponent implements OnInit, OnChanges, OnDestroy{
+export class RegressionComponent implements OnInit, OnChanges, OnDestroy {
 
-    paramTrendData: ParamTrend;
+    trendData: TrendData;
 
     constructor() {
 
@@ -24,23 +43,22 @@ export class RegressionComponent implements OnInit, OnChanges, OnDestroy{
 
     }
 
-    ngOnInit(): void {
-        //Called after the constructor, initializing input properties, and the first call to ngOnChanges.
-        //Add 'implements OnInit' to the class.
+    ngOnInit() {
+
     }
 
-    onAnalysis(condition) {       
-        // console.warn('goddddddddddddddddddd'); 
-        let mokConditon:any = {            
-            'eqpIds': []
-            ,'fabId': 'fab1'
-            ,'paramId':1274
-            ,'parameters': []
-            ,'timePeriod': {'from': condition.timePeriod.from, 'to': condition.timePeriod.to}            
-        }
-
+    onAnalysis(condition: TrendCondition) {
         console.log('condition => ', condition);
-        this.paramTrendData = JSON.parse(JSON.stringify(mokConditon))
+
+        const mokConditon: TrendData = {
+            'eqpIds': []
+            , 'fabId': 'fab1'
+            , 'paramId': 1274
+            , 'parameters': []
+            , 'timePeriod': { 'from': condition.timePeriod.from, 'to': condition.timePeriod.to }
+        };
+
+        this.trendData = JSON.parse(JSON.stringify(mokConditon));
     }
 
     ngOnDestroy() {
