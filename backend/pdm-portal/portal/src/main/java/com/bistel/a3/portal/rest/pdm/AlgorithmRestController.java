@@ -86,19 +86,17 @@ public class AlgorithmRestController {
 
 
 
-    @RequestMapping(value="/getCorrelationHeatMap", method = RequestMethod.PUT)
+    @RequestMapping(value="/fabs/{fabId}/getCorrelationHeatMap", method = RequestMethod.POST)
     public Correlation getCorrelationByPivot(@PathVariable("fabId") String fabId,
                                              @RequestParam("fromdate") Long fromdate,
                                              @RequestParam("todate") Long todate,
                                              @RequestBody List<Long> paramList) throws ParseException {
 
+
         Correlation c=reportService.getCorrelationWithPivot(fabId, paramList, fromdate, todate);
 
         double[][] inputData=c.getCorrelationInput();
         double[][] correlation= StStat.correlation(inputData);
-
-//        double[][] inputData=reportService.getCorrelationWithPivot(fabId, paramList, fromdate, todate).getCorrelationInput();
-//        double[][]correlation= StStat.correlation(inputData);
 
         for (int i = 0; i < correlation.length; i++) {
 
