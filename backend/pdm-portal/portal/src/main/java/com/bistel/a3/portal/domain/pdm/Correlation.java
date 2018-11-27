@@ -9,6 +9,33 @@ public class Correlation {
     private double[][] correlationOutput;
     private List<Long> paramSeq;
     private List<String> paramNames;
+    private Object correlationTrend;
+    private List<List<Object>> correlationScatter;
+    private Regression regression;
+
+    public Regression getRegression() {
+        return regression;
+    }
+
+    public void setRegression(Regression regression) {
+        this.regression = regression;
+    }
+
+    public List<List<Object>> getCorrelationScatter() {
+        return correlationScatter;
+    }
+
+    public void setCorrelationScatter(List<List<Object>> correlationScatter) {
+        this.correlationScatter = correlationScatter;
+    }
+
+    public Object getCorrelationTrend() {
+        return correlationTrend;
+    }
+
+    public void setCorrelationTrend(Object correlationTrend) {
+        this.correlationTrend = correlationTrend;
+    }
 
     public double[][] getCorrelationInput() {
         return correlationInput;

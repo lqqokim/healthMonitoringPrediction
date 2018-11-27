@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.ArrayList;
 
 @Controller
-
 public class RegressionController {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
