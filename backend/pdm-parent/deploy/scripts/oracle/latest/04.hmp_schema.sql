@@ -188,6 +188,33 @@ CREATE UNIQUE INDEX PK_PARAM_MST_PDM ON PARAM_MST_PDM (RAWID) TABLESPACE NPDM_ID
 CREATE UNIQUE INDEX UK_PARAM_MST_PDM ON PARAM_MST_PDM (EQP_MST_RAWID, NAME) TABLESPACE NPDM_IDX;
 
 
+-- -----------------------------------------------------
+-- Table STATUS_PARAM_MST_PDM
+-- -----------------------------------------------------
+CREATE SEQUENCE seq_status_param_mst_pdm
+       INCREMENT BY 1
+       NOMINVALUE
+       NOMAXVALUE
+       CACHE 20
+       NOCYCLE
+       NOORDER;
+
+CREATE TABLE STATUS_PARAM_MST_PDM (
+  RAWID                         NUMBER(38)      NOT NULL,
+  PARAM_MST_RAWID               NUMBER(38)      NOT NULL,
+  VALUE                         VARCHAR2(32)    NOT NULL,
+  STATUS                        VARCHAR2(10)    NOT NULL,
+  CREATE_BY                     VARCHAR2(32)    NULL,
+  CREATE_DTTS                   TIMESTAMP       DEFAULT CURRENT_TIMESTAMP,
+  UPDATE_BY                     VARCHAR2(32)    NULL,
+  UPDATE_DTTS                   TIMESTAMP       DEFAULT CURRENT_TIMESTAMP
+)
+TABLESPACE NPDM_DAT;
+
+CREATE UNIQUE INDEX PK_STATUS_PARAM_MST_PDM ON STATUS_PARAM_MST_PDM (RAWID) TABLESPACE NPDM_IDX;
+CREATE UNIQUE INDEX UK_STATUS_PARAM_MST_PDM ON STATUS_PARAM_MST_PDM (PARAM_MST_RAWID, VALUE) TABLESPACE NPDM_IDX;
+
+
 ---- -----------------------------------------------------
 ---- Table TRACE_TRX_PDM
 ---- -----------------------------------------------------
@@ -250,6 +277,7 @@ CREATE TABLE EQP_TRACE_TRX_PDM (
   RAWID                 NUMBER(38) NOT NULL,
   EQP_MST_RAWID         NUMBER(38) NOT NULL,
   PROCESS_CONTEXT       VARCHAR2(32),
+  PARAM_TYPE_CD         VARCHAR2(8),
   STATUS_CD             CHAR(1),
   DATA_COUNT            NUMBER(10),
   FILE_DATA             BLOB,

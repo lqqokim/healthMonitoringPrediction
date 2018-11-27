@@ -230,125 +230,125 @@ public class StreamingMasterDataDao {
         return eqpMaster;
     }
 
-    private final static String EQP_EVENT_MASTER_DS_SQL =
-            "select " +
-                    "area.name area_name, " +
-                    "eqp.name as eqp_name, " +
-                    "eqp.rawid, " +
-                    "event.rawid as event_rawid, " +
-                    "event.event_name, " +
-                    "event.event_type_cd, " +
-                    "param.name as param_name, " +
-                    "event.condition, " +
-                    "event.process_yn, " +
-                    "param.parse_index, " +
-                    "event.time_interval_yn, " +
-                    "event.interval_time_ms, " +
-                    "event.timeout," +
-                    "param.rawid " +
-                    "from area_mst_pdm area, eqp_mst_pdm eqp, param_mst_pdm param, eqp_event_mst_pdm event " +
-                    "where area.rawid=eqp.area_mst_rawid " +
-                    "and eqp.rawid=param.eqp_mst_rawid " +
-                    "and param.rawid=event.param_mst_rawid " +
-                    "and eqp.rawid=event.eqp_mst_rawid " +
-                    " ";
-
-    public List<EventMaster> getEventMasterDataSet() throws SQLException {
-        List<EventMaster> resultRows = new ArrayList<>();
-
-        try (Connection conn = DataSource.getConnection();
-             PreparedStatement pst = conn.prepareStatement(EQP_EVENT_MASTER_DS_SQL);
-             ResultSet rs = pst.executeQuery()) {
-
-            log.debug("sql:{}", EQP_EVENT_MASTER_DS_SQL);
-
-            while (rs.next()) {
-                EventMaster ds = new EventMaster();
-                ds.setAreaName(rs.getString(1));
-                ds.setEquipmentName(rs.getString(2));
-                ds.setEqpRawId(rs.getLong(3));
-                ds.setEventRawId(rs.getLong(4));
-                ds.setEventName(rs.getString(5));
-                ds.setEventTypeCD(rs.getString(6));
-                ds.setParameterName(rs.getString(7));
-                ds.setCondition(rs.getString(8));
-                ds.setProcessYN(rs.getString(9));
-                ds.setParamParseIndex(rs.getInt(10));
-                ds.setTimeIntervalYn(rs.getString(11));
-                ds.setIntervalTimeMs(rs.getLong(12));
-                ds.setTimeoutMs(rs.getLong(13));
-                ds.setParamRawId(rs.getLong(14));
-
-                resultRows.add(ds);
-            }
-        } catch (SQLException e) {
-            log.error(e.getMessage(), e);
-            throw e;
-        }
-
-        return resultRows;
-    }
-
-    private final static String EQP_EVENT_MASTER_DS_1_SQL =
-            "select " +
-                    "area.name area_name, " +
-                    "eqp.name as eqp_name, " +
-                    "eqp.rawid, " +
-                    "event.rawid as event_rawid, " +
-                    "event.event_name, " +
-                    "event.event_type_cd, " +
-                    "param.name as param_name, " +
-                    "event.condition, " +
-                    "event.process_yn, " +
-                    "param.parse_index, " +
-                    "event.time_interval_yn," +
-                    "event.interval_time_ms," +
-                    "event.timeout, " +
-                    "param.rawid " +
-                    "from area_mst_pdm area, eqp_mst_pdm eqp, param_mst_pdm param, eqp_event_mst_pdm event " +
-                    "where area.rawid=eqp.area_mst_rawid " +
-                    "and eqp.rawid=param.eqp_mst_rawid " +
-                    "and param.rawid=event.param_mst_rawid " +
-                    "and eqp.rawid=event.eqp_mst_rawid " +
-                    "and eqp.name=? ";
-
-    public List<EventMaster> getEventMasterDataSet(String eqpId) throws SQLException {
-        List<EventMaster> resultRows = new ArrayList<>();
-
-        try (Connection conn = DataSource.getConnection()) {
-            try (PreparedStatement pst = conn.prepareStatement(EQP_EVENT_MASTER_DS_1_SQL)) {
-                pst.setString(1, eqpId);
-
-                try (ResultSet rs = pst.executeQuery()) {
-                    log.debug("sql:{}", EQP_EVENT_MASTER_DS_1_SQL);
-
-                    while (rs.next()) {
-                        EventMaster ds = new EventMaster();
-                        ds.setAreaName(rs.getString(1));
-                        ds.setEquipmentName(rs.getString(2));
-                        ds.setEqpRawId(rs.getLong(3));
-                        ds.setEventRawId(rs.getLong(4));
-                        ds.setEventName(rs.getString(5));
-                        ds.setEventTypeCD(rs.getString(6));
-                        ds.setParameterName(rs.getString(7));
-                        ds.setCondition(rs.getString(8));
-                        ds.setProcessYN(rs.getString(9));
-                        ds.setParamParseIndex(rs.getInt(10));
-                        ds.setTimeIntervalYn(rs.getString(11));
-                        ds.setIntervalTimeMs(rs.getLong(12));
-                        ds.setTimeoutMs(rs.getLong(13));
-                        ds.setParamRawId(rs.getLong(14));
-
-                        resultRows.add(ds);
-                    }
-                }
-            }
-        } catch (SQLException e) {
-            log.error(e.getMessage(), e);
-        }
-
-        return resultRows;
-    }
+//    private final static String EQP_EVENT_MASTER_DS_SQL =
+//            "select " +
+//                    "area.name area_name, " +
+//                    "eqp.name as eqp_name, " +
+//                    "eqp.rawid, " +
+//                    "event.rawid as event_rawid, " +
+//                    "event.event_name, " +
+//                    "event.event_type_cd, " +
+//                    "param.name as param_name, " +
+//                    "event.condition, " +
+//                    "event.process_yn, " +
+//                    "param.parse_index, " +
+//                    "event.time_interval_yn, " +
+//                    "event.interval_time_ms, " +
+//                    "event.timeout," +
+//                    "param.rawid " +
+//                    "from area_mst_pdm area, eqp_mst_pdm eqp, param_mst_pdm param, eqp_event_mst_pdm event " +
+//                    "where area.rawid=eqp.area_mst_rawid " +
+//                    "and eqp.rawid=param.eqp_mst_rawid " +
+//                    "and param.rawid=event.param_mst_rawid " +
+//                    "and eqp.rawid=event.eqp_mst_rawid " +
+//                    " ";
+//
+//    public List<EventMaster> getEventMasterDataSet() throws SQLException {
+//        List<EventMaster> resultRows = new ArrayList<>();
+//
+//        try (Connection conn = DataSource.getConnection();
+//             PreparedStatement pst = conn.prepareStatement(EQP_EVENT_MASTER_DS_SQL);
+//             ResultSet rs = pst.executeQuery()) {
+//
+//            log.debug("sql:{}", EQP_EVENT_MASTER_DS_SQL);
+//
+//            while (rs.next()) {
+//                EventMaster ds = new EventMaster();
+//                ds.setAreaName(rs.getString(1));
+//                ds.setEquipmentName(rs.getString(2));
+//                ds.setEqpRawId(rs.getLong(3));
+//                ds.setEventRawId(rs.getLong(4));
+//                ds.setEventName(rs.getString(5));
+//                ds.setEventTypeCD(rs.getString(6));
+//                ds.setParameterName(rs.getString(7));
+//                ds.setCondition(rs.getString(8));
+//                ds.setProcessYN(rs.getString(9));
+//                ds.setParamParseIndex(rs.getInt(10));
+//                ds.setTimeIntervalYn(rs.getString(11));
+//                ds.setIntervalTimeMs(rs.getLong(12));
+//                ds.setTimeoutMs(rs.getLong(13));
+//                ds.setParamRawId(rs.getLong(14));
+//
+//                resultRows.add(ds);
+//            }
+//        } catch (SQLException e) {
+//            log.error(e.getMessage(), e);
+//            throw e;
+//        }
+//
+//        return resultRows;
+//    }
+//
+//    private final static String EQP_EVENT_MASTER_DS_1_SQL =
+//            "select " +
+//                    "area.name area_name, " +
+//                    "eqp.name as eqp_name, " +
+//                    "eqp.rawid, " +
+//                    "event.rawid as event_rawid, " +
+//                    "event.event_name, " +
+//                    "event.event_type_cd, " +
+//                    "param.name as param_name, " +
+//                    "event.condition, " +
+//                    "event.process_yn, " +
+//                    "param.parse_index, " +
+//                    "event.time_interval_yn," +
+//                    "event.interval_time_ms," +
+//                    "event.timeout, " +
+//                    "param.rawid " +
+//                    "from area_mst_pdm area, eqp_mst_pdm eqp, param_mst_pdm param, eqp_event_mst_pdm event " +
+//                    "where area.rawid=eqp.area_mst_rawid " +
+//                    "and eqp.rawid=param.eqp_mst_rawid " +
+//                    "and param.rawid=event.param_mst_rawid " +
+//                    "and eqp.rawid=event.eqp_mst_rawid " +
+//                    "and eqp.name=? ";
+//
+//    public List<EventMaster> getEventMasterDataSet(String eqpId) throws SQLException {
+//        List<EventMaster> resultRows = new ArrayList<>();
+//
+//        try (Connection conn = DataSource.getConnection()) {
+//            try (PreparedStatement pst = conn.prepareStatement(EQP_EVENT_MASTER_DS_1_SQL)) {
+//                pst.setString(1, eqpId);
+//
+//                try (ResultSet rs = pst.executeQuery()) {
+//                    log.debug("sql:{}", EQP_EVENT_MASTER_DS_1_SQL);
+//
+//                    while (rs.next()) {
+//                        EventMaster ds = new EventMaster();
+//                        ds.setAreaName(rs.getString(1));
+//                        ds.setEquipmentName(rs.getString(2));
+//                        ds.setEqpRawId(rs.getLong(3));
+//                        ds.setEventRawId(rs.getLong(4));
+//                        ds.setEventName(rs.getString(5));
+//                        ds.setEventTypeCD(rs.getString(6));
+//                        ds.setParameterName(rs.getString(7));
+//                        ds.setCondition(rs.getString(8));
+//                        ds.setProcessYN(rs.getString(9));
+//                        ds.setParamParseIndex(rs.getInt(10));
+//                        ds.setTimeIntervalYn(rs.getString(11));
+//                        ds.setIntervalTimeMs(rs.getLong(12));
+//                        ds.setTimeoutMs(rs.getLong(13));
+//                        ds.setParamRawId(rs.getLong(14));
+//
+//                        resultRows.add(ds);
+//                    }
+//                }
+//            }
+//        } catch (SQLException e) {
+//            log.error(e.getMessage(), e);
+//        }
+//
+//        return resultRows;
+//    }
 
     private final static String EQP_EXPR_PARAM_MASTER_DS_SQL =
             "select distinct e.rawid eqp_rawid, e.name eqp_name, cs.rule_name, p.name param_name, p.svid " +
@@ -469,5 +469,161 @@ public class StreamingMasterDataDao {
         }
 
         return processGroup;
+    }
+
+
+    private final static String EQP_STATUS_PROCESS_GROUP_SQL =
+            "select " +
+                    "sg.rawid, sg.param_mst_rawid, pm.svid, sg.use_timeout_yn, sg.timeout_ms, sg.use_yn " +
+                    "from process_group_mst_pdm pg, eqp_mst_pdm eqp, status_group_mst_pdm sg, param_mst_pdm pm " +
+                    "where pg.eqp_mst_rawid=eqp.rawid " +
+                    "and pg.rawid=sg.process_group_mst_rawid " +
+                    "and sg.param_mst_rawid=pm.rawid" +
+                    "and eqp.name=? ";
+
+    public List<StatusGroupMaster> getEqpStatusProcessGroup(String eqpId) throws SQLException {
+        List<StatusGroupMaster> resultRows = new ArrayList<>();
+
+        try (Connection conn = DataSource.getConnection()) {
+            try (PreparedStatement pst = conn.prepareStatement(EQP_STATUS_PROCESS_GROUP_SQL)) {
+                pst.setString(1, eqpId);
+
+                try (ResultSet rs = pst.executeQuery()) {
+                    log.debug("sql:{}", EQP_STATUS_PROCESS_GROUP_SQL);
+
+                    while (rs.next()) {
+                        StatusGroupMaster pg = new StatusGroupMaster();
+                        pg.setId(rs.getLong(1));
+                        pg.setParamRawId(rs.getLong(2));
+                        pg.setSvid(rs.getString(3));
+                        pg.setUseTimeoutYN(rs.getString(4));
+                        pg.setTimeoutMS(rs.getLong(5));
+                        pg.setUseYN(rs.getString(6));
+
+                        resultRows.add(pg);
+                    }
+                }
+            } catch (SQLException e) {
+                log.error(e.getMessage(), e);
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+
+        return resultRows;
+    }
+
+    private final static String EQP_PARAM_PROCESS_GROUP_SQL =
+            "select " +
+                    "pg.rawid, pg.param_mst_rawid, pm.svid, pg.condition, pg.use_timeout_yn, pg.timeout_ms, pg.use_yn " +
+                    "from process_group_mst_pdm pcg, eqp_mst_pdm eqp, param_group_mst_pdm pg, param_mst_pdm pm " +
+                    "where pcg.eqp_mst_rawid=eqp.rawid " +
+                    "and pcg.rawid=pg.process_group_mst_rawid " +
+                    "and pg.param_mst_rawid=pm.rawid  " +
+                    "and eqp.name=? ";
+
+    public ParamConditionGroupMaster getEqpParamProcessGroup(String eqpId) throws SQLException {
+        ParamConditionGroupMaster pg = new ParamConditionGroupMaster();
+
+        try (Connection conn = DataSource.getConnection()) {
+            try (PreparedStatement pst = conn.prepareStatement(EQP_PARAM_PROCESS_GROUP_SQL)) {
+                pst.setString(1, eqpId);
+
+                try (ResultSet rs = pst.executeQuery()) {
+                    log.debug("sql:{}", EQP_PARAM_PROCESS_GROUP_SQL);
+
+                    while (rs.next()) {
+                        pg.setId(rs.getLong(1));
+                        pg.setParamRawId(rs.getLong(2));
+                        pg.setSvid(rs.getString(3));
+                        pg.setCondition(rs.getString(4));
+                        pg.setUseTimeoutYN(rs.getString(5));
+                        pg.setTimeoutMS(rs.getLong(6));
+                        pg.setUseYN(rs.getString(7));
+                    }
+                }
+            } catch (SQLException e) {
+                log.error(e.getMessage(), e);
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+
+        return pg;
+    }
+
+    private final static String EQP_EVENT_PROCESS_GROUP_SQL =
+            "select " +
+                    "e.rawid, e.start_event_id, e.end_event_id, e.use_timeout_yn, e.timeout_ms, e.use_yn " +
+                    "from process_group_mst_pdm pg, eqp_mst_pdm eqp, event_group_mst_pdm e " +
+                    "where pg.eqp_mst_rawid=eqp.rawid " +
+                    "and pg.rawid=e.process_group_mst_rawid " +
+                    "and eqp.name=? ";
+
+    public EventGroupMaster getEqpEventProcessGroup(String eqpId) throws SQLException {
+        EventGroupMaster pg = new EventGroupMaster();
+
+        try (Connection conn = DataSource.getConnection()) {
+            try (PreparedStatement pst = conn.prepareStatement(EQP_EVENT_PROCESS_GROUP_SQL)) {
+                pst.setString(1, eqpId);
+
+                try (ResultSet rs = pst.executeQuery()) {
+                    log.debug("sql:{}", EQP_EVENT_PROCESS_GROUP_SQL);
+
+                    while (rs.next()) {
+                        pg.setId(rs.getLong(1));
+                        pg.setStartEventId(rs.getString(2));
+                        pg.setEndEventId(rs.getString(3));
+                        pg.setUseTimeoutYN(rs.getString(4));
+                        pg.setTimeoutMS(rs.getLong(5));
+                        pg.setUseYN(rs.getString(6));
+                    }
+                }
+            } catch (SQLException e) {
+                log.error(e.getMessage(), e);
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+
+        return pg;
+    }
+
+    private final static String PARAM_STATUS_MST_SQL =
+            "select " +
+                    "s.rawid, s.param_mst_rawid, s.value, s.status " +
+                    "from status_param_mst_pdm s, param_mst_pdm p, eqp_mst_pdm e " +
+                    "where s.param_mst_rawid=p.rawid " +
+                    "and p.eqp_mst_rawid=e.rawid " +
+                    "and eqp.name=? ";
+
+    public List<StatusParamMaster> getParamStatusInfo(String eqpId) throws SQLException {
+        List<StatusParamMaster> resultRows = new ArrayList<>();
+
+        try (Connection conn = DataSource.getConnection()) {
+            try (PreparedStatement pst = conn.prepareStatement(PARAM_STATUS_MST_SQL)) {
+                pst.setString(1, eqpId);
+
+                try (ResultSet rs = pst.executeQuery()) {
+                    log.debug("sql:{}", PARAM_STATUS_MST_SQL);
+
+                    while (rs.next()) {
+                        StatusParamMaster pg = new StatusParamMaster();
+                        pg.setId(rs.getLong(1));
+                        pg.setParamRawId(rs.getLong(2));
+                        pg.setValue(rs.getString(3));
+                        pg.setStatus(rs.getString(4));
+
+                        resultRows.add(pg);
+                    }
+                }
+            } catch (SQLException e) {
+                log.error(e.getMessage(), e);
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+
+        return resultRows;
     }
 }

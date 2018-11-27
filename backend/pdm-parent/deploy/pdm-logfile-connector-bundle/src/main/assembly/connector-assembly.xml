@@ -10,7 +10,7 @@
             <directory>../bin</directory>
             <outputDirectory />
             <includes>
-                <include>log-connector.sh</include>
+                <include>logfile-connector.sh</include>
             </includes>
             <excludes>
                 <exclude/>

@@ -131,39 +131,39 @@ public class StreamingMasterService {
         }
     }
 
-    @GET
-    @Path("/latest/event")
-    public Response reloadEventAll() {
-        StreamingMasterDataDao repository = new StreamingMasterDataDao();
-        List<EventMaster> masterDataSet = null;
-
-        try {
-            masterDataSet = repository.getEventMasterDataSet();
-            log.info("Provides the latest event master info. count={}", masterDataSet.size());
-            return Response.status(Response.Status.OK).entity(masterDataSet).build();
-
-        } catch (SQLException e) {
-            log.error(e.getMessage(), e);
-            return Response.status(Response.Status.NOT_FOUND).entity(new Message(e.getMessage())).build();
-        }
-    }
-
-    @GET
-    @Path("/latest/event/{eqpid}")
-    public Response reloadEvent(@PathParam("eqpid") String eqpId) {
-        StreamingMasterDataDao repository = new StreamingMasterDataDao();
-        List<EventMaster> masterDataSet = null;
-
-        try {
-            masterDataSet = repository.getEventMasterDataSet(eqpId);
-            log.info("Provides the latest event master info. count={}", masterDataSet.size());
-            return Response.status(Response.Status.OK).entity(masterDataSet).build();
-
-        } catch (SQLException e) {
-            log.error(e.getMessage(), e);
-            return Response.status(Response.Status.NOT_FOUND).entity(new Message(e.getMessage())).build();
-        }
-    }
+//    @GET
+//    @Path("/latest/event")
+//    public Response reloadEventAll() {
+//        StreamingMasterDataDao repository = new StreamingMasterDataDao();
+//        List<EventMaster> masterDataSet = null;
+//
+//        try {
+//            masterDataSet = repository.getEventMasterDataSet();
+//            log.info("Provides the latest event master info. count={}", masterDataSet.size());
+//            return Response.status(Response.Status.OK).entity(masterDataSet).build();
+//
+//        } catch (SQLException e) {
+//            log.error(e.getMessage(), e);
+//            return Response.status(Response.Status.NOT_FOUND).entity(new Message(e.getMessage())).build();
+//        }
+//    }
+//
+//    @GET
+//    @Path("/latest/event/{eqpid}")
+//    public Response reloadEvent(@PathParam("eqpid") String eqpId) {
+//        StreamingMasterDataDao repository = new StreamingMasterDataDao();
+//        List<EventMaster> masterDataSet = null;
+//
+//        try {
+//            masterDataSet = repository.getEventMasterDataSet(eqpId);
+//            log.info("Provides the latest event master info. count={}", masterDataSet.size());
+//            return Response.status(Response.Status.OK).entity(masterDataSet).build();
+//
+//        } catch (SQLException e) {
+//            log.error(e.getMessage(), e);
+//            return Response.status(Response.Status.NOT_FOUND).entity(new Message(e.getMessage())).build();
+//        }
+//    }
 
     @GET
     @Path("/latest/health")
@@ -229,6 +229,78 @@ public class StreamingMasterService {
         try {
             ds = repository.getEqpProcessGroup(eqpId);
             log.info("Provides the latest process group info.");
+            return Response.status(Response.Status.OK).entity(ds).build();
+
+        } catch (SQLException e) {
+            log.error(e.getMessage(), e);
+            return Response.status(Response.Status.NOT_FOUND).entity(new Message(e.getMessage())).build();
+        }
+    }
+
+    @GET
+    @Path("/latest/statusgroup/{eqpid}")
+    public Response reloadStatusProcessGroup(@PathParam("eqpid") String eqpId) {
+
+        StreamingMasterDataDao repository = new StreamingMasterDataDao();
+        List<StatusGroupMaster> ds = null;
+
+        try {
+            ds = repository.getEqpStatusProcessGroup(eqpId);
+            log.info("Provides the latest status process group info.");
+            return Response.status(Response.Status.OK).entity(ds).build();
+
+        } catch (SQLException e) {
+            log.error(e.getMessage(), e);
+            return Response.status(Response.Status.NOT_FOUND).entity(new Message(e.getMessage())).build();
+        }
+    }
+
+    @GET
+    @Path("/latest/paramconditiongroup/{eqpid}")
+    public Response reloadParamProcessGroup(@PathParam("eqpid") String eqpId) {
+
+        StreamingMasterDataDao repository = new StreamingMasterDataDao();
+        ParamConditionGroupMaster ds = null;
+
+        try {
+            ds = repository.getEqpParamProcessGroup(eqpId);
+            log.info("Provides the latest param condition process group info.");
+            return Response.status(Response.Status.OK).entity(ds).build();
+
+        } catch (SQLException e) {
+            log.error(e.getMessage(), e);
+            return Response.status(Response.Status.NOT_FOUND).entity(new Message(e.getMessage())).build();
+        }
+    }
+
+    @GET
+    @Path("/latest/eventgroup/{eqpid}")
+    public Response reloadEventProcessGroup(@PathParam("eqpid") String eqpId) {
+
+        StreamingMasterDataDao repository = new StreamingMasterDataDao();
+        EventGroupMaster ds = null;
+
+        try {
+            ds = repository.getEqpEventProcessGroup(eqpId);
+            log.info("Provides the latest event condition process group info.");
+            return Response.status(Response.Status.OK).entity(ds).build();
+
+        } catch (SQLException e) {
+            log.error(e.getMessage(), e);
+            return Response.status(Response.Status.NOT_FOUND).entity(new Message(e.getMessage())).build();
+        }
+    }
+
+    @GET
+    @Path("/latest/statusparam/{eqpid}")
+    public Response reloadStatusParamInfo(@PathParam("eqpid") String eqpId) {
+
+        StreamingMasterDataDao repository = new StreamingMasterDataDao();
+        List<StatusParamMaster> ds = null;
+
+        try {
+            ds = repository.getParamStatusInfo(eqpId);
+            log.info("Provides the latest status param info.");
             return Response.status(Response.Status.OK).entity(ds).build();
 
         } catch (SQLException e) {
