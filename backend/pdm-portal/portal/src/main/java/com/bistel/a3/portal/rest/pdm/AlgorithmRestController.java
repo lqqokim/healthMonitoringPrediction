@@ -3,25 +3,17 @@ package com.bistel.a3.portal.rest.pdm;
 
 import BISTel.PeakPerformance.Statistics.Algorithm.Stat.Regression.SimpleLinearRegression;
 import BISTel.PeakPerformance.Statistics.Algorithm.Stat.StStat;
-import com.bistel.a3.portal.domain.common.SocketMessage;
 import com.bistel.a3.portal.domain.pdm.Correlation;
-import com.bistel.a3.portal.domain.pdm.ImageChartData;
 import com.bistel.a3.portal.domain.pdm.Regression;
 import com.bistel.a3.portal.service.pdm.IImageService;
 import com.bistel.a3.portal.service.pdm.impl.std.ReportService;
-import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.HashMap;
+
 import java.util.List;
 import java.util.Map;
 
@@ -71,6 +63,14 @@ public class AlgorithmRestController {
         double intercept=simpleLinearRegression.intercept();
         double slope=simpleLinearRegression.slope();
         double r2=simpleLinearRegression.R2();
+        if(Double.isNaN(r2) && Double.isNaN(slope) && Double.isNaN(intercept))
+        {
+            regressionData.setRegressionPosibility(false);
+        }
+        else
+        {
+            regressionData.setRegressionPosibility(true);
+        }
 
         double start_yValue=(slope*xValue[0])+intercept;
         double end_yValue=(slope*xValue[xValue.length-1])+intercept;
