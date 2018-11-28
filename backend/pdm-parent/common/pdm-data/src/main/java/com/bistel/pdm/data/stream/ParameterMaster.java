@@ -34,9 +34,6 @@ public class ParameterMaster {
     @JsonProperty("dataTypeCode")
     private String dataTypeCode;
 
-    @JsonProperty("collectYN")
-    private String collectYN;
-
     @JsonProperty("summaryYN")
     private String summaryYN;
 
@@ -113,14 +110,6 @@ public class ParameterMaster {
 
     public void setDataTypeCode(String dataTypeCode) {
         this.dataTypeCode = dataTypeCode;
-    }
-
-    public String getCollectYN() {
-        return collectYN;
-    }
-
-    public void setCollectYN(String collectYN) {
-        this.collectYN = collectYN;
     }
 
     public String getSummaryYN() {

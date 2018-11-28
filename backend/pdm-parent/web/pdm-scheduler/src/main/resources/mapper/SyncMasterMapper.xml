@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bistel.pdm.scheduler.job.mapper.SyncMasterMapper">
+
+    <!-- Area 리스트 조회 -->
+    <select id="getAreaList" resultType="hashmap">
+        SELECT RAWID
+        , NAME
+        , PARENT_RAWID
+        FROM AREA_MST_PDM
+        WHERE PARENT_RAWID = 0
+        OR PARENT_RAWID IS NULL
+        ORDER BY RAWID
+    </select>
+
+    <!-- ProcessLine 리스트 조회 -->
+    <select id="getProcessLineList" resultType="hashmap">
+        <![CDATA[
+            SELECT 	A.RAWID
+				, 	A.NAME
+				,	A.PARENT_RAWID
+				,	B.NAME AS PARENT_NAME
+			FROM AREA_MST_PDM A
+			LEFT OUTER JOIN AREA_MST_PDM B
+			ON A.PARENT_RAWID = B.RAWID
+			WHERE	A.PARENT_RAWID <> 0
+			AND		A.PARENT_RAWID IS NOT NULL
+			ORDER BY A.RAWID
+        ]]>
+    </select>
+
+    <insert id="insertAreaMstPdm" parameterType="hashmap">
+        INSERT INTO AREA_MST_PDM(
+        RAWID
+        , NAME
+        , PARENT_RAWID
+        )
+        VALUES (
+        <choose>
+            <when test="RAWID != null and RAWID != ''">#{RAWID}</when>
+            <otherwise>seq_area_mst_pdm.NEXTVAL</otherwise>
+        </choose>
+        , #{NAME}
+        <choose>
+            <when test="LINE != null and LINE != ''">, (select RAWID from AREA_MST_PDM where NAME = #{LINE})</when>
+            <otherwise>, null</otherwise>
+        </choose>
+        )
+    </insert>
+
+    <!-- 해당 커넥션에 맞는 Eqp 리스트 조회 -->
+    <select id="getEqpList" resultType="hashmap" parameterType="hashmap">
+        <![CDATA[
+            SELECT	A.AREA_MST_RAWID
+				,	A.MODEL_NAME
+				,	A.NAME
+				,	B.RAWID
+				,	B.DATA_SYNC_MST_RAWID
+				,	B.IS_DELETED
+				,	C.NAME AS AREA_NAME
+			FROM EQP_MST_PDM A
+			INNER JOIN EQP_SYNC_LINK_MST_PDM B
+			ON A.RAWID = B.EQP_MST_RAWID
+			RIGHT OUTER JOIN AREA_MST_PDM C
+			ON A.AREA_MST_RAWID = C.RAWID
+			WHERE	B.DATA_SYNC_MST_RAWID = #{RAWID}
+			ORDER BY A.RAWID
+        ]]>
+    </select>
+
+
+    <update id="updateEqpSync" parameterType="hashmap">
+        UPDATE EQP_SYNC_LINK_MST_PDM
+        <trim prefix="SET" prefixOverrides=",">
+            <if test="IS_DELETED != null and IS_DELETED != ''">, IS_DELETED = #{IS_DELETED}</if>
+        </trim>
+        WHERE RAWID = #{RAWID}
+    </update>
+
+
+    <insert id="insertEqp" parameterType="hashmap">
+        INSERT INTO EQP_MST_PDM(
+        RAWID
+        , AREA_MST_RAWID
+        , MODEL_NAME
+        , NAME
+        )
+        VALUES (
+        seq_eqp_mst_pdm.NEXTVAL
+        , (select RAWID from AREA_MST_PDM where NAME = #{PROCESSLINE})
+        , #{MODEL_NAME}
+        , #{NAME}
+        )
+        <selectKey keyProperty="EQP_MST_RAWID" resultType="Integer" order="AFTER">
+            SELECT seq_eqp_mst_pdm.CURRVAL FROM dual
+        </selectKey>
+    </insert>
+
+    <insert id="insertEqpSync" parameterType="hashmap">
+        INSERT INTO EQP_SYNC_LINK_MST_PDM(
+        RAWID
+        , EQP_MST_RAWID
+        , DATA_SYNC_MST_RAWID
+        )
+        VALUES (
+        seq_eqp_sync_link_mst_pdm.NEXTVAL
+        , #{EQP_MST_RAWID}
+        , #{DATA_SYNC_MST_RAWID}
+        )
+    </insert>
+
+    <!-- 해당 커넥션에 맞는 파라미터 리스트 조회 -->
+    <select id="getParamList" resultType="hashmap" parameterType="hashmap">
+        <![CDATA[
+            SELECT	C.NAME AS EQP_NAME
+            	,	A.RAWID
+				,	A.SVID
+				,	A.NAME
+				,	A.PARAM_TYPE_CD
+				,	A.DATA_TYPE_CD
+				,	A.UNIT_CD
+				,	A.USE_YN
+				,	B.RAWID AS PARAM_SYNC_RAWID
+				,	B.DATA_SYNC_MST_RAWID
+				,	B.IS_DELETED
+			FROM PARAM_MST_PDM A
+			INNER JOIN PARAM_SYNC_LINK_MST_PDM B
+			ON	A.RAWID = B.PARAM_MST_RAWID
+            RIGHT OUTER JOIN EQP_MST_PDM C
+            ON	A.EQP_MST_RAWID = C.RAWID
+			WHERE	B.DATA_SYNC_MST_RAWID = #{RAWID}
+			ORDER BY A.RAWID
+        ]]>
+    </select>
+
+    <update id="updateParamSync" parameterType="hashmap">
+        UPDATE PARAM_SYNC_LINK_MST_PDM
+        <trim prefix="SET" prefixOverrides=",">
+            <if test="IS_DELETED != null and IS_DELETED != ''">, IS_DELETED = #{IS_DELETED}</if>
+        </trim>
+        WHERE RAWID = #{PARAM_SYNC_RAWID}
+    </update>
+
+    <update id="updateParam" parameterType="hashmap">
+        UPDATE PARAM_MST_PDM
+        <trim prefix="SET" prefixOverrides=",">
+            <if test="USE_YN != null and USE_YN != ''">, USE_YN = #{USE_YN}</if>
+        </trim>
+        WHERE RAWID = #{RAWID}
+    </update>
+
+    <insert id="insertParam" parameterType="hashmap">
+        INSERT INTO PARAM_MST_PDM(
+        RAWID
+        , EQP_MST_RAWID
+        , SVID
+        , NAME
+        , PARAM_TYPE_CD
+        , DATA_TYPE_CD
+        , UNIT_CD
+        , USE_YN
+        )
+        VALUES (
+        seq_param_mst_pdm.NEXTVAL
+        , (select RAWID from EQP_MST_PDM where NAME = #{EQP_NAME})
+        , #{SVID}
+        , #{NAME}
+        , #{PARAM_TYPE_CD}
+        , #{DATA_TYPE_CD}
+        <choose>
+            <when test="UNIT_CD != null and UNIT_CD != ''">, #{UNIT_CD}</when>
+            <otherwise>, 'null'</otherwise>
+        </choose>
+        , #{USE_YN}
+        )
+        <selectKey keyProperty="PARAM_MST_RAWID" resultType="Integer" order="AFTER">
+            SELECT seq_param_mst_pdm.CURRVAL FROM dual
+        </selectKey>
+    </insert>
+
+    <insert id="insertParamSync" parameterType="hashmap">
+        INSERT INTO PARAM_SYNC_LINK_MST_PDM(
+        RAWID
+        , PARAM_MST_RAWID
+        , DATA_SYNC_MST_RAWID
+        )
+        VALUES (
+        seq_param_sync_link_mst_pdm.NEXTVAL
+        , #{PARAM_MST_RAWID}
+        , #{DATA_SYNC_MST_RAWID}
+        )
+    </insert>
+
+</mapper>
