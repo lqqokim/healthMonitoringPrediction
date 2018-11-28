@@ -1,101 +1,31 @@
-.filter-condition {
-    height: calc(100% - 50px);
-    padding: 15px;
+.filter-area{
+    display: block;
+    width: 260px;
+    height: 100%;
+    float: left;
+    padding-right: 8px;
+    border-right: 1px solid #ccc;
+}
+.aside-filter-condition {
+    height: calc(100% - 70px);
     position: relative;
+    padding-right: 10px;
+    overflow-y: auto;
 }
 
-/* .filter-condition > .time > .a3-from-to > div:last-child {
-    padding-top: 20px;
-    color: red;
-} */
-
-.filter-condition label {
-    font-weight: bold;
-    margin-bottom: 5px;
-}
-
-.filter-condition .time .a3-from-to {
-    font-weight: bold;
-}
-
-.filter-condition .time .a3-from-to div:last-child {
-    padding-top: 20px
-}
-
-.filter-condition .time div {
-    padding-top: 20px;
-}
-
-.filter-condition .element .check-group {
+.aside-filter-condition .filter-menu-selector .check-group {
     text-align: center;
     margin-top: 20px;
 }
 
-.filter-condition .element .check-group input[type=checkbox]{
+.aside-filter-condition .filter-menu-selector .check-group input[type=checkbox]{
     font-size: x-large;
 }
 
-.filter-condition .element .check-group .equipment{
+.aside-filter-condition .filter-menu-selector .check-group .equipment{
     margin-left: -20px;
 }
 
-.filter-condition .element .check-group .barcode{
+.aside-filter-condition .filter-menu-selector .check-group .barcode{
     margin-left: 35px;
-}
-
-.filter-condition .element div:not(:first-child) {
-    padding-top: 23px;
-}
-
-.filter-condition .search {
-    width: 100%;
-    position: absolute;
-    bottom: 0;
-    left: -5px;
-}
-
-/* 분석 버튼  */
-.filter-condition .search .button {
-    width: 100%;
-    height: 45px;
-}
-
-.filter-condition > .search > .button {
-    position: relative;
-    background-color: rgb(59, 109, 204);
-    border: none;
-    font-size: 15px;
-    color: #FFFFFF;
-    padding: 8px;
-    text-align: center;
-    transition-duration: 0.4s;
-    text-decoration: none;
-    overflow: hidden;
-    cursor: pointer;
-    font-weight: bold;
-}
-
-.filter-condition > .search > .button:after {
-    content: "";
-    background: #f1f1f1;
-    display: block;
-    position: absolute;
-    padding-top: 300%;
-    padding-left: 350%;
-    margin-left: -20px !important;
-    margin-top: -120%;
-    opacity: 0;
-    transition: all 0.8s
-}
-
-.filter-condition > .search > .button:active:after {
-    padding: 0;
-    margin: 0;
-    opacity: 1;
-    transition: 0s
-}
-
-.filter-condition hr {
-    margin-top: 30px;
-    margin-bottom: 30px;
 }

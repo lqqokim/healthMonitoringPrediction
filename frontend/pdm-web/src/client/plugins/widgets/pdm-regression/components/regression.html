@@ -1,14 +1,8 @@
 <div class="regression clearfix">
-    <div class="filter-area">
-        <div class="row-chart-header">
-            <h3 class="panel-title">Filter Condition</h3>
-        </div>
-
-        <filter-conditon 
-            (searchEmit)="onAnalysis($event)">
-        </filter-conditon>
-    </div>
+    <filter-conditon
+    (searchEmit)="onAnalysis($event)">
+    </filter-conditon>
     <div class="regression-area">
-        <param-trend [data]="trendData"></param-trend>       
+        <param-trend [data]="paramTrendData"></param-trend>      
     </div>
 </div>

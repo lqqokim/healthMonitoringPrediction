@@ -1,14 +1,8 @@
 /* 테이블  */
-.regression-table-container {
-    width: 100%;
-    height: 100%;
-}
-
 .regression-table-container{
     width: 100%;
-    height: calc(100% - 110px);
+    height: 100%`;
     border: solid 1px #eee;
-    margin-top: 10px;
     overflow-y: scroll;
 }
 
@@ -27,6 +21,10 @@
 .regression-table-container table td {
     text-align: left;
     padding-left: 10px;
+    height: 100%;
+}
+.regression-table-container tbody{
+    overflow-y: auto;
     height: 100%;
 }
 
