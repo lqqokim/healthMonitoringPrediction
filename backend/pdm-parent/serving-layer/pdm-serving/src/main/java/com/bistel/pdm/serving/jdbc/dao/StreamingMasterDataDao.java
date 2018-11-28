@@ -21,7 +21,7 @@ public class StreamingMasterDataDao {
     private final static String PARAM_MASTER_DS_SQL =
             "select e.rawid eqp_rawid, e.name eqp_name, e.model_name, " +
                     "p.rawid param_rawid, p.name param_name, p.param_type_cd, p.svid, p.data_type_cd, p.timewave_type_cd, " +
-                    "p.collect_yn, p.summary_yn " +
+                    "p.summary_yn, p.used_yn " +
                     "from eqp_mst_pdm e " +
                     "inner join param_mst_pdm p " +
                     "on e.rawid=p.eqp_mst_rawid " +
@@ -48,8 +48,8 @@ public class StreamingMasterDataDao {
                         ds.setSvid(rs.getString(7));
                         ds.setDataTypeCode(rs.getString(8));
                         ds.setTimewaveTypeCode(rs.getString(9));
-                        ds.setCollectYN(rs.getString(10));
-                        ds.setSummaryYN(rs.getString(11));
+                        ds.setSummaryYN(rs.getString(10));
+                        ds.setUseYN(rs.getString(11));
 
                         resultRows.add(ds);
                     }
@@ -218,6 +218,7 @@ public class StreamingMasterDataDao {
                         eqpMaster.setAreaName(rs.getString(1));
                         eqpMaster.setEquipmentName(rs.getString(2));
                         eqpMaster.setId(rs.getLong(3));
+//                        eqpMaster.setOffline(rs.getString(4));
                     }
                 }
             } catch (SQLException e) {

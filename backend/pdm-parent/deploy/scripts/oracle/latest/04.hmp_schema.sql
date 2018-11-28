@@ -170,11 +170,10 @@ CREATE TABLE PARAM_MST_PDM (
   SVID                          VARCHAR2(128)   NOT NULL,
   NAME                          VARCHAR2(256)   NOT NULL,
   DESCRIPTION                   VARCHAR2(2048)  NULL,
-  PARAM_TYPE_CD                 VARCHAR2(32)    NOT NULL,
+  PARAM_TYPE_CD                 VARCHAR2(8)     NOT NULL,
   TIMEWAVE_TYPE_CD              VARCHAR2(8)     NULL,
   DATA_TYPE_CD                  VARCHAR2(4)     NULL,
   UNIT_CD                       VARCHAR2(32)    NOT NULL,
-  COLLECT_YN                    CHAR(1)         DEFAULT 'Y',
   SUMMARY_YN                    CHAR(1)         DEFAULT 'Y',
   USE_YN                        CHAR(1)         DEFAULT 'Y',
   CREATE_BY                     VARCHAR2(32)    NULL,
@@ -274,14 +273,14 @@ CREATE SEQUENCE seq_eqp_trace_trx_pdm
        NOORDER;
 
 CREATE TABLE EQP_TRACE_TRX_PDM (
-  RAWID                 NUMBER(38) NOT NULL,
-  EQP_MST_RAWID         NUMBER(38) NOT NULL,
+  RAWID                 NUMBER(38)      NOT NULL,
+  EQP_MST_RAWID         NUMBER(38)      NOT NULL,
   PROCESS_CONTEXT       VARCHAR2(32),
   PARAM_TYPE_CD         VARCHAR2(8),
   STATUS_CD             CHAR(1),
   DATA_COUNT            NUMBER(10),
   FILE_DATA             BLOB,
-  TRACE_DTTS            TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  TRACE_DTTS            TIMESTAMP       DEFAULT CURRENT_TIMESTAMP
 )
 TABLESPACE NPDM_DAT
 PARTITION BY RANGE (TRACE_DTTS)
@@ -297,8 +296,54 @@ PARTITION BY RANGE (TRACE_DTTS)
   PARTITION P_201809 VALUES LESS THAN (to_timestamp('201810', 'YYYYMM')),
   PARTITION P_201810 VALUES LESS THAN (to_timestamp('201811', 'YYYYMM')));
 
-CREATE UNIQUE INDEX PK_TRACE_TRX_PDM ON TRACE_TRX_PDM (RAWID) TABLESPACE NPDM_IDX;
-CREATE UNIQUE INDEX UK_TRACE_TRX_PDM ON TRACE_TRX_PDM (TRACE_DTTS, EQP_MST_RAWID) TABLESPACE NPDM_IDX;
+CREATE UNIQUE INDEX PK_EQP_TRACE_TRX_PDM ON EQP_TRACE_TRX_PDM (RAWID) TABLESPACE NPDM_IDX;
+CREATE UNIQUE INDEX UK_EQP_TRACE_TRX_PDM ON EQP_TRACE_TRX_PDM (TRACE_DTTS, EQP_MST_RAWID) TABLESPACE NPDM_IDX;
+
+
+-- -----------------------------------------------------
+-- Table EQP_ARRAY_TRACE_TRX_PDM
+-- -----------------------------------------------------
+CREATE SEQUENCE seq_eqp_array_trace_trx_pdm
+       INCREMENT BY 1
+       NOMINVALUE
+       NOMAXVALUE
+       CACHE 20
+       NOCYCLE
+       NOORDER;
+
+CREATE TABLE EQP_ARRAY_TRACE_TRX_PDM (
+  RAWID                 NUMBER(38)      NOT NULL,
+  EQP_MST_RAWID         NUMBER(38)      NOT NULL,
+  SVID                  VARCHAR2(128)   NOT NULL,
+  PROCESS_CONTEXT       VARCHAR2(32),
+  PARAM_TYPE_CD         VARCHAR2(8),
+  STATUS_CD             CHAR(1),
+  DATA_COUNT            NUMBER(10),
+  TIME_ARRAY            CLOB,
+  VALUE_ARRAY           CLOB,
+  UPPER_ALARM_SPEC      FLOAT           NULL,
+  UPPER_WARNING_SPEC    FLOAT           NULL,
+  TARGET                FLOAT           NULL,
+  LOWER_ALARM_SPEC      FLOAT           NULL,
+  LOWER_WARNING_SPEC    FLOAT           NULL,
+  TRACE_DTTS            TIMESTAMP       DEFAULT CURRENT_TIMESTAMP
+)
+TABLESPACE NPDM_DAT
+PARTITION BY RANGE (TRACE_DTTS)
+   (PARTITION P_201712 VALUES LESS THAN (to_timestamp('201801', 'YYYYMM')),
+  PARTITION P_201801 VALUES LESS THAN (to_timestamp('201802', 'YYYYMM')),
+  PARTITION P_201802 VALUES LESS THAN (to_timestamp('201803', 'YYYYMM')),
+  PARTITION P_201803 VALUES LESS THAN (to_timestamp('201804', 'YYYYMM')),
+  PARTITION P_201804 VALUES LESS THAN (to_timestamp('201805', 'YYYYMM')),
+  PARTITION P_201805 VALUES LESS THAN (to_timestamp('201806', 'YYYYMM')),
+  PARTITION P_201806 VALUES LESS THAN (to_timestamp('201807', 'YYYYMM')),
+  PARTITION P_201807 VALUES LESS THAN (to_timestamp('201808', 'YYYYMM')),
+  PARTITION P_201808 VALUES LESS THAN (to_timestamp('201809', 'YYYYMM')),
+  PARTITION P_201809 VALUES LESS THAN (to_timestamp('201810', 'YYYYMM')),
+  PARTITION P_201810 VALUES LESS THAN (to_timestamp('201811', 'YYYYMM')));
+
+CREATE UNIQUE INDEX PK_EQP_ARRAY_TRACE_TRX_PDM ON EQP_ARRAY_TRACE_TRX_PDM (RAWID) TABLESPACE NPDM_IDX;
+CREATE UNIQUE INDEX UK_EQP_ARRAY_TRACE_TRX_PDM ON EQP_ARRAY_TRACE_TRX_PDM (TRACE_DTTS, EQP_MST_RAWID, SVID) TABLESPACE NPDM_IDX;
 
 -- -----------------------------------------------------
 -- Table TRACE_RAW_TRX_PDM
@@ -361,7 +406,7 @@ CREATE TABLE PARAM_FAULT_TRX_PDM (
   RAWID                     NUMBER(38)          NOT NULL,
   PARAM_MST_RAWID           NUMBER(38)          NOT NULL,
   PARAM_HEALTH_MST_RAWID    NUMBER(38)          NOT NULL,
-  FAULT_TYPE_CD             VARCHAR2(32)        NOT NULL,
+  FAULT_TYPE_CD             VARCHAR2(8)         NOT NULL,
   VALUE                     FLOAT               NOT NULL,
   RULE_NAME                 VARCHAR2(32),
   CONDITION                 VARCHAR2(4000),
@@ -462,23 +507,23 @@ CREATE SEQUENCE seq_param_feature_trx_pdm
        NOORDER;
 
 CREATE TABLE PARAM_FEATURE_TRX_PDM (
-  RAWID                 NUMBER(38) NOT NULL,
-  PARAM_MST_RAWID       NUMBER(38) NOT NULL,
-  BEGIN_DTTS            TIMESTAMP NOT NULL,
-  END_DTTS              TIMESTAMP NOT NULL,
-  COUNT                 NUMBER(12,0) NULL,
-  MIN                   FLOAT NULL,
-  MAX                   FLOAT NULL,
-  MEDIAN                FLOAT NULL,
-  MEAN                  FLOAT NULL,
-  STDDEV                FLOAT NULL,
-  Q1                    FLOAT NULL,
-  Q3                    FLOAT NULL,
-  UPPER_ALARM_SPEC      FLOAT NULL,
-  UPPER_WARNING_SPEC    FLOAT NULL,
-  TARGET                FLOAT NULL,
-  LOWER_ALARM_SPEC      FLOAT NULL,
-  LOWER_WARNING_SPEC    FLOAT NULL,
+  RAWID                 NUMBER(38)      NOT NULL,
+  PARAM_MST_RAWID       NUMBER(38)      NOT NULL,
+  BEGIN_DTTS            TIMESTAMP       NOT NULL,
+  END_DTTS              TIMESTAMP       NOT NULL,
+  COUNT                 NUMBER(12,0)    NULL,
+  MIN                   FLOAT           NULL,
+  MAX                   FLOAT           NULL,
+  MEDIAN                FLOAT           NULL,
+  MEAN                  FLOAT           NULL,
+  STDDEV                FLOAT           NULL,
+  Q1                    FLOAT           NULL,
+  Q3                    FLOAT           NULL,
+  UPPER_ALARM_SPEC      FLOAT           NULL,
+  UPPER_WARNING_SPEC    FLOAT           NULL,
+  TARGET                FLOAT           NULL,
+  LOWER_ALARM_SPEC      FLOAT           NULL,
+  LOWER_WARNING_SPEC    FLOAT           NULL,
   PROCESS_CONTEXT       VARCHAR2(32)
 )
 TABLESPACE NPDM_DAT
@@ -554,14 +599,14 @@ CREATE SEQUENCE seq_param_health_mst_pdm
        NOORDER;
 
 CREATE TABLE PARAM_HEALTH_MST_PDM (
-  RAWID                         NUMBER(38) NOT NULL,
-  PARAM_MST_RAWID               NUMBER(38) NOT NULL,
-  HEALTH_LOGIC_MST_RAWID        NUMBER(38) NOT NULL,
-  APPLY_LOGIC_YN                CHAR(1) DEFAULT 'Y',
-  CREATE_BY                     VARCHAR2(32) NULL,
-  CREATE_DTTS                   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  UPDATE_BY                     VARCHAR2(32) NULL,
-  UPDATE_DTTS                   TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  RAWID                         NUMBER(38)      NOT NULL,
+  PARAM_MST_RAWID               NUMBER(38)      NOT NULL,
+  HEALTH_LOGIC_MST_RAWID        NUMBER(38)      NOT NULL,
+  APPLY_LOGIC_YN                CHAR(1)         DEFAULT 'Y',
+  CREATE_BY                     VARCHAR2(32)    NULL,
+  CREATE_DTTS                   TIMESTAMP       DEFAULT CURRENT_TIMESTAMP,
+  UPDATE_BY                     VARCHAR2(32)    NULL,
+  UPDATE_DTTS                   TIMESTAMP       DEFAULT CURRENT_TIMESTAMP
 )
 TABLESPACE NPDM_DAT;
 

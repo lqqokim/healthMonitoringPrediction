@@ -1,4 +1,4 @@
-package com.bistel.pdm.scheduler.service;
+package com.bistel.pdm.scheduler.service.impl;
 
 import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
@@ -12,7 +12,7 @@ import org.springframework.scheduling.quartz.SimpleTriggerFactoryBean;
 import java.text.ParseException;
 import java.util.Date;
 
-class JobUtil {
+public class JobUtil {
     /**
      * Create Quartz Job.
      *

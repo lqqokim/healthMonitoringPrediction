@@ -95,7 +95,7 @@ public class TraceQueueService {
 
                     Map<Integer, String> paramSvidList = new HashMap<>();
                     for(ParameterMaster parameterMaster : parameterMasterList){
-                        if(parameterMaster.getCollectYN().equalsIgnoreCase("Y")) {
+                        if(parameterMaster.getUseYN().equalsIgnoreCase("Y")) {
                             for (String vid : header.keySet()) {
                                 if (parameterMaster.getSvid().equalsIgnoreCase(vid)) {
                                     Integer index = header.get(vid);
@@ -108,6 +108,8 @@ public class TraceQueueService {
 
                     Map<Integer, String> eventSvidList = new HashMap<>();
                     ProcessGroupMaster processGroupMaster = MasterCache.ProcessGroup.get(key);
+                    log.debug("process group type : {}", processGroupMaster.getGroupType());
+
                     if(processGroupMaster.getGroupType().equalsIgnoreCase("STATUS")){
                         List<StatusGroupMaster> statusGroupMasterList = MasterCache.StatusProcessGroup.get(key);
 
