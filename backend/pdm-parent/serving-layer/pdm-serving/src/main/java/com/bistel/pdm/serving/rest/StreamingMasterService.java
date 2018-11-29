@@ -296,7 +296,7 @@ public class StreamingMasterService {
     public Response reloadStatusParamInfo(@PathParam("eqpid") String eqpId) {
 
         StreamingMasterDataDao repository = new StreamingMasterDataDao();
-        List<StatusParamMaster> ds = null;
+        StatusParamMaster ds = null;
 
         try {
             ds = repository.getParamStatusInfo(eqpId);

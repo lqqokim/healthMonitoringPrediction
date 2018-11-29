@@ -817,14 +817,29 @@ public class ReportService implements IReportService {
         }
 
         SimpleLinearRegression simpleRegression=new SimpleLinearRegression (xRegressionInput, yRegressionInput);
-        simpleRegression.R2();
-        simpleRegression.slope();
-        simpleRegression.intercept();
+        double r2=simpleRegression.R2();
+        double slope=simpleRegression.slope();
+        double intercept=simpleRegression.intercept();
+
         Regression r=new Regression();
+        r.setIntercept(intercept);
+        r.setSlope(slope);
+        r.setR2(r2);
+        if(Double.isNaN(r2) && Double.isNaN(slope) && Double.isNaN(intercept))
+        {
+            r.setRegressionPosibility(false);
+        }
+        else
+        {
+            r.setRegressionPosibility(true);
+        }
+
         r.setStart_xValue(xRegressionInput[0]);
-        r.setStart_yValue(yRegressionInput[0]);
+        r.setStart_yValue(intercept+slope*xRegressionInput[0]);
+
         r.setEnd_xValue(xRegressionInput[scatterData.size()-1]);
-        r.setEnd_yValue(yRegressionInput[scatterData.size()-1]);
+        r.setEnd_yValue(intercept+slope*xRegressionInput[scatterData.size()-1]);
+
 
         correlation.setCorrelationScatter(ScatterData);
         correlation.setRegression(r);

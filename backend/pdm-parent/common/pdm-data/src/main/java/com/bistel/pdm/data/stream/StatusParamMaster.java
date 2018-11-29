@@ -10,6 +10,9 @@ public class StatusParamMaster {
     @JsonProperty("paramRawId")
     private Long paramRawId;
 
+    @JsonProperty("svid")
+    private String svid;
+
     @JsonProperty("value")
     private String value;
 
@@ -46,5 +49,13 @@ public class StatusParamMaster {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getSvid() {
+        return svid;
+    }
+
+    public void setSvid(String svid) {
+        this.svid = svid;
     }
 }

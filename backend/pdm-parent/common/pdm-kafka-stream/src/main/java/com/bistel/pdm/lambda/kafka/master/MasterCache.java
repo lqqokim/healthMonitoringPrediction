@@ -483,15 +483,15 @@ public class MasterCache {
                 }
             });
 
-    public static LoadingCache<String, List<StatusParamMaster>> StatusParam = CacheBuilder.newBuilder()
+    public static LoadingCache<String, StatusParamMaster> StatusParam = CacheBuilder.newBuilder()
             .maximumSize(100000)
             .expireAfterAccess(24, TimeUnit.HOURS)
-            .build(new CacheLoader<String, List<StatusParamMaster>>() {
+            .build(new CacheLoader<String, StatusParamMaster>() {
                 @Override
-                public List<StatusParamMaster> load(String key) {
+                public StatusParamMaster load(String key) {
                     String targetUrl = ServingAddress + "/pdm/api/master/latest/statusparam/" + key + "";
 
-                    List<StatusParamMaster> masterDataList = null;
+                    StatusParamMaster masterDataList = null;
 
                     ResteasyClient client = new ResteasyClientBuilder().build();
                     Response response = client.target(targetUrl).request().get();
@@ -503,7 +503,7 @@ public class MasterCache {
                         if (body.length() <= 0) {
                             log.info("status parameter info. does not exists. message: " + body);
                         } else {
-                            masterDataList = mapper.readValue(body, new TypeReference<List<StatusParamMaster>>() {
+                            masterDataList = mapper.readValue(body, new TypeReference<StatusParamMaster>() {
                             });
 
                             log.info("{} reloaded.", key);

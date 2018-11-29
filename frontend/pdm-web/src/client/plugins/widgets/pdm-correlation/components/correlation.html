@@ -1,52 +1,41 @@
 <div class="correlation clearfix">
     <!-- <split direction="horizontal" [gutterSize]="3">
         <split-area size="20" class='condition'>  -->
-            <div class="filter-area">
-                <div class="row-chart-header">
-                    <h3 class="panel-title">Filter Condition</h3>
-                </div>
-
-                <filter-conditon 
-                    (searchEmit)="onAnalysis($event)">
-                </filter-conditon>
-            </div>
-        <!-- </split-area>
+    <filter-conditon 
+    (searchEmit)="onAnalysis($event)">
+    </filter-conditon>
+    <!-- </split-area>
         <split-area size="80" class='chart'> -->
-            <div class="correlation-area">
-                <div class="top-area">
-                    <div class="correlation-heatmap">
-                        <div class="row-chart-header">
-                            <h3 class="panel-title">Correlation Heatmap</h3>
-                        </div>
-                        <heatmap
-                            [data]="heatmapData"
-                            (spinnerControl)="spinnerControl($event)"
-                            (onClickHeatmap)="onClickHeatmap($event)">
-                        </heatmap>
-                    </div>
-
-                    <div class="correlation-scatter">
-                        <div class="row-chart-header">
-                            <h3 class="panel-title">Scatter Plot</h3>
-                        </div>
-                       <scatter
-                            [data]="scatterData">
-                        </scatter>
-                    </div>
+    <div class="correlation-area">
+        <div class="top-area">
+            <div class="correlation-heatmap">
+                <div class="row-chart-header">
+                    <h3 class="panel-title">Correlation Heatmap</h3>
                 </div>
-
-                <div class="bottom-area">
-                    <div class="correlation-trend">
-                        <div class="row-chart-header">
-                            <h3 class="panel-title">Trend Chart</h3>
-                        </div>
-                        <trend
-                            [data]="trendData">
-                        </trend>
-                    </div>
-                </div>
+                <heatmap [data]="heatmapData" (spinnerControl)="spinnerControl($event)" (onClickHeatmap)="onClickHeatmap($event)">
+                </heatmap>
             </div>
-        <!-- </split-area>
+
+            <div class="correlation-scatter">
+                <div class="row-chart-header">
+                    <h3 class="panel-title">Scatter Plot</h3>
+                </div>
+                <scatter [data]="scatterData">
+                </scatter>
+            </div>
+        </div>
+
+        <div class="bottom-area">
+            <div class="correlation-trend">
+                <div class="row-chart-header">
+                    <h3 class="panel-title">Trend Chart</h3>
+                </div>
+                <trend [data]="trendData">
+                </trend>
+            </div>
+        </div>
+    </div>
+    <!-- </split-area>
     </split> -->
 </div>
 <div a3-spinner #Spinner [type]="'component'"></div>
