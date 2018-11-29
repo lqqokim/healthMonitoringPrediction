@@ -1,5 +1,7 @@
 import { Component, OnInit, OnChanges, OnDestroy, ViewEncapsulation, ViewChild, Input, SimpleChanges, AfterViewInit } from '@angular/core';
 import { SpinnerComponent, StompService } from '../../../../../sdk';
+import { RegressionComponent } from '../regression.component';
+import { RegressionTrendChartComponent } from '../regression-trend-chart/regression-trend-chart.component';
 
 @Component({
     moduleId: module.id,
@@ -11,8 +13,9 @@ import { SpinnerComponent, StompService } from '../../../../../sdk';
 export class ParamTrendComponent implements OnChanges, OnInit, AfterViewInit, OnDestroy {
     @Input() data;
     @ViewChild('Spinner') spinner:SpinnerComponent;
+    @ViewChild('imageChart') imageChart:RegressionTrendChartComponent;
 
-    chartFlag: string = 'image';   
+    chartFlag: string = 'trend';   
     paramTrendDatas: any={};
     paramTrendConfig: any;
 
@@ -23,6 +26,10 @@ export class ParamTrendComponent implements OnChanges, OnInit, AfterViewInit, On
     chartIds:any = []
 
     paramCount:number = 0;
+    
+    chartType:String = 'image';
+
+    originType:String ='init';
     
 
     constructor(private _stompService: StompService) {
@@ -45,34 +52,35 @@ export class ParamTrendComponent implements OnChanges, OnInit, AfterViewInit, On
             "yMax": 104.57874015748031,
             "yMin": 49.63385826771655
         }
+        let imageData =
+        {
+            xMin :1541030400000,
+            xMax :1541116800000,
+            yMin :'1',
+            yMax :'10',
+            image : 'data:image/png;base64,dd'
+        }
+        this.chartDatas=[{divId:"aa",chartDatas:[],imageData:imageData}];
+        
     }
 
     ngOnChanges(changes: SimpleChanges) {
         if (changes && changes['data']['currentValue']) {
             const data = changes['data']['currentValue'];
-            // this.drawParamTrend(data);
-            // this.send();                  
             this.datasReset();
             this.start(0);
         }
     }
 
     start(counter){
-        let pramLength:number = 5;
-        if(counter < pramLength){
-        
-            setTimeout(()=>{
-            
-                counter++;
-                
-                this.send(pramLength);
-                
-                this.start(counter);
-            
-            }, 1000);
-        
-        }
-        
+        let pramLength:number = 2;
+        if(counter < pramLength){        
+            setTimeout(()=>{            
+                counter++;                
+                this.send(pramLength);                
+                this.start(counter);            
+            }, 1000);        
+        }        
     }
         
         
@@ -83,15 +91,14 @@ export class ParamTrendComponent implements OnChanges, OnInit, AfterViewInit, On
                 "height": 428,
                 "width": 1615,
                 "sessionId" :'' ,
-                "series" :'' ,
                 "fromdate":'',
                 "todate":''
-            };
+            };            
             chartInfoDatas.type = e.type;       
             chartInfoDatas.sessionId = e.sessionId;
-            chartInfoDatas.series = e.series
-            chartInfoDatas.fromdate = e.datas[0];
-            chartInfoDatas.todate = e.datas[1];
+            chartInfoDatas.fromdate = new Date(e.fromdate).getTime();
+            chartInfoDatas.todate = new Date(e.todate).getTime();
+            this.paramCount = 0;
             this.changedSend(chartInfoDatas);
     }
     
@@ -102,22 +109,13 @@ export class ParamTrendComponent implements OnChanges, OnInit, AfterViewInit, On
         let message={};
         
         this.spinner.showSpinner();
-        if(this.chartFlag == 'trend'){
             imageWidth = parseInt(localStorage.getItem('imageWidth'));
             imageHeight = parseInt(localStorage.getItem('imageHeight'));
-        }else{
-            imageWidth = document.querySelector('.chart-body').clientWidth - 50;
-            imageHeight = document.querySelector('.chart-body').clientHeight - 10;
-            localStorage.setItem('imageWidth', imageWidth.toString());
-            localStorage.setItem('imageHeight', imageHeight.toString());
-        }
         message['parameters']={};
         message['parameters']['type'] = 'default';   
         message['parameters']['fabId'] = this.data.fabId;
         message['parameters']['paramId'] = this.data.paramId;
-        message['parameters']['sessionId'] = this.uuidv4();
-        // message['parameters']['fromdate'] = this.data.timePeriod.from;
-        // message['parameters']['todate'] = this.data.timePeriod.to;        
+        message['parameters']['sessionId'] = this.uuidv4();    
         message['parameters']['fromdate'] = 1536813537000;
         message['parameters']['todate'] = 1536817437000;   
         message['parameters']['imageWidth'] = imageWidth;
@@ -126,21 +124,20 @@ export class ParamTrendComponent implements OnChanges, OnInit, AfterViewInit, On
     let reply = this._stompService.send(null,'getRegressionTrend',message,payload => {    
                 if(payload.chartFlag == 'image'){
                     this.paramCount ++;
-                    this.chartFlag = 'image';
+                    this.originType = 'image';
+                    this.chartType = 'image'  
+                     this.trandchartInit(payload);   
                     this.addChartIds(payload.sessionId);
-                    localStorage.setItem('imageWidth', imageWidth.toString());
-                    localStorage.setItem('imageHeight', imageHeight.toString());
-                    this.chartInfo = payload.imageChartData;    
                     if(this.paramCount == pramLength){
                         this._stompService.finishSend(reply);
                         this.spinner.hideSpinner();
                     }
-                }else{
-                    console.warn('trend');                   
+                }else{                      
+                    this.originType = 'trend';
+                    this.chartType = 'trend';             
                     this.paramCount ++;
-                    this.trandchartInit(payload.trendData,payload.sessionId);   
-                    this.chartFlag = 'trend';
                     this.addChartIds(payload.sessionId);
+                    this.trandchartInit(payload);   
                 
                     this.optionChange(1);
                     if(this.paramCount == pramLength){
@@ -157,19 +154,14 @@ export class ParamTrendComponent implements OnChanges, OnInit, AfterViewInit, On
         let imageHeight:any = '';
         let message={};
         
-        if(this.chartFlag == 'trend'){
-            imageWidth = parseInt(localStorage.getItem('imageWidth'));
-            imageHeight = parseInt(localStorage.getItem('imageHeight'));
-        }else{
-            imageWidth = document.querySelector('.chart-body').clientWidth - 50;
-            imageHeight = document.querySelector('.chart-body').clientHeight - 10;
-        }
+        let imageChartSize = this.imageChart.getImageSize();
+        imageWidth = imageChartSize.width;
+        imageHeight = imageChartSize.height;       
         message['parameters']={};
         message['parameters']['type'] = e.type;   
         message['parameters']['fabId'] = this.data.fabId;
         message['parameters']['paramId'] = this.data.paramId;
         message['parameters']['sessionId'] = e.sessionId;
-        message['parameters']['series'] = e.series;
         message['parameters']['fromdate'] = e.fromdate;
         message['parameters']['todate'] = e.todate;     
         message['parameters']['imageWidth'] = imageWidth;
@@ -178,34 +170,70 @@ export class ParamTrendComponent implements OnChanges, OnInit, AfterViewInit, On
 
     let reply = this._stompService.send(null,'getRegressionTrend',message,payload => {       
                 if(payload.chartFlag == 'image'){
-                    this.chartFlag = 'image';
-                    this.addChartIds(payload.sessionId);
-                    this.chartInfo = payload.imageChartData;
+                    this.paramCount ++;
+                    this.chartType = 'image'                  
+                    for(let i=0; i<this.chartDatas.length; i++){
+                        if(this.chartDatas[i].divId == payload.sessionId){
+                            this.chartDatas[i].imageData = 
+                            {
+                                xMin : payload.imageChartData.xMin,
+                                xMax : payload.imageChartData.xMax,
+                                yMin : payload.imageChartData.yMin,
+                                yMax : payload.imageChartData.yMax,
+                                image : payload.imageChartData.image
+                            }
+                            break;
+                        }
+                    }
+                    if(this.paramCount == this.chartIds.length){
+                        this.paramCount = 0;
+                        this._stompService.finishSend(reply);
+                        this.spinner.hideSpinner();
+                    }
                     this._stompService.finishSend(reply);
                     this.spinner.hideSpinner();
                 }else{
-                    console.warn('trend');
-                    localStorage.setItem('imageWidth', imageWidth.toString());
-                    localStorage.setItem('imageHeight', imageHeight.toString());                     
-                    this.trandchartInit(payload.trendData,payload.sessionId);       
-                    this.chartFlag = 'trend';                           
-                    this.addChartIds(payload.sessionId);
-                    this.optionChange(1);
-                    this._stompService.finishSend(reply);
-                    this.spinner.hideSpinner();
+                    this.paramCount ++;                 
+                    this.chartType = 'trend'     
+                    for(let i=0; i<this.chartDatas.length; i++){
+                        if(this.chartDatas[i].divId == payload.sessionId){
+                            this.chartDatas[i].chartDatas = [];   
+                            this.chartDatas[i].chartDatas = payload.trendData;                            
+                            break;
+                        }
+                    }                  
+                    if(this.paramCount == this.chartIds.length){
+                        this.paramCount = 0;
+                        this._stompService.finishSend(reply);
+                        this.spinner.hideSpinner();
+                    }
                 }
             });
 
     }
     
 
-    trandchartInit(data,sessionId): void {
-        this.paramTrendDatas = {
-            chartDatas:data,
-            divId:sessionId
-        };     
-        this.chartDatas.push(this.paramTrendDatas);
-        console.warn(this.chartDatas);
+    trandchartInit(e:any): void {
+        if(this.chartType == 'image'){
+            this.paramTrendDatas = {imageData:{
+                xMin : e.imageChartData.xMin,
+                xMax : e.imageChartData.xMax,
+                yMin : e.imageChartData.yMin,
+                yMax : e.imageChartData.yMax,
+                image : e.imageChartData.image
+                },
+                divId:e.sessionId,
+                chartDatas:[]
+            }
+        }else{           
+            this.paramTrendDatas = {
+                chartDatas:e.trendData,
+                divId:e.sessionId
+            };     
+        }
+       
+        this.chartDatas.push(this.paramTrendDatas);   
+
     }
 
     addChartIds(sessionId){
@@ -223,8 +251,11 @@ export class ParamTrendComponent implements OnChanges, OnInit, AfterViewInit, On
         );
     }
 
+    getImageSize(){        
+        return {width:$('#aa').find('.nsewdrag').width(),height:$('#aa').find('.nsewdrag').height()};
+    }
+
     optionChange(e:any){  
-        console.warn(e); 
         if(e==1){//zoom        
             this.dragMode = 'zoom';  
         }else{//regression            
@@ -233,8 +264,13 @@ export class ParamTrendComponent implements OnChanges, OnInit, AfterViewInit, On
     }
 
     datasReset(){
-        this.chartFlag = 'image';
-        this.chartFlag = 'trend';
+        let imageWidth:any = '';
+        let imageHeight:any = '';
+        let imageChartSize = this.imageChart.getImageSize();
+        imageWidth = imageChartSize.width;
+        imageHeight = imageChartSize.height;            
+        localStorage.setItem('imageWidth', imageWidth.toString());
+        localStorage.setItem('imageHeight', imageHeight.toString());         
         this.paramCount = 0;
         this.dragMode = 'zoom';
         this.chartIds = [];
