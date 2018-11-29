@@ -10,6 +10,15 @@ public class Regression {
     private double start_yValue;
     private double end_xValue;
     private double end_yValue;
+    private boolean regressionPosibility;
+
+    public boolean isRegressionPosibility() {
+        return regressionPosibility;
+    }
+
+    public void setRegressionPosibility(boolean regressionPosibility) {
+        this.regressionPosibility = regressionPosibility;
+    }
 
     public double getIntercept() {
         return intercept;

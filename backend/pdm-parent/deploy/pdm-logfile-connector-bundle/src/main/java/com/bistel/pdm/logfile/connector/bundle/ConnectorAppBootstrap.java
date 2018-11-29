@@ -1,7 +1,6 @@
 package com.bistel.pdm.logfile.connector.bundle;
 
-import com.bistel.pdm.logfile.connector.LogFileRestServer;
-import com.bistel.pdm.logfile.connector.LogFileWatcher;
+import com.bistel.pdm.logfile.connector.LogFileMonitor;
 import com.bistel.pdm.logfile.connector.watcher.WatchingDirectoryScan;
 import org.apache.commons.cli.*;
 import org.apache.log4j.PropertyConfigurator;
@@ -9,110 +8,93 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.FileInputStream;
-import java.net.InetAddress;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Properties;
 
 public class ConnectorAppBootstrap {
     private final static Logger log = LoggerFactory.getLogger(ConnectorAppBootstrap.class);
 
-    private static final String hostName = getHostname();
-
-    private static final String SERVER = "server";
-    private static final String PORT = "port";
+    private static final String SERVING_ADDR = "servingAddr";
     private static final String BROKER_NAME = "brokers";
-    private static final String TOPIC_PREFIX = "topicPrefix";
     private static final String WATCH_DIR = "watchDir";
-    private static final String CLIENT_ID = "clientId";
+    private static final String KEY_LIST = "keylist";
     private static final String PROP_KAFKA_CONF = "kafkaConf";
     private static final String LOG_PATH = "log4jConf";
 
     private static final Options options = new Options();
 
-    private static ArrayList<Thread> watcherThreads = new ArrayList<>();
+    private static ArrayList<Thread> arrThreads = new ArrayList<>();
 
     public static void main(String[] args) throws Exception {
         if (args.length <= 0) {
-            args = new String[]{"-server",  "localhost",
-                    "-port", "8989",
-                    "-brokers", "192.168.7.228",
-                    "-topicPrefix", "pdm-input",
-                    "-watchDir", "/Users/hansonjang/pdm/test/",
-                    "-clientId", "client-0",
-                    "-kafkaConf", "/producer.properties",
-                    "-log4jConf", "/log4j.properties"};
+            args = new String[]{"-servingAddr", "http://localhost:8089",
+                    "-brokers", "localhost:9092",
+                    "-keylist", "EQP01,EQP02",
+                    "-watchDir", "data/EQP01,data/EQP02",
+                    "-kafkaConf", "connector/logfile-connector/src/main/resources/producer.properties",
+                    "-log4jConf", "deploy/pdm-logfile-connector-bundle/src/main/resources/log4j.properties"};
         }
 
         CommandLine commandLine = parseCommandLine(args);
 
-        String server = commandLine.getOptionValue(SERVER);
-        String port = commandLine.getOptionValue(PORT);
-
-        String host = commandLine.getOptionValue(BROKER_NAME);
-        if (host == null || host.isEmpty()) {
-            host = hostName;
-        }
-
+        String servingAddr = commandLine.getOptionValue(SERVING_ADDR);
         String watchDir = commandLine.getOptionValue(WATCH_DIR);
-        String clientId = commandLine.getOptionValue(CLIENT_ID);
-        String destTopicPrefix = commandLine.getOptionValue(TOPIC_PREFIX);
-        String configPath = commandLine.getOptionValue(PROP_KAFKA_CONF);
-        String logPath = commandLine.getOptionValue(LOG_PATH);
+        String eqpList = commandLine.getOptionValue(KEY_LIST);
+        String producerConfigPath = commandLine.getOptionValue(PROP_KAFKA_CONF);
+        String logConfigPath = commandLine.getOptionValue(LOG_PATH);
 
         Properties logProperties = new Properties();
-        logProperties.load(new FileInputStream(logPath));
+        logProperties.load(new FileInputStream(logConfigPath));
         PropertyConfigurator.configure(logProperties);
 
-        log.info("Watching File : {}", watchDir);
+        log.info("Watching Directory : {}", watchDir);
 
         try {
-            WatchingDirectoryScan scan = new WatchingDirectoryScan(watchDir);
-            log.info("collector count : {}", scan.getConcernDirectory().size());
+            String[] keyList = eqpList.split(",");
+            String[] watchingList = watchDir.split(",");
 
-            int idx = 1;
-            for (Path watchingPath : scan.getConcernDirectory()) {
-                LogFileWatcher monitor =
-                        new LogFileWatcher(configPath, clientId + idx, destTopicPrefix, watchingPath);
-                monitor.setDaemon(true);
+            for (int i = 0; i < keyList.length; i++) {
+                WatchingDirectoryScan scan = new WatchingDirectoryScan(watchingList[i]);
+                log.info("collector count : {}", scan.getConcernDirectory().size());
+
+                LogFileMonitor monitor =
+                        new LogFileMonitor(keyList[i], producerConfigPath, servingAddr, watchingList[i]);
                 monitor.start();
-                idx++;
 
-                watcherThreads.add(monitor);
+                arrThreads.add(monitor);
             }
 
-            for (Thread arrThread : watcherThreads) {
-                arrThread.join();
+            try {
+                for (Thread arrThread : arrThreads) {
+                    arrThread.join();
+                }
+            } catch (InterruptedException ex) {
+                Thread.currentThread().interrupt();
             }
+
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
-
-        // REST Server
-        try (LogFileRestServer restServer = new LogFileRestServer()) {
-            int portNum = Integer.parseInt(port);
-            restServer.start(server, portNum);
-        }
     }
 
     private static CommandLine parseCommandLine(String[] args) {
-        Option server = new Option(SERVER, true, "rest server address");
-        Option port = new Option(PORT, true, "listen port");
-        Option host = new Option(BROKER_NAME, true, "kafka broker");
-        Option topicPrefix = new Option(TOPIC_PREFIX, true, "kafka topic for input messages");
+        Option servingAddr = new Option(SERVING_ADDR, true, "serving address");
+        Option broker = new Option(BROKER_NAME, true, "kafka broker");
+        Option eqpList = new Option(KEY_LIST, true, "key(equipment) lists");
         Option watchDir = new Option(WATCH_DIR, true, "directory to monitor");
-        Option clientId = new Option(CLIENT_ID, true, "client id");
-        Option config = new Option(PROP_KAFKA_CONF, true, "kafka config path");
+        Option producerConfig = new Option(PROP_KAFKA_CONF, true, "kafka producer config path");
         Option logConfig = new Option(LOG_PATH, true, "log config path");
 
-        options.addOption(server).addOption(port).addOption(host)
-                .addOption(topicPrefix).addOption(watchDir)
-                .addOption(clientId)
-                .addOption(config).addOption(logConfig);
+        options.addOption(servingAddr)
+                .addOption(broker)
+                .addOption(eqpList)
+                .addOption(watchDir)
+                .addOption(producerConfig).
+                addOption(logConfig);
 
-        if (args.length < 8) {
+        if (args.length < 6) {
             printUsageAndExit();
         }
         CommandLineParser parser = new DefaultParser();
@@ -130,31 +112,5 @@ public class ConnectorAppBootstrap {
         HelpFormatter formatter = new HelpFormatter();
         formatter.printHelp("connector server", options);
         System.exit(1);
-    }
-
-    public static String getHostname() {
-        String hostName;
-        try {
-            hostName = InetAddress.getLocalHost().getHostName();
-            int firstDotPos = hostName.indexOf('.');
-            if (firstDotPos > 0) {
-                hostName = hostName.substring(0, firstDotPos);
-            }
-        } catch (Exception e) {
-            // fall back to env var.
-            hostName = System.getenv("HOSTNAME");
-        }
-        return hostName;
-    }
-
-    static class cleanupThread extends Thread {
-        @Override
-        public void run() {
-            try {
-
-            } catch (Throwable t) {
-                log.error("Shutdown failure in connector : ", t);
-            }
-        }
     }
 }

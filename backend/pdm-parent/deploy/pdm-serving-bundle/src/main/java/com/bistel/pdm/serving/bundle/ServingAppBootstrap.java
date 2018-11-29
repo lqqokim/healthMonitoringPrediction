@@ -25,7 +25,9 @@ public final class ServingAppBootstrap {
 
     public static void main(String[] args) throws Exception {
         if (args.length <= 0) {
-            args = new String[]{"-server", "localhost", "-port", "8089", "-log4jConf", "log4j.properties"};
+            args = new String[]{"-server", "localhost",
+                    "-port", "8089",
+                    "-log4jConf", "deploy/pdm-serving-bundle/src/main/resources/log4j.properties"};
         }
 
         log.info("args size={}, args={}", args.length, args);

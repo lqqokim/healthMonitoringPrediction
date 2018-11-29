@@ -91,4 +91,6 @@ public interface IReportService {
     double[][] getCorrelationInput(String fabId, Long eqpId, Long fromdate, Long todate);
 
     Correlation getCorrelationWithPivot(String fabId, List<Long> paramList, Long fromdate, Long todate);
+
+    Correlation getScatter(String fabId, Long[] paramIds, Long fromdate, Long todate);
 }

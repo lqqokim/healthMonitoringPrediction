@@ -11,7 +11,7 @@
             <directory>target</directory>
             <outputDirectory/>
             <includes>
-                <include>pdm-simulator-1.0-SNAPSHOT.jar</include>
+                <include>pdm-simulator-1.2-SNAPSHOT.jar</include>
             </includes>
         </fileSet>
 

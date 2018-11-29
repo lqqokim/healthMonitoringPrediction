@@ -80,4 +80,7 @@ public interface STDReportMapper {
     List<BasicData> selectHealthIndexTrend(@Param("paramId") Long paramId,@Param("fromDate") Date fromDate,@Param("toDate") Date toDate);
 
     List<HashMap<String,Object>> selectCorrelationInputData(@Param("param") Map<String, Object> param);
+
+    List<HashMap<String,Object>> selectCorrelationScatterData(@Param("param") Map<String, Object> param);
+
 }

@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bistel.pdm.scheduler.job.mapper.SyncConnectionInfoMapper">
+
+    <!-- Fog 접속 정보 전체 리스트 조회 -->
+    <select id="getAllConnections" resultType="hashmap">
+        SELECT RAWID
+        , DB_TYPE
+        , IP
+        , PORT
+        , USER_NAME
+        , PASSWORD
+        , DB_NAME
+        , SID
+        , SERVICE_NAME
+        , AUTO_SYNC_YN
+        FROM DATA_SYNC_MST_PDM
+        ORDER BY RAWID
+    </select>
+
+    <!-- Fog 접속 정보 조회 -->
+    <select id="getConnectionOneByIdx" resultType="hashmap" parameterType="hashmap">
+        SELECT RAWID
+        , DB_TYPE
+        , IP
+        , PORT
+        , USER_NAME
+        , PASSWORD
+        , DB_NAME
+        , SID
+        , SERVICE_NAME
+        , AUTO_SYNC_YN
+        FROM DATA_SYNC_MST_PDM
+        WHERE RAWID = #{RAWID}
+    </select>
+
+    <!-- 스캐줄러용 리스트 조회 : AUTO_SYNC_YN 가 Y인 것만-->
+    <select id="getAutoSyncConnections" resultType="hashmap">
+        SELECT RAWID
+        , DB_TYPE
+        , IP
+        , PORT
+        , USER_NAME
+        , PASSWORD
+        , DB_NAME
+        , SID
+        , SERVICE_NAME
+        , AUTO_SYNC_YN
+        FROM DATA_SYNC_MST_PDM
+        WHERE AUTO_SYNC_YN = 'Y'
+        ORDER BY RAWID
+    </select>
+
+    <!-- 설비 조회 -->
+    <select id="getEquipments" resultType="hashmap">
+        SELECT A.RAWID
+        , AREA_MST_RAWID
+        , MODEL_NAME
+        , NAME
+        FROM EQP_MST_PDM A
+        INNER JOIN QRTZ_JOB_DETAILS B
+        ON A.JOB_NAME = B.JOB_NAME
+        AND A.JOB_GROUP = B.JOB_GROUP
+        LEFT OUTER JOIN QRTZ_CRON_TRIGGERS C
+        ON A.TRIGGER_NAME = C.TRIGGER_NAME
+        AND A.TRIGGER_GROUP = C.TRIGGER_GROUP
+        ORDER BY A.START_TIME
+    </select>
+
+    <!-- 설비 파라미터 조회 -->
+
+
+    <!-- 모든 스캐줄러 정보 조회 -->
+    <select id="getSchedulerList" resultType="hashmap">
+        SELECT A.TRIGGER_NAME
+        , A.TRIGGER_GROUP
+        , A.JOB_NAME
+        , A.JOB_GROUP
+        , A.NEXT_FIRE_TIME
+        , A.PREV_FIRE_TIME
+        , A.TRIGGER_STATE
+        , A.TRIGGER_TYPE
+        , A.START_TIME
+        , B.JOB_CLASS_NAME
+        , C.CRON_EXPRESSION
+        FROM QRTZ_TRIGGERS A
+        INNER JOIN QRTZ_JOB_DETAILS B
+        ON A.JOB_NAME = B.JOB_NAME
+        AND A.JOB_GROUP = B.JOB_GROUP
+        LEFT OUTER JOIN QRTZ_CRON_TRIGGERS C
+        ON A.TRIGGER_NAME = C.TRIGGER_NAME
+        AND A.TRIGGER_GROUP = C.TRIGGER_GROUP
+        ORDER BY A.START_TIME
+    </select>
+
+    <insert id="insertConnection" parameterType="hashmap">
+        INSERT INTO DATA_SYNC_MST_PDM(
+        RAWID
+        , DB_TYPE
+        , IP
+        , PORT
+        , USER_NAME
+        , PASSWORD
+        , DB_NAME
+        , SID
+        , SERVICE_NAME
+        , AUTO_SYNC_YN
+        )
+        VALUES (
+        seq_data_sync_mst_pdm.NEXTVAL
+        , #{DB_TYPE}
+        , #{IP}
+        <choose>
+            <when test="PORT != null and PORT != ''">, #{PORT}</when>
+            <otherwise>, null</otherwise>
+        </choose>
+        , #{USER_NAME}
+        , #{PASSWORD}
+        <choose>
+            <when test="DB_NAME != null and DB_NAME != ''">, #{DB_NAME}</when>
+            <otherwise>, null</otherwise>
+        </choose>
+        <choose>
+            <when test="SID != null and SID != ''">, #{SID}</when>
+            <otherwise>, null</otherwise>
+        </choose>
+        <choose>
+            <when test="SERVICE_NAME != null and SERVICE_NAME != ''">, #{SERVICE_NAME}</when>
+            <otherwise>, null</otherwise>
+        </choose>
+        , #{AUTO_SYNC_YN}
+        )
+    </insert>
+
+    <update id="updateConnection" parameterType="hashmap">
+        UPDATE DATA_SYNC_MST_PDM
+        <trim prefix="SET" prefixOverrides=",">
+            <if test="EQP_GROUP != null and EQP_GROUP != ''">, EQP_GROUP = #{EQP_GROUP}</if>
+            <if test="DB_TYPE != null and DB_TYPE != ''">, DB_TYPE = #{DB_TYPE}</if>
+            <if test="IP != null and IP != ''">, IP = #{IP}</if>
+            <if test="PORT != null and PORT != ''">, PORT = #{PORT}</if>
+            <if test="USER_NAME != null and USER_NAME != ''">, USER_NAME = #{USER_NAME}</if>
+            <if test="PASSWORD != null and PASSWORD != ''">, PASSWORD = #{PASSWORD}</if>
+            <if test="DB_NAME != null and DB_NAME != ''">, DB_NAME = #{DB_NAME}</if>
+            <if test="SID != null and SID != ''">, SID = #{SID}</if>
+            <if test="SERVICE_NAME != null and SERVICE_NAME != ''">, SERVICE_NAME = #{SERVICE_NAME}</if>
+            <if test="AUTO_SYNC_YN != null and AUTO_SYNC_YN != ''">, AUTO_SYNC_YN = #{AUTO_SYNC_YN}</if>
+        </trim>
+        WHERE RAWID = #{RAWID}
+    </update>
+
+    <delete id="deleteConnection" parameterType="hashmap">
+        DELETE FROM DATA_SYNC_MST_PDM WHERE RAWID = #{RAWID}
+    </delete>
+</mapper>

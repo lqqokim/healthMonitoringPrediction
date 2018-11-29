@@ -70,7 +70,7 @@ public class ByMessageTypeProcessor extends AbstractProcessor<String, String> {
                 }
             }
 
-            if (msgType.equalsIgnoreCase("E")) {
+            if (msgType.equalsIgnoreCase("EVENT")) {
                 //EVENT : time, event_id, event_name, event_flag(S/E), vid_1=value, vid_2=value, ..., vid_n=value
 
                 String eventFlag = columns[3];
@@ -101,7 +101,7 @@ public class ByMessageTypeProcessor extends AbstractProcessor<String, String> {
                     // event_flag, start_long_time, end_long_time
                     kvProcessContextStore.put(key, eventFlag + "," + epochTime + ",");
                 }
-            } else if (msgType.equalsIgnoreCase("T")) {
+            } else if (msgType.equalsIgnoreCase("TRACE")) {
                 //TRACE : time, vid_1=value, vid_2=value, vid_3=value, ..., vid_n=value
 
                 if (kvProcessContextStore.get(key) != null) {
@@ -295,7 +295,6 @@ public class ByMessageTypeProcessor extends AbstractProcessor<String, String> {
         // refresh master info.
         try {
             MasterCache.Equipment.refresh(key);
-            MasterCache.IntervalEvent.refresh(key);
             MasterCache.Parameter.refresh(key);
             MasterCache.ParameterWithSpec.refresh(key);
             MasterCache.EquipmentSpecRule.refresh(key);

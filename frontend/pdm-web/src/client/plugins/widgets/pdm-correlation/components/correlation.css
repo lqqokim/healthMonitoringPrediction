@@ -5,15 +5,6 @@
     /* border: 5px solid rosybrown; */
 }
 
-/* 좌측 영역 */
-.correlation .filter-area {
-    display: block;
-    width: 260px;
-    height: 100%;
-    /* border: 5px solid burlywood; */
-    float: left;
-    border-right: 2px solid rgb(213, 213, 213);
-}
 
 /* 우측 영역 */
 .correlation .correlation-area {

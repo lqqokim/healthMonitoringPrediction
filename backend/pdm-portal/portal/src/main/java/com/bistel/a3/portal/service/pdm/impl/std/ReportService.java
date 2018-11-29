@@ -1,5 +1,6 @@
 package com.bistel.a3.portal.service.pdm.impl.std;
 
+import BISTel.PeakPerformance.Statistics.Algorithm.Stat.Regression.SimpleLinearRegression;
 import com.bistel.a3.portal.dao.pdm.db.ProcedureMapper;
 import com.bistel.a3.portal.dao.pdm.std.master.STDAreaMapper;
 import com.bistel.a3.portal.dao.pdm.std.master.STDEqpMapper;
@@ -720,6 +721,13 @@ public class ReportService implements IReportService {
         return result;
     }
 
+    private List<List<Object>> changeScatterData(List<Double> xValue, List<Double> yValue)
+    {
+
+
+        return null;
+    }
+
     private List<List<Object>> changeCorrelationANOVAData(List<BasicDatasForCorrelationANOVA> data){
         List<List<Object>> result = new ArrayList<>();
         for(BasicDatasForCorrelationANOVA d : data) {
@@ -740,13 +748,105 @@ public class ReportService implements IReportService {
             List<BasicData> paramFeatureTrxList=mapper.selectFeatureTrend(paramId,from,to);
             return changeRegressionData(paramFeatureTrxList);
         }
-        else{
+        else {
             List<BasicDatasForCorrelationANOVA> paramFeatureTrxList=mapper.selectFeatureTrendWithIndex(paramId,from,to);
             return changeCorrelationANOVAData(paramFeatureTrxList);
+
         }
 
 
     }
+    public Correlation getScatter(String fabId, Long[] paramIds, Long fromdate, Long todate){
+
+        Correlation correlation=new Correlation();
+        STDReportMapper mapper = SqlSessionUtil.getMapper(sessions, fabId, STDReportMapper.class);
+
+        //
+        String sParamId=null;
+        Long lParamId=null;
+        List<String> sParamList=new ArrayList<String>();
+
+        for (int i = 0; i < paramIds.length; i++) {
+            lParamId=paramIds[i];
+            sParamId=lParamId.toString();
+            sParamList.add(sParamId);
+        }
+
+        Date from=new Date(fromdate);
+        Date to=new Date(todate);
+        SimpleDateFormat dt= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String sFrom=dt.format(from);
+        String sTo=dt.format(to);
+
+        Map<String, Object> param=new HashMap<String, Object>();
+        param.put("fromDate",sFrom);
+        param.put("toDate", sTo);
+        param.put("code_list",sParamList);
+        //
+
+        List<HashMap<String,Object>> scatterData=mapper.selectCorrelationScatterData(param);
+        ArrayList<String> keyList=new ArrayList<>();
+        Set<String> key=scatterData.get(0).keySet();
+        Iterator<String> it=key.iterator();
+
+        while(it.hasNext())
+        {
+            String column=it.next();
+            if(!column.equals("END_DTTS"))
+            {
+                keyList.add(column);
+            }
+
+        }
+
+        List<Double> xValueList=new ArrayList<>();
+        List<Double> yValueList=new ArrayList<>();
+
+        List<List<Object>> ScatterData=new ArrayList<>();
+        double xValue=0.0;
+        double yValue=0.0;
+        double[] xRegressionInput=new double[scatterData.size()];
+        double[] yRegressionInput=new double[scatterData.size()];
+
+        for (int i = 0; i < scatterData.size(); i++) {
+            xValue=((BigDecimal)scatterData.get(i).get(keyList.get(0))).doubleValue();
+            yValue=((BigDecimal)scatterData.get(i).get(keyList.get(1))).doubleValue();
+            xRegressionInput[i]=xValue;
+            yRegressionInput[i]=yValue;
+            ScatterData.add(Arrays.asList(xValue,yValue));
+        }
+
+        SimpleLinearRegression simpleRegression=new SimpleLinearRegression (xRegressionInput, yRegressionInput);
+        double r2=simpleRegression.R2();
+        double slope=simpleRegression.slope();
+        double intercept=simpleRegression.intercept();
+
+        Regression r=new Regression();
+        r.setIntercept(intercept);
+        r.setSlope(slope);
+        r.setR2(r2);
+        if(Double.isNaN(r2) && Double.isNaN(slope) && Double.isNaN(intercept))
+        {
+            r.setRegressionPosibility(false);
+        }
+        else
+        {
+            r.setRegressionPosibility(true);
+        }
+
+        r.setStart_xValue(xRegressionInput[0]);
+        r.setStart_yValue(intercept+slope*xRegressionInput[0]);
+
+        r.setEnd_xValue(xRegressionInput[scatterData.size()-1]);
+        r.setEnd_yValue(intercept+slope*xRegressionInput[scatterData.size()-1]);
+
+
+        correlation.setCorrelationScatter(ScatterData);
+        correlation.setRegression(r);
+        return correlation;
+    }
+
+
 
     public double[] getRegressionInput(String fabId, Long paramId, Long fromdate, Long todate, boolean isX){
 
@@ -878,7 +978,7 @@ public class ReportService implements IReportService {
         Double value=null;
         //correlationInputDataSet.size == row갯수 correlationInputDataSet.get(0).keySet().size() == param갯수(8개)
 
-        double[][] correlationInputData=new double[correlationInputDataSet.size()][correlationInputDataSet.get(0).keySet().size()];
+        double[][] correlationInputData=new double[correlationInputDataSet.size()][correlationInputDataSet.get(0).keySet().size()-1];
         //double[][] correlationInputData=new double[correlationInputDataSet.size()][correlationInputDataSet.size()];
 
         List<String> paramSeq=new ArrayList<>();

@@ -13,6 +13,9 @@ public class StatusGroupMaster {
     @JsonProperty("paramRawId")
     private Long paramRawId;
 
+    @JsonProperty("svid")
+    private String svid;
+
     @JsonProperty("useTimeoutYN")
     private String useTimeoutYN;
 
@@ -21,12 +24,6 @@ public class StatusGroupMaster {
 
     @JsonProperty("useYN")
     private String useYN;
-
-    @JsonProperty("isStatusParam")
-    private Boolean isStatusParam;
-
-    @JsonProperty("runParamValue")
-    private String runParamValue;
 
     public Long getId() {
         return id;
@@ -76,19 +73,11 @@ public class StatusGroupMaster {
         this.useYN = useYN;
     }
 
-    public Boolean getStatusParam() {
-        return isStatusParam;
+    public String getSvid() {
+        return svid;
     }
 
-    public void setStatusParam(Boolean statusParam) {
-        isStatusParam = statusParam;
-    }
-
-    public String getRunParamValue() {
-        return runParamValue;
-    }
-
-    public void setRunParamValue(String runParamValue) {
-        this.runParamValue = runParamValue;
+    public void setSvid(String svid) {
+        this.svid = svid;
     }
 }

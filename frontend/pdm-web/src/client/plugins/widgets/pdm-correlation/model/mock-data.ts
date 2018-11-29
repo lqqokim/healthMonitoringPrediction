@@ -3,17 +3,31 @@ declare let Plotly: any;
 export const heatmapData = [
     {
         z: [
-            [1, 0.1, 0.1, 0.3, 0.2, 0.1, 0.02, 0.28],
-            [0.1, 1, 0.3, 0.5, 0.01, 0.2, 0.4, -0.32],
-            [0.01, 0.2, 1, 0.1, 0.3, -0.5, 0.1, 0.55],
-            [0.1, 0.2, 0.03, 1, 0.5, 0.01, 0.02, 0.2],
-            [0.1, 0.2, -0.3, 0.05, 1, 0.6, 0.07, 0.1],
-            [0.01, 0.24, 0.3, 0.48, 0.1, 1, 0.4, 0.5],
-            [0.69, 0.1, 0.6, 0.18, 0.3, 0.1, 1, 0.07],
-            [0.3, 0.6, 0.1, -1, -0.2, 0.5, 0.69, 1]
+            [1, 0, 0, 0, 0, 0, 0, 0],
+            [0, 1, -0.28450104679009447, 0.05668478156731673, 0.12653326420485955, 0, -0.26903285373764935, 0],
+            [0, -0.28450104679009447, 1, -0.06135513946206992, -0.22566679272626808, 0, 0.9412617000199704, 0],
+            [0, 0.05668478156731673, -0.06135513946206992, 1, -0.06085293318554101, 0, -0.15452179326925192, 0],
+            [0, 0.12653326420485955, -0.22566679272626808, -0.06085293318554101, 1, 0, -0.14849398408602757, 0],
+            [0, 0, 0, 0, 0, 1, 0, 0],
+            [0, -0.26903285373764935, 0.9412617000199704, -0.15452179326925192, -0.14849398408602757, 0, 1, 0],
+            [0, 0, 0, 0, 0, 0, 0, 1]
         ],
-        x: ['RMS1', 'RMS2', 'HOIST_AXIS_SPEED', 'HOIST_AXIS_TORQUE', 'DATA_STATUS', 'BARCODE', 'MODING_SPEED', 'SLIDE_AXIS_TORQUE'],
-        y: ['RMS1', 'RMS2', 'HOIST_AXIS_SPEED', 'HOIST_AXIS_TORQUE', 'DATA_STATUS', 'BARCODE', 'MODING_SPEED', 'SLIDE_AXIS_TORQUE'],
+        x: ["DATA_STATUS",
+            "HOIST_AXIS_TORQUE",
+            "FRONT_AXIS_TORQUE",
+            "SLIDE_AXIS_TORQUE",
+            "DRIVING_VELOCITY(MM/SEC)",
+            "HOIST_VELOCITY(MM/SEC)",
+            "REAR_AXIS_TORQUE",
+            "HOIST_AXIS_TORQUE",],
+        y: ["DATA_STATUS",
+            "HOIST_AXIS_TORQUE",
+            "FRONT_AXIS_TORQUE",
+            "SLIDE_AXIS_TORQUE",
+            "DRIVING_VELOCITY(MM/SEC)",
+            "HOIST_VELOCITY(MM/SEC)",
+            "REAR_AXIS_TORQUE",
+            "HOIST_AXIS_TORQUE",],
         type: 'heatmap'
     }
 ];

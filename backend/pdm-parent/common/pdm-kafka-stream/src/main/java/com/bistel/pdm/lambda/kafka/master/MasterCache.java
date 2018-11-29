@@ -1,6 +1,5 @@
 package com.bistel.pdm.lambda.kafka.master;
 
-import com.bistel.pdm.common.collection.Pair;
 import com.bistel.pdm.data.stream.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -172,66 +171,20 @@ public class MasterCache {
                 }
             });
 
-    public static LoadingCache<String, Pair<EventMaster, EventMaster>> IntervalEvent = CacheBuilder.newBuilder()
-            .maximumSize(100000)
-            .expireAfterAccess(24, TimeUnit.HOURS)
-            .build(new CacheLoader<String, Pair<EventMaster, EventMaster>>() {
-                @Override
-                public Pair<EventMaster, EventMaster> load(String key) throws IOException {
-                    String targetUrl = ServingAddress + "/pdm/api/master/latest/event/" + key + "";
-
-                    ResteasyClient client = new ResteasyClientBuilder().build();
-                    Response response = client.target(targetUrl).request().get();
-                    String body = response.readEntity(String.class);
-
-                    EventMaster startEvent = new EventMaster();
-                    EventMaster endEvent = new EventMaster();
-
-                    try {
-                        ObjectMapper mapper = new ObjectMapper();
-
-                        if (body.length() <= 0) {
-                            log.info("event master data does not exists. message: " + body);
-                        } else {
-                            List<EventMaster> masterDataList = mapper.readValue(body, new TypeReference<List<EventMaster>>() {
-                            });
-
-                            for (EventMaster eventInfo : masterDataList) {
-                                if (eventInfo.getProcessYN().equalsIgnoreCase("Y")) {
-                                    if (eventInfo.getEventTypeCD().equalsIgnoreCase("S")) {
-                                        startEvent = eventInfo;
-                                    } else if (eventInfo.getEventTypeCD().equalsIgnoreCase("E")) {
-                                        endEvent = eventInfo;
-                                    }
-                                }
-                            }
-
-                            log.info("{} - events are reloaded.", key);
-                        }
-                    } catch (IOException e) {
-                        log.error(e.getMessage(), e);
-                    } finally {
-                        response.close();
-                        client.close();
-                    }
-
-                    return new Pair<>(startEvent, endEvent);
-                }
-            });
-
-//    public static LoadingCache<String, List<EventMaster>> Event = CacheBuilder.newBuilder()
+//    public static LoadingCache<String, Pair<EventMaster, EventMaster>> IntervalEvent = CacheBuilder.newBuilder()
 //            .maximumSize(100000)
 //            .expireAfterAccess(24, TimeUnit.HOURS)
-//            .build(new CacheLoader<String, List<EventMaster>>() {
+//            .build(new CacheLoader<String, Pair<EventMaster, EventMaster>>() {
 //                @Override
-//                public List<EventMaster> load(String key) throws IOException {
+//                public Pair<EventMaster, EventMaster> load(String key) throws IOException {
 //                    String targetUrl = ServingAddress + "/pdm/api/master/latest/event/" + key + "";
-//
-//                    List<EventMaster> masterDataList = new ArrayList<>();
 //
 //                    ResteasyClient client = new ResteasyClientBuilder().build();
 //                    Response response = client.target(targetUrl).request().get();
 //                    String body = response.readEntity(String.class);
+//
+//                    EventMaster startEvent = new EventMaster();
+//                    EventMaster endEvent = new EventMaster();
 //
 //                    try {
 //                        ObjectMapper mapper = new ObjectMapper();
@@ -239,8 +192,18 @@ public class MasterCache {
 //                        if (body.length() <= 0) {
 //                            log.info("event master data does not exists. message: " + body);
 //                        } else {
-//                            masterDataList = mapper.readValue(body, new TypeReference<List<EventMaster>>() {
+//                            List<EventMaster> masterDataList = mapper.readValue(body, new TypeReference<List<EventMaster>>() {
 //                            });
+//
+//                            for (EventMaster eventInfo : masterDataList) {
+//                                if (eventInfo.getProcessYN().equalsIgnoreCase("Y")) {
+//                                    if (eventInfo.getEventTypeCD().equalsIgnoreCase("S")) {
+//                                        startEvent = eventInfo;
+//                                    } else if (eventInfo.getEventTypeCD().equalsIgnoreCase("E")) {
+//                                        endEvent = eventInfo;
+//                                    }
+//                                }
+//                            }
 //
 //                            log.info("{} - events are reloaded.", key);
 //                        }
@@ -251,7 +214,7 @@ public class MasterCache {
 //                        client.close();
 //                    }
 //
-//                    return masterDataList;
+//                    return new Pair<>(startEvent, endEvent);
 //                }
 //            });
 
@@ -396,6 +359,151 @@ public class MasterCache {
                             log.info("process group info. does not exists. message: " + body);
                         } else {
                             masterDataList = mapper.readValue(body, new TypeReference<ProcessGroupMaster>() {
+                            });
+
+                            log.info("{} reloaded.", key);
+                        }
+                    } catch (IOException e) {
+                        log.error(e.getMessage(), e);
+                    } finally {
+                        response.close();
+                        client.close();
+                    }
+
+                    return masterDataList;
+                }
+            });
+
+
+    public static LoadingCache<String, List<StatusGroupMaster>> StatusProcessGroup = CacheBuilder.newBuilder()
+            .maximumSize(100000)
+            .expireAfterAccess(24, TimeUnit.HOURS)
+            .build(new CacheLoader<String, List<StatusGroupMaster>>() {
+                @Override
+                public List<StatusGroupMaster> load(String key) {
+                    String targetUrl = ServingAddress + "/pdm/api/master/latest/statusgroup/" + key + "";
+
+                    List<StatusGroupMaster> masterDataList = null;
+
+                    ResteasyClient client = new ResteasyClientBuilder().build();
+                    Response response = client.target(targetUrl).request().get();
+                    String body = response.readEntity(String.class);
+
+                    try {
+                        ObjectMapper mapper = new ObjectMapper();
+
+                        if (body.length() <= 0) {
+                            log.info("status changed process group info. does not exists. message: " + body);
+                        } else {
+                            masterDataList = mapper.readValue(body, new TypeReference<List<StatusGroupMaster>>() {
+                            });
+
+                            log.info("{} reloaded.", key);
+                        }
+                    } catch (IOException e) {
+                        log.error(e.getMessage(), e);
+                    } finally {
+                        response.close();
+                        client.close();
+                    }
+
+                    return masterDataList;
+                }
+            });
+
+    public static LoadingCache<String, ParamConditionGroupMaster> ParamConditionProcessGroup = CacheBuilder.newBuilder()
+            .maximumSize(100000)
+            .expireAfterAccess(24, TimeUnit.HOURS)
+            .build(new CacheLoader<String, ParamConditionGroupMaster>() {
+                @Override
+                public ParamConditionGroupMaster load(String key) {
+                    String targetUrl = ServingAddress + "/pdm/api/master/latest/paramconditiongroup/" + key + "";
+
+                    ParamConditionGroupMaster masterDataList = null;
+
+                    ResteasyClient client = new ResteasyClientBuilder().build();
+                    Response response = client.target(targetUrl).request().get();
+                    String body = response.readEntity(String.class);
+
+                    try {
+                        ObjectMapper mapper = new ObjectMapper();
+
+                        if (body.length() <= 0) {
+                            log.info("param condition process group info. does not exists. message: " + body);
+                        } else {
+                            masterDataList = mapper.readValue(body, new TypeReference<ParamConditionGroupMaster>() {
+                            });
+
+                            log.info("{} reloaded.", key);
+                        }
+                    } catch (IOException e) {
+                        log.error(e.getMessage(), e);
+                    } finally {
+                        response.close();
+                        client.close();
+                    }
+
+                    return masterDataList;
+                }
+            });
+
+    public static LoadingCache<String, EventGroupMaster> EventProcessGroup = CacheBuilder.newBuilder()
+            .maximumSize(100000)
+            .expireAfterAccess(24, TimeUnit.HOURS)
+            .build(new CacheLoader<String, EventGroupMaster>() {
+                @Override
+                public EventGroupMaster load(String key) {
+                    String targetUrl = ServingAddress + "/pdm/api/master/latest/eventgroup/" + key + "";
+
+                    EventGroupMaster masterDataList = null;
+
+                    ResteasyClient client = new ResteasyClientBuilder().build();
+                    Response response = client.target(targetUrl).request().get();
+                    String body = response.readEntity(String.class);
+
+                    try {
+                        ObjectMapper mapper = new ObjectMapper();
+
+                        if (body.length() <= 0) {
+                            log.info("event process group info. does not exists. message: " + body);
+                        } else {
+                            masterDataList = mapper.readValue(body, new TypeReference<EventGroupMaster>() {
+                            });
+
+                            log.info("{} reloaded.", key);
+                        }
+                    } catch (IOException e) {
+                        log.error(e.getMessage(), e);
+                    } finally {
+                        response.close();
+                        client.close();
+                    }
+
+                    return masterDataList;
+                }
+            });
+
+    public static LoadingCache<String, StatusParamMaster> StatusParam = CacheBuilder.newBuilder()
+            .maximumSize(100000)
+            .expireAfterAccess(24, TimeUnit.HOURS)
+            .build(new CacheLoader<String, StatusParamMaster>() {
+                @Override
+                public StatusParamMaster load(String key) {
+                    String targetUrl = ServingAddress + "/pdm/api/master/latest/statusparam/" + key + "";
+
+                    StatusParamMaster masterDataList = null;
+
+                    ResteasyClient client = new ResteasyClientBuilder().build();
+                    Response response = client.target(targetUrl).request().get();
+                    String body = response.readEntity(String.class);
+
+                    try {
+                        ObjectMapper mapper = new ObjectMapper();
+
+                        if (body.length() <= 0) {
+                            log.info("status parameter info. does not exists. message: " + body);
+                        } else {
+                            masterDataList = mapper.readValue(body, new TypeReference<StatusParamMaster>() {
                             });
 
                             log.info("{} reloaded.", key);

@@ -1,0 +1,43 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bistel.pdm.scheduler.job.mapper.LegacyMasterMapper">
+
+    <select id="testList" resultType="hashmap">
+        SELECT TEST FROM TEST
+    </select>
+
+    <select id="edgeDeviceInfoList" resultType="hashmap">
+        SELECT LINE
+        , PROCESSLINE
+        , EQPTYPE
+        , EQPID
+        , UNITID
+        FROM EDGEDEVICEINFO
+    </select>
+
+    <select id="deviceAddressInfoList" resultType="hashmap">
+        SELECT B.EQPID + '_' + B.UNITID + '_' + CAST(ROW_NUMBER() OVER( ORDER BY A.CONFIGNO, A.CONFIGINDEX, A.SEQ) AS
+        CHAR(10)) AS SVID
+        , A.COLUMNNAME
+        , A.DISPLAYUNIT
+        , A.ISUSE
+        , ITEMTYPE =
+        CASE A.ITEMTYPE
+        WHEN 1 THEN 'trace'
+        ELSE 'event'
+        END
+        , DATATYPE =
+        CASE A.DATATYPE
+        WHEN 'Float' THEN 'FLT'
+        WHEN 'Integer' THEN 'INT'
+        WHEN 'Bit' THEN 'INT'
+        ELSE 'TEX'
+        END
+        , B.EQPID
+        , B.UNITID
+        FROM DEVICEADDRESSINFO A
+        INNER JOIN EDGEDEVICEINFO B
+        ON A.EQPTYPE = B.EQPTYPE
+        ORDER BY A.CONFIGNO, A.CONFIGINDEX, A.SEQ
+    </select>
+
+</mapper>

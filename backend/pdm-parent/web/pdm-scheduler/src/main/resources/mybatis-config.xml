@@ -38,8 +38,10 @@
         <package name="com.bistel.pdm.scheduler.domain"/>
     </typeAliases>
     <mappers>
+        <mapper resource="mapper/MasterInfoMapper.xml"/>
         <mapper resource="mapper/AlarmSummaryMapper.xml"/>
         <mapper resource="mapper/HealthSummaryMapper.xml"/>
-        <mapper resource="mapper/MasterInfoMapper.xml"/>
+        <mapper resource="mapper/SyncConnectionInfoMapper.xml"/>
+        <mapper resource="mapper/SyncMasterMapper.xml"/>
     </mappers>
 </configuration>

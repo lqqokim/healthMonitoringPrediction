@@ -1,5 +1,6 @@
-package com.bistel.pdm.scheduler.service;
+package com.bistel.pdm.scheduler.service.impl;
 
+import com.bistel.pdm.scheduler.service.SchedulerJobService;
 import org.quartz.*;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.slf4j.Logger;

@@ -362,6 +362,33 @@
         order by end_dtts
     </select>
 
+    <select id="selectCorrelationScatterData" resultType="java.util.Map">
+        select *
+        from
+        (
+            select end_dtts, param_mst_rawid, mean as y
+            from param_feature_trx_pdm
+            where 1=1
+            and end_dtts <![CDATA[>=]]> to_timestamp(#{param.fromDate})
+            and end_dtts <![CDATA[<]]> to_timestamp(#{param.toDate})
+            and param_mst_rawid in
+            <foreach collection="param.code_list" item="item" index="index" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        )
+        pivot
+        (
+            avg(nvl(y, 0)) as mean
+            for param_mst_rawid in
+            <foreach collection="param.code_list" item="item" index="index" open="(" separator="," close=")">
+                ${item}
+            </foreach>
+        )
+    </select>
+
+
+
+
     <select id="selectCorrelationInputData" resultType="java.util.HashMap" parameterType="java.util.Map">
         select *
         from
@@ -381,7 +408,7 @@
                     <foreach collection="param.code_list" item="item" index="index" open="(" separator="," close=")">
                         #{item}
                     </foreach>
-                    )
+                )
                 pivot
                 (
                     avg(nvl(mean, 0)) as mean

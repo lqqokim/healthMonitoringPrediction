@@ -2,24 +2,18 @@ package com.bistel.a3.portal.rest.pdm;
 
 
 import BISTel.PeakPerformance.Statistics.Algorithm.Stat.Regression.SimpleLinearRegression;
-import com.bistel.a3.portal.domain.common.SocketMessage;
-import com.bistel.a3.portal.domain.pdm.ImageChartData;
+import BISTel.PeakPerformance.Statistics.Algorithm.Stat.StStat;
+import com.bistel.a3.portal.domain.pdm.Correlation;
 import com.bistel.a3.portal.domain.pdm.Regression;
 import com.bistel.a3.portal.service.pdm.IImageService;
 import com.bistel.a3.portal.service.pdm.impl.std.ReportService;
-import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.HashMap;
+
 import java.util.List;
 import java.util.Map;
 
@@ -69,6 +63,14 @@ public class AlgorithmRestController {
         double intercept=simpleLinearRegression.intercept();
         double slope=simpleLinearRegression.slope();
         double r2=simpleLinearRegression.R2();
+        if(Double.isNaN(r2) && Double.isNaN(slope) && Double.isNaN(intercept))
+        {
+            regressionData.setRegressionPosibility(false);
+        }
+        else
+        {
+            regressionData.setRegressionPosibility(true);
+        }
 
         double start_yValue=(slope*xValue[0])+intercept;
         double end_yValue=(slope*xValue[xValue.length-1])+intercept;
@@ -79,6 +81,39 @@ public class AlgorithmRestController {
         regressionData.setEnd_yValue(end_yValue);
 
         return regressionData;
+
+    }
+
+
+
+    @RequestMapping(value="/fabs/{fabId}/getCorrelationHeatMap", method = RequestMethod.POST)
+    public Correlation getCorrelationByPivot(@PathVariable("fabId") String fabId,
+                                             @RequestParam("fromdate") Long fromdate,
+                                             @RequestParam("todate") Long todate,
+                                             @RequestBody List<Long> paramList) throws ParseException {
+
+
+        Correlation c=reportService.getCorrelationWithPivot(fabId, paramList, fromdate, todate);
+
+        double[][] inputData=c.getCorrelationInput();
+        double[][] correlation= StStat.correlation(inputData);
+
+        for (int i = 0; i < correlation.length; i++) {
+
+            correlation[i][i]=1;
+        }
+        Double nan=Double.NaN;
+        for (int i = 0; i < correlation.length; i++) {
+            for (int j = 0; j < correlation.length; j++) {
+                if (Double.isNaN(correlation[i][j])){
+                    correlation[i][j]=0.0;
+                }
+            }
+        }
+
+        c.setCorrelationInput(null);
+        c.setCorrelationOutput(correlation);
+        return c;
 
     }
 

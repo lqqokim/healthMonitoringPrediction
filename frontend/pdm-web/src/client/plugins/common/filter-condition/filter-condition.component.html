@@ -1,63 +1,64 @@
-<div class="filter-condition">
-    <div class="time">
-        <div class="a3-from-to" 
-            [from]="searchTimePeriod?.from" 
-            [to]="searchTimePeriod?.to" 
-            [format]="'yyyy/MM/dd hh:mm:ss'" 
-            (changedFromTo)="fromToChange($event)">
-        </div>    
-
-        <div class="period">
-            <label >Period</label>
-            <select class="form-control" [(ngModel)]="selectedPeriod" name="fab" (ngModelChange)="changeSelectedPeriod($event)">
-                <option *ngFor="let item of periods" [ngValue]="item.value" >
-                    {{item.name}}
-                </option>
-            </select>
-        </div>
-    </div>
+<div class="filter-area">
+    <div class="row-chart-header">
+        <h3 class="panel-title">Filter Condition</h3>
+    </div> 
+ 
+    <div class="aside-filter-condition">
+        <div class="filter-time">
+            <div class="a3-from-to"
+                [from]="searchTimePeriod?.from"
+                [to]="searchTimePeriod?.to"
+                [format]="'yyyy/MM/dd hh:mm:ss'"
+                (changedFromTo)="fromToChange($event)">
+            </div>   
     
-    <hr>
-    
-    <div class="element">           
-        <div>
-            <label for="inputFab">Fab</label>
-            <select class="form-control" [(ngModel)]="selectedFab" name="fab" (ngModelChange)="changeSelectedFab($event)">                        
-                <option *ngFor="let fab of fabs" [ngValue]="fab" [selected]="fab.fabId === selectedFab.fabId">
-                    {{fab.fabName}}
-                </option>
-            </select>
+            <div class="period">
+                <label >Period</label>
+                <select class="form-control" [(ngModel)]="selectedPeriod" name="fab" (ngModelChange)="changeSelectedPeriod($event)">
+                    <option *ngFor="let item of periods" [ngValue]="item.value" >
+                        {{item.name}}
+                    </option>
+                </select>
+            </div>
         </div>
-        <div>
-            <label for="area">Area</label>
-            <multi-select-combo [datas]="areas" [displayName]="'areaName'" (changeData)="onChangeArea($event)" [selectedItems]="selectedAreaDatas"></multi-select-combo>                    
-        </div>
-        <div>
-            <label for="eqp">Eqp</label>
-            <multi-select-combo [datas]="eqps" [displayName]="'eqpName'" (changeData)="onChangeEqp($event)" [selectedItems]="selectedEqpDatas"></multi-select-combo>
-        </div>
-        <div>
-            <label for="parameter">Parameter</label>
-            <multi-select-combo [datas]="parameters" [displayName]="'paramName'" (changeData)="onChangeParameter($event)" [selectedItems]="selectedParameterDatas"></multi-select-combo>
-        </div>
-        <div class="check-group" *ngIf="isShowCheckGroup">
-            <label class="equipment" (click)="onCheckEquipment()">
-                <input type="checkbox" id="equipment" [(ngModel)]="isEquipment">
-                <label for="equipment">Equipment</label>
-            </label>
-
-            <label class="barcode" (click)="onCheckBarcode()">
-                <input type="checkbox" id="barcode" [(ngModel)]="isBarcode">
-                <label for="barcode">Barcode</label>
-            </label>
-        </div>
-    </div>
-
-    <hr>
-
-    <div class="search">
-        <button class='button' (click)="search()">Analysis</button>
-    </div>       
+        <div class="filter-menu-selector">          
+            <div>
+                <label for="inputFab">Fab</label>
+                <select class="form-control" [(ngModel)]="selectedFab" name="fab" (ngModelChange)="changeSelectedFab($event)">                       
+                    <option *ngFor="let fab of fabs" [ngValue]="fab" [selected]="fab.fabId === selectedFab.fabId">
+                        {{fab.fabName}}
+                    </option>
+                </select>
+            </div>
+            <div>
+                <label for="area">Area</label>
+                <multi-select-combo [datas]="areas" [displayName]="'areaName'" (changeData)="onChangeArea($event)" [selectedItems]="selectedAreaDatas"></multi-select-combo>                   
+            </div>
+            <div>
+                <label for="eqp">Eqp</label>
+                <multi-select-combo [datas]="eqps" [displayName]="'eqpName'" (changeData)="onChangeEqp($event)" [selectedItems]="selectedEqpDatas"></multi-select-combo>
+            </div>
+            <div>
+                <label for="parameter">Parameter</label>
+                <multi-select-combo [datas]="parameters" [displayName]="'paramName'" (changeData)="onChangeParameter($event)" [selectedItems]="selectedParameterDatas"></multi-select-combo>
+            </div>
+            <div class="check-group" *ngIf="isShowCheckGroup">
+                <label class="equipment" (click)="onCheckEquipment()">
+                    <input type="checkbox" id="equipment" [(ngModel)]="isEquipment">
+                    <label for="equipment">Equipment</label>
+                </label>
+   
+                <label class="barcode" (click)="onCheckBarcode()">
+                    <input type="checkbox" id="barcode" [(ngModel)]="isBarcode">
+                    <label for="barcode">Barcode</label>
+                </label>
+            </div>
+       </div>
+   
+        <hr>
+   
+        <div class="search">
+            <button class='button' (click)="search()">Analysis</button>
+        </div>      
+    </div>      
 </div>
-    
-    
