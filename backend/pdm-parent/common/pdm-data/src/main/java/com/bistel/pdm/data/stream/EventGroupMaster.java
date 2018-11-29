@@ -2,7 +2,7 @@ package com.bistel.pdm.data.stream;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class ParamGroupMaster {
+public class EventGroupMaster {
 
     @JsonProperty("id")
     private Long id;
@@ -10,11 +10,11 @@ public class ParamGroupMaster {
     @JsonProperty("groupId")
     private String groupId;
 
-    @JsonProperty("paramRawId")
-    private Long paramRawId;
+    @JsonProperty("startEventId")
+    private String startEventId;
 
-    @JsonProperty("condition")
-    private String condition;
+    @JsonProperty("endEventId")
+    private String endEventId;
 
     @JsonProperty("useTimeoutYN")
     private String useTimeoutYN;
@@ -41,20 +41,20 @@ public class ParamGroupMaster {
         this.groupId = groupId;
     }
 
-    public Long getParamRawId() {
-        return paramRawId;
+    public String getStartEventId() {
+        return startEventId;
     }
 
-    public void setParamRawId(Long paramRawId) {
-        this.paramRawId = paramRawId;
+    public void setStartEventId(String startEventId) {
+        this.startEventId = startEventId;
     }
 
-    public String getCondition() {
-        return condition;
+    public String getEndEventId() {
+        return endEventId;
     }
 
-    public void setCondition(String condition) {
-        this.condition = condition;
+    public void setEndEventId(String endEventId) {
+        this.endEventId = endEventId;
     }
 
     public String getUseTimeoutYN() {

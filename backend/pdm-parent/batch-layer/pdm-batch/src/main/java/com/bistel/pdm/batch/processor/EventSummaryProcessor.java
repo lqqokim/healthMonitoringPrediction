@@ -245,7 +245,6 @@ public class EventSummaryProcessor extends AbstractProcessor<String, String> {
         // refresh master info.
         try {
             MasterCache.Equipment.refresh(key);
-            MasterCache.IntervalEvent.refresh(key);
             MasterCache.Parameter.refresh(key);
             MasterCache.ParameterWithSpec.refresh(key);
             MasterCache.EquipmentSpecRule.refresh(key);
