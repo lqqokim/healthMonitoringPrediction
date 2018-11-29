@@ -1,9 +1,7 @@
 package com.bistel.pdm.logfile.connector.producer;
 
-import com.bistel.pdm.data.stream.ParamConditionGroupMaster;
-import com.bistel.pdm.data.stream.ParameterMaster;
-import com.bistel.pdm.data.stream.ProcessGroupMaster;
-import com.bistel.pdm.data.stream.StatusGroupMaster;
+import com.bistel.pdm.common.util.Strings;
+import com.bistel.pdm.data.stream.*;
 import com.bistel.pdm.expression.RuleEvaluator;
 import com.bistel.pdm.expression.RuleVariables;
 import com.bistel.pdm.lambda.kafka.master.MasterCache;
@@ -14,6 +12,7 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
+import org.apache.kafka.common.header.Headers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,6 +69,7 @@ public class TraceQueueService {
 
         private static final String TIME_FORMAT = "yyyy-MM-dd HH:mm:ss.SSS";
         private static final String TOPIC_NAME = "pdm-input-trace";
+        private static final String HEADER_MSG_TYPE = "msgType";
 
         DataSender(String key, Producer<String, byte[]> producer) {
             this.key = key;
@@ -152,8 +152,10 @@ public class TraceQueueService {
                         sbSVIDList.setLength(sbSVIDList.length() - 1);
                         String value = time + "," + sbSVIDList.toString();
 
-                        RecordMetadata meta =
-                                this.producer.send(new ProducerRecord<>(TOPIC_NAME, this.key, value.getBytes())).get();
+                        ProducerRecord<String, byte[]> producerRecord = new ProducerRecord<>(TOPIC_NAME, key, value.getBytes());
+                        Headers headers = producerRecord.headers();
+                        headers.add(HEADER_MSG_TYPE, Strings.bytes("TRACE"));
+                        RecordMetadata meta = producer.send(producerRecord).get();
 
                         Timestamp ts = new Timestamp(System.currentTimeMillis());
                         String timeStamp = new SimpleDateFormat(TIME_FORMAT).format(ts);
@@ -168,17 +170,39 @@ public class TraceQueueService {
                                 PreviousData previousData = svidPreviousValue.get(eventSvidList.get(index));
                                 Double paramValue = Double.parseDouble(record.get(index));
 
-                                if(!previousData.getValue().equals(paramValue)){
+                                StatusParamMaster statusParamMaster = MasterCache.StatusParam.get(key);
+
+                                String statusCode = "I";
+                                if(statusParamMaster.getSvid().equalsIgnoreCase(eventSvidList.get(key))){
+                                    for(String val : statusParamMaster.getValue().split(",")){
+                                        if(paramValue.equals(Double.parseDouble(val))){
+                                            statusCode = "R";
+                                        }
+                                    }
+                                }
+
+                                if(statusCode.equalsIgnoreCase("R")
+                                        && !previousData.getValue().equals(paramValue)){
                                     // time,event_id, event_name, event_flag, vid_1=value,vid_2=value,...vid_n=value
 
                                     String endEventName = processGroupMaster.getGroupId() + "_END";
                                     String startEventName = processGroupMaster.getGroupId() + "_START";
 
                                     String endEventMsg = previousData.getTime() + "," + endEventName + "," + endEventName + ",E";
-                                    this.producer.send(new ProducerRecord<>(TOPIC_NAME, this.key, endEventMsg.getBytes())).get();
+                                    ProducerRecord<String, byte[]> endEventRecord = new ProducerRecord<>(TOPIC_NAME, key, endEventMsg.getBytes());
+                                    Headers endHeaders = endEventRecord.headers();
+                                    endHeaders.add(HEADER_MSG_TYPE, Strings.bytes("EVENT"));
+                                    this.producer.send(endEventRecord).get();
+
+//                                    this.producer.send(new ProducerRecord<>(TOPIC_NAME, this.key, endEventMsg.getBytes())).get();
 
                                     String startEventMsg = time + "," + startEventName + "," + startEventName + ",S";
-                                    this.producer.send(new ProducerRecord<>(TOPIC_NAME, this.key, startEventMsg.getBytes())).get();
+                                    ProducerRecord<String, byte[]> startEventRecord = new ProducerRecord<>(TOPIC_NAME, key, startEventMsg.getBytes());
+                                    Headers startHeaders = startEventRecord.headers();
+                                    startHeaders.add(HEADER_MSG_TYPE, Strings.bytes("EVENT"));
+                                    this.producer.send(startEventRecord).get();
+
+//                                    this.producer.send(new ProducerRecord<>(TOPIC_NAME, this.key, startEventMsg.getBytes())).get();
                                 }
 
                                 svidPreviousValue.put(eventSvidList.get(index), new PreviousData(time, paramValue));
@@ -206,13 +230,21 @@ public class TraceQueueService {
 
                                     String startEventName = processGroupMaster.getGroupId() + "_START";
                                     String startEventMsg = time + "," + startEventName + "," + startEventName + ",S";
-                                    this.producer.send(new ProducerRecord<>(TOPIC_NAME, this.key, startEventMsg.getBytes())).get();
+                                    ProducerRecord<String, byte[]> eventRecord = new ProducerRecord<>(TOPIC_NAME, key, startEventMsg.getBytes());
+
+                                    Headers eventHeaders = eventRecord.headers();
+                                    eventHeaders.add(HEADER_MSG_TYPE, Strings.bytes("EVENT"));
+                                    this.producer.send(eventRecord).get();
 
                                 } else if(previousData.getValue().equals(1D) && paramValue.equals(0D)){
                                     // run to idle
                                     String endEventName = processGroupMaster.getGroupId() + "_END";
                                     String endEventMsg = previousData.getTime() + "," + endEventName + "," + endEventName + ",E";
-                                    this.producer.send(new ProducerRecord<>(TOPIC_NAME, this.key, endEventMsg.getBytes())).get();
+
+                                    ProducerRecord<String, byte[]> eventRecord = new ProducerRecord<>(TOPIC_NAME, key, endEventMsg.getBytes());
+                                    Headers eventHeaders = eventRecord.headers();
+                                    eventHeaders.add(HEADER_MSG_TYPE, Strings.bytes("EVENT"));
+                                    this.producer.send(eventRecord).get();
 
                                 }
 

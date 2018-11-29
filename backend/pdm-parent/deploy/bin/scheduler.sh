@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 APPNAME="HMP Scheduler"
 APPPID=scheduler.pid
-APPJAR=pdm-scheduler-bundle-1.0-SNAPSHOT.jar
-APPOPTS="-server localhost -port 8087 -log4jConf ./config/log4j.properties"
+APPJAR=pdm-scheduler-1.2-SNAPSHOT.jar
+APPOPTS=""
 
 case $1 in
     start)

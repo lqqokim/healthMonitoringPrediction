@@ -592,14 +592,14 @@ public class StreamingMasterDataDao {
 
     private final static String PARAM_STATUS_MST_SQL =
             "select " +
-                    "s.rawid, s.param_mst_rawid, s.value, s.status " +
+                    "s.rawid, s.param_mst_rawid, p.svid, s.value, s.status " +
                     "from status_param_mst_pdm s, param_mst_pdm p, eqp_mst_pdm e " +
                     "where s.param_mst_rawid=p.rawid " +
                     "and p.eqp_mst_rawid=e.rawid " +
                     "and eqp.name=? ";
 
-    public List<StatusParamMaster> getParamStatusInfo(String eqpId) throws SQLException {
-        List<StatusParamMaster> resultRows = new ArrayList<>();
+    public StatusParamMaster getParamStatusInfo(String eqpId) throws SQLException {
+        StatusParamMaster pg = new StatusParamMaster();
 
         try (Connection conn = DataSource.getConnection()) {
             try (PreparedStatement pst = conn.prepareStatement(PARAM_STATUS_MST_SQL)) {
@@ -609,13 +609,11 @@ public class StreamingMasterDataDao {
                     log.debug("sql:{}", PARAM_STATUS_MST_SQL);
 
                     while (rs.next()) {
-                        StatusParamMaster pg = new StatusParamMaster();
                         pg.setId(rs.getLong(1));
                         pg.setParamRawId(rs.getLong(2));
-                        pg.setValue(rs.getString(3));
-                        pg.setStatus(rs.getString(4));
-
-                        resultRows.add(pg);
+                        pg.setSvid(rs.getString(3));
+                        pg.setValue(rs.getString(4));
+                        pg.setStatus(rs.getString(5));
                     }
                 }
             } catch (SQLException e) {
@@ -625,6 +623,6 @@ public class StreamingMasterDataDao {
             log.error(e.getMessage(), e);
         }
 
-        return resultRows;
+        return pg;
     }
 }
