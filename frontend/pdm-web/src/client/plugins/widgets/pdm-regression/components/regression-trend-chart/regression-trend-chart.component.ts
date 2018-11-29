@@ -153,6 +153,7 @@ export class RegressionTrendChartComponent implements OnChanges, OnInit, AfterVi
                 type: 'scattergl',
             };
         }
+        this.paramTrendDatas = [];
         this.paramTrendDatas.push(datas);
         setTimeout(() => {
             this.drawParamTrend(this.paramTrendDatas,reDraw);
