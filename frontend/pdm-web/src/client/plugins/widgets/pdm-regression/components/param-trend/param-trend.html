@@ -24,22 +24,23 @@
         <tr class="param-trend-info" *ngFor="let chartData of chartDatas">
             <td class="col-md-7">
                 <div class="param-trend-container">                            
-                    <regression-trend-chart [dragMode]="dragMode" [chartIds]="chartIds" [chartId]="chartData.divId" [data]="chartData.chartDatas" *ngIf="chartFlag == 'trend'"></regression-trend-chart>                             
+                    <!-- <regression-trend-chart #imageChart [imageData]="imageData" [chartType]="chartType" [dragMode]="dragMode" [chartIds]="chartIds" [chartId]="chartData.divId" [data]="chartData.chartDatas" *ngIf="chartFlag == 'trend'" (zoomEvent)="zoomEvent($event)"></regression-trend-chart>                              -->
+                    <regression-trend-chart #imageChart [imageData]="chartData.imageData" [originType]="originType" [chartType]="chartType" [dragMode]="dragMode" [chartIds]="chartIds" [chartId]="chartData.divId" [data]="chartData.chartDatas" (zoomEvent)="zoomEvent($event)"></regression-trend-chart>                             
                 </div>
             </td>
             <td class="col-md-3" attr.id="{{chartData.divId+'_formula'}}">138.5 + 0.021*TIME</td>
             <td class="col-md-2" attr.id="{{chartData.divId+'_R2'}}" >0.435</td>
         </tr>
-        <tr class="param-trend-info" *ngIf="chartFlag == 'image'">
+        <!-- <tr class="param-trend-info" *ngIf="chartFlag == 'image'">
             <td class="col-md-7">
                 <div class="param-trend-container">
                     <image-chart [chartInfo]="chartInfo" (zoomEvent)="zoomEvent($event)" (seriesEvent)="seriesEvent($event)" ></image-chart>
-                    <!-- <regression-trend-chart></regression-trend-chart> -->                   
+                                    
                 </div>
             </td>
             <td class="col-md-3">138.5 + 0.021*TIME</td>
             <td class="col-md-2">0.435</td>
-        </tr>
+        </tr> -->
     </table>
     
 </div>
