@@ -2,9 +2,22 @@
 .regression-table-container{
     width: 100%;
     height: 100%;
-    overflow-y: scroll;
 }
-
+.regression-table-container .a3-table .a3-table-body{
+    height: 100%;
+}
+.regression-table-container .a3-category-table .rgression-cell{
+    width: 65%;
+}
+.regression-table-container .a3-category-table .formula-cell{
+    width: 20%;
+}
+.regression-table-container .a3-category-table .r2-cell{
+    width: 15%;
+}
+.parameter-category-appconfig .a3-category-wrapper .a3-category-table{
+    height: calc(100% - 75px);
+}
 .regression-table-container table {
     width: 100%;
     height: 100%;
