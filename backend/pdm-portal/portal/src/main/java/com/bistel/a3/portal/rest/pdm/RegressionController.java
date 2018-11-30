@@ -55,7 +55,7 @@ public class RegressionController {
             Long fromdate = (Long)message.getParameters().get("fromdate");
             Long todate = (Long)message.getParameters().get("todate");
             int days = imageService.diffdays(fromdate,todate);
-            int trendDataSize = 100000;
+            int trendDataSize = 100;
             if(conditon.equals("Zoom")){
                 String sessionId = (String)message.getParameters().get("sessionId");
                 List<List<Object>> fileFilterData = imageService.getData(sessionId, fromdate, todate);
