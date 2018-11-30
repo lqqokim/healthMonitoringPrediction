@@ -2,19 +2,14 @@
 <div class="regression-table-container">
     <table class="table">
         <thead>
-            <!-- <th class="parameter" (click)="sortClick('parameter')">Parameter
-                <i class="fa fa-sort-asc" *ngIf="sort.parameter === 'asc'"></i>
-                <i class="fa fa-sort-desc" *ngIf="sort.parameter === 'desc'"></i>
-                <i class="fa fa-sort" *ngIf="sort.parameter === 'none'"></i>
-            </th> -->
-            <th class="col-md-7">Parameter Trend Chart 
+            <th class="">Parameter Trend Chart
                 <form>
                     <label class="radio-inline">
-                      <input type="radio" name="optionsRadios" value="zoom" checked (change)="optionChange(1)">Zoom
+                        <input type="radio" name="optionsRadios" value="zoom" checked (change)="optionChange(1)">Zoom
                     </label>
                     <label class="radio-inline">
-                      <input type="radio" name="optionsRadios" value="regression" (change)="optionChange(2)">Regression
-                    </label>     
+                        <input type="radio" name="optionsRadios" value="regression" (change)="optionChange(2)">Regression
+                    </label>
                 </form>
             </th>
             <th class="col-md-5">Regression Formula</th>
@@ -22,14 +17,14 @@
         </thead>
         <!-- <tr class="param-trend-info" *ngFor="let paramTrend of paramTrendDatas; let idx = index"> -->
         <tr class="param-trend-info" *ngFor="let chartData of chartDatas">
-            <td class="col-md-7">
+            <td class="">
                 <div class="param-trend-container">                            
                     <!-- <regression-trend-chart #imageChart [imageData]="imageData" [chartType]="chartType" [dragMode]="dragMode" [chartIds]="chartIds" [chartId]="chartData.divId" [data]="chartData.chartDatas" *ngIf="chartFlag == 'trend'" (zoomEvent)="zoomEvent($event)"></regression-trend-chart>                              -->
                     <regression-trend-chart #imageChart [imageData]="chartData.imageData" [originType]="originType" [chartType]="chartType" [dragMode]="dragMode" [chartIds]="chartIds" [chartId]="chartData.divId" [data]="chartData.chartDatas" (zoomEvent)="zoomEvent($event)"></regression-trend-chart>                             
                 </div>
             </td>
             <td class="col-md-3" attr.id="{{chartData.divId+'_formula'}}">138.5 + 0.021*TIME</td>
-            <td class="col-md-2" attr.id="{{chartData.divId+'_R2'}}" >0.435</td>
+            <td class="col-md-2" attr.id="{{chartData.divId+'_R2'}}">0.435</td>
         </tr>
         <!-- <tr class="param-trend-info" *ngIf="chartFlag == 'image'">
             <td class="col-md-7">
@@ -42,5 +37,86 @@
             <td class="col-md-2">0.435</td>
         </tr> -->
     </table>
-    
+</div>
+
+
+<div class="a3-table a3-category-table">
+    <div class="a3-table-head">
+        <div class="a3-table-row">
+            <div class="a3-table-cell">(Toggle)
+                <form>
+                    <label class="radio-inline">
+                        <input type="radio" name="optionsRadios" value="zoom" checked (change)="optionChange(1)">Zoom
+                    </label>
+                    <label class="radio-inline">
+                        <input type="radio" name="optionsRadios" value="regression" (change)="optionChange(2)">Regression
+                    </label>
+                </form>
+            </div>
+            <div class="a3-table-cell">Parameter Trend Chart</div>
+            <div class="a3-table-cell">Regression Formula </div>
+            <div class="a3-table-cell">R<sup>2</sup></div>
+        </div>
+    </div>
+    <div class="a3-table-body">
+        <div class="a3-table-empty" style="display:none;">Create Category</div>
+        <div class="a3-table-row active">
+
+            <div class="a3-table-cell category">
+                <div class="a3-table-text">
+                    Category name
+                    <i class="fa fa-pencil-square-o input-text"></i>
+                </div>
+                <!-- 클릭후 인풋박스 전환-->
+                <div class="a3-table-text a3-table-edit-text" style="display:none;">
+                    <input type="text" class="form-control" placeholder="Description">
+                </div>
+            </div>
+            <div class="a3-table-cell description">
+                <div class="a3-table-text">
+                    Description
+                    <i class="fa fa-pencil-square-o input-text"></i>
+                </div>
+                <!-- 클릭후 인풋박스 전환-->
+                <div class="a3-table-text a3-table-edit-text" style="display:none;">
+                    <input type="text" class="form-control" placeholder="Description">
+                </div>
+            </div>
+            <div class="a3-table-cell color">
+                <div class="selected-color" style="background-color:#FB5A3C"></div>
+            </div>
+            <div class="a3-table-cell display">
+
+            </div>
+        </div>
+        <div class="a3-table-row">
+
+            <div class="a3-table-cell category">
+                <div class="a3-table-text">
+                    Category name
+                    <i class="fa fa-pencil-square-o input-text"></i>
+                </div>
+                <!-- 클릭후 인풋박스 전환-->
+                <div class="a3-table-text a3-table-edit-text" style="display:none;">
+                    <input type="text" class="form-control" placeholder="category">
+                </div>
+            </div>
+            <div class="a3-table-cell description">
+                <div class="a3-table-text">
+                    Description
+                    <i class="fa fa-pencil-square-o input-text"></i>
+                </div>
+                <!-- 클릭후 인풋박스 전환-->
+                <div class="a3-table-text a3-table-edit-text" style="display:none;">
+                    <input type="text" class="form-control" placeholder="Description">
+                </div>
+            </div>
+            <div class="a3-table-cell color">
+                <div class="selected-color" style="background-color:#8C9B80"></div>
+            </div>
+            <div class="a3-table-cell display">
+
+            </div>
+        </div>
+    </div>
 </div>
