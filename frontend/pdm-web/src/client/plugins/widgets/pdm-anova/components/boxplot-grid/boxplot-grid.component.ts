@@ -69,18 +69,25 @@ export class BoxplotGridComponent implements OnChanges, OnDestroy {
         //         // visible: 'rangeslideronly'
         //     });
         // }
-        for(let i=0; i<100; i++){ 
+        for (let i = 0; i < 100; i++) {
+            let y = [];
+
+            for (let j = 0; j < 50; j++) {
+                const ran = Math.random() * (6000 - 100) + 100;
+                y.push(ran);
+            }
+
             data.push({
-              y: ['1', '2', '3', '4', '5'], 
-              boxpoints: false, 
-              type: 'box', 
-              name: 
-              `<sup><b>TOHS${i}</br></br>
+                y: y,
+                boxpoints: false,
+                type: 'box',
+                name:
+                    `<sup><b>TOHS${i}</br></br>
               Count:5855909 </br>
               Median:5855909 </br>
               Average:5855909 </br>
               Standard Deviation:5855909 </br></b></sup>
-              `, 
+              `,
             })
         }
 
@@ -142,59 +149,59 @@ export class BoxplotGridComponent implements OnChanges, OnDestroy {
         });
     }
 
-    resize(data:any){
-        $(window).resize(function() {
-            const plotDiv = $('#myDiv > div > div > svg:nth-child(1) > g.draglayer.cursor-crosshair > g > rect.nsewdrag.drag.cursor-ew-resize');
+    resize(data: any) {
+        $(window).resize(function () {
+            const plotDiv = $(`${this.chartId} > div > div > svg:nth-child(1) > g.draglayer.cursor-crosshair > g > rect.nsewdrag.drag.cursor-ew-resize`);
             // console.warn(plotDiv.width());
-            var boxplotChartWidth =  $( window ).width();
+            var boxplotChartWidth = $(window).width();
             let dataCount = data.length;
             let update;
             // console.warn(boxplotChartWidth);
-            if(boxplotChartWidth < 440){
-              update = { 'xaxis.range': [-0.4, 1] };                    
-              Plotly.relayout('myDiv', update);                  
+            if (boxplotChartWidth < 440) {
+                update = { 'xaxis.range': [-0.4, 1] };
+                Plotly.relayout(`${this.chartId}`, update);
             }
-            if(boxplotChartWidth > 440 && boxplotChartWidth > 600){
-              update = { 'xaxis.range': [-0.4, 2] };                    
-              Plotly.relayout('myDiv', update);                  
+            if (boxplotChartWidth > 440 && boxplotChartWidth > 600) {
+                update = { 'xaxis.range': [-0.4, 2] };
+                Plotly.relayout(`${this.chartId}`, update);
             }
-            if(boxplotChartWidth > 600 && boxplotChartWidth > 755){
-              update = { 'xaxis.range': [-0.4, 3] };                    
-              Plotly.relayout('myDiv', update);                  
+            if (boxplotChartWidth > 600 && boxplotChartWidth > 755) {
+                update = { 'xaxis.range': [-0.4, 3] };
+                Plotly.relayout(`${this.chartId}`, update);
             }
-            if(boxplotChartWidth > 755 && boxplotChartWidth > 910){
-              update = { 'xaxis.range': [-0.4, 4] };                    
-              Plotly.relayout('myDiv', update);                  
-            }  
-            if(boxplotChartWidth > 910 && boxplotChartWidth > 1060){
-              update = { 'xaxis.range': [-0.4, 5] };                    
-              Plotly.relayout('myDiv', update);                 
-            }  
-            if(boxplotChartWidth > 1060 && boxplotChartWidth > 1212){
-              update = { 'xaxis.range': [-0.4, 6] };                    
-              Plotly.relayout('myDiv', update);                  
+            if (boxplotChartWidth > 755 && boxplotChartWidth > 910) {
+                update = { 'xaxis.range': [-0.4, 4] };
+                Plotly.relayout(`${this.chartId}`, update);
             }
-            if(boxplotChartWidth > 1212 && boxplotChartWidth > 1400){
-              update = { 'xaxis.range': [-0.4, 7] };                    
-              Plotly.relayout('myDiv', update);                  
+            if (boxplotChartWidth > 910 && boxplotChartWidth > 1060) {
+                update = { 'xaxis.range': [-0.4, 5] };
+                Plotly.relayout(`${this.chartId}`, update);
             }
-            if(boxplotChartWidth > 1400 && boxplotChartWidth > 1560){
-              update = { 'xaxis.range': [-0.4, 8] };                    
-              Plotly.relayout('myDiv', update);                  
+            if (boxplotChartWidth > 1060 && boxplotChartWidth > 1212) {
+                update = { 'xaxis.range': [-0.4, 6] };
+                Plotly.relayout(`${this.chartId}`, update);
             }
-            if(boxplotChartWidth > 1560 && boxplotChartWidth > 1680){
-              update = { 'xaxis.range': [-0.4, 9] };                    
-              Plotly.relayout('myDiv', update);                  
+            if (boxplotChartWidth > 1212 && boxplotChartWidth > 1400) {
+                update = { 'xaxis.range': [-0.4, 7] };
+                Plotly.relayout(`${this.chartId}`, update);
             }
-            if(boxplotChartWidth > 1680 && boxplotChartWidth > 1840){
-              update = { 'xaxis.range': [-0.4, 10] };                    
-              Plotly.relayout('myDiv', update);                  
-            }  
-            if(boxplotChartWidth > 1840){
-              update = { 'xaxis.range': [-0.4, 11] };                    
-              Plotly.relayout('myDiv', update);                  
+            if (boxplotChartWidth > 1400 && boxplotChartWidth > 1560) {
+                update = { 'xaxis.range': [-0.4, 8] };
+                Plotly.relayout(`${this.chartId}`, update);
             }
-          });
+            if (boxplotChartWidth > 1560 && boxplotChartWidth > 1680) {
+                update = { 'xaxis.range': [-0.4, 9] };
+                Plotly.relayout(`${this.chartId}`, update);
+            }
+            if (boxplotChartWidth > 1680 && boxplotChartWidth > 1840) {
+                update = { 'xaxis.range': [-0.4, 10] };
+                Plotly.relayout(`${this.chartId}`, update);
+            }
+            if (boxplotChartWidth > 1840) {
+                update = { 'xaxis.range': [-0.4, 11] };
+                Plotly.relayout(`${this.chartId}`, update);
+            }
+        });
     }
 
     ngOnDestroy() {

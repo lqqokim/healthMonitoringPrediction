@@ -37,7 +37,7 @@ export class PdmAnovaWidgetComponent extends WidgetApi implements OnInit, OnSetu
     onResize(e?: TransitionEvent): void {
         if ((e !== undefined && !e.isTrusted) || this._currentEl === undefined) { return; }
         if (e) {
-            console.log('e => ', e);
+            // console.log('e => ', e);
             let comp = new AnovaComponent();
             // comp.relayoutHeatmap();
 

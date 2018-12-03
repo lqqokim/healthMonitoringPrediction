@@ -2,7 +2,6 @@ import { Component, Input, OnInit, OnChanges, OnDestroy, ViewEncapsulation, View
 import { SpinnerComponent } from '../../../../sdk';
 
 import results from './../model/anova-interface';
-import { Trend } from './../../pdm-correlation/components/trend/trend.component';
 import { FilterConditionComponent } from './../../../common/filter-condition/filter-condition.component';
 
 import * as wjcGrid from 'wijmo/wijmo.grid';
@@ -23,7 +22,7 @@ export class AnovaComponent implements OnInit, OnChanges, OnDestroy {
     results;
     selectedResult;
 
-    trendData: Trend;
+    trendData: any;
 
     constructor() {
 

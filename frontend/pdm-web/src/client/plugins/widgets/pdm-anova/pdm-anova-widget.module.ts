@@ -17,6 +17,7 @@ import { PdmAnovaWidgetComponent } from './pdm-anova-widget.component';
 import { AnovaComponent } from './components/anova.component';
 
 import { BoxplotGridComponent } from './components/boxplot-grid/boxplot-grid.component';
+import { TrendComponent } from './components/trend/trend.component';
 
 @NgModule({
     imports: [
@@ -28,6 +29,7 @@ import { BoxplotGridComponent } from './components/boxplot-grid/boxplot-grid.com
         PdmAnovaWidgetComponent,
         AnovaComponent,
         BoxplotGridComponent,
+        TrendComponent
     ],
     exports: [
         PdmAnovaWidgetComponent,
