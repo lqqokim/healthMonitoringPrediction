@@ -4,12 +4,12 @@
     <div class="a3-chart-header border-bottom">
         <div class="pull-left">
             <form>
-                <label class="radio-inline">
-                    <input type="radio" name="optionsRadios" value="zoom" checked (change)="optionChange(1)">Zoom
-                </label>
-                <label class="radio-inline">
-                    <input type="radio" name="optionsRadios" value="regression" (change)="optionChange(2)">Regression
-                </label>
+                <div class="switch-field">
+                    <input type="radio" id="switch_left" name="optionsRadios" value="zoom" (change)="optionChange(1)" checked />
+                    <label for="switch_left">Zoom</label>
+                    <input type="radio" id="switch_right" name="optionsRadios" value="regression" (change)="optionChange(2)" />
+                    <label for="switch_right">Regression</label>
+                </div>
             </form>
         </div>
     </div>

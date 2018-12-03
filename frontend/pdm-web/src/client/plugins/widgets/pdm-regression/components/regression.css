@@ -24,4 +24,8 @@
     float: left;
     padding-left: 8px
 }
+.regression .regression-area .a3-chart-header.border-bottom{
+    height: 38px;
+    border-bottom:#e5e5e5; 
+}
 
