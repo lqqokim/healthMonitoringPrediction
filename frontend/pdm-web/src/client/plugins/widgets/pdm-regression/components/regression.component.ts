@@ -33,7 +33,7 @@ export interface TrendData {
 })
 export class RegressionComponent implements OnInit, OnChanges, OnDestroy {
 
-    trendData: TrendData;
+    paramTrendData: TrendData;
 
     constructor() {
 
@@ -58,7 +58,7 @@ export class RegressionComponent implements OnInit, OnChanges, OnDestroy {
             , 'timePeriod': { 'from': condition.timePeriod.from, 'to': condition.timePeriod.to }
         };
 
-        this.trendData = JSON.parse(JSON.stringify(mokConditon));
+        this.paramTrendData = JSON.parse(JSON.stringify(mokConditon));
     }
 
     ngOnDestroy() {

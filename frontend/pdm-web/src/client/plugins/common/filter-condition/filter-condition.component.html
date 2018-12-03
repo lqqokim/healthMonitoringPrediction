@@ -42,20 +42,32 @@
                 <label for="parameter">Parameter</label>
                 <multi-select-combo [datas]="parameters" [displayName]="'paramName'" (changeData)="onChangeParameter($event)" [selectedItems]="selectedParameterDatas"></multi-select-combo>
             </div>
-            <div class="check-group" *ngIf="isShowCheckGroup">
+            <div *ngIf="widgetType === 'anova'">
+                <label for="eqp">Categorical Variables</label>
+                <multi-select-combo [datas]="categoricalVals" [displayName]="'catName'" (changeData)="onChangeCategoricalVal($event)" [selectedItems]="selectedCategoricalDatas"></multi-select-combo>
+            </div>
+            <div>
+                <label for="parameter">Continuous Variables</label>
+                <multi-select-combo [datas]="continuousVals" [displayName]="'contName'" (changeData)="onChangeContinuousVal($event)" [selectedItems]="selectedContinuousDatas"></multi-select-combo>
+            </div>
+            <!-- <div class="check-group" *ngIf="widgetType === 'anova'">
                 <label class="equipment" (click)="onCheckEquipment()">
                     <input type="checkbox" id="equipment" [(ngModel)]="isEquipment">
                     <label for="equipment">Equipment</label>
                 </label>
-   
+    
                 <label class="barcode" (click)="onCheckBarcode()">
                     <input type="checkbox" id="barcode" [(ngModel)]="isBarcode">
                     <label for="barcode">Barcode</label>
                 </label>
-            </div>
-       </div>
+            </div> -->
+        </div>
+    
+        <hr>
+    
         <div class="search">
-            <button class='button' (click)="search()">Search</button>
-        </div>      
-    </div>      
+            <button class='button' (click)="search()">Analysis</button>
+        </div>       
+    </div>
+    
 </div>
