@@ -4,7 +4,8 @@
     height: 100%;
     float: left;
     padding-right: 8px;
-    border-right: 1px solid #ccc;
+    /* border-right: 1px solid #ccc; */
+    box-shadow: 5px 1px 9px -8px #777;
 }
 .aside-filter-condition {
     height: calc(100% - 70px);

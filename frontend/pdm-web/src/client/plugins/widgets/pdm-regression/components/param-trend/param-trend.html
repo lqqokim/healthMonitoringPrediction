@@ -1,46 +1,45 @@
 <div a3-spinner #Spinner [type]="'component'"></div>
+
 <div class="regression-table-container">
-    <table class="table">
-        <thead>
-            <!-- <th class="parameter" (click)="sortClick('parameter')">Parameter
-                <i class="fa fa-sort-asc" *ngIf="sort.parameter === 'asc'"></i>
-                <i class="fa fa-sort-desc" *ngIf="sort.parameter === 'desc'"></i>
-                <i class="fa fa-sort" *ngIf="sort.parameter === 'none'"></i>
-            </th> -->
-            <th class="col-md-7">Parameter Trend Chart 
-                <form>
-                    <label class="radio-inline">
-                      <input type="radio" name="optionsRadios" value="zoom" checked (change)="optionChange(1)">Zoom
-                    </label>
-                    <label class="radio-inline">
-                      <input type="radio" name="optionsRadios" value="regression" (change)="optionChange(2)">Regression
-                    </label>     
-                </form>
-            </th>
-            <th class="col-md-5">Regression Formula</th>
-            <th class="col-md-2">R<sup>2</sup></th>
-        </thead>
-        <!-- <tr class="param-trend-info" *ngFor="let paramTrend of paramTrendDatas; let idx = index"> -->
-        <tr class="param-trend-info" *ngFor="let chartData of chartDatas">
-            <td class="col-md-7">
-                <div class="param-trend-container">                            
+    <div class="a3-chart-header border-bottom">
+        <div class="pull-left">
+            <form>
+                <label class="radio-inline">
+                    <input type="radio" name="optionsRadios" value="zoom" checked (change)="optionChange(1)">Zoom
+                </label>
+                <label class="radio-inline">
+                    <input type="radio" name="optionsRadios" value="regression" (change)="optionChange(2)">Regression
+                </label>
+            </form>
+        </div>
+    </div>
+    <div class="a3-table a3-category-table">
+        <div class="a3-table-head">
+            <div class="a3-table-row">
+                <div class="a3-table-cell rgression-cell">Parameter Trend Chart</div>
+                <div class="a3-table-cell formula-cell">Regression Formula </div>
+                <div class="a3-table-cell r2-cell">R<sup>2</sup></div>
+            </div>
+        </div>
+        <div class="a3-table-body">
+            <div class="a3-table-row active" *ngFor="let chartData of chartDatas">
+                <div class="a3-table-cell rgression-cell">
                     <!-- <regression-trend-chart #imageChart [imageData]="imageData" [chartType]="chartType" [dragMode]="dragMode" [chartIds]="chartIds" [chartId]="chartData.divId" [data]="chartData.chartDatas" *ngIf="chartFlag == 'trend'" (zoomEvent)="zoomEvent($event)"></regression-trend-chart>                              -->
-                    <regression-trend-chart #imageChart [imageData]="chartData.imageData" [originType]="originType" [chartType]="chartType" [dragMode]="dragMode" [chartIds]="chartIds" [chartId]="chartData.divId" [data]="chartData.chartDatas" (zoomEvent)="zoomEvent($event)"></regression-trend-chart>                             
+                    <regression-trend-chart #imageChart [imageData]="chartData.imageData" [originType]="originType"
+                        [chartType]="chartType" [dragMode]="dragMode" [chartIds]="chartIds" [chartId]="chartData.divId"
+                        [data]="chartData.chartDatas" (zoomEvent)="zoomEvent($event)"></regression-trend-chart>
                 </div>
-            </td>
-            <td class="col-md-3" attr.id="{{chartData.divId+'_formula'}}">138.5 + 0.021*TIME</td>
-            <td class="col-md-2" attr.id="{{chartData.divId+'_R2'}}" >0.435</td>
-        </tr>
-        <!-- <tr class="param-trend-info" *ngIf="chartFlag == 'image'">
-            <td class="col-md-7">
-                <div class="param-trend-container">
-                    <image-chart [chartInfo]="chartInfo" (zoomEvent)="zoomEvent($event)" (seriesEvent)="seriesEvent($event)" ></image-chart>
-                                    
+                <div class="a3-table-cell formula-cell">
+                    <div class="a3-table-text" attr.id="{{chartData.divId+'_formula'}}">
+                        138.5 + 0.021*TIME
+                    </div>
                 </div>
-            </td>
-            <td class="col-md-3">138.5 + 0.021*TIME</td>
-            <td class="col-md-2">0.435</td>
-        </tr> -->
-    </table>
-    
+                <div class="a3-table-cell r2-cell">
+                    <div class="a3-table-text" attr.id="{{chartData.divId+'_R2'}}">
+                        0.435
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
