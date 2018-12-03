@@ -1,15 +1,18 @@
 import { Component, Input, OnInit, OnChanges, OnDestroy, ViewEncapsulation, Output, EventEmitter, ViewChild } from '@angular/core';
-import { heatmapData } from './../model/mock-data';
 import { SpinnerComponent } from '../../../../sdk';
 
+import { CorrelationService } from './../model/correlation.service';
 import { Trend } from './../components/trend/trend.component';
+
+import * as ICorrelation from './../model/correlation-interface';
 
 @Component({
     moduleId: module.id,
     selector: 'correlation',
     templateUrl: './correlation.html',
     styleUrls: ['./correlation.css'],
-    encapsulation: ViewEncapsulation.None
+    encapsulation: ViewEncapsulation.None,
+    providers: [CorrelationService]
 })
 export class CorrelationComponent implements OnInit, OnChanges, OnDestroy {
     @ViewChild('Spinner') spinner: SpinnerComponent;
@@ -19,7 +22,9 @@ export class CorrelationComponent implements OnInit, OnChanges, OnDestroy {
     scatterData;
     trendData: Trend;
 
-    constructor() {
+    constructor(
+        private correlationService: CorrelationService
+    ) {
 
     }
 
@@ -31,38 +36,60 @@ export class CorrelationComponent implements OnInit, OnChanges, OnDestroy {
 
     }
 
-    onClickHeatmap(heatmapCell): void {
-        console.log('heatmap cell => ', heatmapCell);
-        this.drawScatter(heatmapCell);
-        this.drawTrend(heatmapCell);
-    }
-
     onAnalysis(condition) {
-        console.log('onAnalysis filter condition data => ', condition);
         this.spinner.showSpinner();
-        //api call
 
-        this.drawHeatmap(heatmapData);        
-    }
-
-    drawHeatmap(data): void {
-        this.heatmapData = JSON.parse(JSON.stringify(data));
-    }
-
-    drawScatter(data) {
-        this.scatterData = JSON.parse(JSON.stringify(data));
-
-    }
-
-    drawTrend(data) {
-        this.trendData = {
-            datas: JSON.parse(JSON.stringify(data)),
-            type: 'lines'
+        console.log('onAnalysis filter condition data => ', condition);
+        const request = {
+            fabId: 'fab1',
+            fromDate: 1535727600000,
+            toDate: 1535738400000,
+            body: [1104, 1109, 1110, 1112, 1114, 1123, 1124, 1138, 1281, 1282, 1283, 1284, 1285, 1286]
         };
+
+        this.getHeatmapData(request);
+    }
+
+    private getHeatmapData(request): void {
+        this.correlationService.getHeatmap(request).subscribe(
+            (data: ICorrelation.Response) => {
+                console.info('[Correlation] Get Heatmap => ', data);
+                this.heatmapData = data;
+            }, (err) => {
+                console.log('err => ', err);
+            }
+        );
+    }
+
+    onClickHeatmap(cellSeq: Array<number>): void {
+        console.log('heatmap cellSeq => ', cellSeq);
+        const request = {
+            fabId: 'fab1',
+            fromDate: 1535727600000,
+            toDate: 1535738400000,
+            body: cellSeq
+        };
+
+        this.getHeatmapCorrelationData(request);
+    }
+
+    private getHeatmapCorrelationData(request): void {
+        this.correlationService.getHeatmapCorrelation(request).subscribe(
+            (data: ICorrelation.Response) => {
+                console.info('[Correlation] Get Scatter / Trend => ', data);
+                this.scatterData = data;
+                this.trendData = {
+                    datas: data,
+                    type: 'lines'
+                };
+            }, (err) => {
+                console.log('err => ', err);
+            }
+        )
     }
 
     spinnerControl(ev) {
-        if(ev) {
+        if (ev) {
             this.spinner.showSpinner();
         } else {
             this.spinner.hideSpinner();

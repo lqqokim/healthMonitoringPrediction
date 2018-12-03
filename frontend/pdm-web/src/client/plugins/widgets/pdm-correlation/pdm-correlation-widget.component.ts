@@ -37,9 +37,9 @@ export class PdmCorrelationWidgetComponent extends WidgetApi implements OnInit, 
     onResize(e?: TransitionEvent): void {
         if ((e !== undefined && !e.isTrusted) || this._currentEl === undefined) { return; }
         if (e) {
-            console.log('e => ', e);
-            let comp = new HeatmapComponent();
-            comp.relayoutHeatmap();
+            // console.log('e => ', e);
+            // let comp = new HeatmapComponent();
+            // comp.relayoutHeatmap();
 
             // const chartBodyEl = $(this.chartBody.nativeElement);
             // if(chartBodyEl) {

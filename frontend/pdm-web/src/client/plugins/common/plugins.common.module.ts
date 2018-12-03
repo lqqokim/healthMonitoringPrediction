@@ -27,8 +27,6 @@ import { FilterConditionComponent } from './filter-condition/filter-condition.co
 import { MultiSelectComboComponent } from './multi-select-combo/multi-select-combo.component';
 import { SearchComboPipe } from './multi-select-combo/search.pipe';
 import { ImageChartComponent } from './image-chart/image-chart.component';
-
-import { TrendComponent } from './../widgets/pdm-correlation/components/trend/trend.component';
 // import { PlotlyModule } from 'angular-plotly.js';
 
 @NgModule({
@@ -56,8 +54,7 @@ import { TrendComponent } from './../widgets/pdm-correlation/components/trend/tr
         FilterConditionComponent,
         MultiSelectComboComponent,
         SearchComboPipe,
-        ImageChartComponent,
-        TrendComponent
+        ImageChartComponent
     ],
     exports: [
         ModelingTreeComponent,
@@ -76,7 +73,6 @@ import { TrendComponent } from './../widgets/pdm-correlation/components/trend/tr
         MultiSelectComboComponent,
         SearchComboPipe,
         ImageChartComponent,
-        TrendComponent
     ]
     // ,
     // entryComponents: [
