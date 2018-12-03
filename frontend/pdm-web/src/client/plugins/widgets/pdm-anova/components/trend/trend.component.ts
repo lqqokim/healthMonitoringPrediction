@@ -104,11 +104,11 @@ export class TrendComponent implements OnInit, OnChanges {
         //     console.log('plotly_zoomout => ', data);
         // });
 
-        (trendEl as any).on('plotly_click', (data: any, ev) => {
-            console.log('plotly_click => ', data, ev);
+        (trendEl as any).on('plotly_click', (data: any) => {
+            console.log('plotly_click => ', data);
         });
-        (trendEl as any).on('plotly_relayout', function (data: any, ev) {
-            console.log('plotly_relayout => ', data, ev);
+        (trendEl as any).on('plotly_relayout', function (data: any) {
+            console.log('plotly_relayout => ', data);
         });
     }
 

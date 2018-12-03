@@ -36,8 +36,8 @@ export class BoxplotGridComponent implements OnChanges, OnDestroy {
 
         setTimeout(() => {
             Plotly.newPlot(this.chartId, data, layout, config);
+            this.resize(data);
         }, 1000);
-        this.resize(data);
     }
 
     getBoxplotData(): any {
@@ -150,13 +150,14 @@ export class BoxplotGridComponent implements OnChanges, OnDestroy {
     }
 
     resize(data: any) {
-        $(window).resize(function () {
+        $(window).resize(() => {
             const plotDiv = $(`${this.chartId} > div > div > svg:nth-child(1) > g.draglayer.cursor-crosshair > g > rect.nsewdrag.drag.cursor-ew-resize`);
             // console.warn(plotDiv.width());
             var boxplotChartWidth = $(window).width();
             let dataCount = data.length;
             let update;
             // console.warn(boxplotChartWidth);
+
             if (boxplotChartWidth < 440) {
                 update = { 'xaxis.range': [-0.4, 1] };
                 Plotly.relayout(`${this.chartId}`, update);

@@ -62,14 +62,14 @@ export class AnovaComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     drawTrend(row): void {
-        this.trendData = {
+        this.trendData = JSON.parse(JSON.stringify({
             datas: {
                 x: "SLIDE_AXIS_TORQUE",
                 y: "HOIST_AXIS_TORQUE",
                 z: 0.2
             },
             type: 'markers'
-        };
+        }));
     }
 
     onAnalysis(condition) {
