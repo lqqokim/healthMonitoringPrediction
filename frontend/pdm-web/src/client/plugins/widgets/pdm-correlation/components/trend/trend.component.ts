@@ -1,5 +1,7 @@
 import { Component, Input, Output, OnInit, OnChanges, ViewEncapsulation, SimpleChanges } from '@angular/core';
 
+import * as ICorrelation from './../../model/correlation-interface';
+
 declare let Plotly: any;
 
 // export enum Type {
@@ -8,9 +10,17 @@ declare let Plotly: any;
 // }
 
 export interface Trend {
-    datas: any;
+    datas: ICorrelation.Response;
     // type: Type
     type: string;
+}
+
+export interface TrendData {
+    mode: string;
+    name: string;
+    x: Array<number>;
+    y: Array<number>;
+    line: { color: string }
 }
 
 @Component({
@@ -21,7 +31,7 @@ export interface Trend {
     encapsulation: ViewEncapsulation.None
 })
 export class TrendComponent implements OnInit, OnChanges {
-    @Input() data;
+    @Input() data: ICorrelation.Response;
 
     private _chartEl: HTMLElement;
     chartId: string = this.guid();
@@ -36,31 +46,25 @@ export class TrendComponent implements OnInit, OnChanges {
     }
 
     ngOnChanges(changes: SimpleChanges) {
-        console.log('trend changfes = > ', changes);
         if (changes && changes['data']['currentValue']) {
-            const data: Trend = changes['data']['currentValue'];
+            const currentValue: Trend = changes['data']['currentValue'];
 
-            console.log('[trend] changes => ', changes);
-            this.drawTrend(data);
+            this.drawTrend(currentValue);
         }
     }
 
-    drawTrend(data: Trend): void {
-        this.getTrendData(data);
+    drawTrend(currentValue: Trend): void {
+        const trendData = this.getTrendData(currentValue);
         const config = this.getTrendConfig();
         const layout = this.getTrendLayout();
 
-        setTimeout(() => {
-            const trendData = this.trendData;
+        Plotly.newPlot(this.chartId, {
+            data: trendData,
+            layout: layout,
+            config: config
+        });
 
-            Plotly.newPlot(this.chartId, {
-                data: trendData,
-                layout: layout,
-                config: config
-            });
-
-            this._addTrendEventHandler();
-        }, 1000);
+        this._addTrendEventHandler();
     }
 
     private _addTrendEventHandler(): void {
@@ -114,53 +118,44 @@ export class TrendComponent implements OnInit, OnChanges {
         return this._setTrendConfig();
     }
 
-    private _setTrendData(data: Trend): void {
-        const chartData = data.datas;
-        const type = data.type;
+    private _setTrendData(data: Trend): Array<TrendData> {
+        console.log('_setTrend => ', data);
+        let xValues: Array<number> = [];
+        let yValues: Array<number> = [];
 
-        // function shuffle(input) {
-        //     for (let i = input.length - 1; i >= 0; i--) {
-
-        //         let randomIndex = Math.floor(Math.random() * (i + 1));
-        //         let itemAtIndex = input[randomIndex];
-
-        //         input[randomIndex] = input[i];
-        //         input[i] = itemAtIndex;
-        //     }
-        //     return input;
-        // }
-
-        //parse data
-        Plotly.d3.csv("https://raw.githubusercontent.com/plotly/datasets/master/finance-charts-apple.csv", (err, rows) => {
-            // rows = shuffle(rows);
-
-            function unpack(rows, key) {
-                // console.log('rows => ', rows);
-                return rows.map(function (row) { return row[key]; });
-            }
-
-            const trace1 = {
-                // type: "scatter",
-                // mode: "lines",
-                mode: type,
-                name: chartData.x,
-                x: unpack(rows, 'Date'),
-                y: unpack(rows, 'AAPL.High'),
-                line: { color: '#17BECF' }
-            }
-
-            const trace2 = {
-                // type: "scatter",
-                // mode: "lines",
-                mode: type,
-                name: chartData.y,
-                x: unpack(rows, 'Date'),
-                y: unpack(rows, 'AAPL.Low'),
-                line: { color: '#7F7F7F' }
-            }
-
-            this.trendData = [trace1, trace2];
+        data.datas.correlationTrend[0].map((point) => {
+            xValues.push(point[0]);
+            yValues.push(point[1]);
         });
+
+
+        const trace1 = {
+            // type: "scatter",
+            // mode: "lines",
+            mode: data.type,
+            name: data.datas.paramNames[0],
+            x: xValues,
+            y: yValues,
+            line: { color: '#17BECF' }
+        }
+
+        xValues = [];
+        yValues = [];
+
+        data.datas.correlationTrend[1].map((point) => {
+            xValues.push(point[0]);
+            yValues.push(point[1]);
+        });
+
+        const trace2 = {
+            mode: data.type,
+            name: data.datas.paramNames[1],
+            x: xValues,
+            y: yValues,
+            line: { color: '#7F7F7F' }
+        }
+
+        return [trace1, trace2];
     }
 
     private _setTrendLayout() {
@@ -188,8 +183,20 @@ export class TrendComponent implements OnInit, OnChanges {
                 automargin: true,
                 // autosize: true,
                 autorange: 'visible'
+            },
+            showLegend: true,
+            legend: { 
+                "orientation": "h" 
+                // orientation: 'h' | 'v'
             }
         };
+
+        // legend:{
+        //     xanchor:"center",
+        //     yanchor:"top",
+        //     y:-0.3, // play with it
+        //     x:0.5   // play with it
+        //   }
 
         return layout;
     }
