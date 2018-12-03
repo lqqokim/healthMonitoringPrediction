@@ -866,4 +866,21 @@ export class PdmModelService extends ModelCommonService {
 			params: <PostParamType>postParams
 		});
 	}
+
+	// Correlation
+	getHeatmap(request): Observable<any> {
+		return this.rxPOST({
+			uriPath: `pdm/fabs/${request.fabId}/getCorrelationHeatMap/?fromdate=${request.fromDate}&todate=${request.toDate}`,
+			params: request.body
+		});
+	}
+
+	getHeatmapCorrelation(request): Observable<any> {
+		return this.rxPOST({
+			uriPath: `pdm/fabs/${request.fabId}/getCorrelationTrend/?fromdate=${request.fromDate}&todate=${request.toDate}`,
+			params: request.body
+		});
+	}
+
+
 }

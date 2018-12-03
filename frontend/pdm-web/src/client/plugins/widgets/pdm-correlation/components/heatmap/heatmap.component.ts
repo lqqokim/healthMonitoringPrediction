@@ -1,11 +1,17 @@
 import { Component, Input, Output, OnInit, OnChanges, ViewEncapsulation, EventEmitter, SimpleChanges, OnDestroy } from '@angular/core';
-// import { heatmapData } from './../../model/mock-data';
+import * as ICorrelation from './../../model/correlation-interface';
 
 declare let Plotly: any;
 
 export interface Heatmap {
-
+    x: Array<string>;
+    y: Array<string>;
+    z: Array<Array<number>>;
+    type: string;
 }
+
+export type HeatmapData = [Heatmap];
+
 
 @Component({
     moduleId: module.id,
@@ -17,28 +23,28 @@ export interface Heatmap {
 export class HeatmapComponent implements OnChanges, OnDestroy {
     @Output() onClickHeatmap: EventEmitter<any> = new EventEmitter();
     @Output() spinnerControl: EventEmitter<any> = new EventEmitter();
-    @Input() data;
-    @Input('heatmapData')
-    set heatmapData(data) {
-        this._heatmapData = data;
-    }
+    @Input() data: ICorrelation.Response;
+    // @Input('heatmapData')
+    // set heatmapData(data) {
+    //     this._heatmapRes = data;
+    // }
 
-    get heatmapData() {
-        return this._heatmapData;
-    }
+    // get heatmapData() {
+    //     return this._heatmapRes;
+    // }
 
-    _heatmapData;
+    // private _heatmapRes: ICorrelation.HeatmapResponse;
 
-    private _chartEl: HTMLElement;
     chartId: string = this._guid();
+    private _chartEl: HTMLElement;
 
     constructor() {
     }
 
     ngOnChanges(changes: SimpleChanges) {
         if (changes && changes['data']['currentValue']) {
-            const data = changes['data']['currentValue'];
-            this.drawHeatmap(data);
+            const currentValue = changes['data']['currentValue'] as ICorrelation.Response;
+            this.drawHeatmap(currentValue);
         }
 
         // if(this._heatmapData) {
@@ -46,21 +52,21 @@ export class HeatmapComponent implements OnChanges, OnDestroy {
         // }
     }
 
-    drawHeatmap(inputData): void {
-        const data = this.getHeatmapData(inputData);
+    drawHeatmap(currentValue: ICorrelation.Response): void {
+        const data: HeatmapData = this.getHeatmapData(currentValue);
         const config: any = this.getHeatmapConfig();
-        const layout: any = this.getHeatmapLayout(inputData);
+        const layout: any = this.getHeatmapLayout(data);
 
         Plotly.newPlot(this.chartId, data, layout, config);
         this.spinnerControl.emit(false);
         this._addHeatmapEventHandler();
     }
 
-    getHeatmapData(data): any {
+    getHeatmapData(data: ICorrelation.Response): HeatmapData {
         return this._setHeatmapData(data);
     }
 
-    getHeatmapLayout(data): any {
+    getHeatmapLayout(data: HeatmapData): any {
         return this._setHeatmapLayout(data);
     }
 
@@ -68,13 +74,33 @@ export class HeatmapComponent implements OnChanges, OnDestroy {
         return this._setHeatmapConfig();
     }
 
-    private _setHeatmapData(data): any {
-        //parse data
+    private _setHeatmapData(data: ICorrelation.Response): HeatmapData {
+        const correlationOutput: ICorrelation.Response['correlationOutput'] // z 값 소수자리 변경
+            = data.correlationOutput.map((row) => {
+                return row.map((item) => {
+                    if (!Number.isInteger(item)) {
+                        return Number(item.toFixed(3));
+                    } else {
+                        return item;
+                    }
+                });
+            })
 
-        return data;
+
+        const heatmapData: HeatmapData = [
+            {
+                z: correlationOutput,
+                x: data.paramNames,
+                y: data.paramNames,
+                type: 'heatmap'
+            }
+        ];
+
+        console.log('heatmapData => ', heatmapData);
+        return heatmapData;
     }
 
-    private _setHeatmapLayout(data): any {
+    private _setHeatmapLayout(data: HeatmapData): any {
         let layout = this.getHeatmapDefaultLayout();
         const xValues: string[] = data[0].x;
         const yValues: string[] = data[0].y;
@@ -144,7 +170,7 @@ export class HeatmapComponent implements OnChanges, OnDestroy {
     public relayoutHeatmap(): void {
         // const parentWidth = $("#heatmap").parent().width();
         // const parentHeight = $("#heatmap").parent().height();
-       
+
         // console.log('parentWidth, parentHeight => ', parentWidth, parentHeight);
 
         // const update = {
@@ -155,20 +181,30 @@ export class HeatmapComponent implements OnChanges, OnDestroy {
         // Plotly.relayout('heatmap', update);
     }
 
+    private _clickCellEmitter(cell: { x: string, y: string, z: number }): void {
+        const data = this.data;
+        const xIndex = data.paramNames.indexOf(cell.x);
+        const yIndex = data.paramNames.indexOf(cell.y);
+        const paramSeq: Array<number> = [
+            data.paramSeq[xIndex],
+            data.paramSeq[yIndex]
+        ];
+
+        this.onClickHeatmap.emit(paramSeq);
+    }
+
     private _addHeatmapEventHandler(): void {
         this._chartEl = document.getElementById(this.chartId);
         const heatmapEl = this._chartEl;
 
         (heatmapEl as any).on('plotly_click', (data: any) => {
-            console.log('heatmap click => ', data);
 
-            const cell = {
-                x: data.points[0].x,
-                y: data.points[0].y,
-                z: data.points[0].z
-            };
-
-            this.onClickHeatmap.emit(cell);
+            data.points[0].x !== data.points[0].y // 동일 Parameter는 호출x
+                && this._clickCellEmitter({
+                    x: data.points[0].x,
+                    y: data.points[0].y,
+                    z: data.points[0].z
+                });
         });
 
         (heatmapEl as any).on('plotly_relayout', (data: any) => {
